@@ -12,7 +12,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=1339
+CX=1192
 CY=0
 BG=clWindow
 CH=0
@@ -21,9 +21,9 @@ FN=Tahoma
 FS=10
 LN=1033
 ST=
-FL=111110000000100000000000
-SN=69
-TW=302
+FL=101110000000100000000000
+SN=0
+TW=239
 TM=0
 EN=New node
 TB=clWindow
@@ -56,7 +56,7 @@ IX=0
 
 \pard\qj KeyNote NF is as \b simple to use\b0  as any \b text editor\b0 , with a large number of text formatting functions that allows you to create very readable, clear, and well-organized notes. It is very versatile and always accessible with a single keypress, even if you work in another application. It offer many \b advanced features\b0 , such as \b images,\b0  \b glossary, hyperlinks, macros, styles, plugins, virtual nodes, \b0 and much more. Additionally, KeyNote NF's interface and behavior are extremely configurable.\par
 
-\pard\sb160\sa120 Optionally, KeyNote NF \b can encrypt your data securely \b0 using the {{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Blowfish or Idea}}}}\b\f0\fs20  \b0 algorithms. \par
+\pard\sb160\sa120 Optionally, KeyNote NF \b can encrypt your data securely \b0 using the {{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Blowfish or Idea}}}}\b\f0\fs20  \b0 algorithms.\par
 
 \pard\li720\ri720\sb100\sa40\cf4\b\f3\lang3082 KeyNote NF\b0  is an evolution of Tranglos \b Keynote\b0  (of Marek Jedlinski), which was {\cf0{\field{\*\fldinst{HYPERLINK "file:///<120|2692|0|1"}}{\fldrslt{\ul\cf2\cf2\ul closed in 2005}}}}\f3\fs20 , being 1.6.9 the last version (public available source code was of version 1.6.5). First version of Keynote NF was 1.7.0, released in Nov. 2007, although was in Dic. 2008  (v1.7.4) when program was officially renamed as "KeyNote NF", for 'KeyNote New Features')\par
 
@@ -736,7 +736,7 @@ IX=0
 {\pntext\f3\'B7\tab}Use of \b tree-type folders, multi-level hierarchy of "branches\b0 ", each with its own independent note. See {{\field{\*\fldinst{HYPERLINK "file:///<27|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folders as note trees}}}}\f0\fs20 .\par
 {\pntext\f3\'B7\tab}\b Unlimited number of notes\b0  that can be stored in a single folder\par
 {\pntext\f3\'B7\tab}Ability to create "\b virtual nodes\b0 " in the tree (nodes which are dynamically linked to external text or RTF files) ({{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
-{\pntext\f3\'B7\tab}\f2\lang3082 "\b Mirror nodes\b0 ": virtual nodes to other nodes in the file ({{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f2\fs20 )\f0\lang1033\par
+{\pntext\f3\'B7\tab}\f2\lang3082 "\b Linked nodes\b0 ": virtual nodes to other nodes in the file ({{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f2\fs20 )\f0\lang1033\par
 {\pntext\f3\'B7\tab}\f2\lang3082 All notes (nodes) have a \b checked state\b0  (visible or not), which can be used to filter and search notes. (See {\f0\lang1033{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Hidden nodes}}}}\f2\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Filtering tree nodes}}}}\f2\fs20 )\f0\lang1033\par
 {\pntext\f3\'B7\tab}Capacity to work with \b hidden nodes\b0 . ({{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 
@@ -1097,14 +1097,25 @@ See also:\par
 
 \pard\fs20 In KeyNote, a folder appears as a tabbed window, with the name and icon for the folder on the tab. Every folder can cointain multiple notes, represented as nodes in a tree panel.\par
 \par
-You will find the \b tree panel\b0  in the left-hand side by default, and the normal editor on the right-hand side. The Tree panel looks and behaves similarly to the tree in Windows Explorer, and can also be hidden. Each item of this tree is a \b note\b0 , called also as '\b node\b0 ' (or tree-node).\par
+You will find the \b tree panel\b0  in the left-hand side by default, and the normal editor on the right-hand side. The Tree panel looks and behaves similarly to the tree in Windows Explorer, and can also be hidden. Each item of this tree is a \b node\b0  (or tree-node), vinculated to a single \b note\b0 .\par
+\par
  \par
 
-\pard\sa120\b\fs22 Note or "node" (tree node)\b0\par
+\pard\sa120\b\fs22 Note and "node" (tree node)\b0\par
 
-\pard\fs20 Any node in a folders's tree is a note, consisting of an RTF document. You can store text, graphics, and more at any note. In the screenshot, the "To Do" folder has 3 nodes. You can see any node as a branch or a leaf in a folders's tree, \par
+\pard\fs20 Any node in a folders's tree is vinculated to a note, consisting of an RTF or TXT document. You can store text, graphics, and more at any note. In the screenshot, the "To Do" folder has 3 nodes. \par
+\par
+Each note can appear in any number of folders in the form of nodes, thus being visible in their corresponding trees. Besides the content, other information that belongs to the note is:\par
 
-\pard\sb120 Remember: any "note" can be called a "node" when referring to the tree panel.\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Creation and modification dates (*)\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 The name of the note (shown as the caption ot the related node/s)\par
+
+\pard\sb160 The color of the node, its bold state and font, the state of the checked property and the alarms, are specific to each node.\par
+
+\pard\par
+
+\pard\fi-320\li320 (*) \b Note\b0 : The creation and modification dates of the notes are available since version 2.0 of KeyNote NF. However there is tool that will try to deduce that information from the name and content of existing notes, created with older versions.\par
 
 \pard\par
 
@@ -1124,17 +1135,21 @@ You will find the \b tree panel\b0  in the left-hand side by default, and the no
 
 \pard\sa120\b\fs22 Virtual Node\par
 
-\pard\b0\fs20 A node that is linked to an external text or RTF file.\par
+\pard\b0\fs20 A node that is linked to an external text or RTF file. {{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More info}}}}\f0\fs20\par
 \par
-\v\'11I107\'12\v0{\field{\*\fldinst{HYPERLINK "img:107,174,81"}}{\fldrslt {107_Clipb_03ene.png}}}\par
+\v\'11I196\'12\v0{\field{\*\fldinst{HYPERLINK "img:196,123,72"}}{\fldrslt {196_Clipb_24nov.png}}}\par
+\par
 \par
 
-\pard\sa120\b\fs22 Mirror Node\par
+\pard\sa120\b\fs22 Linked Node\par
 
-\pard\b0\fs20 A special kind of virtual nodes: links to other nodes. \par
+\pard\b0\fs20 A node that highlights that there are more that one node related to the same note.\par
 \par
-In the image above, 'history.txt' is a virtual node a text file, and 'Mirror node' is a dynamic replica of 'Child node'.\par
-\par
+In the image above, 'history.txt' is a virtual node of a text file, and there are two nodes linked to a same note with the name 'Linked node'. {{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More info}}}}\f0\fs20 .\par
+
+\pard\sb80 (Note: This was previously called 'mirror node' )\par
+
+\pard\par
 \par
 
 \pard\sa120\b\fs22 RTF\b0\par
@@ -1645,7 +1660,10 @@ IX=0
 {\pntext\f3\'B7\tab}After you minimize the program, see how it responds to the hotkey (see {{\field{\*\fldinst{HYPERLINK "file:///<88|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: General settings}}}}\f0\fs20 ). Click the Minimize button, and then press the default hotkey combination: \cf3\b Ctrl+Shift+F12\cf0\b0 . This should cause the program to pop up to front, so you don't have to always use the mouse!\par
 {\pntext\f3\'B7\tab}\lang1035 Some toolbar buttons and menu commands behave differently when \cf3\b Shift\cf0\b0  or \cf3\b Ctrl\cf0\b0  (or \cf3\b Alt\cf0\b0 ) keys are held down. This is described in detail in the Help file.\par
 {\pntext\f3\'B7\tab}\cf4\f2\lang1045 All commands, menu items and toolbar buttons display hints (a.k.a. tooltips). When you move the mouse over a button or menu item, you can read its description in the status bar at bottom. If the description is too long, you can resize the main window to make more space for the hints. Note that hints are also displayed in the main status bar when a dialog box is opened. If a dialog box obscures the status bar, you can move it a little higher to read the hints comfortably. For instance, press F5 to open the Options dialog box, move the mouse around the dialog and see the hints displayed in the status bar.\cf0\f0\par
-{\pntext\f3\'B7\tab}\lang1035 You can create \b\lang1033 a new tree node from currently selected text\b0\lang1035  by pressing \cf3\b Alt+F11\cf0\b0 .\par
+
+\pard\li360\sb100\cf4\b\lang3082 Tip\b0 : For blind and vision impaired people, that use tools like NVDA (Non-Visual Desktop Access), there is a .INI option, {\cf0{\field{\*\fldinst{HYPERLINK "file:///<104|13315|0|12"}}{\fldrslt{\ul\cf2\cf2\ul HintsAccesible}}}}\f0\fs20 , to facilitate reading Hints through the status bar.\cf0\f2\lang1045\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100\f0\lang1035 You can create \b\lang1033 a new tree node from currently selected text\b0\lang1035  by pressing \cf3\b Alt+F11\cf0\b0 .\par
 {\pntext\f3\'B7\tab}\cf3\b\lang1033 F9\cf0\b0\lang1035  or Double-clicking the status bar will \b\lang1033 show or hide the Resource panel\b0\lang1035 .\par
 
 \pard\lang1033\par
@@ -1697,7 +1715,6 @@ To be productive when editing, it is also advisable to have a minimum knowledge 
 
 \pard\par
 \par
-\par
 Among other editing features available:\par
 \par
 
@@ -1714,6 +1731,10 @@ Among other editing features available:\par
 {\pntext\f9\'B7\tab}ROT-13, reverse text, repeat last edit command, join and sort lines\'85  (Edit | Transform) (Edit | Lines), etc.\par
 
 \pard\par
+\b Tip\b0 : It is possible to display a panel near the editor that shows certain information about the note to which it belongs. Note that there are situations where it is useful to keep the tree panel hidden. In this cases can be convenient to have this information panel visible.\par
+See {{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{\ul\cf2\cf2\ul Note information panel}}}}\f0\fs20 .\par
+\par
+\par
 \par
 \b\v\fs24\'11B11\'12\v0 RTF format vs Plain text\par
 \b0\fs20\par
@@ -1731,9 +1752,15 @@ The RichEdit control (and KeyNote) allows you to incorporate \b links\b0  to oth
 
 \pard\par
 \par
-Currently, you can \b decide to use RTF text or plain text\b0  at the \b entire folder level\b0 . That is, you cannot use plain text on certain notes and RTF on other notes of the same folder (*). This is important because if you select the \b Plain text only\b0  option (from {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folder Properties}}}}\f0\fs20 ), this will affect not only the note you are in but all the notes in the folder. KeyNote will warn you by highlighting the option in red, with uppercase text indicating that you will lose formatting in all existing notes (nodes).\par
-(*) The only exception to this ....\par
-\par
+Since version 2.0 it \b is possible\b0  to use \b plain text\b0  on certain notes \b and RTF\b0  on other notes of the \b same folder\b0 . The value you define in "Default Plain text only" (from {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folder Properties}}}}\f0\fs20 ), will affect only to new notes.\par
+
+\pard\sb80 It is also now allowed to \b toggle between RTF and 'Plain text only'\b0  in active note (node). A new entry ("Plain text") has been added to the editor's context menu. KeyNote will warn before converting to Plain text:\par
+
+\pard\sb40    \'ab OK to convert to PLAINT TEXT current note? ALL IMAGES and FORMATTING will be REMOVED !!  \'bb  \par
+
+\pard\sb160 So, each note will now be saved in its own format, not the one indicated by the folder, which is only used as the default format for new empty notes. Furthermore, if we drag a file, the necessary format, txt or rtf, will be respected.\par
+
+\pard\par
 
 \pard\li360 Note that the format and style toolbars, as well as the menu options related to the format will be adjusted to the selected editor, whether this is one corresponding to a note (in a folder) or the Scratchpad, taking into account whether the content supports RTF or just plain text, or if the content is read-only. This way KeyNote will prevent you from inserting images or using formatting features (bold for example) in a plain text note. You will also see that all paste operations will be executed in {{\field{\*\fldinst{HYPERLINK "file:///<33|1859|0|2"}}{\fldrslt{\ul\cf2\cf2\ul "Full plain"}}}}\f0\fs20  mode.\par
 (In versions prior to 1.9.3 only some operations, like inserting images and pasting operations were controlled in plain text notes. In those versions you could see that that formatting was lost when you selected another node of the same folder)\par
@@ -1756,7 +1783,7 @@ A third type of command allows you to copy formatting from one existing text to 
 \par
 
 \pard\li360 Format | Copy Format | \ul Copy Formatting\ulnone\tab\tab\tab\cf3\b Ctr+F7  \cf0\b0 or \v\'11I84\'12\v0{\field{\*\fldinst{HYPERLINK "img:84,18,18"}}{\fldrslt {84_Format_23.png}}} button\par
-Format | Copy Format | \ul Copy Font Attributes\ulnone\tab\tab\cf3\b Ctr+F8\cf0\b0\par
+Format | Copy Format | \ul Copy Font Attributes\ulnone\tab\tab\tab\cf3\b Ctr+F8\cf0\b0\par
 Format | Copy Format | \ul Copy Paragraph Attributes\ulnone\tab\tab\cf3\b Ctr+F9\cf0\b0\par
 \par
 Format | Paste Format | \ul Paste Font Attributes\ulnone\tab\tab\cf3\b Shift+F8\cf0\b0\par
@@ -2024,7 +2051,7 @@ You can use "" to completely remove the bullets. You can even replace it by the 
 KeyNote includes one button to set or change the text color and other to add or remove highlight color.\par
  \par
 
-\pard\li360  \v\'11I167\'12\v0{\field{\*\fldinst{HYPERLINK "img:167,181,245"}}{\fldrslt {167_Clipb_13feb.png}}}\par
+\pard\li360  \v\'11I194\'12\v0{\field{\*\fldinst{HYPERLINK "img:194,198,233"}}{\fldrslt {194_Clipb_24nov.png}}}\par
 
 \pard\par
 \par
@@ -2782,14 +2809,14 @@ NF=000000000100000000000000
 BC=clWindow
 IX=0
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;\red128\green128\blue0;}
 {\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont2\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Folders as note trees\cf2\lang1033\par
 \cf0\b0\fs26\par
 {\fs20{\field{\*\fldinst{HYPERLINK "file:///<27|74|0|3"}}{\fldrslt{\ul\cf2\cf2\ul General information}}}}\f0\fs20\par
-{{\field{\*\fldinst{HYPERLINK "file:///<27|1704|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Creating Tree-Type Notes}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<27|1704|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Creating Folders (Tabs)}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<27|2550|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Configuring tree settings}}}}\f0\fs20\par
 
 \pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<27|4545|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tree panel}}}}\f0\fs20\par
@@ -2800,17 +2827,26 @@ IX=0
    {{\field{\*\fldinst{HYPERLINK "file:///<27|7821|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Copying or moving Subtrees}}}}\f0\fs20\par
    {{\field{\*\fldinst{HYPERLINK "file:///<27|11501|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Hiding the Tree panel}}}}\f0\fs20\par
    {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Hidden nodes}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<27|20573|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Outline Numbering}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<27|22219|0|14"}}{\fldrslt{\ul\cf2\cf2\ul Optional columns: Flagged, Date}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Tree filtering}}}}\f0\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<27|24224|0|16"}}{\fldrslt{\ul\cf2\cf2\ul Filtering results. Use of 'Show children'}}}}\f0\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by last modification date}}}}\f0\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<27|26525|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by name}}}}\f0\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<27|28655|0|19"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by flagged status}}}}\f0\fs20\par
 
-\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<27|9413|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Keyboard Shortcuts for Tree-Related Commands}}}}\f0\fs20\par
+\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{\ul\cf2\cf2\ul Deduce missing date information}}}}\f0\fs20\par
 
-\pard\par
+\pard {{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{\ul\cf2\cf2\ul Note information panel}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<27|9413|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Keyboard Shortcuts for Tree-Related Commands}}}}\f0\fs20\par
+\par
 \par
 \par
 \b\v\fs26\'11B3\'12\v0 General Information\b0\par
 \fs20\par
 In KeyNote, a folder appears as a tabbed window, with the name and icon for the folder on the tab. Every folder can contain multiple notes arranged in a hierarchical way, using a tree panel. \par
 
-\pard\sb80 A folder offer a tree panel and a normal editor. Each item of this tree is a note, "node" (or tree-node), with a RTF document associated. This way you can flexibly structure your information\par
+\pard\sb80 A folder offer a tree panel and a normal editor. Each item of this tree is a node (or tree-node), linked to a single note, with a RTF or TXT document associated. This way you can flexibly structure your information.\par
 
 \pard\par
 
@@ -2818,59 +2854,80 @@ In KeyNote, a folder appears as a tabbed window, with the name and icon for the 
 
 \pard\par
 You will find the tree panel in the left-hand side by default, and the normal editor on the right-hand side. The Tree panel looks and behaves similarly to the tree in Windows Explorer, and can also be hidden.\par
+\par
+\b Tip\b0 : It is possible to display a panel near the editor that shows certain information about the note to which it belongs. Note that there are situations where it is useful to keep the tree panel hidden. In this cases can be convenient to have this information panel visible.\par
+See {{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{\ul\cf2\cf2\ul Note information panel}}}}\f0\fs20 .\par
+\par
  \par
-Note or "node" (tree node)\par
-Any node in a folders's tree is a note, consisting of an RTF document. You can store text, graphics, and more at any note. In the screenshot, the "To Do" folder has 3 nodes. You can see any node as a branch or a leaf in a folders's tree, \par
-Remember: any "note" can be called a "node" when referring to the tree panel.\par
-\par
-\par
+\b "Note" and "node" (tree node)\par
 
-\pard\li360\v\'11I104\'12\v0{\field{\*\fldinst{HYPERLINK "img:104,130,82"}}{\fldrslt {104_Clipb_03ene.png}}}\par
+\pard\sb80\b0 Each note can appear in any number of folders in the form of nodes, thus being visible in their corresponding trees. Besides the content, other information that belongs to the note is:\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Creation and modification dates\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 The name of the note (shown as the caption ot the related node/s)\par
+
+\pard\sb160 The color of the node, its bold state and font, the state of the checked property, and alarms, are specific to each node.\par
+
+\pard\sb80 In the screenshot, the "To Do" folder has 3 nodes. You can see any node as a branch or a leaf in a folders's tree:\par
+\fs8\par
+
+\pard\li360\sb40\v\fs20\'11I104\'12\v0{\field{\*\fldinst{HYPERLINK "img:104,130,82"}}{\fldrslt {104_Clipb_03ene.png}}}\par
 
 \pard\par
+\b Tip\b0 : The creation and modification dates of the notes are available since version 2.0 of KeyNote NF. A tool have been include to try to deduce dates from the name and content of existing notes, created with older versions. See {{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{\ul\cf2\cf2\ul Deduce missing date information}}}}\f0\fs20\par
+\par
+\par
 KeyNote recognizes some special type of nodes, that allows more advanced features, and have some specific commands associated:\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Virtual nodes}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Mirror nodes}}}}\f0\fs20 .\par
-{\pntext\f3\'B7\tab}Also, tree nodes can be \b hidden\b0  ({{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Virtual nodes}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Linked nodes}}}}\f0\fs20 .\par
+{\pntext\f4\'B7\tab}Also, tree nodes can be \b hidden\b0  ({{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 
 \pard\par
  \par
 Using Tree main menu or via right-click context menu in the tree you have the following functions available. Note that most functions have keyboard shortcuts assigned to them; you can modify the current shortcuts or assign new ones.\par
 \par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Add an unlimited number of nodes/branches to the tree, with no limit in how deep you can nest tree branches.\par
-{\pntext\f3\'B7\tab}Move nodes Up, Down, Left or Right in the tree\par
-{\pntext\f3\'B7\tab}Drag and drop branches or nodes in the tree. You can also drag onto another folder, to move or copy there.\par
-{\pntext\f3\'B7\tab}Copy whole branches to other locations in the tree, in current or another folder.\par
-{\pntext\f3\'B7\tab}Sort the whole tree or a selected branch\par
-{\pntext\f3\'B7\tab}Rename nodes, or paste a node name from clipboard\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Add an unlimited number of nodes/branches to the tree, with no limit in how deep you can nest tree branches.\par
+{\pntext\f4\'B7\tab}Move nodes Up, Down, Left or Right in the tree\par
+{\pntext\f4\'B7\tab}Drag and drop branches or nodes in the tree. You can also drag onto another folder, to move or copy there.\par
+{\pntext\f4\'B7\tab}Copy whole branches to other locations in the tree, in current or another folder.\par
+{\pntext\f4\'B7\tab}Sort the whole tree or a selected branch\par
+{\pntext\f4\'B7\tab}Add or remove outline-style numbering to the names of nodes\par
+{\pntext\f4\'B7\tab}Rename nodes, or paste a node name from clipboard\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb200 The tree panel can be arranged horizontally (to the left of the editor) or vertically (on top of the editor)\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb200 The tree panel can be arranged horizontally (to the left of the editor) or vertically (on top of the editor)\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Select a custom icon for each tree node, or 'standard' icons (depending on state). You can also show or hide the icons in the tree\par
-{\pntext\f3\'B7\tab}Specify default font properties for the tree text and background color of the tree (\cf3\b F4\cf0\b0 )\par
-{\pntext\f3\'B7\tab}Select a custom font color and background color for each tree node (item in the tree panel)\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Select a custom icon for each tree node, or 'standard' icons (depending on state). You can also show or hide the icons in the tree\par
+{\pntext\f4\'B7\tab}Specify default font properties for the tree text and background color of the tree (\cf3\b F4\cf0\b0 )\par
+{\pntext\f4\'B7\tab}Select a custom font color and background color for each tree node (item in the tree panel)\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa20 Show or hide checkboxes in all nodes of the tree or only in children of selected node.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa20 Show or hide checkboxes in all nodes of the tree or only in children of selected node.\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa100\f1\lang3082 Modify the checked state\b  \b0 of a node. You can also hide the children of a selected node based on their checked stated (hide checked or hide unchecked), or show all hidden children not filtered by search (See {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Filtering tree nodes}}}}\f1\fs20 ). This checked state can be used as search criterion (See {{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Find All}}}}\f1\fs20 ).\f0\lang1033\par
-{\pntext\f3\'B7\tab}Set o remove alarms on nodes ({{\field{\*\fldinst{HYPERLINK "file:///<76|670|0|1"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa100\f1\lang3082 Modify the checked state\b  \b0 of a node. You can also hide the children of a selected node based on their checked stated (hide checked or hide unchecked), or show all hidden children not filtered by search (See {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Filtering tree nodes}}}}\f1\fs20 ). This checked state can be used as search criterion (See {{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Find All}}}}\f1\fs20 ).\f0\lang1033\par
+{\pntext\f4\'B7\tab}Set o remove alarms on nodes ({{\field{\*\fldinst{HYPERLINK "file:///<76|670|0|1"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Save the tree structure to a file\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Save the tree structure to a file\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {{\field{\*\fldinst{HYPERLINK "file:///<57|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Export}}}}\f0\fs20  the contents of the tree to several formats: plain text, RTF, HTML, TreePad and .KNT. You can export single nodes, branches or other selections.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {{\field{\*\fldinst{HYPERLINK "file:///<57|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Export}}}}\f0\fs20  the contents of the tree to several formats: plain text, RTF, HTML, TreePad and .KNT. You can export single nodes, branches or other selections.\par
 
 \pard\par
-\b Tip\b0 : If the \cf3\b Shift \cf0\b0 key is held down when checking a tree node, making it bold or setting its color, the command is also performed for all the node's children (sub-nodes).\par
+
+\pard\sb80\b Tip\b0 : Most actions can be applied simultaneously on all selected nodes and optionally recursively on child nodes (by holding down the \cf3\b Shift \cf0\b0 key): changing Node color (text or background), node Font face, Custom icon, Bold attribute, Checked state, reset to default values.\par
+
+\pard\sb40 - It is possible to move multiple selected nodes (up, down, left or right) at the same time.\par
+- It is also possible to delete multiple selected nodes at the same time. You can also delete only child nodes of selected nodes.\par
+You can select nodes in several standard ways: with \cf3 Ctrl\cf0 , \cf3 Shift\cf0 , or dragging a rectangle.\par
+
+\pard\par
 \par
-\par
-\b\v\fs26\'11B4\'12\v0 Creating Folders\b0\par
+\b\v\fs26\'11B4\'12\v0 Creating Folders (Tabs)\b0\par
 \fs20\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100 To create a folder, press \cf3\b Ctrl+N\cf0\b0 , or choose the {{\field{\*\fldinst{HYPERLINK "file:///<114|844|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Folder | New Folder...}}}}\b\f0\fs20  \b0 command.\par
-{\pntext\f3\'B7\tab}You can optionally specify at this moment many options for the folder, like the font and background color for the tree text: use "Properties" button.\par
-{\pntext\f3\'B7\tab}Newly created folders will show a tree with one node. You can add nodes to the tree, edit them and drag in the tree. See below for information about tree functions and keyboard shortcuts. You can hide the tree panel to get a folder similar to the old 'Simple notes', with \cf3\b Shift+F11\cf0\b0 .\par
-{\pntext\f3\'B7\tab}Once you have created a note you can edit all \ul properties\ulnone  of the folder at any time by pressing \cf3\b F4\cf0\b0 .\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100 To create a folder, press \cf3\b Ctrl+N\cf0\b0 , or choose the {{\field{\*\fldinst{HYPERLINK "file:///<114|844|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Folder | New Folder...}}}}\b\f0\fs20  \b0 command.\par
+{\pntext\f4\'B7\tab}You can optionally specify at this moment many options for the folder, like the font and background color for the tree text: use "Properties" button.\par
+{\pntext\f4\'B7\tab}Newly created folders will show a tree with one node. You can add nodes to the tree, edit them and drag in the tree. See below for information about tree functions and keyboard shortcuts. You can hide the tree panel to get a folder similar to the old 'Simple notes', with \cf3\b Shift+F11\cf0\b0 .\par
+{\pntext\f4\'B7\tab}Once you have created a note you can edit all \ul properties\ulnone  of the folder at any time by pressing \cf3\b F4\cf0\b0 .\par
 
 \pard\par
 \par
@@ -2888,9 +2945,9 @@ Many other tree-related settings are global, that is, they apply \b to ALL folde
 \pard\par
 \ul Notes\ulnone :\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree (tab), while allowing each individual node to overwrite it.\par
-{\pntext\f3\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
-{\pntext\f3\'B7\tab}Note that the \ul Word-Wrap\ulnone  function (to wrap long lines) also works the same way: can be set for all nodes in the folder (with Folder | Properties, or \cf3\b F4\cf0\b0 ), or only to current node (using the toolbar button \v\'11I80\'12\v0{\field{\*\fldinst{HYPERLINK "img:80,16,16"}}{\fldrslt {80_Format_19.png}}} or the menu option Format | Word Wrap )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree (tab), while allowing each individual node to overwrite it.\par
+{\pntext\f4\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
+{\pntext\f4\'B7\tab}Note that the \ul Word-Wrap\ulnone  function (to wrap long lines) also works the same way: can be set for all nodes in the folder (with Folder | Properties, or \cf3\b F4\cf0\b0 ), or only to current node (using the toolbar button \v\'11I80\'12\v0{\field{\*\fldinst{HYPERLINK "img:80,16,16"}}{\fldrslt {80_Format_19.png}}} or the menu option Format | Word Wrap )\par
 
 \pard\par
 
@@ -2906,9 +2963,9 @@ Many other tree-related settings are global, that is, they apply \b to ALL folde
 
 \pard\li360\sb120\ul Important\ulnone : After making some editing changes in node A, and then clicking another node (B) in the same tree, you will not be able to \b Undo \b0 the changes in node A.\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 The \b width of the tree\b0  can be changed by dragging the vertical "splitter" bar which divides the tree from the editor. Each folder retains the tree width independently of other folders, and the width of the tree is always restored when you open a previously saved file. (If the size of the main KeyNote window is too small to make the tree as wide as it was previously, the tree is automatically narrowed to fit.)\par
-{\pntext\f3\'B7\tab}You can set and modify manually the name of a tree node (note). But they can be \b named automatically\b0 . For instance, when you create a new node in the tree, this node's number can be added to the name, or added prefix defined with special tokens.\par
-{\pntext\f3\'B7\tab}You can \b hide temporarily\b0  the tree panel. Use \cf3\b Shift+F11 \cf0\b0 to increase the width of the Editor while keeping the width of the main window, or \cf3\b Ctrl+Shift+F11 \cf0\b0 to maintain the witdh of the Editor and reduce, temporarly, the width of the main window ({{\field{\*\fldinst{HYPERLINK "file:///<27|11464|0|9"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 The \b width of the tree\b0  can be changed by dragging the vertical "splitter" bar which divides the tree from the editor. Each folder retains the tree width independently of other folders, and the width of the tree is always restored when you open a previously saved file. (If the size of the main KeyNote window is too small to make the tree as wide as it was previously, the tree is automatically narrowed to fit.)\par
+{\pntext\f4\'B7\tab}You can set and modify manually the name of a tree node (note). But they can be \b named automatically\b0 . For instance, when you create a new node in the tree, this node's number can be added to the name, or added prefix defined with special tokens.\par
+{\pntext\f4\'B7\tab}You can \b hide temporarily\b0  the tree panel. Use \cf3\b Shift+F11 \cf0\b0 to increase the width of the Editor while keeping the width of the main window, or \cf3\b Ctrl+Shift+F11 \cf0\b0 to maintain the witdh of the Editor and reduce, temporarly, the width of the main window ({{\field{\*\fldinst{HYPERLINK "file:///<27|11464|0|9"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 
 \pard\li360\sb40 Note that the hidden state of the tree panel will be saved in the .knt file\par
 
@@ -2928,11 +2985,11 @@ Although\f2  \f0 we\f2  \f0 can\f2  \f0 completely\f2  \f0 hide\f2  \f0 the\f2  
 \pard\lang3082\par
 You can \ul set a maximum tree width\ulnone , as an alternative to the normal tree width, with the following behavior:\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 When you mouse over the tree panel, at any node, the tree panel will expand to the maximum width.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 When you mouse over the tree panel, at any node, the tree panel will expand to the maximum width.\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 The same happens if the focus is moved to the tree panel.\par
-{\pntext\f3\'B7\tab}When the tree panel is expanded while the Editor is focused, if you mouse over the editor then the tree restores its normal (minimum) width.\par
-{\pntext\f3\'B7\tab}The tree will also restore its normal width when focus returns to the Editor panel.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 The same happens if the focus is moved to the tree panel.\par
+{\pntext\f4\'B7\tab}When the tree panel is expanded while the Editor is focused, if you mouse over the editor then the tree restores its normal (minimum) width.\par
+{\pntext\f4\'B7\tab}The tree will also restore its normal width when focus returns to the Editor panel.\par
 
 \pard\par
 You can also \ul keep fixed the current width\ulnone  (normal or maximum).  This way the tree width will not changed automatically.\par
@@ -2942,23 +2999,23 @@ Both values, normal width and optional maximun width, will be saved on .knt file
 \par
 \b Note:\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\b0\lang1033 If you change the width of the tree panel ...\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\b0\lang1033 If you change the width of the tree panel ...\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720 .. with \cf3\b Ctrl\cf0\b0  pressed: \tab maximum width will be set or modified\par
-{\pntext\f3\'B7\tab}.. with \cf3\b Alt\cf0\b0  pressed: \tab maximum width will be set or modified and the fixed state will be activated\par
-{\pntext\f3\'B7\tab}else:\tab\tab\tab normal width will be modified\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 .. with \cf3\b Ctrl\cf0\b0  pressed: \tab maximum width will be set or modified\par
+{\pntext\f4\'B7\tab}.. with \cf3\b Alt\cf0\b0  pressed: \tab maximum width will be set or modified and the fixed state will be activated\par
+{\pntext\f4\'B7\tab}else:\tab\tab\tab normal width will be modified\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 To disable the maximum tree width:        \tab\cf3\b Ctrl+Click\cf0\b0  in the tree panel\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 To disable the maximum tree width:        \tab\cf3\b Ctrl+Click\cf0\b0  in the tree panel\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 To toggle the tree width fixed state:\tab  \tab\cf3\b Alt+Click\cf0\b0   in the tree panel\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 To toggle the tree width fixed state:\tab  \tab\cf3\b Alt+Click\cf0\b0   in the tree panel\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40 Also: if the fixed state is active and the tree width is changed without pressing \cf3 Alt\cf0 , the fixed state will be disabled, but the maximum width won't be disabled.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40 Also: if the fixed state is active and the tree width is changed without pressing \cf3 Alt\cf0 , the fixed state will be disabled, but the maximum width won't be disabled.\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80  The color of the splitter will highlight the active situation:\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80  The color of the splitter will highlight the active situation:\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720 button face (very light gray) \tab No maximum width set\par
-{\pntext\f3\'B7\tab}Light gray                    \tab\tab Maximum width is set\par
-{\pntext\f3\'B7\tab}Light blue                    \tab\tab Maximum width is set, with fixed state\lang3082\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 button face (very light gray) \tab No maximum width set\par
+{\pntext\f4\'B7\tab}Light gray                    \tab\tab Maximum width is set\par
+{\pntext\f4\'B7\tab}Light blue                    \tab\tab Maximum width is set, with fixed state\lang3082\par
 
 \pard\par
 \par
@@ -2977,10 +3034,12 @@ Both values, normal width and optional maximun width, will be saved on .knt file
 
 \pard\fs20 Nodes in the tree can be \b moved with the keyboard\b0 . Hold down \cf3\b Shift\cf0\b0  while you click the arrows keys. You can move nodes UP/DOWN (within the list of siblings) or LEFT/RIGHT (Left: promotes the node 1 level Up; Right: demotes the node 1 level down.) By combining these moves, a node can be relocated to any possible position in the tree.\par
 
+\pard\li360\sb40\b Tip\b0 : It is possible to move multiple selected nodes at the same time.\par
+
 \pard\sa80\par
 \cf3\b Ins\cf0\b0  will insert a sibling node \b above\b0  currently selected ("Add Above"). You can add a \b child\b0  to selected node with \cf3\b Shift+Enter\cf0\b0  ("Add Child").\par
 You can create a new sibling node, immediately \b below\b0  currently selected with \cf3\b Ctrl+Enter \cf0\b0 ("Add Below"). \cf3\b Enter\cf0\b0  will add a \b new node\b0  as the \b last sibling\b0  (at the bottom) of the node where you press the key ("Add Last sibling"). \par
-You can also \b copy \b0 or\b  move\b0  a node or an entire subtree using common keyboard shortcuts: \cf3\b Ctrl+C\cf0\b0 , \cf3\b Ctrl+X\cf0\b0 , \cf3\b Ctrl+V\cf0\b0  \par
+You can also \b copy \b0 or\b  move\b0  a node or an entire subtree (or any selection of nodes) using common keyboard shortcuts: \cf3\b Ctrl+C\cf0\b0 , \cf3\b Ctrl+X\cf0\b0 , \cf3\b Ctrl+V\cf0\b0 . You can paste as {{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul linked nodes}}}}\f0\fs20  with \cf3\b Ctrl+Shift+V\cf0\b0 .\par
 
 \pard\sb100 To switch between the editor and the tree, press \cf3\b Ctrl+\\\cf0\b0 . You can also press \cf3\b Shift+Tab \cf0\b0 to switch from the editor to the tree and \cf3\b Tab\cf0\b0  to switch back to the editor. \par
 You can \b navigate\b0  the nodes in \ul tree hierarchy\ulnone  using the keyboard.\par
@@ -2990,6 +3049,8 @@ You can \b navigate\b0  the nodes in \ul tree hierarchy\ulnone  using the keyboa
 \pard\sb100 You can easily \b expand\b0  or \b collapse\b0  any branch in the tree using \cf3\b Right\cf0\b0  and \cf3\b Left\cf0\b0  arrow keys. Or even the whole tree.\par
 
 \pard\sb220 When you \b delete\b0  a tree node that has child nodes below it, you have the option to delete the selected node only while retaining the child nodes.\par
+
+\pard\li360\sb20\b Tip\b0 : It is possible to delete multiple selected nodes at the same time.\par
 
 \pard\sb100\par
 
@@ -3004,48 +3065,62 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<27|8876|0|2"}}{\fldrslt{\ul\cf2
 
 \pard\sb120\sa120\b\v\fs22\'11B8\'12\v0 Drag and drop operations in the tree\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80\fs20 Dragging\b0  a node \b onto another\b0  node adds it \b as a child\b0  of this node,\par
-{\pntext\f3\'B7\tab}If you hold down the \cf3\b Shift\cf0\b0  key while dropping a node, the node is inserted at the \b same level\b0  as the node you dropped it on. It will be the \b next lower sibling\b0 , rather than becoming a child node.\par
-{\pntext\f3\'B7\tab}If you hold down the \cf3\b Ctrl\cf0\b0  key while dropping a node onto a top-level (root) node, the node will be placed as the \b first top node\b0  in the tree.\par
-{\pntext\f3\'B7\tab}\b Dragging\b0  a node or a subtree \b to another Folder\b0  (tab) copies it to that folder tab (or moves it, if holding down \cf3\b Shift\cf0\b0  key). More {{\field{\*\fldinst{HYPERLINK "file:///<27|3397|0|1"}}{\fldrslt{\ul\cf2\cf2\ul below}}}}\f0\fs20 .\par
-{\pntext\f3\'B7\tab}If you \b drag a file\b0  onto the tree (or event the Editor), you will be able to import the contents of that file in several ways, or to add it to the tree as a \b Virtual node\b0 . ({{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80\b0\fs20 Drag and drop operations are allowed over multiple \b selected nodes / subtrees\b0  at the same time, within the same tree or between different trees.\par
+{\pntext\f4\'B7\tab}While \b dragging\b0  you can select the exact position where you want the nodes to be dropped (copied or moved). They can be inserted as childs of an existing node or at the same level, below or above it.\par
+{\pntext\f4\'B7\tab}You can indicate whether you want to copy, move or create linked nodes while dragging, by holding down the \cf3\b Ctrl\cf0\b0  (copy), \cf3\b Shift \cf0\b0 (Move) or \cf3\b Alt\cf0\b0  (link) key. Default: Move.\par
+{\pntext\f4\'B7\tab}When you drag to \b to another Folder\b0  (tab), it will be activated and can be dropped at an exact position within the tree, dropping into a node or just above or below.\par
+{\pntext\f4\'B7\tab}If you \b drag a file\b0  onto the tree (or event the Editor), you will be able to import the contents of that file in several ways, or to add it to the tree as a \b Virtual node\b0 . ({{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+
+\pard\sa80\b\par
+Tip:\b0  You can drag files from the file system to exact positions in any tree.\par
 
 \pard\par
 \par
 \b\v\fs22\'11B1\'12\v0 Copying or moving Subtrees\b0\par
 \fs20\par
+It is possible to move or copy (or create link nodes) multiple nodes / subtrees at the same time, within the same tree or between different trees.\par
+\par
 
 \pard 
 {\pntext\f0 1.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart1\pndec{\pntxta.}}
 \fi-360\li360\sa80\b Transfer subtree commands\par
 
-\pard\b0 You can copy or move an entire subtree inside the folder, from one folder to another, or even from one file to another. Start by right-clicking the tree and selecting \b Transfer\b0  | \b Copy Subtree\b0  or \b Cut Subtree\b0  from the context menu. Next, move to the tree where you want to add or move the copied nodes. You can also open another KeyNote file (the nodes you have copied are retained in memory).\par
-\par
-In the target tree, click the node below which you wish to add the copied subtree, and in the tree context menu select \b Transfer | Paste Subtree Here\b0 . Note that the target tree must already have at least one node; otherwise you will not be able to paste nodes into it.\par
-\par
-\par
+\pard\b0 You can copy or move entire subtrees inside the folder or from one folder to another. Start by right-clicking the tree and selecting \b Transfer\b0  | \b Copy Subtrees\b0  or \b Cut Subtrees\b0  from the context menu. Next, move to the tree where you want to add or move the copied nodes.\par
+
+\pard\sb160 In the target tree, click the node below which you wish to add the copied subtrees, and in the tree context menu select \b Transfer | Paste Subtrees\b0 . The target tree can be empty, with no node.\par
+
+\pard\par
 
 \pard 
 {\pntext\f0 2.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart2\pndec{\pntxta.}}
 \fi-360\li360\sa80\b Dragging subtree\par
 
-\pard\b0 You can achieve the same result by clicking a subtree and \b dragging\b0  it to another tab; but of course this will only allow you to transfer nodes within a file.\par
-With this mechamism it is possible to \ul copy or move\ulnone  the subtree to another folder (tab). It will copy by default. To \b move\b0  you have to press \cf3\b Shift\cf0\b0  while dragging.\par
+\pard\b0 You can achieve the same result by clicking one or several subtrees and \b dragging\b0  it to a different position in the same or different tree.\par
 \par
 
 \pard 
 {\pntext\f0 3.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart3\pndec{\pntxta.}}
 \fi-360\li360\sa80\b Common keyboard shortcuts\par
 
-\pard\sa80\b0 You can also \b copy or \ul move\ulnone\b0  entire subtree using common keyboard shortcuts:\par
+\pard\sa80\b0 You can also \b copy or \ul move\ulnone\b0  entire subtrees using common keyboard shortcuts:\par
 
-\pard\li360\cf3\b Ctrl+C\cf0\b0  on source: Copy subtree\par
-\cf3\b Ctrl+X\cf0\b0  on source: Cut subtree\par
-\cf3\b Ctrl+V\cf0\b0  on target: Paste subtree. \par
+\pard\li360\cf3\b Ctrl+C\cf0\b0  on source: Copy subtrees\par
+\cf3\b Ctrl+X\cf0\b0  on source: Cut subtrees\par
+\cf3\b Ctrl+V\cf0\b0  on target: Paste subtrees. \par
+\cf3\b Ctrl+Shift+V\cf0\b0  on target: Paste subtrees as Linked nodes. \par
 
 \pard\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3 Ctrl+X \cf0 +\cf3  Ctrl+V\cf0  will move the subtree, automatically deleting the nodes from source. Note that deletion will only work with subtrees in the same file.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3 Ctrl+X \cf0 +\cf3  Ctrl+V\cf0  will move the subtrees, automatically deleting the nodes from source. \par
+
+\pard\par
+\par
+\b Notes\b0 :\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Copy and move operations will only work with subtrees in the \b same file\b0 . If you want to transfer nodes between files you can use File | Export... (with .knt format and defining in Source what you want to transfer) and File | Import...  or Tools | Merge folder... to import the nodes included in a folder of a .knt file.\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\sa80 When copying nodes/subtrees, {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul hidden nodes}}}}\f0\fs20  will also be included\par
+{\pntext\f4\'B7\tab}When you copy virtual nodes (linked to files on disk), paste, or drag, they will be pasted as linked nodes.\par
 
 \pard\par
 \par
@@ -3066,7 +3141,7 @@ If, after hiding the tree panel in this way (the window's width is now reduced),
 Opening onother file or closing the application while the windows's width is reduced, will restore it to it's correct size.\par
 \par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf5\b Hiding the tree panel\cf0\b0  is remembered. When the file is saved and then reopened, the tree panel will remain hidden, until you un-hide it with the View - Tree Panel command.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf5\b Hiding the tree panel\cf0\b0  is remembered. When the file is saved and then reopened, the tree panel will remain hidden, until you un-hide it with the View - Tree Panel command.\par
 
 \pard\par
  \par
@@ -3107,9 +3182,9 @@ Folders allow you to work with \b hidden nodes\b0 . You can hide nodes that you 
 {\pntext\f1 2.\tab}{\*\pn\pnlvlbody\pnf1\pnindent0\pnstart2\pndec{\pntxta.}}
 \fi-360\li360\sb160\sa100 You can manually hide or show children nodes based on checked status. From "Children Checkboxes" tree context menu entry:\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\b Hide Checked\b0\par
-{\pntext\f3\'B7\tab}\b Hide Unchecked\b0\par
-{\pntext\f3\'B7\tab}\b Show non filtered\b0\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720\b Hide Checked\b0\par
+{\pntext\f4\'B7\tab}\b Hide Unchecked\b0\par
+{\pntext\f4\'B7\tab}\b Show non filtered\b0\par
 
 \pard\par
 
@@ -3134,6 +3209,307 @@ Unlike those two commands, \cf5\b Hide Checked Nodes\b0  \cf0 dynamically hide a
 Note that you can show the checkbox for all nodes with View | \b All nodes Checkboxes\b0 . \f0\lang1033 Additionally\f1\lang3082 , checkboxes can be displayed only on then children of selected nodes (Children Checkbox | \b Show Checkboxes\b0  in Tree context menu) \par
 \par
 \f0\lang1033\par
+\b\v\fs26\'11B13\'12\v0 Outline Numbering\b0\fs20\par
+\par
+With \ul Tree | Outline numbering...\ulnone  you can add or remove outline-style numbering to the names of nodes in active folder's tree.\par
+\par
+\v\'11I195\'12\v0{\field{\*\fldinst{HYPERLINK "img:195,475,302"}}{\fldrslt {195_Clipb_24nov.png}}}\par
+\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Allows automatic renaming/renumbering.\par
+{\pntext\f4\'B7\tab}You can establish independent sub-trees\par
+{\pntext\f4\'B7\tab}The node names (notes) are not altered. It is simply possible to decide to show a numbering as a prefix, etc. It can be reversed at any time.\par
+
+\pard\par
+\par
+\b\v\fs26\'11B14\'12\v0 Optional columns: Flagged, Date\b0\fs20\par
+\par
+There are two columns that can be made visible from \cf3\b F4\cf0\b0  or \cf3\b F6\cf0\b0  (Folder properties..), one or both: "Flagged", "Date". Once visible, it is possible to reorder them; the resulting position will also be saved in the .knt file.\par
+\par
+You can also toggle display of optional columns with the tree panel context menu:\par
+
+\pard\sb40   \b View / Filter | Show columns\par
+
+\pard\sb120\b0 When using this entry, the width of the tree panel will be reduced or increased depending on which columns are made visible or hidden. These changes to the display of the tree panel are not persisted when saving. To configure if any of the additional columns must be shown by default you must use 'Folder properties...'\par
+
+\pard\par
+\b Flagged\b0\par
+
+\pard\sb40 The tree context menu includes an entry, to be able to mark the selected node(s) as Flagged.\par
+
+\pard It is also possible to toggle the flagged mark by clicking on the column corresponding to the node.\par
+
+\pard\sb40 In addition to highlighting in the context menu if a node is Flagged, an icon is also displayed in the corresponding column (if visible).\par
+
+\pard\sb120 Pressing \cf3\b Shift+\cf0\b0 Click on the 'Flagged' menu entry (or its column in the tree) will remove all flags from the nodes in the folder tree.\par
+
+\pard\par
+\b Date\b0\par
+
+\pard\sb40 Additionally, each node can display the \ul creation date of the note\ulnone  it is linked to.\par
+\par
+The flagged status and creation date can be used as criteria in "Find All" searches and to filter the tree.\par
+
+\pard\par
+\par
+\par
+\b\v\fs26\'11B15\'12\v0 Tree filtering\b0\fs20\par
+\par
+At the bottom of the tree there is a panel that includes a text box and several buttons that let you filter the tree based of the names of the nodes (notes), the checked status, the creation/modification date of the notes, and the flagged status of the nodes.\par
+
+\pard\sb80 Tree panel filtering can be temporarily disabled, while highlighted the results, with "Filter nodes" button.\par
+
+\pard\sb120\b Tip\b0 : This tree filter can be combined with filtering based on the search panel (Find All)\par
+
+\pard\par
+
+\pard\li360\v\'11I197\'12\v0{\field{\*\fldinst{HYPERLINK "img:197,407,283"}}{\fldrslt {197_Clipb_25nov.png}}}\par
+\par
+
+\pard\par
+\b\v\fs22\'11B16\'12\v0 Filtering results. Use of 'Show children'\par
+
+\pard\sb120\b0\fs20 When filtering, nodes that are matching are highlighted in light yellow (+). A parent node may be visible because one of its children is a match, but it may also be a match itself, and be highlighted in yellow.\par
+
+\pard By default, when filtering the tree only the nodes that satisfy the conditions (highlighted in yellow) are shown, as well as their parents.\par
+\par
+\ul View / Filter | Show children\ulnone    (Show children of matching nodes) (ShowChildren .ini property)\par
+
+\pard\sb120 If "Show children" is enabled, the children of all matching nodes will also be made visible (highlighted in yellow). This allows, for example, to select one or more nodes using Filter Out Flagged, while at the same time leaving their child nodes visible as well.\par
+
+\pard\sb80 This makes it possible to obtain a functionality similar to what in some applications is called 'Hoist', allowing to focus on a specific part of the note list tree.\par
+
+\pard\par
+(+) The description corresponds to Tree Filtering. If the filtering is done from Find All, the matching nodes are highlighted with a blue font. But the above applies equally: depending on that option, the children of these matching nodes will be shown or not.\par
+\par
+\par
+\b\v\fs22\'11B17\'12\v0 Filtering by last modification date \par
+
+\pard\sb120\b0\fs20 It is possible to use the last modification date, with a simple syntax.\par
+
+\pard\sb160 It can be useful to be able to filter the tree by showing nodes that were modified (or created) during the current day or since the last X days. This can be done very easily by specifying in the first characters of the search string an expression of the form "\b -<number days back>\b0 "\par
+Example. If current day is '15/10/2024' then:\par
+
+\pard\sb40     '-2' is equivalent to [Last Modified] >= '13/10/2024'\par
+    '-0' is equivalent to [Last Modified] >= '15/10/2024'  (modified on current day)\par
+    '-0 something'  -> nodes modified on current day that includes 'something' in their names (ignoring case)\par
+\par
+   \b Tip\b0 : The filter text box will remind us of the date considered, showing a hint of the format:  Last modified >= "15/10/2024"\par
+\par
+If enclosed in "" it will managed as a normal text pattern:    '"-2"' will look for '-2'\par
+This will also work with Find All searches\par
+\par
+
+\pard\par
+\b\v\fs22\'11B18\'12\v0 Filtering by name\par
+
+\pard\sb120\b0\fs20 The textbox allows to filter the nodes based on its name, with the configuration:\par
+
+\pard   Match case: False, Whole words only: False, Search hidden nodes: False, All the words\par
+\par
+\b 'Use path of nodes'\par
+
+\pard\sb120\b0 By default, when searching in the name of the nodes only the node itself is considered.\par
+The option 'Use path of nodes' (\ul View / Filter | Use path of nodes\ulnone ) indicates that the complete path should be used, that is, considering also the names of the ancestors.\par
+Considering that it is possible to search or filter based on the dates of creation or last modification of the nodes, it is interesting to be able to combine the date criterion with a filter based on the name of the nodes; it allows selecting nodes based on its own dates (creation and or last modification) and the names of their parents.\par
+
+\pard\li360\sb120 For example, let's suppose the following hierarchy of nodes, where we want to filter using Tree filtering (*)\par
+
+\pard\li360\sb80\cf6\f3\fs18   Project_A\par
+
+\pard\li360     Subject1\par
+       ToDO\par
+       Child A\par
+       ...\par
+    Subject2\par
+
+\pard\li360\sb80   Project_B\par
+
+\pard\li360        ToDO\par
+       Issue New\par
+
+\pard\li360\sb120        ...\cf0\f0\fs20\par
+
+\pard\li360\sb40 where nodes 'ToDO' have been modified today, and 'Child A' has been created today.\par
+Searching for '-0' would select both 'ToDO' nodes and the 'Child A' node. If we wanted to focus on everything related to "Project_A" we could search for '-0 Project_A', which would select the first ToDO node and the 'Child A' node.\par
+If we searched for '-0 Project_A TODO' (or '-0 ToDO Project_A' for example), only the first 'ToDO' node would be selected.\par
+This is because this way, considering the path (with the names of the parents), the selected nodes would meet both criteria, date and text.\par
+
+\pard\sb120\par
+
+\pard\li360\sb120 (*) From Find All it would be similar, taking into account that this option will only be considered if the selected search scope is \lquote Only node name\rquote  or \lquote All\rquote . From Find All it is also possible to configure other search criteria: match case, whole word only, search type (exact phrase, all the words, any of the words).\par
+
+\pard\sb120\b Tip\b0 : This option can be set also from the Find All panel, and will be used both in these searches and in Tree filtering\par
+
+\pard   \par
+\par
+\b\v\fs22\'11B19\'12\v0 Filtering by flagged status \par
+
+\pard\sb120\b0\fs20 The tree panel context menu includes an entry to filter out unflagged nodes:\par
+
+\pard\sb40   View / Filter | Filter out unflagged\par
+
+\pard\par
+This entry is considered in conjunction with the existing tree filter and the search filter (if any).\par
+
+\pard\sb40 If you change the Flag on the selected node with \cf3\b Ctrl+click\cf0\b0  (in the tree column or in the menu entry, 'Flagged'), the 'Filter unflagged' will also be toggled on or off. This way, for example, if there are no flagged nodes, \cf3 Ctrl+clicking\cf0  on the marked column (if visible) of a node will mark the selected node as marked and hide all other nodes.  \par
+
+\pard   \par
+You can also use a toolbar button to toggle on or off 'Filter unflagged'\par
+Note: The button (and also the entry in the tree context menu) is disabled when there are no flagged nodes.\par
+\par
+\b Using 'Show children'\par
+
+\pard\sb120\b0 Using 'Filter out unflagged' with 'Show children' enabled will assume children of flagged node are also flagged.\par
+
+\pard\li360\sb80 For example, let's suppose the following hierarchy of nodes, where you want to filter using Tree filtering\par
+
+\pard\li360\par
+\cf6\f3\fs18   Project_A\par
+    Subject1\par
+       ToDO\par
+       Child A\par
+       Child B\par
+       ...\par
+    Subject2\par
+
+\pard\li360\sb80   Project_B\par
+
+\pard\li360        ToDO\par
+       Issue New\par
+       ...\par
+
+\pard\li360\sb80   Project_C\par
+
+\pard\li360       Other\par
+\cf0\f0\fs20\par
+Suppose only Project_A is flagged\par
+
+\pard\li360\sb80  1 - If toggle on 'Filter out unflagged' with 'Show children' is disabled, then only "Project_A" will be visible.\par
+
+\pard\li360  2 - If now we type "child" as filtering text, no node will be visible.\par
+\par
+However, if 'Show children' is enabled then the first step will show "Project_A" with all its nodes ("Project_A" will be highlighted in ligth yellow), and the second step will also show "Project_A" with all its nodes, and "Child A" and "Child B" will be highlighted too.\par
+\par
+If "Project_B" is also flagged, and 'Show children' is enabled then the first step will show "Project_A" and "Project_B" will all their nodes. But second step will only show nodes of "Project_A".\par
+
+\pard   \par
+\par
+\b Note:\b0\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Filter matches won't be saved in read only folders.\par
+{\pntext\f4\'B7\tab}Filtering on a readonly folder will not set the file as modified\par
+{\pntext\f4\'B7\tab}On file loading, with not readonly folders: if filtering was applied, matches (and node highlighting) will be remembered, but filter will be disabled by default\par
+
+\pard\par
+\par
+\b\v\fs26\'11B20\'12\v0 Deduce missing date information\b0\fs20\par
+\par
+The creation and modification dates of the notes are available since version 2.0 of KeyNote NF.\par
+
+\pard\sb40 Two menu entries have been added to deduce missing date information and optionally removing date prefixes from note/node names.\par
+
+\pard\sb160\b Important\b0 : If there are \ul nodes selected\ulnone  (1 or more) when you execute any of the following two commands, it will be applied only to those nodes. Otherwise \ul all the notes\ulnone  in the \ul current folder\ulnone  will be considered.\par
+
+\pard\sb40\par
+
+\pard\par
+\b\fs22 Tools | Deduce [missing] date information\par
+
+\pard\sb120\b0\fs20 KeyNote can search and register missing note dates: creation and last modified. \par
+
+\pard\sb40 If one note already has creation date registered, it will be ignored (except if command executed with \cf3\b Ctrl\cf0\b0 )\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 It will \b search in node name\b0 , according to defined 'Default Name for New nodes', if includes '%D' token\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80 It will try to identify the date using the format defined in \b configuration options\b0  (Advanced | Formats | Date format).\par
+
+\pard\li720\sb80 Eg: If Default Name for New nodes = '(%D) - ' and Date format = 'dd MMM yy'\par
+     "\cf6 (05 oct. 16) - Node A\cf0 "   => Creation date: 05/10/16\par
+
+\pard\li720\sb160\b Tip\b0 : You should ensure the correct values for folder config ('Default Name for New nodes') and Advanced|Formats (Date format).\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 Besides trying with the date format configured in Configuration Options, KeyNote will also automatically try with default regional short date (usually 'dd/mm/yy' or 'mm/dd/yy') and even some long formats, like:\par
+
+\pard\li720\sb120 "\cf6 domingo, 20 de octubre de 2022\cf0 "\par
+
+\pard\li720 "\cf6 monday, february 1, 2021\cf0 "\par
+"\cf6 domingo, 20 de octubre de 2022 - 21:12\cf0 "\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 It will also attempt to automatically handle short month names that include "." and without it.\par
+
+\pard\li360\sb80        "\cf6 (05 oct 16) ...\cf0 "\par
+
+\pard\li360        "\cf6 (05 oct. 16) ...\cf0 "\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 It will search for dates also in the note's content, looking for lines that include only date (and optionally time).\par
+
+\pard\li360 If several matches founded, the oldest date will be used as creation date and the most recent date as the last modification date. Eg:\par
+
+\pard\li720\sb120\cf6 Line 1, bla, bla, ... 07/09/16 ...\par
+
+\pard\li720 ...\par
+05 oct. 16 - 20:15\par
+- - - - - - - - -\par
+...\par
+31/12/18 15:00\cf0\par
+
+\pard\par
+
+\pard\li360 => Creation date:\tab\tab 05/10/16 20:15\par
+=> Last modification: \tab 31/12/18 15:00\par
+
+\pard\par
+\b Note\b0 : Date found in note name will have priority as Creation date over dates found in note content.\par
+\par
+\par
+\b\fs22 Tools | Remove date prefixes from node names\par
+
+\pard\sb120\b0\fs20 Optionally, KeyNote can attempt to remove dates used as prefixes in note names.\par
+
+\pard\sb80 Eg: If Default Name for New nodes = '(%D) - ' then:\par
+
+\pard\li360\sb80  "\cf6 (05 oct. 16) - Node A\cf0 "   => New name: "\cf6 Node A\cf0 "\par
+
+\pard\sb80 (This command will also previously identify (and register) any missing dates)\par
+
+\pard\par
+\par
+\b\v\fs26\'11B21\'12\v0 Note information panel\b0\fs20\par
+
+\pard\sb120\sa80 A panel showing the name of the selected note (node) and its creation date is available. It can be displayed next to the editor, from which its content is being displayed or edited. Note that there are situations where it is useful to keep the tree panel hidden. In this cases can be convenient to have this information panel visible.\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 The name of the note can be modified directly from this panel. \par
+{\pntext\f4\'B7\tab}The hints on the name an creation date display more information: path of the node and instant of last modification in the note.\par
+
+\pard\par
+There is a menu entry to allow showing or hiding the editor information panel (\b View | Editor Info\b0 ). The state will be saved in the file, per folder (like tree visibility). \par
+When you create a new folder, the initial visibility of the editor information panel will be the same as that of the active folder.\par
+\par
+\par
+With the \b EditorInfoPanelTop\b0  .INI option you can change the position of the info panel (top or bottom):\par
+\par
+
+\pard\sa80 EditorInfoPanelTop = 0  (Bottom [default])\par
+
+\pard\li360\v\'11I202\'12\v0{\field{\*\fldinst{HYPERLINK "img:202,414,208"}}{\fldrslt {202_Clipb_25nov.png}}}\par
+
+\pard     \par
+
+\pard\sa80 EditorInfoPanelTop = 1  (Top)\par
+
+\pard\li360\v\'11I203\'12\v0{\field{\*\fldinst{HYPERLINK "img:203,418,209"}}{\fldrslt {203_Clipb_25nov.png}}}\par
+
+\pard\par
+\par
 \par
 \b\v\fs26\'11B2\'12\v0 Keyboard Shortcuts for Tree-Related Commands\par
 \b0\par
@@ -3157,7 +3533,7 @@ Note that you can show the checkbox for all nodes with View | \b All nodes Check
 \clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx4807\clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx8839 
 \pard\intbl\widctlpar\sb100\sa100 To switch focus from Tree to note Editor:\cell\cf3\b Ctrl+\\ \cf0\b0 or \cf3\b Tab\cf0\b0\cell\row\trowd\trgaph60\trleft290\trrh283\trbrdrl\brdrdash\brdrw15 \trbrdrt\brdrdash\brdrw15 \trbrdrr\brdrdash\brdrw15 \trbrdrb\brdrdash\brdrw15 \trpaddl60\trpaddr60\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx4807\clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx8839 
-\pard\intbl\sb100\sa100 Copy or move node or subtrees\cell\cf3\b Ctrl+C\cf0\b0 , \cf3\b Ctrl+X\cf0\b0 , \cf3\b Ctrl+V\cf0\b0  \cf3\b\cell\row\trowd\trgaph60\trleft290\trrh283\trbrdrl\brdrdash\brdrw15 \trbrdrt\brdrdash\brdrw15 \trbrdrr\brdrdash\brdrw15 \trbrdrb\brdrdash\brdrw15 \trpaddl60\trpaddr60\trpaddfl3\trpaddfr3
+\pard\intbl\sb100\sa100 Copy or move node or subtrees\cell\cf3\b Ctrl+C\cf0\b0 , \cf3\b Ctrl+X\cf0\b0 , \cf3\b Ctrl+V\cf0\b0 , \cf3\b Ctrl+Shift+V\cf0\b0  \cf3\b\cell\row\trowd\trgaph60\trleft290\trrh283\trbrdrl\brdrdash\brdrw15 \trbrdrt\brdrdash\brdrw15 \trbrdrr\brdrdash\brdrw15 \trbrdrb\brdrdash\brdrw15 \trpaddl60\trpaddr60\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx4807\clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx8839 
 \pard\intbl\sb100\sa100\cf0\b0 Navigate Up or Down in the tree hierarchy\cell\cf3\b Alt+Up \cf0\b0 or \cf3\b Alt+Down\cell\row\trowd\trgaph60\trleft290\trrh283\trbrdrl\brdrdash\brdrw15 \trbrdrt\brdrdash\brdrw15 \trbrdrr\brdrdash\brdrw15 \trbrdrb\brdrdash\brdrw15 \trpaddl60\trpaddr60\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx4807\clbrdrl\brdrw15\brdrs\clbrdrt\brdrw15\brdrs\clbrdrr\brdrw15\brdrs\clbrdrb\brdrw15\brdrs \cellx8839 
@@ -3175,11 +3551,11 @@ Note that you can show the checkbox for all nodes with View | \b All nodes Check
 \pard\b\v\'11B10\'12\v0 Notes \b0 (\super *\nosupersub )\b :\par
 \b0\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Enter\cf0\b0  will add the node as the last sibling (at the bottom) of the node where you press the key. If you want to create the sibling immediately below current node, use \cf3\b Ctrl+Enter\cf0\b0\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Enter\cf0\b0  will add the node as the last sibling (at the bottom) of the node where you press the key. If you want to create the sibling immediately below current node, use \cf3\b Ctrl+Enter\cf0\b0\par
 
 \pard\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Ctrl+\\\cf0\b0  could not work depending on your keyboard layout, and you should find what key is associated with OEM 5, the key that triggers the toggle command that KeyNote is 'listening'.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Ctrl+\\\cf0\b0  could not work depending on your keyboard layout, and you should find what key is associated with OEM 5, the key that triggers the toggle command that KeyNote is 'listening'.\par
 
 \pard\li360\sb100 The key that triggers that toggle command is the key OEM 5. In the keyboards like US, British or Spanish it corresponds with the one with \cf3\b\\\cf0\b0  character, although the key position is different. I have seen that in the British keyboard that key is in the same position that \cf3\b <\cf0\b0  german key (which is in the same position that \cf3\b <\cf0\b0  spanish key). But that keys correspond to different OEM: VK_OEM_5 (220) in British or English keyboards and VK_OEM_102 (226) in spanish or german (as examples).\par
 
@@ -3189,9 +3565,9 @@ Note that you can show the checkbox for all nodes with View | \b All nodes Check
 
 \pard\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720 Toggle focus: Editor / Tree Panel\par
-{\pntext\f3\'B7\tab}Set focus in Editor panel\par
-{\pntext\f3\'B7\tab}Set focus in Tree panel\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 Toggle focus: Editor / Tree Panel\par
+{\pntext\f4\'B7\tab}Set focus in Editor panel\par
+{\pntext\f4\'B7\tab}Set focus in Tree panel\par
 
 \pard\li360\par
 Note that the current toggle shortcut (\cf3 Ctrl+\\\cf0 ) will still work if there is no new shortcut to replace it. You can also continue using the other shortcuts: \cf3 Tab \cf0 or \cf3 Shift+Tab\cf0\par
@@ -3266,7 +3642,7 @@ See also: {{\field{\*\fldinst{HYPERLINK "file:///<56|0|0"}}{\fldrslt{\ul\cf2\cf2
 }
 %-
 LV=2
-ND=Mirror nodes
+ND=Linked nodes
 DI=383
 GI=29
 NF=000000000000000000000000
@@ -3274,13 +3650,38 @@ BC=clWindow
 IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
-\cf1\b\fs36\lang3082 Using Mirror nodes\cf2\lang1033\par
+\cf1\b\fs36\lang3082 Using Linked nodes\cf2\lang1033\par
 \cf0\b0\fs26\par
-\fs20 Mirror nodes are a special kind of virtual nodes: \ul links to other nodes\ulnone . The objetive is to \b let the same node\b0  to be \b in several positions\b0 , in the same or in different folders.\par
-They behave like file links in Unix: changes made to one node are applied to the virtual nodes related and viceversa. Indeed they both will \b share the same content\b0 .\par
+\fs20 Since version 2.0, notes in KeyNote are independent of folders, and can appear in 0 or N folders in the form of nodes, thus being visible in their corresponding trees. The same note can be referenced in multiple places in any folder.\par
+Those nodes that are not the only ones associated with its note are simply highlighted as "Linked nodes".\par
+\par
+Using linked nodes allows\b  the same note\b0  to be \b in multiple positions\b0 , in the same folder or in different ones. Linked nodes behave like file links in Unix: changes made to one node are applied to the nodes related and viceversa. Indeed they both will \b share the same content\b0 , and both relate to the same note.\par
+\par
+Linked nodes \b share the note \b0 they point to. So, besides the content, they \b also\b0  share other information that belongs to the note:\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The name of the node (because it is the name of the note)\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Alarms\b0 . Set or remove alarm on one node will set or remove on the others (are the same alarms)\par
+
+\pard\par
+The color of the node, its bold state and font, and the state of the checked property, are specific to each node.\par
+\par
+From the context menu (\b Linked Node | Navigate to Next Linked\b0 ) it is possible to go through all the linked Nodes of one Note.\par
+\par
+You can visually identify linked nodes when using 'Standard icons' in the tree note. There is a specific icon for this kind of nodes:\par
+\par
+\v\'11I196\'12\v0{\field{\*\fldinst{HYPERLINK "img:196,123,72"}}{\fldrslt {196_Clipb_24nov.png}}}\par
+\par
+In the image above, 'history.txt' is a virtual node of a text file, and there are two nodes linked to a same note with the name 'Linked node'.\par
+\par
+
+\pard\sb80 When a note has several nodes, the first one is represented by the normal icon (if folder is configured to use 'Standard icons') and the rest by the 'linked' icon. But this is a simple convention. There is no difference between those nodes. For all of them, the context menu will show the '\ul Linked Node\ulnone ' entry \ul checked\ulnone  and will offer the 'Navigate to Next Linked' sub-entry enabled.\par
+
+\pard\par
+\par
 \par
 With this kind of node you can:\par
 
@@ -3294,56 +3695,37 @@ With this kind of node you can:\par
 In future versions probably you will be able to use dynamic folders, to include all the nodes satisfying a certain search criterion. You could create a folder with all the notes including certain tag or combination of tags, etc. \par
 
 \pard\par
-You can visually identify the mirror nodes when using 'Standard icons' in the tree note. There is a specific icon for this kind of nodes:\par
 \par
-\v\'11I107\'12\v0\fs22{\field{\*\fldinst{HYPERLINK "img:107,174,81"}}{\fldrslt {107_Clipb_03ene.png}}}\fs20\par
-In the image above, 'history.txt' is a virtual node of a text file, and 'Mirror node' is a dynamic replica of 'Child node'.\par
-\fs22\par
-\fs20\par
-You can create or navigate mirror nodes in several ways, using the \b Tree context menu\b0  (or associated keyboard shortcuts)\par
 \par
-\b\fs22 Creation of mirror nodes\par
-\b0\fs20\par
-\b Virtual Node | Insert Mirror node\b0\par
+\b\fs22 Creation of linked nodes\par
 
-\pard\sb80 Inserts a new node, mirror of the currently selected node.\par
+\pard\sb120\b0\fs20 The linked node can be created \b on any node\b0 , without distinction, whether a virtual node, linked to a file on disk, or any other node.\par
 
 \pard\par
-\b Transfer Subtree | Paste Subtree Here as Mirror\b0\par
+\b Linked Node | Insert Linked node\b0\par
 
-\pard\sb80 Alternative to Paste Subtree Here. It is equivalent but pasting mirror nodes instead of usual nodes. Also, unlike the previous one, considers \b only nodes not hidden\b0 . This has been done to facilitate their use in conjunction with the option 'Filter folder' in the search of the resource panel. This way is easily possible to create mirrors of the nodes that satisfy a condition, if the tree is filtered beforehand. (More on {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Hidden nodes}}}}\f0\fs20 )\par
+\pard\sb80 Inserts a new node, linked to the currently selected node.\par
 
 \pard\par
-The mirror node can be created \b on any node\b0 , without distinction, whether another virtual node, for example to a file. When creating a mirror node on another mirror node, what is created is a new mirror on node pointed by the first one.\par
-\par
+\b Transfer Subtree | Paste Subtrees as Linked nodes\b0\par
 
-\pard\sb80\b Virtual Node | Unlink Node\par
-\b0 It is possible to \b unlink the mirror node\b0 , just as is already allowed with existing virtual nodes. The node will be an independent copy.\par
+\pard\sb80 Alternative to Paste Subtrees. It is equivalent but pasting linked nodes instead. Therefore, no new notes will be created, only new nodes linked to existing notes.\par
+
+\pard\sb80\sa80 You can also use keyboard shortcut: \cf3\b Ctrl+Shift+V\cf0\b0 .\par
+
+\pard\par
+\b Drag and drop\b0\par
+
+\pard\sb80 While dragging selected nodes / subtrees you can create linked nodes by holding down the \cf3\b Alt\cf0\b0  (link) key.\par
 
 \pard\par
 \par
-\b Mirror node vs non virtual \par
 
-\pard\sb80\b0 You can navigate from one mirror node to the node to which it points: \b Virtual Node | Navigate to Non Virtual\b0\par
+\pard\sb80\b\fs22 Deleting linked nodes\par
+\b0\fs20 Deleting one of several 'linked' nodes will not delete the associated note. The note and its content will be deleted when you delete the last (and only) associated node.\par
+If you delete the one shown with the normal icon, one of the nodes linked to the same note will automatically be shown with that normal icon and not with the 'linked' icon.\par
 
-\pard\par
-Mirror nodes \b share the contents\b0  with the nodes they point to. They \b also\b0  share:\par
-
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 The state of the property \b Checked\b0 . \par
-{\pntext\f1\'B7\tab}\b Alarms\b0 . Set or remove alarm on one node will set or remove on the others (are the same alarms)\par
-
-\pard\par
-\par
-\b Note\b0\par
-
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 Both the non virtual node as all mirror nodes that might point to it are equivalent and \b delete or move one of them, whether virtual or not, not invalidate the remaining\b0 . For this, if the current 'real' node is removed, one of the remaining virtual nodes (mirrors) will act as a new real node and the rest of the mirrors will point to it. In this sense function as links in Unix.\par
-
-\pard\par
-
-\pard\li360 <<\i the original node should have a special icon, so that users may be reminded that deleting it is going to delete not only the original node, but the mirrors.\i0 >>\par
-\b That's not the case\b0 , if you delete the original node, the mirror node will become the 'non virtual', and its icon will become normal. And if there are several mirror nodes, only one of them will become the new 'non virtual'.\par
-
-\pard\par
+\pard\b\par
 }
 %-
 LV=1
@@ -3375,28 +3757,138 @@ Note that properties for the active folder and default properties for new folder
 \par
 The dialog box contains two tab sheets:\par
 \par
-{{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Note settings tab}}}}\cf4\f0\fs20\par
-{\cf0{\field{\*\fldinst{HYPERLINK "file:///<32|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Tree settings tab}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<32|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Tree settings}}}}\cf4\f0\fs20\par
+{\cf0{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Editor settings}}}}\f0\fs20\par
 \par
 }
 %-
 LV=2
-ND=Note Settings
+ND=Tree Settings
+DI=255
+GI=32
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+%:
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green255\blue0;}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\f0\fs20\lang1033\par
+\cf1\b\fs34 Folder Properties\fs36 : Tree settings\par
+\cf0\b0\fs20\par
+\v\'11I199\'12\v0{\field{\*\fldinst{HYPERLINK "img:199,386,530"}}{\fldrslt {199_Clipb_25nov.png}}}\par
+\par
+\par
+On this tab you can specify \ul tree related settings\ulnone  for either the \b active folder\b0  (\cf2\b F4\cf0\b0 ), or for \b all folders you later create\b0  (\cf2\b F6\cf0\b0 ).\par
+\par
+\lang3082 All the properties described can be changed in active folder, or set as default value \lang1033 for newly created folders.\par
+\par
+\b Note\b0 : the screenshot shown corresponds to Folder | Properties (\cf2 F4\cf0 ). It is identical to the one used in Tools | Default settings...\b  \b0 (\cf2 F6\cf0 ), except for the same differences highlighted in blue on {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Folder Properties: Editor settings}}}}\f0\fs20 ). Note that those options are not specific to either of those tabs, but common to both. You can find in that link the meaning of "\b Save as default for <filename>\b0 " and "\b Save as Defaults (and apply to "<Folder>" folder)\b0 "\par
+\par
+\par
+\cf1\b\fs22 Folder name\cf0\b0\fs20\par
+\lang3082 E\f1\lang1033 nter a new name to rename the active \f0\lang3082 folder, or enter the name \lang1033 that will be used as default for newly created folders\par
+\par
+\cf1\b\fs22 Folder icon\cf0\b0\fs20\par
+Choose the icon that you want to be shown on the tab, next to the folder name.\par
+\par
+\par
+\par
+\cf1\b\fs22 Default name for new tree nodes\cf0\b0\fs20\par
+
+\pard\fi-240\li240 Specifies the default name for all new tree nodes (notes) you will add to the tree\par
+
+\pard\fi-480\li480\sb80\b Tip: \b0 The string can contain special "tokens" which KeyNote will automatically replace with values. This allows you to partly automate the naming of nodes. For instance, current date or time can be automatically added as part of the node name when creating the node. Click the \v\'11I61\'12\v0{\field{\*\fldinst{HYPERLINK "img:61,16,16"}}{\fldrslt {61_Main_61.png}}} button to display a dialog box listing available tokens and their meanings.\par
+
+\pard\par
+\par
+\cf1\b\fs22 Vertical layout (tree on top)\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
+Specifies the layout of tree panel vs editor. \par
+If the option is enabled, the tree will be shown above the editor. \par
+If the option is disabled, the tree will be shown to the left of the editor (horizontal layout)\par
+\par
+Note:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb20 If you add (or possibly move) some nodes in the tree, and then change the tree layout (from horizontal to vertical, or the other way around), then the new nodes lose their original position. This does not affect the nodes that were created earlier. The problem does not occur if the file was saved and closed/reopened.\par
+{\pntext\f2\'B7\tab}Workaround: When you want to change the layout, save the file first *and reload it*. Just close the file and reopen it, or simply select the file from the \ldblquote Recent files\rdblquote  menu. After you have reloaded the file, change the tree layout. This way, all nodes should stay where they were. You should probably save the file at this point and reload it again, at least if you intend to make any further changes to the tree.\par
+
+\pard\par
+\par
+\cf1\b\fs22 Show checkboxes in all nodes\tab\tab\cf0\fs20\tab\tab\b0 Default: Disabled\par
+
+\pard\fi-240\li240 If the option is enabled, a checkbox appears next to every node in the tree. \par
+If the option is disabled, no checkboxes appear\par
+
+\pard\par
+\cf1\b\fs22 Hide checked nodes\tab\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
+
+\pard\fi-240\li240 If the option is enabled, nodes are automatically hidden when checked. (See also {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf3\cf3\ul Using Hidden nodes}}}}\f0\fs20 )\par
+
+\pard\par
+\cf1\b\fs22 Image icons in tree\cf0\b0\fs20\par
+You can display or hide (\ul None\ulnone ) icons in the tree. And in the first case you can use custom icons you explicitily assign to each node (\ul Custom icons\ulnone ), or let KeyNote associate the icons depending on the state of the node and its kind (\ul Standard icons\ulnone ).\par
+\par
+
+\pard\sa120 If you use "Standard icons" you will see:\par
+
+\pard\li120\v\'11I86\'12\v0{\field{\*\fldinst{HYPERLINK "img:86,16,16"}}{\fldrslt {86_TV_02.png}}} \v\'11I85\'12\v0{\field{\*\fldinst{HYPERLINK "img:85,16,16"}}{\fldrslt {85_TV_01.png}}}    Top nodes (first level nodes) with child nodes, selected or unselected\par
+\v\'11I88\'12\v0{\field{\*\fldinst{HYPERLINK "img:88,16,16"}}{\fldrslt {88_TV_04.png}}} \v\'11I87\'12\v0{\field{\*\fldinst{HYPERLINK "img:87,16,16"}}{\fldrslt {87_TV_03.png}}}    Lower level nodes, with child nodes, selected or not\par
+\v\'11I90\'12\v0{\field{\*\fldinst{HYPERLINK "img:90,16,16"}}{\fldrslt {90_TV_06.png}}}  \v\'11I89\'12\v0{\field{\*\fldinst{HYPERLINK "img:89,16,16"}}{\fldrslt {89_TV_05.png}}}   Nodes without childs (leaf nodes), selected or not\par
+\v\'11I92\'12\v0{\field{\*\fldinst{HYPERLINK "img:92,16,16"}}{\fldrslt {92_TV_08.png}}}  \v\'11I91\'12\v0{\field{\*\fldinst{HYPERLINK "img:91,16,16"}}{\fldrslt {91_TV_07.png}}}   Virtual node, selected or not.  \par
+\v\'11I94\'12\v0{\field{\*\fldinst{HYPERLINK "img:94,16,16"}}{\fldrslt {94_TV_10.png}}}  \v\'11I93\'12\v0{\field{\*\fldinst{HYPERLINK "img:93,16,16"}}{\fldrslt {93_TV_09.png}}}   Linked node, selected or not.\par
+
+\pard\par
+
+\pard\fi-480\li480\sb40\b Tip: \b0 You can quickly toggle between standad and custom icons with \ul View | Standard Tree Icons\ulnone  or \ul View | Custom Tree Icons\ulnone  commands.\par
+
+\pard\par
+\cf1\b\fs22 Additional Columns\cf0\b0\fs20\par
+There are two columns that can be made visible: "Flagged", "Date". Once visible, it is possible to reorder them; the resulting position will also be saved in the .knt file.\par
+
+\pard\sb120\b Tip\b0 : You can also toggle display of optional columns with the tree panel context menu (View / Filter | Show columns). These changes to the display of the tree panel are not persisted when saving.\par
+
+\pard More info in {{\field{\*\fldinst{HYPERLINK "file:///<27|22219|0|14"}}{\fldrslt{\ul\cf3\cf3\ul Optional columns: Flagged, Date}}}}\f0\fs20\par
+\par
+\par
+\cf1\b\fs22 Font button\cf0\b0\fs20\par
+Selects default font style for the nodes in the tree panel (*)\par
+\par
+\cf1\b\fs22 BG Color button\par
+\cf0\b0\fs20 Selects background color for the tree (*)\par
+\par
+\ul (*) Notes\ulnone :\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree panel (tab), while allowing each individual node to overwrite it.\par
+{\pntext\f2\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
+
+\pard\par
+\par
+\cf1\b\fs22 Reset button\cf0\b0\fs20\par
+Resets font style and background color for the tree\par
+\par
+\cf1\b\fs22 Apply to ALL folders\cf0\b0\fs20\par
+If you check this option, then font and background colors defined in this window will be applied for ALL tree panels at once. \par
+You have this option available from active folder and from default settings. This way you can apply one of those settings to all the tree panels at once.\par
+\highlight4\par
+}
+%-
+LV=2
+ND=Editor Settings
 DI=254
 GI=31
 NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}}
-{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green0\blue0;}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
-\cf1\b\fs34 Folder Properties\fs36 : Folder settings\cf0\b0\fs20\par
+\cf1\b\fs34 Folder Properties\fs36 : Editor settings\cf0\b0\fs20\par
 \par
 \b Folder | Properties \b0 (\cf2\b F4\cf0\b0 )\tab\tab\tab\tab\tab\tab\b Tools | Default settings... \b0 (\cf2\b F6\cf0\b0 )\par
 \par
-\v\'11I175\'12\v0{\field{\*\fldinst{HYPERLINK "img:175,377,531"}}{\fldrslt {175_Clipb_31mar.png}}}            \v\'11I176\'12\v0{\field{\*\fldinst{HYPERLINK "img:176,378,528"}}{\fldrslt {176_Clipb_31mar.png}}}\par
+\v\'11I200\'12\v0{\field{\*\fldinst{HYPERLINK "img:200,387,528"}}{\fldrslt {200_Clipb_25nov.png}}}            \v\'11I201\'12\v0{\field{\*\fldinst{HYPERLINK "img:201,384,529"}}{\fldrslt {201_Clipb_25nov.png}}}\par
 \par
 \par
 On this tab you can specify \ul folder and editor-related settings\ulnone  for either the \b active folder\b0  (\cf2\b F4\cf0\b0 ), or for \b all folders you later create\b0  (\cf2\b F6\cf0\b0 ).\par
@@ -3415,12 +3907,6 @@ Select this option to save folder properties as defaults for current file only.\
 When editing settings for active folder (\cf2\b F4\cf0\b0 ), you can decide to use those same properties as the Defaults for all new created folders (besides the normal behaviour of changing the properties in current active folder).\par
 If this option is selected then you can optionally select the option "Save as default for <filename>" described above, with the same meaning.\par
 \par
-\par
-\cf1\b\fs22 Folder name\cf0\b0\fs20\par
-\lang3082 E\f1\lang1033 nter a new name to rename the active \f0\lang3082 folder, or enter the name \lang1033 that will be used as default for newly created folders\par
-\par
-\cf1\b\fs22 Folder icon\cf0\b0\fs20\par
-Choose the icon that you want to be shown on the tab, next to the folder name.\par
 \par
 \cf1\b\fs22 Wrap long lines\cf0\b0\fs20\par
 Toggles wrapping lines that are too long to fit in the width of the editor panel. This is equivalent to selecting the {{\field{\*\fldinst{HYPERLINK "file:///<113|15728|0|50"}}{\fldrslt{\ul\cf3\cf3\ul Format | Word wrap}}}}\f0\fs20  command.\par
@@ -3449,10 +3935,12 @@ More info in {{\field{\*\fldinst{HYPERLINK "file:///<38|3323|0|3"}}{\fldrslt{\ul
 \cf1\b\v\fs22\'11B1\'12\v0 Language\cf0\b0\fs20\par
 Set the language for the note text. This property is used to select the proper dictionary for the spell-checker. It does not change the language of the text or the language of the KeyNote program.\par
 \par
-\cf1\b\fs22 Plain text only\cf0\b0\fs20\par
-Normally, note contents are saved as Rich Text. If this options is selected, content of notes in this folder will be saved as plain text (\cf4 all formatting will be removed\cf0 )\par
+\cf1\b\fs22 Default Plain text only\cf0\b0\fs20\par
+Normally, note contents are saved as Rich Text. If this options is selected, content of new notes in this folder (or new folders) will be saved by default as plain text (do not save formatting information)\par
+\par
 
-\pard\sb80 Note: \ul Cannot be used as defaults\ulnone .\par
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 Since version 2.0 this option is a \b default\b0  configuration for \b new notes\b0 . \par
+{\pntext\f1\'B7\tab}Please note that since that version it is possible to combine RTF and Plain text notes in the same folder.\par
 
 \pard\par
 \par
@@ -3482,110 +3970,11 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<21|0|0"}}{\fldrslt{\ul\cf3\cf3\
 \par
 }
 %-
-LV=2
-ND=Tree Settings
-DI=255
-GI=32
-NF=000000000000000000000000
-BC=clWindow
-IX=0
-%:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green255\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
-\pard\f0\fs20\lang1033\par
-\cf1\b\fs34 Folder Properties\fs36 : Tree settings\par
-\cf0\b0\fs20\par
-\v\'11I177\'12\v0{\field{\*\fldinst{HYPERLINK "img:177,378,530"}}{\fldrslt {177_Clipb_31mar.png}}}\par
-\par
-\par
-On this tab you can specify \ul node related settings\ulnone  for either the \b active folder\b0  (\cf2\b F4\cf0\b0 ), or for \b all folders you later create\b0  (\cf2\b F6\cf0\b0 ).\par
-\par
-\lang3082 All the properties described can be changed in active folder, or set as default value \lang1033 for newly created folders.\par
-\par
-\b Note\b0 : the screenshot shown corresponds to Folde properties (F4). It is identical to the one used in Tools | Defaults.. (F6), except for the same differences highlighted in blue on {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Folder Properties: Folder settings}}}}\f0\fs20 ). Note that those options are not specific to either of those tabs, but common to both. You can find in that link the meaning of "\b Save as default for <filename>\b0 " and "\b Save as Defaults (and apply to "<Folder>" folder)\b0 "\par
-\par
-\par
-\cf1\b\fs22 Default name for new tree nodes\cf0\b0\fs20\par
-
-\pard\fi-240\li240 Specifies the default name for all new tree nodes (notes) you will add to the tree\par
-
-\pard\fi-480\li480\sb80\b Tip: \b0 The string can contain special "tokens" which KeyNote will automatically replace with values. This allows you to partly automate the naming of nodes. For instance, current date or time can be automatically added as part of the node name when creating the node. Click the \v\'11I61\'12\v0{\field{\*\fldinst{HYPERLINK "img:61,16,16"}}{\fldrslt {61_Main_61.png}}} button to display a dialog box listing available tokens and their meanings.\par
-
-\pard\par
-\cf1\b\fs22 Add sequential number to names of new nodes\cf0\b0\fs20\par
-
-\pard\fi-240\li240 If enabled, whenever you add a new node to the tree, the number of the node will be appended to its name.\par
-
-\pard For instance, if the tree already has 5 nodes, the next node you create will be automatically named \ldblquote New node 6" (assuming that you specified "New node" in the \ul Default name for new tree nodes\ulnone  field, above.)\par
-\par
-\cf1\b\fs22 Vertical layout (tree on top)\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
-Specifies the layout of tree panel vs editor. \par
-If the option is enabled, the tree will be shown above the editor. \par
-If the option is disabled, the tree will be shown to the left of the editor (horizontal layout)\par
-\par
-Note:\par
-
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb20 If you add (or possibly move) some nodes in the tree, and then change the tree layout (from horizontal to vertical, or the other way around), then the new nodes lose their original position. This does not affect the nodes that were created earlier. The problem does not occur if the file was saved and closed/reopened.\par
-{\pntext\f1\'B7\tab}Workaround: When you want to change the layout, save the file first *and reload it*. Just close the file and reopen it, or simply select the file from the \ldblquote Recent files\rdblquote  menu. After you have reloaded the file, change the tree layout. This way, all nodes should stay where they were. You should probably save the file at this point and reload it again, at least if you intend to make any further changes to the tree.\par
-
-\pard\par
-\par
-\cf1\b\fs22 Show checkboxes in all nodes\tab\tab\cf0\fs20\tab\tab\b0 Default: Disabled\par
-
-\pard\fi-240\li240 If the option is enabled, a checkbox appears next to every node in the tree. \par
-If the option is disabled, no checkboxes appear\par
-
-\pard\par
-\cf1\b\fs22 Hide checked nodes\tab\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
-
-\pard\fi-240\li240 If the option is enabled, nodes are automatically hidden when checked. (See also {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf3\cf3\ul Using Hidden nodes}}}}\f0\fs20 )\par
-
-\pard\par
-\cf1\b\fs22 Image icons in tree\cf0\b0\fs20\par
-You can display or hide (\ul None\ulnone ) icons in the tree. And in the first case you can use custom icons you explicitily assign to each node (\ul Custom icons\ulnone ), or let KeyNote associate the icons depending on the state of the node and its kind (\ul Standard icons\ulnone ).\par
-\par
-
-\pard\sa120 If you use "Standard icons" you will see:\par
-
-\pard\li120\v\'11I86\'12\v0{\field{\*\fldinst{HYPERLINK "img:86,16,16"}}{\fldrslt {86_TV_02.png}}} \v\'11I85\'12\v0{\field{\*\fldinst{HYPERLINK "img:85,16,16"}}{\fldrslt {85_TV_01.png}}}    Top nodes (first level nodes) with child nodes, selected or unselected\par
-\v\'11I88\'12\v0{\field{\*\fldinst{HYPERLINK "img:88,16,16"}}{\fldrslt {88_TV_04.png}}} \v\'11I87\'12\v0{\field{\*\fldinst{HYPERLINK "img:87,16,16"}}{\fldrslt {87_TV_03.png}}}    Lower level nodes, with child nodes, selected or not\par
-\v\'11I90\'12\v0{\field{\*\fldinst{HYPERLINK "img:90,16,16"}}{\fldrslt {90_TV_06.png}}}  \v\'11I89\'12\v0{\field{\*\fldinst{HYPERLINK "img:89,16,16"}}{\fldrslt {89_TV_05.png}}}   Nodes without childs (leaf nodes), selected or not\par
-\v\'11I92\'12\v0{\field{\*\fldinst{HYPERLINK "img:92,16,16"}}{\fldrslt {92_TV_08.png}}}  \v\'11I91\'12\v0{\field{\*\fldinst{HYPERLINK "img:91,16,16"}}{\fldrslt {91_TV_07.png}}}   Virtual node, selected or not.  \par
-\v\'11I94\'12\v0{\field{\*\fldinst{HYPERLINK "img:94,16,16"}}{\fldrslt {94_TV_10.png}}}  \v\'11I93\'12\v0{\field{\*\fldinst{HYPERLINK "img:93,16,16"}}{\fldrslt {93_TV_09.png}}}   Mirror node, selected or not.\par
-
-\pard\par
-
-\pard\fi-480\li480\sb40\b Tip: \b0 You can quickly toggle between standad and custom icons with \ul View | Standard Tree Icons\ulnone  or \ul View | Custom Tree Icons\ulnone  commands.\par
-
-\pard\par
-\cf1\b\fs22 Font button\cf0\b0\fs20\par
-Selects default font style for the nodes in the tree panel (*)\par
-\par
-\cf1\b\fs22 BG Color button\par
-\cf0\b0\fs20 Selects background color for the tree (*)\par
-\par
-\ul (*) Notes\ulnone :\par
-
-\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree panel (tab), while allowing each individual node to overwrite it.\par
-{\pntext\f1\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
-
-\pard\par
-\par
-\cf1\b\fs22 Reset button\cf0\b0\fs20\par
-Resets font style and background color for the tree\par
-\par
-\cf1\b\fs22 Apply to ALL folders\cf0\b0\fs20\par
-If you check this option, then font and background colors defined in this window will be applied for ALL tree panels at once. \par
-You have this option available from active folder and from default settings. This way you can apply one of those settings to all the tree panels at once.\par
-\highlight4\par
-}
-%-
 LV=1
 ND=Clipboard. Paste. Capture
 DI=582
 GI=33
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -3629,7 +4018,10 @@ At the same time, both functionalities depend on other more general and common a
 \par
 Paste\tab\cf3\b Ctrl+V \cf0\b0 or \cf3\b Shift+Insert\cf0\b0\par
 You can also use \v\'11I6\'12\v0{\field{\*\fldinst{HYPERLINK "img:6,19,19"}}{\fldrslt {6_Main_06.png}}} button or {{\field{\*\fldinst{HYPERLINK "file:///<110|5282|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Edit | Paste}}}}\f0\fs20\par
-\par
+
+\pard\li360\sb120\b Tip\b0 : You can use Ctrl, Shift or Alt while clicking in that button or menu entry to get a different kind of paste. See: {{\field{\*\fldinst{HYPERLINK "file:///<82|450|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Alternate Shift, Alt or Ctrl Commands}}}}\f0\fs20\par
+
+\pard\par
 Al this actions corresponds to normal paste, or paste with full formatting, where the original font and paragraph formatting of the text copied is maintained (or the RTF formatting resulting from HTML to RTF conversion)\par
 
 \pard\sb100\ul Note\ulnone :\par
@@ -3797,7 +4189,7 @@ LV=2
 ND=Clipboard Capture
 DI=310
 GI=35
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -5128,7 +5520,7 @@ BC=clWindow
 IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;\red128\green128\blue0;}
 {\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Using Find and Find All\cf2\lang1033\par
@@ -5139,8 +5531,15 @@ IX=0
 \pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<40|2226|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Replace}}}}\f1\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Find All}}}}\f1\fs20\par
 
-\pard    {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Filtering tree nodes}}}}\f1\fs20\par
-\par
+\pard    {{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Syntax for additional/advanced search}}}}\f1\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<40|9385|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Search by last modification date}}}}\f1\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<40|9852|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Words in the same paragraph or sentence}}}}\f1\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<40|11754|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Emphasized words}}}}\f1\fs20\par
+
+\pard\sb40    {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Filtering tree nodes}}}}\f1\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<40|15353|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Revised the way 'All the words' search type works}}}}\f1\fs20\par
+
+\pard\par
 \par
 
 \pard\sb100\sa100 KeyNote offers two ways to search for text:\par
@@ -5213,15 +5612,18 @@ Matches in Results panel are grouped by the note (node) where they are found. Yo
 \pard\par
 With this Find tab panel you will be able to {\f1\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|5597|0|1"}}{\fldrslt{\ul\cf2\cf2\ul filter tree nodes}}}}\f1\fs20\lang3082  based of the result of the search, hiding or showing nodes.\par
 \par
-Note that pressing \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  in any tab of Resource panel will shift the focus to Editor panel (or Tree panel). If focus is in control "Find text", first \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  will empty the search pattern, and next will shift the focus the Editor.\par
+Note that pressing \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  in any tab of Resource panel (*) will shift the focus to Editor panel (or Tree panel). If focus is in control "Find text", first \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  will empty the search pattern, and next will shift the focus the Editor.\par
+
+\pard\li360\sb80 (*) If focus is set to the Scratch editor and "On Escape key" is set to "Minimize KeyNote", Esc will minimize the application; otherwise, it will switch focus to the editor.\par
+
+\pard\par
+\b Tip\b0 : Clicking in a search result will iterate the different words of the match. With each consecutive click, each of the words that were considered when adding the match to the list of results will be selected.\par
+\b   \par
+Tip\b0 : \f0\lang1033 After you have used the "Find All" command, right-click the search results list for a context menu. The menu contains commands to insert the search results as clickable hyperlinks in current note.\par
+\f1\lang3082\par
 \par
 
-\pard\li360\b Tip\b0 : \f0\lang1033 After you have used the "Find All" command, right-click the search results list for a context menu. The menu contains commands to insert the search results as clickable hyperlinks in current note.\par
-
-\pard\f1\lang3082\par
-\par
-
-\pard\li360\v\'11I179\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:179,213,524"}}{\fldrslt {179_Clipb_31mar.png}}}     \v\'11I172\'12\v0{\field{\*\fldinst{HYPERLINK "img:172,391,592"}}{\fldrslt {172_Clipboard_24feb.png}}}\f1\lang3082\par
+\pard\li360\v\'11I198\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:198,195,671"}}{\fldrslt {198_Clipb_25nov.png}}}     \v\'11I172\'12\v0{\field{\*\fldinst{HYPERLINK "img:172,391,592"}}{\fldrslt {172_Clipboard_24feb.png}}}\f1\lang3082\par
 
 \pard\f0\lang1033\par
 \par
@@ -5249,6 +5651,7 @@ The search will be case sensitive. "KeyNote" is different from "keynote", for ex
 \pard If this option is selected, KeyNote will search only the selected node and its children.\par
 \ul Note\ulnone : The selected node will be considered when executing "Find All".\par
 \par
+\par
 \b Search hidden nodes\b0\par
 As indicated {{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{\ul\cf2\cf2\ul here}}}}\f0\fs20 , tree nodes can be hidden in several ways (for example as the result of a Find All seach with \ul Filter folder\ulnone  enabled, see below). If this option is enabled, KeyNote will consider hidden nodes in the search.\par
 
@@ -5272,6 +5675,7 @@ As indicated {{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{\
 \pard\li360\sb80 KeyNote will search for the words entered, using the space(s) as a word separator.\par
 With this option selected, KeyNote will include in the results all the consecutive matches where \ul all\ulnone  of the words are present.\par
 The first word found from the list provided is highlighted, as well as those others that appear within the excerpt, to its right. If the last word found within the identified match is not shown in the excerpt obtained for the first word found, an additional excerpt for the last word is added (separated with "\cf6\b\f2 . . //. .\cf0\b0\f0 "), where all searched words are highlighted.\par
+\ul Note\ulnone : Since version 2.0 have been revised the way 'All the words' search type works. See {{\field{\*\fldinst{HYPERLINK "file:///<40|15353|0|10"}}{\fldrslt{\ul\cf2\cf2\ul more}}}}\f0\fs20 .\par
 
 \pard\par
 
@@ -5291,14 +5695,23 @@ Results are created that include, and highlight, all occurrences of each of the 
 
 \pard\par
 \par
+
+\pard\sb80\b Creation date. Last modification date   (From / Until)\b0\par
+Keynote will considere only the nodes created and/or modified in the intervals indicated.\par
+
+\pard It will ignore nodes missing creation date or last modification. Note that KeyNote acn deduce dates from the name and content of existing notes, created with older versions. See {{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{\ul\cf2\cf2\ul Deduce missing date information}}}}\f0\fs20\par
+
+\pard\sb160\b Tip\b0 : Running Find All without adding any text is allowed, as long as some date criteria is set\par
+
+\pard\par
+\par
 \b Search Scope\b0\par
 
 \pard\sb80 With this option you can restrict searches to node names or note contents, considering:\par
 
-\pard\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa40\b Only node names\b0\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only node names\b0\par
-{\pntext\f4\'B7\tab}\b Only note contents\b0\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only note contents\b0\par
 {\pntext\f4\'B7\tab}\b All\b0\par
 
 \pard\sb160 Note:\par
@@ -5308,36 +5721,143 @@ Results are created that include, and highlight, all occurrences of each of the 
 
 \pard\par
 \par
-\par
 \b Checked Nodes\b0\par
 
 \pard\sb80\f1\lang3082 This option allows you to restrict search depending on checked status of nodes, considering:\par
 
-\pard\f0\lang1033\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa40\b\f0\lang1033 Only non checked nodes\b0\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only non checked nodes\b0\par
-{\pntext\f4\'B7\tab}\b Only checked nodes\b0\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only checked nodes\b0\par
 {\pntext\f4\'B7\tab}\b All\b0\par
 
 \pard\par
 \par
+\cf4\b\v\f1\fs24\'11B6\'12\v0 Syntax for additional/advanced search\par
+\cf0\b0\f0\fs20\par
+In addition to the search criteria listed above, you can use a simple syntax to specify some other criteria:\par
+\par
+\cf4\b\v\f1\'11B7\'12\v0 Search by last modification date\par
+
+\pard\sb80\cf0\b0\f0 You can consider only the nodes that were modified (or created) during the current day or since the last X days. This can be done very easily by specifying in the first characters of the search string an expression of the form "-<number days back>"\par
+More information: {{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by last modification date}}}}\f0\fs20 , in Tree filtering.\par
+
+\pard\par
+\par
+\cf4\b\v\f1\'11B8\'12\v0 Words in the same paragraph or sentence\par
+
+\pard\sb80\cf0\b0\f0 You can indicate whether some of the words to be searched for must be in the same paragraph or sentence.\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 By default, separating words with spaces means that they can be found anywhere, there is no restrictionon the distance between them\par
+{\pntext\f4\'B7\tab}If two or more \b words\b0  are \b separated by\b0  "\cf6\b ...\cf0\b0 " (three dots), they must all be located \b in the same paragraph\b0  to be recognized as a match.\par
+{\pntext\f4\'B7\tab}If two or more words are \b separated by \b0 "\cf6\b ..\cf0\b0 " (two dots), they must all be located \b in the same sentence\b0  to be recognized as a match.\par
+
+\pard\li720\sb40 Sentences are understood to be separated by a period and at least one space or by a period and a tabulation sign, or by a line break or a column separator in a table.\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 If there are more than two words joined with ".." or "..." only the first separator will be considered. The rest should be the same, and if they are not, they are forced. For example, searching for something like [\cf9 w1..w2...w3 w4\cf0 ] will be equivalent to [\cf9 w1..w2..w3 w4\cf0 ]\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The order in which the words are joined is not important. Searching for [\cf9 w1..w2\cf0 ] is the same as searching for [\cf9 w2..w1\cf0 ]\par
+{\pntext\f4\'B7\tab}If you need to search for the separator characters themselves, they should be enclosed in quotes and will be treated as normal text to search for. Ex: \cf9 "w1..w2"\cf0\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 This restriction on distance or separation between words can be used with both the 'All' method (All the words) and the 'Any' method (Any of the words). Even if it is the 'Any' method, all words linked by distance (.. or ...) must be found to be considered a match.\par
+
+\pard\par
+Example. Looking for:   \cf9 w1...w2..w3 w4..w5 w6\cf0\par
+
+\pard\li360 w1, w2 and w3 must be located within the same paragraph; w4 and w5 must be found within the same sentence, which       may or may not be within the same paragraph in which w1, w2 and w3 were found; w6 must be found in the note but anywhere in it.\par
+
+\pard\par
+\par
+\cf4\b\v\f1\'11B9\'12\v0 Emphasized words\par
+\cf0\b0\f0\par
+You can indicate if the words to search for must be emphasized, or also inside a same paragraph.\par
+\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 If the \cf6\b *\cf0\b0  character is found individually, it will mean that the words to be searched for must be emphasized: \b bold\b0 , \b underlined\b0  or \b highlighted\b0 .\par
+
+\pard\li360\sb80    Example: [\cf9 * text plain\cf0 ]\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 If the modifier \cf6\b **\cf0\b0  is found, all words must be located in the \b same paragraph\b0  \b or\b0  in the \b name of a note\b0 . In addition, \b all words in that paragraph\b0  must be \b emphasized\b0 : in bold, underlined or highlighted, \b or with a font size larger\b0  than the words in the following paragraph (the first characters after the line break will be ignored in case any additional line break was added with the same font size).\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb120 All this will be checked at least on the first and last word searched as well as the beginning and end of the paragraph\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 Note: words underlined as a result of containing hyperlinks won't be not considered emphasized.\par
+{\pntext\f4\'B7\tab}Note: search scope used will be All (contents and node names), ignoring the current selection of this group box.\par
+{\pntext\f4\'B7\tab}If a note/node name could be matched, and the same paragraph is used at the beginning of the note content, also as a match, then only the latter will be included in the results list.\par
+
+\pard\par
+
+\pard\li360 The idea is to use this modifier to locate the headings or sections in which the concepts or topics we are interested in can be defined. These will normally be in a single sentence, but paragraph mode is used because sometimes small sentences can be used together, e.g.: "Options in Exporting. Examples"\par
+
+\pard\par
+
+\pard\li360    Examples: [\cf9 ** images\cf0 ] [\cf9 ** keyboard short\cf0 ] [\cf9 ** example export\cf0 ]\par
+
+\pard    \par
+\par
 \cf4\b\v\f1\fs24\lang3082\'11B1\'12\v0 Filtering tree nodes\fs20\par
 \cf0\b0\f0\lang1033\par
-When searching one or all folders with \ul Find All\ulnone  (Find resource tab), you can optionally enable the "\b\fs22 Filter folder\fs20 "\b0  option to filter nodes depending on the search text. \par
+When searching one or all folders with \ul Find All\ulnone  (Find resource tab), you can optionally enable the "\b\fs22 Filter folder[s]\fs20 "\b0  option to filter nodes depending on the search text. \par
 KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b  \b0 it will only keep visible those nodes (and their parents) that contain the searched text, that is, with one or more matches. Other nodes will be hidden while the filter is active.\par
 \par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 If \b Search all folders \b0 is disabled, the filter will only affect to the current folder.\par
-{\pntext\f4\'B7\tab}If no matches were found, filter won't be applied (no nodes will be hidden)\par
-{\pntext\f4\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the toolbar button \v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}} will be shown pressed.\par
-{\pntext\f4\'B7\tab}You can deactivate the filter, showing all nodes, by releasing the button\v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}} (pressed after searching with \ul Filter folder\ulnone  selected).\par
+{\pntext\f4\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the tree toolbar button \v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}} will be shown pressed.\par
 {\pntext\f4\'B7\tab}Using this option, you will be able to \b refine your search\b0 , considering only the nodes (and parents...) that satisfied the previous search, if you run another search where the \b Search hidden nodes\b0  \ul option is disabled\ulnone . This new search may or may not keep the \ul Filter folder\ulnone  enabled. If enabled, it can hide some other nodes.\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 When running a new search where \b Search hidden nodes\b0  \ul option is enabled\ulnone , it will not be affected by a previous filter that may be active. The new search will display all results found, whether in a hidden or visible node. If \ul Filter folder\ulnone  was enabled in this new search, all nodes will be shown or hidden depending on the search. Nodes that were hidden can now be shown.\par
 
 \pard\par
-\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 After applying 'Filter folder[s]' it is possible to \b toggle\b0  whether or not to \b activate the filter\b0 . You can toggle between showing all the nodes or only the unfiltered ones using the "Filter nodes" button (or menu entry), \v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}.\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The find filter applied can be \b cleared\b0  with \cf5\b Ctrl+Click\cf0\b0  on "Filter nodes" button, in tree panel. The tree filter appplied, if any, won't be affected\par
+
+\pard\li360 This way, it is possible to keep the find filter applied or disabled while continuing to use Find All (with 'Filter Filter' unchecked)\par
+
+\pard  \par
+\b Tip\b0 : If you uncheck 'Filter folder[s]' and execute new searches in Find All, filtered nodes will not be affected.\par
+
+\pard\sb80\b Tip\b0 : You can \b combine\b0  filtering based on the search panel (Find All) with {{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Tree filtering}}}}\f0\fs20 .\par
+
+\pard\par
 Please note that nodes may be hidden due of a Filter applied, but also because \ul View | Hide Checked Nodes\ulnone  (\v\'11I38\'12\v0{\field{\*\fldinst{HYPERLINK "img:38,20,20"}}{\fldrslt {38_Main_38.png}}}) is active, or because they have been explicitly hidden via Tree context menu: \ul Children Checkboxes\ulnone  | \b Hide Checked\b0  or \b Hide Unchecked\b0\par
+\par
+Note: If Find All is used with "Filter folder", and Tree toolbar is not visible then "Show Tree Toolbar" will automatically activated, so you can disable or clear find filter applied.\par
+\par
+\par
+\cf4\b\v\f1\fs24\lang3082\'11B10\'12\v0 Revised the way 'All the words' search type works\fs20\par
+\cf0\b0\f0\lang1033\par
+Since version 2.0, within the search in a note, Keynote will change internally to 'Any of the words' mode from 'All the words' after the first match to allow locating and offering more useful results.\par
+\par
+Let's suppose that we search for something like: [\cf9 w1..w2 w3\cf0 ] (or simply [\cf9 w1 w2 w3\cf0 ] ) and we do it in a note with a text of the form:\par
+             \cf9 ... w2 ... w1\par
+             ....... w3 ...\par
+             ...\par
+             ... w1 ... w2 ...\par
+\cf0   \par
+So far we have only been returning as a match the one that includes from the first w2 to w3. Since there are no more w3, the final terms, w1 and w2 are ignored because from the final position of the last match (w3) we cannot find all the terms again.\par
+
+\pard\sb40 But why are the first ones (w2 .. w1) going to be more significant than the second ones (w1 .. w2)? We will surely be interested in knowing about the latter as well.\par
+
+\pard\par
+The nature of the 'All the words' method is maintained in the sense that we are offering all these matches within this note because all the searched terms are found in it. From that moment on, and once verified, we are interested in showing all the terms in the same way as we do with 'Any of the words', including several terms together in the same match if they are close and can be offered in the same extract.\par
+\par
+If the text were as follows, we will still return the two pairs w1, w2.\par
+The number of results may vary slightly depending on whether or not the word w3 has been displayed in any previous result.\par
+  \par
+            \cf9 ... w2 ... w1\par
+            ...\par
+            ... w1 ... w2 ..\par
+            .... w3 ...\par
+\cf0\par
 \par
 }
 %-
@@ -5989,13 +6509,19 @@ This section is included to help (anyone who may be interested) understand how i
 \par
 What is described here corresponds to the management required when the \b storage mode\b0  is other than EmbeddedRTF. In the latter case, although it is possible to take advantage of improvements included in the new versions, image management as such will be actually disabled.\par
 \par
+{{\field{\*\fldinst{HYPERLINK "file:///<44|950|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Image IDs}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<44|1383|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Image visibility}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<44|3678|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Using hidden tags, monitoring actions}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<44|5854|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Images insertion by code}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<44|9125|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Extended KNT file format and including images in KNT file}}}}\f0\fs20\par
 \par
-\b\fs22 Image IDs\b0\fs20\par
+\par
+\b\v\fs22\'11B1\'12\v0 Image IDs\b0\fs20\par
 \par
 Each image has a unique ID within the KNT file, whether it is Linked or not. When the KNT file is saved to disk, the number of the next ID that can be used is recorded. This number is determined from the ID of the last saved image. To do this, a distinction is made between NextImageID and NextTempImageID. Images that are added but removed before saving the file do not 'consume' ID.\par
 \par
 \par
-\b\fs22 Image visibility\b0  \par
+\b\v\fs22\'11B2\'12\v0 Image visibility\b0  \par
 \fs20\par
 The \ul instances\ulnone  or uses of the different images may be in one of the following two states: TImagesMode = (imImage, imLink)\par
 \par
@@ -6027,7 +6553,7 @@ This is the format used to save images (in storage modes <> smEmbRTF). If the st
 The application allows you to change the visibility of all the images in the file (which becomes effective only when the note (node) is required to be shown). If the option to hide the images is selected, the application displays them in this imLink format, hiding their content and instead offering a link from which you can consult and edit their title.\par
 \par
 \par
-\b\fs22 Using hidden tags, monitoring actions\fs20\par
+\b\v\fs22\'11B3\'12\v0 Using hidden tags, monitoring actions\fs20\par
 \b0\par
 The application monitors all actions that could result in image insertions or deletions. To do this, it processes the content pasted from the clipboard looking for the presence of images and analyzes RTF content in search of RTF tags associated with the existence of images. It makes use of its own, hidden labels, analogous to those already used to maintain the reference to the destination in recent bookmarks. These labels contain only the ID of the image and are placed to the left of them, whether they are in their visible (imImage) or 'hidden' (imLink) mode. This processing is optimized and does not affect the normal operation of the application at all.\par
 The use of these tags (e.g. "\cf3\\v\\'11I3\\'12\\v0\cf0 ") simplifies the identification of already registered images. But since they cannot be added 'inside' the image tags themselves, it is the application's responsibility to ensure that they are always kept next to the image they accompany.\par
@@ -6042,7 +6568,7 @@ Copying an individual image to the clipboard does not also send the tag, to ensu
 Image deletions (TKntImage) are processed on save. They could be done immediately but would have the problem that it would not allow the UNDO mechanism that the RichEdit control offers.\par
 \par
 \par
-\b\fs22 Images insertion by code\b0\fs20\par
+\b\v\fs22\'11B4\'12\v0 Images insertion by code\b0\fs20\par
 \par
 Now, images are always inserted by code and not through the clipboard. In recent versions, only images inserted through drag and drop from the browser were in PNG or JPG formats; The WMF and EMF files were not inserted as images but as objects, which when opened were displayed in Paint. (Older versions of RichEdit didn't even offer PNG or JPG that way)\par
    \par
@@ -6074,7 +6600,7 @@ Also included is an option to only allow the use of wmetafile8 (rarely needed if
 \pard\par
 \par
 \par
-\b\fs22 Extended KNT file format and including images in KNT file\b0\fs20\par
+\b\v\fs22\'11B5\'12\v0 Extended KNT file format and including images in KNT file\b0\fs20\par
 \par
 Whe a KNT file is defined to use an image storage mode other than Embedded RTF, the application will use an \b Extended KNT format\b0 , in which new blocks have been incorporated at the end of the file, to allow including the registration of \b stores\b0  and \b images\b0 .\par
 
@@ -6937,7 +7463,7 @@ GI=55
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-RV=C:\APL\KeyNote NF\doc\fileformat.txt
+RV=..\doc\fileformat.txt
 VF=C:\APL\KeyNote NF\doc\fileformat.txt
 %-
 LV=1
@@ -7034,6 +7560,8 @@ Note:\par
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb200 If you import a \b .knm\b0  file (KeyNote macro), the macro will be executed. Note that you cannot insert a link to a .knm file with {{\field{\*\fldinst{HYPERLINK "file:///<109|4356|0|12"}}{\fldrslt{\ul\cf2\cf2\ul File | Import...}}}}\f0\fs20  nor using drag and drop. You can use {{\field{\*\fldinst{HYPERLINK "file:///<112|2442|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Insert | Link to File...}}}}\f0\fs20 , instead. However, to be able to execute it directly in your current .knt the should include it in the macro folder (See {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Profiles}}}}\f0\fs20 ).\par
 
 \pard\li360\sb40 * Note that if you select several .knm files, only one of them will be executed\par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb160 When importing virtual notes they are kept as virtual notes (or become linked nodes if a node linked to the same file already exists)\par
 
 \pard\par
 \par
@@ -7192,6 +7720,7 @@ IX=0
        {{\field{\*\fldinst{HYPERLINK "file:///<57|5890|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Formatting headings}}}}\f0\fs20\par
 
 \pard\sb40    {{\field{\*\fldinst{HYPERLINK "file:///<57|8199|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<57|15981|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to RTF}}}}\f0\fs20\par
    {{\field{\*\fldinst{HYPERLINK "file:///<57|15769|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to Plain text}}}}\f0\fs20\par
 
 \pard    {{\field{\*\fldinst{HYPERLINK "file:///<57|10310|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to HTML}}}}\f0\fs20\par
@@ -7564,28 +8093,43 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<58|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Op
 \par
 \par
 
+\pard\sb100\sa100\cf4\b\v\f2\fs24\'11B12\'12\v0 Additional settings when exporting to RTF\par
+
+\pard\cf0\b0\f0\fs20 The "\b Save images in default WordPad format\b0 " defines how images will be included in the RTF file:\par
+
+\pard\sb120 If \ul not checked\ulnone , it will use optimized formats (like pngblip or jpegblip); WordPad will prompt you to unblock to display images. Word will not.\par
+
+\pard If checked, the default format used by WordPad (ifWmetafile8) will be used. This way, WordPad will not display any alerts, but the RTF file size will be larger.\par
+\par
+\b\f2\lang3082 Tip: \b0\f0\lang1033 Tree panel context menu "Export..." will also use this option, when exporting current node's content (or current node's selection).\par
+\par
+See also {{\field{\*\fldinst{HYPERLINK "file:///<44|5854|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Images insertion by code}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<90|7393|0|6"}}{\fldrslt{\ul\cf2\cf2\ul ImgFormatInsideRTF}}}}\f0\fs20  for more information.\par
+\par
+\par
+
 \pard\sb100\sa100\cf4\b\v\f2\fs24\'11B11\'12\v0 Additional settings when exporting to Plain text\par
 
 \pard\cf0\b0\f0\fs20 The "\b Show hidden marks and IDs\b0 " option makes the hidden marks used with internal KNT Links, bookmarks and images visible. It also makes hidden part of hyperlinks visible and shows the internal IDs of folders and notes (nodes).\par
 This can be very useful if you are creating a help file and you want to open the file externally showing a specific location.\par
 \par
 The hidden marks are shown in a humanized way. Example:\par
-\par
-\cf9 $11B7$12  \tab -> [BMK:7]\par
-$11b7$12  \tab -> [TmpBMK:7]         (Bookmarks 0 - 9)\par
+
+\pard\sb120\cf9 $11B7$12  \tab -> [BMK:7]\par
+
+\pard $11b7$12  \tab -> [TmpBMK:7]         (Bookmarks 0 - 9)\par
 $11I7$12\tab -> [IMG:7]\par
 \cf0\par
 The IDs of folders and nodes is shown enclosed in "[" and "]". Example:\par
 
-\pard\sb40\cf9 My FOLDER [1]\par
+\pard\sb80\cf9 My FOLDER [1]\par
 
 \pard   My node B [123]\par
 \cf0\par
 The hyperlinks are visible in the following way (eg. KNT link):\par
-\par
-\cf9 HYPERLINK "{\cf0{\field{\*\fldinst{HYPERLINK "file:///<20|806|0|11"}}{\fldrslt{file:///*8|282|806|0|11\ul0\cf0}}}}\f0\fs20 "Text of hyperlink\par
-\cf0\par
-\par
+
+\pard\sb120\cf9 HYPERLINK "{\cf0{\field{\*\fldinst{HYPERLINK "file:///<20|806|0|11"}}{\fldrslt{\ul\cf2\cf2\ul file:///*8|282|806|0|11}}}}\f0\fs20 "Text of hyperlink\par
+
+\pard\cf0\par
 \par
 
 \pard\sb100\sa100\cf4\b\v\f2\fs24\'11B8\'12\v0 Additional settings when exporting to HTML\par
@@ -10201,6 +10745,7 @@ IX=0
 \pard\li360\sb120 The first one allows you to define an alternative to \cf3\b Ctrl+\\\cf0\b0  shortcut. With the others two one you can also create new shortcut keys to explicitily set the focus in the editor or tree panel.\par
 
 \pard\li360 Note that even if you assign a different shortcut to the first menu command, the current toggle shortcut (\cf3 Ctrl+\\\cf0 ) will still work if there is no shortcut to replace it.\par
+\b Tip\b0 : \cf3 Ctrl+\\\cf0  and \cf3 Shift+Tab \cf0 (if nothing to unindent) will also switch focus from scratchpad editor to note editor.\par
 \par
 * KeyNote remembers whether the tree or the editor was focused when the file was last saved, and the same control receives focus when the file is reopened. (By default, the RTF editor is focused)\par
 
@@ -10215,14 +10760,15 @@ IX=0
 
 \pard\cf3\b F9\cf0\b0\tab\tab\tab Show or hide the Resource Panel (alternative: double-click the status bar)\par
 
-\pard\fi-2160\li2160\sb100\cf3\b Esc\cf0\b0\tab Depends on settings in Options dialog box, "Action" tab:  Minimize KeyNote, Exit KeyNote, do nothing. \par
+\pard\fi-2160\li2160\sb100\cf3\b Esc\cf0\b0\tab Depends on "On Escape key" option (in Configuration options | General settings):  Minimize KeyNote, Exit KeyNote, do nothing. \par
 
 \pard\fi-2160\li2160\sb80\tab If the Find command is in progress, Esc key aborts the search.\par
 \tab If the Replace command is in progress, Esc key aborts it. \par
 \tab If the font name combo box or the font size box on the Format toolbar are focused, Esc key exits them and switches focus to the editor.\par
 \tab If a macro is being recorded, stops recording the macro.\par
 \tab If a macro is being replayed, stops replaying the macro.\par
-\tab If the focus is set in any of the tabs of Resource Panel, Esc will switches focus to the editor\par
+\tab If focus is set to any of the Resource Panel tabs (except Scratch), Esc will switch focus to the editor.\par
+\tab If focus is set to the Scratch editor and "On Escape key" is set to "Minimize KeyNote", Esc will minimize the application; otherwise, it will switch focus to the editor.\par
 
 \pard\sb160\cf3\b Shift+F10\cf0\b0\tab\tab Opens context menu in rtf editor, tree panel and scratchpad\par
 
@@ -10433,15 +10979,15 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<27|4545|0|6"}}{\fldrslt{\ul\cf2
 
 \pard\sb120\cf3\b Space \cf0\b0 or \cf3\b F2\cf0\b0\tab\tab Rename selected node \par
 
-\pard\sb160\cf3\b Shift+Down\cf0\b0\tab\tab Move selected node down \par
+\pard\sb160\cf3\b Shift+Down\cf0\b0\tab\tab Move selected nodes down \par
 
-\pard\cf3\b Shift+Left\cf0\b0\tab\tab Move selected node left  \i (promote in hierarchy) \i0\par
-\cf3\b Shift+Right\cf0\b0\tab\tab Move selected node right \i (demote in hierarchy) \i0\par
-\cf3\b Shift+Up\cf0\b0\tab\tab Move selected node up \par
+\pard\cf3\b Shift+Left\cf0\b0\tab\tab Move selected nodes left  \i (promote in hierarchy) \i0\par
+\cf3\b Shift+Right\cf0\b0\tab\tab Move selected nodes right \i (demote in hierarchy) \i0\par
+\cf3\b Shift+Up\cf0\b0\tab\tab Move selected nodes up \par
 
-\pard\sb160\cf3\b Delete\cf0\b0\tab\tab\tab Delete selected node \i (optionally, delete all children too) \i0\par
+\pard\sb160\cf3\b Delete\cf0\b0\tab\tab\tab Delete selected nodes \i (optionally, delete all children too) \i0\par
 
-\pard\sa160\cf3\b Shift+Delete\cf0\b0\tab\tab Delete all children of the selected node \par
+\pard\sa160\cf3\b Shift+Delete\cf0\b0\tab\tab Delete all children of the selected nodes \par
 
 \pard\cf3\b Left arrow    \cf0\b0 or \cf3\b Numpad -\cf0\b0\tab Collapse selected node/branch\par
 \cf3\b Right arrow \cf0\b0 or \cf3\b Numpad + \cf0\b0  \tab Expand selected node/branch (also \cf3\b Numpad *\cf0\b0 )\par
@@ -10452,15 +10998,17 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<27|4545|0|6"}}{\fldrslt{\ul\cf2
 
 \pard\sb120\par
 
-\pard\cf3\b Ctrl+C\cf0\b0\tab\tab\tab Copy node or subtree\par
-\cf3\b Ctrl+X\cf0\b0  \tab\tab\tab Cut node or subtree\par
-\cf3\b Ctrl+V\cf0\b0  \tab\tab\tab Paste node or subtree\cf3\b\par
+\pard\cf3\b Ctrl+C\cf0\b0\tab\tab\tab Copy selected nodes or subtrees\par
+\cf3\b Ctrl+X\cf0\b0  \tab\tab\tab Cut selected nodes or subtrees\par
+\cf3\b Ctrl+V\cf0\b0  \tab\tab\tab Paste nodes or subtrees\par
+\cf3\b Ctrl+Shift+V\cf0\b0\tab\tab Paste nodes or subtrees as linked nodes\cf3\b\par
+\par
 
 \pard\sb120 Alt+F11\cf0\b0\tab\tab Create a new tree node from text selected in current node\par
 
-\pard\sb160\cf3\b Ctrl+B\cf0\b0\tab\tab\tab Mark selected node Bold \par
+\pard\sb160\cf3\b Ctrl+B\cf0\b0\tab\tab\tab Mark selected nodes Bold \par
 
-\pard\cf3\b Ctrl+D\cf0\b0\tab\tab\tab Reset selected node colors (font and background) to default \par
+\pard\cf3\b Ctrl+D\cf0\b0\tab\tab\tab Reset selected nodes colors (font and background) to default \par
 
 \pard\sb160\cf3\b Shift+Insert\cf0\b0\tab\tab Rename node by pasting text from clipboard \par
 
@@ -10522,7 +11070,7 @@ Shift+Alt+0\cf0\b0  to \cf3\b 9\tab\cf0\b0 Set bookmark number 0 through 9\par
 \pard\cf3\b Ctrl+F12\tab\tab\cf0\b0 Run the most recently executed plugin\par
 \par
 \par
-\b\fs22 Alternate Shift or Ctrl Commands\b0\par
+\b\v\fs22\'11B1\'12\v0 Alternate Shift, Alt or Ctrl Commands\b0\par
 \fs20\par
 The following commands behave differently if the \cf3\b Shift\cf0\b0 , \cf3\b Ctrl\cf0\b0  or \cf3\b Alt\cf0\b0  key is held down while the command is executed by pressing a toolbar button, clicking a menu option, or performing other mouse action (drag and drop, double-click, etc.).\par
 \par
@@ -10862,7 +11410,7 @@ LV=1
 ND=Configuration Options
 DI=295
 GI=87
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -10930,8 +11478,8 @@ BC=clWindow
 IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green0\blue0;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue0;\red0\green0\blue255;\red255\green0\blue0;}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 Options: General settings\par
 \cf0\b0\fs26\par
@@ -10981,6 +11529,7 @@ IX=0
 {\pntext\f1\'B7\tab}If disabled, the tooltips will not be shown. However, the same information is still displayed in the Status bar (even if another dialog box is opened)\par
 
 \pard\par
+\cf3\b\lang3082 Tip\b0 : For blind and vision impaired people, that use tools like NVDA (Non-Visual Desktop Access), there is a .INI option, {\cf0{\field{\*\fldinst{HYPERLINK "file:///<104|13315|0|12"}}{\fldrslt{\ul\cf4\cf4\ul HintsAccesible}}}}\f0\fs20 , to facilitate reading Hints through the status bar.\cf0\lang1033\par
 \par
 
 \pard\sa100\cf1\b\fs22 Allow only one instance\cf0\fs20\tab\tab\tab\b0 Default: YES\par
@@ -10989,10 +11538,10 @@ IX=0
 {\pntext\f1\'B7\tab}If disabled, you will be able to run many instances of KeyNote side by side.\par
 
 \pard\par
-\b Note\b0 : This option will be ignored if the instance is open with the {{\field{\*\fldinst{HYPERLINK "file:///<16|4758|0|1"}}{\fldrslt{\ul\cf3\cf3\ul -jmp}}}}\f0\fs20  argument option\par
+\b Note\b0 : This option will be ignored if the instance is open with the {{\field{\*\fldinst{HYPERLINK "file:///<16|4758|0|1"}}{\fldrslt{\ul\cf4\cf4\ul -jmp}}}}\f0\fs20  argument option\par
 \par
 
-\pard\sb80\cf4 Warning: If you run several instances of KeyNote, remember that you should not be editing the same file in more than one instance. KeyNote has some built-in protection against this, but it may still be unhealthy.\cf0\par
+\pard\sb80\cf5 Warning: If you run several instances of KeyNote, remember that you should not be editing the same file in more than one instance. KeyNote has some built-in protection against this, but it may still be unhealthy.\cf0\par
 
 \pard\par
 \par
@@ -11001,7 +11550,7 @@ IX=0
 
 \pard Allows you to display the interface menus and dialog boxes in a language other than the one defined internally (English). It requires the existence of files of the form "Keynote.<language>.lng" and "Keynote.<language>.tip" in the "Lang" folder.\par
 
-\pard\sb80 More information in {{\field{\*\fldinst{HYPERLINK "file:///<107|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Configuring user interface Language}}}}\f0\fs20\par
+\pard\sb80 More information in {{\field{\*\fldinst{HYPERLINK "file:///<107|0|0"}}{\fldrslt{\ul\cf4\cf4\ul Configuring user interface Language}}}}\f0\fs20\par
 
 \pard\par
 \par
@@ -11024,7 +11573,7 @@ IX=0
 
 \pard\li240\ul Note\ulnone\b :  \b0 The hotkey you specify here is system-wide. This means that no other application will be able to use this key combination (it is overridden by KeyNote). Also, if you run multiple instances of KeyNote, only the first instance will be able to use this hotkey.\par
 
-\pard\li240\sb80\b Tip\b0 : You can define different hotkeys for different instances of KeyNote, opening each one from a different profile, using different .INI file configuration (See {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Profiles}}}}\f0\fs20 )\par
+\pard\li240\sb80\b Tip\b0 : You can define different hotkeys for different instances of KeyNote, opening each one from a different profile, using different .INI file configuration (See {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf4\cf4\ul Profiles}}}}\f0\fs20 )\par
 
 \pard\li240\par
 
@@ -11737,7 +12286,7 @@ IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 Options: Actions\par
 \cf0\b0\fs26\par
@@ -11758,7 +12307,10 @@ IX=0
 \pard\sa80\cf1\b\fs22 Close Notes file after [n] minutes idle\cf0\fs20\tab\tab\tab\b0 Default: NO\par
 
 \pard If enabled, KeyNote closes the open KeyNote file after the specified number of minutes idle. Otherwise, it will remain open\par
-\par
+
+\pard\li240\sb100\ul Note\ulnone : Will not attempt to automatically close new (not yet saved) files.\par
+
+\pard\par
 \par
 
 \pard\sa80\cf1\b\fs22 Auto-close only encrypted files\cf0\fs20\tab\tab\tab\tab\b0 Default: YES\cf1\b\fs22\par
@@ -12095,7 +12647,7 @@ LV=2
 ND=Advanced
 DI=248
 GI=99
-NF=000000100000000000000000
+NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
@@ -12788,7 +13340,27 @@ MarginAltRight\b0 =80\b\par
 \pard\li100\sb60\b0 Define alternative visible margins (in pixels). You can switch between default value (minimum) and this values, with \ul View | Alternative Margins\ulnone  command.\par
 
 \pard     \par
+\b\v\'11B12\'12\v0 HintsAccesible\b0 =0\b\par
+
+\pard\li100\sb60\b0\lang3082 Option to facilitate reading Hints through the status bar to blind and vision impaired people.\par
+
+\pard\li100\sb100 If set to 1 (enabled), when a hint is displayed, all the text panels of the status bar, except for the one corresponding to the Hint, will be shown empty, so that a screen reader (like NVDA) can directly read the text (the hint) without having to previously read all the other panels, which include the file name, cursor position, file modification status, etc.\par
+
+\pard\li100\sb60 For example, the NVDA reader allows reading the status bar with the combination \cf4 [NVDA]+End\cf0 .\cf4\b\par
+
+\pard\li100\sb100\cf0\b0 Note: NVDA (Non-Visual Desktop Access) allows blind and vision impaired people to access and interact with the Windows operating system and many third party applications.\par
+
+\pard\lang1033\par
 \par
+\b EditorInfoPanelTop\b0 =0\b\par
+
+\pard\li100\sb60\b0\lang3082 Option that allows to change the position of the info panel (top or bottom)\par
+
+\pard\li100\sb100\lang1033 If set to 1 it will located at the top of the note editor.\par
+
+\pard\li100\sb20 If set to 0 (default) it will located at the bottom of the note editor.\par
+
+\pard\par
 \par
 \cf3\b\v\fs26\'11B2\'12\v0 [ClipOptions]\par
 \cf0\b0\fs20\par
@@ -13058,13 +13630,14 @@ IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green128\blue0;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Translating KeyNote NF user interface\cf2\lang1033\par
 \cf0\b0\fs26\par
 {\fs20{\field{\*\fldinst{HYPERLINK "file:///<107|280|0|1"}}{\fldrslt{\ul\cf2\cf2\ul KeyNote.Lan}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<107|280|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Translation of interface. LNG files}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<107|280|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Translation of tips. TIP files}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<107|2973|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Updating an existing LNG file}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<107|2718|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Creating or updating language files}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<107|3988|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Language files and Beta versions}}}}\f0\fs20\par
 \par
@@ -13079,14 +13652,14 @@ KeyNote NF allows you to adapt the user interface to multiple languages by trans
 \par
 Example:\par
 
-\pard\sb120\cf4 [Spanish]\par
+\pard\sb160\cf4 [Dutch]\par
 
-\pard Comment="Partially translated"\par
-Name="Spanish (Castellano)"\par
-LangFile="Keynote.spanish.lng"\par
-TipFile="Keynote.spanish.tip"\par
-Translator="......@gmail.com"\par
-\cf0\par
+\pard Comment=Translation by Ennovy and Plankje\par
+Name=Dutch\par
+LangFile=Keynote.dutch.lng\par
+TipFile=Keynote.dutch.tip\par
+Translator=http://forum.goeiedageven.nl/\cf0\par
+\par
 \par
 
 \pard\sa120\cf3\b\f1\fs24 Translation of interface. LNG files\par
@@ -13111,7 +13684,7 @@ Translated:\par
 Caption=Acerca de\par
 BTN_Close.Caption=&Cerrar\par
 Label3.Caption=E-mail:\par
-Label4.Hint=Haga doble clic para enviar email; Clic con bot\'f3n derecho para copiar\par
+Label4.Hint=Doble clic para enviar email; Clic derecho para copiar\\+(S\'f3lo email en texto plano, POR FAVOR)\par
 ...\par
 Pages.Tab_Tree.GBox_Tree.Label_TreeFonts.Caption= Fuente y color de fondo: \par
 \cf0\par
@@ -13127,11 +13700,15 @@ HumanizedCRLF=\\+\par
 At the end of the file is a section called [ResourceStrings], which includes all strings (which makes sense to translate) that have been taken from the code:\par
 \par
 \cf4 [ResourceStrings]\par
-64465_kn_INI_STR_INIMail_01=Fichero adjunto: %F\par
+...\par
+64764_knt_RS_sMacM48=Ir a la l\'ednea\par
+64765_knt_RS_sMacM49=Introduzca n\'famero de la l\'ednea o incremento (+-):\par
 ....\par
-[ResourceStrings]\par
-64465_kn_INI_STR_INIMail_01=Attached file: %F\par
-\cf0\par
+
+\pard\sb80 [ResourceStrings]\par
+
+\pard 64764_knt_RS_sMacM48=Go to line\par
+64765_knt_RS_sMacM49=Enter line number or increment (+-):\cf0\par
 \par
 In the files .LNG you don't have to translate all the text. You may keep strings untranslated. It is also possible (althougth not recommended, to facilitate improving the translation) to remove some of the lines. Those ones that are not present will simply not be translated.\par
 \par
@@ -13143,7 +13720,122 @@ In the files .LNG you don't have to translate all the text. You may keep strings
 \par
 \par
 
-\pard\sa120\cf3\b\v\f1\fs24\'11B2\'12\v0 Creating or updating language files\par
+\pard\sa120\cf3\b\v\f1\fs24\'11B4\'12\v0 Updating an existing LNG file\par
+
+\pard\cf0\b0\f0\fs20 Starting from existing .LNG files, the developer will update the .lng files to reflect the changes included since the last version (if any), marking with the help of a utility the strings that have been modified, the new ones as well as those that may have been removed.\par
+\par
+As a translator, what you will need to do is review these changes:\par
+\par
+\cf3\b New strings\cf0\par
+
+\pard\sb80\b0 They are identified by displaying the "(!)" mark at the beginning of the line (and not having "\{1\}" just before the "=" character). They may correspond to completely new sections, if new forms have been added, such as:\par
+\par
+
+\pard\cf4 [TForm_Image]\par
+(!)Caption=Image properties\par
+(!)btnCreateFile.Hint=Creates a file with the image content\par
+...\cf0\par
+
+\pard\sb120 or they can simply be new texts available in the code or in existing forms. Example:\par
+
+\pard\sb80\par
+
+\pard\cf4 [ResourceStrings]\par
+...\par
+(!)64381_knt_RS_sFile21=OK to deduce the missing date information?\\^\par
+(!)64382_knt_RS_sFile22=OK to remove date from note name?\\^\par
+...\par
+
+\pard\sb80\cf0\par
+
+\pard\cf3\b Removed strings\cf0\par
+
+\pard\sb80\b0 There may be strings that are no longer needed, perhaps because a certain functionality is removed or substantially modified, as is the case with the TForm_Mail form:\par
+\par
+
+\pard\cf4 [(x)TForm_Mail]\par
+(x)Caption=Zend notitie via E-mail\par
+...\par
+
+\pard\sb160\cf0 Occasionally, strings are deleted because they are removed from the interface as static text and are constructed or assigned dynamically. In such cases, it is possible that a string exists in the "ResourceStrings" section that includes all or part of that text. That new string will be marked with "(!)". For example:\par
+
+\pard\sb80\par
+
+\pard\cf4 [TAboutBox]\par
+...\par
+(x)Label4.Hint=Dubbelklikken voor verzenden email; Rechtsklikken voor kopi\'ebren\\+(Alleen email met platte tekst, AUB!!)\par
+...\par
+[ResourceStrings]\par
+...\par
+(!)65070_knt_RS_sAB00=About - \par
+(!)65071_knt_RS_sAB01=Double-click to send email; Right-click to copy\\^(No HTML-formatted email, PLEASE!)\par
+..\par
+
+\pard\sb160\cf0 You will need to remove from the file the lines corresponding to those deleted strings, marked with (x).\par
+
+\pard\sb80\par
+
+\pard\cf3\b Modfied strings\cf0\par
+
+\pard\sb80\b0 Strings that have been modified since the last translation reflected by the .LNG file will be marked with "(!)" at the beginning of the line and "\{1\}" just before the "=" character. For example:\par
+\par
+
+\pard\cf4 (!)Panel_Main.Image1.Hint\{1\}=Created with Delphi 11 Community Edition\par
+(x)Panel_Main.Image1.Hint=Gemaakt met Borland Delphi 2006\par
+\cf0\par
+You can see that after the line marked as modified, which is shown with the original text (in English and as it appears in the keynote.exe file), the line with the previous translation is offered. This makes it easier to recognize what the change is and adjust the translation. In case it might be helpful to see what the original text was in the previous version (Ex: "Panel_Main.Image1.Hint=Created with Borland Delphi 2006") the main file with the latest changes (keynote.lng) and the same one from the previous version (keynote_OLD.lng) will always be offered. You can locate the string from its code: "Panel_Main.Image1.Hint"\par
+
+\pard\sb160 In many cases the quickest way will be to modify the line with the existing translation (marked with (x)) and simply delete the other one. In other cases, if the change is major, it may be better to simply translate the new one from scratch. In the example, we could modify the second line and delete the first one:\par
+
+\pard\sb80\par
+
+\pard\cf4 Panel_Main.Image1.Hint=Gemaakt met Delphi 11 Community Edition\par
+\cf0\par
+
+\pard\sb80 Sometimes the modification of some strings responds to a change in terminology in the application, such as the one made in version v 1.9.2: Simple notes / Tree Notes + nodes ==> "Folders" with "notes" Thus, for example:\par
+\par
+Keynote_OLD.lng\par
+\par
+
+\pard\cf4 64760_knt_RS_sMacM44=This action cannot be performed, because there is no active note (%d)\par
+64761_knt_RS_sMacM45=This note cannot be set as Read-only, because it is being used for clipboard capture.\cf0\par
+
+\pard\sb80\par
+Keynote.lng\par
+\par
+
+\pard\cf4 64760_knt_RS_sMacM44\{1\}=This action cannot be performed, because there is no active folder (%d)\par
+64761_knt_RS_sMacM45\{1\}=This folder cannot be set as Read-only, because it is being used for clipboard capture.\cf0\par
+
+\pard\sb80\par
+This modification is reflected in the Keynote.dutch.lng file as:\par
+\par
+
+\pard\cf4 (!)64760_knt_RS_sMacM44\{1\}=This action cannot be performed, because there is no active folder (%d)\par
+(x)64760_knt_RS_sMacM44=Deze actie kan niet worden uitgevoerd, omdat er geen actieve notitie (%d) is.\par
+(!)64761_knt_RS_sMacM45\{1\}=This folder cannot be set as Read-only, because it is being used for clipboard capture.\par
+(x)64761_knt_RS_sMacM45=Deze notitie kan niet worden ingesteld als alleen-lezen, omdat het in gebruik is als klembordopname.\cf0\par
+
+\pard\sb80\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Remember\b0 : It is possible to leave lines untranslated, as well as to remove some untranslated lines, but you cannot keep lines marked with (x) or (!) in the final .LNG file. It is possible to leave the "\{1\}" marks, although I recommend removing them in the final file (just replace "\{1\}=" with "=")\par
+
+\pard\sb80\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 It is \b very important\b0  to respect special characters included in strings, especially those such as "%s" or "%d", for example. If they are removed or added unnecessarily, an exception will be thrown when the application uses that string, since there may no longer be a correspondence between the terms to be replaced ("%s" or "%d") and the strings that the application will use for that purpose.\par
+
+\pard\li360\sb80 This is actually one reason why .lng files from older versions should not be used, as they may contain strings with different usage of these replacement markers, thus causing exceptions. As an example of string:\par
+
+\pard\sb80\par
+
+\pard\li360\cf4 64743_knt_RS_sSty02= %s, %s space, %s, L:%d F:%d R:%d, Bef:%d Aft:%d\cf0\par
+
+\pard\sb80\par
+
+\pard\par
+\par
+
+\pard\sa120\cf3\b\v\f1\fs24\'11B2\'12\v0 Creating or updating language files  (Developers)\par
 
 \pard\cf0\b0\f0\fs20 To keep translation files (.LNG) working and up to date, it is necessary to update the files contained in the Lang folder.\par
 \par
@@ -13157,6 +13849,8 @@ During the process of generating a new application executable, it will be necess
 {\pntext\f2\'B7\tab}Build the project. EXE and DRC files will be created.\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 Execute "kdl32_updatelng.cmd" \par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\b Remember\b0 : .exe and .drc must be generated in \b release mode\b0 . The generated codes for the Resourcestring section are different if generated in debug mode.\par
 
 \pard\par
 The .lng files will be updated pointing out untranslated text strings (new or unmodified), as well as those that are no longer used (obsolete):\par
@@ -14733,7 +15427,7 @@ Choose \b Tools | Configuration Options \b0 command, \b Advanced\b0  setting, an
 \cf0\b0 Select a different color for the background of the current node or note (Editor panel).\par
 Choose \b Tools| Configuration\b0  Options command, {{\field{\*\fldinst{HYPERLINK "file:///<99|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Advanced}}}}\f0\fs20  setting, and select Old style color selection dialogs to display a color selection dialog when you choose the \b Background Color\b0  command.\par
 
-\pard\fi-320\li680\sb80\b Tip: \b0 You \b change the background color for ALL NODES in a tree\b0 : hold down the \cf5\b Shift\cf0\b0  key while you choose the {{\field{\*\fldinst{HYPERLINK "file:///<113|14103|0|40"}}{\fldrslt{\ul\cf3\cf3\ul Format | Background Color}}}}\f0\fs20 . KeyNote will then warn you that the new color will be applied to all tree nodes, and you can confirm or cancel.\par
+\pard\fi-320\li680\sb80\b Tip: \b0 You can \b change the background color for ALL NODES in a tree\b0 : hold down the \cf5\b Shift\cf0\b0  key while you choose the {{\field{\*\fldinst{HYPERLINK "file:///<113|14103|0|40"}}{\fldrslt{\ul\cf3\cf3\ul Format | Background Color}}}}\f0\fs20 . KeyNote will then warn you that the new color will be applied to all tree nodes, and you can confirm or cancel.\par
 
 \pard\par
 
@@ -15284,7 +15978,9 @@ Use \b Tools/Configuration Options\b0  command, \b Formats\b0  setting to set th
 \cf0\b0 Save the structure of a active folder's tree in a text file.\par
 The text file contains only the names and relative positions of the \cf4 node\cf0 ; it does not include the contents of the nodes.\par
 
-\pard\sb80\b Tip\b0 : With \cf5\b Ctrl\cf0\b0  will add the ID of the nodes to the names. The IDs are shown enclosed in "[" and "]"\par
+\pard\sb80\b Tip\b0 : With \cf5\b Ctrl\cf0\b0  will add the GID of the nodes to the names. The GIDs are shown enclosed in "[" and "]". The GID value is shown first and then the ID value (ID: when it exists, as it is a node created with a version prior to 1.9.3.1)\par
+    Example:\par
+       My node name [5](id:3)        <- GID:5   ID:3\par
 
 \pard\par
 
@@ -15894,7 +16590,7 @@ II=2
 DC=24-02-2024 13:35:07
 TI=1
 TS=4
-CX=0
+CX=1345
 CY=0
 BG=clWindow
 CH=0
@@ -15903,8 +16599,8 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=111110000000110001000000
-SN=2
+FL=101110000000110000000000
+SN=0
 TW=182
 TM=0
 EN=(%D) -
@@ -15944,6 +16640,17 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.0.0\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Important rework and refactorization. {{\field{\*\fldinst{HYPERLINK "file:///<120|21|0|4"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 .\par
+{\pntext\f3\'B7\tab}It is possible to toggle between RTF and Plain text only in selected note (node)\par
+{\pntext\f3\'B7\tab}New: Creation/Last modification date in notes\par
+{\pntext\f3\'B7\tab}Added editor Information panel\par
+{\pntext\f3\'B7\tab}Multiple improvements in tree panel\par
+{\pntext\f3\'B7\tab}Added new Tree Filtering\par
+{\pntext\f3\'B7\tab}Syntax for additional/advanced search\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 1.9.5\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 New: Hyperlinks can use parameters, behaving similar to Favorites\par
@@ -16006,12 +16713,30 @@ NF=000000000000000000000000
 BC=clWindow
 IX=0
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 KeyNote\f0\lang3082  NF:  News\cf2\lang1033\par
 \cf0\b0\fs20\par
+\par
+
+\pard\sa120\cf1\b\v\fs24\lang3082\'11B4\'12\v0 26\f1\lang1045  \f0\lang3082 nov\f1\lang1045  202\f0\lang3082 4\cf2\lang1033\par
+
+\pard\cf0\b0\fs20 Important rework and refactorization in version 2.0.0\par
+\par
+Modified the model to allow the incorporation of new functionalities. Initially, approximately the same functionality has been maintained (with some improvements and fixes) but on the new model. Improvements will be added little by little.\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 The new model is supported for now mainly by the following classes: TNote, TNoteNode, TNoteEntry, TKntFolder, TKntFile\par
+{\pntext\f2\'B7\tab}Notes (TNote) are independent of folders (TKntFolder), and can appear in 0 or N folders in the form of nodes (TNoteNode), thus being visible in their corresponding trees. The same note can be referenced in multiple places in any folder. The new nodes (TNoteNode) allow to manage in a cleaner and simpler way what were called mirror nodes. Now there is no difference between the nodes, they are all NNodes. Those nodes that are not the only ones associated with its note are simply highlighted as "Linked nodes". From the context menu it is possible to go through all the linked NNodes.\par
+{\pntext\f2\'B7\tab}A note may have multiple entries, each with its creation date, tags, content type (plain text or RTF), etc. A specific control associated with the notes will be created that will take advantage of these features.\par
+{\pntext\f2\'B7\tab}Replaced TTreeNT with Virtual-TreeView {{\field{\*\fldinst{HYPERLINK https://github.com/JAM-Software/Virtual-TreeView.git }}{\fldrslt{https://github.com/JAM-Software/Virtual-TreeView.git\ul0\cf0}}}}\f0\fs20\par
+
+\pard    \par
+From the new version of KeyNote NF you will still be able to load files from previous versions, but the new saved files can only be opened with the new versions. The internal format will go from 2.1 to 3.0\par
+\par
+Language files (.lng) are ready to be translated/updated. They reflect changes since last available .lng files (v.1.7.8.1). See {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/discussions/752"}}{\fldrslt{\ul\cf2\cf2\ul Translating KeyNote NF}}}}\f0\fs20  in GitHub.\par
+\par
 \par
 
 \pard\sa120\cf1\b\fs24\lang3082 07\f1\lang1045  \f0\lang3082 mar\f1\lang1045  202\f0\lang3082 4\cf2\lang1033\par
@@ -16121,10 +16846,10 @@ GI=121
 NF=000001000000000000000000
 BC=clWindow
 IX=0
-RV=C:\APL\KeyNote NF\doc\history.txt
+RV=..\doc\history.txt
 VF=C:\APL\KeyNote NF\doc\history.txt
 %BK
-BK=0,file:///*8|2|0|0
+BK=0,file:///<115|8733|0|224
 BK=1,file:///*8|13|0|0
 BK=2,file:///*8|281|0|0
 BK=3,file:///*8|293|0|0
@@ -16138,7 +16863,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=194
+II=204
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -16227,7 +16952,6 @@ PD=103||103_Clipb_02ene.png|1|843|374|4019961967||1|1||0
 PD=104||104_Clipb_03ene.png|1|163|101|244405219||1|2||0
 PD=105||105_Clipb_03ene.png|1|147|102|2223406620||1|1||0
 PD=106||106_Clipb_03ene.png|1|149|46|3523751802||1|1||0
-PD=107||107_Clipb_03ene.png|1|174|81|715851678||1|2||0
 PD=108||108_Clipboard_03ene.png|1|539|456|2896061182||1|2||0
 PD=110||110_Clipb_03ene.png|1|358|375|3763404517||1|1||0
 PD=111||111_Clipb_03ene.png|1|343|332|1945380963||1|1||0
@@ -16266,18 +16990,13 @@ PD=162||162_Image_23ene.png|1|16|16|3345295157||1|2||0
 PD=163||163_Image_24ene.png|1|16|16|3249459115||1|1||0
 PD=164||164_Clipb_25ene.png|1|310|303|4254172203||1|1||0
 PD=166||166_Clipb_27ene.png|1|216|223|921081539||1|1||0
-PD=167||167_Clipb_13feb.png|1|181|245|787875324||1|1||0
 PD=168||168_Clipb_20feb.png|1|535|436|3914595364||1|1||0
 PD=169||169_Clipb_21feb.png|1|488|533|2314338839||1|1||0
 PD=171||171_Clipb_22feb.png|1|359|282|3285222098||1|1||0
 PD=172||172_Clipboard_24feb.png|1|391|592|2780831697||1|1||0
 PD=173||173_Clipb_24feb.png|1|88|31|231898908||1|1||0
 PD=174||174_Clipb_06mar.png|1|532|330|3305557142||1|1||0
-PD=175||175_Clipb_31mar.png|1|377|531|1154080738||1|1||0
-PD=176||176_Clipb_31mar.png|1|378|528|2613711776||1|1||0
-PD=177||177_Clipb_31mar.png|1|378|530|3071544195||1|1||0
 PD=178||178_Clipb_31mar.png|1|402|46|2296713539||1|1||0
-PD=179||179_Clipb_31mar.png|1|213|524|176196447||1|1||0
 PD=180||180_Clipb_31mar.png|1|532|330|2016695059||1|1||0
 PD=181||181_Clipb_31mar.png|1|335|279|3220090320||1|1||0
 PD=182||182_Clipb_31mar.png|1|325|429|2183088410||1|1||0
@@ -16291,5 +17010,15 @@ PD=189||189_Clipb_31mar.png|1|339|342|4218597864||1|1||0
 PD=190||190_Clipb_31mar.png|1|358|370|4238132767||1|1||0
 PD=192||192_Clipb_31mar.png|1|411|28|2464087388||1|1||0
 PD=193||193_Clipb_31mar.png|1|202|232|2195227359||1|1||0
+PD=194||194_Clipb_24nov.png|1|198|233|788728395||1|1||0
+PD=195||195_Clipb_24nov.png|1|475|302|2114296858||1|1||0
+PD=196||196_Clipb_24nov.png|1|123|72|1473008777||1|2||0
+PD=197||197_Clipb_25nov.png|1|407|283|3780025982||1|1||0
+PD=198||198_Clipb_25nov.png|1|195|671|310736998||1|1||0
+PD=199||199_Clipb_25nov.png|1|386|530|2547233049||1|1||0
+PD=200||200_Clipb_25nov.png|1|387|528|3400871857||1|1||0
+PD=201||201_Clipb_25nov.png|1|384|529|1254717495||1|1||0
+PD=202||202_Clipb_25nov.png|1|594|295|3724386940||1|1||0
+PD=203||203_Clipb_25nov.png|1|594|295|1371154350||1|1||0
 %EI
 %%
