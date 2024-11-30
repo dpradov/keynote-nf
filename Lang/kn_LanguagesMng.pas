@@ -167,6 +167,8 @@ begin
                     FreeLocalizer.LanguageFile:= path + FN;
                     DefineConst;
                     AddSearchModes;
+                    AddSearchScopes;
+                    AddSearchChkModes;
                     if assigned (Form_Main) then
                        Form_Main.SetupUIHints;
                  end;

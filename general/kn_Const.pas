@@ -458,25 +458,11 @@ type
     tsNode, tsSubtree, tsCheckedNodes, tsFullTree
   );
 
-const
-  TREE_SELECTION_NAMES : array[TTreeSelection] of string = (
-    sINFTreeSel1, sINFTreeSel2, sINFTreeSel3, sINFTreeSel4
-  );
-
 type
   TExportFmt = (
     xfPlainText, xfRTF, xfHTML,
     xfKeyNote,
     xfTreePad
-  );
-
-const
-  EXPORT_FORMAT_NAMES : array[TExportFmt] of string = (
-    sINFExptFrmt1,
-    sINFExptFrmt2,
-    'HTML',
-    sINFExptFrmt3,
-    'TreePad'
   );
 
 type
@@ -486,12 +472,7 @@ type
 
 type
   TNodeIconKind = (
-    niNone, niStandard, niCustom 
-  );
-
-const
-  NODE_ICON_KINDS : array[TNodeIconKind] of string = (
-    sINFIconKind1, sINFIconKind2, sINFIconKind3
+    niNone, niStandard, niCustom
   );
 
 {
@@ -506,14 +487,6 @@ type
   // IMPORTANT: lnkKNT MUST be LAST in the sequence, i.e.
   // must be equal to "high( TLinkType )"
   // kn_Hyperlink.pas relies on it while creating the form controls
-
-const
-  LINK_TYPES : array[TLinkType] of string = (
-    sINFLinkType1,
-    sINFLinkType2,
-    sINFLinkType3,
-    sINFLinkType4
-  );
 
 
 const
@@ -659,48 +632,15 @@ type
     txmFullExpand // show tree fully expanded
   );
 
-const
-  TREE_EXPAND_MODES : array[TTreeExpandMode] of string = (
-    sINFExpnd1,
-    sINFExpnd2,
-    sINFExpnd3,
-    sINFExpnd4,
-    sINFExpnd5
-  );
-
-
 
 type
   TImagesStorageMode = (smEmbRTF, smEmbKNT, smExternal, smExternalAndEmbKNT);  // Emb: Embedeed
 
-const
-  IMAGES_STORAGE_MODE : array[TImagesStorageMode] of string = (
-     sINFImgSM1,
-     sINFImgSM2,
-     sINFImgSM3,
-     sINFImgSM4
-  );
-
-
 type
   TImagesExternalStorage =  (issFolder, issZIP );
 
-const
-   EXTERNAL_STORAGE_TYPE : array[TImagesExternalStorage] of string = (
-     sINFImgExtSt1,
-     sINFImgExtSt2
-   );
-
 type
   TImagesStorageModeOnExport = (smeEmbRTF, smeEmbKNT, smeNone);
-
-const
-  IMAGES_STORAGE_MODE_ON_EXPORT : array[TImagesStorageModeOnExport] of string = (
-     sINFImgSM1,
-     sINFImgSM2,
-     sINFImgSM5
-  );
-
 
 type
   TZipCompressionSelec = (
@@ -784,24 +724,9 @@ type
    TCtrlUpDownMode = (cudDefault, cudShiftLine, cudShiftScrollbar);
 
 
-const
-  CTRL_UP_DOWN_MODE : array[TCtrlUpDownMode] of string = (
-     sINFCtrlUD1,
-     sINFCtrlUD2,
-     sINFCtrlUD3
-  );
-
-
 type
   TClipNodeNaming = (
     clnDefault, clnClipboard, clnDateTime
-  );
-
-const
-  CLIP_NODE_NAMINGS : array[TClipNodeNaming] of string = (
-    sINFClipNdNam1,
-    sINFClipNdNam2,
-    sINFClipNdNam3
   );
 
 
@@ -812,15 +737,6 @@ type
     clptAllowFontStyle,   // Allow only font styles like bold and italic, e.g
     clptAllowFont         // disallow paragraph formatting, but allow font formatting
   );
-
-const
-  CLIP_PLAIN_TEXT_MODE : array[TClipPlainTextMode] of string = (
-    sINFClipPlainTxt1,
-    sINFClipPlainTxt2,
-    sINFClipPlainTxt3,
-    sINFClipPlainTxt4
-  );
-
 
 type
    TCopyFormatMode = (cfDisabled, cfEnabled, cfEnabledMulti );
@@ -860,25 +776,6 @@ type
 
   );
   TDropFileActions = array[TDropFileAction] of boolean;
-
-const
-  FactStrings : array[TDropFileAction] of string = (
-    '',
-    sINFDrop1,
-    sINFDrop2,
-    sINFDrop3,
-    sINFDrop5,
-    sINFDrop4,
-    sINFDrop6,
-    sINFDrop7,
-    sINFDrop9
-    {$IFDEF WITH_IE}
-    ,
-    sINFDrop8
-    {$ENDIF}
-
-  );
-
 
 type
   THTMLImportMethod = (
@@ -1082,6 +979,19 @@ const
   );
 
 var
+  TREE_SELECTION_NAMES : array[TTreeSelection] of string;
+  EXPORT_FORMAT_NAMES : array[TExportFmt] of string;
+  NODE_ICON_KINDS : array[TNodeIconKind] of string;
+  LINK_TYPES : array[TLinkType] of string;
+  TREE_EXPAND_MODES : array[TTreeExpandMode] of string;
+  IMAGES_STORAGE_MODE : array[TImagesStorageMode] of string;
+  EXTERNAL_STORAGE_TYPE : array[TImagesExternalStorage] of string;
+  IMAGES_STORAGE_MODE_ON_EXPORT : array[TImagesStorageModeOnExport] of string;
+  CTRL_UP_DOWN_MODE : array[TCtrlUpDownMode] of string;
+  CLIP_NODE_NAMINGS : array[TClipNodeNaming] of string;
+  CLIP_PLAIN_TEXT_MODE : array[TClipPlainTextMode] of string;
+  FactStrings : array[TDropFileAction] of string;
+
   FILE_FORMAT_NAMES : array[TKntFileFormat] of string;
   FILE_COMPRESSION_LEVEL : array[TZCompressionLevel] of string;
   SEARCH_MODES : array[TSearchMode] of string;
@@ -1095,29 +1005,92 @@ implementation
 
 procedure DefineConst;
 begin
-  FILE_FORMAT_NAMES[nffKeyNote]:=  sINFFormats1;
-  FILE_FORMAT_NAMES[nffKeyNoteZip]:=   sINFFormats3;
-  FILE_FORMAT_NAMES[nffEncrypted]:=    sINFFormats2;
+  TREE_SELECTION_NAMES[tsNode ]:=        sINFTreeSel1;
+  TREE_SELECTION_NAMES[tsSubtree ]:=     sINFTreeSel2;
+  TREE_SELECTION_NAMES[tsCheckedNodes]:= sINFTreeSel3;
+  TREE_SELECTION_NAMES[tsFullTree]:=     sINFTreeSel4;
+
+  EXPORT_FORMAT_NAMES[xfPlainText]:= sINFExptFrmt1;
+  EXPORT_FORMAT_NAMES[xfRTF]:=       sINFExptFrmt2;
+  EXPORT_FORMAT_NAMES[xfHTML]:=      'HTML';
+  EXPORT_FORMAT_NAMES[xfKeyNote]:=   sINFExptFrmt3;
+  EXPORT_FORMAT_NAMES[xfTreePad]:=   'TreePad';
+
+  NODE_ICON_KINDS[niNone]:=       sINFIconKind1;
+  NODE_ICON_KINDS[niStandard]:=   sINFIconKind2;
+  NODE_ICON_KINDS[niCustom]:=     sINFIconKind3;
+
+  LINK_TYPES[lnkURL]:=   sINFLinkType1;
+  LINK_TYPES[lnkEmail]:= sINFLinkType2;
+  LINK_TYPES[lnkFile]:=  sINFLinkType3;
+  LINK_TYPES[lnkKNT]:=   sINFLinkType4;
+
+  TREE_EXPAND_MODES[txmFullCollapse]:=  sINFExpnd1;
+  TREE_EXPAND_MODES[txmActiveNode]:=    sINFExpnd2;
+  TREE_EXPAND_MODES[txmTopLevelOnly]:=  sINFExpnd3;
+  TREE_EXPAND_MODES[txmExact]:=         sINFExpnd4;
+  TREE_EXPAND_MODES[txmFullExpand]:=    sINFExpnd5;
+
+  IMAGES_STORAGE_MODE[smEmbRTF]:=            sINFImgSM1;
+  IMAGES_STORAGE_MODE[smEmbKNT]:=            sINFImgSM2;
+  IMAGES_STORAGE_MODE[smExternal]:=          sINFImgSM3;
+  IMAGES_STORAGE_MODE[smExternalAndEmbKNT]:= sINFImgSM4;
+
+  EXTERNAL_STORAGE_TYPE[issFolder]:=  sINFImgExtSt1;
+  EXTERNAL_STORAGE_TYPE[issZIP]:=     sINFImgExtSt2;
+
+  IMAGES_STORAGE_MODE_ON_EXPORT[smeEmbRTF]:= sINFImgSM1;
+  IMAGES_STORAGE_MODE_ON_EXPORT[smeEmbKNT]:= sINFImgSM2;
+  IMAGES_STORAGE_MODE_ON_EXPORT[smeNone]:=   sINFImgSM5;
+
+  CTRL_UP_DOWN_MODE[cudDefault]:=        sINFCtrlUD1;
+  CTRL_UP_DOWN_MODE[cudShiftLine]:=      sINFCtrlUD2;
+  CTRL_UP_DOWN_MODE[cudShiftScrollbar]:= sINFCtrlUD3;
+
+  CLIP_NODE_NAMINGS[clnDefault]:=    sINFClipNdNam1;
+  CLIP_NODE_NAMINGS[clnClipboard]:=  sINFClipNdNam2;
+  CLIP_NODE_NAMINGS[clnDateTime]:=   sINFClipNdNam3;
+
+  CLIP_PLAIN_TEXT_MODE[clptPlainText]:=      sINFClipPlainTxt1;
+  CLIP_PLAIN_TEXT_MODE[clptAllowHyperlink]:= sINFClipPlainTxt2;
+  CLIP_PLAIN_TEXT_MODE[clptAllowFontStyle]:= sINFClipPlainTxt3;
+  CLIP_PLAIN_TEXT_MODE[clptAllowFont]:=      sINFClipPlainTxt4;
+
+  FactStrings[factUnknown]:=         '';
+  FactStrings[factOpen]:=            sINFDrop1;
+  FactStrings[factExecute]:=         sINFDrop2;
+  FactStrings[factMerge]:=           sINFDrop3;
+  FactStrings[factHyperlink]:=       sINFDrop5;
+  FactStrings[factImportAsFolder]:=  sINFDrop4;
+  FactStrings[factImportAsNode]:=    sINFDrop6;
+  FactStrings[factMakeVirtualNode]:= sINFDrop7;
+  FactStrings[factInsertContent]:=   sINFDrop9;
+  {$IFDEF WITH_IE}
+  FactStrings[factMakeVirtualIENode]:= sINFDrop8;
+  {$ENDIF}
+
+  FILE_FORMAT_NAMES[nffKeyNote]:=     sINFFormats1;
+  FILE_FORMAT_NAMES[nffKeyNoteZip]:=  sINFFormats3;
+  FILE_FORMAT_NAMES[nffEncrypted]:=   sINFFormats2;
 {$IFDEF WITH_DART}
-  FILE_FORMAT_NAMES[nffDartNotes]:=    sINFFormats4;
+  FILE_FORMAT_NAMES[nffDartNotes]:=   sINFFormats4;
 {$ENDIF}
-  FILE_COMPRESSION_LEVEL[zcNone]:= sINFCompres1;
+  FILE_COMPRESSION_LEVEL[zcNone]:=    sINFCompres1;
   FILE_COMPRESSION_LEVEL[zcFastest]:= sINFCompres2;
   FILE_COMPRESSION_LEVEL[zcDefault]:= sINFCompres3;
-  FILE_COMPRESSION_LEVEL[zcMax]:= sINFCompres4;
-
+  FILE_COMPRESSION_LEVEL[zcMax]:=     sINFCompres4;
 
   SEARCH_MODES[smPhrase] := sINFSrchMode1;
-  SEARCH_MODES[smAll] := sINFSrchMode2;
-  SEARCH_MODES[smAny] := sINFSrchMode3;
+  SEARCH_MODES[smAll] :=    sINFSrchMode2;
+  SEARCH_MODES[smAny] :=    sINFSrchMode3;
 
-  SEARCH_SCOPES[ssOnlyNodeName ]:= sINFSrchScope1;
-  SEARCH_SCOPES[ssOnlyContent] := sINFSrchScope2;
+  SEARCH_SCOPES[ssOnlyNodeName ]:=        sINFSrchScope1;
+  SEARCH_SCOPES[ssOnlyContent] :=         sINFSrchScope2;
   SEARCH_SCOPES[ssContentsAndNodeName] := sINFSrchScope3;
 
   SEARCH_CHKMODES[scOnlyNonChecked]:= sINFSrchChk1;
-  SEARCH_CHKMODES[scOnlyChecked]:= sINFSrchChk2;
-  SEARCH_CHKMODES[scAll]:= sINFSrchChk3;
+  SEARCH_CHKMODES[scOnlyChecked]:=    sINFSrchChk2;
+  SEARCH_CHKMODES[scAll]:=            sINFSrchChk3;
 
   SYMBOL_NAME_LIST[1]:=   sINFSymb0;
   SYMBOL_NAME_LIST[2]:=   sINFSymb1;

@@ -66,6 +66,7 @@ const
    procedure LoadRicheditLibrary;
    procedure AddSearchModes;
    procedure AddSearchScopes;
+   procedure AddSearchChkModes;
 
    function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
