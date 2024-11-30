@@ -2134,7 +2134,7 @@ begin
           if ( key = _NEntryID ) then
               NEntryID := StrToUIntDef(s, 0)
           else
-          if ( key = _NoteState ) then
+          if ( key = _NEntryState ) then
              NEntry.StringToStates(s)
           else
           if ( key = _DateCreated ) then
@@ -2347,7 +2347,7 @@ var
      if NEntry.Created <> 0 then
        tf.WriteLine(_DateCreated + '=' + FormatDateTime(_COMPACT_DATETIME_TOFILE, NEntry.Created) );
      if (NEntry.States <> []) and (NEntry.States <> [nesModified]) then
-       tf.WriteLine(_NoteState + '=' + NEntry.StatesToString);
+       tf.WriteLine(_NEntryState + '=' + NEntry.StatesToString);
 
      // ToDO: fTags: TNoteTagList
 

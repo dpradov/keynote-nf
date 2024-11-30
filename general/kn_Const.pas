@@ -930,9 +930,10 @@ const
   );
 
 const
-  // common tokens for all Folders
-  _AutoIndent = 'AI';
-  _BookMarks = 'BM';
+  // Tokens for all Folders
+  //--------------------------------
+  //_AutoIndent = 'AI';       // Unused
+  //_BookMarks = 'BM';        // Unused
   _CHBGColor = 'BG';
   _CHBGHiColor = 'BH';
   _CHFontCHarset = 'CH';
@@ -945,18 +946,30 @@ const
   _CHLanguage = 'LN';
   _DateCreated = 'DC';
   _ImageIndex = 'II';
-  _Info = 'NI';
+  //_Info = 'NI';             // Unused
   _LineCount = 'LC';
   _Lines = 'LI';
   _FolderKind = 'NK';
   _FolderName = 'NN';
   _FolderID = 'ID';
-  _PosX = 'CX';
-  _POSY = 'CY';
+  //_PosX = 'CX';             // Unused
+  //_POSY = 'CY';             // Unused
   _TabIndex = 'TI';
   _TabSize = 'TS';
   _Flags = 'FL';
-  _NodeFlags = 'NF';
+
+  // Tokens for folders (tree folders..)
+  _SelectedNode = 'SN';
+  _TreeWidth = 'TW';
+  _TreeMaxWidth = 'TM';
+  _DefaultNoteName = 'EN';
+  _CHTRBGColor = 'TB';
+  _CHTRFontCharset = 'TH';
+  _CHTRFontColor = 'TC';
+  _CHTRFontName = 'TN';
+  _CHTRFontSize = 'TZ';
+  _CHTRFontStyle = 'TY';
+
 
   (* UNUSED, replaced by _Flags: *)
   {_ReadOnly = 'RO';
@@ -975,40 +988,35 @@ const
   _NoteName = 'ND';
   _NoteGID = 'GI';
   _NoteAlias = 'AL';
-  _NoteState = 'NS';
+  _NoteState = 'Ns';
   _LastModified = 'LM';
   _NoteSelEntry = 'SE';
   _NEntrySelStart = 'SS';
   _NoteResources = 'NR';
-
-  _NEntryID = 'id';
-
-  // Tokens for note nodes (in folder)
-  _NodeID = 'DI';
-  _NodeGID = 'gi';
-  _NodeLevel = 'LV';
-  _NodeState = 'ns';
-
-  _SelectedNode = 'SN';
-  _TreeWidth = 'TW';
-  _TreeMaxWidth = 'TM';
   _VirtualFN = 'VF';
   _RelativeVirtualFN = 'RV';
-  _NodeEditorBGColor = 'BC';
-  _DefaultNoteName = 'EN';
 
+  // Tokens for note entries
+  _NEntryID = 'id';
+  _NEntryState = 'NS';
+  //DC=21-05-2003 15:25:25       Date and time the entry was created
+
+  // Tokens for note nodes (in folder)
+  //GI=2  Optional: Global ID (GID) of the note referenced by the Node.
+  _NodeGID = 'gi';
+  _NodeID = 'DI';
+  _NodeLevel = 'LV';
+  _NodeState = 'ns';
+  _NodeEditorBGColor = 'BC';
   _NodeColor = 'HC';
   _NodeBGColor = 'HB';
   _NodeFontFace = 'FF';
-  _CHTRBGColor = 'TB';
-  _CHTRFontCharset = 'TH';
-  _CHTRFontColor = 'TC';
-  _CHTRFontName = 'TN';
-  _CHTRFontSize = 'TZ';
-  _CHTRFontStyle = 'TY';
   _NodeImageIndex = 'IX';
   _NodeAlarm = 'NA';        // [dpv]
+
   _VirtualNode = 'VN';      // Replaced by normal "linked" nodes (TNoteNode) since NFILEVERSION_MAJOR >= 3
+  _NodeFlags = 'NF';        // => NFILEVERSION_MAJOR < 3
+
 
 const
   // special FlagsStr constant characters
