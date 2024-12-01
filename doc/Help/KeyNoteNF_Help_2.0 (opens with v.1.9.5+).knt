@@ -1,15 +1,45 @@
-#!GFKNT 3.0
+#!GFKNT 2.1
 # This is an automatically generated file. Do not edit.
 #/
 #?
 #$8
 #C20-04-2003 22:44:55
 #^010000000000000000000000
-N:=121
-%*
-GI=1
+%+
+NN=KNT Help
+ID=8
+II=3
+DC=20-04-2003 19:33:48
+TI=0
+TS=4
+CX=0
+CY=0
+BG=clWindow
+CH=0
+FC=clWindowText
+FN=Tahoma
+FS=10
+LN=1033
+ST=
+FL=111110000000100000000000
+SN=0
+TW=239
+TM=0
+EN=New node
+TB=clWindow
+TH=0
+TC=clWindowText
+TN=Tahoma
+TZ=10
+TY=
+%-
+LV=0
 ND=Welcome to KeyNote NF
-%.
+DI=2
+GI=1
+NF=001000100000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue64;\red128\green0\blue128;\red255\green0\blue0;\red0\green128\blue0;}
@@ -50,10 +80,15 @@ For more information, see the following topics:\par
 Note: \f3 The \ul concept of KeyNote was based on\ulnone  a similar tabbed notebook application that Marek was using for several years: \b Dart Notes\b0 , by Andre v.d. Merwe. KeyNote can open and save files in Dart Notes format. See {\ul{\field{\*\fldinst{HYPERLINK "file:///<17|0|0"}}{\fldrslt{Information for DaRT Notes Users}}}}\ul\f3\fs20  \ulnone if you have used Dart Notes before.\lang3082\par
 \f0\lang1033\par
 }
-%*
-GI=2
+%-
+LV=1
 ND=How to use this help
-%.
+DI=571
+GI=2
+NF=000000010000000000000000
+BC=clWindow
+IX=0
+HC=clBlue
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -97,10 +132,14 @@ Remember that you can always freely go through the content tree, checking the ma
 Note:\par
 This help file was created based on the help file "KN_Help.knt" written by \b Nathan Sendhil\b0 . That old file is still available in {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/tree/master/doc/Help/hlp_1.6.5"}}{\fldrslt{\ul\cf2\cf2\ul KeyNote NF site in GitHub}}}}\f0\fs20\par
 }
-%*
-GI=3
+%-
+LV=1
 ND=What's New
-%.
+DI=5
+GI=3
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -119,10 +158,14 @@ Note: The virtual node and rest of information related to changes in last versio
 In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul News}}}}\f0\fs20  you can see some important milestones related to KeyNote and KeyNote NF.\par
 \par
 }
-%*
-GI=4
+%-
+LV=1
 ND=Download and install new versions
-%.
+DI=547
+GI=4
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\froman\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue64;}
@@ -156,10 +199,14 @@ Also, since version 1.9.0 KeyNote NF includes a new entry in Help menu: "\b Chec
 
 \pard\par
 }
-%*
-GI=5
+%-
+LV=1
 ND=Verifying Releases
-%.
+DI=442
+GI=5
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue0;}
@@ -224,10 +271,14 @@ The result should say that file was signed by {{\field{\*\fldinst{HYPERLINK "mai
     When using \ul PGP Desktop\ulnone , make sure that the result has green check mark. Otherwise get rid of the package\par
 \par
 }
-%*
-GI=6
+%-
+LV=1
 ND=Open Source project. EULA
-%.
+DI=6
+GI=6
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Times New Roman;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green0\blue0;}
@@ -265,10 +316,14 @@ To modify or redistribute this program, or any part of it, you should read the f
 See also {{\field{\*\fldinst{HYPERLINK "file:///<8|0|0"}}{\fldrslt{\ul\cf2\cf2\ul EULA of original KeyNote (by Marek Jedlinski)}}}}\f0\fs20\par
 \cf4\b\par
 }
-%*
-GI=7
+%-
+LV=2
 ND=Acknowledgements
-%.
+DI=7
+GI=7
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -344,10 +399,14 @@ Several components and libraries are not used in actual version (1.8.*) but were
 \b And, most of all, thanks to Andre v.d. Merwe for his original Dart Notes program, and for inspiration.\par
 \b0\par
 }
-%*
-GI=8
+%-
+LV=2
 ND=EULA of Marek's KeyNote
-%.
+DI=546
+GI=8
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;}
@@ -429,10 +488,14 @@ I contacted with Marek and obtained his approval (mail dated 23/09/2015) to upda
 \tab  \par
   \par
 }
-%*
-GI=9
+%-
+LV=1
 ND=Mozilla Public License 2.0
-%.
+DI=542
+GI=9
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green0\blue255;}
@@ -636,10 +699,14 @@ You may add additional accurate notices of copyright ownership.\par
 
 \pard\li120\f0\lang1033\par
 }
-%*
-GI=10
+%-
+LV=0
 ND=Features
-%.
+DI=13
+GI=10
+NF=001000100000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -752,10 +819,14 @@ Note. Currently not available, but included in older versions:\par
 
 \pard\sa100\par
 }
-%*
-GI=11
+%-
+LV=1
 ND=Getting Started
-%.
+DI=10
+GI=11
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -920,10 +991,14 @@ For these, and many other functions, please see the rest of this KeyNote help fi
 \pard\par
 \par
 }
-%*
-GI=12
+%-
+LV=2
 ND=KeyNote Screen
-%.
+DI=11
+GI=12
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;}
@@ -994,10 +1069,14 @@ The resource panel contains several tabs which group some different features: "F
 
 \pard\ul\b\fs22\lang1033\par
 }
-%*
-GI=13
+%-
+LV=2
 ND=Definitions
-%.
+DI=317
+GI=13
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;}
@@ -1132,10 +1211,14 @@ Each note in any folder will have relations with other notes, and so any note ca
 \pard Since version 1.9.2, when creating a new Folder tab ("Note tab" before) it will have a tree panel. As before, you can keep hidden the tree panel and so the appearence will be identical to old 'Standard Rich text editor'.\par
 \par
 }
-%*
-GI=14
+%-
+LV=2
 ND=Examples of Use
-%.
+DI=321
+GI=14
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue128;\red0\green0\blue255;}
@@ -1185,10 +1268,14 @@ Built-in \b\f0 strong encryption \b0\f1 allows you to secure your files against 
 
 \pard\par
 }
-%*
-GI=15
+%-
+LV=2
 ND=KeyNote Files
-%.
+DI=17
+GI=15
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;}
@@ -1207,10 +1294,14 @@ Text (.txt) or rich text (.rtf) files can be imported into KeyNote files, with t
 Another way of editing text or rich text format files in KeyNote is by using the so-called {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Virtual nodes}}}}\f0\fs20 . This allows you to use KeyNote as if it were a simple editor for text and rtf files: you will be editing the actual files on disk, without importing them into the .KNT file. The easiest way to create a virtual node is to drag a file from Windows Explorer and drop it onto the application window.\par
 \cf3\b\par
 }
-%*
-GI=16
+%-
+LV=1
 ND=Command Line Reference
-%.
+DI=23
+GI=16
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -1348,10 +1439,14 @@ Note that currently, when you open the first .knt file or any subsequent .knt fi
 \pard It will scan the file looking for invalid hyperlinks (a message box will be presented). After that process the links will be ok and the file, after saved, will be reduced to its normal size.\par
 * Currently there should be no need to use this option\par
 }
-%*
-GI=17
+%-
+LV=1
 ND=Info for DaRT Note Users
-%.
+DI=24
+GI=17
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;\red155\green0\blue0;\red64\green0\blue64;\red128\green0\blue0;}
@@ -1383,10 +1478,14 @@ If you are using a version of KeyNote later than 0.90, please note that KeyNote 
 Many thanks to the author of DaRT Notes, Andre v.d. Merwe, for providing a very reliable and useful application, and for inspiration. Also, many thanks for documenting the file format used by DaRT Notes.\par
 \cf3\b\par
 }
-%*
-GI=18
+%-
+LV=1
 ND=Auxillary Files
-%.
+DI=26
+GI=18
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -1511,10 +1610,14 @@ Each line in this file should contain one email address. When emailing a note, t
 This file is automatically appended to every email message sent from KeyNote. You can edit it in a text editor. This file may be safely deleted.\par
 \i Send email is not available in current versions of KeyNote NF\i0\par
 }
-%*
-GI=19
+%-
+LV=0
 ND=Using KeyNote NF
-%.
+DI=281
+GI=19
+NF=001000100000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset238 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red0\green0\blue0;}
@@ -1565,10 +1668,15 @@ ND=Using KeyNote NF
 
 \pard\lang1033\par
 }
-%*
-GI=20
+%-
+LV=1
 ND=KeyNote Editor
-%.
+DI=282
+GI=20
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=27981
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red128\green128\blue0;\red0\green128\blue0;\red64\green64\blue64;\red255\green0\blue0;\red0\green0\blue0;\red96\green96\blue96;\red255\green255\blue0;\red255\green255\blue255;\red51\green51\blue153;\red192\green192\blue192;}
@@ -2337,10 +2445,14 @@ This makes it possible to copy images from file notes to Scratchpad ensuring tha
 \pard\par
 In this way the images included in Sp can be pasted into different KNT files, as new instances or new images, as appropriate. It should be taken into account that some Sp images previously copied from a KNT file may not be recognized as the same image (the same ID), since the RichEdit control sometimes makes certain modifications to the data of some images, eliminating possible metadata (for example). This results in the content of the image varying with respect to that recorded in the KNT file and identifiable through the calculated CRC32).\b\par
 }
-%*
-GI=21
+%-
+LV=2
 ND=About initial Fonts & Colors in KeyNote
-%.
+DI=314
+GI=21
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -2366,10 +2478,14 @@ If you DO want to \b change the background color for ALL NODES in a tree \b0 (al
 \par
 \par
 }
-%*
-GI=22
+%-
+LV=2
 ND=Styles
-%.
+DI=301
+GI=22
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue0;\red128\green0\blue0;}
@@ -2467,10 +2583,14 @@ Allows you to change the name of the selected style. Please see the note about u
 Permanently removes the style definition. Note that there is no limit on the number of styles you can define, but with too many of them, the drop-down list may become inconvenient to navigate. You can use this command to get rid of unnecessary styles.\par
 \par
 }
-%*
-GI=23
+%-
+LV=2
 ND=Insert Character Dialog Box
-%.
+DI=309
+GI=23
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -2518,10 +2638,14 @@ Paragraph (\'a7), Degree (\'b0), Dots (\'85), Plus/minus (\'b1), French parenthe
 
 \pard\par
 }
-%*
-GI=24
+%-
+LV=2
 ND=Word Expansion Glossary
-%.
+DI=306
+GI=24
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset1 Cambria Math;}{\f3\fnil\fcharset128 Yu Gothic;}{\f4\fnil Tahoma;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;}
@@ -2593,10 +2717,14 @@ We can\f0\lang3082  \f4\lang1033 do something like\f0\lang3082 :\f4\lang1033  "*
 
 \pard\highlight4\par
 }
-%*
-GI=25
+%-
+LV=2
 ND=Expression Evaluation
-%.
+DI=311
+GI=25
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Lucida Console;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red96\green96\blue96;}
@@ -2637,10 +2765,14 @@ This mathematical function parser allows you to calculate a value given an expre
    TRUNC  (Range: -1e9..1e9)\par
 \f0\par
 }
-%*
-GI=26
+%-
+LV=2
 ND=Integration with WordWeb Thesaurus
-%.
+DI=302
+GI=26
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -2669,10 +2801,15 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 \par
 \par
 }
-%*
-GI=27
+%-
+LV=1
 ND=Folders as note trees
-%.
+DI=284
+GI=27
+NF=000000000100000000000000
+BC=clWindow
+IX=0
+SS=27613
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;\red128\green128\blue0;}
@@ -3439,10 +3576,14 @@ Note that the current toggle shortcut (\cf3 Ctrl+\\\cf0 ) will still work if the
 
 \pard\par
 }
-%*
-GI=28
+%-
+LV=2
 ND=Virtual Nodes
-%.
+DI=285
+GI=28
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;\red64\green64\blue64;}
@@ -3501,10 +3642,14 @@ You can only link text (\b *.txt\b0 ) or Rich text (\b *.rtf\b0 ) files to a vir
 See also: {{\field{\*\fldinst{HYPERLINK "file:///<56|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Importing Files in KeyNote}}}}\f0\fs20\par
 \par
 }
-%*
-GI=29
+%-
+LV=2
 ND=Linked nodes
-%.
+DI=383
+GI=29
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -3584,10 +3729,14 @@ If you delete the one shown with the normal icon, one of the nodes linked to the
 
 \pard\b\par
 }
-%*
-GI=30
+%-
+LV=1
 ND=Folder Properties and Defaults
-%.
+DI=292
+GI=30
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green0\blue255;}
@@ -3614,10 +3763,14 @@ The dialog box contains two tab sheets:\par
 {\cf0{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Editor settings}}}}\f0\fs20\par
 \par
 }
-%*
-GI=32
+%-
+LV=2
 ND=Tree Settings
-%.
+DI=255
+GI=32
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green255\blue0;}
@@ -3720,10 +3873,14 @@ If you check this option, then font and background colors defined in this window
 You have this option available from active folder and from default settings. This way you can apply one of those settings to all the tree panels at once.\par
 \highlight4\par
 }
-%*
-GI=31
+%-
+LV=2
 ND=Editor Settings
-%.
+DI=254
+GI=31
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;}
@@ -3814,10 +3971,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<21|0|0"}}{\fldrslt{\ul\cf3\cf3\
 \cf0\b0\fs20 Resets initial font style and background color for the active folder. Does not affect already existing text!\par
 \par
 }
-%*
-GI=33
+%-
+LV=1
 ND=Clipboard. Paste. Capture
-%.
+DI=582
+GI=33
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green0\blue0;\red0\green0\blue128;}
@@ -3942,10 +4103,14 @@ Most of them will produce '<>' or '', others '<<<' or something similar and a fe
 
 \pard\par
 }
-%*
-GI=34
+%-
+LV=2
 ND=Web clip
-%.
+DI=569
+GI=34
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green0\blue0;}
@@ -4021,10 +4186,14 @@ In \ul Clipboard Capture\ulnone :\par
 
 \pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 It includes additional options, like 'Ignore duplicate clips' or automatically inserting paste node in new nodes. It also allows to limit the length of pasted text.\par
 }
-%*
-GI=35
+%-
+LV=2
 ND=Clipboard Capture
-%.
+DI=310
+GI=35
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -4067,10 +4236,14 @@ Also, as indicated in {{\field{\*\fldinst{HYPERLINK "file:///<34|2122|0|1"}}{\fl
 \pard  \par
  \par
 }
-%*
-GI=36
+%-
+LV=3
 ND=Using Dividers in Clipboard Capture and Web Clip
-%.
+DI=580
+GI=36
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red0\green128\blue0;}
@@ -4227,10 +4400,14 @@ Many of the predefined divider strings include this token, allowing this behavio
 \par
 \par
 }
-%*
-GI=37
+%-
+LV=3
 ND=Dividers. Examples
-%.
+DI=581
+GI=37
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue192;\red64\green64\blue64;\red0\green128\blue0;}
@@ -4616,10 +4793,14 @@ There is no such "one architecture fits all" nor "one framework fits all" soluti
 ***\par
 \fs20\par
 }
-%*
-GI=38
+%-
+LV=1
 ND=Hyperlinks in KeyNote
-%.
+DI=303
+GI=38
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red0\green128\blue0;\red128\green0\blue0;\red64\green64\blue0;\red64\green64\blue64;\red128\green128\blue0;}
@@ -5280,10 +5461,14 @@ Insertion of the Internal hyperlink in a plain text note would show like:\par
 Also, if the note or node are renamed, the link will be broken.\par
 \par
 }
-%*
-GI=39
+%-
+LV=1
 ND=Navigation history mechanism
-%.
+DI=511
+GI=39
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -5327,10 +5512,15 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 (If I selected several nodes in one folder, navigated back in history and then selected another folder. After navigating back in history once more, returning to the initial folder, I could navigate forward in history again (global history in all of them), returning to the second folder, or navigate forward in local history, looping through the nodes I selected at the beginning)\par
 \par
 }
-%*
-GI=40
+%-
+LV=1
 ND=Using Find and Find All
-%.
+DI=479
+GI=40
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=9534
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;\red128\green128\blue0;}
@@ -5680,10 +5870,14 @@ The number of results may vary slightly depending on whether or not the word w3 
 \cf0\par
 \par
 }
-%*
-GI=41
+%-
+LV=1
 ND=Image management in KeyNote
-%.
+DI=536
+GI=41
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\froman\fcharset0 Tahoma;}{\f4\froman Tahoma;}{\f5\fnil\fcharset0 Cambria Math;}{\f6\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red255\green0\blue0;\red128\green0\blue0;\red0\green128\blue0;}
@@ -6149,10 +6343,14 @@ This way the counter of next ID will be adjusted to the last available image ID 
 KeyNote will ask for confirmation, remembering to ensure that there are no images with larger IDs on the external storage, perhaps referenced by other knt files, because new images could overwrite existing files.\par
 \par
 }
-%*
-GI=42
+%-
+LV=2
 ND=Images. Formats and sizes
-%.
+DI=574
+GI=42
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -6211,10 +6409,14 @@ If we have quality images then what we should do is drag (or insert) the files t
 You can select the desired depth color with the option {{\field{\*\fldinst{HYPERLINK "file:///<90|3352|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Bmp pixel format}}}}\f0\fs20  (defaults to pf24bit).\par
 \par
 }
-%*
-GI=43
+%-
+LV=2
 ND=Extended KNT file format
-%.
+DI=575
+GI=43
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue0;}
@@ -6298,10 +6500,14 @@ EI=<IDImage>|<FileName>|<size>\par
 
 \pard\par
 }
-%*
-GI=44
+%-
+LV=2
 ND=Images. Implementation in RTF
-%.
+DI=576
+GI=44
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue0;}
@@ -6414,10 +6620,14 @@ Whe a KNT file is defined to use an image storage mode other than Embedded RTF, 
 More info in {{\field{\*\fldinst{HYPERLINK "file:///<43|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Extended KNT file format}}}}\f0\fs20\par
 \par
 }
-%*
-GI=45
+%-
+LV=1
 ND=File Properties
-%.
+DI=287
+GI=45
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -6438,10 +6648,14 @@ File properties:\par
 
 \pard\par
 }
-%*
-GI=46
+%-
+LV=2
 ND=Information
-%.
+DI=288
+GI=46
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -6497,10 +6711,14 @@ Below, more information is displayed about the currently open file, including th
 \cf0\b0\fs20 Click this button to open the standard Windows \b File properties\b0\f1  \f0 dialog box. This is the same dialog box that is displayed when you right-click a file in Windows Explorer and select the \b Properties\b0  command from the menu.\par
 \par
 }
-%*
-GI=47
+%-
+LV=2
 ND=Settings
-%.
+DI=289
+GI=47
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -6548,10 +6766,14 @@ With button \b Recalc Next ID...\b0  it is possible to recalculate the ID of the
 See also {{\field{\*\fldinst{HYPERLINK "file:///<41|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Image management in KeyNote NF}}}}\f0\fs20  for more information about images, {{\field{\*\fldinst{HYPERLINK "file:///<41|2263|0|6"}}{\fldrslt{\ul\cf2\cf2\ul storage of images}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<41|6204|0|13"}}{\fldrslt{\ul\cf2\cf2\ul setting or changing the storage mode}}}}\f0\fs18 . More information is also included about Recalc Next ID button.\par
 \fs20\par
 }
-%*
-GI=48
+%-
+LV=2
 ND=File Icons
-%.
+DI=290
+GI=48
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -6603,10 +6825,14 @@ ND=File Icons
 
 \pard\par
 }
-%*
-GI=49
+%-
+LV=2
 ND=Security
-%.
+DI=291
+GI=49
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red255\green0\blue0;}
@@ -6638,10 +6864,14 @@ See also notes about {{\field{\*\fldinst{HYPERLINK "file:///<41|4760|0|12"}}{\fl
 \par
 \cf3\b\par
 }
-%*
-GI=50
+%-
+LV=1
 ND=Opening and Saving KeyNote files
-%.
+DI=539
+GI=50
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset0 Lucida Console;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset0 Cambria Math;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red64\green64\blue64;}
@@ -6832,10 +7062,14 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<54|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Fil
 In {{\field{\*\fldinst{HYPERLINK "file:///<55|0|0"}}{\fldrslt{\ul\cf2\cf2\ul fileformat.txt}}}}\f0\fs20  you can see how the data in stored in KeyNote NF files.\par
 \par
 }
-%*
-GI=51
+%-
+LV=2
 ND=Encrypting KeyNote Files
-%.
+DI=299
+GI=51
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;\red128\green0\blue0;}
@@ -6959,10 +7193,14 @@ IDEA: \tab\tab {{\field{\*\fldinst{HYPERLINK http://www.momentus.com.br/PGP/doc/
 \pard\par
 \cf3\b\par
 }
-%*
-GI=52
+%-
+LV=2
 ND=Recommendations
-%.
+DI=430
+GI=52
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Wingdings;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;}
@@ -7002,10 +7240,14 @@ When you use one of those external storage modes, the backups made by KeyNote wi
 \f2\lang3082 It is also possible to export all or some notes to KNT format using {{\field{\*\fldinst{HYPERLINK "file:///<109|5340|0|16"}}{\fldrslt{\ul\cf2\cf2\ul File | Export...}}}}\f2\fs20 , applying that same option, and so including text and images in the same .knt file.\par
 \par
 }
-%*
-GI=53
+%-
+LV=2
 ND=Backup at regular intervals
-%.
+DI=330
+GI=53
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fswiss\fcharset0 Courier New;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue128;}
@@ -7110,10 +7352,14 @@ To help understand how this mechanism works, here is an \b example of a possible
 \pard\f0\lang1033\par
 \par
 }
-%*
-GI=54
+%-
+LV=2
 ND=File formats. Comments
-%.
+DI=441
+GI=54
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -7219,18 +7465,24 @@ File identical to "File 1", to which I have pasted 2 images from the clipboard, 
 This last format was the only one recognized by older versions (e.g., version 4, available in XP or W7), and it takes up much more size than the rest (png or jpg).\par
 \par
 }
-%*
-GI=55
+%-
+LV=2
 ND=fileformat.txt
-LM=0112241145
-VF=D:\Dani\PROYECTOS\TESELA KN\_Auxiliar\doc\fileformat.txt
+DI=588
+GI=55
+NF=000001000000000000000000
+BC=clWindow
+IX=0
 RV=..\doc\fileformat.txt
-%.
-NS=0002
-%*
-GI=56
+VF=C:\APL\KeyNote NF\doc\fileformat.txt
+%-
+LV=1
 ND=Importing Files in KeyNote
-%.
+DI=312
+GI=56
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil Tahoma;}{\f4\froman\fcharset0 Tahoma;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red64\green64\blue64;}
@@ -7451,10 +7703,14 @@ Note:\par
 {{\field{\*\fldinst{HYPERLINK "file:///<73|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Here}}}}\f0\fs20  you can see the help file and information about how to download it.\par
 \par
 }
-%*
-GI=57
+%-
+LV=1
 ND=Exporting Notes to Disk Files
-%.
+DI=313
+GI=57
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue64;\red0\green0\blue128;\red255\green0\blue0;\red128\green0\blue0;\red0\green128\blue0;\red96\green96\blue96;\red128\green128\blue0;}
@@ -7964,10 +8220,14 @@ By default, this additional top-level node is created only if necessary (KeyNote
 \par
 \par
 }
-%*
-GI=58
+%-
+LV=2
 ND=Options in Exporting. Examples
-%.
+DI=590
+GI=58
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Lucida Console;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -8000,10 +8260,14 @@ To show more clearly the differences between the RTF and Plain Text results, a m
 
 \pard\par
 }
-%*
-GI=59
+%-
+LV=3
 ND=RTF
-%.
+DI=591
+GI=59
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green0\blue255;}
@@ -8015,10 +8279,14 @@ ND=RTF
 {{\field{\*\fldinst{HYPERLINK "file:///<61|0|0"}}{\fldrslt{\ul\cf1\cf1\ul Ex. RTF 2}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<62|0|0"}}{\fldrslt{\ul\cf1\cf1\ul Ex. RTF 3 - Indent.}}}}\f0\fs20\par
 }
-%*
-GI=60
+%-
+LV=4
 ND=Ex. RTF 1
-%.
+DI=592
+GI=60
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Verdana;}}
 {\colortbl ;\red96\green96\blue96;\red255\green0\blue0;\red0\green0\blue0;\red51\green51\blue51;\red0\green77\blue187;}
@@ -8072,10 +8340,14 @@ Bla bla bla\lang1033\par
 \cf1\f1\fs24\lang10\par
 \fs32\par
 }
-%*
-GI=61
+%-
+LV=4
 ND=Ex. RTF 2
-%.
+DI=593
+GI=61
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Verdana;}}
 {\colortbl ;\red0\green0\blue255;\red96\green96\blue96;\red255\green0\blue0;\red0\green0\blue0;\red51\green51\blue51;\red0\green77\blue187;}
@@ -8128,10 +8400,14 @@ Bla bla bla\lang1033\par
 \cf2\f1\fs24\lang10\par
 \fs20\par
 }
-%*
-GI=62
+%-
+LV=4
 ND=Ex. RTF 3 - Indent.
-%.
+DI=594
+GI=62
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Verdana;}}
 {\colortbl ;\red0\green0\blue255;\red96\green96\blue96;\red255\green0\blue0;\red0\green0\blue0;\red51\green51\blue51;\red0\green77\blue187;}
@@ -8187,10 +8463,14 @@ Bla bla bla\lang1033\par
 
 \pard\cf0\f0\fs16\lang3082\par
 }
-%*
-GI=63
+%-
+LV=3
 ND=TXT
-%.
+DI=595
+GI=63
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green0\blue255;}
@@ -8204,10 +8484,14 @@ ND=TXT
 {{\field{\*\fldinst{HYPERLINK "file:///<67|0|0"}}{\fldrslt{\ul\cf1\cf1\ul TXT/Ex. Txt 4 - Indent.}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<68|0|0"}}{\fldrslt{\ul\cf1\cf1\ul TXT/Ex. Txt 5 - Indent.}}}}\f0\fs20\par
 }
-%*
-GI=64
+%-
+LV=4
 ND=Ex. Txt 1
-%.
+DI=596
+GI=64
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Lucida Console;}}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
@@ -8256,10 +8540,14 @@ Bla bla bla\par
 \par
 \par
 }
-%*
-GI=65
+%-
+LV=4
 ND=Ex. Txt 2
-%.
+DI=597
+GI=65
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Lucida Console;}}
 {\colortbl ;\red0\green0\blue255;\red0\green128\blue0;}
@@ -8314,10 +8602,14 @@ Bla bla bla\par
 \par
 \f0\fs16\par
 }
-%*
-GI=66
+%-
+LV=4
 ND=Ex. Txt 3 - Indent.
-%.
+DI=598
+GI=66
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Lucida Console;}}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
@@ -8378,10 +8670,14 @@ Bla bla bla \par
 \f0\par
 \fs16\lang3082\par
 }
-%*
-GI=67
+%-
+LV=4
 ND=Ex. Txt 4 - Indent.
-%.
+DI=599
+GI=67
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Lucida Console;}}
 {\colortbl ;\red0\green0\blue255;\red64\green64\blue64;}
@@ -8444,10 +8740,14 @@ Bla bla bla \par
 \tab\tab\tab\tab\tab\tab\par
 \tab\tab\tab\tab\tab\tab\par
 }
-%*
-GI=68
+%-
+LV=4
 ND=Ex. Txt 5 - Indent.
-%.
+DI=600
+GI=68
+NF=001000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Lucida Console;}}
 {\colortbl ;\red0\green0\blue255;}
@@ -8562,10 +8862,14 @@ Line in node of level 1\par
 Bla bla bla \par
 1. Item One\par
 }
-%*
-GI=69
+%-
+LV=1
 ND=Templates
-%.
+DI=307
+GI=69
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red96\green96\blue96;}
@@ -8600,10 +8904,14 @@ In general, any text or fragment that you find yourself writing or reusing many 
 
 \pard\par
 }
-%*
-GI=70
+%-
+LV=1
 ND=Favorites
-%.
+DI=601
+GI=70
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Cambria Math;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -8657,10 +8965,14 @@ Right-click the favorites panel to display its context\f1  \f0 menu:\par
 \b Tip\b0 : \ul Hyperlinks\ulnone  can be used as another way to define 'favorites'. They can also store links to locations to nodes and folders in KeyNote files and links to external programs and documents, optionally specifying parameters.\par
 More in {{\field{\*\fldinst{HYPERLINK "file:///<38|13732|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using parameters with hyperlinks}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<38|13152|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Inserting internal Keynote Links (KNT Links)}}}}\f0\fs20\par
 }
-%*
-GI=71
+%-
+LV=1
 ND=Macros in KeyNote
-%.
+DI=304
+GI=71
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red128\green0\blue0;\red0\green0\blue255;\red128\green128\blue0;\red255\green0\blue0;}
@@ -9057,10 +9369,14 @@ Note that the special user commands which you can insert in a macro allow you to
 
 \pard\par
 }
-%*
-GI=72
+%-
+LV=1
 ND=Plugins
-%.
+DI=305
+GI=72
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -9255,10 +9571,14 @@ You can run more than one resident plugin simultaneously, but you can only have 
 {\pntext\f2\'B7\tab}Currently, plugins do not receive any state information from KeyNote, or any information related to note trees, beyond what is specified above. In particular, a plugin cannot change KeyNote configuration options, open any KeyNote dialog boxes, run macros, etc.\par
 {\pntext\f2\'B7\tab}A plugin COULD control the active RTF editor to an extent (e.g. it would be possible for a plugin to send Windows messages to the editor) but, in general, plugins should NOT attempt to do this, as there is no guarantee that a command can be executed. For instance, if the active note is read-only, commands dispatched from a plugin could modify it against the wish of the user. And YES, it is possible to shut down, or even crash KeyNote by issuing the wrong command or message from a plugin. Obviously, plugin authors should take care not to do so.\par
 }
-%*
-GI=73
+%-
+LV=2
 ND=KntConverter
-%.
+DI=453
+GI=73
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -9285,10 +9605,14 @@ You can download and try it from the following URL in KeyNote NF site in GitHub:
 
 \pard\sb120\par
 }
-%*
-GI=74
+%-
+LV=3
 ND=KntConvert.txt
-%.
+DI=455
+GI=74
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fswiss\fcharset0 Arial;}{\f2\fswiss Arial;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue0;}
@@ -9407,10 +9731,14 @@ email to <{{\field{\*\fldinst{HYPERLINK "mailto:eristic@lodz.pdi.net"}}{\fldrslt
 \par
 \par
 }
-%*
-GI=75
+%-
+LV=3
 ND=KntConvert.hlp
-%.
+DI=604
+GI=75
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fswiss Arial;}{\f2\fswiss Courier New;}{\f3\fswiss\fcharset0 Arial;}{\f4\fswiss\fcharset0 Courier New;}{\f5\fmodern\fcharset0 Arial Unicode MS;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue0;\red0\green0\blue128;\red255\green0\blue0;\red0\green128\blue0;}
@@ -10009,10 +10337,14 @@ If you do need to contact me, please send \cf5\b non-HTML\cf3\b0  email to <eris
 \par
 \cf0\f0\lang1033\par
 }
-%*
-GI=76
+%-
+LV=1
 ND=Alarms Management
-%.
+DI=567
+GI=76
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green0\blue0;}
@@ -10223,10 +10555,14 @@ You can also change it from \ul Tools | Alarms... | Reminder popups\ulnone\par
 
 \pard\f0\lang1033\par
 }
-%*
-GI=77
+%-
+LV=1
 ND=.KNT as Help file from other apps
-%.
+DI=570
+GI=77
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red32\green32\blue32;\red64\green64\blue64;\red128\green0\blue0;}
@@ -10313,10 +10649,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<57|15769|0|11"}}{\fldrslt{\ul\c
 \pard\par
 \par
 }
-%*
-GI=78
+%-
+LV=1
 ND=Keyboard Reference
-%.
+DI=18
+GI=78
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;}
@@ -10344,10 +10684,14 @@ With the exception of \cf3\b Ctrl+C\cf0\b0 , \cf3\b Ctrl+V \cf0\b0 and \cf3\b Ct
 See also {{\field{\*\fldinst{HYPERLINK "file:///<105|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Customizing Keyboard Shortcuts}}}}\f0\fs20\par
 \highlight4\par
 }
-%*
-GI=79
+%-
+LV=2
 ND=General Shortcut Keys
-%.
+DI=19
+GI=79
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue255;\red0\green0\blue160;\red128\green0\blue0;}
@@ -10442,10 +10786,14 @@ ND=General Shortcut Keys
 
 \pard\fi-2160\li2160\par
 }
-%*
-GI=80
+%-
+LV=2
 ND=Editor shortcut keys
-%.
+DI=20
+GI=80
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -10610,10 +10958,14 @@ For example, I use a lot of \i Increase \i0 and \i decrease left indent\i0  comm
   Decrease left indent:  \tab\tab\tab\cf2 Ctrl+Alt+Left\cf0\par
 \par
 }
-%*
-GI=81
+%-
+LV=2
 ND=Tree Shortcut Keys
-%.
+DI=21
+GI=81
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -10698,10 +11050,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<27|4545|0|6"}}{\fldrslt{\ul\cf2
 
 \pard\fi-720\li720\par
 }
-%*
-GI=82
+%-
+LV=2
 ND=Other Shortcut Keys
-%.
+DI=22
+GI=82
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -10811,10 +11167,14 @@ The following commands behave differently if the \cf3\b Shift\cf0\b0 , \cf3\b Ct
 \pard\par
 \par
 }
-%*
-GI=83
+%-
+LV=1
 ND=KeyNote on a Multi-User System
-%.
+DI=286
+GI=83
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
@@ -10832,10 +11192,15 @@ A single installation of KeyNote may, however, be shared by several users. Each 
 \par
 See also {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Use of Profiles}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<16|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Command Line Reference}}}}\f0\fs20\par
 }
-%*
-GI=84
+%-
+LV=1
 ND=Sending KeyNote Files by EMail
-%.
+DI=300
+GI=84
+NF=000000010000000000000000
+BC=clWindow
+IX=0
+HC=$00B0B0B0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -10887,10 +11252,14 @@ The file \ldblquote\b keymail.adr\b0\rdblquote  is a very simple address book. T
 The file \ldblquote\b keymail.sig\b0\rdblquote  is a signature file. Its contents will be automatically appended to each email message you send from Keynote. Delete this file if you don't want to append any signature.\par
 \par
 }
-%*
-GI=85
+%-
+LV=0
 ND=Configuring KeyNote
-%.
+DI=293
+GI=85
+NF=001000100000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -10942,10 +11311,14 @@ Note that properties for the active folder and default properties for new folder
 
 \pard\li360\sb80\lang1033 See also: {{\field{\*\fldinst{HYPERLINK "file:///<12|2946|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Notes about Screen / User interface}}}}\f0\fs20\par
 }
-%*
-GI=86
+%-
+LV=1
 ND=Profiles
-%.
+DI=540
+GI=86
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
@@ -11042,10 +11415,14 @@ You can use keynote.exe instead of kntLauncher.exe, and only the .ini file param
    \par
   \par
 }
-%*
-GI=87
+%-
+LV=1
 ND=Configuration Options
-%.
+DI=295
+GI=87
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green0\blue255;}
@@ -11101,10 +11478,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<85|0|0"}}{\fldrslt{\ul\cf3\cf3\
 Note that there some configuration settings not editable in the existing Options dialog box. These additional settings may be tweaked by editing KeyNote's configuration file, keynote.ini. (More in {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf3\cf3\ul KeyNote.ini additional settings}}}}\f0\fs20 )\par
 \par
 }
-%*
-GI=88
+%-
+LV=2
 ND=General Settings
-%.
+DI=238
+GI=88
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue0;\red0\green0\blue255;\red255\green0\blue0;}
@@ -11218,10 +11599,14 @@ ND=General Settings
 
 \pard\par
 }
-%*
-GI=89
+%-
+LV=3
 ND=Rich Text Editor
-%.
+DI=239
+GI=89
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
@@ -11321,10 +11706,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\
 \par
 \par
 }
-%*
-GI=90
+%-
+LV=3
 ND=Images
-%.
+DI=573
+GI=90
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red255\green0\blue0;}
@@ -11523,10 +11912,14 @@ Note: The option doesn't affect to linked images previously inserted.\par
 \par
 \par
 }
-%*
-GI=91
+%-
+LV=3
 ND=Tree Panel
-%.
+DI=240
+GI=91
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue255;\red0\green128\blue128;\red128\green0\blue0;}
@@ -11622,10 +12015,14 @@ ND=Tree Panel
 
 \pard\par
 }
-%*
-GI=92
+%-
+LV=2
 ND=KeyNote Files
-%.
+DI=241
+GI=92
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -11708,10 +12105,14 @@ Please, see {{\field{\*\fldinst{HYPERLINK "file:///<52|0|0"}}{\fldrslt{\ul\cf2\c
 \pard If enabled, KeyNote prompts you to save a new KeyNote file when you create the file.\par
 \par
 }
-%*
-GI=93
+%-
+LV=3
 ND=File Options
-%.
+DI=242
+GI=93
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -11805,10 +12206,14 @@ ND=File Options
 
 \pard\par
 }
-%*
-GI=94
+%-
+LV=3
 ND=Backup Options
-%.
+DI=243
+GI=94
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -11880,10 +12285,14 @@ ND=Backup Options
 \pard\par
 \par
 }
-%*
-GI=95
+%-
+LV=2
 ND=Actions
-%.
+DI=244
+GI=95
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
@@ -11993,10 +12402,14 @@ Also remember:\par
 
 \pard\par
 }
-%*
-GI=96
+%-
+LV=3
 ND=Confirmations
-%.
+DI=245
+GI=96
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red255\green0\blue0;\red128\green0\blue0;\red0\green0\blue255;}
@@ -12100,10 +12513,14 @@ See notes in \b Confirm before transferring nodes\b0 , above, on possible asked 
 \pard\sb80 Learn more about how to interact with the Tree panel in {{\field{\*\fldinst{HYPERLINK "file:///<27|0|0"}}{\fldrslt{\ul\cf4\cf4\ul Folders as note trees}}}}\f0\fs20\par
 \par
 }
-%*
-GI=97
+%-
+LV=2
 ND=Chrome
-%.
+DI=246
+GI=97
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -12157,10 +12574,14 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<104|7096|0|3"}}{\fldrslt{\ul\cf2\cf2
 
 \pard\par
 }
-%*
-GI=98
+%-
+LV=3
 ND=Tab Icons
-%.
+DI=247
+GI=98
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red255\green255\blue0;\red255\green0\blue0;}
@@ -12231,10 +12652,14 @@ Remember, from {{\field{\*\fldinst{HYPERLINK "file:///<48|0|0"}}{\fldrslt{\ul\cf
 \pard Reloads the built-in set of icons, undoing any change you have made to the list of icons.\par
 \par
 }
-%*
-GI=99
+%-
+LV=2
 ND=Advanced
-%.
+DI=248
+GI=99
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
@@ -12336,10 +12761,14 @@ ND=Advanced
 \pard\par
 \par
 }
-%*
-GI=100
+%-
+LV=3
 ND=Formats
-%.
+DI=249
+GI=100
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green128\blue128;}
@@ -12385,10 +12814,14 @@ Default: The format is the one used in Control Panel, Regional Settings, Time Fo
 \pard If enabled, close the \b Insert|Character\b0  dialog box after inserting a character. Otherwise leave the dialog box open.\par
 \par
 }
-%*
-GI=101
+%-
+LV=3
 ND=Clipboard
-%.
+DI=250
+GI=101
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
@@ -12555,10 +12988,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<36|0|0"}}{\fldrslt{\ul\cf2\cf2\
 \par
 \par
 }
-%*
-GI=102
+%-
+LV=3
 ND=File Types
-%.
+DI=251
+GI=102
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;}
@@ -12582,10 +13019,14 @@ ND=File Types
 
 \pard\par
 }
-%*
-GI=103
+%-
+LV=3
 ND=Other
-%.
+DI=252
+GI=103
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
@@ -12655,10 +13096,14 @@ Use the following web browser\par
 \par
 \par
 }
-%*
-GI=104
+%-
+LV=1
 ND=KeyNote.ini Settings
-%.
+DI=296
+GI=104
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset204 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue128;\red128\green0\blue0;\red144\green144\blue144;\red0\green128\blue0;}
@@ -13019,10 +13464,14 @@ In the first case you could see something like "Note1/Node1 -34" and in the seco
 \cf0\b0\fs20\par
 \b\par
 }
-%*
-GI=105
+%-
+LV=1
 ND=Customizing Keyboard Shortcuts
-%.
+DI=316
+GI=105
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red255\green0\blue0;\red128\green0\blue0;}
@@ -13134,10 +13583,14 @@ Using Copy, Cut and Paste (from keyboard) is more general this way: it can also 
 Can also be used to copy, cut and paste nodes and subtrees. Thus, it is possible to copy and paste subtrees in a way equivalent to the commands of Transfer Subtree.\par
 It is also possible to cut and paste nodes, making it possible to move nodes and subtrees within the file, not necessarily in the same folder.\par
 }
-%*
-GI=106
+%-
+LV=1
 ND=Customizing the Toolbars
-%.
+DI=315
+GI=106
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;}
@@ -13176,10 +13629,14 @@ After you have edited the file, save it.\par
 \pard\par
 To reset the toolbar state to factory defaults, simply delete the \b toolbar.ini\b0  file and then use the \ldblquote Refresh toolbars\rdblquote  command, or restart KeyNote.\par
 }
-%*
-GI=107
+%-
+LV=1
 ND=Configuring user interface Language
-%.
+DI=392
+GI=107
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green128\blue0;}
@@ -13433,10 +13890,14 @@ or modifying \b keynote.ini\b0 : \par
 \pard\par
 \par
 }
-%*
-GI=108
+%-
+LV=0
 ND=Menu Commands
-%.
+DI=27
+GI=108
+NF=001000100000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue255;}
@@ -13470,10 +13931,14 @@ The sections below describe each command available through the \b main menu\b0  
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-480\li480\sb80 Some of them can also be accessed through a toolbar button. It's icon and name used in toolbar.ini is also shown (see {{\field{\*\fldinst{HYPERLINK "file:///<106|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Customizing the toolbars}}}}\f0\fs20 )\par
 {\pntext\f2\'B7\tab}Many areas of the main KeyNote window contain additional context menus. They are often easier to use and quicker to access than the main menu. To open a \b context menu\b0 , click the right mouse button. For instance, you can right-click the editor area, the tree panel and the note tabs to open context menus associated with them.\par
 }
-%*
-GI=109
+%-
+LV=1
 ND=File Menu
-%.
+DI=29
+GI=109
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
@@ -13662,10 +14127,14 @@ Depending on the file name extension, you can:\par
 \pard\cf0\f0\par
 \par
 }
-%*
-GI=110
+%-
+LV=1
 ND=Edit Menu
-%.
+DI=46
+GI=110
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset0 Times New Roman;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
@@ -14036,10 +14505,14 @@ Either the Tree or Editor panel may be active.\par
 \pard\cf0\b0\f0\par
 \par
 }
-%*
-GI=111
+%-
+LV=1
 ND=View Menu
-%.
+DI=85
+GI=111
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Comic Sans MS;}{\f3\fnil\fcharset0 Courier New;}{\f4\froman\fcharset0 Tahoma;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
@@ -14403,10 +14876,14 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<39|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Na
 \par
 \par
 }
-%*
-GI=112
+%-
+LV=1
 ND=Insert Menu
-%.
+DI=115
+GI=112
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Comic Sans MS;}{\f3\fnil\fcharset0 Courier New;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
@@ -14540,10 +15017,14 @@ KeyNote expands the term if the characters are selected in the Editor panel, or 
 \fs18\lang1033\par
 \par
 }
-%*
-GI=113
+%-
+LV=1
 ND=Format Menu
-%.
+DI=128
+GI=113
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
@@ -15050,10 +15531,14 @@ If Word Wrap is on, lines that are longer than the Editor panel wrap to the next
 \pard\cf0\b0\f0\par
 \par
 }
-%*
-GI=114
+%-
+LV=1
 ND=Folder Menu
-%.
+DI=179
+GI=114
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset0 Comic Sans MS;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;\red255\green0\blue0;\red144\green144\blue144;}
@@ -15199,10 +15684,14 @@ A read-only folder prevent others (or yourself!) from accidentally changing info
 
 \pard\fi-2160\li2160\sa100\cf0\b0\f0\par
 }
-%*
-GI=115
+%-
+LV=1
 ND=Tree Menu
-%.
+DI=189
+GI=115
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil Tahoma;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red0\green121\blue0;\red128\green0\blue0;\red128\green128\blue0;\red255\green0\blue0;}
@@ -15564,10 +16053,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<27|9413|0|2"}}{\fldrslt{\ul\cf3
 \pard\fi-2160\li2160\sa100\par
 \par
 }
-%*
-GI=116
+%-
+LV=1
 ND=Search Menu
-%.
+DI=225
+GI=116
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Comic Sans MS;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red0\green121\blue0;\red128\green128\blue0;\red128\green0\blue0;}
@@ -15719,10 +16212,14 @@ The status bar displays a message telling you if the matching bracket has been f
 \pard\cf0\b0\f0\par
 \par
 }
-%*
-GI=117
+%-
+LV=1
 ND=Tools Menu
-%.
+DI=236
+GI=117
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Comic Sans MS;}{\f3\fnil\fcharset0 Courier New;}{\f4\froman\fcharset0 Tahoma;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;\red0\green121\blue0;\red255\green0\blue0;}
@@ -16000,10 +16497,14 @@ It also shows the number of notes (nodes) in current folder.\par
 \pard\li240\cf4\f3 MMToolsStatistics\cf5\b\par
 \cf0\b0\f0\par
 }
-%*
-GI=118
+%-
+LV=1
 ND=Help Menu
-%.
+DI=272
+GI=118
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
@@ -16092,10 +16593,41 @@ ND=Help Menu
 
 \pard\cf1\f0\fs26\par
 }
-%*
-GI=119
+%+
+NN=What's New
+ID=14
+II=2
+DC=24-02-2024 13:35:07
+TI=1
+TS=4
+CX=21
+CY=0
+BG=clWindow
+CH=0
+FC=clWindowText
+FN=Tahoma
+FS=9
+LN=3082
+ST=
+FL=111110000000110000000000
+SN=1
+TW=182
+TM=0
+EN=(%D) -
+TB=clWindow
+TH=1
+TC=clWindowText
+TN=MS Sans Serif
+TZ=8
+TY=
+%-
+LV=0
 ND=What's New
-%.
+DI=2
+GI=119
+NF=000000000000000000000000
+BC=clWindow
+IX=0
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green255\blue255;}
@@ -16182,10 +16714,15 @@ The \b main changes/improvements of the latest versions\b0  are highlighted belo
 
 \pard\par
 }
-%*
-GI=120
+%-
+LV=0
 ND=News
-%.
+DI=3
+GI=120
+NF=000000000000000000000000
+BC=clWindow
+IX=0
+SS=21
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;}
@@ -16312,500 +16849,16 @@ See the original content of the last "Keynote News" (of Keynote 1.6.5) in {{\fie
 \par
 \par
 }
-%*
-GI=121
+%-
+LV=0
 ND=history.txt
-LM=0112241144
-VF=D:\Dani\PROYECTOS\TESELA KN\_Auxiliar\doc\history.txt
-RV=..\doc\history.txt
-%.
-NS=0002
-%+
-NN=KNT Help
-ID=8
-II=3
-DC=20-04-2003 19:33:48
-TI=0
-TS=4
-BG=clWindow
-CH=0
-FC=clWindowText
-FN=Tahoma
-FS=10
-LN=1033
-ST=
-FL=111110000000100001000000
-SN=0
-TW=239
-TM=0
-EN=New node
-TB=clWindow
-TH=0
-TC=clWindowText
-TN=Tahoma
-TZ=10
-TY=
-n:=118
-%-
-gi=1
-DI=2
-ns=0401
-LV=0
-%-
-gi=2
-DI=571
-LV=1
-HC=clBlue
-%-
-gi=3
-DI=5
-%-
-gi=4
-DI=547
-%-
-gi=5
-DI=442
-%-
-gi=6
-DI=6
-%-
-gi=7
-DI=7
-LV=2
-%-
-gi=8
-DI=546
-%-
-gi=9
-DI=542
-LV=1
-%-
-gi=10
-DI=13
-ns=0401
-LV=0
-%-
-gi=11
-DI=10
-LV=1
-%-
-gi=12
-DI=11
-LV=2
-%-
-gi=13
-DI=317
-%-
-gi=14
-DI=321
-%-
-gi=15
-DI=17
-%-
-gi=16
-DI=23
-LV=1
-%-
-gi=17
-DI=24
-%-
-gi=18
-DI=26
-%-
-gi=19
-DI=281
-ns=0401
-LV=0
-%-
-gi=20
-DI=282
-LV=1
-%-
-gi=21
-DI=314
-LV=2
-%-
-gi=22
-DI=301
-%-
-gi=23
-DI=309
-%-
-gi=24
-DI=306
-%-
-gi=25
-DI=311
-%-
-gi=26
-DI=302
-%-
-gi=27
-DI=284
-ns=0080
-LV=1
-%-
-gi=28
-DI=285
-LV=2
-%-
-gi=29
-DI=383
-%-
-gi=30
-DI=292
-LV=1
-%-
-gi=32
-DI=255
-LV=2
-%-
-gi=31
-DI=254
-%-
-gi=33
-DI=582
-LV=1
-%-
-gi=34
-DI=569
-LV=2
-%-
-gi=35
-DI=310
-%-
-gi=36
-DI=580
-LV=3
-%-
-gi=37
-DI=581
-%-
-gi=38
-DI=303
-LV=1
-%-
-gi=39
-DI=511
-%-
-gi=40
-DI=479
-%-
-gi=41
-DI=536
-%-
-gi=42
-DI=574
-LV=2
-%-
-gi=43
-DI=575
-%-
-gi=44
-DI=576
-%-
-gi=45
-DI=287
-LV=1
-%-
-gi=46
-DI=288
-LV=2
-%-
-gi=47
-DI=289
-%-
-gi=48
-DI=290
-%-
-gi=49
-DI=291
-%-
-gi=50
-DI=539
-ns=0400
-LV=1
-%-
-gi=51
-DI=299
-LV=2
-%-
-gi=52
-DI=430
-%-
-gi=53
-DI=330
-%-
-gi=54
-DI=441
-%-
-gi=55
-DI=588
-%-
-gi=56
-DI=312
-LV=1
-%-
-gi=57
-DI=313
-%-
-gi=58
-DI=590
-LV=2
-%-
-gi=59
-DI=591
-ns=0001
-LV=3
-%-
-gi=60
-DI=592
-ns=0001
-LV=4
-%-
-gi=61
-DI=593
-ns=0001
-%-
-gi=62
-DI=594
-ns=0001
-%-
-gi=63
-DI=595
-ns=0001
-LV=3
-%-
-gi=64
-DI=596
-ns=0001
-LV=4
-%-
-gi=65
-DI=597
-ns=0001
-%-
-gi=66
-DI=598
-ns=0001
-%-
-gi=67
-DI=599
-ns=0001
-%-
-gi=68
-DI=600
-ns=0001
-%-
-gi=69
-DI=307
-LV=1
-%-
-gi=70
-DI=601
-%-
-gi=71
-DI=304
-%-
-gi=72
-DI=305
-%-
-gi=73
-DI=453
-LV=2
-%-
-gi=74
-DI=455
-LV=3
-%-
-gi=75
-DI=604
-%-
-gi=76
-DI=567
-LV=1
-%-
-gi=77
-DI=570
-%-
-gi=78
-DI=18
-%-
-gi=79
-DI=19
-LV=2
-%-
-gi=80
-DI=20
-%-
-gi=81
-DI=21
-%-
-gi=82
-DI=22
-%-
-gi=83
-DI=286
-LV=1
-%-
-gi=84
-DI=300
-HC=$00B0B0B0
-%-
-gi=85
-DI=293
-ns=0401
-LV=0
-%-
-gi=86
-DI=540
-LV=1
-%-
-gi=87
-DI=295
-%-
-gi=88
-DI=238
-LV=2
-%-
-gi=89
-DI=239
-LV=3
-%-
-gi=90
-DI=573
-%-
-gi=91
-DI=240
-%-
-gi=92
-DI=241
-LV=2
-%-
-gi=93
-DI=242
-LV=3
-%-
-gi=94
-DI=243
-%-
-gi=95
-DI=244
-LV=2
-%-
-gi=96
-DI=245
-LV=3
-%-
-gi=97
-DI=246
-LV=2
-%-
-gi=98
-DI=247
-LV=3
-%-
-gi=99
-DI=248
-LV=2
-%-
-gi=100
-DI=249
-LV=3
-%-
-gi=101
-DI=250
-%-
-gi=102
-DI=251
-%-
-gi=103
-DI=252
-%-
-gi=104
-DI=296
-LV=1
-%-
-gi=105
-DI=316
-%-
-gi=106
-DI=315
-%-
-gi=107
-DI=392
-%-
-gi=108
-DI=27
-ns=0401
-LV=0
-%-
-gi=109
-DI=29
-LV=1
-%-
-gi=110
-DI=46
-%-
-gi=111
-DI=85
-%-
-gi=112
-DI=115
-%-
-gi=113
-DI=128
-%-
-gi=114
-DI=179
-%-
-gi=115
-DI=189
-%-
-gi=116
-DI=225
-%-
-gi=117
-DI=236
-%-
-gi=118
-DI=272
-%+
-NN=What's New
-ID=14
-II=2
-DC=24-02-2024 13:35:07
-TI=1
-TS=4
-BG=clWindow
-CH=0
-FC=clWindowText
-FN=Tahoma
-FS=9
-LN=3082
-ST=
-FL=111110000000100000000000
-SN=0
-TW=182
-TM=0
-EN=(%D) -
-TB=clWindow
-TH=1
-TC=clWindowText
-TN=MS Sans Serif
-TZ=8
-TY=
-n:=3
-%-
-gi=119
-DI=2
-LV=0
-%-
-gi=120
-DI=3
-%-
-gi=121
 DI=4
+GI=121
+NF=000001000000000000000000
+BC=clWindow
+IX=0
+RV=..\doc\history.txt
+VF=C:\APL\KeyNote NF\doc\history.txt
 %BK
 BK=0,file:///<115|8733|0|224
 BK=1,file:///*8|13|0|0
