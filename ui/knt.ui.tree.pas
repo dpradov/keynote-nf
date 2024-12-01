@@ -767,17 +767,24 @@ begin
 
         Log_StoreTick( 'After Restored selected node', 3 );
 
+        // *2
         // Virtual TreeView bug? When loading some trees the control is not calculating
         // correctly the visible height, and the last node is partially visible. In that situation,
         // executing FullCollapse and then FullExpand corrects it, but also seems to be enough to
         // expand and collapse the first node (at least on this point in code)
         // Note: The tree is not populated in a virtual way, but it should not be a problem. I have only
         // detected with a single folder ("Knt Help")
+        {  *2
         tNode:= TV.GetFirst();
         if tNode <> nil then begin
            TV.Expanded[tNode]:= True;
            TV.Expanded[tNode]:= False;
         end;
+        }
+        // Instead of the above lines to resolve *2, which works but not always, it seems that simply enclosing the
+        // expanding settings between BeginUpdate and EndUpdate works and is probably better.
+
+       TV.BeginUpdate;
 
         case KntTreeOptions.ExpandMode of
           txmFullCollapse : begin
@@ -798,6 +805,8 @@ begin
             FullExpand;
           end;
         end;
+
+        TV.EndUpdate;
 
         Form_Main.UpdateTreeVisible( myFolder ); // [f]
 
