@@ -1,0 +1,54 @@
+Changes in 2.0.0 Beta 9  (01 dec 2024)
+=======================
+
+* Fixed: In certain cases, when expanding the tree (fully or partially), the last node is cut off
+  Was fixed this problem when first detected but it was not totally resolved
+  (as shown in https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11381762)
+  Now a different approach has been used that it seems better (and simpler).
+
+* Fixed: Defaults. Clicking on text "Default plain text..." doesn't change checkbox
+  Ref: https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11415492
+
+* Fixed: hyperlinks without explicit protocol and with @ character were always interpreted as emails (mailto:...)
+  Consider this case: "D:\@Developers\Path\file.txt"
+
+* Fixed: Allow use of UTF8 text in Lang\keynote.lan (and so in the language name list)
+
+* Fixed: Translation of some drop-down lists was ignored
+
+* Converted the texts displayed in the Help buttons of the Folder Properties dialog box to resource strings
+  To allow their translation
+
+* Fixed: When another app modified the knt file, it could be marked as Modified before asking 'Reload the file from disk?'
+
+* Fixed: Alarms. Adjusted calendar control to required size based on locale
+  The Arabic calendar, for example, can be much wider than the Gregorian calendar used
+  with the Spanish or English regional settings.
+
+* Fixed: Exception in some systems with non-Gregorian calendar (ECommonCalendarError)
+  There is a bug in Delphi, and it does not handle certain calendars correctly, such as the Um-Al-Qura Calendar
+  used in Saudi Arabia.
+  This error appears in previous versions of KeyNote, such as 1.9.5.2, when opening the alarms window,
+  but since TDateTimePicker controls have been incorporated into the search panel, the error can directly
+  prevent the application from opening.
+
+* Changed fonts in Main window from MS Sans Serif to Tahoma
+  Changed default fonts, in tree and editor, to Tahoma 11
+  
+- - -
+* Fixed: Changed 'NoteState' token ("NS" -> "Ns")
+  This will force any "NS" tokens loaded as 'NoteState' to be discarded and not saved for now.
+  It does not affect files saved up to now with versions 2.0.0 Beta because in these versions
+  the NoteState values are not yet being used.
+  On the contrary, some of those defined in NoteEntryState, which was also configured as "NS",
+  are being used.
+
+* Fixed: Internally, the ID associated with each note entry is not being 0, as it should be.
+  This has no impact at the moment, other than a few more bytes being written to the .knt file for each note.
+  It is fixed with the new version Beta 9 and the .knt file will no longer write those unnecessary values.
+  Since version 2.0 the model supports multiple "entries" for each note. Each entry has an ID, which starts
+  at zero. However, both files created with earlier versions are converted to notes with a single entry,
+  and it is still only possible to create one entry in the current 2.0.0 versions
+
+* Updated .LNG files to be translated
+* Updated Help file
