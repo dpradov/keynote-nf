@@ -12,7 +12,7 @@ II=3
 DC=20-04-2003 19:33:48
 TI=0
 TS=4
-CX=1192
+CX=0
 CY=0
 BG=clWindow
 CH=0
@@ -21,7 +21,7 @@ FN=Tahoma
 FS=10
 LN=1033
 ST=
-FL=101110000000100000000000
+FL=111110000000100000000000
 SN=0
 TW=239
 TM=0
@@ -1676,6 +1676,7 @@ GI=20
 NF=000000000000000000000000
 BC=clWindow
 IX=0
+SS=27981
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red128\green128\blue0;\red0\green128\blue0;\red64\green64\blue64;\red255\green0\blue0;\red0\green0\blue0;\red96\green96\blue96;\red255\green255\blue0;\red255\green255\blue255;\red51\green51\blue153;\red192\green192\blue192;}
@@ -2808,6 +2809,7 @@ GI=27
 NF=000000000100000000000000
 BC=clWindow
 IX=0
+SS=27613
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;\red128\green128\blue0;}
@@ -5518,6 +5520,7 @@ GI=40
 NF=000000000000000000000000
 BC=clWindow
 IX=0
+SS=9534
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;\red128\green128\blue0;}
@@ -5718,6 +5721,13 @@ Keynote will considere only the nodes created and/or modified in the intervals i
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Other options selected, like \ul Search Type\ulnone  (Exact phrase, All the words, Any of the words) or \ul Whole words only\ulnone  will also be considered when searching node names.\par
 {\pntext\f4\'B7\tab}Matches in node names are \cf6\highlight7 highlighted\cf0\highlight0  in results list, with \highlight7\lang3082 ligth yellow\highlight8\lang1033  \highlight0 background color\par
+
+\pard\par
+\par
+\b Use path of node\b0\par
+
+\pard\sb80 By default, when searching in the name of the nodes only the node itself is considered. When the option 'Use path of nodes' is enabled the complete path should be used, that is, considering also the names of the ancestors.\par
+There is an explanation and an example of its possible use in Folders as note trees / Tree Filtering / {{\field{\*\fldinst{HYPERLINK "file:///<27|26525|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by name}}}}\f0\fs20\par
 
 \pard\par
 \par
@@ -16590,7 +16600,7 @@ II=2
 DC=24-02-2024 13:35:07
 TI=1
 TS=4
-CX=1345
+CX=21
 CY=0
 BG=clWindow
 CH=0
@@ -16599,8 +16609,8 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=101110000000110000000000
-SN=0
+FL=111110000000110000000000
+SN=1
 TW=182
 TM=0
 EN=(%D) -
@@ -16712,6 +16722,7 @@ GI=120
 NF=000000000000000000000000
 BC=clWindow
 IX=0
+SS=21
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;}
