@@ -1212,6 +1212,10 @@ resourcestring
             '>> More info in Help File (F1)'
             ;
 
+  // kn_Const.pas  -------------------
+  sINFStyRg1 = 'Font';
+  sINFStyRg2 = 'Paragraph';
+  sINFStyRg3 = 'Font and paragraph';
 
 
 implementation

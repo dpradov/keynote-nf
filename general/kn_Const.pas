@@ -1002,6 +1002,8 @@ var
   HTMLExportMethods : array[THTMLExportMethod] of string;
 
 implementation
+uses kn_Info;
+
 
 procedure DefineConst;
 begin
@@ -1068,6 +1070,29 @@ begin
   {$IFDEF WITH_IE}
   FactStrings[factMakeVirtualIENode]:= sINFDrop8;
   {$ENDIF}
+
+  URL_ACTIONS[urlOpen]:=            sINFUrlAct1;
+  URL_ACTIONS[urlOpenNew]:=         sINFUrlAct2;
+  URL_ACTIONS[urlCopy]:=            sINFUrlAct3;
+  URL_ACTIONS[urlBoth]:=            sINFUrlAct4;
+  URL_ACTIONS[urlAsk]:=             sINFUrlAct5;
+  URL_ACTIONS[urlNothing]:=         sINFUrlAct6;
+  URL_ACTIONS[urlCreateOrModify]:=  sINFUrlAct7;
+
+  TAB_POSITIONS[tabposTop]:=    sINFPOS1;
+  TAB_POSITIONS[tabposBottom]:= sINFPOS2;
+  TAB_POSITIONS[tabposLeft]:=   sINFPOS3;
+  TAB_POSITIONS[tabposRight]:=  sINFPOS4;
+
+  DIRECTION_NAMES[dirUp]:=    sINFDIR1;
+  DIRECTION_NAMES[dirDown]:=  sINFDIR2;
+  DIRECTION_NAMES[dirLeft]:=  sINFDIR3;
+  DIRECTION_NAMES[dirRight]:= sINFDIR4;
+
+  STYLE_RANGES[srFont]:=      sINFStyRg1;
+  STYLE_RANGES[srParagraph]:= sINFStyRg2;
+  STYLE_RANGES[srBoth]:=      sINFStyRg3;
+
 
   FILE_FORMAT_NAMES[nffKeyNote]:=     sINFFormats1;
   FILE_FORMAT_NAMES[nffKeyNoteZip]:=  sINFFormats3;

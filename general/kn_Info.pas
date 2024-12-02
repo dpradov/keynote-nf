@@ -267,10 +267,8 @@ type
 type
   TStyleRange = ( srFont, srParagraph, srBoth );
 
-const
-  STYLE_RANGES : array[TStyleRange] of string = (
-    'Font', 'Paragraph', 'Font and paragraph'
-  );
+var
+  STYLE_RANGES : array[TStyleRange] of string;
 
 type
   TBooleanNotifyProc = procedure( const Activate : boolean ) of object;
@@ -345,10 +343,8 @@ type
     urlOpen, urlOpenNew, urlCopy, urlBoth, urlAsk, urlNothing, urlCreateOrModify
   );
 
-const
-  URL_ACTIONS : array[TURLAction] of string = (
-    sINFUrlAct1, sINFUrlAct2, sINFUrlAct3, sINFUrlAct4, sINFUrlAct5, sINFUrlAct6, sINFUrlAct7
-  );
+var
+  URL_ACTIONS : array[TURLAction] of string;
 
 (*
 type
@@ -436,10 +432,8 @@ type
     dirUp, dirDown, dirLeft, dirRight
   );
 
-const
-  DIRECTION_NAMES : array[TDirection] of string = (
-    sINFDIR1, sINFDIR2, sINFDIR3, sINFDIR4
-  );
+var
+  DIRECTION_NAMES : array[TDirection] of string;
 
 type
   TFileStateChange = (
@@ -693,10 +687,8 @@ type
 type
   TTabOrientation = ( tabposTop, tabposBottom, tabposLeft, tabposRight );
 
-const
-  TAB_POSITIONS : array[TTabOrientation] of string = (
-     sINFPOS1, sINFPOS2, sINFPOS3, sINFPOS4
-  );
+var
+  TAB_POSITIONS : array[TTabOrientation] of string;
 
 type
   TTabOptions = packed record

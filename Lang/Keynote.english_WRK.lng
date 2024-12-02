@@ -1770,6 +1770,9 @@ Button_OK.Caption=&Close
 64202_knt_RS_sDef31=REMEMBER:\^\^- Folder settings apply only to NEW notes, except:\^   - 'Plain note only': modifies ALL the notes\^   - 'WordWrap': affects ALL the notes\^       (not explicitly set WordWrap previously)\^\^>> More info in Help File (F1)
 64203_knt_RS_sDef32=REMEMBER:\^\^- Font change affect only to NEW nodes (all if Plain note)\^- BG Color depends on 'Inherit BG color from active node':\^   - If set, background color of selected node is shown\^     (=> BG color of its new child nodes)\^   - If not set, default BG color for all NEW nodes is shown\^   * To edit this option -> F5 | General settings| Rich Text editor\^\^- BG Color can be changed for ALL nodes in a Folder:\^    [Shift] + "Format | Background color"\^\^>> More info in Help File (F1)
 64204_knt_RS_sDef33=REMEMBER:\^\^- BG Color sets backgroud color for the Tree Panel and\^  default BG color of tree nodes\^- Previous changes to individual nodes won't be affected\^- 'Inherit properties from active node' option is\^  considered in NEW nodes\^- Font and BG color can be changed for ALL tree panels at once:\^    "Apply to ALL folders"\^\^- Note: 'Inherit BG color from active node' option does NOT\^  affect (refers to Editor) \^\^>> More info in Help File (F1)
+64205_knt_RS_sINFStyRg1=Font
+64206_knt_RS_sINFStyRg2=Paragraph
+64207_knt_RS_sINFStyRg3=Font and paragraph
 64208_knt_RS_sTree18{1}=OK to forget %s?
 64209_knt_RS_sTree19=Target node is included in one of the subtrees to move
 64210_knt_RS_sTree20{1}= nodes/subtrees registered for transfer
