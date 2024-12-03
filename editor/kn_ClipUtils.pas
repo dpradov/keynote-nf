@@ -50,6 +50,7 @@ type
        // function GetTitleFromHTML (const HTMLClipboard: AnsiString): string;
        function GetURLFromHTML (const HTMLClipboard: AnsiString): string;
        procedure TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
+       procedure PrepareHTMLFormatTag (tag: AnsiString; var HTMLClipboard: AnsiString);
        function ToStream (Fmt : Word; Stm : TStream ) : boolean;
        function HasRTFformat: boolean;
        function HasHTMLformat: boolean;
@@ -293,6 +294,35 @@ begin
      delete( HTMLClipboard, 1, p-1);
 end;
 
+{
+When copying HTML text to the clipboard, Firefox simplifies some tag styles and the resulting text can be
+correctly converted to RTF, but other browsers such as Edge or Chrome do not do this and therefore the
+resulting RTF loses some formatting style.
+
+We need to simplify some tags like:
+  <STRONG style="BOX-SIZING: border-box; FONT-WEIGHT: bolder">Text....</STRONG>   -->   <STRONG>Text</STRONG>
+}
+procedure TClipboardHelper.PrepareHTMLFormatTag (tag: AnsiString; var HTMLClipboard: AnsiString);
+var
+  pI, pF, i, L : integer;
+  tokenSearched, s: string;
+begin
+   tokenSearched:= '<' + tag + ' style';
+   L:= Length(Tag);
+   i:= 1;
+   repeat
+      pI:= pos(tokenSearched, HTMLClipboard, i);
+      if pI >= 1 then begin
+        pF:= pos( '>', HTMLClipboard, pI + L+5);
+        if pF > 0 then begin
+           s:= Copy( HTMLClipboard, pI+(L+1), pF-pI-(L+1));
+           delete( HTMLClipboard, pI+(L+1), pF-pI-(L+1));
+        end;
+        i:= pI + L;
+      end;
+   until pI <= 0;
+end;
+
 
 {
 Calculates CRC on ClpStr and compare it with last calculated CRC, returning true if it is equal
@@ -433,6 +463,9 @@ begin
              HTMLTextToConvert:= HTMLText;
 
           Clipboard.TrimMetadataFromHTML(HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('strong', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('b', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('em', HTMLTextToConvert);
           ConvertHTMLToRTF(HTMLTextToConvert, Result);
 
           len:= Length(Result);
