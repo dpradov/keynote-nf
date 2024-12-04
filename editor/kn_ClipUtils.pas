@@ -51,6 +51,9 @@ type
        function GetURLFromHTML (const HTMLClipboard: AnsiString): string;
        procedure TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
        procedure PrepareHTMLFormatTag (tag: AnsiString; var HTMLClipboard: AnsiString);
+       function GetNextImageInformation(const HTMLText: AnsiString; Offset: integer;
+                                        var SourceImg: AnsiString; var TextAlt: AnsiString;
+                                        var PosTagClosing: integer): boolean;
        function ToStream (Fmt : Word; Stm : TStream ) : boolean;
        function HasRTFformat: boolean;
        function HasHTMLformat: boolean;
@@ -321,6 +324,38 @@ begin
         i:= pI + L;
       end;
    until pI <= 0;
+end;
+
+
+function TClipboardHelper.GetNextImageInformation(const HTMLText: AnsiString; Offset: integer;
+                                                   var SourceImg: AnsiString; var TextAlt: AnsiString;
+                                                   var PosTagClosing: integer): boolean;
+var
+  p1, p2, p3: integer;
+  s: string;
+
+begin
+   Result:= false;
+   TextAlt:= '';
+   SourceImg:= '';
+   p1:= Pos('<img ', HTMLText, Offset);
+   if p1 > 0 then begin
+        p2:= Pos('src="', HTMLText, p1);
+        p3:= Pos('"', HTMLText, p2+5);
+        SourceImg:= Copy(HTMLText, p2+5, p3-p2-5);
+        p2:= Pos('alt="', HTMLText, p1);
+        if p2 > 0 then begin
+           p3:= Pos('"', HTMLText, p2+5);
+           TextAlt:= Copy(HTMLText, p2+5, p3-p2-5);
+        end;
+        p2:= Pos('>', HTMLText, p3);
+        PosTagClosing:= p2;
+
+        if p2 > 0 then begin
+           s:= Copy(HTMLText, p1, PosTagClosing-p1+1);
+           Result:= true;
+        end;
+   end;
 end;
 
 

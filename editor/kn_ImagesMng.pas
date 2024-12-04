@@ -393,7 +393,7 @@ type
     function RecalcNextID: boolean;
 
     procedure InsertImage (FileName: String; Editor: TKntRichEdit; Owned: boolean; const NameProposed: string = '');
-    procedure InsertImageFromClipboard (Editor: TKntRichEdit; FolderName: string; TryAddURLlink: boolean = true);
+    procedure InsertImageFromClipboard (Editor: TKntRichEdit; FolderName: string; TryAddCaption: boolean = true);
 
     function ProcessImagesInRTF (const RTFText: AnsiString;
                                  const FolderName: string;
@@ -2504,7 +2504,7 @@ begin
 end;
 
 
-procedure TImageMng.InsertImageFromClipboard(Editor: TKntRichEdit; FolderName: string; TryAddURLlink: boolean = true);
+procedure TImageMng.InsertImageFromClipboard(Editor: TKntRichEdit; FolderName: string; TryAddCaption: boolean = true);
 var
   Stream: TMemoryStream;
   bmp: TBitmap;
@@ -2514,7 +2514,7 @@ var
 
   Width, Height, WidthGoal, HeightGoal: integer;
 
-  p1, p2, p3: integer;
+  posClosing: integer;
   HTMLText, SourceImg, TextAlt, StrRTF: AnsiString;
   TextURL: String;
   DefaultImageFormat_Bak: TImageFormat;
@@ -2528,27 +2528,10 @@ begin
   ImgFormat:= imgUndefined;
   StreamRegistered:= false;
 
- {
-  //  Disabled from now. Perhaps it will be restored and used if enabled via a new INI configuration option
-
-  if TryAddURLLink then begin
+  if TryAddCaption then begin
      HTMLText:= Clipboard.AsHTML;
-     TextAlt:= '';
-     if HTMLText <> '' then begin
-         p1:= Pos('<img ', HTMLText);
-         if p1 > 0 then begin
-              p2:= Pos('src="', HTMLText, p1);
-              p3:= Pos('"', HTMLText, p2+5);
-              SourceImg:= Copy(HTMLText, p2+5, p3-p2-5);
-              p2:= Pos('alt="', HTMLText, p1);
-              if p2 > 0 then begin
-                 p3:= Pos('"', HTMLText, p2+5);
-                 TextAlt:= Copy(HTMLText, p2+5, p3-p2-5);
-              end;
-         end;
-     end;
+     Clipboard.GetNextImageInformation(HTMLText,1, SourceImg, TextAlt, posClosing);
   end;
-}
 
   Stream:= TMemoryStream.Create;
 
@@ -2605,6 +2588,13 @@ begin
             Img.Caption:= TextURL;
      end;
 }
+
+     if TryAddCaption and (TextAlt <> '') and (Img <> nil) and (Img.Caption = '') then begin
+         TextURL:= TryUTF8ToUnicodeString(TextAlt);
+         TextURL:= ConvertHTMLAsciiCharacters(TextURL);
+         Img.Caption:= TextURL;
+     end;
+
 
   finally
      bmp.Free;
