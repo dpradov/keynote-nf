@@ -2186,17 +2186,6 @@ var
                       false, ContainsRegImages, SearchInImLinkTextPlain);
   end;
 
-  procedure UpdateReplacingLastNodeHasRegImg;
-  begin
-      if Is_ReplacingAll and (myTreeNode <> ReplacingLastNode) then begin
-         if not Editor.SupportsRegisteredImages then
-            ReplacingLastNodeHasRegImg:= false
-         else
-            ReplacingLastNodeHasRegImg:= Editor.ContainsRegisteredImages;
-         ReplacingLastNode:= myTreeNode;
-      end;
-  end;
-
   function GetTextPlainFromNode(NNode: TNoteNode; RTFAux: TAuxRichEdit): string;
   var
      NEntry: TNoteEntry;
@@ -2262,7 +2251,15 @@ begin
       myTreeNode := TreeUI.FocusedNode;
       NNode:= TreeUI.GetNNode(myTreeNode);
 
-      UpdateReplacingLastNodeHasRegImg;
+      ReplacingLastNodeHasRegImg:= false;
+      if Is_ReplacingAll then begin
+         if not Editor.SupportsRegisteredImages then
+            ReplacingLastNodeHasRegImg:= false
+         else
+            ReplacingLastNodeHasRegImg:= Editor.ContainsRegisteredImages;
+         ReplacingLastNode:= myTreeNode;
+      end;
+
 
       // Identificación de la posición de inicio de la búsqueda ---------------------------
       if ( FindOptions.FindNew and FindOptions.EntireScope ) then
@@ -2296,9 +2293,10 @@ begin
       // o incluso continuar buscando desde el punto de partida, de manera cíclica.
 
       repeat
-            UpdateReplacingLastNodeHasRegImg;
-
             NNode:= TreeUI.GetNNode(myTreeNode);
+
+            if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then
+               ReplacingLastNodeHasRegImg:= true;   // We can't know this unless we query NNode.TextPlain because the Editor will still be 'pointing' to another node
 
             if ReplacingLastNodeHasRegImg then begin
                TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux);
@@ -2306,6 +2304,12 @@ begin
             end
             else
                TextPlain:= GetTextPlainFromNode(NNode, RTFAux);
+
+            if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then begin
+               ReplacingLastNode:= myTreeNode;
+               ReplacingLastNodeHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same node will be optimized if this node has no images
+            end;
+
 
             if FindOptions.MatchCase then
                PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
