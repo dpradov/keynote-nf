@@ -2277,6 +2277,8 @@ begin
       repeat
             UpdateReplacingLastNodeHasRegImg;
 
+            NNode:= TreeUI.GetNNode(myTreeNode);
+
             if ReplacingLastNodeHasRegImg then
                TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux)
             else
