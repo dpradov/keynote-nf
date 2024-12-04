@@ -2076,6 +2076,7 @@ var
   TreeUI: TKntTreeUI;
   TV: TVTree;
   NNode: TNoteNode;
+  SearchInImLinkTextPlain: boolean;  // True: PatternPos is a position in imLinkTextPlain
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -2169,6 +2170,8 @@ var
 
 
   procedure SelectPatternFound();
+  var
+     ContainsRegImages: boolean;       // True: 'Can' contain images
   begin
       if (myFolder <> ActiveFolder) then
          App.ActivateFolder(myFolder);
@@ -2178,8 +2181,9 @@ var
          myFolder.TreeUI.SelectAlone(myTreeNode);
       end;
 
+      ContainsRegImages:= (not Is_ReplacingAll) or ReplacingLastNodeHasRegImg;
       SearchCaretPos (myFolder.Editor, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1),
-                      false, ReplacingLastNodeHasRegImg, true);
+                      false, ContainsRegImages, SearchInImLinkTextPlain);
   end;
 
   procedure UpdateReplacingLastNodeHasRegImg;
@@ -2191,6 +2195,23 @@ var
             ReplacingLastNodeHasRegImg:= Editor.ContainsRegisteredImages;
          ReplacingLastNode:= myTreeNode;
       end;
+  end;
+
+  function GetTextPlainFromNode(NNode: TNoteNode; RTFAux: TAuxRichEdit): string;
+  var
+     NEntry: TNoteEntry;
+
+  begin
+     if myFolder.NoteUI.NNode = NNode then begin
+        SearchInImLinkTextPlain:= false;
+        Result:= myFolder.NoteUI.Editor.TextPlain;
+     end
+     else begin
+        NEntry:= NNode.Note.Entries[0];         // %%%
+        LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+        SearchInImLinkTextPlain:= true;
+        Result:= RTFAux.TextPlain;
+     end;
   end;
 
 
@@ -2279,10 +2300,12 @@ begin
 
             NNode:= TreeUI.GetNNode(myTreeNode);
 
-            if ReplacingLastNodeHasRegImg then
-               TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux)
+            if ReplacingLastNodeHasRegImg then begin
+               TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux);
+               SearchInImLinkTextPlain:= true;
+            end
             else
-               TextPlain:= myFolder.GetTextPlainFromNode(NNode, RTFAux);
+               TextPlain:= GetTextPlainFromNode(NNode, RTFAux);
 
             if FindOptions.MatchCase then
                PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1

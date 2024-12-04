@@ -288,7 +288,6 @@ type
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit ): boolean;
     function InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
     function PrepareTextPlain (NNode: TNoteNode; RTFAux: TAuxRichEdit): string;
-    function GetTextPlainFromNode (NNode: TNoteNode; RTFAux: TAuxRichEdit): string;
 
   end; // TKntFolder
 
@@ -1745,21 +1744,6 @@ begin
    Result:= NEntry.TextPlain;
 end;
 
-
-function TKntFolder.GetTextPlainFromNode(NNode: TNoteNode; RTFAux: TAuxRichEdit): string;
-var
-   NEntry: TNoteEntry;
-
-begin
-   if NoteUI.NNode = NNode then
-      Result:= NoteUI.Editor.TextPlain
-
-   else begin
-      NEntry:= NNode.Note.Entries[0];         // %%%
-      LoadStreamInRTFAux (NEntry.Stream, RTFAux);
-      Result:= RTFAux.TextPlain;
-   end;
-end;
 
 {$ENDREGION }
 
