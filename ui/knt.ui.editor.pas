@@ -198,7 +198,7 @@ type
     function GetAndRememberCurrentZoom: integer;
     procedure SetMargins;
 
-    procedure TryPasteRTF(HTMLText: AnsiString=''; FolderName: String= '');
+    procedure TryPasteRTF(HTMLText: AnsiString=''; FolderName: String= ''; PlainText: boolean = false);
     procedure PastePlain (StrClp: string = ''; HTMLClip: AnsiString= ''; ForcePlainText: boolean = false; MaxSize: integer = 0 );
     procedure PasteBestAvailableFormat (const FolderName: string;
                                         TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
@@ -1570,7 +1570,10 @@ begin
            ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain(SelText);
            if ImgIDs <> nil then
               ImgID:= ImgIDs[0];
-         end;
+         end
+         else
+            if SL = 2 then
+               ImgID:= CheckToIdentifyImageID(p);
       end;
    end;
 
@@ -1671,7 +1674,7 @@ end;
 
 //----------------------------------------------------------------------------
 
-procedure TKntRichEdit.TryPasteRTF(HTMLText: AnsiString=''; FolderName: String= '');
+procedure TKntRichEdit.TryPasteRTF(HTMLText: AnsiString=''; FolderName: String= ''; PlainText: boolean = false);
 var
   RTF: AnsiString;
   posI: integer;
@@ -1679,7 +1682,7 @@ var
 begin
     posI := SelStart;
 
-    RTF:= Clipboard.TryOfferRTF(HTMLText, SelAttributes);            // Can return '' if clipboard already contained RTF Format
+    RTF:= Clipboard.TryOfferRTF(HTMLText, SelAttributes, PlainText);            // Can return '' if clipboard already contained RTF Format
     if RTF <> '' then
         PutRtfText(RTF, true)
     else
@@ -1818,7 +1821,7 @@ begin
            if assigned(ActiveFolder) then
               FolderName:= ActiveFolder.Name;
 
-           TryPasteRTF(HTMLClip, FolderName);
+           TryPasteRTF(HTMLClip, FolderName, True);
            j := SelStart;
            SuspendUndo;
            try

@@ -394,6 +394,13 @@ type
 
     procedure InsertImage (FileName: String; Editor: TKntRichEdit; Owned: boolean; const NameProposed: string = '');
     procedure InsertImageFromClipboard (Editor: TKntRichEdit; FolderName: string; TryAddCaption: boolean = true);
+    procedure RegisterAndInsertImage(FileName: String; Editor: TKntRichEdit; Owned: boolean;
+                                     var RTFForImageInsertion: AnsiString;
+                                     const NameProposed: string= '';
+                                     Stream: TMemoryStream = nil;
+                                     AddToEditor: boolean = true;
+                                     W: integer = 0; H: integer = 0);
+
 
     function ProcessImagesInRTF (const RTFText: AnsiString;
                                  const FolderName: string;
@@ -2450,14 +2457,25 @@ end;
 
 procedure TImageMng.InsertImage(FileName: String; Editor: TKntRichEdit; Owned: boolean; const NameProposed: string= '');
 var
-  Stream: TMemoryStream;
+   RTFFormImgIns: AnsiString;
+begin
+   RegisterAndInsertImage(FileName, Editor, Owned, RTFFormImgIns, NameProposed);
+end;
+
+
+procedure TImageMng.RegisterAndInsertImage(FileName: String; Editor: TKntRichEdit; Owned: boolean;
+                                           var RTFForImageInsertion: AnsiString;
+                                           const NameProposed: string= '';
+                                           Stream: TMemoryStream = nil;
+                                           AddToEditor: boolean = true;
+                                           W: integer = 0; H: integer = 0);
+var
   ImgFormat, ImgFormatDest: TImageFormat;
   Width, Height, WidthGoal, HeightGoal: integer;
 
-  StrRTF: AnsiString;
   ImgID: integer;
   Img: TKntImage;
-  StreamRegistered: boolean;
+  CreateStream, StreamRegistered: boolean;
   Folder: TKntFolder;
   FolderName: String;
 
@@ -2471,10 +2489,13 @@ begin
   if assigned(Folder) then
      FolderName:= Folder.Name;
 
+  CreateStream:= (Stream = nil);
 
-  Stream:= TMemoryStream.Create;
+  if CreateStream then
+     Stream:= TMemoryStream.Create;
   try
-     Stream.LoadFromFile(FileName);
+     if CreateStream then
+        Stream.LoadFromFile(FileName);
      Stream.Position:= 0;
 
      if Editor.SupportsRegisteredImages then begin
@@ -2487,14 +2508,23 @@ begin
         end;
      end;
 
+     if (Img <> nil) and (NameProposed <> '') and (Img.Caption = '') and (NameProposed <> ExtractFileName(FileName))  then
+        Img.Caption:= NameProposed;
+
      Width:= -1;
      WidthGoal:= -1;
-     StrRTF:= GetRTFforImageInsertion(ImgID, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, True, StreamRegistered, true);
+     if (W <> 0) and (H <> 0) then begin
+        WidthGoal:= W;
+        HeightGoal:= H;
+     end;
+
+     RTFForImageInsertion:= GetRTFforImageInsertion(ImgID, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, AddToEditor, StreamRegistered, true, True);
 
      if StreamRegistered then
         Img.SetDimensions(Width, Height);
 
-     Editor.PutRtfText(StrRTF, True);
+     if AddToEditor then
+        Editor.PutRtfText(RTFForImageInsertion, True);
 
   finally
      if not StreamRegistered then
@@ -2514,9 +2544,9 @@ var
 
   Width, Height, WidthGoal, HeightGoal: integer;
 
-  posClosing: integer;
-  HTMLText, SourceImg, TextAlt, StrRTF: AnsiString;
-  TextURL: String;
+  posOpening, posClosing, W,H: integer;
+  HTMLText, SourceImg, StrRTF: AnsiString;
+  TextAlt: String;
   DefaultImageFormat_Bak: TImageFormat;
 
   WasCopiedByKNT, StreamRegistered: boolean;
@@ -2530,7 +2560,7 @@ begin
 
   if TryAddCaption then begin
      HTMLText:= Clipboard.AsHTML;
-     Clipboard.GetNextImageInformation(HTMLText,1, SourceImg, TextAlt, posClosing);
+     Clipboard.GetNextImageInformation(HTMLText,1, SourceImg, TextAlt, W, H, posOpening, posClosing);
   end;
 
   Stream:= TMemoryStream.Create;
@@ -2579,20 +2609,16 @@ begin
 
  {
      if TryAddURLLink and (SourceImg <> '') and (TextAlt<>'') then begin
-         TextURL:= TryUTF8ToUnicodeString(TextAlt);
-         TextURL:= ConvertHTMLAsciiCharacters(TextURL);
          Editor.SelText:= #13;
          Editor.SelStart:= Editor.SelStart + 1;
-         InsertURL(SourceImg, TextURL, Folder);
+         InsertURL(SourceImg, TextAlt, Folder);
          if (Img <> nil) and StreamRegistered then
-            Img.Caption:= TextURL;
+            Img.Caption:= TextAlt;
      end;
 }
 
      if TryAddCaption and (TextAlt <> '') and (Img <> nil) and (Img.Caption = '') then begin
-         TextURL:= TryUTF8ToUnicodeString(TextAlt);
-         TextURL:= ConvertHTMLAsciiCharacters(TextURL);
-         Img.Caption:= TextURL;
+         Img.Caption:= TextAlt;
      end;
 
 

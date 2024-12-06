@@ -721,7 +721,7 @@ begin
 
                 if not IgnoreCopiedText then
                    if not ClipOptions.PasteAsText and not Editor.PlainText then
-                      Editor.TryPasteRTF(HTMLClipboard, FolderName)
+                      Editor.PasteBestAvailableFormat(FolderName, true, true)
                    else
                       Editor.PastePlain(ClpStr, HTMLClipboard, false, ClipOptions.MaxSize);
 

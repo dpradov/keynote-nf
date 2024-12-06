@@ -89,7 +89,8 @@ uses
                                     var Width, Height, WidthGoal, HeightGoal: integer;
                                     AddRTFHeader: boolean;
                                     PreserveOriginalStreamContent: boolean;
-                                    MaintainWMF_EMF: boolean = false
+                                    MaintainWMF_EMF: boolean = false;
+                                    ConsiderGoalOnlyIfSmaller: boolean = false
                                     ): AnsiString;
 
   procedure CheckDimensionGoals(Width, Heigh: integer; var WidthGoal, HeightGoal: integer);
@@ -722,7 +723,8 @@ procedure  GetDimensionsFromStream(Stream: TMemoryStream;
                                    MF: TMetaFile;
                                    var StreamImgFormat: TImageFormat;
                                    var Width, Height, WidthGoal, HeightGoal: integer;
-                                   var MFLoaded: boolean);
+                                   var MFLoaded: boolean;
+                                   ConsiderGoalOnlyIfSmaller: boolean = false);
 var
   FreePic, FreeMF: boolean;
 
@@ -759,7 +761,7 @@ begin
             Height:= Pic.Height;
          end;
       end;
-      if (WidthGoal = -1) then begin
+      if (WidthGoal = -1) or (ConsiderGoalOnlyIfSmaller and ((WidthGoal >= Width) or (HeightGoal >= Height))) then begin
          // If WidthGoal and HeightGoal are not forced, set them equal to Width and Heigth
          // and take into account the KeyOptions.ImgMaxAutoWidthGoal option
          WidthGoal:= Width;
@@ -786,7 +788,8 @@ function GetRTFforImageInsertion(ImgID: integer;
                                  var Width, Height, WidthGoal, HeightGoal: integer;
                                  AddRTFHeader: boolean;
                                  PreserveOriginalStreamContent: boolean;
-                                 MaintainWMF_EMF: boolean = false
+                                 MaintainWMF_EMF: boolean = false;
+                                 ConsiderGoalOnlyIfSmaller: boolean = false
                                 ): AnsiString;
 var
   Pic: TSynPicture;
@@ -803,7 +806,7 @@ begin
       Pic := TSynPicture.Create;
       MF:= TMetaFile.Create;
       try
-         GetDimensionsFromStream(Stream, Pic, MF, StreamImgFormat, Width, Height, WidthGoal, HeightGoal, MFLoaded);
+         GetDimensionsFromStream(Stream, Pic, MF, StreamImgFormat, Width, Height, WidthGoal, HeightGoal, MFLoaded, ConsiderGoalOnlyIfSmaller);
 
          if KeyOptions.ImgFormatInsideRTF = ifWmetafile8 then begin
             StreamImgFormatOutput:= imgWMF;   // We will have to convert to WMF, unless the stream is already in that format

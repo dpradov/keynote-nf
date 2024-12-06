@@ -47,18 +47,21 @@ type
        function TryAsText: string;
        property AsRTF: AnsiString read GetAsRTF write SetAsRTF;
        property AsHTML: AnsiString read GetAsHTML;
+       function AddOrReplaceRTF(const NewRTF: AnsiString; const NewHTML: AnsiString = ''): boolean;
        // function GetTitleFromHTML (const HTMLClipboard: AnsiString): string;
        function GetURLFromHTML (const HTMLClipboard: AnsiString): string;
        procedure TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
        procedure PrepareHTMLFormatTag (tag: AnsiString; var HTMLClipboard: AnsiString);
        function GetNextImageInformation(const HTMLText: AnsiString; Offset: integer;
-                                        var SourceImg: AnsiString; var TextAlt: AnsiString;
+                                        var SourceImg: AnsiString; var TextAlt: string;
+                                        var W, H: integer;
+                                        var PosTagOpening: integer;
                                         var PosTagClosing: integer): boolean;
        function ToStream (Fmt : Word; Stm : TStream ) : boolean;
        function HasRTFformat: boolean;
        function HasHTMLformat: boolean;
        function TryGetFirstLine(const MaxLen : integer): string;
-       function TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil): AnsiString;
+       function TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil; PlainText: boolean = false): AnsiString;
        function TryGetAsHandle(Format: Word): THandle;
    end;
 
@@ -74,8 +77,11 @@ type
 
 
 implementation
-
 uses
+   WinApi.WinInet,
+   System.Math,
+   Vcl.Controls,
+   Vcl.Forms,
    CRC32,
    gf_strings,
    kn_global,
@@ -94,12 +100,14 @@ type
 
 var
    LastCopiedRTFHandle: HGLOBAL;
+   LastCopiedRTFAsWebPlain: boolean;      // It was used Ctrl+Shift+W (or equivalent)
    //LastCopiedRTFPtr:    Pointer;
 
 
 procedure LogRTFHandleInClipboard();
 begin
    LastCopiedRTFHandle := Clipboard.TryGetAsHandle(CFRtf);
+   LastCopiedRTFAsWebPlain:= false;
 end;
 
 {
@@ -328,34 +336,155 @@ end;
 
 
 function TClipboardHelper.GetNextImageInformation(const HTMLText: AnsiString; Offset: integer;
-                                                   var SourceImg: AnsiString; var TextAlt: AnsiString;
+                                                   var SourceImg: AnsiString; var TextAlt: string;
+                                                   var W, H: integer;
+                                                   var PosTagOpening: integer;
                                                    var PosTagClosing: integer): boolean;
 var
   p1, p2, p3: integer;
-  s: string;
+  TextAlt_Ansi: AnsiString;
+  //s: string;
 
 begin
+{
+ Also consider cases such as:
+
+<picture>
+  <source type="image/webp" media="(max-width: 578px)" srcset="https://.....webp">
+  <source type="image/jpg" media="(max-width: 1099px)" srcset="https://....jpg">
+   ...
+  <img src="data:image/svg+xml,..." alt="..." ... >
+</picture>
+}
+
+
    Result:= false;
-   TextAlt:= '';
+   TextAlt_Ansi:= '';
    SourceImg:= '';
    p1:= Pos('<img ', HTMLText, Offset);
    if p1 > 0 then begin
-        p2:= Pos('src="', HTMLText, p1);
-        p3:= Pos('"', HTMLText, p2+5);
-        SourceImg:= Copy(HTMLText, p2+5, p3-p2-5);
-        p2:= Pos('alt="', HTMLText, p1);
-        if p2 > 0 then begin
-           p3:= Pos('"', HTMLText, p2+5);
-           TextAlt:= Copy(HTMLText, p2+5, p3-p2-5);
-        end;
+        p2:= Pos(' src="', HTMLText, p1);
+        p3:= Pos('"', HTMLText, p2+6);
+        SourceImg:= Copy(HTMLText, p2+6, p3-p2-6);
         p2:= Pos('>', HTMLText, p3);
+        PosTagOpening:= p1;
         PosTagClosing:= p2;
 
-        if p2 > 0 then begin
-           s:= Copy(HTMLText, p1, PosTagClosing-p1+1);
+        if PosTagClosing > 0 then begin
+           p2:= Pos('alt="', HTMLText, p1);
+           if (p2 > 0) and (p2 < PosTagClosing) then begin
+              p3:= Pos('"', HTMLText, p2+5);
+              TextAlt_Ansi:= Copy(HTMLText, p2+5, p3-p2-5);
+           end;
+
+           //s:= Copy(HTMLText, p1, p2-p1+1);
            Result:= true;
+           TextAlt:= '';
+           if TextAlt_Ansi <> '' then begin
+              TextAlt:= TryUTF8ToUnicodeString(TextAlt_Ansi);
+              TextAlt:= ConvertHTMLAsciiCharacters(TextAlt);
+           end;
+
+           W:= 0;
+           H:= 0;
+           p2:= Pos(' width="', HTMLText, p1);
+           if (p2 > 0) and (p2 < PosTagClosing) then begin
+              p3:= Pos('"', HTMLText, p2+8);
+              W:= StrToIntDef(Copy(HTMLText, p2+8, p3-p2-8), 0);
+
+              p2:= Pos('height="', HTMLText, p2);
+              if (p2 > 0) and (p2 < PosTagClosing) then begin
+                 p3:= Pos('"', HTMLText, p2+8);
+                 H:= StrToIntDef(Copy(HTMLText, p2+8, p3-p2-8), 0);
+              end;
+           end
+           else begin
+              p2:= Pos(' width: ', HTMLText, p1);
+              if (p2 > 0) and (p2 < PosTagClosing) then begin
+                 p3:= Pos('px;', HTMLText, p2+8);
+                 W:= StrToIntDef(Copy(HTMLText, p2+8, p3-p2-8), 0);
+
+                 p2:= Pos('height: ', HTMLText, p2);
+                 if (p2 > 0) and (p2 < PosTagClosing) then begin
+                    p3:= Pos('px;', HTMLText, p2+8);
+                    H:= StrToIntDef(Copy(HTMLText, p2+8, p3-p2-8), 0);
+                 end;
+              end
+           end;
+
+
+           if Copy(SourceImg,1,5) = 'data:' then begin
+              p1:= Pos('<source type="image/jpg"', HTMLText, Offset);
+              if (p1 > 0) and (p1 < PosTagOpening) then begin
+                 p2:= Pos('srcset="', HTMLText, p1);
+                 p3:= Pos('"', HTMLText, p2+8);
+                 SourceImg:= Copy(HTMLText, p2+8, p3-p2-8);
+              end;
+           end;
         end;
    end;
+end;
+
+
+procedure DownloadImage(const URL: string; const TextAlt: string; W, H: integer; var StrRTF: AnsiString);
+var
+  hInet, hConnect: HINTERNET;
+  HeaderBuffer: array[0..255] of Char;
+  HeaderBufferSize, Index: DWORD;
+  Buffer: array of Byte;
+  Stream: TMemoryStream;
+  BufferSize: integer;
+  BytesRead, TotalBytesRead, ContentLength: DWORD;
+begin
+  StrRTF:= '';
+  if not URL.StartsWith('http') then exit;
+
+
+  hInet := InternetOpen('KeyNote_ImageDownloader', INTERNET_OPEN_TYPE_DIRECT, nil, nil, 0);
+  if Assigned(hInet) then begin
+    screen.Cursor := crHourGlass;
+    try
+      hConnect := InternetOpenUrl(hInet, PChar(URL), nil, 0, INTERNET_FLAG_RELOAD, 0);
+      if Assigned(hConnect) then
+         try
+           ContentLength := 0;
+           HeaderBufferSize := SizeOf(HeaderBuffer);
+           Index := 0;
+           if HttpQueryInfo(hConnect, HTTP_QUERY_CONTENT_LENGTH, @HeaderBuffer, HeaderBufferSize, Index) then
+             ContentLength := StrToIntDef(string(HeaderBuffer), 0);
+
+           Stream:= TMemoryStream.Create;
+
+           if ContentLength = 0 then begin
+               ContentLength:= Integer.MaxValue;
+               BufferSize:= 200*1024;
+               SetLength(Buffer, BufferSize);
+           end
+           else begin
+              BufferSize:= ContentLength;
+              SetLength(Buffer, BufferSize);
+              Stream.SetSize(ContentLength);
+           end;
+
+           TotalBytesRead:= 0;
+           while (ContentLength > TotalBytesRead)
+                 and InternetReadFile(hConnect, @Buffer[0], BufferSize, BytesRead)
+                 and (BytesRead > 0) do begin
+
+              Stream.WriteBuffer(Buffer[0], BytesRead);
+              inc(TotalBytesRead, BytesRead);
+           end;
+
+           ImageMng.RegisterAndInsertImage('', ActiveEditor, true, StrRTF, TextAlt, Stream, False, W,H);
+
+         finally
+           InternetCloseHandle(hConnect);
+         end;
+    finally
+      InternetCloseHandle(hInet);
+      screen.Cursor := crDefault;
+    end;
+  end;
 end;
 
 
@@ -469,13 +598,97 @@ begin
 end;
 
 
+function TClipboardHelper.AddOrReplaceRTF(const NewRTF: AnsiString; const NewHTML: AnsiString = ''): boolean;
+var
+  TextData, HTMLData: THandle;
+  RTFHandle: THandle;
+  RTFPointer: Pointer;
+  function CopyContent (var Data: THandle): boolean;
+  var
+     DataPointer: Pointer;
+  begin
+    Result:= true;
+    if Data <> 0 then begin
+      DataPointer := GlobalLock(Data);
+      try
+        Data := GlobalAlloc(GMEM_MOVEABLE, GlobalSize(Data));
+        if Data = 0 then
+           Result:= false;
+        Move(DataPointer^, GlobalLock(Data)^, GlobalSize(Data));
+      finally
+        if DataPointer <> nil then
+          GlobalUnlock(Data);
+      end;
+    end;
+
+  end;
+  function CopyText(Format: integer; Data: AnsiString): boolean;
+  var
+    DataHandle: THandle;
+    DataPointer: Pointer;
+  begin
+    if Data <> '' then begin
+      DataHandle:= GlobalAlloc(GMEM_MOVEABLE, Length(Data) + 1);
+      if DataHandle = 0 then
+         exit;
+      try
+        DataPointer := GlobalLock(DataHandle);
+        try
+          Move(PAnsiChar(Data)^, DataPointer^, Length(Data) + 1);
+        finally
+          GlobalUnlock(DataHandle);
+        end;
+        SetClipboardData(Format, DataHandle);
+        Result:= true;
+      except
+        GlobalFree(DataHandle);
+      end;
+    end;
+
+  end;
+begin
+  Result:= false;
+  if not OpenClipboard(0) then exit;
+  try
+    TextData := GetClipboardData(CF_TEXT);
+    if not CopyContent(TextData) then exit;
+    if NewHTML = '' then begin
+      HTMLData := GetClipboardData(CFHtml);
+      if not CopyContent(HTMLData) then exit;
+    end;
+    EmptyClipboard;
+    if TextData <> 0 then                            // Restore the contents of CF_TEXT
+      SetClipboardData(CF_TEXT, TextData);
+    if NewHTML = '' then begin
+       if HTMLData <> 0 then                          // Restore the contents of CF_HTML
+         SetClipboardData(CFHtml, HTMLData);
+    end
+    else
+       if not CopyText(CFHtml, NewHTML) then exit;
+    if not CopyText(CFRtf, NewRTF) then exit;
+  finally
+    CloseClipboard;
+  end;
+end;
+
+
 { Try to convert the HTML received (or available in clipboard) to RTF
  If conversion is possible, it will return RTF text, and also it will be available as RTF format in the clipboard }
 
-function TClipboardHelper.TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil): AnsiString;
+function TClipboardHelper.TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil; PlainText: boolean = false): AnsiString;
 var
-   HTMLTextToConvert: AnsiString;
+   HTMLTextToConvert, HTMLTextBAK: AnsiString;
    p, len: integer;
+
+   posOpening, posClosing, W, H, i: integer;
+   SourceImg, StrRTF: AnsiString;
+   imgInfo: AnsiString;
+   TextAlt: string;
+   FoundImg: boolean;
+
+   NImg: integer;
+   ImagesRTF: array of AnsiString;
+
 begin
    { *1  The RTF available in the clipboard, if any, probably has been converted by us (with the help of TWebBrowser)
          We have been reusing directly this RTF format, but now, since the introduction of changes in ConvertHTMLToRTF to allow
@@ -487,21 +700,68 @@ begin
     Result:= '';
     if _ConvertHTMLClipboardToRTF {and (not Clipboard.HasRTFformat) *1} and Clipboard.HasHTMLformat  then begin
 
-       if Clipboard.HasRTFformat then begin
+       HTMLTextBAK:= HTMLText;
+       if Clipboard.HasRTFformat and ((not ClipboardContentWasCopiedByKNT) or (LastCopiedRTFAsWebPlain=PlainText)) then begin
           Result:= Clipboard.AsRTF;
-          SetDefaultFontAndSizeInRTF(Result, TextAttrib)
+          //SetDefaultFontAndSizeInRTF(Result, TextAttrib)  // Commented: unnecessary because of call to AddOrReplaceRTF
        end
        else begin
-          if HTMLText = '' then
-             HTMLTextToConvert:= Clipboard.AsHTML
+          if HTMLText = '' then begin
+             HTMLTextToConvert:= Clipboard.AsHTML;
+             HTMLTextBAK:= HTMLTextToConvert;
+          end
           else
              HTMLTextToConvert:= HTMLText;
 
           Clipboard.TrimMetadataFromHTML(HTMLTextToConvert);
-          Clipboard.PrepareHTMLFormatTag('strong', HTMLTextToConvert);
-          Clipboard.PrepareHTMLFormatTag('b', HTMLTextToConvert);
-          Clipboard.PrepareHTMLFormatTag('em', HTMLTextToConvert);
+
+          if not PlainText then begin
+             Clipboard.PrepareHTMLFormatTag('strong', HTMLTextToConvert);
+             Clipboard.PrepareHTMLFormatTag('b', HTMLTextToConvert);
+             Clipboard.PrepareHTMLFormatTag('em', HTMLTextToConvert);
+          end;
+
+          // -- Insert images -----------------------------
+          NImg:= 0;
+          p:= 1;
+          repeat
+             FoundImg:= Clipboard.GetNextImageInformation(HTMLTextToConvert, p, SourceImg, TextAlt, W, H, posOpening, posClosing);
+             if FoundImg then begin
+                p:= posClosing + 1;
+                StrRTF:= '';
+                if not PlainText then
+                   DownloadImage(SourceImg, TextAlt, W, H, StrRTF);
+                Inc(NImg);
+                SetLength(ImagesRTF, NImg);
+                ImagesRTF[NImg-1]:= StrRTF;
+                if StrRTF <> '' then
+                   imgInfo:= Format(' Img:</a> _IMG_%d </p>', [NImg])
+                else
+                   imgInfo:= Format(' [IMG]</a></p>', [NImg]);
+
+                Move(imgInfo[1], HTMLTextToConvert[posOpening], Length(ImgInfo));
+                for i := posOpening+ Length(ImgInfo) to posClosing do
+                    HTMLTextToConvert[i]:= ' ';
+             end;
+          until not FoundImg;
+
+
           ConvertHTMLToRTF(HTMLTextToConvert, Result);
+
+          if not PlainText then begin
+             for i:= 0 to High(ImagesRTF) do begin
+                 StrRTF:= ImagesRTF[i];
+                 imgInfo:= Format('_IMG_%d', [i+1]);
+                 Result:= StringReplace(Result, imgInfo, '\sb0' + StrRTF, []);
+             end;
+
+             // If the image is not included in a hyperlink we will not display "Img:". Otherwise,
+             // it is necessary or otherwise the image URL will be displayed directly,
+             // moving the image much further.
+             Result:= StringReplace(Result, 'Img: \sb0\v\', '\sb0\v\', [rfReplaceAll]);
+          end;
+          // -- Insert images -----------------------------
+
 
           len:= Length(Result);
           p:= Pos('\line\par\pard}', Result, len - 16);
@@ -511,8 +771,15 @@ begin
              delete(Result, p, len-p+1);
              insert('}', Result, p);
           end;
-
           SetDefaultFontAndSizeInRTF(Result, TextAttrib);
+
+          AddOrReplaceRTF(Result, HTMLTextBAK);
+
+          Application.ProcessMessages;
+          sleep(10);
+          Application.ProcessMessages;
+          LogRTFHandleInClipboard();
+          LastCopiedRTFAsWebPlain:= PlainText;
        end;
     end;
 end;

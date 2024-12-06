@@ -155,20 +155,25 @@ begin
   Result := false;
   if (not _ConvertHTMLClipboardToRTF) or (HTMLText = '') then exit;
 
+  screen.Cursor := crHourGlass;
   try
-      {$IFDEF KNT_DEBUG} Log.Add('ConvertHTMLToRTF.  HTML:', 4 );  {$ENDIF}
-      {$IFDEF KNT_DEBUG} Log.Add(HTMLText, 4 );  {$ENDIF}
-      if not assigned(_IE) then
-         _IE:= TWebBrowserWrapper.Create(Form_Main);
+     try
+         {$IFDEF KNT_DEBUG} Log.Add('ConvertHTMLToRTF.  HTML:', 4 );  {$ENDIF}
+         {$IFDEF KNT_DEBUG} Log.Add(HTMLText, 4 );  {$ENDIF}
+         if not assigned(_IE) then
+            _IE:= TWebBrowserWrapper.Create(Form_Main);
 
-      _IE.LoadFromString  (HTMLText, TEncoding.UTF8);
-      _IE.CopyAll;                           // Select all and then copy to clipboard
+         _IE.LoadFromString  (HTMLText, TEncoding.UTF8);
+         _IE.CopyAll;                           // Select all and then copy to clipboard
 
-      RTFText:= Clipboard.AsRTF;
-      Result := True;
+         RTFText:= Clipboard.AsRTF;
+         Result := True;
 
-  except
-     _ConvertHTMLClipboardToRTF:= false;
+     except
+        _ConvertHTMLClipboardToRTF:= false;
+     end;
+  finally
+     screen.Cursor := crDefault;
   end;
 end; // ConvertHTMLToRTF
 
