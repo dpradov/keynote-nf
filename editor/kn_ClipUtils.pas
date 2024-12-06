@@ -715,11 +715,11 @@ begin
 
           Clipboard.TrimMetadataFromHTML(HTMLTextToConvert);
 
-          if not PlainText then begin
-             Clipboard.PrepareHTMLFormatTag('strong', HTMLTextToConvert);
-             Clipboard.PrepareHTMLFormatTag('b', HTMLTextToConvert);
-             Clipboard.PrepareHTMLFormatTag('em', HTMLTextToConvert);
-          end;
+          // We must ensure that this format is recovered correctly because 'Plain text mode' can include font style (bold, cursive, ..)
+          Clipboard.PrepareHTMLFormatTag('strong', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('b', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('em', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('i', HTMLTextToConvert);
 
           // -- Insert images -----------------------------
           NImg:= 0;
