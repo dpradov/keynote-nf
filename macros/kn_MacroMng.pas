@@ -1770,7 +1770,7 @@ begin
               if assigned(ActiveFolder) then
                  FolderName:= ActiveFolder.Name;
 
-              if not EditorOptions.PlainDefaultPaste or not Clipboard.HasFormat(CF_TEXT) then
+              if not EditorOptions.PlainDefaultPaste or not Clipboard.HasPlainTextformat then
                  PasteBestAvailableFormat(FolderName, true, true)
 
               else begin
@@ -1792,7 +1792,7 @@ begin
             end;
 
           ecPastePlain :
-            if ( Clipboard.HasFormat( CF_TEXT )) then
+            if ( Clipboard.HasPlainTextformat) then
                Editor.PastePlain('','', True);
 
           ecDelete : begin

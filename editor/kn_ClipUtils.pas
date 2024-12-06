@@ -60,6 +60,7 @@ type
        function ToStream (Fmt : Word; Stm : TStream ) : boolean;
        function HasRTFformat: boolean;
        function HasHTMLformat: boolean;
+       function HasPlainTextformat: boolean;
        function TryGetFirstLine(const MaxLen : integer): string;
        function TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil; PlainText: boolean = false): AnsiString;
        function TryGetAsHandle(Format: Word): THandle;
@@ -205,6 +206,10 @@ begin
    result := (CFRtf <> 0) and Clipboard.HasFormat( CFRtf );
 end;
 
+function TClipboardHelper.HasPlainTextformat: boolean;
+begin
+   result := Clipboard.HasFormat(CF_TEXT) or Clipboard.HasFormat(CF_UNICODETEXT);
+end;
 
 
 function TClipboardHelper.RetryGetClipboardData(const ClipbrdContent: integer): THandle;
@@ -561,7 +566,7 @@ var
   RetryCount: integer;
 begin
   Result:= '';
-  if not Clipboard.HasFormat (CF_TEXT) then exit;
+  if not Clipboard.HasPlainTextformat then exit;
 
   RetryCount:= 0;
   while RetryCount < 6 do
@@ -603,18 +608,21 @@ var
   TextData, HTMLData: THandle;
   RTFHandle: THandle;
   RTFPointer: Pointer;
+
   function CopyContent (var Data: THandle): boolean;
   var
      DataPointer: Pointer;
+     DataSize: SIZE_T;
   begin
     Result:= true;
     if Data <> 0 then begin
       DataPointer := GlobalLock(Data);
       try
-        Data := GlobalAlloc(GMEM_MOVEABLE, GlobalSize(Data));
+        DataSize:= GlobalSize(Data);
+        Data := GlobalAlloc(GMEM_MOVEABLE, DataSize);
         if Data = 0 then
            Result:= false;
-        Move(DataPointer^, GlobalLock(Data)^, GlobalSize(Data));
+        Move(DataPointer^, GlobalLock(Data)^, DataSize);
       finally
         if DataPointer <> nil then
           GlobalUnlock(Data);
@@ -622,6 +630,7 @@ var
     end;
 
   end;
+
   function CopyText(Format: integer; Data: AnsiString): boolean;
   var
     DataHandle: THandle;
@@ -650,15 +659,15 @@ begin
   Result:= false;
   if not OpenClipboard(0) then exit;
   try
-    TextData := GetClipboardData(CF_TEXT);
+    TextData := GetClipboardData(CF_UNICODETEXT);
     if not CopyContent(TextData) then exit;
     if NewHTML = '' then begin
       HTMLData := GetClipboardData(CFHtml);
       if not CopyContent(HTMLData) then exit;
     end;
     EmptyClipboard;
-    if TextData <> 0 then                            // Restore the contents of CF_TEXT
-      SetClipboardData(CF_TEXT, TextData);
+    if TextData <> 0 then                            // Restore the contents of CF_UNICODETEXT
+      SetClipboardData(CF_UNICODETEXT, TextData);
     if NewHTML = '' then begin
        if HTMLData <> 0 then                          // Restore the contents of CF_HTML
          SetClipboardData(CFHtml, HTMLData);

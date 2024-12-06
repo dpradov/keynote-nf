@@ -1795,7 +1795,7 @@ begin
            end;
        end;
 
-       PasteIRichEditOLE(CF_TEXT);
+       PasteIRichEditOLE(CF_UNICODETEXT);
 
        ReplaceBullets;
 

@@ -1560,7 +1560,7 @@ begin
          SS_NL:= RTFAux.Perform(EM_LINEINDEX, L+1, 0);
          RTFAux.SelLength:= SS_NL - SS -1;
          RTFAux.CopyToClipboard;
-         RTFAux.PasteIRichEditOLE(CF_TEXT);
+         RTFAux.PasteIRichEditOLE(CF_UNICODETEXT);
 
          if ExportOptions.NumbTabInPlainText <> '' then begin
             STab:= RTFAux.FindText(#9, SS, 5, []);
