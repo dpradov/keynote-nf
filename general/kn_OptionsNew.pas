@@ -1066,7 +1066,6 @@ begin
     AutoFont := CB_AutoFont.Checked;
     AutoKeyboard := CB_AutoKeyboard.Checked;
     PlainDefaultPaste := CB_PlainDefaultPaste.Checked;
-    Form_Main.PlainDefaultPaste_Toggled;
     CtrlUpDownMode:= TCtrlUpDownMode(cbCtrlUpDownMode.ItemIndex);
   end;
 

@@ -506,6 +506,8 @@ begin
          Combo_Style.ItemHeight := 16;
 
 
+       PlainDefaultPaste_Toggled;
+
        if EditorOptions.TrackStyle then begin
          case EditorOptions.TrackStyleRange of
            srFont : MMViewFormatFont.Checked := true;
