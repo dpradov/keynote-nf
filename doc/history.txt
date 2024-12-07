@@ -3,6 +3,80 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.0.0.10  (07 dec 2024)
+--------------------------
+(Detailed info in doc\Changes in 2.0.0 .10.txt)
+
+* IMPORTANT: New saved files can only be opened with version 2.0.0 +
+
+* Language files (.lng) ready to be translated/updated. See #752 (Translating KeyNote NF)
+
+* Fixed: After exiting the Find window (Ctrl+F) with ESC, "Find All" did not return all results.
+* Fixed: Find Next could incorrectly select the first pattern found in a note with images (when traversing from another node)
+* Fixed: Replace All could change an incorrect position when traversing from another node, if the current node has images
+* Fixed: ClipCap with "Create a new node and paste into it" when copying from Scratchpad
+* Fixed: Changing the image storage mode on a new, not yet saved file, throws an exception
+* Fixed: Error when trying to "relocate" an external storage image of type ZIP
+* Fixed: Ensured consistency between external storage type and presence or absence of .zip extension
+* Fixed: Merge folder with images on file with EmbeddedRTF mode
+* Fixed: Included 'KeyNote files' in drop-down list from File|Import...
+* Fixed: Scrollbar position could be forgotten when returning to app with Hotkey (Ctrl+Shift+...)
+* Fixed: Don't try to auto-close new (not yet saved) files
+* Fixed: Option. "Show tooltips in tree" was ignored
+* Fixed: Format|Background Color. Was changing *also* the default color
+* Fixed: Paste Special with Ctrl, Shift or Alt, also available in the Scratchpad
+* Fixed: Last export format (from tree context panel -> Export...) is updated in .ini
+* Fixed: No way to expand dropdown controls using keyboard (Alt+Down shortcut)
+* Fixed: Main toolbar position was ignored when opening application
+* Fixed: Allow the use of Shift+TAB to move focus to tree in read-only folders.
+* Fixed: Shift+Tab in Scratchpad editor: If there is nothing to unindent, focus is set to Note Editor
+* Added: Pressing Ctrl+\ in the Scratchpad editor will switch focus to the Notes Editor
+* Fixed: When another app modified the knt file, it could be marked as Modified before asking 'Reload the file from disk?'
+* Fixed: hyperlinks without explicit protocol and with @ character were always interpreted as emails (mailto:...)
+* Fixed: Allow use of UTF8 text in Lang\keynote.lan (and so in the language name list)
+* Fixed: Translation of some drop-down lists was ignored
+* Fixed: Alarms. Adjusted calendar control to required size based on locale
+* Fixed: Exception in some systems with non-Gregorian calendar (ECommonCalendarError)
+
+* NEW: It is possible to copy and paste selected images and text together from web browser
+* Fixed: When pasting from browsers other than Firefox (such as Edge or Chrome), some formatting styles were ignored.
+* Added caption to image pasted from web page, if available
+* Fixed: Adjustments in "Paste external as Plain Text" / Plain text / Normal
+* Exporting to plain text with "Show hidden marks and IDs": GID value is shown first and then the ID
+* Added new RTF export option (Save images in default WordPad format)  [RTFImgsWordPad=False]
+* Improvements and fixes to color selection buttons
+* Change in behavior of ESC in the Scratch window
+* Added new .INI option, to facilitate reading Hints through the status bar (Accessibility)
+
+* Important rework and refactorization (See News in Help file)
+* You can toggle between RTF and Plain text only in selected note (node)
+* 'Plain text only' in the folder: used as default format for new empty notes.
+* New: Creation/Last modification date in notes
+* Added editor Information panel
+* New: Tools | Deduce [missing] date information
+* New: Tools | Remove date prefixes from node names
+* Replaced TTreeNT with Virtual-TreeView https://github.com/JAM-Software/Virtual-TreeView.git
+* Tree | Outline Numbering... Improvements. Completely reviewed
+* Tree: Most actions can be applied on all selected nodes and optionally recursively on child nodes:
+  Node color, node Font face, Custom icon, Bold attribute, Checked state, reset to default values,
+  Move nodes (up, down, left or right), delete nodes
+* Improved Copy / Paste and Drag and Drop operations
+* "Mirror Nodes" becomes "Linked nodes"
+* Added new Tree Filtering
+* Two optional columns added to the tree panel: 'Flagged' and 'Date' (Note creation date)
+* Added entry in tree panel menu, and toolbar button, to filter out unflagged nodes
+* Filtering results. Use of 'Show children'
+* After 'Filter folder[s]', it is possible to toggle whether or not to activate the filter
+* Find All. Added new criteria: creation date / last modification date   (From / Until)
+* New search option, Use path of nodes
+* Find All: Clicking in a search result will iterate the different words of the match
+* Syntax for additional/advanced search: 
+  Considering last modification date of notes
+  Words in the same paragraph or sentence
+  Emphasized words, or also inside a same paragraph
+* Find All: Revised the way 'All the words' search type works
+
+
 v 1.9.5.2  (18 may 2024)
 --------------------------
 * Fixed: New created folders didn't show tree panel (Patch on 1.9.5.1)

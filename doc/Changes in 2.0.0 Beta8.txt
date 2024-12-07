@@ -1,5 +1,0 @@
-Changes in 2.0.0 Beta 8  (23 nov 2024)
-=======================
-
-* Protection of extrange, but possible, problem where tree context menu is not shown
-  Ref: https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11359035
