@@ -35,7 +35,12 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
    * The treatment of the options 'All the words' and 'Any of the words' is extended
    * Added new option: "Current node and subtree"
    * Added new options to restrict search depending on checked status of nodes
-   * Added new options to define search scope, allowing to restrict search to node names 
+   * Added new options to define search scope, allowing to restrict search to node names
+   * Syntax for additional/advanced search
+
+ * *Combined 'Tree panel' and 'Find All' filtering*
+
+ * *Improved tree operations* 
  
  * *Improved treatment of links, and new internal KNT links*, vinculated to markers, not only to caret position
  
@@ -55,9 +60,8 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
    * Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes)
    * Filtering one note's nodes or all notes under a searching criterion (Filter Tree Note)
 
- * *New kind of virtual nodes: links to other nodes (Mirror nodes)* <br>
-     Allow to organize the information in different ways, because nodes can be simultaneously in different notes. It will be possible to sort, rank and structuring in a free tree hierarchy, independent of the hierarchy in wich 'real' nodes reside.  	 
-
+ * *Linked nodes*: share the content of a same note <br>
+     
  * *New button: 'Copy Format'*
 
  * *Added 'KeyNote' as target format in File | Export*
