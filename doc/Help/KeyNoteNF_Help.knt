@@ -639,6 +639,7 @@ You may add additional accurate notices of copyright ownership.\par
 %*
 GI=10
 ND=Features
+LM=0712241228
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -669,9 +670,10 @@ ND=Features
 {\pntext\f3\'B7\tab}Use of \b tree-type folders, multi-level hierarchy of "branches\b0 ", each with its own independent note. See {{\field{\*\fldinst{HYPERLINK "file:///<27|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folders as note trees}}}}\f0\fs20 .\par
 {\pntext\f3\'B7\tab}\b Unlimited number of notes\b0  that can be stored in a single folder\par
 {\pntext\f3\'B7\tab}Ability to create "\b virtual nodes\b0 " in the tree (nodes which are dynamically linked to external text or RTF files) ({{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
-{\pntext\f3\'B7\tab}\f2\lang3082 "\b Linked nodes\b0 ": virtual nodes to other nodes in the file ({{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f2\fs20 )\f0\lang1033\par
-{\pntext\f3\'B7\tab}\f2\lang3082 All notes (nodes) have a \b checked state\b0  (visible or not), which can be used to filter and search notes. (See {\f0\lang1033{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Hidden nodes}}}}\f2\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Filtering tree nodes}}}}\f2\fs20 )\f0\lang1033\par
+{\pntext\f3\'B7\tab}\f2\lang3082 "\b Linked nodes\b0 ": nodes that share the note they point to ({{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f2\fs20 )\f0\lang1033\par
+{\pntext\f3\'B7\tab}\f2\lang3082 All the notes can be \b searched and filtered\b0  based on multiple criteria (See {\f0\lang1033{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Tree filtering}}}}\f2\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Find All filtering}}}}\f2\fs20 )\f0\lang1033\par
 {\pntext\f3\'B7\tab}Capacity to work with \b hidden nodes\b0 . ({{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+{\pntext\f3\'B7\tab}\f2\lang3082 All notes (nodes) have a \b checked state\b0  (visible or not), which can be used to filter and search notes.\f0\lang1033\par
 
 \pard\sa100\par
 \par
@@ -682,8 +684,8 @@ ND=Features
 {\pntext\f3\'B7\tab}Ability to create \b user-defined styles\b0  for text and paragraph properties ({{\field{\*\fldinst{HYPERLINK "file:///<22|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}\b Find \b0 and \b Replace \b0 commands, with a single folder or global scope ({{\field{\*\fldinst{HYPERLINK "file:///<40|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}\b Clickable hyperlinks \b0 to Internet addresses, local files and internal locations in KeyNote notes ({{\field{\*\fldinst{HYPERLINK "file:///<38|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
-{\pntext\f3\'B7\tab}"\b Clipboard capture\b0 " feature, enabling you to automatically capture and store any text that was copied to Clipboard from any other application, or even from KeyNote ({{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
-{\pntext\f3\'B7\tab}"\b Web clip\b0 " feature, that allows to paste text from external programs (included browsers) in a configurable way ({{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+{\pntext\f3\'B7\tab}"\b Clipboard capture\b0 " feature, enabling you to automatically capture and store any text and images that was copied to Clipboard from any other application, or even from KeyNote ({{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+{\pntext\f3\'B7\tab}"\b Web clip\b0 " feature, that allows to paste text and images from external programs (included web browsers) in a configurable way ({{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Simple \b bookmarks\b0  ({{\field{\*\fldinst{HYPERLINK "file:///<20|23704|0|13"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Basic RTF \b Tables\b0  support ({{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}\b Glossary \b0 function to automatically replace a piece of text with another ({{\field{\*\fldinst{HYPERLINK "file:///<24|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Expand text}}}}\f0\fs20 )\par
@@ -730,7 +732,7 @@ ND=Features
 
 \pard\sa200\fs24 Other features\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\f2\fs20\lang3082 Multiple \b Alarms\b0  can be defined, attached to folders (tabs) or notes (nodes) ({{\field{\*\fldinst{HYPERLINK "file:///<76|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f2\fs20 ).\fs24\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\f2\fs20\lang3082 Multiple \b Alarms\b0  can be defined, attached to folders (tabs) or nodes ({{\field{\*\fldinst{HYPERLINK "file:///<76|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f2\fs20 ).\fs24\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa100\b\f0\fs20\lang1033 Plugin support\b0 , for extending the functionality of the program ({{\field{\*\fldinst{HYPERLINK "file:///<72|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}\b Macro support\b0 , including macros automatically executed on creating a new file or adding a folder or note ({{\field{\*\fldinst{HYPERLINK "file:///<71|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
@@ -2672,6 +2674,7 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 %*
 GI=27
 ND=Folders as note trees
+LM=0712241154
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
@@ -2737,7 +2740,7 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{\ul\cf2\cf
 \pard\sb80 In the screenshot, the "To Do" folder has 3 nodes. You can see any node as a branch or a leaf in a folders's tree:\par
 \fs8\par
 
-\pard\li360\sb40\v\fs20\'11I104\'12\v0{\field{\*\fldinst{HYPERLINK "img:104,130,82"}}{\fldrslt {104_Clipb_03ene.png}}}\par
+\pard\li360\sb40\v\fs20\'11I104\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:104,130,82"}}{\fldrslt {104_Clipb_03ene.png}}}\lang1033\par
 
 \pard\par
 \b Tip\b0 : The creation and modification dates of the notes are available since version 2.0 of KeyNote NF. A tool have been include to try to deduce dates from the name and content of existing notes, created with older versions. See {{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{\ul\cf2\cf2\ul Deduce missing date information}}}}\f0\fs20\par
@@ -2812,7 +2815,7 @@ Many other tree-related settings are global, that is, they apply \b to ALL folde
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree (tab), while allowing each individual node to overwrite it.\par
 {\pntext\f4\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
-{\pntext\f4\'B7\tab}Note that the \ul Word-Wrap\ulnone  function (to wrap long lines) also works the same way: can be set for all nodes in the folder (with Folder | Properties, or \cf3\b F4\cf0\b0 ), or only to current node (using the toolbar button \v\'11I80\'12\v0{\field{\*\fldinst{HYPERLINK "img:80,16,16"}}{\fldrslt {80_Format_19.png}}} or the menu option Format | Word Wrap )\par
+{\pntext\f4\'B7\tab}Note that the \ul Word-Wrap\ulnone  function (to wrap long lines) also works the same way: can be set for all nodes in the folder (with Folder | Properties, or \cf3\b F4\cf0\b0 ), or only to current node (using the toolbar button \v\'11I80\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:80,16,16"}}{\fldrslt {80_Format_19.png}}}\lang1033  or the menu option Format | Word Wrap )\par
 
 \pard\par
 
@@ -3039,7 +3042,7 @@ Folders allow you to work with \b hidden nodes\b0 . You can hide nodes that you 
 
 \pard 
 {\pntext\f1 1.\tab}{\*\pn\pnlvlbody\pnf1\pnindent0\pnstart1\pndec{\pntxta.}}
-\fi-360\li360\sa20 You can activate a mode \f1\lang3082 wich automatically hides checked nodes:  View | \b Hide Checked Nodes\b0  (\v\'11I38\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:38,17,17"}}{\fldrslt {38_Main_38.png}}}\f1\lang3082 )\par
+\fi-360\li360\sa20 You can activate a mode \f1\lang3082 wich automatically hides checked nodes:  View | \b Hide Checked Nodes\b0  (\v\'11I38\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:38,17,17"}}{\fldrslt {38_Main_38.png}}}\f1 )\par
 
 \pard\li360 Once you have the checkboxes displayed in a tree, on all nodes or only on the children of the selected nodes, every time a node is checked, it will be hidden. Additionally, all already marked nodes will be hidden.\par
 
@@ -3068,7 +3071,7 @@ Unlike those two commands, \cf5\b Hide Checked Nodes\b0  \cf0 dynamically hide a
 
 \pard\li360\sa60 See {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Filtering tree nodes}}}}\f1\fs20  for information on how to define and apply this filtering.\par
 
-\pard\li360\sa100 Once applied, you can deactivate it with View | \b Filter nodes\b0  or \v\'11I163\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:163,18,18"}}{\fldrslt {163_Image_24ene.png}}}\f1\lang3082  button.\par
+\pard\li360\sa100 Once applied, you can deactivate it with View | \b Filter nodes\b0  or \v\'11I163\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:163,18,18"}}{\fldrslt {163_Image_24ene.png}}}\f1  button.\par
 
 \pard\par
 Note that you can show the checkbox for all nodes with View | \b All nodes Checkboxes\b0 . \f0\lang1033 Additionally\f1\lang3082 , checkboxes can be displayed only on then children of selected nodes (Children Checkbox | \b Show Checkboxes\b0  in Tree context menu) \par
@@ -3078,7 +3081,7 @@ Note that you can show the checkbox for all nodes with View | \b All nodes Check
 \par
 With \ul Tree | Outline numbering...\ulnone  you can add or remove outline-style numbering to the names of nodes in active folder's tree.\par
 \par
-\v\'11I195\'12\v0{\field{\*\fldinst{HYPERLINK "img:195,475,302"}}{\fldrslt {195_Clipb_24nov.png}}}\par
+\v\'11I195\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:195,475,302"}}{\fldrslt {195_Clipb_24nov.png}}}\lang1033\par
 \par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Allows automatic renaming/renumbering.\par
@@ -3120,15 +3123,16 @@ The flagged status and creation date can be used as criteria in "Find All" searc
 \par
 \b\v\fs26\'11B15\'12\v0 Tree filtering\b0\fs20\par
 \par
-At the bottom of the tree there is a panel that includes a text box and several buttons that let you filter the tree based of the names of the nodes (notes), the checked status, the creation/modification date of the notes, and the flagged status of the nodes.\par
 
-\pard\sb80 Tree panel filtering can be temporarily disabled, while highlighted the results, with "Filter nodes" button.\par
+\pard\sa80 At the bottom of the tree there is a panel that includes a text box and several buttons that let you filter the tree based of the names of the nodes (notes), the checked status, the creation/modification date of the notes, and the flagged status of the nodes.\par
 
-\pard\sb120\b Tip\b0 : This tree filter can be combined with filtering based on the search panel (Find All)\par
+\pard Tree panel filtering can be temporarily disabled, while highlighted the results, with "Filter nodes" button  (\v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}).\par
+
+\pard\sb120\b Important\b0 : This 'Tree panel' filter will be combined with 'Find All' filter. See clarifications in {{\field{\*\fldinst{HYPERLINK "file:///<40|16050|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Find and Find All}}}}\f0\fs20\par
 
 \pard\par
 
-\pard\li360\v\'11I197\'12\v0{\field{\*\fldinst{HYPERLINK "img:197,407,283"}}{\fldrslt {197_Clipb_25nov.png}}}\par
+\pard\li360\v\'11I197\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:197,407,283"}}{\fldrslt {197_Clipb_25nov.png}}}\lang1033\par
 \par
 
 \pard\par
@@ -3204,7 +3208,7 @@ This is because this way, considering the path (with the names of the parents), 
 
 \pard\li360\sb120 (*) From Find All it would be similar, taking into account that this option will only be considered if the selected search scope is \lquote Only node name\rquote  or \lquote All\rquote . From Find All it is also possible to configure other search criteria: match case, whole word only, search type (exact phrase, all the words, any of the words).\par
 
-\pard\sb120\b Tip\b0 : This option can be set also from the Find All panel, and will be used both in these searches and in Tree filtering\par
+\pard\sb120\b Tip\b0 : This option can be set also from the \ul Find All panel\ulnone , and will be used both in these searches and in Tree filtering\par
 
 \pard   \par
 \par
@@ -3215,7 +3219,7 @@ This is because this way, considering the path (with the names of the parents), 
 \pard\sb40   View / Filter | Filter out unflagged\par
 
 \pard\par
-This entry is considered in conjunction with the existing tree filter and the search filter (if any).\par
+This entry is considered in conjunction with the existing tree filter and the search (Find All) filter (if any).\par
 
 \pard\sb40 If you change the Flag on the selected node with \cf3\b Ctrl+click\cf0\b0  (in the tree column or in the menu entry, 'Flagged'), the 'Filter unflagged' will also be toggled on or off. This way, for example, if there are no flagged nodes, \cf3 Ctrl+clicking\cf0  on the marked column (if visible) of a node will mark the selected node as marked and hide all other nodes.  \par
 
@@ -3365,13 +3369,13 @@ With the \b EditorInfoPanelTop\b0  .INI option you can change the position of th
 
 \pard\sa80 EditorInfoPanelTop = 0  (Bottom [default])\par
 
-\pard\li360\v\'11I202\'12\v0{\field{\*\fldinst{HYPERLINK "img:202,414,208"}}{\fldrslt {202_Clipb_25nov.png}}}\par
+\pard\li360\v\'11I202\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:202,414,208"}}{\fldrslt {202_Clipb_25nov.png}}}\lang1033\par
 
 \pard     \par
 
 \pard\sa80 EditorInfoPanelTop = 1  (Top)\par
 
-\pard\li360\v\'11I203\'12\v0{\field{\*\fldinst{HYPERLINK "img:203,418,209"}}{\fldrslt {203_Clipb_25nov.png}}}\par
+\pard\li360\v\'11I203\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:203,418,209"}}{\fldrslt {203_Clipb_25nov.png}}}\lang1033\par
 
 \pard\par
 \par
@@ -3817,6 +3821,7 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<21|0|0"}}{\fldrslt{\ul\cf3\cf3\
 %*
 GI=33
 ND=Clipboard. Paste. Capture
+LM=0712241211
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -3842,7 +3847,7 @@ It includes two specific functionalities, each with its own options and activati
 \pard 
 {\pntext\f0 1.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart1\pndec{\pntxta.}}
 \fi-360\li360 {{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Web clip}}}}\f0\fs20 , mainly for paste text from browsers, in a configurable way, activated from menu and also with \cf3\b Ctrl+W\cf0\b0  or \cf4\b Shift\cf3 +Ctrl+W\cf0\b0\par
-{\pntext\f0 2.\tab}{{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Clipboard Capture}}}}\f0\fs20 , to automatically capture any text copied to Clipboard, activated with {{\field{\*\fldinst{HYPERLINK "file:///<114|2104|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Folder | Clipboard Capture}}}}\f0\fs20 , or toolbar button: \v\'11I19\'12\v0{\field{\*\fldinst{HYPERLINK "img:19,18,18"}}{\fldrslt {19_Main_19.png}}} \par
+{\pntext\f0 2.\tab}{{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Clipboard Capture}}}}\f0\fs20 , to automatically capture any text copied to Clipboard, activated with {{\field{\*\fldinst{HYPERLINK "file:///<114|2104|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Folder | Clipboard Capture}}}}\f0\fs20 , or toolbar button: \v\'11I19\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:19,18,18"}}{\fldrslt {19_Main_19.png}}}\lang1033  \par
 
 \pard\par
 Both functionalities have elements in common. Normal, since the first of them allows you to automatically capture from any source, including browsers. You can follow the previous links to know the particularities of each of them.\par
@@ -3858,7 +3863,7 @@ At the same time, both functionalities depend on other more general and common a
 \pard\cf0\fs20 KeyNote recognizes common keyboard shortcuts used with Clipboard, specifically for pasting:\par
 \par
 Paste\tab\cf3\b Ctrl+V \cf0\b0 or \cf3\b Shift+Insert\cf0\b0\par
-You can also use \v\'11I6\'12\v0{\field{\*\fldinst{HYPERLINK "img:6,19,19"}}{\fldrslt {6_Main_06.png}}} button or {{\field{\*\fldinst{HYPERLINK "file:///<110|5282|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Edit | Paste}}}}\f0\fs20\par
+You can also use \v\'11I6\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:6,19,19"}}{\fldrslt {6_Main_06.png}}}\lang1033  button or {{\field{\*\fldinst{HYPERLINK "file:///<110|5282|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Edit | Paste}}}}\f0\fs20\par
 
 \pard\li360\sb120\b Tip\b0 : You can use Ctrl, Shift or Alt while clicking in that button or menu entry to get a different kind of paste. See: {{\field{\*\fldinst{HYPERLINK "file:///<82|450|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Alternate Shift, Alt or Ctrl Commands}}}}\f0\fs20\par
 
@@ -3884,7 +3889,7 @@ Al this actions corresponds to normal paste, or paste with full formatting, wher
 \pard\cf0\fs20 You can also paste ignoring all existing formatting:\par
 \par
 Plain Paste\tab\cf4\b Shift\cf3 +Ctrl+V \cf0\b0 or \cf4\b Ctrl\cf3 +Shift+Insert\cf0\b0\par
-You can also use {{\field{\*\fldinst{HYPERLINK "file:///<110|5597|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Edit | Paste Other...| Paste As Text}}}}\f0\fs20  (or even {{\field{\*\fldinst{HYPERLINK "file:///<110|5719|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Paste Special...}}}}\f0\fs20 ), and \v\'11I121\'12\v0{\field{\*\fldinst{HYPERLINK "img:121,45,27"}}{\fldrslt {121_Clipb_06ene.png}}}, selecting the option "Paste as Text".\par
+You can also use {{\field{\*\fldinst{HYPERLINK "file:///<110|5597|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Edit | Paste Other...| Paste As Text}}}}\f0\fs20  (or even {{\field{\*\fldinst{HYPERLINK "file:///<110|5719|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Paste Special...}}}}\f0\fs20 ), and \v\'11I121\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:121,45,27"}}{\fldrslt {121_Clipb_06ene.png}}}\lang1033 , selecting the option "Paste as Text".\par
 \par
 \par
 
@@ -3916,15 +3921,15 @@ Using custom paste is in fact especially convenient when copying and pasting tex
 
 \pard\li360 * The current font in the web page will be used when it is explicity defined.\f2\lang3082\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\f0\lang1033 Tip: MS Sans Serif doesn't show all Unicode characters. Try with True Type font like Tahoma, for example.\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\f0\lang1033 Tip: \ul MS Sans Serif\ulnone  doesn't show all Unicode characters. Try with True Type font like Tahoma, for example.\par
+
+\pard\f2\lang3082\par
+
+\pard\fi-560\li560\sb40\b\f0\lang1033 Tip\b0 : Since version 2.0 you can paste snippets from web browsers that contain \b both text and images\b0 .\par
 
 \pard\f2\lang3082\par
 \par
 \ul Limitations\ulnone :\par
-
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100 Currently, when pasting from a browser, \b images interspersed with the text\b0  will not be included. You must copy and paste those images individually. You can, for example, select an image with the right button and press Copy Image from the browser; and then paste it from KeyNote.\par
-
-\pard\li360\sb60 Tip: If you need to paste many images in this way you can use the Clipboard Capture functionality.\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100 There are \b some web pages\b0  where the \b conversion\b0  from HTML \b to RTF is not ok\b0 , and can produce nothing or truncate some text.\par
 
@@ -3945,6 +3950,7 @@ Most of them will produce '<>' or '', others '<<<' or something similar and a fe
 %*
 GI=34
 ND=Web clip
+LM=0712241208
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -3958,7 +3964,10 @@ ND=Web clip
 See also {{\field{\*\fldinst{HYPERLINK "file:///<34|2122|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Web Clip vs Clipboard Capture}}}}\f0\fs20\par
 \par
 "Web clip" feature, that allows to paste text from external programs (included browsers) in a configurable way.\par
-\par
+
+\pard\fi-560\li560\sb40\b Note\b0 : You can capture snippets from web browsers that contain both text and images.\par
+
+\pard\par
 
 \pard\sa80 Its main objective is to allow \b context information\b0  to be added to the capture, such as:\par
 
@@ -3990,12 +3999,15 @@ All of this information, or part of it, can be included as a header preceding ea
 \pard\li360\sb60 It allows a {{\field{\*\fldinst{HYPERLINK "file:///<33|2492|0|3"}}{\fldrslt{\ul\cf2\cf2\ul "Custom plain" Paste}}}}\f0\fs20 , which depending on whether it is configured in {{\field{\*\fldinst{HYPERLINK "file:///<101|678|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Plain text mode}}}}\f0\fs20  will offer a full plain paste or include some certain aspect of the formatting.\par
 
 \pard\li360\par
-You can also select the corresponding options from {{\field{\*\fldinst{HYPERLINK "file:///<110|5503|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Edit | Paste Other...}}}}\f0\fs20  or \v\'11I121\'12\v0{\field{\*\fldinst{HYPERLINK "img:121,45,27"}}{\fldrslt {121_Clipb_06ene.png}}}.\par
+You can also select the corresponding options from {{\field{\*\fldinst{HYPERLINK "file:///<110|5503|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Edit | Paste Other...}}}}\f0\fs20  or \v\'11I121\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:121,45,27"}}{\fldrslt {121_Clipb_06ene.png}}}\lang1033 .\par
 \par
 \par
 
-\pard\b Note\b0 : The {{\field{\*\fldinst{HYPERLINK "file:///<101|185|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Paste external as plain text}}}}\f0\fs20  configuration option doesn't apply to Web Clip (nor Clipboard Capture). Full formatting will be pasted (\cf3\b Ctrl+W\cf0\b0 ) unless explicitly indicated (\cf4\b Shift\cf3 +Ctrl+W\cf0\b0 ).\par
-\par
+\pard\b Remember\b0 : The {{\field{\*\fldinst{HYPERLINK "file:///<101|185|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Paste external as plain text}}}}\f0\fs20  configuration option doesn't apply to Web Clip (nor Clipboard Capture). \par
+
+\pard\li1080  Full formatting will be pasted (\cf3\b Ctrl+W\cf0\b0 ) unless explicitly indicated (\cf4\b Shift\cf3 +Ctrl+W\cf0\b0 ).\par
+
+\pard\par
 \par
 
 \pard\sa100\b\v\fs22\'11B1\'12\v0 Web Clip vs Clipboard Capture\b0\fs20\par
@@ -4024,6 +4036,7 @@ In \ul Clipboard Capture\ulnone :\par
 %*
 GI=35
 ND=Clipboard Capture
+LM=0712241207
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -4038,7 +4051,12 @@ ND=Clipboard Capture
 This feature allows to \b automatically capture\b0  and store any \b text and images copied to Clipboard\b0  from any other application, or even from KeyNote. You can \b configure\b0  how that content will be pasted in the \b capturing/target folder\b0 .\par
 \par
 
-\pard\sa100 Must be activated from {{\field{\*\fldinst{HYPERLINK "file:///<114|2104|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Folder | Clipboard Capture}}}}\f0\fs20 , (or toolbar button: \v\'11I19\'12\v0{\field{\*\fldinst{HYPERLINK "img:19,16,16"}}{\fldrslt {19_Main_19.png}}} )\par
+\pard\fi-560\li560\b Note\b0 : You can capture single or multiple images. You can also capture snippets copied from web browsers that contain both text and images.\par
+
+\pard\par
+\par
+
+\pard\sa100 Must be activated from {{\field{\*\fldinst{HYPERLINK "file:///<114|2104|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Folder | Clipboard Capture}}}}\f0\fs20 , (or toolbar button: \v\'11I19\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:19,16,16"}}{\fldrslt {19_Main_19.png}}}\lang1033  )\par
 This functionality stays active until you select the command again to turn it off or close the .knt file.\par
 
 \pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 The target folder for clipboard capture must be the active one to turn capturing off (Otherwise simply will change the capturing folder)\par
@@ -4058,14 +4076,12 @@ Also, as indicated in {{\field{\*\fldinst{HYPERLINK "file:///<34|2122|0|1"}}{\fl
 \pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360 Clipboard Capture initiates an automatic process, that requires selecting a target or capturing folder\par
 {\pntext\f1\'B7\tab}KeyNote highlights the tab used as capturing folder (marked with a different tab color).\par
 {\pntext\f1\'B7\tab}You can configure if each time you copy something to the clipboard, it is pasted into the currently selected note (node) on a separate line, or conversely, it is pasted into a new node in the folder.\par
-{\pntext\f1\'B7\tab}You can capture individual \ul images\ulnone  (or several ones included in RTF text)\par
 {\pntext\f1\'B7\tab}All the captures are pasted using the configuration defined, and so all them will be included full formatted or in plain text mode (you can change the options during one capture session)\par
 {\pntext\f1\'B7\tab}You can use a 'Divider' that does not consider any URL token and control its insertion (URL and title if available) by enabling or disabling the {{\field{\*\fldinst{HYPERLINK "file:///<101|2841|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Include source URL}}}}\f0\fs20  option.\par
 {\pntext\f1\'B7\tab}You can limit the the length of pasted text.\par
 {\pntext\f1\'B7\tab}You must activate and dectivate this feature.\par
 
-\pard  \par
- \par
+\pard\par
 }
 %*
 GI=36
@@ -5330,6 +5346,7 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
+LM=0712241149
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
@@ -5371,7 +5388,7 @@ ND=Using Find and Find All
 
 \pard\sb100\sa100\par
 
-\pard\li360\sb100\sa100\v\'11I148\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:148,510,262"}}{\fldrslt {148_Clipb_20ene.png}}}\f1\lang3082\par
+\pard\li360\sb100\sa100\v\'11I148\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:148,510,262"}}{\fldrslt {148_Clipb_20ene.png}}}\f1\par
 
 \pard\sb100\sa100\f0\lang1033 You can indicate to start searching beginning at the first character of the node/note (if \b From Top of Text \b0 is enabled). Otherwise, the matches will be searched from the cursor position.\par
 Searches can be limited to the current editor or include all nodes (\b Search all tree Nodes\b0 ) or even all folders (\b Search All folders\b0 ). When searching all tree nodes, you can ignore or include hidden nodes (\b Search Hidden nodes\b0 ).\par
@@ -5398,7 +5415,7 @@ Note:\par
 
 \pard\par
 
-\pard\li360\sb100\sa100\v\'11I149\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:149,510,263"}}{\fldrslt {149_Clipb_20ene.png}}}\f1\lang3082\par
+\pard\li360\sb100\sa100\v\'11I149\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:149,510,263"}}{\fldrslt {149_Clipb_20ene.png}}}\f1\par
 
 \pard\sb100\sa100 You can replace text one item each time, or all at once using \ul Replace All\ulnone  button. When replacing all text at once, you can limit to \b Selected Text\b0  (disabled if there isn't text selected) or force KeyNote to ask for confirmation with all matches found (\b Confirm replace\b0 ).\par
 Besides using the buttons in the dialog above, you can use Search|\b Replace Next \b0 to repeat last replace command, searching for another text to replace.\par
@@ -5436,7 +5453,7 @@ Tip\b0 : \f0\lang1033 After you have used the "Find All" command, right-click th
 \f1\lang3082\par
 \par
 
-\pard\li360\v\'11I198\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:198,195,671"}}{\fldrslt {198_Clipb_25nov.png}}}     \v\'11I172\'12\v0{\field{\*\fldinst{HYPERLINK "img:172,391,592"}}{\fldrslt {172_Clipboard_24feb.png}}}\f1\lang3082\par
+\pard\li360\v\'11I198\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:198,195,671"}}{\fldrslt {198_Clipb_25nov.png}}}\lang1033      \v\'11I172\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:172,391,592"}}{\fldrslt {172_Clipboard_24feb.png}}}\f1\par
 
 \pard\f0\lang1033\par
 \par
@@ -5624,19 +5641,19 @@ You can indicate if the words to search for must be emphasized, or also inside a
 \par
 \cf4\b\v\f1\fs24\lang3082\'11B1\'12\v0 Filtering tree nodes\fs20\par
 \cf0\b0\f0\lang1033\par
-When searching one or all folders with \ul Find All\ulnone  (Find resource tab), you can optionally enable the "\b\fs22 Filter folder[s]\fs20 "\b0  option to filter nodes depending on the search text. \par
+When searching one or all folders with \ul Find All\ulnone  (Find resource tab), you can optionally enable the "\b Filter folder[s]"\b0  option to filter nodes depending on the search text. \par
 KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b  \b0 it will only keep visible those nodes (and their parents) that contain the searched text, that is, with one or more matches. Other nodes will be hidden while the filter is active.\par
 \par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 If \b Search all folders \b0 is disabled, the filter will only affect to the current folder.\par
-{\pntext\f4\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the tree toolbar button \v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}} will be shown pressed.\par
+{\pntext\f4\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the tree toolbar button \v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033  will be shown pressed.\par
 {\pntext\f4\'B7\tab}Using this option, you will be able to \b refine your search\b0 , considering only the nodes (and parents...) that satisfied the previous search, if you run another search where the \b Search hidden nodes\b0  \ul option is disabled\ulnone . This new search may or may not keep the \ul Filter folder\ulnone  enabled. If enabled, it can hide some other nodes.\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 When running a new search where \b Search hidden nodes\b0  \ul option is enabled\ulnone , it will not be affected by a previous filter that may be active. The new search will display all results found, whether in a hidden or visible node. If \ul Filter folder\ulnone  was enabled in this new search, all nodes will be shown or hidden depending on the search. Nodes that were hidden can now be shown.\par
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 After applying 'Filter folder[s]' it is possible to \b toggle\b0  whether or not to \b activate the filter\b0 . You can toggle between showing all the nodes or only the unfiltered ones using the "Filter nodes" button (or menu entry), \v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 After applying 'Filter folder[s]' it is possible to \b toggle\b0  whether or not to \b activate the filter\b0 . You can toggle between showing all the nodes or only the unfiltered ones using the "Filter nodes" button (or menu entry), \v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033 .\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The find filter applied can be \b cleared\b0  with \cf5\b Ctrl+Click\cf0\b0  on "Filter nodes" button, in tree panel. The tree filter appplied, if any, won't be affected\par
 
@@ -5644,11 +5661,30 @@ KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b 
 
 \pard  \par
 \b Tip\b0 : If you uncheck 'Filter folder[s]' and execute new searches in Find All, filtered nodes will not be affected.\par
+\par
 
-\pard\sb80\b Tip\b0 : You can \b combine\b0  filtering based on the search panel (Find All) with {{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Tree filtering}}}}\f0\fs20 .\par
+\pard\sb80\ul\b\v\'11B11\'12\v0 Remember\ulnone\b0 : Filtering based on the search panel (Find All) will be \b combined\b0  with {{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Tree filtering}}}}\f0\fs20 .\par
 
 \pard\par
-Please note that nodes may be hidden due of a Filter applied, but also because \ul View | Hide Checked Nodes\ulnone  (\v\'11I38\'12\v0{\field{\*\fldinst{HYPERLINK "img:38,20,20"}}{\fldrslt {38_Main_38.png}}}) is active, or because they have been explicitly hidden via Tree context menu: \ul Children Checkboxes\ulnone  | \b Hide Checked\b0  or \b Hide Unchecked\b0\par
+
+\pard\li360\v\'11I204\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:204,489,198"}}{\fldrslt {204_Clipb_07dic.png}}}\lang1033\par
+
+\pard\par
+
+\pard\li360 In the screenshot above, you can see a filter applied with the criteria 'Tree panel' ("file key") \b and\b0  'Find All' ("HTML"). Please note that the name of the nodes that match the 'Find All' criteria are highlighted in blue, while the nodes that match the 'Tree filtering' criteria are displayed with the background in light yellow.\par
+\par
+Both types of filters ('Tree panel' filtering \emdash with text and/or flag and/or check status\emdash  and 'Find All' filtering) are considered/applied together, and both can be disabled or enabled with the 'filter' button. \par
+\par
+The filter button (\v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033 ) indicates whether the tree is filtered (pressed), due to Tree panel filtering, Find All filtering, or both, as well as if it is not filtered out but there is an existing filter that can be re-enabled (unpressed but enabled, colored). Also note that the tooltip associated with the filter button highlights whether or not filtering based on Find All is included. In this example, "(Ctrl: Clear Find filter)" is displayed, reminding us that a 'Find All' filter has been defined, and how to remove it.\par
+
+\pard\li360\sb80 Ctrl+Clicking the filter button is required to clear "Find All" (this does not affect "tree filtering"), except if the "Find All" criteria did not return any results; in that case, simply unpressing the filter button will clear the "Find All" filter.\par
+
+\pard\li360\par
+Remember that you can disable the filter at any time without having to remove any criteria (such as "file key" and/or "HTML" in the example), which will show all nodes but will keep those that meet that specified  criteria highlighted (in light yellow and/or blue).\par
+
+\pard\highlight3\par
+\highlight0\par
+Please note that nodes may be hidden due of a Filter applied, but also because \ul View | Hide Checked Nodes\ulnone  (\v\'11I38\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:38,20,20"}}{\fldrslt {38_Main_38.png}}}\lang1033 ) is active, or because they have been explicitly hidden via Tree context menu: \ul Children Checkboxes\ulnone  | \b Hide Checked\b0  or \b Hide Unchecked\b0\par
 \par
 Note: If Find All is used with "Filter folder", and Tree toolbar is not visible then "Show Tree Toolbar" will automatically activated, so you can disable or clear find filter applied.\par
 \par
@@ -16095,6 +16131,7 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
+LM=0712241230
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -16127,6 +16164,7 @@ The \b main changes/improvements of the latest versions\b0  are highlighted belo
 {\pntext\f3\'B7\tab}Multiple improvements in tree panel\par
 {\pntext\f3\'B7\tab}Added new Tree Filtering\par
 {\pntext\f3\'B7\tab}Syntax for additional/advanced search\par
+{\pntext\f3\'B7\tab}It is possible to copy and paste selected images and text together from web browser.\par
 
 \pard\sa120\par
 \b\fs26\lang3082 v 1.9.5\b0\fs20\par
@@ -16185,6 +16223,7 @@ The \b main changes/improvements of the latest versions\b0  are highlighted belo
 %*
 GI=120
 ND=News
+LM=0712241230
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
@@ -16195,7 +16234,7 @@ ND=News
 \cf0\b0\fs20\par
 \par
 
-\pard\sa120\cf1\b\v\fs24\lang3082\'11B4\'12\v0 26\f1\lang1045  \f0\lang3082 nov\f1\lang1045  202\f0\lang3082 4\cf2\lang1033\par
+\pard\sa120\cf1\b\fs24\lang3082 07\f1\lang1045  \f0\lang3082 dic\f1\lang1045  202\f0\lang3082 4\cf2\lang1033\par
 
 \pard\cf0\b0\fs20 Important rework and refactorization in version 2.0.0\par
 \par
@@ -16334,7 +16373,7 @@ FN=Tahoma
 FS=10
 LN=1033
 ST=
-FL=111110000000100001000000
+FL=111110000000100000000000
 SN=0
 TW=239
 TM=0
@@ -16442,7 +16481,7 @@ DI=302
 %-
 gi=27
 DI=284
-ns=0080
+ns=0480
 LV=1
 %-
 gi=28
@@ -16465,6 +16504,7 @@ DI=254
 %-
 gi=33
 DI=582
+ns=0400
 LV=1
 %-
 gi=34
@@ -16473,6 +16513,7 @@ LV=2
 %-
 gi=35
 DI=310
+ns=0400
 %-
 gi=36
 DI=580
@@ -16523,7 +16564,6 @@ DI=291
 %-
 gi=50
 DI=539
-ns=0400
 LV=1
 %-
 gi=51
@@ -16821,7 +16861,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=204
+II=205
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -16862,7 +16902,7 @@ PD=46||46_Main_46.png|1|16|16|915624286|D:\Dani\PROYECTOS\TESELA kn\src\resource
 PD=47||47_Main_47.png|1|16|16|2420904335|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_47.png|1|3||0
 PD=48||48_Main_48.png|1|16|16|791259666|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_48.png|1|3||0
 PD=49||49_Main_49.png|1|16|16|327767544|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_49.png|1|4||0
-PD=50||50_Main_50.png|1|16|16|1370678470|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_50.png|1|3||0
+PD=50||50_Main_50.png|1|16|16|1370678470|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_50.png|1|5||0
 PD=51||51_Main_51.png|1|16|16|1236282668|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_51.png|1|2||0
 PD=52||52_Main_52.png|1|16|16|2925437011|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_52.png|1|4||0
 PD=53||53_Main_53.png|1|16|16|2409510470|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_53.png|1|6||0
@@ -16978,5 +17018,6 @@ PD=200||200_Clipb_25nov.png|1|387|528|3400871857||1|1||0
 PD=201||201_Clipb_25nov.png|1|384|529|1254717495||1|1||0
 PD=202||202_Clipb_25nov.png|1|594|295|3724386940||1|1||0
 PD=203||203_Clipb_25nov.png|1|594|295|1371154350||1|1||0
+PD=204||204_Clipb_07dic.png|1|489|198|245941648||1|1||0
 %EI
 %%
