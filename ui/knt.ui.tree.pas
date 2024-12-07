@@ -86,6 +86,7 @@ type
     fCopyingAsLinked: boolean;
     fTVCopiedNodes: TNodeList;
     fVirtualNodesConvertedOnCopy: integer;
+    fChildCountOnTargetNode: integer;
     fMovingToOtherTree: boolean;
     fTargetFolder: TFolderObj;
     fNNodesInSubtree: TNoteNodeArray;
@@ -2965,6 +2966,8 @@ begin
    else
       TargetDesc:= GetNNode(TargetNode).NodeName(Self);
 
+   fChildCountOnTargetNode:= TargetNode.ChildCount;
+
    SourceTV:= TreeFromNode(fSourceTVSelectedNodes[0]);
    Prompt:= (Prompt or ((TV <> SourceTV) and KeyOptions.DropNodesOnTabPrompt));
 
@@ -3232,6 +3235,20 @@ begin
    //   CopyTo(..) makes a copy of each node of the subtree, hidden or not. If in this method we ignore the hidden
    //   nodes, we simply will get an exception when the tree needs to paint or access the hidden node.
    //   Anyway with this tree control is now very easy to delete several nodes at once, if necessary.
+   //
+   // *3
+   //  Also consider something like the following:
+   //    - Parent
+   //       - AA
+   //       - BB
+   //       - CC
+   //
+   // If we select AA and CC and copy them to CC, we need to check if NodeS is one of the created nodes
+   // (by looking at fTVCopiedNodes) several times (-> while).
+   // And also if Target node is the same node as one of the source nodes (subtrees), we must annotate its original
+   // child count, because VirtualTreView can get confused and assign as child one of the nodes created in the
+   // copy process.
+
 
    SrcNode:= fSourceTVSelectedNodes[fiNextSourceTVNode];
    inc(fiNextSourceTVNode);
@@ -3241,6 +3258,13 @@ begin
    NodeC:= Node;
    TargetFolder:= TKntFolder(fTargetFolder);
    CopyingToOtherTree:= (TargetFolder.TreeUI <> Self);
+
+   if NodeS = Target then begin                                  // *3
+      TV.ChildCount[NodeC]:= fChildCountOnTargetNode;
+      if fChildCountOnTargetNode = 0 then
+         NodeC.States := NodeC.States - [vsHasChildren];
+      //TV.ReinitNode(NodeC, false, false);                 Unnecessary
+   end;
 
    repeat
       NNodeS:= GetNNode(NodeS);
@@ -3256,8 +3280,8 @@ begin
       NNodeC.TVNode:= NodeC;
       TargetFolder.TreeUI.SetNumberingMethod(NodeC);
       TargetFolder.TreeUI.SetupNewTreeNode(NodeC, false, CopyingToOtherTree);
-      NodeS:= TV.GetNext(NodeS);                      // *2
-      if fTVCopiedNodes.IndexOf(NodeS) >= 0 then      // It is being pasted within the same tree it was copied from
+      NodeS:= TV.GetNext(NodeS);                      // *2 *3
+      while fTVCopiedNodes.IndexOf(NodeS) >= 0 do     // It is being pasted within the same tree it was copied from
          NodeS:= TV.GetNextNotChild(NodeS, true);     // True: include filtered
 
       NodeC:= TV.GetNext(NodeC);                     // *2
