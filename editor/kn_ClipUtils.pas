@@ -101,14 +101,15 @@ type
 
 var
    LastCopiedRTFHandle: HGLOBAL;
-   LastCopiedRTFAsWebPlain: boolean;      // It was used Ctrl+Shift+W (or equivalent)
+
+   LastCopiedRTFHandle_ConvFromHTML: HGLOBAL;
+   LastCopiedRTFHandle_ConvFromHTML_Plain: boolean;
    //LastCopiedRTFPtr:    Pointer;
 
 
 procedure LogRTFHandleInClipboard();
 begin
    LastCopiedRTFHandle := Clipboard.TryGetAsHandle(CFRtf);
-   LastCopiedRTFAsWebPlain:= false;
 end;
 
 {
@@ -141,11 +142,31 @@ var
   RTFHandle: HGLOBAL;
 begin
    Result:= False;
+   if LastCopiedRTFHandle = 0 then exit;
+
    RTFHandle := Clipboard.TryGetAsHandle(CFRtf);
    if LastCopiedRTFHandle = RTFHandle then
       Result:= True
    else
       LastCopiedIDImage:= 0;
+end;
+
+
+procedure LogRTFHandleInClipboard_RTFConvFromHTML();
+begin
+   LastCopiedRTFHandle_ConvFromHTML := Clipboard.TryGetAsHandle(CFRtf);
+end;
+
+function ClipboardRTFConvertedFromHTMLByKNT: boolean;
+var
+  RTFHandle: HGLOBAL;
+begin
+   Result:= false;
+   if LastCopiedRTFHandle_ConvFromHTML = 0 then exit;
+
+   RTFHandle := Clipboard.TryGetAsHandle(CFRtf);
+   if LastCopiedRTFHandle_ConvFromHTML = RTFHandle then
+      Result:= true;
 end;
 
 
@@ -704,13 +725,15 @@ begin
          defining the font and size by default, it is convenient not to do it, because these changes are no reintroduced
          in the clipboard.
          It is not necessary to do the conversion again, but simply apply the changes to set the default font and size.
+         Update: changes are being reintroduced in the clipboard, but we must ensure that were created with the plain text
+                 mode needed.
    }
 
     Result:= '';
     if _ConvertHTMLClipboardToRTF {and (not Clipboard.HasRTFformat) *1} and Clipboard.HasHTMLformat  then begin
 
        HTMLTextBAK:= HTMLText;
-       if Clipboard.HasRTFformat and ((not ClipboardContentWasCopiedByKNT) or (LastCopiedRTFAsWebPlain=PlainText)) then begin
+       if Clipboard.HasRTFformat and (not ClipboardRTFConvertedFromHTMLByKNT or (LastCopiedRTFHandle_ConvFromHTML_Plain = PlainText)) then begin
           Result:= Clipboard.AsRTF;
           //SetDefaultFontAndSizeInRTF(Result, TextAttrib)  // Commented: unnecessary because of call to AddOrReplaceRTF
        end
@@ -784,11 +807,8 @@ begin
 
           AddOrReplaceRTF(Result, HTMLTextBAK);
 
-          Application.ProcessMessages;
-          sleep(10);
-          Application.ProcessMessages;
-          LogRTFHandleInClipboard();
-          LastCopiedRTFAsWebPlain:= PlainText;
+          LogRTFHandleInClipboard_RTFConvFromHTML();
+          LastCopiedRTFHandle_ConvFromHTML_Plain:= PlainText;
        end;
     end;
 end;
