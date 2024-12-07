@@ -307,6 +307,7 @@ type
     property FindFilterApplied: boolean read fFindFilterApplied write fFindFilterApplied;
     property TreeFilterApplied: boolean read fTreeFilterApplied write fTreeFilterApplied;
     property FilterOutUnflaggedApplied: boolean read fFilterOutUnflaggedApplied;
+    function NoFindFilterMatch: boolean;
     property NNodesFlagged: boolean read fNNodesFlagged;
 
     procedure FilterApplied (Applied: boolean);   // [dpv]
@@ -3692,6 +3693,16 @@ begin
 end;
 
 
+function TKntTreeUI.NoFindFilterMatch: boolean;
+var
+  Node: PVirtualNode;
+begin
+   for Node in TV.Nodes() do
+      if GetNNode(Node).FindFilterMatch then exit(false);
+   Result:= true;
+end;
+
+
 procedure TKntTreeUI.SetFilteredNodes;
 var
   Node, NodeParent: PVirtualNode;
@@ -3957,7 +3968,7 @@ var
   Node: PVirtualNode;
   Folder: TKntFolder;
 begin
-   if CtrlDown then
+   if FindFilterApplied and (CtrlDown or NoFindFilterMatch) then
       ClearFindFilter;
 
    Folder:= TKntFolder(Self.Folder);
