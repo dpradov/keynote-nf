@@ -5092,10 +5092,20 @@ begin
 end;
 
 procedure TForm_Main.MMViewEditorInfoPanelClick(Sender: TObject);
+var
+   i: integer;
+   PanelHiddenInActiveFolder: boolean;
 begin
-  if assigned( ActiveFolder) then begin
-     ActiveFolder.EditorInfoPanelHidden := ( not ActiveFolder.EditorInfoPanelHidden );
-  end;
+  if ActiveFolder = nil then exit;
+
+  PanelHiddenInActiveFolder:= ActiveFolder.EditorInfoPanelHidden;
+
+  if CtrlDown then begin
+     for i := 0 to ActiveFile.Folders.Count -1 do
+        ActiveFile.Folders[i].EditorInfoPanelHidden:= not PanelHiddenInActiveFolder;
+  end
+  else
+     ActiveFolder.EditorInfoPanelHidden := not PanelHiddenInActiveFolder;
 end;
 
 
