@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "1.9.5.2"
-#define AppVersion "1.9.5 .2"
+#define Version "2.0.0.10"
+#define AppVersion "2.0.0 .10"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -17,8 +17,8 @@
 
 [Setup]
 SignTool=mySignTool
-TouchDate=2024-05-18
-TouchTime=12:00
+TouchDate=2024-12-07
+TouchTime=21:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -39,8 +39,8 @@ LicenseFile={#file AddBackslash(SourcePath) + "doc\License_agreement.txt"}
 OutputDir=..\..\Output
 OutputBaseFilename=kntSetup_{#Version}
 SetupIconFile=keynote_Icon.ico
-WizardImageFile=resources\keynote_4.bmp
-WizardSmallImageFile=resources\keynote_0.bmp, resources\keynote_1.bmp, resources\keynote_2.bmp, resources\keynote_3.bmp
+WizardImageFile=resources\Aux_\keynote_4.bmp
+WizardSmallImageFile=resources\Aux_\keynote_0.bmp, resources\Aux_\keynote_1.bmp, resources\Aux_\keynote_2.bmp, resources\Aux_\keynote_3.bmp
 WizardImageStretch=no
 DisableWelcomePage=no
 Uninstallable=not WizardIsTaskSelected('portablemode')
@@ -95,6 +95,9 @@ Type: files; Name: "{app}\plugins\funckey.knl"
 Type: files; Name: "{app}\plugins\funckey_readme.txt"
 Type: files; Name: "{app}\plugins\readme.txt"
 Type: files; Name: "{app}\Profiles\Help\keynote_hlp.ico"
+Type: files; Name: "{app}\doc\fileformat_1.6.5.txt"
+Type: files; Name: "{app}\doc\fileformat.knt"
+
 
 [UninstallDelete]
 Type: files; Name: "{app}\Profiles\Help\keynote.mgr"
@@ -105,7 +108,6 @@ Type: files; Name: "{app}\Profiles\Help\keynote.mru"
 Source: "..\Output\bin\{#AppFileExe}"; DestDir: "{app}"; Components: main; Flags: touch
 Source: "..\Output\bin\kntLauncher.exe"; DestDir: "{app}"; Components: main; Flags: touch
 Source: "..\Output\bin\kntutils.dll" ; DestDir: "{app}" ; Components: main
-;Source: "Lang\keynote.lan"; DestDir: "{app}" ; Components: main
 Source: "general\keyboard.css"; DestDir: "{app}" ; Components: main
 Source: "misc_files\clip.wav"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
 Source: "misc_files\alert.wav"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
@@ -128,6 +130,9 @@ Source: "misc_files\notehead.rtf"   ; DestDir: "{#DefaultProfile}" ; Components:
 Source: "misc_files\keynote_Help.ini"; DestDir: "{app}\Profiles\Help"; DestName: "keynote.ini" ; Components: help; Flags: onlyifdoesntexist
 Source: "misc_files\keynote.kns"     ; DestDir: "{app}\Profiles\Help" ; Components: help; Flags: onlyifdoesntexist
 
+; Lang
+Source: "Lang\readme.txt"; DestDir: "{app}\lang" ; Components: main
+
 ; {app}\macros
 Source: "macros\examples\_AutoNewFile.knm"; DestDir: "{app}\macros\examples" ; Components: main
 Source: "macros\examples\_AutoNewNode.knm"; DestDir: "{app}\macros\examples" ; Components: main
@@ -143,8 +148,11 @@ Source: "README.md"; DestDir: "{app}\doc" ; Components: main; Flags: isreadme
 Source: "LICENSE.txt"; DestDir: "{app}\doc" ; Components: main;
 Source: "doc\README_News.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat.txt"; DestDir: "{app}\doc" ; Components: main
-Source: "doc\kn_fileformat\fileformat_1.6.5.txt"; DestDir: "{app}\doc" ; Components: main
-Source: "doc\kn_fileformat\fileformat.knt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\kn_fileformat\fileformat_1.x (until v1.6.5).txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\kn_fileformat\fileformat_2.0.knt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\kn_fileformat\fileformat_2.1 (until v1.9.5).txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\kn_fileformat\fileformat_3.0 (since v2.0.0).txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\kn_fileformat\fileformat_3.0.knt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_minimal.knt"; DestDir: "{app}\doc"; Components: main
 Source: "doc\kn_fileformat\fileformat_readme.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "misc_files\wordweb.txt"; DestDir: "{app}\doc" ; Components: main
@@ -159,13 +167,14 @@ Source: "doc\Changes in 1.9.1 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.2 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.3 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.5 .01.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 2.0.0 .10.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart_format.txt"; DestDir: "{app}\doc" ; Components: main
 
 ; {app}\help
 Source: "doc\cmdline.txt"; DestDir: "{app}\help" ; Components: help
 Source: "misc_files\KeyNoteNF_Help.knt"; DestDir: "{app}\help" ; Components: help
-Source: "resources\keynote_hlp.ico"  ; DestDir: "{app}\help" ; Components: help
+Source: "resources\Icons\keynote_hlp.ico"  ; DestDir: "{app}\help" ; Components: help
 
 ; {app}\templates
 Source: "misc_files\Meeting template - sample.rtf"; DestDir: "{app}\templates"; Flags: onlyifdoesntexist

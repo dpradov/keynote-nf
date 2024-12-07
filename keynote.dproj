@@ -120,11 +120,11 @@
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.0 Beta 9;FileVersion=2.0.0.9;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.0.9;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.0.10;FileVersion=2.0.0.10;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.0.10;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <DCC_MapFile>3</DCC_MapFile>
-        <VerInfo_Build>9</VerInfo_Build>
+        <VerInfo_Build>10</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;KNT_DEBUG;$(DCC_Define)</DCC_Define>
@@ -140,7 +140,7 @@
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.0 Beta 9;FileVersion=2.0.0.9;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.0.9;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.0.10;FileVersion=2.0.0.10;InternalName=;LegalCopyright=(c) Daniel Prado 2007-24 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.0.10;Comments=;ProgramID=</VerInfo_Keys>
         <DCC_Define>VCL;$(DCC_Define)</DCC_Define>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
@@ -150,8 +150,7 @@
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <DCC_MapFile>3</DCC_MapFile>
-        <VerInfo_Build>9</VerInfo_Build>
+        <VerInfo_Build>10</VerInfo_Build>
         <Debugger_RunParams>-debug0</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
