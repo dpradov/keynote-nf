@@ -655,12 +655,12 @@ var
    discarded1, discarded2: Boolean;
    Alarm1, Alarm2: TAlarm;
 begin
-    Alarm1:= TAlarm(PAlarm1^);
-    Alarm2:= TAlarm(PAlarm2^);
+    Alarm1:= TAlarm(PAlarm1);
+    Alarm2:= TAlarm(PAlarm2);
     case SortedColumn of
         TColumnExpiration:
                if Alarm1.ExpirationDate = Alarm2.ExpirationDate  then
-                  Result:= compareAlarms_Reminder (@Alarm1, @Alarm2)
+                  Result:= compareAlarms_Reminder (Alarm1, Alarm2)
                else if Alarm1.ExpirationDate > Alarm2.ExpirationDate then
                   Result:= 1
                else
@@ -674,7 +674,7 @@ begin
                    nodeName2:= Alarm2.folder.Name + nodeName2;
 
                    if nodeName1  = nodeName2 then
-                      Result:= compareAlarms_Reminder (@Alarm1, @Alarm2)
+                      Result:= compareAlarms_Reminder (Alarm1, Alarm2)
                    else if nodeName1 > nodeName2 then
                       Result:= 1
                    else
@@ -683,7 +683,7 @@ begin
 
         TColumnAlarmNote:
                if Alarm1.AlarmNote  = Alarm2.AlarmNote then
-                  Result:= compareAlarms_Reminder (@Alarm1, @Alarm2)
+                  Result:= compareAlarms_Reminder (Alarm1, Alarm2)
                else if Alarm1.AlarmNote > Alarm2.AlarmNote then
                   Result:= 1
                else
