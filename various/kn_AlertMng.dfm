@@ -152,7 +152,6 @@ object Form_Alarm: TForm_Alarm
         Top = 150
         Width = 141
         Height = 13
-        Alignment = taRightJustify
         Caption = 'Event or Expiration Time:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
