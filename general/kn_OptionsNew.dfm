@@ -522,7 +522,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
       end
     end
-    object TPage
+    object PG_Images: TPage
       Left = 0
       Top = 0
       HelpContext = 573
