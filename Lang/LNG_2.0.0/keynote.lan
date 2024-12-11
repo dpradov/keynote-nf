@@ -1,0 +1,13 @@
+[English]
+Comment=Initially: identical to text incrusted in .exe
+Name=English
+LangFile=Keynote.english.lng
+TipFile=Keynote.english.tip
+Translator=""
+
+[Japanese]
+Comment=
+Name=Japanese
+LangFile=Keynote.japanese.lng
+TipFile=Keynote.japanese.tip
+Translator=coolvitto
