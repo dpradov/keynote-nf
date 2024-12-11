@@ -226,6 +226,7 @@ type
     procedure TV_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
     procedure TV_Edited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
     procedure TV_NewText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; NewText: string);
+    procedure TV_DblClick(Sender: TObject);
 
    // Outline numbering
    protected
@@ -860,6 +861,7 @@ begin
      OnNodeMoved:= TV_NodeMoved;
      OnFreeNode:= TV_FreeNode;
      OnClick := TV_Click;
+     OnDblClick := TV_DblClick;
      OnDragDrop := TV_DragDrop;
      OnDragOver := TV_DragOver;
      OnEndDrag := TV_EndDrag;
@@ -2063,6 +2065,12 @@ begin
   TV.PopupMenu := PopupMenu;
   if GetNNode(Node).NumberingMethod <> NoNumbering then
      TV.ReinitNode(Node, false);
+end;
+
+
+procedure TKntTreeUI.TV_DblClick(Sender: TObject);
+begin
+  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
