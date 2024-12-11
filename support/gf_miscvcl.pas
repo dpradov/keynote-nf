@@ -25,6 +25,7 @@ uses
    System.Classes,
    System.SysUtils,
    System.DateUtils,
+   System.Math,
    Vcl.Forms,
    Vcl.Graphics,
    Vcl.Controls,
@@ -102,7 +103,6 @@ var
   _TahomaFontInstalled : boolean = false;
 
 implementation
-
 
 procedure SleepWell( const TenthsOfSecond : cardinal );
 var
@@ -639,6 +639,7 @@ begin
   Result := RGB(R,G,B);
 end;
 
+
 function InvertColor(Color: TColor): TColor;
 var
   RGBColor: Cardinal;
@@ -656,6 +657,40 @@ begin
 end;
 
 
+function BlueishColor(Color: TColor): Boolean;
+var
+  RGBColor: Cardinal;
+  R, G, B: Integer;
+begin
+  Result:= false;
+
+  RGBColor:= GetRGBFromColor(Color);
+  R := GetRValue(RGBColor);
+  G := GetGValue(RGBColor);
+  B := GetBValue(RGBColor);
+
+  if (B>= $FB) and ( ((G=$FF) and (R < $B3)) or ((G < $D8) and (R<$D8))) then
+     Result:= true;
+end;
+
+
+function YellowishColor(Color: TColor): Boolean;
+var
+  RGBColor: Cardinal;
+  R, G, B: Integer;
+begin
+  Result:= false;
+
+  RGBColor:= GetRGBFromColor(Color);
+  R := GetRValue(RGBColor);
+  G := GetGValue(RGBColor);
+  B := GetBValue(RGBColor);
+
+  if (R = $FF) and (G = $FF) and (B < $D8) then
+     Result:= true;
+end;
+
+
 function GetColorLuminosity(Color: TColor): Double;
 var
   Red, Green, Blue: Byte;
@@ -669,13 +704,57 @@ begin
   Result := 0.299 * Red + 0.587 * Green + 0.114 * Blue;
 end;
 
-function GetHotColorFor(BackColor, FontColor: TColor): TColor;
+
+function GetRelativeLuminosity(Color: TColor): Double;
+var
+  R, G, B: Double;
 begin
-   if GetColorLuminosity(BackColor) > GetColorLuminosity(FontColor) then
-      Result:= LightenColor(FontColor, 0, 190)
-   else
-      Result:= DarkenColor(FontColor, 150, 190);
+  // Extract normalized RGB components
+  Color := ColorToRGB(Color);
+  R := GetRValue(Color) / 255;
+  G := GetGValue(Color) / 255;
+  B := GetBValue(Color) / 255;
+
+  // Adjust values ​​according to relative luminance formula
+  if R <= 0.03928 then
+    R := R / 12.92
+  else
+    R := Power((R + 0.055) / 1.055, 2.4);
+
+  if G <= 0.03928 then
+    G := G / 12.92
+  else
+    G := Power((G + 0.055) / 1.055, 2.4);
+
+  if B <= 0.03928 then
+    B := B / 12.92
+  else
+    B := Power((B + 0.055) / 1.055, 2.4);
+
+  // Calculate relative luminosity
+  Result := 0.2126 * R + 0.7152 * G + 0.0722 * B;
 end;
+
+
+function GetHotColorFor(BackColor, FontColor: TColor): TColor;
+var
+   RelLumBG: Double;
+begin
+   RelLumBG:= GetRelativeLuminosity(BackColor);
+
+   if RelLumBG > 0.45 then begin
+      Result:= clBlue;
+      if BlueishColor(BackColor) or BlueishColor(FontColor) then
+         Result:= $0000CD;   // Rojo oscuro
+   end
+   else begin
+       Result:= clYellow;
+       if YellowishColor(BackColor) or YellowishColor(FontColor) then
+          Result:= clWhite;
+   end;
+
+end;
+
 
 function ColorInformation(Color: TColor): string;
 var
