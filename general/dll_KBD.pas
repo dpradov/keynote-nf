@@ -129,6 +129,10 @@ type
 
 
 implementation
+{$IFDEF EMBED_UTILS_DLL}
+uses
+  kn_Global;
+{$ENDIF}
 
 {$R *.DFM}
 
@@ -140,7 +144,8 @@ const
   _KNT_LAUNCHER = 'kntLauncher.exe';
   _KNT_HELP_TITLE = 'KeyNote NF Topics';
 
-
+{$IFDEF EMBED_UTILS_DLL}
+{$ELSE}
 function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean;
 var
   Args: string;
@@ -166,6 +171,7 @@ begin
    except
    end;
 end;
+{$ENDIF}
 
 
 function IsValidShortcut( const AShortcut : TShortCut ) : boolean;
@@ -659,7 +665,7 @@ end;
 
 procedure TForm_KBD.Btn_HelpClick(Sender: TObject);
 begin
-   ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, Self.HelpContext,0);
+   ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, 316, 0);
   //Application.HelpCommand( HELP_CONTEXT, 610 );
 end;
 

@@ -58,12 +58,16 @@ uses
    kn_Chest,
    kn_OptionsNew,
    dll_Keyboard,
+{$IFDEF EMBED_UTILS_DLL}
+   dll_Main,
+{$ELSE}
+   kn_Dllmng,
+   kn_DLLinterface,
+{$ENDIF}
    kn_Macro,
    kn_Plugins,
    kn_StyleObj,
    kn_LocationObj,
-   kn_Dllmng,
-   kn_DLLinterface,
    kn_LanguagesMng,
    kn_MacroMng,
    kn_VCLControlsMng,
@@ -648,6 +652,59 @@ begin
 end;
 
 
+{$IFDEF EMBED_UTILS_DLL}
+
+procedure CustomizeKeyboard;
+var
+  KeyList : TList;
+  KeyCustomMenus : TKeyCustomMenus;
+begin
+
+  //Restore these shortcuts momentarily to show them in the configuration screen
+  if TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut = 0 then
+     TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut:= ShortCut(Ord('V'), [ssCtrl]); // 16470;
+  if TMenuItem( Form_Main.FindComponent( 'MMEditCopy' )).ShortCut = 0 then
+     TMenuItem( Form_Main.FindComponent( 'MMEditCopy' )).ShortCut:= ShortCut(Ord('C'), [ssCtrl]); // 16451;
+  if TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut = 0 then
+     TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut:= ShortCut(Ord('X'), [ssCtrl]);  // 16472;
+
+  KeyCustomMenus[ccMenuMain] := Form_Main.Menu_Main;
+  KeyCustomMenus[ccMenuTree] := Form_Main.Menu_TV;
+
+  KeyList := TList.Create;
+  try
+    try
+      BuildKeyboardList( KeyCustomMenus, KeyList );
+      BuildOtherCommandsList (KeyList);
+
+      if DlgCustomizeKeyboard(Keyboard_FN, KeyList, KeyOptions.HotKey) then begin
+          screen.Cursor := crHourGlass;
+          try
+             LoadCustomKeyboard;
+          finally
+             screen.Cursor := crDefault;
+          end;
+      end;
+
+      TMenuItem( Form_Main.FindComponent( 'MMEditPaste' )).ShortCut := 0;
+      TMenuItem( Form_Main.FindComponent( 'MMEditCopy' )).ShortCut := 0;
+      TMenuItem( Form_Main.FindComponent( 'MMEditCut' )).ShortCut := 0;
+
+    except
+      on E : Exception do
+        messagedlg( GetRS(sCfg01) + E.Message, mtError, [mbOK], 0 );
+    end;
+
+  finally
+    ClearObjectList( KeyList );
+    KeyList.Free;
+  end;
+
+end; // CustomizeKeyboard
+
+
+{$ELSE}
+
 procedure CustomizeKeyboard;
 var
   KeyList : TList;
@@ -702,6 +759,9 @@ begin
   end;
 
 end; // CustomizeKeyboard
+
+{$ENDIF}
+
 
 procedure AdjustOptions;
 var

@@ -66,6 +66,7 @@ object Form_KBD: TForm_KBD
     ModalResult = 1
     ParentFont = False
     TabOrder = 1
+    ExplicitTop = 467
   end
   object Btn_Cancel: TButton
     Left = 248
@@ -83,6 +84,7 @@ object Form_KBD: TForm_KBD
     ModalResult = 2
     ParentFont = False
     TabOrder = 2
+    ExplicitTop = 467
   end
   object GroupBox1: TGroupBox
     Left = 7
@@ -97,6 +99,8 @@ object Form_KBD: TForm_KBD
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    ExplicitWidth = 469
+    ExplicitHeight = 453
     DesignSize = (
       473
       454)
@@ -208,6 +212,8 @@ object Form_KBD: TForm_KBD
       PopupMenu = Menu_Items
       TabOrder = 1
       OnClick = List_CommandsClick
+      ExplicitWidth = 302
+      ExplicitHeight = 156
     end
     object Btn_Assign: TButton
       Left = 245
@@ -224,6 +230,8 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 2
       OnClick = Btn_AssignClick
+      ExplicitLeft = 241
+      ExplicitTop = 330
     end
     object Btn_Remove: TButton
       Left = 18
@@ -240,6 +248,8 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 3
       OnClick = Btn_RemoveClick
+      ExplicitLeft = 14
+      ExplicitTop = 329
     end
     object Btn_ResetAll: TButton
       Left = 365
@@ -256,6 +266,8 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 5
       OnClick = Btn_ResetAllClick
+      ExplicitLeft = 361
+      ExplicitTop = 418
     end
     object Btn_List: TButton
       Left = 259
@@ -272,6 +284,8 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       TabOrder = 4
       OnClick = Btn_ListClick
+      ExplicitLeft = 255
+      ExplicitTop = 418
     end
     object GroupBox2: TGroupBox
       Left = 13
@@ -287,6 +301,8 @@ object Form_KBD: TForm_KBD
       Font.Style = []
       ParentFont = False
       TabOrder = 7
+      ExplicitTop = 218
+      ExplicitWidth = 441
       DesignSize = (
         445
         57)
@@ -324,6 +340,7 @@ object Form_KBD: TForm_KBD
       ParentFont = False
       ReadOnly = True
       TabOrder = 6
+      ExplicitTop = 302
     end
     object Edit_Filter: TEdit
       Left = 356
@@ -343,6 +360,7 @@ object Form_KBD: TForm_KBD
       TabOrder = 0
       OnExit = Edit_FilterExit
       OnKeyDown = Edit_FilterKeyDown
+      ExplicitLeft = 352
     end
     object RBShowMainMenu: TRadioButton
       Left = 12
@@ -477,6 +495,7 @@ object Form_KBD: TForm_KBD
     ParentFont = False
     TabOrder = 3
     OnClick = Btn_HelpClick
+    ExplicitTop = 423
   end
   object Pnl: TPanel
     Left = 247

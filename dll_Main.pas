@@ -1,19 +1,19 @@
 unit dll_Main;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
  (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
-     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf      
-   
- *****************************************************************************) 
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
 
 interface
 uses
@@ -30,15 +30,60 @@ uses
    dll_KBD,
    dll_Keyboard;
 
+{$IFDEF EMBED_UTILS_DLL}
+function DlgCustomizeKeyboard(
+  KBD_FN : string;
+  KeyList : TList;
+  ActivationHotkey : TShortCut ) : boolean;
 
+{$ELSE}
 function DlgCustomizeKeyboard(
   AppHandle : HWND;
   KBD_FN : PChar;
   KeyList : TList;
   ActivationHotkey : TShortCut ) : boolean;
-
+{$ENDIF}
 
 implementation
+
+
+{$IFDEF EMBED_UTILS_DLL}
+
+function DlgCustomizeKeyboard(
+  KBD_FN : string;
+  KeyList : TList;
+  ActivationHotkey : TShortCut ) : boolean;
+var
+  Form_KBD: TForm_KBD;
+
+begin
+  result := false;
+
+  Form_KBD := TForm_KBD.Create( Application );
+
+  try
+    try
+      Form_KBD.myKeyList := KeyList;
+      Form_KBD.myKBD_FN := KBD_FN;
+      Form_KBD.KeyNoteActivationHotkey:= ActivationHotkey;
+      if ( Form_KBD.ShowModal = mrOK ) then  begin
+         result := true;
+         SaveKeyboardList( KBD_FN, KeyList );
+      end;
+
+    except
+      on E : Exception do
+        messagedlg( 'Error in keyboard customization procedure: ' + E.Message, mtError, [mbOK], 0 );
+    end;
+
+  finally
+    Form_KBD.Free;
+  end;
+
+
+end; // DlgCustomizeKeyboard
+
+{$ELSE}
 
 function DlgCustomizeKeyboard(
   AppHandle : HWND;
@@ -84,5 +129,7 @@ begin
 
 
 end; // DlgCustomizeKeyboard
+
+{$ENDIF}
 
 end.

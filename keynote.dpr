@@ -25,6 +25,7 @@ uses
   ShellAPI,
   SysUtils,
   IniFiles,
+  knt.RS in 'Lang\knt.RS.pas',
   RxRichEd in '3rd_party\unRxLib\units\RxRichEd.pas',
   RxPlacemnt in '3rd_party\unRxLib\units\RxPlacemnt.pas',
   RichPrint in '3rd_party\richprint\RichPrint.pas',
@@ -59,7 +60,6 @@ uses
   gf_streams in 'support\gf_streams.pas',
   gf_strings in 'support\gf_strings.pas',
   GFLog in 'support\GFLog.pas',
-  kn_DLLmng in 'support\kn_DLLmng.pas',
   GFTipDlg in 'general\GFTipDlg.pas',
   GFTipDlgForm in 'general\GFTipDlgForm.pas' {GFTipForm},
   kn_about in 'general\kn_about.pas' {AboutBox},
@@ -132,7 +132,6 @@ uses
   kn_ImagesMng in 'editor\kn_ImagesMng.pas',
   kn_ImageForm in 'editor\kn_ImageForm.pas' {Form_Image},
   tom_TLB in 'various\tom_TLB.pas',
-  kn_DLLinterface in 'kn_DLLinterface.pas',
   kn_UpdateVersion in 'general\kn_UpdateVersion.pas' {UpdateVersion},
   kn_Main in 'kn_Main.pas' {Form_Main},
   knt.App in 'knt.App.pas',
@@ -141,7 +140,14 @@ uses
   knt.ui.note in 'ui\knt.ui.note.pas' {KntNoteUI: TFrame},
   knt.ui.info in 'ui\knt.ui.info.pas',
   VirtualTrees.Accessibility_MOD in 'ui\VirtualTrees.Accessibility_MOD.pas',
-  knt.RS in 'Lang\knt.RS.pas';
+{$IFDEF EMBED_UTILS_DLL}
+  dll_Hotkey in 'general\dll_Hotkey.pas',
+  dll_KBD in 'general\dll_KBD.pas',
+  dll_Main in 'general\dll_Main.pas';
+{$ELSE}
+  kn_DLLinterface in 'kn_DLLinterface.pas',
+  kn_DLLmng in 'support\kn_DLLmng.pas';
+{$ENDIF}
 
 {$R *.RES}
 
