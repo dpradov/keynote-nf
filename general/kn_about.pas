@@ -148,9 +148,9 @@ begin
   );
   LB_RichEditVer.Hint:= pathDLL;
 
-  Caption := sAB00 + Program_Name;
+  Caption := GetRS(sAB00) + Program_Name;
   Label_Name.Caption := Program_Name;
-  Label_Desc.Caption := Program_Desc;
+  Label_Desc.Caption := GetRS(Program_Desc);
 
   Label_License.Caption := Program_License;
 
@@ -158,12 +158,12 @@ begin
   Label_Credit2.Caption := Program_Credit2;
   Label_Mailto2.Caption := Program_Email1;
   Label_Mailto.Caption := Program_Email2;
-  Label_Mailto.Hint:=  sAB01;
-  Label_Mailto2.Hint:= sAB01;
+  Label_Mailto.Hint:=  GetRS(sAB01);
+  Label_Mailto2.Hint:= GetRS(sAB01);
   Label_URL.Caption :=  Program_URL;
-  Label_URL.Hint := sAB02;
-  Label_Dart.Caption := sAB03;
-  Label_KeyNoteNF.Caption := sAB04;
+  Label_URL.Hint := GetRS(sAB02);
+  Label_Dart.Caption := GetRS(sAB03);
+  Label_KeyNoteNF.Caption := GetRS(sAB04);
 
   Label_Version.Caption:= 'v.' + Program_Version;
   Label_Version.Left:= Label_Name.Left + Label_Name.Width + 10;

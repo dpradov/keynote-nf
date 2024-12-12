@@ -110,23 +110,23 @@ Initialization
       macInsert : with MACRO_DEFS[mcmd] do
       begin
          Name := 'INSERT';
-         Help :=  sMacC10;
-         Syntax := sMacC01;
+         Help :=  GetRS(sMacC10);
+         Syntax := GetRS(sMacC01);
          ArgType := argString;
          DefArg := '';
        end;
       macWait : with MACRO_DEFS[mcmd] do
       begin
          Name := 'WAIT';
-         Help := sMacC11;
-         Syntax := sMacCms;
+         Help := GetRS(sMacC11);
+         Syntax := GetRS(sMacCms);
          ArgType := argInteger;
          DefArg := '250';
        end;
       macRewind : with MACRO_DEFS[mcmd] do
       begin
          Name := 'REWIND';
-         Help := sMacC12;
+         Help := GetRS(sMacC12);
          Syntax := '';
          ArgType := argNone;
          DefArg := '';
@@ -134,47 +134,47 @@ Initialization
       macMessage : with MACRO_DEFS[mcmd] do
       begin
          Name := 'MESSAGE';
-         Help := sMacC13;
-         Syntax := sMacC01;
+         Help := GetRS(sMacC13);
+         Syntax := GetRS(sMacC01);
          ArgType := argString;
          DefArg := '';
        end;
       macStatus : with MACRO_DEFS[mcmd] do
       begin
          Name := 'STATUS';
-         Help := sMacC14;
-         Syntax := sMacC01;
+         Help := GetRS(sMacC14);
+         Syntax := GetRS(sMacC01);
          ArgType := argString;
          DefArg := '';
        end;
       macPlugin : with MACRO_DEFS[mcmd] do
       begin
          Name := 'PLUGIN';
-         Help := sMacC15;
-         Syntax := sMacCfn;
+         Help := GetRS(sMacC15);
+         Syntax := GetRS(sMacCfn);
          ArgType := argString;
          DefArg := '';
        end;
       macMacro : with MACRO_DEFS[mcmd] do
       begin
          Name := 'MACRO';
-         Help := sMacC16;
-         Syntax := sMacCfn;
+         Help := GetRS(sMacC16);
+         Syntax := GetRS(sMacCfn);
          ArgType := argString;
          DefArg := '';
        end;
       macConfirm : with MACRO_DEFS[mcmd] do
       begin
          Name := 'CONFIRM';
-         Help := sMacC17;
-         Syntax := sMacC01;
+         Help := GetRS(sMacC17);
+         Syntax := GetRS(sMacC01);
          ArgType := argString;
          DefArg := '';
        end;
       macStyleOn : with MACRO_DEFS[mcmd] do
       begin
          Name := 'STYLEON';
-         Help := sMacC18;
+         Help := GetRS(sMacC18);
          Syntax := STR_style;
          ArgType := argString;
          DefArg := '';
@@ -182,7 +182,7 @@ Initialization
       macStyleOff : with MACRO_DEFS[mcmd] do
       begin
          Name := 'STYLEOFF';
-         Help := sMacC19;
+         Help := GetRS(sMacC19);
          Syntax := STR_style;
          ArgType := argString;
          DefArg := '';
@@ -190,7 +190,7 @@ Initialization
       macStyleFlip : with MACRO_DEFS[mcmd] do
       begin
          Name := 'STYLEFLIP';
-         Help := sMacC20;
+         Help := GetRS(sMacC20);
          Syntax := STR_style;
          ArgType := argString;
          DefArg := '';
@@ -198,39 +198,39 @@ Initialization
       macGoLeft : with MACRO_DEFS[mcmd] do
       begin
          Name := 'GOLEFT';
-         Help := sMacC21;
-         Syntax := sMacCint;
+         Help := GetRS(sMacC21);
+         Syntax := GetRS(sMacCint);
          ArgType := argInteger;
          DefArg := '1';
        end;
       macGoRight : with MACRO_DEFS[mcmd] do
       begin
          Name := 'GORIGHT';
-         Help := sMacC22;
-         Syntax := sMacCint;
+         Help := GetRS(sMacC22);
+         Syntax := GetRS(sMacCint);
          ArgType := argInteger;
          DefArg := '1';
        end;
       macGoDown : with MACRO_DEFS[mcmd] do
       begin
          Name := 'GODOWN';
-         Help := sMacC23;
-         Syntax := sMacCint;
+         Help := GetRS(sMacC23);
+         Syntax := GetRS(sMacCint);
          ArgType := argInteger;
          DefArg := '1';
        end;
       macGoUp : with MACRO_DEFS[mcmd] do
       begin
          Name := 'GOUP';
-         Help := sMacC24;
-         Syntax := sMacCint;
+         Help := GetRS(sMacC24);
+         Syntax := GetRS(sMacCint);
          ArgType := argInteger;
          DefArg := '1';
        end;
       macSelectAll : with MACRO_DEFS[mcmd] do
       begin
          Name := 'SELECTALL';
-         Help := sMacC25;
+         Help := GetRS(sMacC25);
          Syntax := '';
          ArgType := argNone;
          DefArg := '';
@@ -238,31 +238,31 @@ Initialization
       macFontColor : with MACRO_DEFS[mcmd] do
       begin
          Name := 'FONTCOLOR';
-         Help := sMacC26;
-         Syntax := sMacCcn;
+         Help := GetRS(sMacC26);
+         Syntax := GetRS(sMacCcn);
          ArgType := argString;
          DefArg := '';
        end;
       macBGColor : with MACRO_DEFS[mcmd] do
       begin
          Name := 'BGCOLOR';
-         Help := sMacC27;
-         Syntax := sMacCcn;
+         Help := GetRS(sMacC27);
+         Syntax := GetRS(sMacCcn);
          ArgType := argString;
          DefArg := '';
        end;
       macHighlightColor : with MACRO_DEFS[mcmd] do
       begin
          Name := 'HICOLOR';
-         Help := sMacC28;
-         Syntax := sMacCcn;
+         Help := GetRS(sMacC28);
+         Syntax := GetRS(sMacCcn);
          ArgType := argString;
          DefArg := '';
        end;
       macNoteNewRTF : with MACRO_DEFS[mcmd] do
       begin
          Name := 'NOTENEWRTF';
-         Help := sMacC29;
+         Help := GetRS(sMacC29);
          Syntax := '';
          ArgType := argNone;
          DefArg := '';
@@ -270,7 +270,7 @@ Initialization
       macNoteNewTree : with MACRO_DEFS[mcmd] do
       begin
          Name := 'NOTENEWTREE';
-         Help := sMacC30;
+         Help := GetRS(sMacC30);
          Syntax := '';
          ArgType := argNone;
          DefArg := '';
@@ -278,15 +278,15 @@ Initialization
       macApplyStyle : with MACRO_DEFS[mcmd] do
       begin
          Name := 'APPLYSTYLE';
-         Help := sMacC31;
-         Syntax := sMacCstN;
+         Help := GetRS(sMacC31);
+         Syntax := GetRS(sMacCstN);
          ArgType := argString;
          DefArg := '';
        end;
       macBookmarkSet : with MACRO_DEFS[mcmd] do
       begin
          Name := 'BOOKMARKSET';
-         Help := sMacC32;
+         Help := GetRS(sMacC32);
          Syntax := '0..9';
          ArgType := argInteger;
          DefArg := '';
@@ -294,7 +294,7 @@ Initialization
       macBookmarkJump : with MACRO_DEFS[mcmd] do
       begin
          Name := 'BOOKMARKJUMP';
-         Help := sMacC33;
+         Help := GetRS(sMacC33);
          Syntax := '0..9';
          ArgType := argInteger;
          DefArg := '';

@@ -1057,7 +1057,7 @@ begin
                     '\f7 *12\f0\''b7\f7\''81\''82\''83\''84\''85\f0\''b7\f7\''fb\''fco\''fd\''fe\f6 8\f8\fs16\par}';
     //InsCharKeepFont := true;
     InsCharWinClose := false;
-    LanguageUI := LANGUAGE_DEFAULT;   // Default (English Internal)
+    LanguageUI := GetRS(LANGUAGE_DEFAULT);   // Default (English Internal)
     LastCopyPath := '';
     LastExportPath := '';
     LastExportFormat := 1; // RTF;   // low( TExportFmt );

@@ -215,7 +215,7 @@ begin
   end;
 
   if (errstr <> '' ) then
-      MessageDlg( sCfg03 + #13 + errstr, mtWarning, [mbOK], 0 );
+      MessageDlg( GetRS(sCfg03) + #13 + errstr, mtWarning, [mbOK], 0 );
 
 end; // ReadCmdLine
 
@@ -383,7 +383,7 @@ begin
   except
     on E : Exception do
     begin
-      showmessage( Format(sCfg05 , [E.Message]) );
+      showmessage( Format(GetRS(sCfg05) , [E.Message]) );
     end;
   end;
 end; // LoadDefaults
@@ -587,7 +587,7 @@ begin
 
     except
       on E : Exception do
-        MessageDlg(Format(sCfg04, [Keyboard_FN, E.Message] ), mtError, [mbOK], 0 );
+        MessageDlg(Format(GetRS(sCfg04), [Keyboard_FN, E.Message] ), mtError, [mbOK], 0 );
     end;
 
   finally
@@ -692,7 +692,7 @@ begin
 
     except
       on E : Exception do
-        messagedlg( sCfg01 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sCfg01) + E.Message, mtError, [mbOK], 0 );
     end;
 
   finally
@@ -734,7 +734,7 @@ begin
                  ( ActiveFile.TabIconsFN <> '' )) then
                 tmpicnfn := extractfilename( ActiveFile.TabIconsFN );
             end;
-            GroupBox_TabIcons.Caption := Format( sCfg02, [tmpicnfn] );
+            GroupBox_TabIcons.Caption := Format( GetRS(sCfg02), [tmpicnfn] );
           end;
 
         if ( Form_Options.ShowModal = mrOK ) then begin

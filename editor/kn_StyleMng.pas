@@ -71,7 +71,7 @@ begin
       if FromEditor then begin
         if not App.CheckActiveEditor then exit;
         Editor:= ActiveEditor;
-        s := sStyM01 + #13#13 + sStyM02 + Editor.FontInfoString + #13#13 + sStyM03 + Editor.ParaInfoString;
+        s := GetRS(sStyM01) + #13#13 + GetRS(sStyM02) + Editor.FontInfoString + #13#13 + GetRS(sStyM03) + Editor.ParaInfoString;
       end
       else begin
         if ( Combo_Style.ItemIndex < 0 ) or
@@ -83,8 +83,8 @@ begin
           srParagraph : s := Style.ParaInfoToStr( false );
           srBoth : s := Style.FontInfoToStr( false ) + #13#13 + Style.ParaInfoToStr( false );
         end;
-        s := sStyM04 + '"' + Style.Name + '"' + #13 +
-             sStyM05 + STYLE_RANGES[Style.Range] + #13#13 + s;
+        s := GetRS(sStyM04) + '"' + Style.Name + '"' + #13 +
+             GetRS(sStyM05) + STYLE_RANGES[Style.Range] + #13#13 + s;
       end;
       App.DoMessageBox( s, mtInformation, [mbOK] );
   end;
@@ -101,12 +101,12 @@ begin
   if not App.CheckActiveEditor then exit;
 
   if ( not assigned( StyleManager )) then begin
-    showmessage( sStyM06 );
+    showmessage( GetRS(sStyM06) );
     exit;
   end;
 
   if ( ExistingStyle = nil ) then begin
-    if ( not InputQuery(Format( sStyM07, [STYLE_RANGES[aRange]] ), sStyM08, name )) then exit;
+    if ( not InputQuery(Format( GetRS(sStyM07), [STYLE_RANGES[aRange]] ), GetRS(sStyM08), name )) then exit;
     if ( name = '' ) then exit;
     idx := StyleManager.IndexOf( name );
     if ( idx >= 0 ) then
@@ -116,7 +116,7 @@ begin
     name := ExistingStyle.Name;
 
   if ( ExistingStyle <> nil ) then begin
-    if (App.DoMessageBox(Format(sStyM09, [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name]),
+    if (App.DoMessageBox(Format(GetRS(sStyM09), [STYLE_RANGES[ExistingStyle.Range],ExistingStyle.Name]),
            mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
   end;
 
@@ -174,13 +174,13 @@ begin
       idx := AddToStyleManager( Style );
       StyleManagerToCombo;
       Form_Main.Combo_Style.ItemIndex := idx;
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sStyM10, [Name,STYLE_RANGES[aRange]] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sStyM10), [Name,STYLE_RANGES[aRange]] );
 
       CheckSaveStyleManagerInfo;
 
     except
       on E : Exception do begin
-        messagedlg( sStyM11 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sStyM11) + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -201,7 +201,7 @@ begin
         else
           myStyle := TStyle( StyleManager.Objects[StyleManager.IndexOf( aName )] );
       except
-        App.DoMessageBox( Format(sStyM12, [aName]), mtError, [mbOK] );
+        App.DoMessageBox( Format(GetRS(sStyM12), [aName]), mtError, [mbOK] );
         exit;
       end;
 
@@ -292,7 +292,7 @@ begin
   name := Form_Main.Combo_Style.Items[Form_Main.Combo_Style.ItemIndex];
 
   if ( not InputQuery(
-    sStyM13, sStyM14, name )) then exit;
+    GetRS(sStyM13), GetRS(sStyM14), name )) then exit;
   if ( name = '' ) then exit;
 
   if ( name = Form_Main.Combo_Style.Items[Form_Main.Combo_Style.ItemIndex] ) then exit;
@@ -301,7 +301,7 @@ begin
     for i := 0 to pred( StyleManager.Count ) do
       if (( i <> idx ) and ( StyleManager[i] = name )) then
       begin
-        showmessage( sStyM15 );
+        showmessage( GetRS(sStyM15) );
         exit;
       end;
 
@@ -320,7 +320,7 @@ begin
     CheckSaveStyleManagerInfo;
 
   except
-    showmessage( sStyM16 );
+    showmessage( GetRS(sStyM16) );
   end;
 
 end; // StyleRename
@@ -333,7 +333,7 @@ begin
       idx := Form_Main.Combo_Style.ItemIndex;
       name := Form_Main.Combo_Style.Items[idx];
 
-      if (App.DoMessageBox( Format(sStyM17,  [STYLE_RANGES[TStyle( StyleManager.Objects[idx] ).Range],name] ),
+      if (App.DoMessageBox( Format(GetRS(sStyM17),  [STYLE_RANGES[TStyle( StyleManager.Objects[idx] ).Range],name] ),
                             mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then exit;
 
       try
@@ -349,7 +349,7 @@ begin
         CheckSaveStyleManagerInfo;
 
       except
-        showmessage( sStyM18 );
+        showmessage( GetRS(sStyM18) );
       end;
 
 end; // StyleDelete

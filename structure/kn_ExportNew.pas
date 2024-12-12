@@ -451,7 +451,7 @@ end; // ACTIVATE
 
 function TForm_ExportNew.ConfirmAbort : boolean;
 begin
-  result := ( messagedlg( sExpFrm01, mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK );
+  result := ( messagedlg( GetRS(sExpFrm01), mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK );
   DoAbort := result;
 end; // ConfirmAbort
 
@@ -775,12 +775,12 @@ function TForm_ExportNew.Validate : boolean;
 begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then begin
-    App.DoMessageBox( sExpFrm02, mtError, [mbOK] );
+    App.DoMessageBox( GetRS(sExpFrm02), mtError, [mbOK] );
     exit;
   end;
 
   if ( not System.SysUtils.DirectoryExists( ExportOptions.ExportPath )) then begin
-    App.DoMessageBox( sExpFrm03, mtError, [mbOK] );
+    App.DoMessageBox( GetRS(sExpFrm03), mtError, [mbOK] );
     exit;
   end;
 
@@ -853,7 +853,7 @@ begin
   WriteConfig;
 
   if (ExportOptions.TargetFormat= xfKeyNote) and (ExportOptions.TreeSelection = tsNode) and (Combo_TreeSelection.Enabled) then
-      if ( messagedlg( sExpFrm20, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+      if ( messagedlg( GetRS(sExpFrm20), mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
          Exit;
 
   cnt := 0;
@@ -882,7 +882,7 @@ begin
   end;
   
   if ( cnt = 0 ) then begin
-    messagedlg( sExpFrm04, mtError, [mbOK], 0 );
+    messagedlg( GetRS(sExpFrm04), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -1280,7 +1280,7 @@ begin
     except
       on E : Exception do begin
          WasError := true;
-         App.ErrorPopup(E, sExpFrm11);
+         App.ErrorPopup(E, GetRS(sExpFrm11));
       end;
     end;
 
@@ -1291,12 +1291,12 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
-    ExitMessage := Format(sExpFrm12, [ExportedFolders, ExportedNotes] );
+    ExitMessage := Format(GetRS(sExpFrm12), [ExportedFolders, ExportedNotes] );
     if WasError then
-       ExitMessage := ExitMessage + #13 + sExpFrm13
+       ExitMessage := ExitMessage + #13 + GetRS(sExpFrm13)
     else
     if DoAbort then
-       ExitMessage := ExitMessage + #13 + sExpFrm14;
+       ExitMessage := ExitMessage + #13 + GetRS(sExpFrm14);
 
     if ( messagedlg( ExitMessage, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
         ModalResult := mrCancel; // close dialog box is Cancel clicked
@@ -1419,7 +1419,7 @@ begin
     end;
 
     else begin
-      SaveDlg.Filter := FILTER_ALLFILES;
+      SaveDlg.Filter := GetRS(FILTER_ALLFILES);
       ext := '.txt';
     end;
   end;
@@ -1603,7 +1603,7 @@ end; // BUTTON SELECT CLICK
 
 procedure TForm_ExportNew.Btn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg(format(sExpFrm15,[_TokenChar,EXP_FILENAME,
+  messagedlg(format(GetRS(sExpFrm15),[_TokenChar,EXP_FILENAME,
                                    _TokenChar,EXP_FOLDERNAME,
                                    _TokenChar,EXP_NODENAME,
                                    _TokenChar,EXP_NODELEVEL,
@@ -1640,13 +1640,13 @@ var
 begin
   NNode:= ActiveTreeUI.GetFocusedNNode;
   if not assigned(NNode) then begin
-    showmessage( sExpFrm16 );
+    showmessage( GetRS(sExpFrm16) );
     exit;
   end;
 
   Editor:= ActiveFolder.Editor;
   if ( Editor.Lines.Count = 0 ) then begin
-    showmessage( sExpFrm17 );
+    showmessage( GetRS(sExpFrm17) );
     exit;
   end;
 
@@ -1660,7 +1660,7 @@ begin
 
   with Form_Main.SaveDlg do begin
     try
-      Title:= sExpFrm00;
+      Title:= GetRS(sExpFrm00);
       oldFilter := Filter;
       Filter := FILTER_EXPORT;
       FilterIndex := KeyOptions.LastExportFormat;
@@ -1784,11 +1784,11 @@ begin
       end;
     end;
 
-    Form_Main.Statusbar.Panels[PANEL_HINT].Text := sExpFrm18 + ExtractFilename( ExportFN );
+    Form_Main.Statusbar.Panels[PANEL_HINT].Text := GetRS(sExpFrm18) + ExtractFilename( ExportFN );
 
   except
     on E : Exception do
-       messagedlg( sExpFrm19 + E.Message, mtError, [mbOK], 0 );
+       messagedlg( GetRS(sExpFrm19) + E.Message, mtError, [mbOK], 0 );
   end;
  finally
    if RTFAux <> nil then

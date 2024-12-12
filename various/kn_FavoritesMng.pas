@@ -76,7 +76,7 @@ begin
       LoadFavorites( FAV_FN );
     except
       On E : Exception do begin
-        showmessage( sFav01 + E.Message );
+        showmessage( GetRS(sFav01) + E.Message );
         exit;
       end;
     end;
@@ -163,11 +163,11 @@ begin
   case myFav.ExternalDoc of
     false : begin
 
-      if InputQuery( sFav02, sFav03, newname ) then begin
+      if InputQuery( GetRS(sFav02), GetRS(sFav03), newname ) then begin
         newname := trim( newname );
         if (( newname = '' ) or ( AnsiCompareText( newname, myFav.Name ) = 0 )) then exit;
         if ( Form_Main.ListBox_ResFav.Items.IndexOf( newname ) >= 0 ) then begin
-          App.ErrorPopup(Format(sFav04, [newname]));
+          App.ErrorPopup(Format(GetRS(sFav04), [newname]));
           exit;
         end;
         myFav.Name := newname;
@@ -214,7 +214,7 @@ begin
 
   except
     on E : Exception do
-	  App.ErrorPopup(E, sFav05);
+	  App.ErrorPopup(E, GetRS(sFav05));
   end;
 
 
@@ -248,7 +248,7 @@ var
     function GetFavName( const AName : string ) : string;
     begin
       result := AName;
-      if ( not InputQuery( sFav06, sFav07, result )) then
+      if ( not InputQuery( GetRS(sFav06), GetRS(sFav07), result )) then
         result := '';
     end;
 
@@ -296,7 +296,7 @@ begin
      if (Name = '') then exit;
      i := GetIndexOfFavorite(Name);
      if (i >= 0) then begin
-       case App.DoMessageBox(Format(sFav04 + sFav08, [Name] ), mtError, [mbOK,mbCancel] ) of
+       case App.DoMessageBox(Format(GetRS(sFav04) + GetRS(sFav08), [Name] ), mtError, [mbOK,mbCancel] ) of
           mrOK : Name := GetFavName( Name );
           else
             exit;
@@ -377,7 +377,7 @@ begin
   if ( not assigned( myFav )) then exit;
   name := Form_Main.ListBox_ResFav.Items[i];
 
-  if (messagedlg(Format(sFav09, [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK) then begin
+  if (messagedlg(Format(GetRS(sFav09), [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK) then begin
     try
       Form_Main.ListBox_ResFav.Items.Delete( i );
       if ( Form_Main.ListBox_ResFav.Items.Count > 0 ) then begin
@@ -394,7 +394,7 @@ begin
 
     except
       on E : Exception do
-	     App.ErrorPopup(E, sFav10);
+	     App.ErrorPopup(E, GetRS(sFav10));
     end;
   end;
 end;
@@ -409,7 +409,7 @@ begin
       ClearLocationList( Favorites_List );
     except
       on E : Exception do begin
-   	    App.ErrorPopup(E, sFav11);
+   	    App.ErrorPopup(E, GetRS(sFav11));
         exit;
       end;
     end;

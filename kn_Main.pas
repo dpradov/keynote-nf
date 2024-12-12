@@ -1497,7 +1497,7 @@ begin
             // because only the first instance will be able to register the hotkey,
             // so we would ALWAYS be getting the damn warning on each subsequent instance.
             Messagedlg( Format(
-              sMain01,
+              GetRS(sMain01),
               [ShortCutToText( KeyOptions.HotKey )] ),
               mtWarning, [mbOK], 0 );
           end;
@@ -1516,7 +1516,7 @@ begin
     begin
       App.Kbd.HotKeySuccess := false;
       messagedlg( Format(
-        sMain02,
+        GetRS(sMain02),
         [TOGGLEARRAY[TurnOn], ShortCutToText( KeyOptions.HotKey ), E.Message]
         ), mtError, [mbOK], 0 );
 
@@ -1525,10 +1525,10 @@ begin
 
   if App.Kbd.HotKeySuccess then
     TMRestore.Caption := Format(
-      sMain03, [ShortCutToText( KeyOptions.HotKey )]
+      GetRS(sMain03), [ShortCutToText( KeyOptions.HotKey )]
     )
   else
-    TMRestore.Caption := sMain04;
+    TMRestore.Caption := GetRS(sMain04);
 
 end; // HotKeyProc
 
@@ -1805,7 +1805,7 @@ begin
         end;
         _CFG_RELOAD_KEYS : begin
           // ReadFuncKeys;
-          // StatusBar.Panels[PANEL_HINT].Text := sMain05;
+          // StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain05;
         end;
       end;
     end;
@@ -1862,7 +1862,7 @@ begin
       Open:= true;
       if HaveKntFolders( false, false ) then begin
          if ( KntFileToLoad.ToUpper = ActiveFile.FileName.ToUpper ) then begin
-           if ( App.PopupMessage( Format(sMain06, [ActiveFile.Filename]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
+           if ( App.PopupMessage( Format(GetRS(sMain06), [ActiveFile.Filename]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
               Open:= false;
            ActiveFile.Modified := false; // to prevent automatic save if modified
          end;
@@ -1926,7 +1926,7 @@ begin
 
   if CanClose then
     if ( KeyOptions.ConfirmExit and ( not ClosedByWindows )) then
-      CanClose := ( App.PopupMessage( format(sMain07, [Program_Name]), mtConfirmation, [mbYes,mbNo] ) = mrYes );
+      CanClose := ( App.PopupMessage( format(GetRS(sMain07), [Program_Name]), mtConfirmation, [mbYes,mbNo] ) = mrYes );
   { note: if windows is closing, we do not honor the "Confirm exit" config option }
 
   try
@@ -2135,8 +2135,8 @@ begin
   TB_WordWeb.Hint := MMInsertWordWeb.Hint;
   TB_WordWrap.Hint := MMFormatWordWrap.Hint;
 
-  MMToolsDeduceDates.Hint:= sMain51 + sMain53;
-  MMToolsRemoveDates.Hint:= sMain52 + sMain53;
+  MMToolsDeduceDates.Hint:= GetRS(sMain51) + GetRS(sMain53);
+  MMToolsRemoveDates.Hint:= GetRS(sMain52) + GetRS(sMain53);
 
 end; // SetupToolbarButtons
 
@@ -2489,7 +2489,7 @@ begin
   {$ENDIF}
 
   If Application.MessageBox(
-    PChar(format(sMain08, [E.Message, URL_Issues])), PChar(sMain09),
+    PChar(format(GetRS(sMain08), [E.Message, URL_Issues])), PChar(GetRS(sMain09)),
     MB_YESNO+MB_SYSTEMMODAL+MB_ICONHAND+MB_DEFBUTTON2) = ID_YES Then
   begin
     ClosedByWindows := true; // means: don't display exit confirmation dialog
@@ -2601,9 +2601,9 @@ end; // AnotherInstance
 procedure TForm_Main.ShowInsMode;
 begin
   if ActiveFolder.IsInsertMode then
-    StatusBar.Panels[PANEL_INS].Text := sMain11
+    StatusBar.Panels[PANEL_INS].Text := GetRS(sMain11)
   else
-    StatusBar.Panels[PANEL_INS].Text := sMain12;
+    StatusBar.Panels[PANEL_INS].Text := GetRS(sMain12);
 end; // ShowInsMode
 
 procedure TForm_Main.PagesDblClick(Sender: TObject );
@@ -3064,7 +3064,7 @@ begin
      //KeyOptions.TipOfTheDay := true;
      KeyOptions.TipOfTheDayIdx := -1;
      case messagedlg(
-       Format(sMain17
+       Format(GetRS(sMain17)
        , [KeyOptions.LastVersion, Program_Version, SampleFileName] ),
        mtInformation, [mbYes,mbNo], 0
      ) of
@@ -3086,7 +3086,7 @@ begin
   if FileExists( fn ) then
     ShellExecute( 0, 'open', PChar( fn ), nil, nil, SW_NORMAL )
   else
-    DoMessageBox( Format( sMain18, [fn] ), mtError, [mbOK], 0 );
+    DoMessageBox( Format( GetRS(sMain18, [fn] ), mtError, [mbOK], 0 );
    }
 end; // DisplayHistoryFile
 
@@ -3597,9 +3597,9 @@ begin
   if ShiftDown and ( sender is TToolbarButton97 ) then
   begin
     if LoadDateFormatsList then
-      messagedlg( Format( sMain19, [DATE_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
+      messagedlg( Format( GetRS(sMain19), [DATE_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
     else
-      messagedlg( Format( sMain20, [sMain20a, _DateFormatsFile] ), mtError, [mbOK], 0 );
+      messagedlg( Format( GetRS(sMain20), [GetRS(sMain20a), _DateFormatsFile] ), mtError, [mbOK], 0 );
   end
   else
     PerformCmd( ecInsDate );
@@ -3610,9 +3610,9 @@ begin
   if ShiftDown and ( sender is TTOolbarButton97 ) then
   begin
     if LoadTimeFormatsList then
-      messagedlg( Format( sMain21, [TIME_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
+      messagedlg( Format( GetRS(sMain21), [TIME_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
     else
-      messagedlg( Format( sMain20, [sMain20b, _TimeFormatsFile] ), mtError, [mbOK], 0 );
+      messagedlg( Format( GetRS(sMain20), [GetRS(sMain20b), _TimeFormatsFile] ), mtError, [mbOK], 0 );
   end
   else
     PerformCmd( ecInsTime );
@@ -3791,13 +3791,13 @@ begin
   if ( not assigned( ActiveFile )) then begin
     result := false;
     if Warn then
-      msg := sMain10 + sMain25;
+      msg := GetRS(sMain10) + GetRS(sMain25);
   end
   else begin
     if ( CheckCount and (( ActiveFile.Folders.Count < 1 ) or ( Pages.PageCount < 1 ))) then begin
       result := false;
       if Warn then
-        msg := sMain10 + sMain26;
+        msg := GetRS(sMain10) + GetRS(sMain26);
     end;
   end;
 
@@ -3810,7 +3810,7 @@ function TForm_Main.FolderIsReadOnly( const aFolder : TKntFolder; const Warn : b
 begin
   result := assigned( aFolder ) and aFolder.ReadOnly;
   if ( result and Warn ) then
-    StatusBar.Panels[PANEL_HINT].Text := sMain10 + sMain27;
+    StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain10) + GetRS(sMain27);
 end; // FolderIsReadOnly
 
 (*  Not used. Referenced by kn_Main.GetKeyStates, not used
@@ -3937,12 +3937,12 @@ end;
 
 procedure TForm_Main.RichPrinterBeginDoc(Sender: TObject);
 begin
-  StatusBar.Panels[PANEL_HINT].Text := sMain29;
+  StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain29);
 end;
 
 procedure TForm_Main.RichPrinterEndDoc(Sender: TObject);
 begin
-  StatusBar.Panels[PANEL_HINT].Text := sMain30;
+  StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain30);
 end;
 
 procedure TForm_Main.MMNotePrintPreview_Click(Sender: TObject);
@@ -3994,7 +3994,7 @@ begin
   if ( not HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveFolder )) then exit;
 
-  StatusBar.Panels[PANEL_HINT].Text := sMain31;
+  StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain31;
   Form_Mail := TForm_Mail.Create( self );
   try
     with Form_Mail do begin
@@ -4004,9 +4004,9 @@ begin
       myINI_FN := MailINI_FN;
     end;
     case Form_Mail.ShowModal of
-      mrOK : StatusBar.Panels[PANEL_HINT].Text := sMain32;
+      mrOK : StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain32;
       else
-        StatusBar.Panels[PANEL_HINT].Text := sMain33;
+        StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain33;
     end;
   finally
     Application.OnException := ShowException;
@@ -4158,7 +4158,7 @@ begin
     end;
 
     if hint = '' then
-       hint:= sMain34
+       hint:= GetRS(sMain34)
     else
        hint:= '(' + N.ToString + ') ' + hint;
 
@@ -4347,15 +4347,15 @@ begin
   if ( not ( sender is TMathParser )) then exit;
 
   case ParseError of
-    1 : Msg := sMain56;
-    2 : Msg := sMain57;
-    3 : Msg := sMain58;
-    4 : Msg := sMain59;
-    5 : Msg := sMain60;
-    6 : Msg := sMain61;
-    7 : Msg := sMain62;
+    1 : Msg := GetRS(sMain56);
+    2 : Msg := GetRS(sMain57);
+    3 : Msg := GetRS(sMain58);
+    4 : Msg := GetRS(sMain59);
+    5 : Msg := GetRS(sMain60);
+    6 : Msg := GetRS(sMain61);
+    7 : Msg := GetRS(sMain62);
   end; { case }
-  Msg := sMain63 + Msg + #13 + sMain64 + IntToStr(( sender as TMathParser ).Position);
+  Msg := GetRS(sMain63) + Msg + #13 + GetRS(sMain64) + IntToStr(( sender as TMathParser ).Position);
   MessageDlg( Msg, mtError, [mbOk], 0 );
 end; // MathParserParseError
 
@@ -4428,7 +4428,7 @@ begin
 
   myTreeNode := GetCurrentTreeNode;
   if not assigned(myTreeNode) then begin
-    showmessage( sMain65 );
+    showmessage( GetRS(sMain65) );
     exit;
   end;
 
@@ -4438,7 +4438,7 @@ begin
     SearchNode_Text:= ActiveFolder.Editor.SelVisibleText;
     if ( SearchNode_Text = '' ) then
        SearchNode_Text := SearchNode_TextPrev;
-    if InputQuery( sMain66, sMain67, SearchNode_Text ) then
+    if InputQuery( GetRS(sMain66), GetRS(sMain67), SearchNode_Text ) then
        SearchNode_Text := AnsiLowercase( SearchNode_Text )
     else
        exit;
@@ -4481,7 +4481,7 @@ begin
   until found or (myTreeNode = selectedNode);
 
   if ( not found ) or (myTreeNode = selectedNode) then
-     statusbar.panels[PANEL_HINT].Text := sMain68;
+     statusbar.panels[PANEL_HINT].Text := GetRS(sMain68);
 
 end; // FindTreeNode
 
@@ -4548,7 +4548,7 @@ begin
   if ( not Toolbar_Style.Visible ) then
   begin
     case messagedlg(
-      sMain69,
+      GetRS(sMain69),
       mtConfirmation, [mbYes,mbNo], 0 ) of
       mrYes : begin
         // [x] this assumes .Visible is always synced with KeyOptions.ShowStyleToolbar
@@ -4561,12 +4561,12 @@ begin
   end;
   if ( Combo_Style.ItemIndex < 0 ) then
   begin
-    messagedlg( sMain70, mtInformation, [mbOK], 0 );
+    messagedlg( GetRS(sMain70), mtInformation, [mbOK], 0 );
     exit;
   end;
   if ( not assigned( StyleManager )) then
   begin
-    messagedlg( sMain71, mtError, [mbOK], 0 );
+    messagedlg( GetRS(sMain71), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -4779,7 +4779,7 @@ begin
        if ( _Global_Location.FileName <> '' ) then begin
           if (( not FileExists( _Global_Location.Filename )) or
              ( KntFileOpen( _Global_Location.Filename ) <> 0 )) then begin
-            App.DoMessageBox( Format(sMain81,[_Global_Location.Filename] ), mtError, [mbOK] );
+            App.DoMessageBox( Format(GetRS(sMain81),[_Global_Location.Filename] ), mtError, [mbOK] );
             exit;
           end;
        end;
@@ -4876,7 +4876,7 @@ end;
 
 procedure TForm_Main.MMHelpVisitWebsiteClick(Sender: TObject);
 begin
-  if messagedlg(sMain82, mtConfirmation, [mbOK,mbCancel], 0) <> mrOK then exit;
+  if messagedlg(GetRS(sMain82), mtConfirmation, [mbOK,mbCancel], 0) <> mrOK then exit;
 
   screen.Cursor := crHourGlass;
   ShellExecute( 0, 'open', PChar( Program_URL ), nil, nil, SW_NORMAL );
@@ -5042,7 +5042,7 @@ begin
     oldFilter := Filter;
     Filter := FILTER_TEXTFILES;
     FilterIndex := 1;
-    Title := sMain72;
+    Title := GetRS(sMain72);
     Options := Options - [ofAllowMultiSelect];
   end;
 
@@ -5150,9 +5150,9 @@ begin
   HideOrShowResPanel( KeyOptions.ResPanelShow );
   MMViewResPanel.Checked := KeyOptions.ResPanelShow;
   if KeyOptions.ResPanelShow then
-    ResMHidepanel.Caption := sMain83
+    ResMHidepanel.Caption := GetRS(sMain83)
   else
-    ResMHidepanel.Caption := sMain84;
+    ResMHidepanel.Caption := GetRS(sMain84);
   TB_ResPanel.Down := MMViewResPanel.Checked;
   if KeyOptions.ResPanelShow then
     FocusResourcePanel
@@ -5213,11 +5213,11 @@ var
 begin
   IsShownOptions:= (Ntbk_ResFind.PageIndex = 0);
   if IsShownOptions then begin
-    Btn_ResFlip.Caption := sMain85;
+    Btn_ResFlip.Caption := GetRS(sMain85);
     Ntbk_ResFind.PageIndex := 1;
   end
   else begin
-    Btn_ResFlip.Caption := sMain86;
+    Btn_ResFlip.Caption := GetRS(sMain86);
     Ntbk_ResFind.PageIndex := 0;
   end;
 
@@ -5321,7 +5321,7 @@ var
 
   procedure CannotHideTabMsg;
   begin
-    messagedlg( sMain87, mtInformation, [mbOK], 0 );
+    messagedlg( GetRS(sMain87), mtInformation, [mbOK], 0 );
   end;
 
 begin
@@ -5653,7 +5653,7 @@ begin
     end;
     if WillChange then
     begin
-      messagedlg( sMain88, mtInformation, [mbOK], 0 );
+      messagedlg( GetRS(sMain88), mtInformation, [mbOK], 0 );
     end;
   end;
 end; // ResMPanelRightClick
@@ -5872,12 +5872,12 @@ begin
   if not assigned(myFav) then exit;
 
   if myFav.ExternalDoc then begin
-    StatusBar.Panels[PANEL_HINT].Text := Format(sMain89, [myFav.Filename] );
+    StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sMain89), [myFav.Filename] );
     exit;
   end;
 
   if (not HaveKntFolders( false, false )) or (AnsiCompareText(ActiveFile.FileName, myFav.FileName) <> 0 ) then
-     fn := sMain90 + ExtractFilename(myFav.Filename)
+     fn := GetRS(sMain90) + ExtractFilename(myFav.Filename)
   else
      fn := '';
 
@@ -5887,18 +5887,18 @@ begin
   if myFav.Folder <> nil then begin
      fldn:= myFav.Folder.Name;
      if (myFav.NNode <> nil) then
-        nn := sMain91 + myFav.NNode.NodeName(myFav.Folder)
+        nn := GetRS(sMain91) + myFav.NNode.NodeName(myFav.Folder)
      else
         nn := '';
   end;
 
-  StatusBar.Panels[PANEL_HINT].Text := Format(sMain92, [fn, fldn, nn]);
+  StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sMain92), [fn, fldn, nn]);
 
 end; // ListBox_ResFavClick
 
 procedure TForm_Main.ListBox_ResTplClick(Sender: TObject);
 begin
-  StatusBar.Panels[PANEL_HINT].Text := sMain93;
+  StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain93);
 end;
 
 procedure TForm_Main.FavMAddExternalClick(Sender: TObject);
@@ -5969,7 +5969,7 @@ var
 begin
    actualNumbering:= ActiveEditor.Paragraph.Numbering;
    try
-      NumberingStart:= StrToInt(InputBox( 'KeyNote NF', sMain96, '1' ));
+      NumberingStart:= StrToInt(InputBox( 'KeyNote NF', GetRS(sMain96), '1' ));
       PerformCmd( ecNumbers );
    except
    end;
@@ -5990,7 +5990,7 @@ begin
   end
   else begin
     SaveToolbars;
-    messagedlg(Format(sMain94, [Toolbar_FN] ), mtError, [mbOK], 0 );
+    messagedlg(Format(GetRS(sMain94), [Toolbar_FN] ), mtError, [mbOK], 0 );
   end;
 end;
 
@@ -5998,7 +5998,7 @@ procedure TForm_Main.MMViewTBSaveConfigClick(Sender: TObject);
 begin
   SaveToolbars;
   messagedlg( Format(
-    sMain95, [Toolbar_FN] ), mtInformation, [mbOK], 0 );
+    GetRS(sMain95), [Toolbar_FN] ), mtInformation, [mbOK], 0 );
 end;
 
 
@@ -7228,7 +7228,7 @@ begin
    StatusBar.Panels.BeginUpdate;
    try
       if not assigned(F) then begin
-        FN:= sMain42;                                 // (No file)
+        FN:= GetRS(sMain42);                                 // (No file)
         StatusBar.Panels[PANEL_CARETPOS].Text := '';
         StatusBar.Panels[PANEL_NOTEINFO].Text := '';
         StatusBar.Panels[PANEL_STATUS].Text := '';
@@ -7241,7 +7241,7 @@ begin
          if (ActiveFile.FileName <> '') then
            FN := F.File_Name
          else
-           FN := sMain40;
+           FN := GetRS(sMain40);
 
          StatusBar.Hint := #32 + F.FileName;
          SelectStatusbarGlyph(true);
@@ -7274,12 +7274,12 @@ begin
    if WasModif = Modif then exit;
 
    if Modif then
-      status:= sMain44      // MOD
+      status:= GetRS(sMain44)      // MOD
    else
    if KeyOptions.AutoSave then
-      status:= sMain43   // Auto
+      status:= GetRS(sMain43)   // Auto
    else
-      status:= sMain45;  // Saved
+      status:= GetRS(sMain45);  // Saved
 
    Statusbar.Panels[PANEL_STATUS].Text := status;
 end;

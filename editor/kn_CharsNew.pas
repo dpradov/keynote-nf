@@ -332,11 +332,11 @@ var
  Enable: boolean;
 begin
   if not EditorAux.Visible then begin
-     btnEditTable.Caption:= sChrs02;
+     btnEditTable.Caption:= GetRS(sChrs02);
      EditorAux.Visible:= True;
   end
   else begin
-     btnEditTable.Caption:= sChrs01;
+     btnEditTable.Caption:= GetRS(sChrs01);
      LoadCustomCharacters;
      SelectChar(1);
   end;

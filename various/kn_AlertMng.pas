@@ -619,9 +619,9 @@ begin
        Result:= ''
     else
         if IsToday(instant) then
-           Result:= sAlrt20
+           Result:= GetRS(sAlrt20)
         else if IsToday(IncDay(instant,-1)) then
-           Result:= sAlrt21
+           Result:= GetRS(sAlrt21)
         else
            Result:= FormatDateTime( 'dd/MMM/yyyy', instant );
 end;
@@ -632,9 +632,9 @@ begin
        Result:= ''
     else
         if IsToday(instant) then
-           Result:= sAlrt20 + ' ' + FormatDateTime( 'HH:mm', instant )
+           Result:= GetRS(sAlrt20) + ' ' + FormatDateTime( 'HH:mm', instant )
         else if IsToday(IncDay(instant,-1)) then
-           Result:= sAlrt21 + ' ' + FormatDateTime( 'HH:mm', instant )
+           Result:= GetRS(sAlrt21) + ' ' + FormatDateTime( 'HH:mm', instant )
         else
            Result:= FormatDateTime( 'dd MMM yyyy - HH:mm', instant );
 end;
@@ -1116,7 +1116,7 @@ begin
       idAlarm:= alarm.NNode.GetNodeName(alarm.folder)
    else
       idAlarm:= alarm.folder.Name;
-   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sAlrt08, [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
+   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sAlrt08), [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
 end;
 
 procedure TAlarmMng.TimerTimer(Sender: TObject);
@@ -1141,16 +1141,16 @@ var
   soundState, popupState: string;
 begin
    if KeyOptions.PlaySoundOnAlarm then
-      soundState:= sAlrt09
+      soundState:= GetRS(sAlrt09)
    else
-      soundState:= sAlrt10;
+      soundState:= GetRS(sAlrt10);
 
    if KeyOptions.DisableAlarmPopup then
-      popupState:= sAlrt13
+      popupState:= GetRS(sAlrt13)
    else
-      popupState:= sAlrt12;
+      popupState:= GetRS(sAlrt12);
 
-   Result:= Format(sAlrt11, [NumberPendingAlarms, NumberOverdueAlarms, popupState, soundState]);
+   Result:= Format(GetRS(sAlrt11), [NumberPendingAlarms, NumberOverdueAlarms, popupState, soundState]);
 end;
 
 
@@ -1374,22 +1374,22 @@ begin
   FApplyOnExitChangeBAK:= True;
 
   with CB_ProposedIntervalReminder.Items do begin
-      Add('0 ' + STR_minutes);
-      Add('5 ' + STR_minutes);
-      Add('10 ' + STR_minutes);
-      Add('15 ' + STR_minutes);
-      Add('30 ' + STR_minutes);
+      Add('0 ' + GetRS(STR_minutes));
+      Add('5 ' + GetRS(STR_minutes));
+      Add('10 ' + GetRS(STR_minutes));
+      Add('15 ' + GetRS(STR_minutes));
+      Add('30 ' + GetRS(STR_minutes));
 
-      Add('1 ' + STR_hour);
+      Add('1 ' + GetRS(STR_hour));
       for i := 2 to 10 do
-          Add(intTostr(i) + ' ' + STR_hours);
-      Add('0.5 ' + STR_days);
-      Add('18 ' + STR_hours);
-      Add('1 ' + STR_day);
+          Add(intTostr(i) + ' ' + GetRS(STR_hours));
+      Add('0.5 ' + GetRS(STR_days));
+      Add('18 ' + GetRS(STR_hours));
+      Add('1 ' + GetRS(STR_day));
       for i := 2 to 4 do
-          Add(intTostr(i) + ' ' + STR_days);
-      Add('1 ' + STR_week);
-      Add('2 ' + STR_weeks);
+          Add(intTostr(i) + ' ' + GetRS(STR_days));
+      Add('1 ' + GetRS(STR_week));
+      Add('2 ' + GetRS(STR_weeks));
   end;
   CB_ProposedIntervalReminder.ItemIndex := 0;
 
@@ -1402,19 +1402,19 @@ begin
   CB_ExpirationTime.Text := '';
 
   with CB_ShowMode.Items do begin
-      Add(sAlrt22);
-      Add(sAlrt24);
-      Add(sAlrt23);
-      Add(sAlrt25);
-      Add(sAlrt26);
+      Add(GetRS(sAlrt22));
+      Add(GetRS(sAlrt24));
+      Add(GetRS(sAlrt23));
+      Add(GetRS(sAlrt25));
+      Add(GetRS(sAlrt26));
   end;
   CB_ShowMode.ItemIndex:= -1;
 
   with CB_FilterDates.Items do begin
-      Add(sAlrt31);
-      Add(sAlrt32);
-      Add(sAlrt33);
-      Add(sAlrt34);
+      Add(GetRS(sAlrt31));
+      Add(GetRS(sAlrt32));
+      Add(GetRS(sAlrt33));
+      Add(GetRS(sAlrt34));
   end;
   CB_FilterDates.ItemIndex:= 0;
 
@@ -1518,7 +1518,7 @@ begin
    Button_Sound.Down:= KeyOptions.PlaySoundOnAlarm;
    if (FFilteredAlarmList.Count = 0) then begin
        Grid.Items.Clear;
-       cIdentifier.Text := Format( sAlrt01, [0] );
+       cIdentifier.Text := Format( GetRS(sAlrt01), [0] );
        EnableControls (false);
    end
    else begin
@@ -1566,16 +1566,16 @@ var
   n: integer;
 begin
     case FModeEdit of
-        TShowReminders:         str:= sAlrt03;
-        TShowSet, TShowNew:     str:= sAlrt02;
-        TShowAll:               str:= sAlrt04;
-        TShowOverdue:           str:= sAlrt05;
-        TShowPending:           str:= sAlrt06;
-        TShowDiscarded:         str:= sAlrt07;
-        TShowAllWithDiscarded:  str:= sAlrt04;
+        TShowReminders:         str:= GetRS(sAlrt03);
+        TShowSet, TShowNew:     str:= GetRS(sAlrt02);
+        TShowAll:               str:= GetRS(sAlrt04);
+        TShowOverdue:           str:= GetRS(sAlrt05);
+        TShowPending:           str:= GetRS(sAlrt06);
+        TShowDiscarded:         str:= GetRS(sAlrt07);
+        TShowAllWithDiscarded:  str:= GetRS(sAlrt04);
     end;
     if (cFilter.Text <> '') or (CB_FilterDates.ItemIndex <> 0) then
-       str:= str + sAlrt35;
+       str:= str + GetRS(sAlrt35);
 
     Caption:= Format(str, [FNumberAlarms]);
 end;
@@ -1804,15 +1804,15 @@ begin
           TShowReminders: str:= '';
           TShowSet:       str:= '';
           TShowAll:       begin
-                          str:= sAlrt29;
+                          str:= GetRS(sAlrt29);
                           i:= 0;
                           end;
           TShowPending:   begin
-                          str:= sAlrt27;
+                          str:= GetRS(sAlrt27);
                           i:= 1;
                           end;
           TShowOverdue:   begin
-                          str:= sAlrt28;
+                          str:= GetRS(sAlrt28);
                           i:= 2;
                           end;
           TShowDiscarded: begin
@@ -1821,7 +1821,7 @@ begin
                           end;
           TShowAllWithDiscarded:
                           begin
-                          str:= sAlrt30;
+                          str:= GetRS(sAlrt30);
                           i:= 4;
                           end;
 
@@ -1871,7 +1871,7 @@ begin
 
        msgResult:= mrYes;
        if (ask) then
-          MsgResult:= App.DoMessageBox( sAlrt19, mtConfirmation, Buttons, def1, 0, Handle );
+          MsgResult:= App.DoMessageBox( GetRS(sAlrt19), mtConfirmation, Buttons, def1, 0, Handle );
 
        if MsgResult <> mrCancel then begin
          if MsgResult = mrYes then
@@ -2121,7 +2121,7 @@ begin
 
     if (FProposedReminder >= 0) and (FProposedReminder < Now) then begin
        CB_ProposedIntervalReminder.SetFocus;
-       App.DoMessageBox( sAlrt14, mtError, [mbOK], def1, 0, Handle );
+       App.DoMessageBox( GetRS(sAlrt14), mtError, [mbOK], def1, 0, Handle );
        exit;
     end;
 
@@ -2168,7 +2168,7 @@ var
   i: integer;
 begin
   if Grid.SelCount > 1 then
-     if ( App.DoMessageBox( Format( sAlrt15, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
+     if ( App.DoMessageBox( Format( GetRS(sAlrt15), [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -2216,7 +2216,7 @@ var
   i: integer;
 begin
    if Grid.SelCount > 1 then
-      if ( App.DoMessageBox( Format( sAlrt17, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
+      if ( App.DoMessageBox( Format( GetRS(sAlrt17), [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
   i:= -1;
   ls := Grid.Selected;
@@ -2254,9 +2254,9 @@ var
   strConfirm: string;
 begin
   if Grid.SelCount > 1 then
-     strConfirm := sAlrt16
+     strConfirm := GetRS(sAlrt16)
   else
-     strConfirm := sAlrt18;
+     strConfirm := GetRS(sAlrt18);
 
   if ( App.DoMessageBox( Format( strConfirm, [Grid.SelCount] ), mtWarning, [mbYes,mbNo], def1, 0, Handle ) <> mrYes ) then exit;
 
@@ -2437,11 +2437,11 @@ begin
      else begin
          IntervalStr:= GetTimeIntervalStr(Instant, Now);
          if Instant < now then begin
-            FormatStr:= sAlrt36;
+            FormatStr:= GetRS(sAlrt36);
             lblExpirationStatus.Font.Color:= clRed;
             end
          else begin
-            FormatStr:= sAlrt37;
+            FormatStr:= GetRS(sAlrt37);
             lblExpirationStatus.Font.Color:= clGray;
          end;
 
@@ -2479,17 +2479,17 @@ begin
 
          if Instant < now then begin
             IntervalStr:= GetTimeIntervalStr(Instant, Now);
-            lblReminderStatus.Caption:= Format(sAlrt36, [IntervalStr]);
+            lblReminderStatus.Caption:= Format(GetRS(sAlrt36), [IntervalStr]);
             lblReminderStatus.Font.Color:= clRed;
             end
          else begin
             if (NewExpirationDate = 0) or (Instant > NewExpirationDate) or (Abs(Instant - now) <= Abs(Instant - NewExpirationDate)) then begin
                 IntervalStr:= GetTimeIntervalStr(Instant, Now);
-                lblReminderStatus.Caption:= Format(sAlrt37, [IntervalStr]);
+                lblReminderStatus.Caption:= Format(GetRS(sAlrt37), [IntervalStr]);
             end
             else begin
                 IntervalStr:= GetTimeIntervalStr(Instant, NewExpirationDate);
-                lblReminderStatus.Caption:= Format(sAlrt38, [IntervalStr]);
+                lblReminderStatus.Caption:= Format(GetRS(sAlrt38), [IntervalStr]);
             end;
             if (NewExpirationDate <> 0) and (NewExpirationDate > Now) and (Instant > NewExpirationDate) then
                lblReminderStatus.Font.Color:= clRed
@@ -2943,7 +2943,7 @@ begin
 
     alarm:= AlarmSelected;
     if not assigned(alarm) then begin
-       cIdentifier.Text := Format( sAlrt01, [0] );
+       cIdentifier.Text := Format( GetRS(sAlrt01), [0] );
        EnableControls (false);
        if not Selected then
           modeEdit:= TShowAll;
@@ -2954,7 +2954,7 @@ begin
          EnableControls (true);
          
          if Grid.SelCount > 1 then begin                   // Several alarms selected
-             cIdentifier.Text:= Format( sAlrt01, [Grid.SelCount] );
+             cIdentifier.Text:= Format( GetRS(sAlrt01), [Grid.SelCount] );
              ShowCommonProperties();
              FReminder:= 0;
              ShowReminderDate(0);
@@ -2987,7 +2987,7 @@ begin
                 TB_Bold.Down:= false;
                 TB_Color.ActiveColor:= clWindowText;
                 TB_Hilite.ActiveColor:= clWindow;
-                SetProposedReminderDate(Now, '5 ' + STR_minutes, false);
+                SetProposedReminderDate(Now, '5 ' + GetRS(STR_minutes), false);
              end;
          end;
 

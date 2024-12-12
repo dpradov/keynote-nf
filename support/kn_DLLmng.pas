@@ -43,7 +43,7 @@ begin
   begin
     Application.MessageBox(
       PChar( Format(
-        sDll01, [extractfilename( _KNTUtilsDLL_FN )] )),
+        GetRS(sDll01), [extractfilename( _KNTUtilsDLL_FN )] )),
         'Failed to load library', MB_OK+MB_ICONHAND+MB_DEFBUTTON1+MB_APPLMODAL);
     exit;
   end;
@@ -53,7 +53,7 @@ procedure DllProcNotFoundMsg( const ProcName : string );
 begin
   Application.MessageBox(
     PChar( Format(
-      sDll02, [ProcName, extractfilename( _KNTUtilsDLL_FN )] )),
+      GetRS(sDll02), [ProcName, extractfilename( _KNTUtilsDLL_FN )] )),
       'Procedure not in library', MB_OK+MB_ICONHAND+MB_DEFBUTTON1+MB_APPLMODAL);
 end; // DllProcNotFoundMsg
 

@@ -136,7 +136,7 @@ begin
     for i := 0 to pred( Chest.IMG_Categories.Count ) do
     begin
       // List_ICN.AddItem( Format( ' icon %d ', [succ( i )]), i );
-      List_ICN.AddItem( Format( sImgP01, [succ( i )]), cbUnchecked, i );
+      List_ICN.AddItem( Format( GetRS(sImgP01), [succ( i )]), cbUnchecked, i );
     end;
   finally
     List_ICN.Items.EndUpdate;

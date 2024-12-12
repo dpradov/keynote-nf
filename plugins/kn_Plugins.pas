@@ -131,7 +131,7 @@ begin
 
     except
       On E : Exception do begin
-        messagedlg( sPlg14 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sPlg14) + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -164,7 +164,7 @@ begin
 
     except
       On E : Exception do  begin
-        messagedlg( sPlg14 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sPlg14) + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;
@@ -197,7 +197,7 @@ begin
 
     except
       On E : Exception do begin
-        messagedlg( sPlg14 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sPlg14) + E.Message, mtError, [mbOK], 0 );
         exit;
       end;
     end;

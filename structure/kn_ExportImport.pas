@@ -109,7 +109,7 @@ begin
 
   except
     on E : Exception do
-        messagedlg( sExp01 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sExp01) + E.Message, mtError, [mbOK], 0 );
   end;
 end; // ConvertHTMLToRTF
 
@@ -142,7 +142,7 @@ begin
 
   except
     on E : Exception do
-        MessageDlg(sExp02 + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
+        MessageDlg(GetRS(sExp02) + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
   end;
 end; // ConvertRTFToHTML
 

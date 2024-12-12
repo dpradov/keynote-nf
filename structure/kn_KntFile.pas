@@ -1050,11 +1050,11 @@ begin
   ForceReconsidere:= CtrlDown;              // Ctrl  -> Force reconsider dates
   
   if RemoveDateFromName then
-     msg:= sFile22
+     msg:= GetRS(sFile22)
   else
-     msg:= sFile21;
-      
-  if App.DoMessageBox (msg + sFile23 + sFile24, mtWarning, [mbYes, mbNo, mbCancel]) <> mrYes then exit;
+     msg:= GetRS(sFile21);
+
+  if App.DoMessageBox (msg + GetRS(sFile23) + GetRS(sFile24), mtWarning, [mbYes, mbNo, mbCancel]) <> mrYes then exit;
 
   
   PrepareDateFormatSettings;
@@ -1469,7 +1469,7 @@ begin
    assert(NoteUI<>nil);
 
    if not NoteUI.Editor.PlainText and (NoteUI.Editor.TextLength > 0) then
-      if (App.DoMessageBox(sFile18, mtWarning, [mbYes,mbNo,mbCancel], def3) <> mrYes) then exit;
+      if (App.DoMessageBox(GetRS(sFile18), mtWarning, [mbYes,mbNo,mbCancel], def3) <> mrYes) then exit;
 
    if NoteUI.Editor.PlainText then begin
       SourceFormat:= sfPlainText;
@@ -1516,7 +1516,7 @@ begin
       end;
 
    except on E: Exception do begin
-     MessageDlg( sFile19 + E.Message, mtError, [mbOK], 0 );
+     MessageDlg( GetRS(sFile19) + E.Message, mtError, [mbOK], 0 );
      Result:= false;
      end
    end;
@@ -1642,7 +1642,7 @@ begin
      FFileName := FN;
 
   if ( not FileExists( FN )) then begin
-     App.DoMessageBox(Format( sFile01, [FN] ), mtError, [mbOK]);
+     App.DoMessageBox(Format( GetRS(sFile01), [FN] ), mtError, [mbOK]);
      raise Exception.Create('');
   end;
 
@@ -1692,7 +1692,7 @@ begin
       VerID.ID := NFHDR_ID_ENCRYPTED;
     end
     else begin
-      App.DoMessageBox(Format( sFile02, [FN] ), mtError, [mbOK]);
+      App.DoMessageBox(Format( GetRS(sFile02), [FN] ), mtError, [mbOK]);
       raise Exception.Create('');
       exit;
     end;
@@ -1713,7 +1713,7 @@ begin
 
         repeat // repeatedly prompt for passphrase, unless other action chosen
             if ( not GetPassphrase( FN )) then
-              raise EKeyKntFileError.Create( sFile03 );
+              raise EKeyKntFileError.Create( GetRS(sFile03) );
 
             try
               DecryptFileToStream( FN, MemStream );
@@ -1721,7 +1721,7 @@ begin
             except
               On e : EPassphraseError do begin
                 HasLoadError := false;
-                if ( messagedlg(sFile04, mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
+                if ( messagedlg(GetRS(sFile04), mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
               end;
             end;
 
@@ -1774,12 +1774,12 @@ begin
 
                  if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then begin
                     if ( VerID.Major > NFILEVERSION_MAJOR ) then begin
-                       App.DoMessageBox(Format( sFile05, [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK]);
+                       App.DoMessageBox(Format( GetRS(sFile05), [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK]);
                        raise EKeyKntFileError.Create('');
                     end;
 
                     if (VerID.Major = NFILEVERSION_MAJOR) and ( VerID.Minor > NFILEVERSION_MINOR ) then begin
-                       case App.DoMessageBox( ExtractFilename( FN ) + sFile06, mtWarning, [mbYes,mbNo,mbCancel,mbHelp], def1, _HLP_KNTFILES ) of
+                       case App.DoMessageBox( ExtractFilename( FN ) + GetRS(sFile06), mtWarning, [mbYes,mbNo,mbCancel,mbHelp], def1, _HLP_KNTFILES ) of
                          mrNo : begin
                            // nothing, just fall through
                          end;
@@ -1801,7 +1801,7 @@ begin
             FileIDTestFailed := false;
 
           if FileIDTestFailed then begin
-            App.DoMessageBox(Format( sFile07, [ExtractFilename( FN )] ), mtError, [mbOK]);
+            App.DoMessageBox(Format( GetRS(sFile07), [ExtractFilename( FN )] ), mtError, [mbOK]);
             raise EKeyKntFileError.Create('');
           end;
 
@@ -1939,7 +1939,7 @@ begin
                    except
                      On E : Exception do begin
                        HasLoadError := true;
-                       messagedlg( sFile08 + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                       messagedlg( GetRS(sFile08) + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
                        Folder.Free;
                        // raise;
                      end;
@@ -1992,7 +1992,7 @@ begin
      Note.LoadVirtualFile;
    except
      on E : Exception do begin
-       List.Add( sFile10 );
+       List.Add( GetRS(sFile10) );
        List.Add( Note.VirtualFN );
        List.Add( E.Message );
        Note.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + Note.VirtualFN;
@@ -2389,7 +2389,7 @@ var
           except
             on E : Exception do
               // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
-              App.DoMessageBox(Format(sFile20 + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]), mtError, [mbOK] );
+              App.DoMessageBox(Format(GetRS(sFile20) + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]), mtError, [mbOK] );
           end;
     end;
 
@@ -2411,7 +2411,7 @@ var
       except
         on E : Exception do begin
             result := 3;
-            App.DoMessageBox( Format(sFile13, [myFolder.Name, E.Message]), mtError, [mbOK] );
+            App.DoMessageBox( Format(GetRS(sFile13), [myFolder.Name, E.Message]), mtError, [mbOK] );
             exit;
         end;
       end;
@@ -2515,7 +2515,7 @@ begin
 
 
   if ( FN = '' ) then
-    raise EKeyKntFileError.Create( sFile12 );
+    raise EKeyKntFileError.Create( GetRS(sFile12) );
 
   {
   if ( not assigned( FPageCtrl )) then
@@ -2598,7 +2598,7 @@ begin
         nffEncrypted : begin
 
           if ( FPassphrase = '' ) then
-            raise EKeyKntFileError.Create( sFile14 );
+            raise EKeyKntFileError.Create( GetRS(sFile14) );
 
           AuxStream := TMemoryStream.Create;
           try
@@ -2816,7 +2816,7 @@ end;
 
 procedure RaiseStreamReadError;
 begin
-  raise EKeyKntFileError.Create( sFile15 );
+  raise EKeyKntFileError.Create( GetRS(sFile15) );
 end;
 
 
@@ -2877,7 +2877,7 @@ begin
       if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
       if ( not CompareMem( @HashRead, @HashDigest, Sizeof( HashRead ))) then
-        raise EPassphraseError.Create( sFile16 );
+        raise EPassphraseError.Create( GetRS(sFile16) );
 
       getmem( dataptr, Info.DataSize );
 

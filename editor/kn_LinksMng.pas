@@ -251,7 +251,7 @@ begin
 
       finally
          if not Ok then
-            raise EInvalidLocation.Create(sLnk11);
+            raise EInvalidLocation.Create(GetRS(sLnk11));
       end;
 
    end;
@@ -272,7 +272,7 @@ begin
       if NNodeGID <> 0 then begin  // lfNew2 format
          ActiveFile.GetNNodeByGID(NNodeGID, NNode, Folder);
          if (NNode = nil) and RaiseExcept then
-            raise EInvalidLocation.Create(Format(sLnk03b, [NNodeGID]))
+            raise EInvalidLocation.Create(Format(GetRS(sLnk03b), [NNodeGID]))
          else begin
             NEntry:= NNode.Note.Entries[0];        // %%%
             exit;
@@ -283,12 +283,12 @@ begin
       if (FolderID <> 0) then begin // lfNew format
          Folder := ActiveFile.GetFolderByID(FolderID);
          if (Folder = nil) and RaiseExcept then
-            raise EInvalidLocation.Create(Format(sLnk01, [FolderID]));
+            raise EInvalidLocation.Create(Format(GetRS(sLnk01), [FolderID]));
       end
       else begin                    // lfOld format
          Folder := ActiveFile.GetFolderByName( FolderName );
          if (Folder = nil) and RaiseExcept then
-            raise EInvalidLocation.Create(Format( sLnk02, [FolderName] ));
+            raise EInvalidLocation.Create(Format( GetRS(sLnk02), [FolderName] ));
       end;
 
       if (Folder = nil) then exit;
@@ -299,12 +299,12 @@ begin
          if (NNodeID <> 0) then begin    // lfNew2 or lfNew format
             NNode:= Folder.GetNNodeByID(NNodeID);
             if (NNode = nil) and RaiseExcept then
-               raise EInvalidLocation.Create(Format( sLnk03, [NNodeID] ));
+               raise EInvalidLocation.Create(Format( GetRS(sLnk03), [NNodeID] ));
          end
          else begin
             NNode:= Folder.GetNNodeByNoteName(NoteName);
             if (NNode = nil) and RaiseExcept  then
-               raise EInvalidLocation.Create(Format( sLnk04, [NoteName] ));
+               raise EInvalidLocation.Create(Format( GetRS(sLnk04), [NoteName] ));
          end;
          if NNode <> nil then
             NEntry:= NNode.Note.Entries[0];        // %%%
@@ -415,12 +415,12 @@ begin
          else
            Filter := FILTER_RTFFILES + '|' +
                      FILTER_TEXTFILES + '|' +
-                     FILTER_ALLFILES;
+                     GetRS(FILTER_ALLFILES);
          FilterIndex := 1;
          if AsLink then
-           Title := sLnk05
+           Title := GetRS(sLnk05)
          else
-           Title := sLnk06;
+           Title := GetRS(sLnk06);
          Options := Options - [ofAllowMultiSelect];
          Form_Main.OpenDlg.FileName := '';
          if ( KeyOptions.LastImportPath <> '' ) then
@@ -467,7 +467,7 @@ begin
           ImportFileType := itText
 
        else begin
-          App.DoMessageBox( sLnk07, mtError, [mbOK]);
+          App.DoMessageBox( GetRS(sLnk07), mtError, [mbOK]);
           exit;
        end;
 
@@ -705,7 +705,7 @@ begin
 
     if aLocation.Bookmark09 then exit;
     if (aLocation.NNodeGID = 0) and (aLocation.FolderID = 0) then begin
-      showmessage( sLnk08 );
+      showmessage( GetRS(sLnk08) );
       exit;
     end;
 
@@ -714,8 +714,8 @@ begin
 
     InsertLink(BuildKntURL(aLocation),  TextURL, false, Editor);
     if aLocation.Mark <> 0 then
-       strTargetMarker:= Format(sLnk31, [aLocation.Mark]);
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk09 + strTargetMarker;
+       strTargetMarker:= Format(GetRS(sLnk31), [aLocation.Mark]);
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk09) + strTargetMarker;
   end
   else begin
     // mark caret position as TLocation
@@ -745,11 +745,11 @@ begin
          RTFMarker:= Format('\v' + KNT_RTF_HIDDEN_MARK_L + KEY_Marker + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0', [TargetMarker]);
          Editor.PutRtfText('{\rtf1\ansi' + RTFMarker + '}',  true);
       end;
-      strTargetMarker:= Format(sLnk31 + sLnk32, [TargetMarker]);
+      strTargetMarker:= Format(GetRS(sLnk31) + GetRS(sLnk32), [TargetMarker]);
       aLocation.Mark:= TargetMarker;
     end;
 
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk10 + strTargetMarker;
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk10) + strTargetMarker;
   end;
 
 end; // InsertOrMarkKNTLink
@@ -1011,7 +1011,7 @@ begin
        if (ActiveFile.FileName = FileName) or (FileName = '') then begin
           UpdateLocation(Loc, false);
           if NNode = nil then
-             Result:= UpperCase(sLnk14)
+             Result:= UpperCase(GetRS(sLnk14))
           else
              Result:= PathOfKNTLink(NNode.TVNode, Folder, CaretPos, false, RelativePath);
       end
@@ -1334,11 +1334,11 @@ begin
 
               if ResultOpen <> 0 then begin
                  if ResultOpen <> -2 then begin
-                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk11;
-                    raise EInvalidLocation.Create(Format( sLnk12, [origLocationStr] ));
+                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk11);
+                    raise EInvalidLocation.Create(Format( GetRS(sLnk12), [origLocationStr] ));
                  end
                  else begin
-                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk33;
+                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk33);
                     exit;
                  end;
               end;
@@ -1412,10 +1412,10 @@ begin
     except
       on E : EInvalidLocation do
         if not _Executing_History_Jump and not Location.Bookmark09 then
-          App.DoMessageBox( Format( sLnk13, [E.Message] ), mtWarning, [mbOK]);
+          App.DoMessageBox( Format( GetRS(sLnk13), [E.Message] ), mtWarning, [mbOK]);
       on E : Exception do begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk14;
-        App.DoMessageBox( Format( sLnk15, [E.Message] ), mtWarning, [mbOK]);
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk14);
+        App.DoMessageBox( Format( GetRS(sLnk15), [E.Message] ), mtWarning, [mbOK]);
       end;
   end;
 
@@ -1452,12 +1452,12 @@ begin
 
   except
     on E : EInvalidLocation do
-      App.DoMessageBox( Format( sLnk13, [E.Message] ), mtWarning, [mbOK]);
+      App.DoMessageBox( Format( GetRS(sLnk13), [E.Message] ), mtWarning, [mbOK]);
 
     on E : Exception do
       begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk14;
-      App.DoMessageBox( Format( sLnk15, [E.Message]  ), mtError, [mbOK] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk14);
+      App.DoMessageBox( Format( GetRS(sLnk15), [E.Message]  ), mtError, [mbOK] );
       end;
   end;
 
@@ -1828,13 +1828,13 @@ begin
           else
              InsertURL(myURL, TextURL, Editor);
 
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk17;
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk17);
           exit;
       end;
 
       //-------------------------------------
       if ( myURLAction = urlNothing ) then begin
-         Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk18;
+         Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk18);
          exit;
       end;
 
@@ -1844,7 +1844,7 @@ begin
           else
              Clipboard.AsText:= myURL;
 
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk19;
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk19);
       end;
 
       //-------------------------------------
@@ -1926,7 +1926,7 @@ begin
           if ( ShellExecResult <= 32 ) then begin
             if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
               App.PopupMessage( Format(
-                sLnk20,
+                GetRS(sLnk20),
                 [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK] );
           end
           else begin
@@ -2278,7 +2278,7 @@ begin
 
    except
      on E: Exception do
-        MessageDlg( sLnk20 + E.Message, mtError, [mbOK], 0 );
+        MessageDlg( GetRS(sLnk20) + E.Message, mtError, [mbOK], 0 );
    end;
 
 end;
@@ -2316,7 +2316,7 @@ begin
 
 
   except
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk21;
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk21);
     TKntHistory(aFolder.History).Clear;
     History.Clear;
     if assigned(aLocation) then
@@ -2471,7 +2471,7 @@ begin
             end;
 
         if (not Done) then
-           Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk22;
+           Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk22);
       end;
 
     finally
@@ -2481,7 +2481,7 @@ begin
     end;
 
   except
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sLnk23;
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk23);
     masterHistory.Clear;
     if slaveHistory <> nil then
        slaveHistory.Clear;
@@ -2515,7 +2515,7 @@ begin
     GoBackEnabled :=        assigned(ActiveFolder) and ( History.CanGoBack or ((lHistory <> nil) and lHistory.CanGoBack) );
     MMHistoryGoBack.Enabled := GoBackEnabled;
     TB_GoBack.Enabled := GoBackEnabled;
-    strHint:= sLnk24;
+    strHint:= GetRS(sLnk24);
     if GoBackEnabled then begin
        Loc:= History.PickBack;
        if (Loc <> nil) and (Loc.FolderID <> ActiveFolder.ID ) then
@@ -2524,11 +2524,11 @@ begin
           TB_GoBack.ImageIndex:= IMAGE_GOBACK_IN_NOTE;
 
        if not History.CanGoBack then
-          strHint:= sLnk25
+          strHint:= GetRS(sLnk25)
        else begin
-          strHint:= sLnk26; //'Navigate backwards in global history';
+          strHint:= GetRS(sLnk26); //'Navigate backwards in global history';
           if (lHistory <> nil) and lHistory.CanGoBack and (TB_GoBack.ImageIndex= IMAGE_GOBACK_OTHER_NOTE) then
-             strHint:= strHint + sLnk30;
+             strHint:= strHint + GetRS(sLnk30);
        end;
     end;
     TB_GoBack.Hint:= strHint;
@@ -2536,7 +2536,7 @@ begin
     GoForwardEnabled:= assigned(ActiveFolder) and (History.CanGoForward or ((lHistory <> nil) and lHistory.CanGoForward) );
     MMHistoryGoForward.Enabled := GoForwardEnabled;
     TB_GoForward.Enabled := GoForwardEnabled;
-    strHint:= sLnk27;
+    strHint:= GetRS(sLnk27);
     if GoForwardEnabled then begin
        Loc:= History.PickForward;
        if (Loc <> nil) and (Loc.FolderID <> ActiveFolder.ID ) then
@@ -2545,11 +2545,11 @@ begin
           TB_GoForward.ImageIndex:= IMAGE_GOFORWARD_IN_NOTE;
 
        if not History.CanGoForward then
-          strHint:= sLnk28
+          strHint:= GetRS(sLnk28)
        else begin
-          strHint:= sLnk29;
+          strHint:= GetRS(sLnk29);
           if (lHistory <> nil) and lHistory.CanGoForward and (TB_GoForward.ImageIndex= IMAGE_GOFORWARD_OTHER_NOTE) then
-             strHint:= strHint + sLnk30;
+             strHint:= strHint + GetRS(sLnk30);
        end;
     end;
     TB_GoForward.Hint:= strHint;

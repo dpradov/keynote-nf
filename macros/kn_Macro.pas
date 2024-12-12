@@ -261,7 +261,7 @@ begin
   ;Version|Macro Name|Description|Date modified
   }
 
-  ErrStr := sMac01;
+  ErrStr := GetRS(sMac01);
   if ( infostr = '' ) then exit;
   if ( infostr[1] <> _MACRO_COMMENT_CHAR ) then exit;
 
@@ -273,7 +273,7 @@ begin
   delete( infostr, 1, p );
 
   // validate version string
-  ErrStr := sMac02;
+  ErrStr := GetRS(sMac02);
   if ( length( s ) < 3 ) then exit;
 
   q := pos( '.', s );
@@ -372,7 +372,7 @@ begin
             Macro_List.AddObject( Macro.Name, Macro );
          end
          else begin
-           if DoWarn and ( messagedlg( Format(sMac03,[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
+           if DoWarn and ( messagedlg( Format(GetRS(sMac03),[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
                FindResult := -1; // will abort loop
            Macro.Free;
          end;
@@ -382,7 +382,7 @@ begin
     except
       On E : Exception do
         if DoWarn then
-           messagedlg( Format(sMac04, [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
+           messagedlg( Format(GetRS(sMac04), [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
     end;
 
   finally

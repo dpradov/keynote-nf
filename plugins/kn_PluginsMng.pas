@@ -124,7 +124,7 @@ var
 begin
   myPlugin := GetSelectedPlugin;
   if ( not assigned( myPlugin )) then begin
-     Form_Main.LB_PluginInfo.Caption := sPlgM01;
+     Form_Main.LB_PluginInfo.Caption := GetRS(sPlgM01);
      exit;
   end;
 
@@ -140,10 +140,10 @@ begin
     );
     }
   end;
-  s := s + Format( sPlgM02, [myPlugin.Version] );
+  s := s + Format( GetRS(sPlgM02), [myPlugin.Version] );
 
   Form_Main.LB_PluginInfo.Caption := myPlugin.Info + #13 +
-                           sPlgM03 + myPlugin.Filename + #13 +
+                           GetRS(sPlgM03) + myPlugin.Filename + #13 +
                            s;
 
 end; // ShowPluginInfo
@@ -166,7 +166,7 @@ begin
          // see if anything has been installed since we last checked
          EnumeratePlugins;
          if (Plugin_List.Count = 0 ) then begin
-            StatusBar.Panels[PANEL_HINT].Text := sPlgM04;
+            StatusBar.Panels[PANEL_HINT].Text := GetRS(sPlgM04);
             ShowPluginInfo;
             exit;
          end;
@@ -240,7 +240,7 @@ begin
      fn := Plugin_Folder + fn;
 
   if (not ExecutePluginConfig( fn, Application.Handle )) then
-     MessageDlg( sPlgM05 + ExtractFileName(fn), mtError, [mbOK], 0 );
+     MessageDlg( GetRS(sPlgM05) + ExtractFileName(fn), mtError, [mbOK], 0 );
 
 end; // ConfigurePlugin
 
@@ -286,7 +286,7 @@ begin
          if ( not CheckResourcePanelVisible( true )) then exit;
          Plugin := GetSelectedPlugin;
          if ( not assigned( Plugin )) then begin
-             MessageDlg( sPlgM06, mtError, [mbOK], 0 );
+             MessageDlg( GetRS(sPlgM06), mtError, [mbOK], 0 );
              exit;
          end;
          fn := Plugin.Filename;
@@ -296,7 +296,7 @@ begin
          fn := Plugin_Folder + fn;
 
       if ( not fileexists( fn )) then begin
-          MessageDlg( Format( sPlgM07, [fn] ), mtError, [mbOK], 0 );
+          MessageDlg( Format( GetRS(sPlgM07), [fn] ), mtError, [mbOK], 0 );
           exit;
       end;
 
@@ -306,7 +306,7 @@ begin
       Plugin.FileName := fn;
       LastPluginFN := fn;
 
-      MMToolsPluginRunLast.Hint := Format(sPlgM08,  [ExtractFileName( LastPluginFN )] );
+      MMToolsPluginRunLast.Hint := Format(GetRS(sPlgM08),  [ExtractFileName( LastPluginFN )] );
 
       InsertPluginOutput := false;
       NoteWasReadOnly := false;
@@ -314,24 +314,24 @@ begin
       try
 
         if (not GetPluginInfo(fn, Plugin.Name, Plugin.Version, Plugin.Info, Plugin.Features )) then begin
-            MessageDlg( Format(sPlgM09, [ExtractFileName( fn )] ), mtError, [mbOK], 0 );
+            MessageDlg( Format(GetRS(sPlgM09), [ExtractFileName( fn )] ), mtError, [mbOK], 0 );
             exit;
         end;
 
         if (Plugin.Version <> 1) then begin
-            MessageDlg( Format(sPlgM10, [Plugin.Name, ExtractFileName( fn ), Plugin.Version] ), mtError, [mbOK], 0 );
+            MessageDlg( Format(GetRS(sPlgM10), [Plugin.Name, ExtractFileName( fn ), Plugin.Version] ), mtError, [mbOK], 0 );
             exit;
         end;
 
 
         if (not (plOK in Plugin.Features)) then begin
-            MessageDlg( Format(sPlgM11, [Plugin.Name, ExtractFileName( fn )] ), mtError, [mbOK], 0 );
+            MessageDlg( Format(GetRS(sPlgM11), [Plugin.Name, ExtractFileName( fn )] ), mtError, [mbOK], 0 );
             exit;
         end;
 
         hDLLInst := LoadLibrary(PChar(FN ));
         if (hDLLInst <= 0) then begin
-            MessageDlg( Format(sPlgM12, [Plugin.Name, ExtractFileName( fn )] ), mtError, [mbOK], 0 );
+            MessageDlg( Format(GetRS(sPlgM12), [Plugin.Name, ExtractFileName( fn )] ), mtError, [mbOK], 0 );
             exit;
         end;
 
@@ -340,7 +340,7 @@ begin
             // get pointer to execute proc
             @KNTPluginExecute := GetProcAddress( hDLLInst, 'KNTPluginExecute' );
             if ( not assigned( KNTPluginExecute )) then begin
-               MessageDlg( Format(sPlgM13, [Plugin.Name, ExtractFileName( fn ) ] ), mtError, [mbOK], 0 );
+               MessageDlg( Format(GetRS(sPlgM13), [Plugin.Name, ExtractFileName( fn ) ] ), mtError, [mbOK], 0 );
                exit;
             end;
 
@@ -353,7 +353,7 @@ begin
             // if plugin is resident, see if it is already running and prevent from starting another instance of the same plugin
             if ( plStaysResident in Plugin.Features ) then begin
                 if ( Loaded_Plugins.IndexOf( Plugin.Name ) >= 0 ) then begin
-                   MessageDlg( Format(sPlgM14, [Plugin.Name]), mtInformation, [mbOK], 0 );
+                   MessageDlg( Format(GetRS(sPlgM14), [Plugin.Name]), mtInformation, [mbOK], 0 );
                    exit;
                 end;
             end;
@@ -366,7 +366,7 @@ begin
                    KNTSetPluginID( Resident_Plugin_Counter )
                 else begin
                    // cannot allow plugin to go resident, because we won't be able to identify it when it shuts down
-                   MessageDlg( Format(sPlgM15, [Plugin.Name]), mtError, [mbOK], 0 );
+                   MessageDlg( Format(GetRS(sPlgM15), [Plugin.Name]), mtError, [mbOK], 0 );
                    exit;
                 end;
             end;
@@ -381,7 +381,7 @@ begin
                   else begin
                       // no text is selected in active note
                       if ( plNeedsSelection in Plugin.Features ) then begin
-                          MessageDlg( Format(sPlgM16, [Plugin.Name]), mtInformation, [mbOK], 0 );
+                          MessageDlg( Format(GetRS(sPlgM16), [Plugin.Name]), mtInformation, [mbOK], 0 );
                           exit;                             // selection is required, so we must abort
                       end
                       else
@@ -446,13 +446,13 @@ begin
               end;
 
               if (result < 0) then begin
-                  MessageDlg( Format(sPlgM17,[result] ), mtWarning, [mbOK], 0 );
+                  MessageDlg( Format(GetRS(sPlgM17),[result] ), mtWarning, [mbOK], 0 );
                   exit;
               end;
 
 
               if (plStaysResident in Plugin.Features) then
-                 StatusBar.Panels[PANEL_HINT].Text:= Format(sPlgM18,[ExtractFileName( Plugin.Filename )] )
+                 StatusBar.Panels[PANEL_HINT].Text:= Format(GetRS(sPlgM18),[ExtractFileName( Plugin.Filename )] )
 
               else begin
 
@@ -474,7 +474,7 @@ begin
                     if ( plReturnsClipboard in Plugin.Features ) then begin
                         InsertPluginOutput := ( KeyOptions.AutoPastePlugin or
                           ( Application.MessageBox(
-                            PChar(sPlgM19),
+                            PChar(GetRS(sPlgM19)),
                             PChar( Plugin.Name ),
                             MB_OKCANCEL+MB_ICONASTERISK+MB_DEFBUTTON1+MB_APPLMODAL
                           ) = ID_OK ));
@@ -487,7 +487,7 @@ begin
                   if InsertPluginOutput then begin
                      NoteWasReadOnly := Editor.ReadOnly;
                      if NoteWasReadOnly then
-                        InsertPluginOutput:= (MessageDlg(Format(sPlgM20,[ActiveNNode.NoteName]), mtWarning, [mbOK, mbCancel], 0 ) = mrOK);
+                        InsertPluginOutput:= (MessageDlg(Format(GetRS(sPlgM20),[ActiveNNode.NoteName]), mtWarning, [mbOK, mbCancel], 0 ) = mrOK);
                   end;
 
                   if InsertPluginOutput then begin
@@ -525,14 +525,14 @@ begin
                    KNTPluginCleanup;
               except
                 On E : Exception do
-                   MessageDlg( sPlgM21 + E.Message, mtError, [mbOK], 0 );
+                   MessageDlg( GetRS(sPlgM21) + E.Message, mtError, [mbOK], 0 );
               end;
 
             end;
 
           except
               On E : Exception do begin
-                 MessageDlg( sPlgM22 + E.Message, mtError, [mbOK], 0 );
+                 MessageDlg( GetRS(sPlgM22) + E.Message, mtError, [mbOK], 0 );
                  exit;
               end;
           end;
@@ -583,11 +583,11 @@ begin
     try
       try
         FreeLibrary( DLLInstance );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sPlgM23, [Loaded_Plugins[p]] );
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sPlgM23), [Loaded_Plugins[p]] );
 
       except
         on E : Exception do
-          MessageDlg(Format(sPlgM24, [Loaded_Plugins[p],E.Message]), mtError, [mbOK], 0 );
+          MessageDlg(Format(GetRS(sPlgM24), [Loaded_Plugins[p],E.Message]), mtError, [mbOK], 0 );
       end;
 
     finally

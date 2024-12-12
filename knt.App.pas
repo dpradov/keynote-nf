@@ -309,7 +309,7 @@ function TKntApp.CheckActiveEditor: boolean;
 begin
     Result:= False;
     if not assigned(ActiveEditor) then begin
-       ShowInfoInStatusBar(sApp02);
+       ShowInfoInStatusBar(GetRS(sApp02));
        exit;
     end;
 
@@ -320,7 +320,7 @@ function TKntApp.CheckActiveEditorNotReadOnly: boolean;
 begin
     Result:= False;
     if not assigned(ActiveEditor) then begin
-       ShowInfoInStatusBar(sApp02);
+       ShowInfoInStatusBar(GetRS(sApp02));
        exit;
     end;
 
@@ -677,7 +677,7 @@ begin
       end
       else begin
          Form_Main.TB_Color.AutomaticColor := clWindowText;
-         Form_Main.TAM_ActiveName.Caption := sApp04;
+         Form_Main.TAM_ActiveName.Caption := GetRS(sApp04);
       end;
 
    finally
@@ -803,12 +803,12 @@ end;
 
 procedure TKntApp.WarnEditorIsReadOnly;
 begin
-   ShowInfoInStatusBar(sApp01);
+   ShowInfoInStatusBar(GetRS(sApp01));
 end;
 
 procedure TKntApp.WarnNoTextSelected;
 begin
-  ShowInfoInStatusBar(sApp05);
+  ShowInfoInStatusBar(GetRS(sApp05));
 end;
 
 
@@ -830,7 +830,7 @@ end;
 
 procedure TKntApp.WarnFunctionNotImplemented(const aStr: string);
 begin
-  WarningPopup(sApp03 + aStr);
+  WarningPopup(GetRS(sApp03) + aStr);
 {$IFDEF KNT_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
 {$ENDIF}
@@ -841,7 +841,7 @@ var
   msg: string;
 begin
   if Str = '' then
-     msg:= sApp07
+     msg:= GetRS(sApp07)
   else
      msg:= Str;
 
@@ -853,7 +853,7 @@ end;
 
 procedure TKntApp.WarnCommandNotImplemented(const aStr: string);
 begin
-  WarningPopup(sApp06 + aStr);
+  WarningPopup(GetRS(sApp06) + aStr);
 {$IFDEF KNT_DEBUG}
   Log.Add( 'Not implemented call: ' + aStr );
 {$ENDIF}
@@ -886,12 +886,12 @@ begin
 
   if assigned(ActiveFolder) then begin
      numNodes := ActiveFolder.TV.TotalCount;
-     s := s + Format( sApp08,  [numNodes] );
+     s := s + Format( GetRS(sApp08),  [numNodes] );
   end;
 
-  App.ShowInfoInStatusBar(Format(sApp09, [numChars, numAlpChars, numWords] ));
+  App.ShowInfoInStatusBar(Format(GetRS(sApp09), [numChars, numAlpChars, numWords] ));
 
-  if ( MessageDlg( s + sApp10, mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
+  if ( MessageDlg( s + GetRS(sApp10), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
       Clipboard.SetTextBuf( Pchar( s ));
 
 end;
@@ -903,7 +903,7 @@ var
   wasiconic : boolean;
 begin
   if ( not fileexists( TIP_FN )) then begin
-    PopupMessage( Format(sApp11, [extractfilename( TIP_FN )] ), mtInformation, [mbOK] );
+    PopupMessage( Format(GetRS(sApp11), [extractfilename( TIP_FN )] ), mtInformation, [mbOK] );
     // turn tips off, so that we don't get this error message
     // every time KeyNote starts. (e.g. if user deleted the .tip file)
     KeyOptions.TipOfTheDay := false;
@@ -919,7 +919,7 @@ begin
     with TipDlg do begin
       ShowAtStartup := KeyOptions.TipOfTheDay;
       TipFile := TIP_FN;
-      DlgCaption := Program_Name + sApp12;
+      DlgCaption := Program_Name + GetRS(sApp12);
       PanelColor := _GF_CLWINDOW;
       TipFont.Size := 10;
       TipTitleFont.Size := 12;

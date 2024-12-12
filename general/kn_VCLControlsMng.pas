@@ -340,7 +340,7 @@ begin
               Cursor := crHSplit;
               Width := 4;
             end;
-            Hint := sVCL00;
+            Hint := GetRS(sVCL00);
           end;
 
           myTreeUI.SplitterNote := mySplitter;
@@ -447,7 +447,7 @@ begin
              pages.pages[i].Free;
            except
              on E : Exception do
-                App.ErrorPopup(E, sVCL01 + s);
+                App.ErrorPopup(E, GetRS(sVCL01) + s);
            end;
        end;
      end;
@@ -519,14 +519,14 @@ begin
          MMViewFormatNone.Checked := true;
 
        if UseOldColorDlg then begin
-         MMFormatTextColor.Hint := sVCL02;
-         MMFormatHighlight.Caption := sVCL03;
-         MMFormatHighlight.Hint := sVCL04;
+         MMFormatTextColor.Hint := GetRS(sVCL02);
+         MMFormatHighlight.Caption := GetRS(sVCL03);
+         MMFormatHighlight.Hint := GetRS(sVCL04);
        end
        else begin
-         MMFormatTextColor.Hint := sVCL05;
-         MMFormatHighlight.Caption := sVCL06;
-         MMFormatHighlight.Hint := sVCL07;
+         MMFormatTextColor.Hint := GetRS(sVCL05);
+         MMFormatHighlight.Caption := GetRS(sVCL06);
+         MMFormatHighlight.Hint := GetRS(sVCL07);
        end;
 
        AppLastActiveTime := now;
@@ -558,9 +558,9 @@ begin
 
        { // Removed TB_Exit button
        if MinimizeOnClose then
-         TB_Exit.Hint := sVCL08
+         TB_Exit.Hint := GetRS(sVCL08
        else
-         TB_Exit.Hint := sVCL09;
+         TB_Exit.Hint := GetRS(sVCL09;
        }
 
      end;
@@ -800,9 +800,9 @@ begin
 
         MMViewResPanel.Checked := KeyOptions.ResPanelShow;
         if KeyOptions.ResPanelShow then
-          ResMHidepanel.Caption := sVCL12
+          ResMHidepanel.Caption := GetRS(sVCL12)
         else
-          ResMHidepanel.Caption := sVCL13;
+          ResMHidepanel.Caption := GetRS(sVCL13);
         TB_ResPanel.Down := MMViewResPanel.Checked;
   end;
 
@@ -990,7 +990,7 @@ begin
   result := Form_Main.Pages_Res.Visible;
   if ( not result ) then begin
     if DoWarn then  begin
-      case messagedlg(sVCL14, mtConfirmation, [mbYes,mbNo], 0 ) of
+      case messagedlg(GetRS(sVCL14), mtConfirmation, [mbYes,mbNo], 0 ) of
         mrYes : begin
           Form_Main.MMViewResPanelClick( Form_Main.MMViewResPanel );
         end;
@@ -1307,10 +1307,10 @@ begin
     if value then begin
        Screen.Cursors[crCopyFormat] := LoadCursor(hInstance,'CPFORMAT');
        if (ParaFormatToCopy.dySpaceBefore >= 0) then
-          Str:= sVCL16
+          Str:= GetRS(sVCL16)
        else
-          Str:= sVCL17;
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sVCL15, [Str]);
+          Str:= GetRS(sVCL17);
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sVCL15), [Str]);
     end
     else begin
        CopyFormatMode:= cfDisabled;

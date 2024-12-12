@@ -264,7 +264,7 @@ begin
 
     except
       on E : Exception do begin
-        App.DoMessageBox( sFmg01 + FN + '"' + #13#13 + E.Message, mtError, [mbOK] );
+        App.DoMessageBox( GetRS(sFmg01) + FN + '"' + #13#13 + E.Message, mtError, [mbOK] );
         exit;
       end;
     end;
@@ -375,7 +375,7 @@ begin
       TV.SortTree(-1, sdAscending);
     except
       on E : Exception do begin
-        messagedlg( sFmg02 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sFmg02) + E.Message, mtError, [mbOK], 0 );
         ModalResult := mrCancel;
       end;
     end;
@@ -387,7 +387,7 @@ begin
     else
       CheckBox_FullPaths.OnClick := nil;
 
-    Caption := Format( sFmg03, [TV.TotalCount] );
+    Caption := Format( GetRS(sFmg03), [TV.TotalCount] );
   end;
 
 end;
@@ -410,7 +410,7 @@ begin
      if assigned(TV.FocusedNode) then begin
         Info := GetFileInfo(TV.FocusedNode);
         if (Info.ImageIndex = NODEIMG_INVALID ) then begin
-          messagedlg( format(sFmg04,[Program_Name]), mtInformation, [mbOK], 0 );
+          messagedlg( format(GetRS(sFmg04),[Program_Name]), mtInformation, [mbOK], 0 );
           CanClose := false;
         end
         else
@@ -482,7 +482,7 @@ begin
   TVSelNode := nil;
 
   if ( FileManager.Count = 0 ) then begin
-    messagedlg( sFmg05, mtInformation, [mbOK], 0 );
+    messagedlg( GetRS(sFmg05), mtInformation, [mbOK], 0 );
     PostMessage( Self.Handle, WM_CLOSE, 0, 0 );
     exit;
   end;
@@ -556,14 +556,14 @@ begin
     if ( ModDate <> 0 ) then
       L_Modified.Caption := FormatDateTime( FormatSettings.ShortDateFormat + #32 + FormatSettings.ShortTimeFormat, ModDate )
     else
-      L_Modified.Caption := sFmg06;
+      L_Modified.Caption := GetRS(sFmg06);
   end
   else begin
     HaveErrors := 0;
     case Info.ImageIndex of
-      NODEIMG_TKN, NODEIMG_DART, NODEIMG_ENC : L_Desc.Caption := sFmg07;
+      NODEIMG_TKN, NODEIMG_DART, NODEIMG_ENC : L_Desc.Caption := GetRS(sFmg07);
       else
-        L_Desc.Caption := sFmg08;
+        L_Desc.Caption := GetRS(sFmg08);
     end;
 
     L_Comment.Caption := '';

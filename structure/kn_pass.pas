@@ -113,7 +113,7 @@ begin
   if ( not result ) then
   begin
     Edit_Pass.SetFocus;
-    messagedlg( sPass01, mtError, [mbOK], 0 );
+    messagedlg( GetRS(sPass01), mtError, [mbOK], 0 );
   end;
 end; // VerifyPass
 
@@ -121,7 +121,7 @@ procedure TForm_Password.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   Label_FileName.Caption := myFileName;
-  Caption:= Format(sPass02, [ExtractFilename( myFileName )]);
+  Caption:= Format(GetRS(sPass02), [ExtractFilename( myFileName )]);
 
   // when auto-reopening previously auto-closed encrypted files,
   // (see TForm_Main.AutoCloseKntFile) the password window does not

@@ -323,7 +323,7 @@ begin
             S:= ' - ' + FormatSettings.ShortTimeFormat;
         lm:= FormatDateTime(FormatSettings.ShortDateFormat + S, FNote.LastModified);
      end;
-     s:= Format(sUInote01, [txtCreationDate.Text, lm]);
+     s:= Format(GetRS(sUInote01), [txtCreationDate.Text, lm]);
   end;
   txtCreationDate.Hint:= s;
 end;

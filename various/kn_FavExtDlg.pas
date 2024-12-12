@@ -92,7 +92,7 @@ begin
   if ( ModalResult = mrOK ) then
   begin
     if ( not FileExists( NormalFN( AbsolutePath(Edit_FN.Text) ))) then
-      CanClose := ( messagedlg( sFavDlg01, mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
+      CanClose := ( messagedlg( GetRS(sFavDlg01), mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
   end;
 end;
 

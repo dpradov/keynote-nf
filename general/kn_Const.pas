@@ -32,9 +32,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.0.0 .10';
-  Program_Version_Number  = '2.0.0.10';
-  Program_Version_Date    = '07/12/2024';
+  Program_Version  = '2.0.0 .11';
+  Program_Version_Number  = '2.0.0.11';
+  Program_Version_Date    = '12/12/2024';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -165,8 +165,6 @@ const
   MAX_FILENAME_LENGTH   = 127;
   MAX_BOOKMARKS         = 9; // ZERO-based!
   DEFAULT_CAPACITY      = 255; // default capacity for RTF Lines property (to speed up loading)
-  DEFAULT_NEW_FOLDER_NAME : string = sINFDefaults1; // default name for new folders
-  DEFAULT_NEW_NOTE_NAME : string = sINFDefaults2; // default name for new tree nodes
   DEFAULT_NODE_IMGINDEX : integer = 0;
   TRRENODE_SELIDX       = 4;
   MIN_PASS_LEN          = 5; // minimum length of file access passphrase
@@ -979,6 +977,9 @@ const
   );
 
 var
+  DEFAULT_NEW_FOLDER_NAME : string;  // default name for new folders
+  DEFAULT_NEW_NOTE_NAME : string; // default name for new tree nodes
+
   TREE_SELECTION_NAMES : array[TTreeSelection] of string;
   EXPORT_FORMAT_NAMES : array[TExportFmt] of string;
   NODE_ICON_KINDS : array[TNodeIconKind] of string;
@@ -1001,140 +1002,159 @@ var
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
 
+
 implementation
-uses kn_Info;
+uses kn_Info,
+     kn_PluginBase;
 
 
 procedure DefineConst;
 begin
-  TREE_SELECTION_NAMES[tsNode ]:=        sINFTreeSel1;
-  TREE_SELECTION_NAMES[tsSubtree ]:=     sINFTreeSel2;
-  TREE_SELECTION_NAMES[tsCheckedNodes]:= sINFTreeSel3;
-  TREE_SELECTION_NAMES[tsFullTree]:=     sINFTreeSel4;
+  DEFAULT_NEW_FOLDER_NAME := GetRS(sINFDefaults1);
+  DEFAULT_NEW_NOTE_NAME := GetRS(sINFDefaults2);
 
-  EXPORT_FORMAT_NAMES[xfPlainText]:= sINFExptFrmt1;
-  EXPORT_FORMAT_NAMES[xfRTF]:=       sINFExptFrmt2;
+  TREE_SELECTION_NAMES[tsNode ]:=        GetRS(sINFTreeSel1);
+  TREE_SELECTION_NAMES[tsSubtree ]:=     GetRS(sINFTreeSel2);
+  TREE_SELECTION_NAMES[tsCheckedNodes]:= GetRS(sINFTreeSel3);
+  TREE_SELECTION_NAMES[tsFullTree]:=     GetRS(sINFTreeSel4);
+
+  EXPORT_FORMAT_NAMES[xfPlainText]:= GetRS(sINFExptFrmt1);
+  EXPORT_FORMAT_NAMES[xfRTF]:=       GetRS(sINFExptFrmt2);
   EXPORT_FORMAT_NAMES[xfHTML]:=      'HTML';
-  EXPORT_FORMAT_NAMES[xfKeyNote]:=   sINFExptFrmt3;
+  EXPORT_FORMAT_NAMES[xfKeyNote]:=   GetRS(sINFExptFrmt3);
   EXPORT_FORMAT_NAMES[xfTreePad]:=   'TreePad';
 
-  NODE_ICON_KINDS[niNone]:=       sINFIconKind1;
-  NODE_ICON_KINDS[niStandard]:=   sINFIconKind2;
-  NODE_ICON_KINDS[niCustom]:=     sINFIconKind3;
+  NODE_ICON_KINDS[niNone]:=       GetRS(sINFIconKind1);
+  NODE_ICON_KINDS[niStandard]:=   GetRS(sINFIconKind2);
+  NODE_ICON_KINDS[niCustom]:=     GetRS(sINFIconKind3);
 
-  LINK_TYPES[lnkURL]:=   sINFLinkType1;
-  LINK_TYPES[lnkEmail]:= sINFLinkType2;
-  LINK_TYPES[lnkFile]:=  sINFLinkType3;
-  LINK_TYPES[lnkKNT]:=   sINFLinkType4;
+  LINK_TYPES[lnkURL]:=   GetRS(sINFLinkType1);
+  LINK_TYPES[lnkEmail]:= GetRS(sINFLinkType2);
+  LINK_TYPES[lnkFile]:=  GetRS(sINFLinkType3);
+  LINK_TYPES[lnkKNT]:=   GetRS(sINFLinkType4);
 
-  TREE_EXPAND_MODES[txmFullCollapse]:=  sINFExpnd1;
-  TREE_EXPAND_MODES[txmActiveNode]:=    sINFExpnd2;
-  TREE_EXPAND_MODES[txmTopLevelOnly]:=  sINFExpnd3;
-  TREE_EXPAND_MODES[txmExact]:=         sINFExpnd4;
-  TREE_EXPAND_MODES[txmFullExpand]:=    sINFExpnd5;
+  TREE_EXPAND_MODES[txmFullCollapse]:=  GetRS(sINFExpnd1);
+  TREE_EXPAND_MODES[txmActiveNode]:=    GetRS(sINFExpnd2);
+  TREE_EXPAND_MODES[txmTopLevelOnly]:=  GetRS(sINFExpnd3);
+  TREE_EXPAND_MODES[txmExact]:=         GetRS(sINFExpnd4);
+  TREE_EXPAND_MODES[txmFullExpand]:=    GetRS(sINFExpnd5);
 
-  IMAGES_STORAGE_MODE[smEmbRTF]:=            sINFImgSM1;
-  IMAGES_STORAGE_MODE[smEmbKNT]:=            sINFImgSM2;
-  IMAGES_STORAGE_MODE[smExternal]:=          sINFImgSM3;
-  IMAGES_STORAGE_MODE[smExternalAndEmbKNT]:= sINFImgSM4;
+  IMAGES_STORAGE_MODE[smEmbRTF]:=            GetRS(sINFImgSM1);
+  IMAGES_STORAGE_MODE[smEmbKNT]:=            GetRS(sINFImgSM2);
+  IMAGES_STORAGE_MODE[smExternal]:=          GetRS(sINFImgSM3);
+  IMAGES_STORAGE_MODE[smExternalAndEmbKNT]:= GetRS(sINFImgSM4);
 
-  EXTERNAL_STORAGE_TYPE[issFolder]:=  sINFImgExtSt1;
-  EXTERNAL_STORAGE_TYPE[issZIP]:=     sINFImgExtSt2;
+  EXTERNAL_STORAGE_TYPE[issFolder]:=  GetRS(sINFImgExtSt1);
+  EXTERNAL_STORAGE_TYPE[issZIP]:=     GetRS(sINFImgExtSt2);
 
-  IMAGES_STORAGE_MODE_ON_EXPORT[smeEmbRTF]:= sINFImgSM1;
-  IMAGES_STORAGE_MODE_ON_EXPORT[smeEmbKNT]:= sINFImgSM2;
-  IMAGES_STORAGE_MODE_ON_EXPORT[smeNone]:=   sINFImgSM5;
+  IMAGES_STORAGE_MODE_ON_EXPORT[smeEmbRTF]:= GetRS(sINFImgSM1);
+  IMAGES_STORAGE_MODE_ON_EXPORT[smeEmbKNT]:= GetRS(sINFImgSM2);
+  IMAGES_STORAGE_MODE_ON_EXPORT[smeNone]:=   GetRS(sINFImgSM5);
 
-  CTRL_UP_DOWN_MODE[cudDefault]:=        sINFCtrlUD1;
-  CTRL_UP_DOWN_MODE[cudShiftLine]:=      sINFCtrlUD2;
-  CTRL_UP_DOWN_MODE[cudShiftScrollbar]:= sINFCtrlUD3;
+  CTRL_UP_DOWN_MODE[cudDefault]:=        GetRS(sINFCtrlUD1);
+  CTRL_UP_DOWN_MODE[cudShiftLine]:=      GetRS(sINFCtrlUD2);
+  CTRL_UP_DOWN_MODE[cudShiftScrollbar]:= GetRS(sINFCtrlUD3);
 
-  CLIP_NODE_NAMINGS[clnDefault]:=    sINFClipNdNam1;
-  CLIP_NODE_NAMINGS[clnClipboard]:=  sINFClipNdNam2;
-  CLIP_NODE_NAMINGS[clnDateTime]:=   sINFClipNdNam3;
+  CLIP_NODE_NAMINGS[clnDefault]:=    GetRS(sINFClipNdNam1);
+  CLIP_NODE_NAMINGS[clnClipboard]:=  GetRS(sINFClipNdNam2);
+  CLIP_NODE_NAMINGS[clnDateTime]:=   GetRS(sINFClipNdNam3);
 
-  CLIP_PLAIN_TEXT_MODE[clptPlainText]:=      sINFClipPlainTxt1;
-  CLIP_PLAIN_TEXT_MODE[clptAllowHyperlink]:= sINFClipPlainTxt2;
-  CLIP_PLAIN_TEXT_MODE[clptAllowFontStyle]:= sINFClipPlainTxt3;
-  CLIP_PLAIN_TEXT_MODE[clptAllowFont]:=      sINFClipPlainTxt4;
+  CLIP_PLAIN_TEXT_MODE[clptPlainText]:=      GetRS(sINFClipPlainTxt1);
+  CLIP_PLAIN_TEXT_MODE[clptAllowHyperlink]:= GetRS(sINFClipPlainTxt2);
+  CLIP_PLAIN_TEXT_MODE[clptAllowFontStyle]:= GetRS(sINFClipPlainTxt3);
+  CLIP_PLAIN_TEXT_MODE[clptAllowFont]:=      GetRS(sINFClipPlainTxt4);
 
   FactStrings[factUnknown]:=         '';
-  FactStrings[factOpen]:=            sINFDrop1;
-  FactStrings[factExecute]:=         sINFDrop2;
-  FactStrings[factMerge]:=           sINFDrop3;
-  FactStrings[factHyperlink]:=       sINFDrop5;
-  FactStrings[factImportAsFolder]:=  sINFDrop4;
-  FactStrings[factImportAsNode]:=    sINFDrop6;
-  FactStrings[factMakeVirtualNode]:= sINFDrop7;
-  FactStrings[factInsertContent]:=   sINFDrop9;
+  FactStrings[factOpen]:=            GetRS(sINFDrop1);
+  FactStrings[factExecute]:=         GetRS(sINFDrop2);
+  FactStrings[factMerge]:=           GetRS(sINFDrop3);
+  FactStrings[factHyperlink]:=       GetRS(sINFDrop5);
+  FactStrings[factImportAsFolder]:=  GetRS(sINFDrop4);
+  FactStrings[factImportAsNode]:=    GetRS(sINFDrop6);
+  FactStrings[factMakeVirtualNode]:= GetRS(sINFDrop7);
+  FactStrings[factInsertContent]:=   GetRS(sINFDrop9);
   {$IFDEF WITH_IE}
-  FactStrings[factMakeVirtualIENode]:= sINFDrop8;
+  FactStrings[factMakeVirtualIENode]:= GetRS(sINFDrop8);
   {$ENDIF}
 
-  URL_ACTIONS[urlOpen]:=            sINFUrlAct1;
-  URL_ACTIONS[urlOpenNew]:=         sINFUrlAct2;
-  URL_ACTIONS[urlCopy]:=            sINFUrlAct3;
-  URL_ACTIONS[urlBoth]:=            sINFUrlAct4;
-  URL_ACTIONS[urlAsk]:=             sINFUrlAct5;
-  URL_ACTIONS[urlNothing]:=         sINFUrlAct6;
-  URL_ACTIONS[urlCreateOrModify]:=  sINFUrlAct7;
+  URL_ACTIONS[urlOpen]:=            GetRS(sINFUrlAct1);
+  URL_ACTIONS[urlOpenNew]:=         GetRS(sINFUrlAct2);
+  URL_ACTIONS[urlCopy]:=            GetRS(sINFUrlAct3);
+  URL_ACTIONS[urlBoth]:=            GetRS(sINFUrlAct4);
+  URL_ACTIONS[urlAsk]:=             GetRS(sINFUrlAct5);
+  URL_ACTIONS[urlNothing]:=         GetRS(sINFUrlAct6);
+  URL_ACTIONS[urlCreateOrModify]:=  GetRS(sINFUrlAct7);
 
-  TAB_POSITIONS[tabposTop]:=    sINFPOS1;
-  TAB_POSITIONS[tabposBottom]:= sINFPOS2;
-  TAB_POSITIONS[tabposLeft]:=   sINFPOS3;
-  TAB_POSITIONS[tabposRight]:=  sINFPOS4;
+  TAB_POSITIONS[tabposTop]:=    GetRS(sINFPOS1);
+  TAB_POSITIONS[tabposBottom]:= GetRS(sINFPOS2);
+  TAB_POSITIONS[tabposLeft]:=   GetRS(sINFPOS3);
+  TAB_POSITIONS[tabposRight]:=  GetRS(sINFPOS4);
 
-  DIRECTION_NAMES[dirUp]:=    sINFDIR1;
-  DIRECTION_NAMES[dirDown]:=  sINFDIR2;
-  DIRECTION_NAMES[dirLeft]:=  sINFDIR3;
-  DIRECTION_NAMES[dirRight]:= sINFDIR4;
+  DIRECTION_NAMES[dirUp]:=    GetRS(sINFDIR1);
+  DIRECTION_NAMES[dirDown]:=  GetRS(sINFDIR2);
+  DIRECTION_NAMES[dirLeft]:=  GetRS(sINFDIR3);
+  DIRECTION_NAMES[dirRight]:= GetRS(sINFDIR4);
 
-  STYLE_RANGES[srFont]:=      sINFStyRg1;
-  STYLE_RANGES[srParagraph]:= sINFStyRg2;
-  STYLE_RANGES[srBoth]:=      sINFStyRg3;
+  STYLE_RANGES[srFont]:=      GetRS(sINFStyRg1);
+  STYLE_RANGES[srParagraph]:= GetRS(sINFStyRg2);
+  STYLE_RANGES[srBoth]:=      GetRS(sINFStyRg3);
 
 
-  FILE_FORMAT_NAMES[nffKeyNote]:=     sINFFormats1;
-  FILE_FORMAT_NAMES[nffKeyNoteZip]:=  sINFFormats3;
-  FILE_FORMAT_NAMES[nffEncrypted]:=   sINFFormats2;
+  FILE_FORMAT_NAMES[nffKeyNote]:=     GetRS(sINFFormats1);
+  FILE_FORMAT_NAMES[nffKeyNoteZip]:=  GetRS(sINFFormats3);
+  FILE_FORMAT_NAMES[nffEncrypted]:=   GetRS(sINFFormats2);
 {$IFDEF WITH_DART}
-  FILE_FORMAT_NAMES[nffDartNotes]:=   sINFFormats4;
+  FILE_FORMAT_NAMES[nffDartNotes]:=   GetRS(sINFFormats4);
 {$ENDIF}
-  FILE_COMPRESSION_LEVEL[zcNone]:=    sINFCompres1;
-  FILE_COMPRESSION_LEVEL[zcFastest]:= sINFCompres2;
-  FILE_COMPRESSION_LEVEL[zcDefault]:= sINFCompres3;
-  FILE_COMPRESSION_LEVEL[zcMax]:=     sINFCompres4;
+  FILE_COMPRESSION_LEVEL[zcNone]:=    GetRS(sINFCompres1);
+  FILE_COMPRESSION_LEVEL[zcFastest]:= GetRS(sINFCompres2);
+  FILE_COMPRESSION_LEVEL[zcDefault]:= GetRS(sINFCompres3);
+  FILE_COMPRESSION_LEVEL[zcMax]:=     GetRS(sINFCompres4);
 
-  SEARCH_MODES[smPhrase] := sINFSrchMode1;
-  SEARCH_MODES[smAll] :=    sINFSrchMode2;
-  SEARCH_MODES[smAny] :=    sINFSrchMode3;
+  SEARCH_MODES[smPhrase] := GetRS(sINFSrchMode1);
+  SEARCH_MODES[smAll] :=    GetRS(sINFSrchMode2);
+  SEARCH_MODES[smAny] :=    GetRS(sINFSrchMode3);
 
-  SEARCH_SCOPES[ssOnlyNodeName ]:=        sINFSrchScope1;
-  SEARCH_SCOPES[ssOnlyContent] :=         sINFSrchScope2;
-  SEARCH_SCOPES[ssContentsAndNodeName] := sINFSrchScope3;
+  SEARCH_SCOPES[ssOnlyNodeName ]:=        GetRS(sINFSrchScope1);
+  SEARCH_SCOPES[ssOnlyContent] :=         GetRS(sINFSrchScope2);
+  SEARCH_SCOPES[ssContentsAndNodeName] := GetRS(sINFSrchScope3);
 
-  SEARCH_CHKMODES[scOnlyNonChecked]:= sINFSrchChk1;
-  SEARCH_CHKMODES[scOnlyChecked]:=    sINFSrchChk2;
-  SEARCH_CHKMODES[scAll]:=            sINFSrchChk3;
+  SEARCH_CHKMODES[scOnlyNonChecked]:= GetRS(sINFSrchChk1);
+  SEARCH_CHKMODES[scOnlyChecked]:=    GetRS(sINFSrchChk2);
+  SEARCH_CHKMODES[scAll]:=            GetRS(sINFSrchChk3);
 
-  SYMBOL_NAME_LIST[1]:=   sINFSymb0;
-  SYMBOL_NAME_LIST[2]:=   sINFSymb1;
-  SYMBOL_NAME_LIST[3]:=   sINFSymb2;
-  SYMBOL_NAME_LIST[4]:=   sINFSymb3;
-  SYMBOL_NAME_LIST[5]:=   sINFSymb4;
-  SYMBOL_NAME_LIST[6]:=   sINFSymb5;
-  SYMBOL_NAME_LIST[7]:=   sINFSymb6;
-  SYMBOL_NAME_LIST[8]:=   sINFSymb7;
-  SYMBOL_NAME_LIST[9]:=   sINFSymb8;
-  SYMBOL_NAME_LIST[10]:=  sINFSymb9;
+  SYMBOL_NAME_LIST[1]:=   GetRS(sINFSymb0);
+  SYMBOL_NAME_LIST[2]:=   GetRS(sINFSymb1);
+  SYMBOL_NAME_LIST[3]:=   GetRS(sINFSymb2);
+  SYMBOL_NAME_LIST[4]:=   GetRS(sINFSymb3);
+  SYMBOL_NAME_LIST[5]:=   GetRS(sINFSymb4);
+  SYMBOL_NAME_LIST[6]:=   GetRS(sINFSymb5);
+  SYMBOL_NAME_LIST[7]:=   GetRS(sINFSymb6);
+  SYMBOL_NAME_LIST[8]:=   GetRS(sINFSymb7);
+  SYMBOL_NAME_LIST[9]:=   GetRS(sINFSymb8);
+  SYMBOL_NAME_LIST[10]:=  GetRS(sINFSymb9);
 
-  HTMLImportMethods[htmlSource]:=         sINFImpHTML1;
-  HTMLImportMethods[htmlSharedTextConv]:= sINFImpHTML2;
-  HTMLImportMethods[htmlMSWord]:=         sINFImpHTML3;
-  HTMLImportMethods[htmlIE]:=             sINFImpHTML4;
+  HTMLImportMethods[htmlSource]:=         GetRS(sINFImpHTML1);
+  HTMLImportMethods[htmlSharedTextConv]:= GetRS(sINFImpHTML2);
+  HTMLImportMethods[htmlMSWord]:=         GetRS(sINFImpHTML3);
+  HTMLImportMethods[htmlIE]:=             GetRS(sINFImpHTML4);
 
-  HTMLExportMethods[htmlExpMicrosoftHTMLConverter]:= sINFImpHTML5;
-  HTMLExportMethods[htmlExpMSWord]:=                 sINFImpHTML3;
+  HTMLExportMethods[htmlExpMicrosoftHTMLConverter]:= GetRS(sINFImpHTML5);
+  HTMLExportMethods[htmlExpMSWord]:=                 GetRS(sINFImpHTML3);
+
+  PluginFeatureNames[plOK]:=               GetRS(sPlg01);
+  PluginFeatureNames[plGetsData]:=         GetRS(sPlg02);
+  PluginFeatureNames[plGetsRTF]:=          GetRS(sPlg03);
+  PluginFeatureNames[plGetsSelection]:=    GetRS(sPlg04);
+  PluginFeatureNames[plReturnsData]:=      GetRS(sPlg05);
+  PluginFeatureNames[plReturnsRTF]:=       GetRS(sPlg06);
+  PluginFeatureNames[plReturnsClipboard]:= GetRS(sPlg07);
+  PluginFeatureNames[plNeedsSelection]:= GetRS(sPlg08);
+  PluginFeatureNames[plWantsNewNote]:=   GetRS(sPlg09);
+  PluginFeatureNames[plWantsDlgBox]:=    GetRS(sPlg10);
+  PluginFeatureNames[plWantsSavedFile]:= GetRS(sPlg11);
+  PluginFeatureNames[plReloadFile]:=     GetRS(sPlg12);
+  PluginFeatureNames[plStaysResident]:=  GetRS(sPlg13);
 end;
 
 Initialization

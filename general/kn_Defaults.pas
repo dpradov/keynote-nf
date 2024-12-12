@@ -224,7 +224,7 @@ begin
   Combo_TreeImages.ItemIndex := 1;
 
   Combo_Icons.ImageList := Chest.IMG_Categories;
-  Combo_Icons.AddItem( sDef28, -1 );
+  Combo_Icons.AddItem( GetRS(sDef28), -1 );
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
@@ -256,31 +256,31 @@ begin
     if SaveDefaults then begin
        Action:= propDefaults;
        if CB_SaveAsDef.Checked then
-          LB_Scope.Caption := sDef09
+          LB_Scope.Caption := GetRS(sDef09)
        else
-          LB_Scope.Caption := sDef11;
+          LB_Scope.Caption := GetRS(sDef11);
 
     end
     else begin
        Action:= propThisFolder;
        if myNoteIsReadOnly then
-          LB_Scope.Caption := sDef05
+          LB_Scope.Caption := GetRS(sDef05)
        else
-          LB_Scope.Caption := sDef06;
+          LB_Scope.Caption := GetRS(sDef06);
     end;
 
 
-    Button_OK.Hint := sDef0B;
+    Button_OK.Hint := GetRS(sDef0B);
 
     if (fOriginalAction = propThisFolder) and (myNoteIsReadOnly) then begin
        if Action = propThisFolder then begin
           Button_OK.ModalResult := mrCancel;
-          Button_OK.Caption := sDef02;
-          Button_OK.Hint := sDef03;
+          Button_OK.Caption := GetRS(sDef02);
+          Button_OK.Hint := GetRS(sDef03);
        end
        else begin
           Button_OK.ModalResult := mrOk;
-          Button_OK.Caption := sDef00;
+          Button_OK.Caption := GetRS(sDef00);
        end;
        Button_Cancel.Visible := not (Action = propThisFolder);
     end;
@@ -309,7 +309,7 @@ begin
   try
 
     if myCurrentFileName <> '' then
-       CB_SaveAsDef.Caption := Format( sDef07, [myCurrentFileName] );
+       CB_SaveAsDef.Caption := Format( GetRS(sDef07), [myCurrentFileName] );
 
     case Action of
       propThisFolder : begin
@@ -319,11 +319,11 @@ begin
 
         tabName:= RemoveAccelChar( myTabProperties.Name );
 
-        Caption := Format( sDef01, [tabName] );
+        Caption := Format( GetRS(sDef01), [tabName] );
         if myNoteIsReadOnly then
-           Caption := Caption + sDef04
+           Caption := Caption + GetRS(sDef04)
         else
-           CB_SaveDefaults.Caption := CB_SaveDefaults.Caption + Format( sDef30, [tabName] );
+           CB_SaveDefaults.Caption := CB_SaveDefaults.Caption + Format( GetRS(sDef30), [tabName] );
       end;
 
       propDefaults : begin
@@ -332,9 +332,9 @@ begin
         CB_SaveAsDef.Checked := mySaveFileDefaults;
 
        if mySaveFileDefaults then
-          Caption := sDef08 + myCurrentFileName
+          Caption := GetRS(sDef08) + myCurrentFileName
        else
-          Caption := sDef10;
+          Caption := GetRS(sDef10);
 
       end;
     end;
@@ -404,7 +404,7 @@ begin
     if ( Edit_FolderName.Text = '' ) then
     begin
       CanClose := false;
-      messagedlg( sDef12, mtError, [mbOK], 0 );
+      messagedlg( GetRS(sDef12), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
       Edit_FolderName.SetFocus;
       exit;
@@ -414,7 +414,7 @@ begin
     begin
       CanClose := false;
       messagedlg( Format(
-        sDef13,
+        GetRS(sDef13),
         [KNTLINK_SEPARATOR]
       ), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Main;
@@ -426,7 +426,7 @@ begin
     begin
       CanClose := false;
       messagedlg( Format(
-        sDef14,
+        GetRS(sDef14),
         [KNTLINK_SEPARATOR]
       ), mtError, [mbOK], 0 );
       Pages.ActivePage := Tab_Tree;
@@ -638,7 +638,7 @@ begin
   ShiftWasDown := ShiftDown;
   if ( Pages.ActivePage = Tab_Main ) then
   begin
-    if ( messagedlg( sDef15, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( messagedlg( GetRS(sDef15), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
 
     InitializeChrome( myEditorChrome );
 
@@ -660,7 +660,7 @@ begin
   end
   else
   begin
-    if ( messagedlg( sDef16, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( messagedlg( GetRS(sDef16), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
     InitializeChrome( myTreeChrome );
     InitializeChrome( tmpChrome );
 
@@ -692,17 +692,17 @@ end;
 procedure TForm_Defaults.BitBtn_TknHlpClick(Sender: TObject);
 begin
   messagedlg(
-    sDef17 +#13+
-    sDef18 +#13#13+
-     NODEINSDATE  + sDef19 +#13+
-     NODEINSTIME  + sDef20 +#13+
-     NODECOUNT    + sDef21 +#13+
-     NODELEVEL    + sDef22 +#13+
-     NODEINDEX    + sDef23 +#13+
-     NODEABSINDEX + sDef24 +#13+
-     NODEPARENT   + sDef25 +#13+
-     NODENOTENAME + sDef26 +#13+
-     NODEFILENAME + sDef27,
+    GetRS(sDef17) +#13+
+    GetRS(sDef18) +#13#13+
+     NODEINSDATE  + GetRS(sDef19) +#13+
+     NODEINSTIME  + GetRS(sDef20) +#13+
+     NODECOUNT    + GetRS(sDef21) +#13+
+     NODELEVEL    + GetRS(sDef22) +#13+
+     NODEINDEX    + GetRS(sDef23) +#13+
+     NODEABSINDEX + GetRS(sDef24) +#13+
+     NODEPARENT   + GetRS(sDef25) +#13+
+     NODENOTENAME + GetRS(sDef26) +#13+
+     NODEFILENAME + GetRS(sDef27),
 
     mtInformation, [mbOK], 0
   );
@@ -751,7 +751,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg( sDef29 + E.Message, mtError, [mbOK], 0 );
+        messagedlg( GetRS(sDef29) + E.Message, mtError, [mbOK], 0 );
         fDefaultZoom := 100;
         CB_Zoom.Text:= '100';
       end;
@@ -790,17 +790,17 @@ end; // Edit_NoteNameKeyPress
 
 procedure TForm_Defaults.BitBtn_FolderHelpClick(Sender: TObject);
 begin
-  messagedlg(sDef31 , mtInformation, [mbOK], 0  );
+  messagedlg(GetRS(sDef31) , mtInformation, [mbOK], 0  );
 end;
 
 procedure TForm_Defaults.BitBtn_FolderChromeHelpClick(Sender: TObject);
 begin
-  messagedlg(sDef32 , mtInformation, [mbOK], 0  );
+  messagedlg(GetRS(sDef32) , mtInformation, [mbOK], 0  );
 end;
 
 procedure TForm_Defaults.BitBtn_TreeChromeHelpClick(Sender: TObject);
 begin
-  messagedlg(sDef33 , mtInformation, [mbOK], 0  );
+  messagedlg(GetRS(sDef33) , mtInformation, [mbOK], 0  );
 end;
 
 

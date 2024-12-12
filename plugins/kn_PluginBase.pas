@@ -158,27 +158,12 @@ plStaysResident
 
 *)
 
-const
-  PluginFeatureNames : array[TPluginFeature] of string = (
+var
+  PluginFeatureNames : array[TPluginFeature] of string;
   // these strings are used by the Plugins dialog box
   // in KeyNote, to notify user about the features of
   // each installed plugins. The plugins themselves do
   // not use these constants.
-    sPlg01,
-    sPlg02,
-    sPlg03,
-    sPlg04,
-    sPlg05,
-    sPlg06,
-    sPlg07,
-    sPlg08,
-    sPlg09,
-    sPlg10,
-    sPlg11,
-    sPlg12,
-    sPlg13
-  );
-
 
 type
   // Exported procedure types.

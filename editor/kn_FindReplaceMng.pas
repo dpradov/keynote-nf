@@ -247,7 +247,7 @@ begin
   cnt := Location_List.Count;
   if ( cnt = 0 ) then
   begin
-    showmessage( sFnd05 );
+    showmessage( GetRS(sFnd05) );
     exit;
   end;
 
@@ -1757,7 +1757,7 @@ begin
 
       if not TreeFilter  then begin
          MatchCount := Location_List.Count;
-         Form_Main.LblFindAllNumResults.Caption:= '  ' + MatchCount.ToString + sFnd13;
+         Form_Main.LblFindAllNumResults.Caption:= '  ' + MatchCount.ToString + GetRS(sFnd13);
          str:=
                '{\rtf1\ansi{\fonttbl{\f0\fnil\fcharset0 Calibri;}}' +
                '{\colortbl ;\red0\green159\blue159;\red255\green0\blue0;\red0\green125\blue125;\red255\green255\blue235;}' +
@@ -1813,7 +1813,7 @@ begin
             Form_Main.FindAllResults.PutRtfText(str, true, true);
             Form_Main.FindAllResults.SelStart:= 0;
          end;
-         Form_Main.Btn_ResFlip.Caption := sFnd06;
+         Form_Main.Btn_ResFlip.Caption := GetRS(sFnd06);
          Form_Main.Ntbk_ResFind.PageIndex := 0;
       end;
 
@@ -1876,7 +1876,7 @@ end;
 
 procedure FindAllResults_SelectedMatch (i: integer);
 begin
-  Form_Main.LblFindAllNumResults.Caption:= '  ' + i.ToString + ' / ' + Location_List.Count.ToString + sFnd13;
+  Form_Main.LblFindAllNumResults.Caption:= '  ' + i.ToString + ' / ' + Location_List.Count.ToString + GetRS(sFnd13);
   SelectedMatch:= i;
 end;
 
@@ -2229,7 +2229,7 @@ begin
   if FindOptions.MatchCase then
      SearchOpts := SearchOpts + [stMatchCase];
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].text := sFnd07;
+  Form_Main.StatusBar.Panels[PANEL_HINT].text := GetRS(sFnd07);
 
   RTFAux:= CreateAuxRichEdit;
   SearchInProgress := true;
@@ -2346,7 +2346,7 @@ begin
 
     except
       on E: Exception do begin
-          App.PopupMessage( sFnd08 +#13+ E.Message, mtError, [mbOK] );
+          App.PopupMessage( GetRS(sFnd08) +#13+ E.Message, mtError, [mbOK] );
           exit;
       end;
     end;
@@ -2354,14 +2354,14 @@ begin
   finally
       if Found then begin
           if not Is_ReplacingAll then
-             Form_Main.StatusBar.Panels[PANEL_HINT].text := Format(sFnd09, [PatternPos, NumberFoundItems]);
+             Form_Main.StatusBar.Panels[PANEL_HINT].text := Format(GetRS(sFnd09), [PatternPos, NumberFoundItems]);
           if IsRecordingMacro then
              AddMacroEditCommand( ecFindText );
       end
       else begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := sFnd10;
+          Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sFnd10);
           if not (UserBreak or Is_Replacing) then
-             App.InfoPopup(Format( sFnd02, [Text_To_Find] ));
+             App.InfoPopup(Format( GetRS(sFnd02), [Text_To_Find] ));
       end;
 
       SearchingFolder:= myFolder;
@@ -2428,7 +2428,7 @@ begin
   if FindOptions.MatchCase then
      SearchOpts := SearchOpts + [stMatchCase];
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].text := sFnd07;
+  Form_Main.StatusBar.Panels[PANEL_HINT].text := GetRS(sFnd07);
 
 
   SearchInProgress := true;
@@ -2488,7 +2488,7 @@ begin
 
     except
       on E: Exception do begin
-          App.PopupMessage( sFnd08 +#13+ E.Message, mtError, [mbOK] );
+          App.PopupMessage( GetRS(sFnd08) +#13+ E.Message, mtError, [mbOK] );
           exit;
       end;
     end;
@@ -2496,14 +2496,14 @@ begin
   finally
       if Found then begin
           if not Is_ReplacingAll then
-             App.ShowInfoInStatusBar(Format(sFnd09, [PatternPos, NumberFoundItems]));
+             App.ShowInfoInStatusBar(Format(GetRS(sFnd09), [PatternPos, NumberFoundItems]));
           if IsRecordingMacro then
              AddMacroEditCommand( ecFindText );
       end
       else begin
-          App.ShowInfoInStatusBar(sFnd10);
+          App.ShowInfoInStatusBar(GetRS(sFnd10));
           if not Is_Replacing then
-             DoMessageBox(Format( sFnd02, [Text_To_Find] ), sFnd12, 0, handle);
+             DoMessageBox(Format( GetRS(sFnd02), [Text_To_Find] ), GetRS(sFnd12), 0, handle);
       end;
 
       result := Found;
@@ -2598,7 +2598,7 @@ var
       Result := false;
       if ReplaceAll and FindOptions.ReplaceConfirm then
           // Note: With DoMessageBox I can't show All button
-          case messagedlg( sFnd01,
+          case messagedlg( GetRS(sFnd01),
              mtConfirmation, [mbYes,mbNo,mbAll,mbCancel], 0 ) of
              mrYes:  Result := true;
              mrNo:   Result := false;
@@ -2741,18 +2741,18 @@ begin
     FindOptions.EntireScope := Original_EntireScope;
   end;
 
-  txtMessage:= Format( sFnd11, [ReplaceCnt] );
+  txtMessage:= Format( GetRS(sFnd11), [ReplaceCnt] );
   Form_Main.StatusBar.Panels[PANEL_HINT].Text := txtMessage;
   if ( ReplaceCnt > 0 ) then begin
      if ReplaceAll then begin
         Editor.SelLength:= 0;
-        DoMessageBox(txtMessage, sFnd12, 0, handle);
+        DoMessageBox(txtMessage, GetRS(sFnd12), 0, handle);
      end;
      App.ActivateFolder(ActiveFolder);
   end
   else
       if not SelectedTextToReplace then begin
-         DoMessageBox(Format( sFnd02, [Text_To_Find] ), sFnd12, 0, handle);
+         DoMessageBox(Format( GetRS(sFnd02), [Text_To_Find] ), GetRS(sFnd12), 0, handle);
       end;
 
 end;

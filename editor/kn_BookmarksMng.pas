@@ -76,7 +76,7 @@ begin
   InsertOrMarkKNTLink( aLocation, false, '', Number + 1 );            // Bookmark0-9 -> [1-10]
   RegisterBookmark(Number, aLocation);
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk01, [Number] );
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sBmk01), [Number] );
 end;
 
 
@@ -120,14 +120,14 @@ begin
   aLocation:= ActiveFile.Bookmarks[Number];
   if assigned(aLocation) then begin
      if JumpToLocation(aLocation) then
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk04, [Number] )
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sBmk04), [Number] )
      else begin
         BookmarkClear (Number, false);
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk03, [Number] );
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sBmk03), [Number] );
      end;
   end
   else
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sBmk02, [Number] );
+      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sBmk02), [Number] );
 end;
 
 procedure SerializeBookmarks(const tf: TTextFile);

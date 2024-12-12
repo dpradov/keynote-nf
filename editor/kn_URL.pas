@@ -241,17 +241,17 @@ begin
         Button_Copy.Visible := false;
         Button_Open.Visible := false;
         Button_OpenNew.Visible := false;
-        Button_Modify.Caption := sURL01;
+        Button_Modify.Caption := GetRS(sURL01);
         Button_Modify.Default := true;
-        Caption:= sURL02;
+        Caption:= GetRS(sURL02);
      end
      else begin
         Button_Copy.Visible := true;
         Button_Open.Visible := true;
         Button_OpenNew.Visible := true;
-        Button_Modify.Caption := sURL03;
+        Button_Modify.Caption := GetRS(sURL03);
         Button_Open.Default := true;
-        Caption:= sURL04;
+        Caption:= GetRS(sURL04);
      end;
 
       if AllowURLModification then begin

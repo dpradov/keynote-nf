@@ -1156,7 +1156,7 @@ begin
       VK_INSERT : begin
         if EditorOptions.DisableINSKey then begin
           key := 0;
-          App.ShowInfoInStatusBar(sEdt04);
+          App.ShowInfoInStatusBar(GetRS(sEdt04));
         end
         else
           PerformCmdEx( ecInsOvrToggle );
@@ -2150,7 +2150,7 @@ begin
         NewZoom := strtoint( ZoomString );
       except
         on E : Exception do begin
-          App.ErrorPopup(E, sEdt01);
+          App.ErrorPopup(E, GetRS(sEdt01));
           NewZoom := CurrentZoom;
         end;
       end;
@@ -2375,12 +2375,12 @@ begin
           LastPx:= p.X;
           LastPy:= p.Y;
           LastX:= X;
-          App.WordCountInfoInStatusBar:= Format( sEdt02, [succ( p.y ), Lines.Count, succ(X)] );
+          App.WordCountInfoInStatusBar:= Format( GetRS(sEdt02), [succ( p.y ), Lines.Count, succ(X)] );
        end
        else begin
           LastPy:= -1;
           Str:= SelVisibleText;
-          App.WordCountInfoInStatusBar:= Format( sEdt03, [Length(Str), GetWordCount(Str)] );
+          App.WordCountInfoInStatusBar:= Format( GetRS(sEdt03), [Length(Str), GetWordCount(Str)] );
        end;
     end
     else begin
@@ -2473,18 +2473,18 @@ var
 
 begin
 
-  App.ShowInfoInStatusBar(sEdt28);
+  App.ShowInfoInStatusBar(GetRS(sEdt28));
   screen.Cursor := crHourGlass;
   lista := TStringList.Create;
 
   try
      if (SelLength > 0) then begin
        lista.Text := SelText;
-       title := sEdt29;
+       title := GetRS(sEdt29);
      end
      else begin
        lista.Text := Lines.Text;
-       title := sEdt30;
+       title := GetRS(sEdt30);
      end;
 
      numLines := lista.count;
@@ -2525,7 +2525,7 @@ begin
     screen.Cursor := crDefault;
   end;
 
-  s := format(sEdt31,
+  s := format(GetRS(sEdt31),
                [Title, inttostr(numChars), inttostr(numAlpChars),
                 inttostr(numSpaces), inttostr(numWords), inttostr(numLines)]);
 
@@ -2946,7 +2946,7 @@ begin
 
   s := SelText;
   if (s = '') then
-    InputQuery(sEdt05, sEdt06, s)
+    InputQuery(GetRS(sEdt05), GetRS(sEdt06), s)
   else
      s:= KeepOnlyLeadingKNTHiddenCharacters(s);
 
@@ -2957,7 +2957,7 @@ begin
     i := strtoint( s );
     s := DecToRoman( i );
   except
-    App.ErrorPopup(Format(sEdt07, [s]));
+    App.ErrorPopup(Format(GetRS(sEdt07), [s]));
     exit;
   end;
 
@@ -2976,7 +2976,7 @@ begin
 
   s := SelText;
   if ( s = '' ) then
-     InputQuery( sEdt08, sEdt09, s )
+     InputQuery( GetRS(sEdt08), GetRS(sEdt09), s )
   else
      s:= KeepOnlyLeadingKNTHiddenCharacters(s);
 
@@ -2986,7 +2986,7 @@ begin
     s := AnsiUpperCase(trim(s));
     i := RomanToDec(s);
   except
-    App.ErrorPopup(Format(sEdt10, [s]));
+    App.ErrorPopup(Format(GetRS(sEdt10), [s]));
     exit;
   end;
 
@@ -3036,7 +3036,7 @@ begin
       dir := dirBack;
     end
     else begin
-      App.ShowInfoInStatusBar(sEdt11);
+      App.ShowInfoInStatusBar(GetRS(sEdt11));
       exit;
     end;
   end;
@@ -3105,14 +3105,14 @@ begin
   end;
 
   if Found then begin
-    App.ShowInfoInStatusBar(sEdt12);
+    App.ShowInfoInStatusBar(GetRS(sEdt12));
     SelStart := Perform( EM_LINEINDEX, p.y, 0 );
     SelStart := SelStart + pred( p.x );
     Perform( EM_SCROLLCARET, 0, 0 );
     SelLength := 1;
   end
   else
-    App.ShowInfoInStatusBar(sEdt13);
+    App.ShowInfoInStatusBar(GetRS(sEdt13));
 
 end; // MatchBracket
 
@@ -3146,7 +3146,7 @@ begin
   wholeNote:= false;
   if ( SelLength = 0 ) then begin
     wholeNote:= true;
-    if messagedlg(sEdt14, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then exit;
+    if messagedlg(GetRS(sEdt14), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then exit;
   end;
 
   BeginUpdate;
@@ -3205,7 +3205,7 @@ begin
   if ( Lines.Count < 1 ) then exit;
 
   if ( SelLength = 0 ) then begin
-     if ( messagedlg(sEdt15, mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+     if ( messagedlg(GetRS(sEdt15), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
          exit;
   end;
 
@@ -3321,15 +3321,15 @@ begin
      if ( not MathParser.ParseError ) then begin
        LastEvalExprResult := FloatToStrF(MathParser.ParseValue, ffGeneral, 15, 2);
        Clipboard.SetTextBuf(PChar(LastEvalExprResult));
-       App.ShowInfoInStatusBar(sEdt16 + LastEvalExprResult);
-       Form_Main.MMEditPasteEval.Hint := sEdt17 + LastEvalExprResult;
+       App.ShowInfoInStatusBar(GetRS(sEdt16) + LastEvalExprResult);
+       Form_Main.MMEditPasteEval.Hint := GetRS(sEdt17) + LastEvalExprResult;
 
        if KeyOptions.AutoPasteEval and ( not Self.ReadOnly) then begin
           SelStart := SelStart + SelLength;
           SelText := #32 + LastEvalExprResult;
        end
        else
-          if ( messagedlg( Format( sEdt18, [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
+          if ( messagedlg( Format( GetRS(sEdt18), [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
              if not CheckReadOnly then begin
                SelStart := SelStart + SelLength;
                SelText := #32 + LastEvalExprResult;
@@ -3365,8 +3365,8 @@ begin
     if AsPicture then
        with OpenPictureDlg do begin
           Options := [ofHideReadOnly,ofPathMustExist,ofFileMustExist];
-          Title:= sEdt19;
-          Filter:= sEdt20 + FILTER_IMAGES;
+          Title:= GetRS(sEdt19);
+          Filter:= GetRS(sEdt20) + FILTER_IMAGES;
 
           if Execute then begin
              if SupportsRegisteredImages then begin
@@ -3564,7 +3564,7 @@ var
 begin
 
     if not assigned(GlossaryList) then begin
-      App.ShowInfoInStatusBar(sEdt21);
+      App.ShowInfoInStatusBar(GetRS(sEdt21));
       exit;
     end;
 
@@ -3584,7 +3584,7 @@ begin
       w := SelText;
 
     if ( length( w ) = 0 ) then begin
-      App.ShowInfoInStatusBar(sEdt22);
+      App.ShowInfoInStatusBar(GetRS(sEdt22));
       exit;
     end;
 
@@ -3598,7 +3598,7 @@ begin
 
 
     if ( replw = '' ) then begin
-      App.ShowInfoInStatusBar(sEdt23);
+      App.ShowInfoInStatusBar(GetRS(sEdt23));
       exit;
     end;
 
@@ -3620,7 +3620,7 @@ var
 
 begin
   if (not assigned( GlossaryList)) then begin
-    showmessage( Format(sEdt24, [Glossary_FN] ));
+    showmessage( Format(GetRS(sEdt24), [Glossary_FN] ));
     exit;
   end;
 
@@ -3649,7 +3649,7 @@ begin
         if (( nstr <> '' ) and ( vstr <> '' ) and ( nstr <> vstr )) then begin
 
           if ( GlossaryList.IndexOfName( nstr ) >= 0 ) then begin
-            if ( messagedlg( Format(sEdt25,
+            if ( messagedlg( Format(GetRS(sEdt25),
               [nstr,GlossaryList.Values[nstr],vstr] ),
               mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
           end;
@@ -3662,7 +3662,7 @@ begin
               GlossaryList.Sorted := true;
             end;
             GlossaryList.SaveToFile( Glossary_FN, TEncoding.UTF8);
-            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sEdt26, [nstr,vstr] );
+            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sEdt26), [nstr,vstr] );
 
           except
             on E : Exception do
@@ -3709,7 +3709,7 @@ begin
       SelectAll;
       CopyToClipboard;
       if AJBSpell.CheckClipboardSpell then begin
-        if ( messagedlg( sEdt27, mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
+        if ( messagedlg( GetRS(sEdt27), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
             PasteFromClipboard;
       end;
 
@@ -3745,7 +3745,7 @@ begin
   end;
 
   if (myWord = '') then begin
-    if (not InputQuery( sEdt32, sEdt33, myWord )) then
+    if (not InputQuery( GetRS(sEdt32), GetRS(sEdt33), myWord )) then
        exit;
   end;
 
@@ -3754,7 +3754,7 @@ begin
     WordWeb := TFreeWordWeb.Create(Form_Main);
   except
     On E : Exception do begin
-      App.ErrorPopup(E, sEdt34);
+      App.ErrorPopup(E, GetRS(sEdt34));
       exit;
     end;
   end;
@@ -3778,7 +3778,7 @@ begin
       On E : Exception do begin
         Form_Main.RTFMWordWeb.Enabled := false;
         Form_Main.TB_WordWeb.Enabled := false;
-        App.ErrorPopup(E, sEdt34);
+        App.ErrorPopup(E, GetRS(sEdt34));
         exit;
       end;
     end;

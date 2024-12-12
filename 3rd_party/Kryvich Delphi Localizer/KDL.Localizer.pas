@@ -2,6 +2,15 @@
   Copyright (C) 2006 - 2018 Kryvich, Belarusian Linguistic Software team.
 }
 
+(* ------------------------------------------------------
+  + Changes by Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
+
+   >> Changes to original source code available in KeyNote NF project.
+   >> Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
+      in https://github.com/dpradov/keynote-nf
+--------------------- -----------------------------------*)
+
+
 unit KDL.Localizer;
 {$I NoRTTI}
 
@@ -110,6 +119,13 @@ type
 
 var
   FreeLocalizer: TFreeLocalizer;
+
+// *1 [dpv]
+//    I make this method accessible so that I can call it explicitly to translate strings
+//    contained in a resource file (knt_RS.RES), thereby ensuring that the string codes
+//    remain stable and do not vary with changes in the project, as I have been observing.
+
+function MyLoadResString(ResStringRec: PResStringRec): string;  // *1
 
 implementation
 

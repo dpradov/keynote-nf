@@ -107,7 +107,7 @@ procedure TForm_Macro.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   if myNewMacro then
-    Caption := sMacE01;
+    Caption := GetRS(sMacE01);
   Edit_Name.Text := MName;
   OriginalName := MName;
   Edit_Desc.text := MDesc;
@@ -173,7 +173,7 @@ begin
     MProfile := chkProfile.Checked;
 
     if ( MName = '' ) then begin
-      messagedlg( sMacE02, mtError, [mbOK], 0 );
+      messagedlg( GetRS(sMacE02), mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       CanClose := false;
       exit;
@@ -188,7 +188,7 @@ begin
                   ( Macro_List.IndexOf( OriginalName ) = i ));
 
     if ( not CanClose ) then begin
-      messagedlg( sMacE03, mtError, [mbOK], 0 );
+      messagedlg( GetRS(sMacE03), mtError, [mbOK], 0 );
       Edit_Name.SetFocus;
       exit;
     end;

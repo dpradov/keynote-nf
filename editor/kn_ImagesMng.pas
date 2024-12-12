@@ -586,7 +586,7 @@ begin
                    end;
                 end
                 else begin
-                   App.WarningPopup(Format(sImg21, [Img.Name, Img.ID]));
+                   App.WarningPopup(Format(GetRS(sImg21), [Img.Name, Img.ID]));
                    if Img.ID > MaxSavedImgID then
                       MaxSavedImgID:= Img.ID;          // To avoid confusion we will 'consume' your ID
                    Images[i]:= nil;                    // It will be deleted in next for loop
@@ -646,7 +646,7 @@ begin
      Relocate (Path);
 
   except on E: Exception do
-     App.ErrorPopup(E, sImg16);
+     App.ErrorPopup(E, GetRS(sImg16));
   end;
 end;
 
@@ -799,7 +799,7 @@ begin
     Result:= true;
 
   except on E: Exception do
-     App.ErrorPopup(E, sImg17);
+     App.ErrorPopup(E, GetRS(sImg17));
   end;
 end;
 
@@ -1156,7 +1156,7 @@ begin
    Result:= Format('%s | %s KB | %d x %d %s', [location, SizeKB, FWidth,FHeight,IMAGE_FORMATS[ImageFormat].ToUpper ]);
 
    if ReferenceCount <> 1 then
-      Result:= Result + Format(sImg09, [ReferenceCount]);
+      Result:= Result + Format(GetRS(sImg09), [ReferenceCount]);
 
 end;
 
@@ -1386,7 +1386,7 @@ begin
    end;
 
    if (not ExportingMode) and (NumImagesToBeSavedExternally > 0) and not fWasInformedOfStorageNotAvailable then begin
-      App.WarningPopup(sImg05);
+      App.WarningPopup(GetRS(sImg05));
       fWasInformedOfStorageNotAvailable:= true;
    end;
 end;
@@ -1628,7 +1628,7 @@ begin
 
              except
                 On E : Exception do
-                  App.ErrorPopup(sImg01 + ws);
+                  App.ErrorPopup(GetRS(sImg01) + ws);
              end;
             continue;
           end;
@@ -1674,7 +1674,7 @@ begin
 
              except
                 On E : Exception do
-                  App.ErrorPopup(E, sImg02 + ws);
+                  App.ErrorPopup(E, GetRS(sImg02) + ws);
              end;
             continue;
           end;
@@ -1715,12 +1715,12 @@ begin
              except
                 On E : Exception do begin
                   Error:= True;
-                  App.ErrorPopup(E, sImg03 + ws);
+                  App.ErrorPopup(E, GetRS(sImg03) + ws);
                 end;
              end;
 
              if Error then
-                App.ErrorPopup(sImg03 + ws);
+                App.ErrorPopup(GetRS(sImg03) + ws);
 
             continue;
           end;
@@ -1792,20 +1792,20 @@ var
 
       if not fFileIsNew then begin
         if (fExternalStorageToRead <> nil) and not fExternalStorageToRead.IsValid then begin
-           App.DoMessageBox(Format(sImg14, [AbsolutePath]), mtWarning, [mbOk]);
+           App.DoMessageBox(Format(GetRS(sImg14), [AbsolutePath]), mtWarning, [mbOk]);
            exit;
         end;
       end;
 
       if ExternalStorageType = issFolder then begin
          if (TDirectory.Exists(AbsolutePath) and not TDirectory.IsEmpty(AbsolutePath)) or FileExists(AbsolutePath) then begin
-            App.DoMessageBox(Format(sImg07, [AbsolutePath]), mtWarning, [mbOk]);
+            App.DoMessageBox(Format(GetRS(sImg07), [AbsolutePath]), mtWarning, [mbOk]);
             exit;
          end;
       end
       else begin
          if TFile.Exists(AbsolutePath) then begin
-            App.DoMessageBox(Format(sImg08, [AbsolutePath]), mtWarning, [mbOk]);
+            App.DoMessageBox(Format(GetRS(sImg08), [AbsolutePath]), mtWarning, [mbOk]);
             exit;
          end;
       end;
@@ -1827,13 +1827,13 @@ var
 
       if ExternalStorageType = issFolder then begin
          if not TDirectory.Exists(AbsolutePath) or TDirectory.IsEmpty(AbsolutePath) then begin
-            App.DoMessageBox(Format(sImg11, [AbsolutePath]), mtWarning, [mbOk]);
+            App.DoMessageBox(Format(GetRS(sImg11), [AbsolutePath]), mtWarning, [mbOk]);
             Result:= false;
          end;
       end
       else begin
          if not TZipStorage.IsValidZip(AbsolutePath) then begin
-            App.DoMessageBox(Format(sImg12, [AbsolutePath]), mtWarning, [mbOk]);
+            App.DoMessageBox(Format(GetRS(sImg12), [AbsolutePath]), mtWarning, [mbOk]);
             Result:= false;
          end;
       end;
@@ -1911,7 +1911,7 @@ begin
                smEmbRTF, smEmbKNT: begin
                   ModifyPathFormat:= (fStorageMode in [smExternal, smExternalAndEmbKNT]) and (fExternalStorageToRead.StorageType = stZip);
                   if (not (fStorageMode in [smEmbKNT, smExternalAndEmbKNT])) and ExternalStorageIsMissing then begin
-                     App.DoMessageBox(Format(sImg14, [AbsolutePath]), mtWarning, [mbOk]);
+                     App.DoMessageBox(Format(GetRS(sImg14), [AbsolutePath]), mtWarning, [mbOk]);
                      exit;
                   end;
                end;
@@ -1921,7 +1921,7 @@ begin
                       ((StorageMode = smExternalAndEmbKNT) and (fStorageMode = smExternal)) then begin
                       // It was External + [EmbKNT] and it is still External + [EmbKNT]. Has incorporated or removed the use of embKNT
                       if ExternalStorageIsMissing then begin
-                         App.DoMessageBox(Format(sImg14, [AbsolutePath]), mtWarning, [mbOk]);
+                         App.DoMessageBox(Format(GetRS(sImg14), [AbsolutePath]), mtWarning, [mbOk]);
                          exit;
                       end;
                       ModifyPathFormat:= ((ExternalStoreTypeChanged) or (ExternalStorageType = issZip));
@@ -1970,7 +1970,7 @@ begin
       end;
 
       if not ok then exit;
-      if (not fFileIsNew) and not OnlyRelocated and (App.DoMessageBox(sImg13, mtConfirmation, [mbOK,mbCancel]) <> mrOK) then
+      if (not fFileIsNew) and not OnlyRelocated and (App.DoMessageBox(GetRS(sImg13), mtConfirmation, [mbOK,mbCancel]) <> mrOK) then
          exit;
 
 
@@ -2009,10 +2009,10 @@ begin
       end;
 
       if not fFileIsNew then
-         App.InfoPopup(Format(sImg15, [fImages.Count]));
+         App.InfoPopup(Format(GetRS(sImg15), [fImages.Count]));
 
   except on E: Exception do
-     App.ErrorPopup(E, sImg16);
+     App.ErrorPopup(E, GetRS(sImg16));
   end;
 end;
 
@@ -3181,10 +3181,10 @@ begin
                 end
                 else begin
                   if Img = nil then                    // Image not included in the list of definitions (and we do not have its stream)
-                     ImgCaption:= sImg04 + '?'
+                     ImgCaption:= GetRS(sImg04) + '?'
                   else
                      if (ImagesModeDest = imImage) then
-                        ImgCaption:= sImg04 + Img.FileName
+                        ImgCaption:= GetRS(sImg04) + Img.FileName
                      else begin
                         ImgCaption:= Img.Caption;
                         if ImgCaption = '' then ImgCaption:= Img.FileName;
@@ -3288,7 +3288,7 @@ begin
 
       except
         on E: Exception do
-           App.ErrorPopup(E, sImg20);
+           App.ErrorPopup(E, GetRS(sImg20));
       end;
 
 
@@ -3328,7 +3328,7 @@ begin
    try
       if RTFPictToImage (RTFText, pPict, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, pRTFImageEnd, true) then begin
          Img:= TKntImage.Create(0, '', true, ImgFormat, Width, Height, 0,0, Stream);
-         Img.Caption:= sImg22;
+         Img.Caption:= GetRS(sImg22);
       end;
 
    finally
@@ -3774,7 +3774,7 @@ begin
 
   if ( ShellExecResult <= 32 ) then begin
     if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
-      App.ErrorPopup(Format(sImg10, [ShellExecResult, FilePath, TranslateShellExecuteError(ShellExecResult)]));
+      App.ErrorPopup(Format(GetRS(sImg10), [ShellExecResult, FilePath, TranslateShellExecuteError(ShellExecResult)]));
   end
   else begin
     if KeyOptions.MinimizeOnURL then
@@ -3858,7 +3858,7 @@ begin
 
    except
      on E: Exception do
-       App.ErrorPopup(E, sImg18);
+       App.ErrorPopup(E, GetRS(sImg18));
    end;
 end;
 

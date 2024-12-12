@@ -111,14 +111,14 @@ begin
       if FDlgCaption <> '' then
         ADlg.OriginalCaptionText := FDlgCaption
       else
-        ADlg.OriginalCaptionText := sTip01;
+        ADlg.OriginalCaptionText := GetRS(sTip01);
       ADlg.Caption := ADlg.OriginalCaptionText;
       ReadFromFile;
 
       if FTipTitle <> '' then
         ADlg.TipTitleLbl.Caption := FTipTitle
       else
-        ADlg.TipTitleLbl.Caption := sTip02;
+        ADlg.TipTitleLbl.Caption := GetRS(sTip02);
       ADlg.ShowChk.Checked := FShowAtStartup;
       ADlg.TipLbl.Font.Assign(FTipFont);
       ADlg.TipTitleLbl.Font.Assign(FTipTitleFont);
@@ -135,7 +135,7 @@ begin
       end
       else
       begin
-       ADlg.TipLbl.Caption := sTip03;
+       ADlg.TipLbl.Caption := GetRS(sTip03);
        ADlg.Button_Next.Enabled := False;
        ADlg.Button_Prev.Enabled := False;
       end;

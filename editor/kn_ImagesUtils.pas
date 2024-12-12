@@ -880,7 +880,7 @@ begin
 
   except
      on E : Exception do begin
-        App.ErrorPopup(E, sImgU01);
+        App.ErrorPopup(E, GetRS(sImgU01));
         Result:= '';
         exit;
      end;
@@ -1012,7 +1012,7 @@ begin
 
  except
      on E : Exception do begin
-        App.ErrorPopup(E, sImgU02);
+        App.ErrorPopup(E, GetRS(sImgU02));
         Result:= false;
      end;
  end;
@@ -1069,7 +1069,7 @@ begin
 
  except
      on E : Exception do begin
-        App.ErrorPopup(E, sImgU03);
+        App.ErrorPopup(E, GetRS(sImgU03));
         Result:= false;
      end;
  end;
@@ -1269,7 +1269,7 @@ begin
 
   except
      on E : Exception do begin
-        App.ErrorPopup(E, sImgU04);
+        App.ErrorPopup(E, GetRS(sImgU04));
      end;
   end;
 

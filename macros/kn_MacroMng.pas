@@ -209,12 +209,12 @@ begin
   MacroRecordingPaused := false;
   with Form_Main do begin
     TB_MacroRecord.ImageIndex := TB_MacroRecord.ImageIndex + 1;
-    TB_MacroRecord.Hint := sMacM01;
-    MacMMacro_Record.Caption := sMacM02;
+    TB_MacroRecord.Hint := GetRS(sMacM01);
+    MacMMacro_Record.Caption := GetRS(sMacM02);
     MacMMacro_Record.Hint := TB_MacroRecord.Hint;
     MacMMacroUserCommand.Enabled := true;
 
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( sMacM03, [ActiveMacro.Name] );
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sMacM03), [ActiveMacro.Name] );
     SelectStatusbarGlyph( true );
   end;
 
@@ -243,7 +243,7 @@ begin
 
   if ( aCmd in CommandsProhibitedInMacros ) then begin
     messagedlg( Format(
-      sMacM04,
+      GetRS(sMacM04),
       [EDITCMD_NAMES[aCmd]]
       ), mtWarning, [mbOK], 0 );
     exit;
@@ -257,7 +257,7 @@ begin
   end
   else
   if ( aCMD in EditCommandsWithDialogs ) then begin
-    case messagedlg( sMacM05,
+    case messagedlg( GetRS(sMacM05),
       mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
         mrYes : OnPlayShowDlg := false;
         mrNo : OnPlayShowDlg := true;
@@ -451,9 +451,9 @@ begin
   MacroRecordingPaused := ( not MacroRecordingPaused );
   Form_Main.TB_MacroPause.Down := MacroRecordingPaused;
   if MacroRecordingPaused then
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM06
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM06)
   else
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM07;
+    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM07);
 end; // PauseRecordingMacro
 
 
@@ -468,30 +468,30 @@ begin
       Form_Main.MacMMacroUserCommand.Enabled := false;
 
       if ( ActiveMacro.Lines.Count = 0 ) then begin
-        Messagedlg( Format(sMacM08,[ActiveMacro.Name]), mtInformation, [mbOK], 0 );
+        Messagedlg( Format(GetRS(sMacM08),[ActiveMacro.Name]), mtInformation, [mbOK], 0 );
         ActiveMacro.Free;
         exit;
       end;
 
-      if (messagedlg(Format(sMacM09, [ActiveMacro.Name,ActiveMacro.Lines.Count]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrNo ) then begin
+      if (messagedlg(Format(GetRS(sMacM09), [ActiveMacro.Name,ActiveMacro.Lines.Count]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrNo ) then begin
         if ( not ActiveMacro.Save ) then begin
-          messagedlg( Format(sMacM10, [ActiveMacro.FileName,ActiveMacro.LastError]), mtError, [mbOK], 0 );
+          messagedlg( Format(GetRS(sMacM10), [ActiveMacro.FileName,ActiveMacro.LastError]), mtError, [mbOK], 0 );
           ActiveMacro.Free;
           exit;
         end;
         Form_Main.ListBox_ResMacro.ItemIndex := Form_Main.ListBox_ResMacro.AddItem( ActiveMacro.Name, cbUnchecked, GetMacroIconIndex( ActiveMacro ));
         Macro_List.AddObject( ActiveMacro.Name, ActiveMacro );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM11
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM11)
       end
       else begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM12;
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM12);
         ActiveMacro.Free;
       end;
 
     except
       on E : Exception do begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM13;
-        messagedlg( Format(sMacM14, [ActiveMacro.Name,E.Message] ), mtError, [mbOK], 0 );
+        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM13);
+        messagedlg( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ), mtError, [mbOK], 0 );
         ActiveMacro.Free;
       end;
     end;
@@ -503,8 +503,8 @@ begin
     with Form_Main do begin
       SelectStatusbarGlyph( true );
       TB_MacroRecord.ImageIndex := TB_MacroRecord.ImageIndex - 1;
-      TB_MacroRecord.Hint := sMacM15;
-      MacMMacro_Record.Caption := sMacM16;
+      TB_MacroRecord.Hint := GetRS(sMacM15);
+      MacMMacro_Record.Caption := GetRS(sMacM16);
       MacMMacro_Record.Hint := TB_MacroRecord.Hint;
     end;
   end;
@@ -539,7 +539,7 @@ begin
 
   wasreadonly := Form_Main.FolderIsReadOnly(ActiveFolder, false);
   if wasreadonly then begin
-    if ( App.DoMessageBox( Format(sMacM17,[ActiveFolder.Name]), mtWarning, [mbYes,mbNo] ) <> mrYes ) then
+    if ( App.DoMessageBox( Format(GetRS(sMacM17),[ActiveFolder.Name]), mtWarning, [mbYes,mbNo] ) <> mrYes ) then
        exit;
     ActiveFolder.ReadOnly := false;
   end;
@@ -558,7 +558,7 @@ begin
   IsRunningMacro := true;
   MacroAbortRequest := false;
   MacroErrorAbort := false;
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(sMacM19, [Macro.Name] );
+  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sMacM19), [Macro.Name] );
   screen.Cursor := crAppStart;
   SelectStatusbarGlyph( true );
 
@@ -569,18 +569,18 @@ begin
   end;
 
   LastMacroFN := ExtractFilename( Macro.FileName );
-  Form_Main.MMToolsMacroRunLast.Hint := Format(sMacM20, [LastMacroFN]);
+  Form_Main.MMToolsMacroRunLast.Hint := Format(GetRS(sMacM20), [LastMacroFN]);
 
   try
     try
       if ( not Macro.Load ) then begin
          if not IsAutorunMacro(aFileName) then
-            App.ErrorPopup(Format(sMacM21, [Macro.FileName,Macro.LastError]));
+            App.ErrorPopup(Format(GetRS(sMacM21), [Macro.FileName,Macro.LastError]));
          exit;
       end;
 
       if ( Macro.Version.Major > _MACRO_VERSION_MAJOR ) then begin
-         App.ErrorPopup(Format(sMacM22, [Macro.FileName]));
+         App.ErrorPopup(Format(GetRS(sMacM22), [Macro.FileName]));
          exit;
       end;
 
@@ -596,12 +596,12 @@ begin
   finally
 
     if MacroErrorAbort then
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM23
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM23)
     else
     if MacroAbortRequest then
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM24
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM24)
     else
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM25;
+       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM25);
 
     try
       if wasNewMacro then
@@ -644,7 +644,7 @@ begin
       exit;
 
     if ( not Macro.Load ) then begin
-      App.ErrorPopup(Format(sMacM21, [Macro.FileName, Macro.LastError]));
+      App.ErrorPopup(Format(GetRS(sMacM21), [Macro.FileName, Macro.LastError]));
       Macro.Free;
       exit;
     end;
@@ -685,7 +685,7 @@ begin
           end;
 
           if ( not Macro.Save ) then begin
-            App.ErrorPopup(Format(sMacM10, [Macro.FileName,Macro.LastError]));
+            App.ErrorPopup(Format(GetRS(sMacM10), [Macro.FileName,Macro.LastError]));
             exit;
           end;
         end;
@@ -717,7 +717,7 @@ begin
   Macro := GetCurrentMacro( true, index );
   if ( macro = nil ) then exit;
 
-  if ( App.DoMessageBox( Format(sMacM26, [Macro.Name]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
+  if ( App.DoMessageBox( Format(GetRS(sMacM26), [Macro.Name]), mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
      exit;
 
   DeleteSuccess := false;
@@ -727,7 +727,7 @@ begin
 
       if ( not deletefile( FilePath )) then begin
         DeleteSuccess := false;
-        App.ErrorPopup(Format(sMacM27, [FilePath]));
+        App.ErrorPopup(Format(GetRS(sMacM27), [FilePath]));
         exit;
       end;
       Form_Main.ListBox_ResMacro.Items.Delete( index );
@@ -741,7 +741,7 @@ begin
     except
       on E : Exception do begin
         DeleteSuccess := false;
-        App.ErrorPopup(E, sMacM28);
+        App.ErrorPopup(E, GetRS(sMacM28));
       end;
     end;
 
@@ -773,7 +773,7 @@ var
 
    procedure AbortMacro( const s : string; i : integer; const line : string );
    begin
-     messagedlg( Format(sMacM29, [i,copy( line, 1, 127 ),s]), mtError, [mbOK], 0 );
+     messagedlg( Format(GetRS(sMacM29), [i,copy( line, 1, 127 ),s]), mtError, [mbOK], 0 );
      MacroFinished := true;
      MacroErrorAbort := true;
    end;
@@ -848,7 +848,7 @@ begin
               cmdidx := EditCmds.IndexOf( cmdstr );
               if ( cmdidx < 0 ) then
                  if Macro.AbortOnError then begin
-                   AbortMacro( sMacM30, i, Macro.Lines[pred( i )] );
+                   AbortMacro( GetRS(sMacM30), i, Macro.Lines[pred( i )] );
                    break;
                  end
                  else begin
@@ -1028,7 +1028,7 @@ begin
                 p := pos( ')', line );
                 if ( p = 0 ) then begin
                   if Macro.AbortOnError then begin
-                    AbortMacro( sMacM31, i, Macro.Lines[pred( i )] );
+                    AbortMacro( GetRS(sMacM31), i, Macro.Lines[pred( i )] );
                     break;
                   end
                   else begin
@@ -1043,7 +1043,7 @@ begin
               cmdidx := MacroCmds.IndexOf( cmdstr );
               if ( cmdidx < 0 ) then begin
                 if Macro.AbortOnError then begin
-                  AbortMacro( sMacM32, i, Macro.Lines[pred( i )] );
+                  AbortMacro( GetRS(sMacM32), i, Macro.Lines[pred( i )] );
                   break;
                 end
                 else begin
@@ -1062,7 +1062,7 @@ begin
                   // still no argument?
                   if ( argstr = '' ) then begin
                     if Macro.AbortOnError then begin
-                      AbortMacro( sMacM33, i, Macro.Lines[pred( i )] );
+                      AbortMacro( GetRS(sMacM33), i, Macro.Lines[pred( i )] );
                       break;
                     end
                     else begin
@@ -1079,7 +1079,7 @@ begin
                     argint := StrToInt( trim( argstr ));
                   except
                     if Macro.AbortOnError then begin
-                      AbortMacro( sMacM34, i, Macro.Lines[pred( i )] );
+                      AbortMacro( GetRS(sMacM34), i, Macro.Lines[pred( i )] );
                       break;
                     end
                     else begin
@@ -1146,7 +1146,7 @@ begin
                     newMacro.FileName := argstr;
                     if ( not NewMacro.Load ) then begin
                       if Macro.AbortOnError then begin
-                        AbortMacro( Format(sMacM35,[argstr, Macro.LastError]), i, Macro.Lines[pred( i )] );
+                        AbortMacro( Format(GetRS(sMacM35),[argstr, Macro.LastError]), i, Macro.Lines[pred( i )] );
                         break;
                       end
                       else begin
@@ -1174,7 +1174,7 @@ begin
                 macNoteNewRTF, macNoteNewTree : begin
                   // always abort if fail
                   if ( not TKntFolder.NewKntFolder( true, true )) then begin
-                    AbortMacro( sMacM36, i, Macro.Lines[pred( i )] );
+                    AbortMacro( GetRS(sMacM36), i, Macro.Lines[pred( i )] );
                     break;
                   end;
                 end;
@@ -1208,7 +1208,7 @@ begin
                     myFontStyle := fsStrikeout
                   else begin
                     if Macro.AbortOnError then begin
-                      AbortMacro(sMacM37, i, Macro.Lines[pred( i )] );
+                      AbortMacro(GetRS(sMacM37), i, Macro.Lines[pred( i )] );
                       break;
                     end
                     else begin
@@ -1310,7 +1310,7 @@ begin
       On E : Exception do begin
         MacroFinished := true;
         MacroErrorAbort := true;
-        messagedlg( Format(sMacM38,[E.Message,copy( Macro.Lines[pred(linecnt)], 1, 127 ),linecnt]), mtError, [mbOK], 0 );
+        messagedlg( Format(GetRS(sMacM38),[E.Message,copy( Macro.Lines[pred(linecnt)], 1, 127 ),linecnt]), mtError, [mbOK], 0 );
       end;
     end;
 
@@ -1326,7 +1326,7 @@ function MacroProcess( const DoWarn : boolean ) : boolean;
 begin
   result := ( IsRunningMacro or IsRecordingMacro );
   if ( result and DoWarn ) then
-     messagedlg( sMacM39, mtInformation, [mbOK], 0 );
+     messagedlg( GetRS(sMacM39), mtInformation, [mbOK], 0 );
 end; // MacroProcess
 
 
@@ -1364,7 +1364,7 @@ begin
     result := TMacro( Macro_List.Objects[i] )
   else
     if DoWarn then
-       App.ErrorPopup(Format( sMacM40, [aName]));
+       App.ErrorPopup(Format( GetRS(sMacM40), [aName]));
 
 end; // GetMacroByName
 
@@ -1379,7 +1379,7 @@ begin
 
   if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or (Index < 0)) then begin
     if DoWarn then
-       messagedlg( sMacM41, mtError, [mbOK], 0 );
+       messagedlg( GetRS(sMacM41), mtError, [mbOK], 0 );
     exit;
   end;
 
@@ -1393,7 +1393,7 @@ begin
 
   finally
     if (( result = nil ) and DoWarn ) then
-       messagedlg( sMacM42, mtError, [mbOK], 0 );
+       messagedlg( GetRS(sMacM42), mtError, [mbOK], 0 );
   end;
 end; // GetCurrentMacro
 
@@ -1464,7 +1464,7 @@ begin
     end;
   end
   else
-     Form_Main.StatusBar.Panels[PANEL_HINT].Text := sMacM43;
+     Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM43);
 
 end; // RepeatLastCommand
 
@@ -1491,7 +1491,7 @@ begin
       {$IFDEF KNT_DEBUG}
        Log.Add( 'ActiveEditor not assigned in PerformCmd (' + inttostr( ord( aCmd )) + ')' );
       {$ENDIF}
-       App.PopupMessage( Format( sMacM44, [ord( aCmd )] ), mtError, [mbOK] );
+       App.PopupMessage( Format( GetRS(sMacM44), [ord( aCmd )] ), mtError, [mbOK] );
     end;
     exit;
   end;
@@ -1541,7 +1541,7 @@ begin
             if not assigned(ActiveFolder) then exit;
 
             if ( ActiveFolder = ClipCapMng.ClipCapFolder ) then
-               errorStr:= sMacM45
+               errorStr:= GetRS(sMacM45)
             else begin
               ActiveFolder.ReadOnly := (not ActiveFolder.ReadOnly);
               Form_Main.UpdateFolderDisplay;
@@ -1554,14 +1554,14 @@ begin
             try
               Editor.SaveTextAttributes(FontFormatToCopy);
             except
-              errorStr:= sMacM46;
+              errorStr:= GetRS(sMacM46);
             end;
 
           ecParaFormatCopy :
             try
               Editor.SaveParagraphAttributes(ParaFormatToCopy);
             except
-              errorStr:= sMacM47;
+              errorStr:= GetRS(sMacM47);
             end;
 
           ecCopyFormat :
@@ -1575,7 +1575,7 @@ begin
                 end;
 
             except
-              errorStr:= sMacM58;
+              errorStr:= GetRS(sMacM58);
             end;
 
           ecInsOvrToggle : begin                                  // Currently only applies to Folder, not to the Editor
@@ -1593,7 +1593,7 @@ begin
           ecGoTo : begin
             s := CommandRecall.GoToIdx;
             if ( not RecallingCommand ) then begin
-              if ( not InputQuery( sMacM48, sMacM49, s )) then
+              if ( not InputQuery( GetRS(sMacM48), GetRS(sMacM49), s )) then
                  s := '';
             end;
             if ( s <> '' ) then begin
@@ -1637,7 +1637,7 @@ begin
 
   except
       on E : Exception do begin
-        App.PopupMessage( sMacM51 + #13 + E.Message, mtError, [mbOK] );
+        App.PopupMessage( GetRS(sMacM51) + #13 + E.Message, mtError, [mbOK] );
        {$IFDEF KNT_DEBUG}
         Log.Add( 'Exception in PerformCmdEx (' + inttostr( ord( aCMD )) + '): ' + E.Message );
        {$ENDIF}
@@ -1872,13 +1872,13 @@ begin
             if FontFormatToCopy.szFaceName <> '' then
                ApplyTextAttributes(FontFormatToCopy )
             else
-               App.PopupMessage( sMacM52, mtError, [mbOK] );
+               App.PopupMessage( GetRS(sMacM52), mtError, [mbOK] );
 
           ecParaFormatPaste :
             if ParaFormatToCopy.dySpaceBefore >= 0 then   // if negative, user has not yet COPIED para format
                ApplyParagraphAttributes(ParaFormatToCopy)
             else
-               App.PopupMessage( sMacM53, mtError, [mbOK] );
+               App.PopupMessage( GetRS(sMacM53), mtError, [mbOK] );
 
           ecPasteFormat : begin
              if (ParaFormatToCopy.dySpaceBefore >= 0) and         // paragraph formatting was saved
@@ -1966,7 +1966,7 @@ begin
                 SelAttributes.Size := strtoint( Form_Main.Combo_FontSize.Text );
                 CommandRecall.Font.Size := SelAttributes.Size;
               except
-                messagedlg( Format( sMacM54, [Form_Main.Combo_FontSize.Text] ), mtError, [mbOK], 0 );
+                messagedlg( Format( GetRS(sMacM54), [Form_Main.Combo_FontSize.Text] ), mtError, [mbOK], 0 );
                 Canceled:= True;
               end;
             end;
@@ -2074,7 +2074,7 @@ begin
                     NNode.EditorBGColor := tempChrome.BGColor;
 
                  if ShiftWasDown then begin
-                   if ( messagedlg( format(sMacM55, [ActiveFolder.Name]),
+                   if ( messagedlg( format(GetRS(sMacM55), [ActiveFolder.Name]),
                        mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
                      try
                        myTreeNode := TreeUI.TV.GetFirst;
@@ -2397,7 +2397,7 @@ begin
 
       except
         on E : Exception do begin
-          App.PopupMessage( sMacM51 + #13 + E.Message, mtError, [mbOK] );
+          App.PopupMessage( GetRS(sMacM51) + #13 + E.Message, mtError, [mbOK] );
          {$IFDEF KNT_DEBUG}
           Log.Add( 'Exception in PerformCmd (' + inttostr( ord( aCMD )) + '): ' + E.Message );
          {$ENDIF}
@@ -2439,7 +2439,7 @@ begin
       RTFMRepeatCmd.Enabled := MMEditRepeat.Enabled;
       TB_Repeat.Enabled := MMEditRepeat.Enabled;
 
-      MMEditRepeat.Caption := Format( sMacM56, [EDITCMD_NAMES[LastEditCmd]] );
+      MMEditRepeat.Caption := Format( GetRS(sMacM56), [EDITCMD_NAMES[LastEditCmd]] );
       RTFMRepeatCmd.Caption := MMEditRepeat.Caption;
       TB_Repeat.Hint := MMEditRepeat.Caption;
   end;
@@ -2594,7 +2594,7 @@ begin
     oldFilter := Filter;
     Filter := FILTER_MACROS;
     FilterIndex := 1;
-    Title := sMacM57;
+    Title := GetRS(sMacM57);
     Options := Options - [ofAllowMultiSelect];
     InitialDir := Macro_Folder;
     FileName := LastMacroFN;

@@ -254,14 +254,14 @@ begin
         UV.lblCurrentVersion.Caption:= CurrentVersion;
         UV.txtChanges.Text:= Changes;
         if WithoutInternetAccess then
-           UV.lblStatus.Caption:= sUpd03
+           UV.lblStatus.Caption:= GetRS(sUpd03)
         else begin
            if IsLaterVersion(Program_Version_Number, CurrentVersion) then begin
-              UV.lblStatus.Caption:= sUpd02;
+              UV.lblStatus.Caption:= GetRS(sUpd02);
               UV.lblStatus.Font.Color:= clRed;
            end
            else
-              UV.lblStatus.Caption:= sUpd01;
+              UV.lblStatus.Caption:= GetRS(sUpd01);
         end;
 
         UV.ShowModal;

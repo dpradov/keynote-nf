@@ -104,11 +104,11 @@ var
 begin
   OnActivate := nil;
   if ( NumberOfFiles < 2 ) then
-    s := sFDrp01
+    s := GetRS(sFDrp01)
   else
-    s := sFDrp02;
+    s := GetRS(sFDrp02);
 
-  Caption := Format(sFDrp03, [NumberOfFiles, FileExt, s] );
+  Caption := Format(GetRS(sFDrp03), [NumberOfFiles, FileExt, s] );
 
   try
     OfferImageLinkMode:= chk_ImageLinkMode.Visible;
@@ -124,7 +124,7 @@ begin
     else
     if ShowWarningRenamedNames then begin
        lblRenamed.Visible:= true;
-       lblRenamed.Caption:= sFDrp07;
+       lblRenamed.Caption:= GetRS(sFDrp07);
     end;
 
   except
@@ -137,12 +137,12 @@ procedure TForm_DropFile.Btn_HTMLClick(Sender: TObject);
 begin
   case PagesImp.PageIndex of
     0 : begin
-      Btn_HTML.Caption := sFDrp04;
+      Btn_HTML.Caption := GetRS(sFDrp04);
       PagesImp.PageIndex := 1;
     end;
     1 : begin
       PagesImp.PageIndex := 0;
-      Btn_HTML.Caption := sFDrp06
+      Btn_HTML.Caption := GetRS(sFDrp06)
     end;
   end;
 end;
@@ -154,7 +154,7 @@ var
 begin
   if Btn_HTML.Visible then begin
     Btn_HTML.Enabled := true;
-    Btn_HTML.Caption := sFDrp06;
+    Btn_HTML.Caption := GetRS(sFDrp06);
   end;
 
   if Visible then begin

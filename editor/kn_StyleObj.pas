@@ -84,7 +84,7 @@ begin
   end
   else
   begin
-    result:= format(sSty01,
+    result:= format(GetRS(sSty01),
                 [Font.Name, inttostr( Font.Size ), FontStyleToStr( Font.Style ),
                  ColorToString( Font.Color ), TextInfoToStr( Text )]);
   end;
@@ -95,7 +95,7 @@ begin
   if short then
   begin
   result := Format(
-  sSty02,
+  GetRS(sSty02),
   [
     AlignmentToStr( Para.Alignment ),
     LineSpacingRuleToStr( Para.SpacingRule ),
@@ -109,7 +109,7 @@ begin
   end
   else
   begin
-    result:= format(sSty03,
+    result:= format(GetRS(sSty03),
                         [AlignmentToStr( Para.Alignment ), LineSpacingRuleToStr( Para.SpacingRule ),
                          NumberingToStr( Para.Numbering ), inttostr( Para.LIndent ),
                          inttostr( Para.FIndent ), inttostr( Para.RIndent ),
@@ -355,11 +355,11 @@ end; // AddToStyleManager
 function LineSpacingToStr( const spc : integer ) : string;
 begin
   case spc of
-    0 : result := sSty04;
+    0 : result := GetRS(sSty04);
     1 : result := '1.5';
-    2 : result := sSty05;
+    2 : result := GetRS(sSty05);
     else
-      result := sSty06;
+      result := GetRS(sSty06);
   end;
 end; // LineSpacingToStr
 
@@ -381,12 +381,12 @@ end; // LineSpacingRuleToStr
 function NumberingToStr( const num : TRxNumbering ) : string;
 begin
   case num of
-    nsBullet : result := sSty07;
+    nsBullet : result := GetRS(sSty07);
     nsArabicNumbers,
     nsLoCaseLetter,
     nsUpCaseLetter,
     nsLoCaseRoman,
-    nsUpCaseRoman : result := sSty06;
+    nsUpCaseRoman : result := GetRS(sSty06);
     else
       result := '';
   end;
@@ -395,20 +395,20 @@ end; // NumberingToStr
 function AlignmentToStr( const al : TParaAlignment ) : string;
 begin
   case al of
-    paLeftJustify : result := sSty08;
-    paRightJustify : result := sSty09;
-    paCenter : result := sSty10;
-    paJustify : result := sSty11;
+    paLeftJustify : result := GetRS(sSty08);
+    paRightJustify : result := GetRS(sSty09);
+    paCenter : result := GetRS(sSty10);
+    paJustify : result := GetRS(sSty11);
     else
-      result := sSty06;
+      result := GetRS(sSty06);
   end;
 end; // AlignmentToStr
 
 function SubscriptStyleToStr( const ssStyle : TSubscriptStyle ) : string;
 begin
   case ssStyle of
-    ssSuperscript : result := sSty12;
-    ssSubscript : result := sSty13;
+    ssSuperscript : result := GetRS(sSty12);
+    ssSubscript : result := GetRS(sSty13);
     else
       result := '';
   end;
@@ -420,14 +420,14 @@ begin
   with ti do
   begin
     case SubscriptStyle of
-      ssSubscript : result := sSty14;
-      ssSuperscript : result := sSty15;
+      ssSubscript : result := GetRS(sSty14);
+      ssSuperscript : result := GetRS(sSty15);
     end;
 
     if Disabled then
-      result := result + sSty16;
+      result := result + GetRS(sSty16);
     if HasHighlight then
-      result := result + sSty17;
+      result := result + GetRS(sSty17);
 
   end;
 

@@ -478,7 +478,7 @@ begin
       Application.OnException := ShowException;
       //Application.HelpFile := normalFN( changefileext( Application.ExeName, ext_HLP ));         //*1
       Application.HelpFile := normalFN( changefileext( Application.ExeName, ext_CHM ));
-      OpenDlg.Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES {$ENDIF} + '|' + FILTER_ALLFILES;
+      OpenDlg.Filter := FILTER_NOTEFILES {$IFDEF WITH_DART} + '|' + FILTER_DARTFILES {$ENDIF} + '|' + GetRS(FILTER_ALLFILES);
 
       AddSearchModes;
       AddSearchScopes;
@@ -532,7 +532,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           App.PopupMessage( Format(sMain14, [e.Message]), mtInformation, [mbOK] );
+           App.PopupMessage( Format(GetRS(sMain14), [e.Message]), mtInformation, [mbOK] );
         end;
       end;
 
@@ -575,7 +575,7 @@ begin
       // check other instance, and do the job is necessary
       if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then begin
         if KeyOptions.WarnSingleInstance then
-           Messagedlg(sMain13, mtWarning, [mbOK], 0 );
+           Messagedlg(GetRS(sMain13), mtWarning, [mbOK], 0 );
         ClosedOnPreviousInstance := true;
         Application.ShowMainForm := false;
         try
@@ -908,7 +908,7 @@ begin
          {$IFDEF KNT_DEBUG}
            Log.Add( 'Exception from ReadOptions:' + E.Message );
          {$ENDIF}
-           App.PopupMessage(Format(sMain14, [e.Message]), mtInformation, [mbOK] );
+           App.PopupMessage(Format(GetRS(sMain14), [e.Message]), mtInformation, [mbOK] );
         end;
       end;
 

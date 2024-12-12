@@ -175,7 +175,7 @@ begin
              fn := Template_Folder + fn + ext_TXT;
 
           if FileExists(fn) then begin
-             if (App.DoMessageBox(Format(sTpl01, [ExtractFilename(fn)]), mtConfirmation, [mbOK,mbCancel] ) <> mrOK) then
+             if (App.DoMessageBox(Format(GetRS(sTpl01), [ExtractFilename(fn)]), mtConfirmation, [mbOK,mbCancel] ) <> mrOK) then
                 exit
              else
                 ReplaceExisting := true;
@@ -218,7 +218,7 @@ begin
                  i := ListBox_ResTpl.AddItem(ExtractFilename(fn), cbUnchecked, GetTemplateIconIndex(fn) );
                  ListBox_ResTpl.ItemIndex := i;
               end;
-              StatusBar.Panels[PANEL_HINT].Text := Format(sTpl02, [ExtractFilename( fn )]  );
+              StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sTpl02), [ExtractFilename( fn )]  );
 
             except
               on E : Exception do begin
@@ -277,7 +277,7 @@ begin
             oldFilter := Filter;
             Filter := FILTER_TEMPLATES;
             FilterIndex := 1;
-            Title := sTpl03;
+            Title := GetRS(sTpl03);
             Options := Options - [ofAllowMultiSelect];
             InitialDir := Template_Folder;
             FileName := LastTemplateUsed;
@@ -341,7 +341,7 @@ begin
       i := ListBox_ResTpl.ItemIndex;
       if (i < 0 ) then exit;
       fn := Template_Folder + ListBox_ResTpl.Items[i];
-      if (App.DoMessageBox( Format(sTpl04, [ListBox_ResTpl.Items[i]]), mtConfirmation, [mbOK, mbCancel] ) <> mrOK ) then
+      if (App.DoMessageBox( Format(GetRS(sTpl04), [ListBox_ResTpl.Items[i]]), mtConfirmation, [mbOK, mbCancel] ) <> mrOK ) then
           exit;
 
       ListBox_ResTpl.Items.Delete( i );

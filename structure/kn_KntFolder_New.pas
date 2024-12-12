@@ -118,7 +118,7 @@ begin
   Combo_TabName.MaxLength := TABNOTE_NAME_LENGTH;
 
   Combo_Icons.ImageList := Chest.IMG_Categories;
-  Combo_Icons.AddItem( sFldN01, -1 );
+  Combo_Icons.AddItem( GetRS(sFldN01), -1 );
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
@@ -138,7 +138,7 @@ begin
   Initializing := false;
   if ( not TAB_CHANGEABLE ) then
   begin
-    Caption := sFldN02;
+    Caption := GetRS(sFldN02);
   end;
 
   Combo_TabName.Items.BeginUpdate;
@@ -167,14 +167,14 @@ begin
   result := false;
   if ( trim( Combo_TabName.Text ) = '' ) then
   begin
-    messagedlg( sFldN03, mtError, [mbOK], 0 );
+    messagedlg( GetRS(sFldN03), mtError, [mbOK], 0 );
     Combo_TabName.SetFocus;
     exit;
   end;
 
   if ( pos( KNTLINK_SEPARATOR, Combo_TabName.Text ) > 0 ) then
   begin
-    messagedlg( Format(sFldN04,[KNTLINK_SEPARATOR]), mtError, [mbOK], 0 );
+    messagedlg( Format(GetRS(sFldN04),[KNTLINK_SEPARATOR]), mtError, [mbOK], 0 );
     Combo_TabName.SetFocus;
     exit;
   end;

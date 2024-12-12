@@ -72,8 +72,8 @@ begin
 
   ClearLanguagesList;
   Info := TLanguageInfo.Create;
-  Info.Name := LANGUAGE_DEFAULT;
-  LanguagesAvailables.AddObject( LANGUAGE_DEFAULT, Info );
+  Info.Name := GetRS(LANGUAGE_DEFAULT);
+  LanguagesAvailables.AddObject( GetRS(LANGUAGE_DEFAULT), Info );
 
   path:= ExtractFilePath( Application.ExeName ) + _LANGUAGE_FOLDER;
 
@@ -143,9 +143,9 @@ begin
       FN := '';
       TIP_FN := '';
 
-      if (LanguageUI = LANGUAGE_DEFAULT) or (LanguageUI = '') then begin
+      if (LanguageUI = GetRS(LANGUAGE_DEFAULT)) or (LanguageUI = '') then begin
          if FreeLocalizer.LanguageFile <> '' then
-            messagedlg( sLng01, mtInformation, [mbOK], 0 );
+            messagedlg( GetRS(sLng01), mtInformation, [mbOK], 0 );
          result:= True;
       end
       else begin
@@ -161,7 +161,7 @@ begin
 
           if FN <> '' then begin
              if not fileexists( path + FN ) then
-                messagedlg( sLng02 + path + FN, mtError, [mbOK], 0 )
+                messagedlg( GetRS(sLng02) + path + FN, mtError, [mbOK], 0 )
              else begin
                  if FreeLocalizer.LanguageFile <> path + FN then begin
                     FreeLocalizer.LanguageFile:= path + FN;
@@ -177,7 +177,7 @@ begin
           end;
           if TipFile <> '' then begin
              if not fileexists( path + TipFile ) then
-                App.DoMessageBox( sLng03 + path + TipFile, mtError, [mbOK] )
+                App.DoMessageBox( GetRS(sLng03) + path + TipFile, mtError, [mbOK] )
              else
                 TIP_FN := path + TipFile;
           end;
@@ -189,7 +189,7 @@ begin
   except
     on E : Exception do
     begin
-      App.DoMessageBox( sLng04 + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK]);
+      App.DoMessageBox( GetRS(sLng04) + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK]);
       exit;
     end;
   end;

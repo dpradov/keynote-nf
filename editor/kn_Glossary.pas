@@ -114,7 +114,7 @@ begin
 
     except
       On E : Exception do begin
-        ShowMessage( sGlss05 + E.Message );
+        ShowMessage( GetRS(sGlss05) + E.Message );
       end;
     end;
 
@@ -200,7 +200,7 @@ begin
 
     if ((not assigned( item )) or
         (LV.Items.Count = 0 )) then begin
-       messagedlg( sGlss00, mtInformation, [mbOK], 0 );
+       messagedlg( GetRS(sGlss00), mtInformation, [mbOK], 0 );
        exit;
     end;
 
@@ -223,7 +223,7 @@ begin
       end;
 
       if (( namestr = '' ) or ( valuestr = '' )) then begin
-         messagedlg( sGlss01, mtError, [mbOK], 0 );
+         messagedlg( GetRS(sGlss01), mtError, [mbOK], 0 );
          exit;
       end;
 
@@ -240,7 +240,7 @@ begin
           end;
 
           if assigned( dupItem ) then begin
-             if ( App.DoMessageBox( Format(sGlss02, [namestr,dupItem.subitems[0] ,valuestr] ),
+             if ( App.DoMessageBox( Format(GetRS(sGlss02), [namestr,dupItem.subitems[0] ,valuestr] ),
                                  mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
                  exit;
              item := dupItem;
@@ -279,7 +279,7 @@ begin
 
   if ( not assigned( item )) then
   begin
-    messagedlg( sGlss00, mtInformation, [mbOK], 0 );
+    messagedlg( GetRS(sGlss00), mtInformation, [mbOK], 0 );
     exit;
   end;
 
@@ -337,7 +337,7 @@ begin
 
     except
       on E : Exception do
-         messagedlg( sGlss03 + E.Message, mtError, [mbOK], 0 );
+         messagedlg( GetRS(sGlss03) + E.Message, mtError, [mbOK], 0 );
     end;
 
   end;
@@ -351,7 +351,7 @@ end;
 
 procedure TForm_Glossary.UpdateCount;
 begin
-  Caption := Format( sGlss04, [LV.Items.Count] );
+  Caption := Format( GetRS(sGlss04), [LV.Items.Count] );
 end; // UpdateCount
 
 

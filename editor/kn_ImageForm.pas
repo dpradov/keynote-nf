@@ -284,7 +284,7 @@ begin
   if not ok then begin
      btnAlwaysVisible.Down:= false;
      btnAlwaysVisibleClick(nil);
-     App.DoMessageBox(sImgF01, mtWarning, [mbOK]);
+     App.DoMessageBox(GetRS(sImgF01), mtWarning, [mbOK]);
   end;
 end;
 
@@ -351,7 +351,7 @@ begin
    fImagePath:= ImageMng.GetImagePath(Image);
    if RegisteredImg and (fImagePath <> '') then begin
       btnOpenFolder.Enabled:= true;
-      btnOpenFolder.Hint:= sImgF04 + '   ' + fImagePath;
+      btnOpenFolder.Hint:= GetRS(sImgF04) + '   ' + fImagePath;
    end
    else begin
       btnOpenFolder.Enabled:= false;
@@ -603,8 +603,8 @@ begin
   with Form_Main.SaveDlg do begin
     try
       oldFilter := Filter;
-      Title:= sImgF02;
-      Filter:= sImgF03 + FILTER_IMAGES;
+      Title:= GetRS(sImgF02);
+      Filter:= GetRS(sImgF03) + FILTER_IMAGES;
       if ( KeyOptions.LastExportPath <> '' ) then
         InitialDir := KeyOptions.LastExportPath
       else

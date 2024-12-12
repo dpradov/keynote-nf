@@ -1170,23 +1170,23 @@ end; // IsIE4Installed
 function TranslateShellExecuteError( const ErrCode : integer ) : string;
 begin
   case ErrCode of
-    0	: result := STR_ERR_OUTOFRESOURCES;
-    ERROR_FILE_NOT_FOUND : result := STR_ERROR_FILE_NOT_FOUND;
-    ERROR_PATH_NOT_FOUND : result := STR_ERROR_PATH_NOT_FOUND;
-    ERROR_BAD_FORMAT : result := STR_ERROR_BAD_FORMAT;
-    SE_ERR_ACCESSDENIED : result := STR_SE_ERR_ACCESSDENIED;
-    SE_ERR_ASSOCINCOMPLETE : result := STR_SE_ERR_ASSOCINCOMPLETE;
-    SE_ERR_DDEBUSY : result := STR_SE_ERR_DDEBUSY;
-    SE_ERR_DDEFAIL : result := STR_SE_ERR_DDEFAIL;
-    SE_ERR_DDETIMEOUT : result := STR_SE_ERR_DDETIMEOUT;
-    SE_ERR_DLLNOTFOUND : result := STR_SE_ERR_DLLNOTFOUND;
+    0	: result := GetRS(STR_ERR_OUTOFRESOURCES);
+    ERROR_FILE_NOT_FOUND : result := GetRS(STR_ERROR_FILE_NOT_FOUND);
+    ERROR_PATH_NOT_FOUND : result := GetRS(STR_ERROR_PATH_NOT_FOUND);
+    ERROR_BAD_FORMAT : result := GetRS(STR_ERROR_BAD_FORMAT);
+    SE_ERR_ACCESSDENIED : result := GetRS(STR_SE_ERR_ACCESSDENIED);
+    SE_ERR_ASSOCINCOMPLETE : result := GetRS(STR_SE_ERR_ASSOCINCOMPLETE);
+    SE_ERR_DDEBUSY : result := GetRS(STR_SE_ERR_DDEBUSY);
+    SE_ERR_DDEFAIL : result := GetRS(STR_SE_ERR_DDEFAIL);
+    SE_ERR_DDETIMEOUT : result := GetRS(STR_SE_ERR_DDETIMEOUT);
+    SE_ERR_DLLNOTFOUND : result := GetRS(STR_SE_ERR_DLLNOTFOUND);
     // SE_ERR_FNF : result := 'The specified file was not found.';
-    SE_ERR_NOASSOC : result := STR_SE_ERR_NOASSOC;
-    SE_ERR_OOM : result := STR_SE_ERR_OOM;
+    SE_ERR_NOASSOC : result := GetRS(STR_SE_ERR_NOASSOC);
+    SE_ERR_OOM : result := GetRS(STR_SE_ERR_OOM);
     // SE_ERR_PNF : result := 'The specified path was not found.';
-    SE_ERR_SHARE : result := STR_SE_ERR_SHARE;
+    SE_ERR_SHARE : result := GetRS(STR_SE_ERR_SHARE);
     else
-      result := STR_UNKNOWN_ERROR;
+      result := GetRS(STR_UNKNOWN_ERROR);
   end;
 end; // TranslateShellExecuteError
 
@@ -1451,23 +1451,23 @@ begin
 
     if (secondsDiff = 604800) or (secondsDiff >= 2*604800) then begin      // 1 week: 7d *24h*60m*60s =  604.800 seconds
        n:= secondsDiff / 604800;
-       units:= STR_weeks;
-       if n = 1 then units:= STR_week;
+       units:= GetRS(STR_weeks);
+       if n = 1 then units:= GetRS(STR_week);
        end
     else if (secondsDiff = 86400) or (secondsDiff >= 2*86400) then begin  // 1 day:      24h*60m*60s =   86.400 seconds
        n:= secondsDiff / 86400;
-       units:= STR_days;
-       if n = 1 then units:= STR_day;
+       units:= GetRS(STR_days);
+       if n = 1 then units:= GetRS(STR_day);
        end
     else if (secondsDiff = 3600) or (secondsDiff >= 2*3600)  then begin  // 1 hour:         60m*60s =    3.600 seconds
        n:= secondsDiff / 3600;
-       units:= STR_hours;
-       if n = 1 then units:= STR_hour;
+       units:= GetRS(STR_hours);
+       if n = 1 then units:= GetRS(STR_hour);
        end
     else begin
        n:= secondsDiff / 60;
-       units:= STR_minutes;
-       if n = 1 then units:= STR_minute;
+       units:= GetRS(STR_minutes);
+       if n = 1 then units:= GetRS(STR_minute);
        end;
 
 
@@ -1507,16 +1507,16 @@ begin
 
            s:= AnsiLowerCase(Trim(copy(s,i,length(s))));
            lenS:= length(s);
-           if copy(STR_minutes,1,lenS) = s then
+           if copy(GetRS(STR_minutes),1,lenS) = s then
               secondsToInc:= Round(60*n)
 
-           else if copy(STR_hours,1,lenS) = s then
+           else if copy(GetRS(STR_hours),1,lenS) = s then
               secondsToInc:= Round(60*60*n)
 
-           else if copy(STR_days,1,lenS) = s then
+           else if copy(GetRS(STR_days),1,lenS) = s then
               secondsToInc:= Round(24*60*60*n)
 
-           else if copy(STR_weeks,1,lenS) = s then
+           else if copy(GetRS(STR_weeks),1,lenS) = s then
               secondsToInc:= Round(7*24*60*60*n)
 
            else
