@@ -157,6 +157,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="3rd_party\Kryvich Delphi Localizer\KDL.Localizer.pas"/>
         <DCCReference Include="Lang\knt.RS.pas"/>
         <DCCReference Include="3rd_party\unRxLib\units\RxRichEd.pas"/>
         <DCCReference Include="3rd_party\unRxLib\units\RxPlacemnt.pas"/>
@@ -180,7 +181,6 @@
         <DCCReference Include="3rd_party\expression_evaluator\Parser.pas"/>
         <DCCReference Include="3rd_party\CRCDelphi\crc32.pas"/>
         <DCCReference Include="3rd_party\dcpcrypt-1_3\DCPcrypt.pas"/>
-        <DCCReference Include="3rd_party\Kryvich Delphi Localizer\KDL.Localizer.pas"/>
         <DCCReference Include="3rd_party\SynGdiPlus\SynGdiPlus.pas"/>
         <DCCReference Include="support\gf_Bits.pas"/>
         <DCCReference Include="support\gf_fileassoc.pas"/>

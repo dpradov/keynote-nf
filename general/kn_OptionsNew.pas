@@ -1934,13 +1934,13 @@ var
   ext : string;
 begin
   ext := '';
-  if InputQuery( 'Add text file extension', 'Enter new extension for text files:', ext ) then
+  if InputQuery( GetRS(sOpt17), GetRS(sOpt18), ext ) then
   begin
     if ( ext = '' ) then exit;
     ext := ansilowercase( ext );
     if ( List_TxtExt.Items.IndexOf( ext ) >= 0 ) then
     begin
-      showmessage( Format( 'Extension "%s" already listed.', [ext] ));
+      showmessage( Format( GetRS(sOpt19), [ext] ));
       exit;
     end;
     List_TxtExt.ItemIndex := List_TxtExt.Items.Add( ext );
@@ -1974,7 +1974,7 @@ end;
 
 procedure TForm_OptionsNew.Button_ResetTxtExtClick(Sender: TObject);
 begin
-  if ( messagedlg( 'Reset default text file extentions?',
+  if ( messagedlg( GetRS(sOpt20),
     mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then exit;
   with myOpts do
   begin

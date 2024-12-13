@@ -887,5 +887,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 65082,  "&Remove Obsolete"
 65083,  "Reopen"
 65086,  "Operation not supported by Edge WebView2 control"
-65087,  "*KDL*Mark*"
+65087,  "Add text file extension"
+65088,  "Enter new extension for text files:"
+65089,  "Extension \"%s\" already listed."
+65090,  "Reset default text file extensions?"
 }

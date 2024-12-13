@@ -837,6 +837,11 @@ const
    sOpt14 = 64893;   // Divider string can contain the following tokens:\^(CASE SENSITIVE)\^\^%s = current date\^%s = current time\^%s = replaced with one line break\^%s = encloses what to show only if source is included\^%s = source URL (with title)\^%s = source URL (with title, limited waiting time (*))\^%s = source URL (without title)\^%s = source server/domain (e.g.: "[YouTube]")\^%s = delimits divider for 2nd+ (same URL)\^\^Remember: Source tokens will be ignored if source is not shown. Also, with %%| you can vary the effective divider depending on whether source URL is shown or not
    sOpt15 = 64894;   // The Auto-Close function will work ONLY if Auto-Save is turned ON, and if no dialog box is open at the time KeyNote tries to automatically close the file. (Auto-Save is currently DISABLED.)
    sOpt16 = 64895;   // Error in TVChange: PageIndex %d  Node.AbsIdx %d
+   sOpt17 = 65087;   // Add text file extension
+   sOpt18 = 65088;   // Enter new extension for text files:
+   sOpt19 = 65089;   // Extension \"%s\" already listed.
+   sOpt20 = 65090;   // Reset default text file extensions?
+
    sOptS00 = 64897;   // General Settings
    sOptS01 = 64898;   // Rich Text Editor
    sOptS02 = 64899;   // Images
@@ -1022,7 +1027,6 @@ begin
   ResStringRec.Identifier := ID;
   ModuleInstance := NativeUInt(HInstance);
   ResStringRec.Module := @ModuleInstance;
-
   Result := MyLoadResString(@ResStringRec);
 end;
 
