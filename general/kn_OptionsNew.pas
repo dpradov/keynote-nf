@@ -951,7 +951,7 @@ begin
     HotKeyWarn := CheckBox_HotKeyWarn.Checked;
     UseOldColorDlg := CheckBox_UseOldColorDlg.Checked;
     RunAutoMacros := CheckBox_RunAutoMacros.Checked;
-    SafePrint := CheckBox_SafePrint.Checked;
+    //SafePrint := CheckBox_SafePrint.Checked;           { OBSOLETE, unused }
     IgnoreUpgrades := CB_IgnoreUpgrades.Checked;
     ResPanelActiveUpdate := CB_ResPanelActiveUpdate.Checked;
     // UseNewStyleURL := CB_UseNewStyleURL.Checked;
@@ -1171,7 +1171,7 @@ begin
     CheckBox_HotKeyWarn.Checked := HotKeyWarn;
     CheckBox_UseOldColorDlg.Checked := UseOldColorDlg;
     CheckBox_RunAutoMacros.Checked := RunAutoMacros;
-    CheckBox_SafePrint.Checked := SafePrint;
+    //CheckBox_SafePrint.Checked := SafePrint;              { OBSOLETE, unused }
     CB_IgnoreUpgrades.Checked := IgnoreUpgrades;
     CB_ResPanelActiveUpdate.Checked := ResPanelActiveUpdate;
     // CB_UseNewStyleURL.Checked := UseNewStyleURL;

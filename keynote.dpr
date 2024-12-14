@@ -29,7 +29,6 @@ uses
   knt.RS in 'Lang\knt.RS.pas',
   RxRichEd in '3rd_party\unRxLib\units\RxRichEd.pas',
   RxPlacemnt in '3rd_party\unRxLib\units\RxPlacemnt.pas',
-  RichPrint in '3rd_party\richprint\RichPrint.pas',
   TB97Ctls in '3rd_party\tb97_178a\Source\TB97Ctls.pas',
   ColorPicker in '3rd_party\colorpicker\ColorPicker.pas',
   ComCtrls95 in '3rd_party\ComCtrls95\ComCtrls95.pas',

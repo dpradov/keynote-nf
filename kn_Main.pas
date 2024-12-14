@@ -64,7 +64,6 @@ uses
    TopWnd,
    ColorPicker,
    VirtualTrees,
-   RichPrint,
 
    kn_Info,
    kn_Msgs,
@@ -269,7 +268,6 @@ type
     MMEditDelLine: TMenuItem;
     TB_FontDlg: TToolbarButton97;
     MMNotePrint: TMenuItem;
-    PrintDlg: TPrintDialog;
     N27: TMenuItem;
     MMNoteClipCapture: TMenuItem;
     N28: TMenuItem;
@@ -976,8 +974,6 @@ type
     procedure MMNotePrintClick(Sender: TObject);
     procedure MMNoteClipCaptureClick(Sender: TObject);
     procedure MMFilePageSetupClick(Sender: TObject);
-    procedure RichPrinterBeginDoc(Sender: TObject);
-    procedure RichPrinterEndDoc(Sender: TObject);
     procedure MMNotePrintPreview_Click(Sender: TObject);
     procedure MMEditCopyAllClick(Sender: TObject);
     procedure MMEditPasteAsNewFolderClick(Sender: TObject);
@@ -1313,8 +1309,12 @@ type
 
   public
     Res_RTF: TKntRichEdit;
-    RichPrinter: TRichPrinter;
     ShortcutAltDownMenuItem: TMenuItem;
+	
+    PrintDlg: TPrintDialog;
+	PageSetupDlg : TPageSetupDialog;
+	
+
 
     procedure UpdateOpenFile;
     procedure UpdateFileModifiedState;
@@ -1559,6 +1559,10 @@ begin
   FRestoreFocusInEditor:= 0;
   Application.OnIdle := ApplicationEventsIdle;
   ShortcutAltDownMenuItem:= nil;
+  
+  PrintDlg:= TPrintDialog.Create(Self);
+  PageSetupDlg := TPageSetupDialog.Create(Self);
+  PrintDlg.Options:= [poPrintToFile];  
 end;
 // CREATE
 
@@ -2028,6 +2032,9 @@ begin
 
   try
     try
+      PrintDlg.Free;
+      PageSetupDlg.Free;
+	
       DestroyVCLControls;
       if assigned( ActiveFile ) then ActiveFile.Free;
 
@@ -3878,11 +3885,6 @@ begin
   FolderChanged;
 end; // FOLDERMON CHANGE
 
-procedure TForm_Main.MMNotePrintClick(Sender: TObject);
-begin
-  PrintRTFNote;
-end;
-
 procedure TForm_Main.WMChangeCBChain(var Msg: TWMChangeCBChain);
 begin
   with ClipCapMng do begin
@@ -3908,60 +3910,44 @@ begin
   ClipCapMng.Toggle (TB_ClipCap.Down, ActiveEditor);
 end;
 
+
 procedure TForm_Main.MMFilePageSetupClick(Sender: TObject);
 begin
-  if ( not assigned( RichPrinter )) then
-  begin
-      try
-         RichPrinter := TRichPrinter.Create(Form_Main);
-      except
-        On E : Exception do
-        begin
-          showmessage( E.Message );
-          exit;
-        end;
-      end;
-  end;
-
-   try
-      RichPrinter.PageDialog;
-    // PageSetupDlg.Execute;
+  try
+     PageSetupDlg.Execute;
    except
-      On E : Exception do
-      begin
-        showmessage( E.Message );
-      end;
+     On E : Exception do
+        App.ErrorPopup(E);
    end;
-
 end;
 
-procedure TForm_Main.RichPrinterBeginDoc(Sender: TObject);
+procedure TForm_Main.MMNotePrintClick(Sender: TObject);
 begin
-  StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain29);
+   try
+      PrintRtfFolder;
+   except
+     On E : Exception do
+        App.ErrorPopup(E);
+   end;
 end;
 
-procedure TForm_Main.RichPrinterEndDoc(Sender: TObject);
-begin
-  StatusBar.Panels[PANEL_HINT].Text := GetRS(sMain30);
-end;
 
 procedure TForm_Main.MMNotePrintPreview_Click(Sender: TObject);
 begin
+  App.InfoPopup('Functionality temporarily unavailable');
+  {
   if not App.CheckActiveEditor then exit;
 
-  if ( not assigned( RichPrinter )) then begin   // [dpv]
-      try                                     // [DPV]
-         Form_Main.RichPrinter := TRichPrinter.Create(Form_Main);
-      except
-        On E : Exception do begin
-          showmessage( E.Message );
-          exit;
-        end;
-      end;
-  end;
+  try
+     ActiveEditor.CreatePrnPrew(ActiveFolder.Name);
 
-  RichPrinter.PrintRichEditPreview( TCustomRichEdit( ActiveEditor ));
+  except
+     On E : Exception do
+       App.ErrorPopup(E);
+  end;
+  }
 end; // MMPrintpreviewClick
+
 
 procedure TForm_Main.MMEditCopyAllClick(Sender: TObject);
 begin

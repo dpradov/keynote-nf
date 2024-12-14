@@ -4060,15 +4060,6 @@ object Form_Main: TForm_Main
     Left = 622
     Top = 117
   end
-  object PrintDlg: TPrintDialog
-    FromPage = 1
-    MinPage = 1
-    MaxPage = 9999
-    Options = [poPrintToFile, poSelection]
-    ToPage = 9999
-    Left = 28
-    Top = 72
-  end
   object MRUMenu: TPopupMenu
     HelpContext = 539
     Left = 509

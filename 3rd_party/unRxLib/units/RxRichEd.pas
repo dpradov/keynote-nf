@@ -612,7 +612,9 @@ type
     function FindDialog(const SearchStr: string): TFindDialog;
     function ReplaceDialog(const SearchStr, ReplaceStr: string): TReplaceDialog;
     function FindNext: Boolean;
-    procedure Print(const Caption: string); virtual;
+
+    // [dpv]: OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
+    function Print(const Caption: string; OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1): integer; virtual;
   {$IFDEF RX_ENHPRINT}
     procedure CreatePrnPrew(const Caption: string); virtual;
   {$ENDIF RX_ENHPRINT}
@@ -6261,8 +6263,10 @@ begin
       Result := GetTextLen;
 end;
 
-
-procedure TRxCustomRichEdit.Print(const Caption: string);
+// [dpv]: OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
+function TRxCustomRichEdit.Print(const Caption: string;
+                                 OwnPrintJob: boolean= true;
+                                 FirstPageMarginTop: integer = -1): integer;
 var
   Range: TFormatRange;
   LastChar, MaxLen, LogX, LogY, OldMap: Integer;
@@ -6275,7 +6279,8 @@ begin
   FillChar(Range, SizeOf(TFormatRange), 0);
   with Printer, Range do begin
     Title := Caption;
-    BeginDoc;
+    if OwnPrintJob then
+       BeginDoc;
     hdc := Handle;
     hdcTarget := hdc;
     LogX := GetDeviceCaps(Handle, LOGPIXELSX);
@@ -6294,8 +6299,8 @@ begin
     rcPage := rc;
     SaveRect := rc;
     LastChar := 0;
-  	MaxLen:= TextLength;                                           // dpv
-  {                                                                // dpv
+  	MaxLen:= TextLength;                                           // [dpv]
+  {                                                                // [dpv]
     if RichEditVersion >= 2 then begin
       with TextLenEx do begin
         flags := GTL_DEFAULT;
@@ -6310,16 +6315,25 @@ begin
     OldMap := SetMapMode(hdc, MM_TEXT);
     SendMessage(Self.Handle, EM_FORMATRANGE, 0, 0);    { flush buffer }
     try
+      if FirstPageMarginTop >= 0 then
+         rc.Top:= FirstPageMarginTop*1440 div LogY;
+
       repeat
-        rc := SaveRect;
         chrg.cpMin := LastChar;
         LastChar := SendMessage(Self.Handle, EM_FORMATRANGE, 1, LPARAM(@Range));
-        if (LastChar < MaxLen) and (LastChar <> -1) then NewPage;
+        if (LastChar < MaxLen) and (LastChar <> -1) then
+           NewPage
+        else
+           Result:= MulDiv(Range.rc.Bottom, LogY, 1440);    // [dpv] Current printed height  (Twips -> Pixels)
+
+        rc:= SaveRect;
+
       {$IFDEF RX_ENHPRINT}
         percentdone:=round(100*(LastChar/MaxLen));
       {$ENDIF RX_ENHPRINT}
       until (LastChar >= MaxLen) or (LastChar = -1);
-      EndDoc;
+      if OwnPrintJob then
+         EndDoc;
     finally
       SendMessage(Self.Handle, EM_FORMATRANGE, 0, 0);  { flush buffer }
       SetMapMode(hdc, OldMap);       { restore previous map mode }

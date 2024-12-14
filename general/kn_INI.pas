@@ -1101,7 +1101,7 @@ begin
       // later versions }
 
     RunAutoMacros := false;
-    SafePrint := true;
+    //SafePrint := true;
     //SaveDARTWarn := true;
     SaveDefaultFormat := nffKeyNote;
     ShellExecuteShowAllErrors := true;
@@ -1412,7 +1412,7 @@ begin
       writebool( section, KeyOptionsIniStr.ResPanelShow, KeyOptions.ResPanelShow );
       writebool( section, KeyOptionsIniStr.RichEditv3, KeyOptions.RichEditv3 );
       writebool( section, KeyOptionsIniStr.RunAutoMacros, KeyOptions.RunAutoMacros );
-      writebool( section, KeyOptionsIniStr.SafePrint, KeyOptions.SafePrint );
+      //writebool( section, KeyOptionsIniStr.SafePrint, KeyOptions.SafePrint );
       //writebool( section, KeyOptionsIniStr.SaveDARTWarn, KeyOptions.SaveDARTWarn );
       writeinteger( section, KeyOptionsIniStr.SaveDefaultFormat, ord( KeyOptions.SaveDefaultFormat ));
       writebool( section, KeyOptionsIniStr.ShellExecuteShowAllErrors, KeyOptions.ShellExecuteShowAllErrors );
@@ -1762,7 +1762,7 @@ begin
       KeyOptions.RichEditv3 := readbool( section, KeyOptionsIniStr.RichEditv3, KeyOptions.RichEditv3 );
 
       KeyOptions.RunAutoMacros := readbool( section, KeyOptionsIniStr.RunAutoMacros, KeyOptions.RunAutoMacros );
-      KeyOptions.SafePrint := readbool( section, KeyOptionsIniStr.SafePrint, KeyOptions.SafePrint );
+      //KeyOptions.SafePrint := readbool( section, KeyOptionsIniStr.SafePrint, KeyOptions.SafePrint );
       //KeyOptions.SaveDARTWarn := readbool( section, KeyOptionsIniStr.SaveDARTWarn, KeyOptions.SaveDARTWarn );
       i := readinteger( section, KeyOptionsIniStr.SaveDefaultFormat, 0 );
       if (( i < 0 ) or ( i > ord( high( TKntFileFormat )))) then i := 0;

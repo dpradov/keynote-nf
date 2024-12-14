@@ -280,7 +280,7 @@ const
    sEdt46 = 64524;   //  Clipboard capture is now
    sEdt47 = 64525;   //  Capturing text from clipboard
    sEdt48 = 64526;   //  Clipboard capture done
-   sEdt49 = 64527;   // Current folder contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.
+   sEdt49 = 64527;   // Print all nodes in folder?\^\^0: Only selected node\^1: All, contiguous\^2: All, starting on new page 
    sEdt50 = 64496;   // CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message:
 
    sExp01 = 64274;   // Error while importing HTML text:

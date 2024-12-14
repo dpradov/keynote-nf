@@ -86,6 +86,8 @@ function DoMessageBox (const text: string; caption: string; uType: UINT= 0; hWnd
 
 function ScaleFromSmallFontsDimension(const X: Integer): Integer;
 function DotsToTwips(dots: Integer): integer; inline;
+function PixelsToTwips(Pixels, DPI: Integer): Integer; inline;
+function TwipsToPixels(Twips, DPI: Integer): Integer; inline;
 
 procedure LoadBitmapFromResource(ImageList: TImageList; const ResourceName: string; TransparentColor: TColor);
 procedure LoadGifFromResource(ImageList: TImageList; const ResName: string); overload;
@@ -366,6 +368,16 @@ begin
    except
       Result:= Screen.PixelsPerInch;
    end;
+end;
+
+function PixelsToTwips(Pixels, DPI: Integer): Integer; inline;
+begin
+   Result := MulDiv(Pixels, 1440, DPI);
+end;
+
+function TwipsToPixels(Twips, DPI: Integer): Integer; inline;
+begin
+   Result := MulDiv(Twips, DPI, 1440);
 end;
 
 

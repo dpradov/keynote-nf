@@ -337,7 +337,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 64524,  " Clipboard capture is now "
 64525,  " Capturing text from clipboard"
 64526,  " Clipboard capture done"
-64527,  "Current folder contains more than one node. Do you want to print all nodes? Answer No to only print the selected node."
+64527,  "Print all nodes in folder?\n\n0: Only selected node\n1: All, contiguous\n2: All, starting on new page "
 64528,  "Expression %s evaluates to: %s\n\nResult was copied to clipboard. Click OK to insert."
 64529,  "Select image to insert"
 64530,  "All image files"

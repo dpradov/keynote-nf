@@ -43,7 +43,7 @@ uses
 
 
 procedure PasteIntoNew (const AsNewFolder: boolean);
-procedure PrintRTFNote;
+procedure PrintRtfFolder;
 procedure EnableOrDisableUAS;
 procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
@@ -107,11 +107,12 @@ type
 implementation
 
 uses
+   Printers,
    UWebBrowserWrapper,
    UAS,
-   RichPrint,
 
    gf_misc,
+   gf_miscvcl,
    gf_strings,
 
    Kn_Global,
@@ -866,104 +867,230 @@ end; // PasteIntoNew
 
 //=================================================================
 
-procedure PrintRTFNote;
+function GetPrintAreaInTwips: TRect;
+const
+  Inch = 1440; // Inch in System Units (TWIPS)
 var
-  PrintRE : TRichEdit;
-  MS : TMemoryStream;
+  Rect: TRect;
+  PageWidth, PageHeight: Integer;
+  mLeft, mTop, mRight, mBottom: Integer;
+  DPIx, DPIy: Integer;
+
+   function IsMetricSystem: Boolean;
+   var
+     Measure: array[0..1] of Char;
+   begin
+     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, Measure, SizeOf(Measure));
+     Result := StrToIntDef(Measure, 0) = 0;           // 0 = metric, 1 = imperial
+   end;
+
+begin
+   // Printer resolution in pixels per inch (PPI)
+    DPIx := GetDeviceCaps(Printer.Handle, LOGPIXELSX);
+    DPIy := GetDeviceCaps(Printer.Handle, LOGPIXELSY);
+
+    // PageSetupDlg.Margins:
+    // If the user is entering values in inches, MarginBottom expresses the margin in thousandths of an inch.
+    // If the user is entering values in millimeters, MarginBottom expresses the margin in hundredths of a millimeter.
+
+    // Converting margins from millimeters (or inches) to pixels, then to TWIPS
+    with Form_Main.PageSetupDlg do begin
+       if (Units = pmMillimeters ) or ((Units = pmDefault) and IsMetricSystem) then begin
+          mLeft   := PixelsToTwips(Round(MarginLeft  /100 / 25.4 * DPIx), DPIx);
+          mTop    := PixelsToTwips(Round(MarginTop   /100 / 25.4 * DPIy), DPIy);
+          mRight  := PixelsToTwips(Round(MarginRight /100 / 25.4 * DPIx), DPIx);
+          mBottom := PixelsToTwips(Round(MarginBottom/100 / 25.4 * DPIy), DPIy);
+       end
+       else begin
+          mLeft   := PixelsToTwips(Round(MarginLeft  /1000 * DPIx), DPIx);
+          mTop    := PixelsToTwips(Round(MarginTop   /1000 * DPIy), DPIy);
+          mRight  := PixelsToTwips(Round(MarginRight /1000 * DPIx), DPIx);
+          mBottom := PixelsToTwips(Round(MarginBottom/1000 * DPIy), DPIy);
+       end;
+    end;
+
+    // Page dimensions in TWIPS
+    PageWidth := PixelsToTwips(Printer.PageWidth, DPIx);
+    PageHeight := PixelsToTwips(Printer.PageHeight, DPIy);
+
+    // Defining the printable area using margins
+    Rect.Left   := mLeft;
+    Rect.Top    := mTop;
+    Rect.Right  := PageWidth - mRight;
+    Rect.Bottom := PageHeight - mBottom;
+
+    Result:= Rect;
+end;
+
+
+function GetPrintAreaInPixels: TRect;
+var
+  Rect: TRect;
+  mLeft, mTop, mRight, mBottom: Integer;
+  DPIx, DPIy: Integer;
+
+   function IsMetricSystem: Boolean;
+   var
+     Measure: array[0..1] of Char;
+   begin
+     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, Measure, SizeOf(Measure));
+     Result := StrToIntDef(Measure, 0) = 0;           // 0 = metric, 1 = imperial
+   end;
+
+begin
+   // Printer resolution in pixels per inch (PPI)
+    DPIx := GetDeviceCaps(Printer.Handle, LOGPIXELSX);
+    DPIy := GetDeviceCaps(Printer.Handle, LOGPIXELSY);
+
+    // PageSetupDlg.Margins:
+    // If the user is entering values in inches, MarginBottom expresses the margin in thousandths of an inch.
+    // If the user is entering values in millimeters, MarginBottom expresses the margin in hundredths of a millimeter.
+
+    // Converting margins from millimeters (or inches) to pixels, then to TWIPS
+    with Form_Main.PageSetupDlg do begin
+       if (Units = pmMillimeters ) or ((Units = pmDefault) and IsMetricSystem) then begin
+          mLeft   := Round(MarginLeft  /100 / 25.4 * DPIx);
+          mTop    := Round(MarginTop   /100 / 25.4 * DPIy);
+          mRight  := Round(MarginRight /100 / 25.4 * DPIx);
+          mBottom := Round(MarginBottom/100 / 25.4 * DPIy);
+       end
+       else begin
+          mLeft   := Round(MarginLeft  /1000 * DPIx);
+          mTop    := Round(MarginTop   /1000 * DPIy);
+          mRight  := Round(MarginRight /1000 * DPIx);
+          mBottom := Round(MarginBottom/1000 * DPIy);
+       end;
+    end;
+
+    // Defining the printable area using margins
+    Rect.Left   := mLeft;
+    Rect.Top    := mTop;
+    Rect.Right  := Printer.PageWidth - mRight;
+    Rect.Bottom := Printer.PageHeight - mBottom;
+
+    Result:= Rect;
+end;
+
+
+procedure PrintRtfFolder;
+var
+  RTFAux: TAuxRichEdit;
   PrintAllNodes : boolean;
   Node : PVirtualNode;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
   TV: TVTree;
   TreeUI: TKntTreeUI;
+  PrintMode: string;
+  Caption: string;
+  NEntryTextSize: integer;
+  NEntryText, RTFwithImages: AnsiString;  
+  FirstPrint, NodeInNewPage: boolean;
+  FirstPageMarginTop, LastPagePrintedHeight: integer;
 
 begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveFolder )) then exit;
-  if ( not assigned( Form_Main.RichPrinter )) then    // [dpv]
-  begin
-      try                                     // [DPV]
-         Form_Main.RichPrinter := TRichPrinter.Create(Form_Main);
-      except
-        On E : Exception do
-        begin
-          showmessage( E.Message );
-          exit;
-        end;
-      end;
-  end;
+
   PrintAllNodes := false;
 
   TreeUI:= ActiveFolder.TreeUI;
   TV:= TreeUI.TV;
 
-  if (TV.TotalCount > 1 ) then
-     case messagedlg(GetRS(sEdt49), mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
-       mrYes : PrintAllNodes := true;
-       mrNo  : PrintAllNodes := false;
-       else
-         exit;
+  if (TV.TotalCount > 1 ) then begin
+    PrintMode:= '0';
+    if InputQuery( GetRS(sMain29), GetRS(sEdt49), PrintMode ) then
+       if PrintMode = '0' then
+          PrintAllNodes := false
+       else begin
+          PrintAllNodes := true;
+          if PrintMode = '1' then
+             NodeInNewPage := false
+          else
+          if PrintMode = '2' then
+             NodeInNewPage := true
+          else
+             exit;
+       end
+    else
+       exit;
+
   end;
 
-  if Form_Main.PrintDlg.Execute then begin
-    Form_Main.RichPrinter.Title := RemoveAccelChar( ActiveFolder.Name );
 
-    PrintRe := TRichEdit.Create( nil );
-    MS := TMemoryStream.Create;
+  if Form_Main.PrintDlg.Execute then begin
+
+    Caption:= RemoveAccelChar( ActiveFolder.Name );
+    RTFAux:= nil;
 
     try
-
+      App.ShowInfoInStatusBar(GetRS(sMain29));
       screen.Cursor := crHourGlass;
 
-      with PrintRe do begin
-        parent := Form_Main;
-        visible := false;
-        WordWrap := false;
-      end;
-
       if (not PrintAllNodes ) then begin
-
-        if KeyOptions.SafePrint then begin
-          ActiveFolder.Editor.Print( RemoveAccelChar( ActiveFolder.Name ));
-          (*
-          ActiveFolder.Editor.Lines.SaveToStream( MS );
-          MS.Position := 0;
-          PrintRE.Lines.LoadFromStream( MS );
-          if ( ActiveFolder.Editor.SelLength > 0 ) then
-          begin
-            PrintRE.SelStart := ActiveFolder.Editor.SelStart;
-            PrintRE.SelLength := ActiveFolder.Editor.SelLength;
-          end;
-          RichPrinter.PrintRichEdit( TCustomRichEdit( PrintRE ), 1 );
-          *)
-        end
-        else
-          Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( ActiveFolder.Editor ), 1 );
+          ActiveEditor.PageRect:= GetPrintAreaInPixels;
+          ActiveFolder.Editor.Print(Caption);
       end
       else begin
+        RTFAux:= CreateAuxRichEdit();
+        RTFAux.PrepareEditorforPlainText(ActiveFolder.EditorChrome);
+        RTFAux.PageRect:= GetPrintAreaInPixels;
+        FirstPrint:= True;
+
+        Printer.BeginDoc;
+
         Node := TV.GetFirst;
-        if not TV.IsVisible[Node] then Node := TV.GetNextNotHidden(Node);   // [dpv]
+        if not TV.IsVisible[Node] then
+           Node := TV.GetNextNotHidden(Node);
+
         while assigned( Node ) do begin
+           RTFAux.Clear;
            NNode:= TreeUI.GetNNode(Node);
            NEntry:= NNode.Note.Entries[0];            // %%%
            NEntry.Stream.Position := 0;
-           PrintRE.Lines.LoadFromStream( NEntry.Stream );
-           if KeyOptions.SafePrint then
-              PrintRE.Print( RemoveAccelChar( ActiveFolder.Name ))
+           RTFwithImages:= '';
+           NEntryText:= '';
+           NEntryTextSize := NEntry.Stream.Size;
+           if NEntry.Stream.Size > 0 then begin
+               SetLength( NEntryText, NEntryTextSize );
+               move( NEntry.Stream.Memory^, NEntryText[1], NEntryTextSize );
+           end;
+
+           if NEntry.IsRTF then
+              RTFwithImages:= ImageMng.ProcessImagesInRTF(NEntryText, '', imImage, '', 0, false);
+
+           if RTFwithImages <> '' then
+              RTFAux.PutRtfText(RTFwithImages, false)
            else
-              Form_Main.RichPrinter.PrintRichEdit( TCustomRichEdit( PrintRE ), 1 );
+              RTFAux.PutRtfText(NEntryText, false);
+
+           if RTFAux.TextLength <> 0 then begin
+              FirstPageMarginTop:= -1;
+              if not FirstPrint then begin
+                 if NodeInNewPage then
+                    Printer.NewPage
+                 else
+                    FirstPageMarginTop:= LastPagePrintedHeight;     // Adjust vertical position for next RichEdit
+              end;
+              LastPagePrintedHeight:= RTFAux.Print(Caption, false, FirstPageMarginTop);
+              FirstPrint:= False;
+           end;
+
            Node := TV.GetNextNotHidden(Node);
         end;
+        Printer.EndDoc;
       end;
 
     finally
+      App.ShowInfoInStatusBar(GetRS(sMain30));
       screen.Cursor := crDefault;
-      if assigned( PrintRE ) then PrintRE.Free;
-      if assigned( MS ) then MS.Free;
+      if Printer.Printing then
+         Printer.EndDoc;
+      if assigned( RTFAux ) then RTFAux.Free;
     end;
 
   end;
-end; // PrintRTFNote
+end; // PrintRtfFolder
 
 
 

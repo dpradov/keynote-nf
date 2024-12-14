@@ -2772,21 +2772,6 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 5
         end
-        object CheckBox_SafePrint: TCheckBox
-          Left = 10
-          Top = 206
-          Width = 330
-          Height = 17
-          Hint = 'Use simpler printing logic (compatibility fix)'
-          Caption = 'Safe &print mode'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 6
-        end
         object CheckBox_FixScrollBars: TCheckBox
           Left = 10
           Top = 226

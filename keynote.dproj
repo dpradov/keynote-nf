@@ -3,7 +3,7 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32769</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
@@ -161,7 +161,6 @@
         <DCCReference Include="Lang\knt.RS.pas"/>
         <DCCReference Include="3rd_party\unRxLib\units\RxRichEd.pas"/>
         <DCCReference Include="3rd_party\unRxLib\units\RxPlacemnt.pas"/>
-        <DCCReference Include="3rd_party\richprint\RichPrint.pas"/>
         <DCCReference Include="3rd_party\tb97_178a\Source\TB97Ctls.pas"/>
         <DCCReference Include="3rd_party\colorpicker\ColorPicker.pas"/>
         <DCCReference Include="3rd_party\ComCtrls95\ComCtrls95.pas"/>

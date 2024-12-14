@@ -387,15 +387,6 @@ begin
       TB_Color.AutomaticColor := clWindowText;
       TB_Hilite.AutomaticColor := clWindow; // to remove highlighting
 
-      try                                     // [DPV]
-         Form_Main.RichPrinter := TRichPrinter.Create(Form_Main);
-      except
-        On E : Exception do
-        begin
-          //showmessage( E.Message );
-        end;
-      end;
-
       with App.Kbd.LastRTFKey do
       begin
         Key := 0;

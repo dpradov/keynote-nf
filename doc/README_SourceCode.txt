@@ -122,7 +122,7 @@ List of required components and libraries:
 
 * TToolbar97, by Jordan Russell (http://www.jrsoftware.org) [tb97_178a]
 
-* TTreeNT, by Mike Lischke (http://www.lischke-online.de/) [treent]
+* Virtual-TreeView, by Mike Lischke (and other contributors) (https://github.com/JAM-Software/Virtual-TreeView.git) [Virtual-TreeView]
 
 * DCPCrypt, by David Barton (http://www.cityinthesky.co.uk/cryptography.html) [dcpcrypt-1_3]
 
@@ -131,8 +131,6 @@ List of required components and libraries:
 * TFreeWordWeb, by Antony Lewis  [wordweb]
 
 * ICS - Internet Component Suite - V8.70, by Francois Piette (http://www.overbyte.be/) [ICS_v8]
-
-* TRichPrinter, by Gerrit Wolsink  [richprint]
 
 * TColorPicker, by Enzo Costantini  [colorpicker]
 
@@ -169,8 +167,10 @@ If you find this list incomplete and/or need help with obtaining these component
        [_Keynote_1.6.5]
 
 
-List of components and libraries not used in actual version (1.8.*) but used before:
+List of components and libraries not used in actual version (2.0.*) but used before:
 ---------------------------------------------------------------------------------
+* TTreeNT, by Mike Lischke (http://www.lischke-online.de/) [treent]
+
 * Tnt Unicode Controls, by Troy Wolbrink (http://tnt.ccci.org/delphi_unicode_controls/) [_Others\TntUnicodeControls]
 
 * TdfsStatusBar  [_Others\DFSStatusBar]   (see Brad Stowers' Delphi Free Stuff, URL above)  
@@ -185,6 +185,7 @@ List of components and libraries not used in actual version (1.8.*) but used bef
 
 * ICS component library, v.2.22, by Francois Piette (http://www.overbyte.be/) [ICS_InternetComponentSuite]
 
+* TRichPrinter, by Gerrit Wolsink  [richprint]
 
 
 IMPORTANT:

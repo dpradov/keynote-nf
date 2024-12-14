@@ -558,7 +558,7 @@ type
     ResPanelShow : boolean; // show or hide resource panel
     RichEditv3 : boolean; // force version 3 of riched20.dll
     RunAutoMacros : boolean;
-    SafePrint : boolean; // print straight from RxRichEdit, without using TRichPrinter
+    //SafePrint : boolean; // print straight from RxRichEdit, without using TRichPrinter   { OBSOLETE, unused }
     //SaveDARTWarn : boolean; // [*] warn if saving to DartNOtes format, because some properties will be lost which DartNotes doesn't support
     SaveDefaultFormat : TKntFileFormat; // [*]
     ShellExecuteShowAllErrors : boolean; // [*]
