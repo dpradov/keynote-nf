@@ -1,0 +1,83 @@
+
+Changes in 2.0.1 .01     (15 dec 2024)
+====================
+
+* Fixed: Exception in Alarms form when changing the list of displayed alarms (create new, sort or change visible mode)
+
+- - - -
+* Fixed: Page Setup Crash and other problems with Printing  (Ref: #647)
+
+  The use of RichPrinting, an old third party component, included in KeyNote 1.6.5, is deprecated.
+  Removed 'Safe print mode' option
+  It is possible to print the current node or all nodes in the folder, either side by side or starting each node
+  on a new page.
+  Among other things, this now allows PDFs to be generated correctly.
+
+  I'm disabling Print Preview for now (I'll re-enable it soon, in a more correct way). Also, more features
+  will also be added to printing.
+
+- - - -
+* Fixed: Tree right-click context menu not showing (mainly after double-clicking a node)
+  Ref: #777
+  See also: https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11359035
+
+  To avoid interference with menu shortcuts (such as those associated with Delete or Ins) it is necessary to unassign the context 
+  menu when editing a node   starts, and to re-assign it when it is finished.
+  The problem was caused by starting an editing operation for which no confirmation of completion was received.
+  As a consequence of the control remaining without having the context menu assigned, many actions could not be executed,
+  since the commands that are executed with the keyboard do so by virtue of the existence of shortcuts linked to the menu.
+
+- - - -
+* Improved hot color (tree link) choice
+  Ref: #747
+  The color selection is still done automatically, but in a more correct way.
+
+- - - -
+* Processing of "NT" token is included, where node creation and modification dates were registered in old version 1.6.9
+
+  NT=YYYYMMDDtHHMMSS.YYYYMMDDtHHMMSS
+  Example: NT=20200113T115321.20241211T115236
+  Ref: https://github.com/dpradov/keynote-nf/discussions/767#discussioncomment-11531697
+
+- - - -
+* Updated *_WRK.LNG files ([work] translation files)
+
+  -> Fixed: The images tab in the settings options and the keyboard shortcut configuration form are not available for translation
+     Ref: #744(Some dialog boxes are not translated)
+  -> New strings to be translated (related to configuration of text file extensions)
+
+   Changes:
+
+    [TForm_KBD]
+    ... (!)
+
+    Pages.PG_Images.Caption=PG_Images
+    ... (!)
+	
+    [TForm_OptionsNew]
+	...
+    (x)Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Hint=Use simpler printing logic (compatibility fix)
+    (x)Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Caption=Safe &print mode
+
+
+    [ResourceStrings]
+    ...
+    (x)64527_knt_RS_sEdt49{1}=Current folder contains more than one node. Do you want to print all nodes? Answer No to only print the selected node.
+    (!)64527_knt_RS_sEdt49{1}=Print all nodes in folder?\^\^0: Only selected node\^1: All, contiguous\^2: All, starting on new page
+    ...
+    (!)65087_knt_RS_sOpt17=Add text file extension
+    (!)65088_knt_RS_sOpt18=Enter new extension for text files:
+    (!)65089_knt_RS_sOpt19=Extension \"%s\" already listed.
+    (!)65090_knt_RS_sOpt20=Reset default text file extentions?
+    65100_KDL_Localizer_rsKdlMark=*KDL*Mark*
+
+    (Make sure the line with KDL*Mark* has that code, 65100)
+
+- - - -
+* Functionality exposed from kntutils.dll is now included in keynote.exe (kntutils.dll is no longer needed)
+  This will increase the .exe file by just under 120kb, but it will no longer be necessary to use kntutils.dll (2491Kb).
+  The included code is used to be able to configure the keyboard shortcuts as well as perform conversions between HTML and RTF
+  (in both directions), depending on the selected import/export method.
+
+* Corrected alignment of label 'Event or Expiration time', in Alarms form
+* Using a resource file (.RES) to avoid the problem of IDs assigned to resource strings being modified and invalidating translations in .LNG files

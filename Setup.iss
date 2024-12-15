@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "2.0.0.10"
-#define AppVersion "2.0.0 .10"
+#define Version "2.0.1.1"
+#define AppVersion "2.0.1 .01"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -17,8 +17,8 @@
 
 [Setup]
 SignTool=mySignTool
-TouchDate=2024-12-07
-TouchTime=21:00
+TouchDate=2024-12-15
+TouchTime=23:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -97,7 +97,7 @@ Type: files; Name: "{app}\plugins\readme.txt"
 Type: files; Name: "{app}\Profiles\Help\keynote_hlp.ico"
 Type: files; Name: "{app}\doc\fileformat_1.6.5.txt"
 Type: files; Name: "{app}\doc\fileformat.knt"
-
+Type: files; Name: "{app}\kntutils.dll"
 
 [UninstallDelete]
 Type: files; Name: "{app}\Profiles\Help\keynote.mgr"
@@ -107,7 +107,6 @@ Type: files; Name: "{app}\Profiles\Help\keynote.mru"
 [Files]
 Source: "..\Output\bin\{#AppFileExe}"; DestDir: "{app}"; Components: main; Flags: touch
 Source: "..\Output\bin\kntLauncher.exe"; DestDir: "{app}"; Components: main; Flags: touch
-Source: "..\Output\bin\kntutils.dll" ; DestDir: "{app}" ; Components: main
 Source: "general\keyboard.css"; DestDir: "{app}" ; Components: main
 Source: "misc_files\clip.wav"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
 Source: "misc_files\alert.wav"; DestDir: "{app}" ; Components: main; Flags: onlyifdoesntexist
@@ -168,6 +167,7 @@ Source: "doc\Changes in 1.9.2 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.3 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 1.9.5 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 2.0.0 .10.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 2.0.1 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart_format.txt"; DestDir: "{app}\doc" ; Components: main
 

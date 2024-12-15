@@ -1639,8 +1639,8 @@ Pages.PG_Advanced.GroupBox_Adv.CheckBox_NoRegistry.Caption=不要保存窗口设
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_UseOldColorDlg.Caption=旧式颜色选取对话框(&O)
 (!)Pages.PG_Advanced.GroupBox_Adv.CheckBox_RunAutoMacros.Hint{1}=Execute Auto-run macros on creating files, folders and notes
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_RunAutoMacros.Caption=允许宏自动运行(&A)
-(!)Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Hint=Use simpler printing logic (compatibility fix)
-Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Caption=安全打印模式(&P)
+(x)Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Hint=Use simpler printing logic (compatibility fix)
+(x)Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Caption=安全打印模式(&P)
 (!)Pages.PG_Advanced.GroupBox_Adv.CheckBox_FixScrollBars.Hint{1}=Trying to resolve the issue of scrollbars not being updated (eg. on Linux-Wine)
 (!)Pages.PG_Advanced.GroupBox_Adv.CheckBox_FixScrollBars.Caption{1}=&Fix scroll bars
 (x)Pages.PG_Advanced.GroupBox_Adv.CheckBox_FixScrollBars.Caption=树状笔记页签中固定滚动条(&F)
@@ -2770,4 +2770,4 @@ Button_Prev.Caption=前一条(&P)
 (!)65089_knt_RS_sOpt19=Extension \"%s\" already listed.
 (!)65090_knt_RS_sOpt20=Reset default text file extentions?
 
-65102_KDL_Localizer_rsKdlMark=*KDL*Mark*
+65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

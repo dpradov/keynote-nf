@@ -1601,8 +1601,6 @@ Pages.PG_Advanced.GroupBox_Adv.CheckBox_UseOldColorDlg.Hint=Use traditional colo
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_UseOldColorDlg.Caption=&Old style color selection dialogs
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_RunAutoMacros.Hint{1}=Execute Auto-run macros on creating files, folders and notes
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_RunAutoMacros.Caption=&Allow Auto-run macros
-Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Hint=Use simpler printing logic (compatibility fix)
-Pages.PG_Advanced.GroupBox_Adv.CheckBox_SafePrint.Caption=Safe &print mode
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_FixScrollBars.Hint{1}=Trying to resolve the issue of scrollbars not being updated (eg. on Linux-Wine)
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_FixScrollBars.Caption{1}=&Fix scroll bars
 Pages.PG_Advanced.GroupBox_Adv.CheckBox_LongCombos.Hint=Display slightly wider drop-down lists on toolbars
@@ -2712,4 +2710,4 @@ Button_OK.Caption=&Close
 65089_knt_RS_sOpt19=Extension \"%s\" already listed.
 65090_knt_RS_sOpt20=Reset default text file extentions?
 
-65102_KDL_Localizer_rsKdlMark=*KDL*Mark*
+65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

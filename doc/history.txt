@@ -3,6 +3,19 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.0.1.1   (15 dec 2024)
+--------------------------
+(Detailed info in doc\Changes in 2.0.1 .01.txt)
+
+* Fixed: Exception in Alarms form when changing the list of displayed alarms (create new, sort or change visible mode)
+* Fixed: Page Setup Crash and other problems with Printing  (Ref: #647)
+* Fixed: Tree right-click context menu not showing (mainly after double-clicking a node)
+* Improved hot color (tree link) choice
+* Added processing of "NT" token, where node creation and modification dates were registered in old version 1.6.9
+* Functionality exposed from kntutils.dll is now included in keynote.exe (kntutils.dll is no longer needed)
+* Updated *_WRK.LNG files ([work] translation files)
+
+
 v 2.0.0.10  (07 dec 2024)
 --------------------------
 (Detailed info in doc\Changes in 2.0.0 .10.txt)
