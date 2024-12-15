@@ -27,6 +27,7 @@ uses
    System.StrUtils,
    System.AnsiStrings,
    System.IniFiles,
+   System.DateUtils,
    Vcl.Graphics,
    Vcl.FileCtrl,
    Vcl.Controls,
@@ -2098,6 +2099,42 @@ var
       RelativeVirtualFN:= '';
     end;
 
+   {
+   In version 1.6.9, the creation and modification dates of nodes where saved in the NT= key:
+   NT=20200113T115321.20241211T115236
+   (Creation date.Last Modification date in format: YYYYMMDDtHHMMSS.YYYYMMDDtHHMMSS)
+   Ref: https://github.com/dpradov/keynote-nf/discussions/767#discussioncomment-11531697
+   }
+   function OldCreationAndModificationDates(strCreationAndModifDates: string; var CreationDate: TDateTime; var ModificationDate: TDateTime): boolean;
+
+      function GetDate(const strDT: string): TDateTime;
+      var
+        Year, Month, Day: Word;
+        Hour, Min, Sec: Word;
+      begin
+        Year  := StrToInt(Copy(strDT, 1, 4));
+        Month := StrToInt(Copy(strDT, 5, 2));
+        Day   := StrToInt(Copy(strDT, 7, 2));
+        Hour  := StrToInt(Copy(strDT, 10, 2));
+        Min   := StrToInt(Copy(strDT, 12, 2));
+        Sec   := StrToInt(Copy(strDT, 14, 2));
+        Result:= EncodeDateTime(Year, Month, Day, Hour, Min, Sec, 0);
+      end;
+
+   begin
+     Result:= false;
+     if (strCreationAndModifDates.Length <> 31) or (strCreationAndModifDates[16] <> '.') then exit;
+
+     try
+        CreationDate:= GetDate(strCreationAndModifDates);
+        Delete(strCreationAndModifDates, 1, 16);
+        ModificationDate:= GetDate(strCreationAndModifDates);
+
+        Result:= True;
+     except
+     end;
+   end;
+
 begin
   KntFile:= TKntFile(Self.KntFile);
 
@@ -2256,7 +2293,15 @@ begin
                 end
                 else
                 if ( key = _NodeAlarm ) then
-                    AlarmMng.ProcessAlarm(s, NNode, Self);
+                    AlarmMng.ProcessAlarm(s, NNode, Self)
+                else
+                if ( key = _NodeDC_DM ) then begin
+                    var DC,DM: TDateTime;
+                    if OldCreationAndModificationDates( s, DC, DM) then begin
+                       Note.Entries[0].Created:= DC;
+                       Note.LastModified:= DM;
+                    end;
+                end;
 
                 continue;
              end; // if InNoteNode ...

@@ -911,7 +911,9 @@ const
 
   _VirtualNode = 'VN';      // Replaced by normal "linked" nodes (TNoteNode) since NFILEVERSION_MAJOR >= 3
   _NodeFlags = 'NF';        // => NFILEVERSION_MAJOR < 3
-
+  _NodeDC_DM = 'NT';        // Used in Keynote v.1.6.9: creation and modification dates of nodes
+                            // NT=YYYYMMDDtHHMMSS.YYYYMMDDtHHMMSS
+                            // Example: NT=20200113T115321.20241211T115236
 
 const
   // special FlagsStr constant characters
