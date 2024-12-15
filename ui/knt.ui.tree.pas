@@ -224,9 +224,9 @@ type
     procedure RenameFocusedNode;
    protected
     procedure TV_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+    procedure TV_CreateEditor(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
     procedure TV_Edited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
     procedure TV_NewText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; NewText: string);
-    procedure TV_DblClick(Sender: TObject);
 
    // Outline numbering
    protected
@@ -854,6 +854,7 @@ begin
 
      OnChecked := TV_Checked;
      OnEditing := TV_Editing;
+     OnCreateEditor:= TV_CreateEditor;
      OnEdited := TV_Edited;
      OnNewText:= TV_NewText;
      OnNodeCopying:= TV_NodeCopying;
@@ -861,7 +862,6 @@ begin
      OnNodeMoved:= TV_NodeMoved;
      OnFreeNode:= TV_FreeNode;
      OnClick := TV_Click;
-     OnDblClick := TV_DblClick;
      OnDragDrop := TV_DragDrop;
      OnDragOver := TV_DragOver;
      OnEndDrag := TV_EndDrag;
@@ -2043,10 +2043,7 @@ end;
 
 procedure TKntTreeUI.TV_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
 begin
-  if not CheckReadOnly then
-    TV.PopupMenu := nil       // stop menu events triggered by shortcut keys
-  else
-    Allowed := false;
+   Allowed := not CheckReadOnly;
 end;
 
 { Never called in VirtualTree...
@@ -2058,19 +2055,24 @@ begin
 end;
 }
 
+procedure TKntTreeUI.TV_CreateEditor(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
+begin
+   // To create and use the generic tag editor. This handler lets us know when editing is started, to disable 
+   // the context menu, and avoid interference from associated shortcuts.
+   // We can't use TV_Editing because the OnEditing event is called from DoCanEdit, not DoEdit, and what it's
+   // looking for is to know if editing is allowed.
+    EditLink:= nil;
+
+    TV.PopupMenu := nil;                   // stop menu events triggered by shortcut keys
+end;
+
 
 // Called in VirtualTree, when edit ended ok and also when was cancelled..
 procedure TKntTreeUI.TV_Edited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
 begin
-  TV.PopupMenu := PopupMenu;
+  TV.PopupMenu := PopupMenu;               // Restore menu -> resume menu events triggered by shortcut keys
   if GetNNode(Node).NumberingMethod <> NoNumbering then
      TV.ReinitNode(Node, false);
-end;
-
-
-procedure TKntTreeUI.TV_DblClick(Sender: TObject);
-begin
-  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
@@ -2794,7 +2796,6 @@ begin
   end;
 
   TV.ScrollIntoView(TV.FocusedNode, false);
-  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
@@ -2935,7 +2936,6 @@ begin
         if not (DeleteNode(TVSelectedNodes[i], DeleteOnlyChildren, True, True)) then exit;
   end;
 
-  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
@@ -3013,9 +3013,6 @@ begin
   if TargetNode = TV.RootNode then
      CheckFocusedNode;
 
-  // *1 For safety, in case TV_Edited is not called after TV_Editing has been called
-  //   (See https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11359035)
-  TV.PopupMenu := PopupMenu;     // *1
 end;
 
 
@@ -3079,7 +3076,6 @@ begin
   if TargetNode = TV.RootNode then
      CheckFocusedNode;
 
-  TV.PopupMenu := PopupMenu;     // See comment *1 in CopySubtrees
 end;
 
 
