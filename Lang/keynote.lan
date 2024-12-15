@@ -39,3 +39,10 @@ Name=French
 LangFile=Keynote.french.lng
 TipFile=Keynote.english.tip
 Translator=Picou (picou.keynote@gmail.com)
+
+[Japanese]
+Comment=
+Name=Japanese
+LangFile=Keynote.japanese.lng
+TipFile=Keynote.japanese.tip
+Translator=coolvitto
