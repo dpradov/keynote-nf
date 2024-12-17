@@ -6,7 +6,7 @@ TipFile=Keynote.english.tip
 Translator=""
 
 [Japanese]
-Comment=
+Comment=Compatible with v2.0.1.01
 Name=Japanese
 LangFile=Keynote.japanese.lng
 TipFile=Keynote.japanese.tip
