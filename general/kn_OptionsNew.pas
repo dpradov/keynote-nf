@@ -109,7 +109,6 @@ type
     CheckBox_NoRegistry: TCheckBox;
     CheckBox_UseOldColorDlg: TCheckBox;
     CheckBox_RunAutoMacros: TCheckBox;
-    CheckBox_SafePrint: TCheckBox;
     Group_ClipboardCapture: TGroupBox;
     Combo_Divider: TComboBox;
     CB_IgnoreSelf: TCheckBox;
@@ -455,6 +454,8 @@ var
   Language : TLanguageInfo;
 begin
   Initializing := true;
+  App.ApplyBiDiModeOnForm(Self);
+
   OK_Click := false;
   Pages.PageINdex := 0;
   AutoCloseWarned := false;

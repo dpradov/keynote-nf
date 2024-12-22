@@ -62,6 +62,7 @@ uses
    kn_Info,
    kn_Global,
    kn_Chest,
+   knt.App,
    knt.RS;
 
 {$R *.DFM}
@@ -110,6 +111,8 @@ begin
     UseRegistry := _FORMPOS_USE_REGISTRY;
     IniFileName := _FORMPOS_INIFILENAME;
   end;
+
+  App.ApplyBiDiModeOnForm(Self);
 
   List_Icn.CheckBoxes := false;
   List_ICN.ImageList := Chest.IMG_Categories;

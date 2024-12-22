@@ -58,7 +58,8 @@ var
 
 implementation
 Uses
-  kn_Global;
+  kn_Global,
+  knt.App;
 
 {$R *.DFM}
 
@@ -73,7 +74,7 @@ end;
 
 procedure TForm_NodeNum.FormActivate(Sender: TObject);
 begin
-
+  App.ApplyBiDiModeOnForm(Self);
 end; // activate
 
 procedure TForm_NodeNum.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

@@ -55,7 +55,8 @@ type
 
 implementation
 uses
- kn_Global;
+ kn_Global,
+ knt.App;
 
 {$R *.DFM}
 
@@ -90,6 +91,8 @@ begin
   DefaultLang := GetSystemDefaultLCID;
   SystemLang := GetSystemDefaultLCID;
   CurrentLang := GetSystemDefaultLCID;
+
+  App.ApplyBiDiModeOnForm(Self);
 end;
 
 function TForm_Lang.FormHelp(Command: Word; Data: NativeInt;

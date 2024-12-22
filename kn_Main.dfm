@@ -770,6 +770,7 @@ object Form_Main: TForm_Main
         Width = 141
         Height = 20
         Hint = 'Select font face'
+        ParentBiDiMode = False
         TabOrder = 0
         TabStop = False
         OnKeyDown = Combo_FontKeyDown
@@ -3875,6 +3876,7 @@ object Form_Main: TForm_Main
   object Menu_RTF: TPopupMenu
     HelpContext = 282
     Images = IMG_Format
+    ParentBiDiMode = False
     Left = 361
     Top = 120
     object RTFMUndo: TMenuItem
@@ -3949,6 +3951,10 @@ object Form_Main: TForm_Main
       Caption = 'Plain Text'
       Hint = 'Convert to plain text or rich text format (RTF)'
       OnClick = RTFMPlainTextClick
+    end
+    object RTFM_RTL: TMenuItem
+      Caption = 'Reading from right to left (RTL)'
+      OnClick = RTFM_RTLClick
     end
     object N19: TMenuItem
       Caption = '-'
@@ -4923,6 +4929,7 @@ object Form_Main: TForm_Main
   object Menu_TV: TPopupMenu
     HelpContext = 284
     Images = IMG_TV
+    ParentBiDiMode = False
     Left = 266
     Top = 130
     object TVAddParent: TMenuItem

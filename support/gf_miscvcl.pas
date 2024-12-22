@@ -101,6 +101,9 @@ function ColorInformation(Color: TColor): string;
 function CheckCalendarInTDateTimePicker(AOwner: TWinControl): boolean;
 function PrepareTDateTimePicker(Control: TDateTimePicker): boolean;
 
+procedure PauseFormUpdates(Form: TForm);
+procedure ResumeFormUpdates(Form: TForm);
+
 var
   _TahomaFontInstalled : boolean = false;
 
@@ -828,6 +831,18 @@ begin
    except
    end;
 end;
+
+procedure PauseFormUpdates(Form: TForm);
+begin
+  SendMessage(Form.Handle, WM_SETREDRAW, WPARAM(False), 0);
+end;
+
+procedure ResumeFormUpdates(Form: TForm);
+begin
+  SendMessage(Form.Handle, WM_SETREDRAW, WPARAM(True), 0);
+  RedrawWindow(Form.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW or RDW_ALLCHILDREN);
+end;
+
 
 end.
 

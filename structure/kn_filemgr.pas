@@ -340,6 +340,8 @@ end;
 procedure TForm_KntFileMgr.FormCreate(Sender: TObject);
 begin
   Initializing := true;
+  App.ApplyBiDiModeOnForm(Self);
+
   with FormPlacement do begin
     UseRegistry := _FORMPOS_USE_REGISTRY;
     IniFileName := _FORMPOS_INIFILENAME;

@@ -1,5 +1,5 @@
 -------------------------------------
-KEYNOTE NF -  File Format Specification 3.1  (KeyNote NF 2.0.0+)
+KEYNOTE NF -  File Format Specification 3.0  (KeyNote NF 2.0.0+)
 Last updated: 30 Nov 2024
 
 <dprado.keynote@gmail.com>
@@ -523,7 +523,8 @@ position	type		meaning
                         if FALSE, insert spaces instead of TAB character when user presses the TAB key
 6           boolean		Default Plain text only  (Folder properties|Editor settings)
                         if TRUE, new notes willl created as "Plain text only" 
-7           boolean     if TRUE, filter folder is applied                        (New in 2.0.0)
+7           boolean		if TRUE, filter folder is applied                        (New in 2.0.0)
+8           boolean		if TRUE, Folder is configured as RTL (Right to Left language)                    (New in 2.0.2)
             
 13          integer		Tree icons selector: 0 = No icons; 1 = Standard (default) icons; 2 = Custom icons
 14          boolean		Automatic node numbering ON/OFF                                                     (* UNUSED since version 2.0.0)

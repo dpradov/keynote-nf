@@ -1400,7 +1400,10 @@ begin
 end;
 procedure UnregisterDropTarget(AControl: TWinControl);
 begin
-  OleCheck(RevokeDragDrop(AControl.Handle));
+   try
+     OleCheck(RevokeDragDrop(AControl.Handle));
+   except
+   end;
 end;
 
 

@@ -102,6 +102,8 @@ begin
   Initializing := true;
   OK_Click := false;
 
+  App.ApplyBiDiModeOnForm(Self);
+
   InitializeChrome( myChrome );
   InitializeFolderEditorProperties( myEditorProperties );
   InitializeFolderTabProperties( myTabProperties );

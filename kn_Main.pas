@@ -29,7 +29,8 @@ uses
    System.Classes,
    System.IniFiles,
    System.ImageList,
-   System.Actions, 
+   System.Actions,
+   System.DateUtils,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -80,6 +81,8 @@ type
   // to the control for undo, canundo, copy, paste, etc.
   TEditHandleComboBox = class( TCustomComboBox );
   TWordWrapMemo = class( TCustomMemo );
+
+  TRTLCommandToExecute = (rtRTL, rtLTR, rtNone);
 
 type
   TForm_Main = class(TForm)
@@ -874,6 +877,7 @@ type
     MMToolsRemoveDates: TMenuItem;
     MMViewEditorInfoPanel: TMenuItem;
     lblCalNotSup: TLabel;
+    RTFM_RTL: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1276,11 +1280,14 @@ type
     procedure MMToolsDeduceDatesClick(Sender: TObject);
     procedure MMToolsRemoveDatesClick(Sender: TObject);
     procedure MMViewEditorInfoPanelClick(Sender: TObject);
+    procedure RTFM_RTLClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
   private
     FRestoreFocusInEditor: integer;              // See *1 in ApplicationEventsIdle and AppRestore
+    FRTLShortcutToExecute: TRTLCommandToExecute;
+    FRTLShortcutDetectedAt: TDateTime;
 
     { Private declarations }
     procedure AppMessage( var Msg : TMsg; var Handled : boolean );
@@ -1312,7 +1319,7 @@ type
     ShortcutAltDownMenuItem: TMenuItem;
 	
     PrintDlg: TPrintDialog;
-	PageSetupDlg : TPageSetupDialog;
+    PageSetupDlg : TPageSetupDialog;
 	
 
 
@@ -1401,6 +1408,7 @@ uses
    Parser,
    gf_misc,
    gf_miscvcl,
+   gf_Lang,
    kn_Global,
    kn_Pass,
    kn_Macro,
@@ -1550,6 +1558,7 @@ begin
     OTHER_KNT_ICON => KNT_ALT_ICON ... (keynoteAlt.ico)
    }
   TrayIcon.Icons.LoadResource(HInstance, ['MAINICON', 'OTHER_KNT_ICON']);
+  App.ApplyBiDiMode;
 
   InitializeKeynote(Self);
   MMP_PlainDefaultPaste.Hint:= MMEditPlainDefaultPaste.Hint;
@@ -1557,12 +1566,14 @@ begin
   RegisterDropTarget(Form_Main.Pages);
 
   FRestoreFocusInEditor:= 0;
+  FRTLShortcutDetectedAt:= 0;
+  FRTLShortcutToExecute:= rtNone;
   Application.OnIdle := ApplicationEventsIdle;
   ShortcutAltDownMenuItem:= nil;
-  
+
   PrintDlg:= TPrintDialog.Create(Self);
   PageSetupDlg := TPageSetupDialog.Create(Self);
-  PrintDlg.Options:= [poPrintToFile];  
+  PrintDlg.Options:= [poPrintToFile];
 end;
 // CREATE
 
@@ -2197,11 +2208,21 @@ end; // AppMinimize;
     From what I see, at least in W10, the position problem is in turn linked to the fact
     that the editor perceives the press as a modification (^). In fact, if the file had not been modified yet
     you can see how it changes to display "MOD" (in addition to not respecting the scrollbar position).
+    - - -
     I also see that the mere fact of pressing CTRL+SHIFT (without any additional key) when the
     editor has the focus causes the same effect (^). I have been able to easily solve the latter
     from FormShortCut (See line marked with *1 in that method).
+    - - -
       (^) At least it appears as modified when I run it from the virtual machine in W10. In Windows 11
-         the scrollbar position is altered but it is not being marked as modified. I don't know the reason.
+         the scrollbar position is altered but it is not being marked as modified. I don't know the reason (*2).
+     *2:
+        I have already identified the reason. It is because in the virtual machine with W10 I have installed,
+        in addition to the Spanish and English languages, the Arabic language, and for this last language,
+        pressing Ctrl+Shift causes the text to be managed as RTL (Ctrl-right+Shift-right) or LTR (Ctr-left+Shift-left).
+        Therefore, it is not an error that the simple pressing of Ctrl+Shift is treated as a modification.
+        But in any case I have to properly control that it is only executed when Ctrl+Shift is pressed individually,
+        and not by mistake when trying to press another shortcut that contains Ctrl+Shift. I solve it between the code
+        in FormShortCut and new code added to ApplicationEventsIdle
 
     To solve the problem when pressing the Hotkey:
     In WMHotkey I needed to use SetForegroundWindow(..) instead of Application.BringToFront, and do it
@@ -2245,6 +2266,20 @@ begin
        ActiveEditor.Enabled:= False;
        FRestoreFocusInEditor:= 2;
        Sleep(25);                       // *2
+    end;
+
+    if (FRTLShortcutToExecute <> rtNone) then begin          // See comment *1 and *2 in AppRestore
+         if (ActiveEditor <> nil) and (not ActiveEditor.ReadOnly) then begin
+            if MilliSecondsBetween(FRTLShortcutDetectedAt, now) > 50  then begin
+                case FRTLShortcutToExecute of
+                   rtRTL: ActiveEditor.Paragraph.RTL:= true;
+                   rtLTR: ActiveEditor.Paragraph.RTL:= false;
+                end;
+                FRTLShortcutToExecute:= rtNone;
+            end;
+         end
+         else
+            FRTLShortcutToExecute:= rtNone;
     end;
 
   Done := True;
@@ -2452,6 +2487,7 @@ procedure TForm_Main.WMHotkey( Var msg: TWMHotkey );
 begin
   if ( msg.hotkey = 1 ) then
   begin
+    FRTLShortcutToExecute:= rtNone;
     if IsIconic( Application.Handle ) then
       Application.Restore
     else
@@ -2804,10 +2840,23 @@ begin
    if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) then begin
       ShiftPressed:= (GetKeyState(VK_SHIFT) < 0);
 
-      if (ShiftPressed and ( Msg.CharCode in [16..18] )) then begin  // *1 See comment *1 in AppRestore
-         Handled:= true;
-         exit;
-      end;
+
+      // CharCode = 16 -> Shift | CharCode = 17 -> Ctrl
+      if ShiftPressed then
+         if Msg.CharCode in [16..17] then begin                      // See comment *1 and *2 in AppRestore
+            FRTLShortcutToExecute:= rtNone;
+            if (GetKeyState(VK_RCONTROL) < 0) and (GetKeyState(VK_RSHIFT) < 0) then
+               FRTLShortcutToExecute:= rtRTL
+            else
+            if (GetKeyState(VK_LCONTROL) < 0) and (GetKeyState(VK_LSHIFT) < 0) then
+               FRTLShortcutToExecute:= rtLTR;
+
+            FRTLShortcutDetectedAt:= now;
+            Handled:= True;
+            exit;
+         end
+         else
+            FRTLShortcutToExecute:= rtNone;
 
       ShortCutItem:= nil;
       if ShiftPressed then begin
@@ -2892,6 +2941,9 @@ begin
                 ShortcutAltDownMenuItem.Enabled:= False;
       end;
    end;
+
+   if Handled then
+      FRTLShortcutToExecute:= rtNone;
 end;
 
 
@@ -4301,10 +4353,25 @@ end;
 
 procedure TForm_Main.RTFMPlainTextClick(Sender: TObject);
 begin
+   if ActiveEditor.ReadOnly then begin
+      App.WarnEditorIsReadOnly;
+      exit;
+   end;
    if not Assigned(ActiveEditor.NNodeObj) then exit;
 
    ActiveFile.TogglePlainText_RTF(ActiveFolder.NoteUI);
 end;
+
+
+procedure TForm_Main.RTFM_RTLClick(Sender: TObject);
+begin
+   if ActiveEditor.ReadOnly then begin
+      App.WarnEditorIsReadOnly;
+      exit;
+   end;
+   ActiveEditor.Paragraph.RTL:= not ActiveEditor.Paragraph.RTL;
+end;
+
 
 procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
 begin
@@ -6978,6 +7045,7 @@ begin
     MMEditCopy.Enabled := TextSelected;
     RTFMCut.Enabled := TextSelected;
     RTFMCopy.Enabled := TextSelected;
+    RTFM_RTL.Checked:= ParagraphAttrib.RTL;
 
     if Sender.PlainText and not ConsiderAllOnPlainText then exit;
 

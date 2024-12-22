@@ -175,6 +175,7 @@ type
     procedure CheckNotifyAccesibleFocusedItem (event: CARDINAL);
 
   public
+    procedure ApplyBiDiMode;
     procedure UpdateTreeChrome;
     procedure UpdateTreeColumns;
     procedure ShowAdditionalColumns (Show: boolean);
@@ -505,6 +506,7 @@ end;
 procedure TKntTreeUI.SetFolder(aFolder: TObject);
 var
   Folder: TKntFolder;
+  BiDiMode: TBiDiMode;
 begin
   fFolder:= aFolder;
   Folder:= TKntFolder(fFolder);
@@ -546,6 +548,7 @@ begin
 
    UpdateTreeOptions;
    UpdateTreeChrome;
+   ApplyBiDiMode;
 
    PopulateTV;
    SetupTreeHandlers;
@@ -558,6 +561,16 @@ begin
    UpdateTreeColumns;
 end;
 
+procedure TKntTreeUI.ApplyBiDiMode;
+begin
+   if App.UI_RTL then
+      TV.BiDiMode:= bdRightToLeftNoAlign
+   else
+   if TKntFolder(fFolder).RTL then
+      TV.BiDiMode:= bdRightToLeft
+   else
+      TV.BiDiMode:= bdLeftToRight;
+end;
 
 procedure TKntTreeUI.FrameResize(Sender: TObject);
 var
@@ -965,6 +978,10 @@ begin
       end;
 
       Columns[0].Position:= NamePos;
+      if Folder.RTL then
+         Columns[0].BidiMode := bdRightToLeft
+      else
+         Columns[0].BidiMode := bdLeftToRight;
 
       if (Folder.PosDateCol >= 1) or (Folder.PosFlaggedCol >= 1) then
          Options:= Options + [hoVisible]

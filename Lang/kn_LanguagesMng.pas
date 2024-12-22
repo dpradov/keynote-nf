@@ -39,6 +39,7 @@ type
     LangFile : string;
     TipFile : string;
     Translator : string;
+    RTL : boolean;
   end;
 
 var
@@ -105,6 +106,7 @@ begin
           Info.LangFile := s;
           Info.TipFile := readstring( section, 'TipFile', '' );
           Info.Translator := readstring( section, 'Translator', '' );
+          Info.RTL := readbool( section, 'RTL', false);
 
           LanguagesAvailables.AddObject( s, Info );
         end;
@@ -132,6 +134,7 @@ var
   path: string;
   FN : string;
   TipFile: string;
+  RTL: boolean;
 begin
   result := false;
   if ( not assigned( LanguagesAvailables )) then exit;
@@ -155,9 +158,14 @@ begin
              if Info.Name = LanguageUI then begin
                 FN:= Info.LangFile;
                 TipFile:= Info.TipFile;
+                RTL:= Info.RTL;
                 break;
              end;
           end;
+
+          App.UI_RTL:= RTL;
+          if Form_Main <> nil then
+             App.ApplyBiDiMode;
 
           if FN <> '' then begin
              if not fileexists( path + FN ) then

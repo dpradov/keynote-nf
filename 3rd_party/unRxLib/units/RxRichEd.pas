@@ -275,6 +275,7 @@ type
     procedure GetAttributes(var Paragraph: TParaFormat2);
 	procedure SetAttributes(var Paragraph: TParaFormat2);
 {$ENDIF}
+    function GetRTL: Boolean;                                           // [dpv]
     function GetAlignment: TParaAlignment;
     function GetFirstIndent: Longint;
     function GetHeadingStyle: THeadingStyle;
@@ -290,6 +291,7 @@ type
     function GetTab(Index: Byte): Longint;
     function GetTabCount: Integer;
     function GetTableStyle: TParaTableStyle;
+    procedure SetRTL(Value: Boolean);                                   // [dpv]
     procedure SetAlignment(Value: TParaAlignment);
     procedure SetFirstIndent(Value: Longint);
     procedure SetFirstIndentRelative(Value: Longint);                   // [dpv]
@@ -318,6 +320,7 @@ type
     procedure GetAttributes(var Paragraph: TParaFormat2);
     procedure SetAttributes(var Paragraph: TParaFormat2);
 {$ENDIF}
+    property RTL: Boolean read GetRTL write SetRTL;                                              // [dpv]
     property Alignment: TParaAlignment read GetAlignment write SetAlignment;
     property FirstIndent: Longint read GetFirstIndent write SetFirstIndent;
     property FirstIndentRelative: Longint write SetFirstIndentRelative;                          // [dpv]
@@ -2247,6 +2250,31 @@ begin
 {$ENDIF}
     SendMessage(RichEdit.Handle, EM_SETPARAFORMAT, 0, LPARAM(@Paragraph));
   end;
+end;
+
+function TRxParaAttributes.GetRTL: Boolean;                              // [dpv]
+var
+  Paragraph: TParaFormat2;
+begin
+  GetAttributes(Paragraph);
+  Result := (Paragraph.wReserved and PFE_RTLPARA) <> 0;
+end;
+
+procedure TRxParaAttributes.SetRTL(Value: Boolean);                      // [dpv]
+var
+  Paragraph: TParaFormat2;
+begin
+  InitPara(Paragraph);
+
+  with Paragraph do
+  begin
+    dwMask := PFM_RTLPARA;
+    wReserved := 0;                 // wEffects is also known as wReserved for Rich Edit 1.0 because it was reserved
+    if Value then
+       wReserved := PFE_RTLPARA;
+  end;
+
+  SetAttributes(Paragraph);
 end;
 
 function TRxParaAttributes.GetAlignment: TParaAlignment;

@@ -547,12 +547,12 @@ object Form_Defaults: TForm_Defaults
         object CB_PlainText: TCheckBox
           Left = 15
           Top = 154
-		  Width = 323
+          Width = 323
           Height = 17
           Hint = 
             'If checked, new notes (or new entries of existing notes) will de' +
             'fault to plain text only, instead of Rich Text.'
-          Caption = 'Default &Plain text only (do not save formatting information)'		  
+          Caption = 'Default &Plain text only (do not save formatting information)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clRed
           Font.Height = -11
@@ -728,6 +728,25 @@ object Form_Defaults: TForm_Defaults
     Font.Style = []
     ParentFont = False
     TabOrder = 10
+  end
+  object CB_RTL: TCheckBox
+    Left = 203
+    Top = 79
+    Width = 167
+    Height = 17
+    Hint = 
+      'Defines default bidrectional mode in folder (tree and new notes)' +
+      ', for RTL languages'
+    BiDiMode = bdRightToLeft
+    Caption = 'RTL (Right to Left)'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentBiDiMode = False
+    ParentFont = False
+    TabOrder = 11
   end
   object ColorDlg: TColorDialog
     Options = [cdFullOpen, cdSolidColor, cdAnyColor]

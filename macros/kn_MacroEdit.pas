@@ -78,6 +78,7 @@ implementation
 uses
   kn_global,
   kn_Macro,
+  knt.App,
   knt.RS;
 
 {$R *.DFM}
@@ -94,6 +95,8 @@ begin
   MFileName := '';
   MProfile := false;
   OriginalName := '';
+
+  App.ApplyBiDiModeOnForm(Self);
 end;
 
 function TForm_Macro.FormHelp(Command: Word; Data: NativeInt;

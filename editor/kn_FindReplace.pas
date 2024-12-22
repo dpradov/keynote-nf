@@ -152,6 +152,8 @@ begin
   if assigned( myNotifyProc ) then
     myNotifyProc( false );
 
+  App.ApplyBiDiModeOnForm(Self);
+
   Editor:= ActiveEditor;
   Folder:= TKntFolder(Editor.FolderObj);
 

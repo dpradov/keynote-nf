@@ -1231,6 +1231,9 @@ begin
             Color := EditorChrome.Font.Color;
             Language := EditorChrome.Language;
           end;
+
+          if (TextLen = 0) and RTL then
+             AEditor.BiDiMode:= bdRightToLeft;
        end;
 
        if AEditor.PlainText and (TextLen > 0) then begin       // Related to *1. If PlainText then we do want it to always change the font format

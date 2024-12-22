@@ -301,6 +301,7 @@ type
   TFolderTabProperties = packed record
     ImageIndex : integer;
     Name : string;
+    RTL : boolean;
   end;
 
   TFolderEditorProperties = packed record
@@ -875,6 +876,7 @@ begin
   with Struct do begin
     ImageIndex := 0;
     Name := DEFAULT_NEW_FOLDER_NAME;
+    RTL := False;
   end;
 end; // InitializeNoteTabProperties
 

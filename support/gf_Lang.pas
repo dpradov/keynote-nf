@@ -13,8 +13,10 @@ unit gf_Lang;
   ----------------------------------------
   modified by : Marek Jedlinski <marekjed@users.sourceforge.net>
   date:       : 29-08-2002
+
+  modified by : Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [dpv]
   ----------------------------------------
-  
+
  ======================= 
  Fore more information, please see 'README.md' and 'doc/README_SourceCode.txt'
  in https://github.com/dpradov/keynote-nf      
@@ -43,11 +45,17 @@ const
     'Localized', 'English', 'Native', 'Abbreviated'
   );
 
+const
+  LANG_URDU                         = $20;   { Primary language ID -> Urdu language}
+
+
 function SysLanguageName( const Language : TgfLanguage; const LangKind : TgfLanguageKind {$IFDEF DELPHI_5_UP}= lkLocalized{$ENDIF} ) : String;
 function CharSetFromLocale(Language: TgfLanguage): TFontCharSet;
 function CodePageFromLocale(Language: TgfLanguage): Integer;
 function OEMCodePageFromLocale(Language: TgfLanguage): Integer;
 function LanguageToIdent(Language: Longint; var Ident: string): Boolean;
+function IsRightToLeftLanguage: Boolean;   // [dpv]
+
 
 implementation
 
@@ -161,7 +169,7 @@ Identifier Name
 865 OEM - Nordic
 866 OEM - Russian
 869 OEM - Modern Greek 
-870 IBM EBCDIC - Multilingual/ROECE (Latin-2) 
+870 IBM EBCDIC - Multilingual/ROECE (Latin-2)
 874 ANSI/OEM - Thai (same as 28605, ISO 8859-15) 
 875 IBM EBCDIC - Modern Greek 
 932 ANSI/OEM - Japanese, Shift-JIS 
@@ -231,8 +239,8 @@ Identifier Name
 20285 IBM EBCDIC - United Kingdom 
 20290 IBM EBCDIC - Japanese Katakana Extended 
 20297 IBM EBCDIC - France 
-20420 IBM EBCDIC - Arabic 
-20423 IBM EBCDIC - Greek 
+20420 IBM EBCDIC - Arabic
+20423 IBM EBCDIC - Greek
 20424 IBM EBCDIC - Hebrew 
 20833 IBM EBCDIC - Korean Extended 
 20838 IBM EBCDIC - Thai 
@@ -249,8 +257,8 @@ Identifier Name
 28591 ISO 8859-1 Latin I 
 28592 ISO 8859-2 Central Europe 
 28593 ISO 8859-3 Latin 3  
-28594 ISO 8859-4 Baltic 
-28595 ISO 8859-5 Cyrillic 
+28594 ISO 8859-4 Baltic
+28595 ISO 8859-5 Cyrillic
 28596 ISO 8859-6 Arabic 
 28597 ISO 8859-7 Greek 
 28598 ISO 8859-8 Hebrew 
@@ -275,7 +283,7 @@ Identifier Name
 51936 EUC - Simplified Chinese 
 51949 EUC - Korean 
 51950 EUC - Traditional Chinese 
-52936 HZ-GB2312 Simplified Chinese  
+52936 HZ-GB2312 Simplified Chinese
 54936 Windows XP: GB18030 Simplified Chinese (4 Byte)  
 57002 ISCII Devanagari 
 57003 ISCII Bengali 
@@ -283,14 +291,34 @@ Identifier Name
 57005 ISCII Telugu 
 57006 ISCII Assamese 
 57007 ISCII Oriya 
-57008 ISCII Kannada 
-57009 ISCII Malayalam 
-57010 ISCII Gujarati 
-57011 ISCII Punjabi 
-65000 Unicode UTF-7 
-65001 Unicode UTF-8 
+57008 ISCII Kannada
+57009 ISCII Malayalam
+57010 ISCII Gujarati
+57011 ISCII Punjabi
+65000 Unicode UTF-7
+65001 Unicode UTF-8
 
 *)
+
+function IsRightToLeftLanguage: Boolean;
+var
+  LangID: Word;
+  PrimaryLangID: Word;
+begin
+  LangID := GetUserDefaultUILanguage;      // default user language (can be GetSystemDefaultUILanguage for system global)
+  PrimaryLangID := LangID and $3FF;
+
+  case PrimaryLangID of
+    LANG_ARABIC,     // Arabic
+    LANG_HEBREW,     // Hebrew
+    LANG_FARSI,      // Persian
+    LANG_URDU:       // Urdu
+      Result := True;
+  else
+    Result := False;
+  end;
+end;
+
 
 end.
 

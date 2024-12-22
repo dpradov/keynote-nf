@@ -9,6 +9,7 @@ object KntNoteUI: TKntNoteUI
   Font.Height = -13
   Font.Name = 'Tahoma'
   Font.Style = []
+  ParentBiDiMode = False
   ParentFont = False
   TabOrder = 0
   object pnlEntries: TPanel

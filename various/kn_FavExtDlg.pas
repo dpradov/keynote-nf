@@ -72,6 +72,7 @@ uses
 procedure TForm_FavExt.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
+  App.ApplyBiDiModeOnForm(Self);
   Form_Main.OpenDlg.Filter:= FILTER_FAVORITES;
   Edit_FN.SelectAll;
   try

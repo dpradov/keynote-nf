@@ -60,6 +60,7 @@ type
 implementation
 uses
   kn_Global,
+  knt.App,
   knt.RS;
 
 {$R *.DFM}
@@ -80,6 +81,7 @@ end;
 procedure TForm_Password.FormCreate(Sender: TObject);
 begin
   OK_Click := false;
+  App.ApplyBiDiModeOnForm(Self);
 end;
 
 function TForm_Password.FormHelp(Command: Word; Data: NativeInt;

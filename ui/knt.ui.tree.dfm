@@ -24,6 +24,7 @@ object KntTreeUI: TKntTreeUI
     Header.MainColumn = -1
     HintMode = hmTooltip
     HotCursor = crHandPoint
+    ParentBiDiMode = False
     ParentFont = False
     ParentShowHint = False
     ShowHint = True

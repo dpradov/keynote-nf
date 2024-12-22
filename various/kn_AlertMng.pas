@@ -1510,6 +1510,7 @@ var
   end;
 
 begin
+   App.ApplyBiDiModeOnForm(Self);
    EnsureCalendarSupported;
    EnsureCalendarSize;
 

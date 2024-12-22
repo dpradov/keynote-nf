@@ -284,6 +284,8 @@ begin
    chkCheckUpd.Checked:=  KeyOptions.CheckUpdOnStartup;
    lblVisitWeb.Hint:= Program_URL + Program_URL_LatestRelease;
    lblDonations.Hint:= Hint_Support;
+
+   App.ApplyBiDiModeOnForm(Self);
 end;
 
 function TUpdateVersion.FormHelp(Command: Word; Data: NativeInt;

@@ -97,6 +97,7 @@ type
     gbCols: TGroupBox;
     CB_ShowDateCol: TCheckBox;
     CB_ShowFlagCol: TCheckBox;
+    CB_RTL: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -229,6 +230,7 @@ begin
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
 
+  App.ApplyBiDiModeOnForm(Self);
 end;
 
 function TForm_Defaults.FormHelp(Command: Word; Data: NativeInt;
@@ -487,6 +489,7 @@ begin
   begin
     Name := trim( Edit_FolderName.Text );
     ImageIndex := pred( Combo_Icons.ItemIndex );
+    RTL := CB_RTL.Checked;
   end;
 
   CheckZoomValue;
@@ -540,6 +543,7 @@ begin
   begin
     Edit_FolderName.Text := Name;
     Combo_Icons.ItemIndex := succ( ImageIndex );
+    CB_RTL.Checked := RTL;
   end;
 
   with myEditorProperties do

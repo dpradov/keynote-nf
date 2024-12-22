@@ -187,6 +187,8 @@ begin
   end;
   AllowURLModification:= True;
   fNoDecodeURL:= false;
+
+  App.ApplyBiDiModeOnForm(Self);
 end;
 
 function TForm_URLAction.FormHelp(Command: Word; Data: NativeInt;

@@ -58,7 +58,8 @@ implementation
 
 uses
   gf_files,
-  kn_Global;
+  kn_Global,
+  knt.App;
 
 {$R *.DFM}
 
@@ -88,6 +89,7 @@ end;
 
 procedure TForm_Template.FormActivate(Sender: TObject);
 begin
+  App.ApplyBiDiModeOnForm(Self);
   Edit_NameChange( Edit_Name );
   Edit_Name.SelectAll;
 end;

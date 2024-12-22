@@ -94,6 +94,7 @@ type
     FURLDetect : boolean;          // [*] highlight URLs
     FTabSize : byte;               // [*]
     FUseTabChar : boolean;         // [*]
+    FRTL : boolean;                // [*]
 
     FIsInsertMode : boolean;
     FInfo : Byte;                 // internal use only
@@ -141,6 +142,7 @@ type
     procedure SetName( AName : TNoteNameStr );
     procedure SetID( ID : Cardinal );
     procedure SetReadOnly( AReadOnly : boolean );
+    procedure SetRTL( RTL : boolean );
     procedure SetDefaultPlainText( APlainText : boolean );
     function GetTabIndex: integer;
     procedure SetTabIndex( ATabIndex : integer );
@@ -185,6 +187,7 @@ type
 
     property History : TKNTHistoryObj read FHistory;
 
+    property RTL : boolean read FRTL write SetRTL;
     property DefaultPlainText : boolean read FDefaultPlainText write SetDefaultPlainText;
     property WordWrap : boolean read FWordWrap write SetWordWrap;
     property URLDetect : boolean read FURLDetect write SetURLDetect;
@@ -861,7 +864,7 @@ end;
 
 // Folder properties  =========================================
 
-{$REGION Folder propeties }
+{$REGION Folder properties }
 
 procedure TKntFolder.UpdateTabSheet;
 begin
@@ -876,6 +879,7 @@ begin
   if UpdateName then
      FName := aProps.Name;
   FImageIndex := aProps.ImageIndex;
+  RTL := aProps.RTL;
   Modified := true;
 end;
 
@@ -884,6 +888,7 @@ procedure TKntFolder.GetTabProperties( var aProps : TFolderTabProperties );
 begin
   aProps.ImageIndex := FImageIndex;
   aProps.Name := FName;
+  aProps.RTL := FRTL;
 end;
 
 
@@ -947,6 +952,28 @@ begin
     App.FolderPropertiesModified(Self);
     if NoteUI <> nil then
        App.EditorPropertiesModified(NoteUI.Editor);
+  end;
+end;
+
+
+procedure TKntFolder.SetRTL( RTL : boolean );
+var
+  BiDiMode: TBiDiMode;
+begin
+  if ( RTL <> FRTL ) then begin
+    FRTL := RTL;
+    Modified := true;
+
+    TreeUI.ApplyBiDiMode;
+    App.FolderPropertiesModified(Self);
+
+    if NoteUI <> nil then begin
+       BiDiMode:= bdLeftToRight;
+       if RTL then
+          BiDiMode:= bdRightToLeftNoAlign;
+       NoteUI.Editor.BiDiMode:= BiDiMode;
+       App.EditorPropertiesModified(NoteUI.Editor);
+    end;
   end;
 end;
 
@@ -2651,6 +2678,7 @@ begin
   if not FReadonly then
      result[7] := BOOLEANSTR[FFiltered];
 
+  result[8] := BOOLEANSTR[FRTL];
 
   result[13] := AnsiChar(inttostr( ord( FIconKind ))[1]);
   //result[14] := BOOLEANSTR[FAutoNumberNotes];
@@ -2686,6 +2714,7 @@ begin
   FUseTabChar := FlagsStr[5] = BOOLEANSTR[true];
   FDefaultPlainText  := FlagsStr[6] = BOOLEANSTR[true];
   FFiltered   := FlagsStr[7] = BOOLEANSTR[true];
+  FRTL        := FlagsStr[8] = BOOLEANSTR[true];
 
   case FlagsStr[13] of
     '0' : FIconKind := niNone;

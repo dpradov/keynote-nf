@@ -88,6 +88,7 @@ implementation
 
 uses
    kn_Global,
+   knt.App,
    knt.ui.editor;
 
 
@@ -123,8 +124,10 @@ begin
     Alignment := paLeftJustify;
   end;
 
+  App.ApplyBiDiModeOnForm(Self);
+end;
 
-end; function TForm_Para.FormHelp(Command: Word; Data: NativeInt;
+function TForm_Para.FormHelp(Command: Word; Data: NativeInt;
   var CallHelp: Boolean): Boolean;
 begin
    CallHelp:= False;

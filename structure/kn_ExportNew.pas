@@ -385,6 +385,7 @@ var
   m : THTMLExportMethod;
 
 begin
+  App.ApplyBiDiModeOnForm(Self);
 
   Pages.ActivePage := Tab_Main;
   IsBusy := false;

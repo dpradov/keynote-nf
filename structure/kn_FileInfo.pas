@@ -233,6 +233,8 @@ begin
 
   ExtStorageLocationFake:= false;
 
+  App.ApplyBiDiModeOnForm(Self);
+
   OK_Click := false;
 end; // CREATE
 

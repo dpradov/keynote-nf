@@ -1888,13 +1888,19 @@ begin
           end;
 
           ecAlignLeft :
-            Paragraph.Alignment := paLeftJustify;
+            if BiDiMode = bdRightToLeft then
+               Paragraph.Alignment := paRightJustify
+            else
+               Paragraph.Alignment := paLeftJustify;
 
           ecAlignCenter :
             Paragraph.Alignment := paCenter;
 
           ecAlignRight :
-            Paragraph.Alignment := paRightJustify;
+            if BiDiMode = bdRightToLeft then
+               Paragraph.Alignment := paLeftJustify
+            else
+               Paragraph.Alignment := paRightJustify;
 
           ecAlignJustify :
             Paragraph.Alignment := paJustify;

@@ -77,7 +77,8 @@ type
 
 implementation
 uses
-  kn_Global;
+  kn_Global,
+  knt.App;
 
 {$R *.DFM}
 
@@ -106,6 +107,7 @@ begin
   myCmd := low( TMacroCMD );
   myArgs := '';
 
+  App.ApplyBiDiModeOnForm(Self);
 end;
 
 procedure TForm_MacroCmd.FormKeyDown(Sender: TObject; var Key: Word;

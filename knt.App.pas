@@ -106,6 +106,7 @@ type
       fAvailableEditors: TKntRichEditList;
 
       fVirtualUnEncryptWarningDone: boolean;
+      fUI_RTL: boolean;
 
       constructor Create;
       procedure Initialize;
@@ -121,12 +122,14 @@ type
       procedure ShowWordCountInfoInStatusBar(const str: string);
       function GetWordCountInfoInStatusBar: string;
 
-
    public
       class function GetInstance: TKntApp; static;
 
       class procedure FileSetModified; inline;
 
+      procedure ApplyBiDiMode;
+      procedure ApplyBiDiModeOnForm(Form: TForm);
+      property UI_RTL: boolean read fUI_RTL write fUI_RTL;
       property OnNNodeSelected: TNNodeSelectedEvent read FNNodeSelected write FNNodeSelected;
       property OnFolderSelected: TFolderSelectedEvent read FFolderSelected write FFolderSelected;
 
@@ -265,6 +268,7 @@ procedure TKntApp.Initialize;
 begin
    Kbd.RTFUpdating := false;
    ShowingImageOnTrack:= false;
+   fUI_RTL:= false;
 
    opt_Minimize := false;
    //opt_Setup := false;
@@ -303,6 +307,46 @@ begin
    end;
 
 end;
+
+
+procedure TKntApp.ApplyBiDiMode;
+var
+  BiDi: TBidiMode;
+  i: integer;
+begin
+   if Form_Main = nil then exit;
+
+   BiDi:= bdLeftToRight;
+   if fUI_RTL then
+      BiDi:= bdRightToLeft;
+
+   if Form_Main.BiDiMode = BiDi then exit;
+
+   Form_Main.BiDiMode:= BiDi;
+   Form_Main.Menu_TV.BiDiMode:= BiDi;
+   Form_Main.Menu_RTF.BiDiMode:= BiDi;
+
+   if BiDi = bdRightToLeft then
+      BiDi:= bdRightToLeftNoAlign;
+   Form_Main.Combo_Font.BiDiMode:= BiDi;
+
+   // *1 To ensure icon is shown after changing BiDiMode
+   //    TabSheet  (TTab95Sheet) is an old component and has not BiDiMode property..
+   if ActiveFile <> nil then
+      for i := 0 to ActiveFile.Folders.Count -1 do
+          ActiveFile.Folders[i].UpdateTabSheet;       // *1
+end;
+
+procedure TKntApp.ApplyBiDiModeOnForm(Form: TForm);
+begin
+  if fUI_RTL = (Form.BiDiMode = bdRightToLeft) then exit;
+
+  if fUI_RTL then
+     Form.BiDiMode:= bdRightToLeft
+  else
+     Form.BiDiMode:= bdLeftToRight;
+end;
+
 
 
 function TKntApp.CheckActiveEditor: boolean;

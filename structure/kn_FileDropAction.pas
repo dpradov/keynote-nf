@@ -79,6 +79,7 @@ procedure TForm_DropFile.FormCreate(Sender: TObject);
 var
   m : THTMLImportMethod;
 begin
+  App.ApplyBiDiModeOnForm(Self);
   NumberOfFiles := 0;
   FileExt := '';
   PagesImp.PageIndex := 0;
