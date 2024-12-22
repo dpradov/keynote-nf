@@ -104,6 +104,8 @@ function PrepareTDateTimePicker(Control: TDateTimePicker): boolean;
 procedure PauseFormUpdates(Form: TForm);
 procedure ResumeFormUpdates(Form: TForm);
 
+procedure AdjustRTLControls(Parent: TWinControl);
+
 var
   _TahomaFontInstalled : boolean = false;
 
@@ -841,6 +843,38 @@ procedure ResumeFormUpdates(Form: TForm);
 begin
   SendMessage(Form.Handle, WM_SETREDRAW, WPARAM(True), 0);
   RedrawWindow(Form.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW or RDW_ALLCHILDREN);
+end;
+
+
+procedure AdjustRTLControls(Parent: TWinControl);
+var
+  i: Integer;
+  LabelControl: TLabel;
+  RelatedControl: TWinControl;
+  TempLeft: Integer;
+begin
+
+  for i := 0 to Parent.ControlCount - 1 do
+     if Parent.Controls[i] is TLabel then begin
+       LabelControl := TLabel(Parent.Controls[i]);
+
+       if Assigned(LabelControl.FocusControl) and (LabelControl.FocusControl is TWinControl) then begin
+         RelatedControl := TWinControl(LabelControl.FocusControl);
+
+         if RelatedControl.Top < (LabelControl.Top + LabelControl.Height) then begin
+            TempLeft := LabelControl.Left;
+            LabelControl.Left := RelatedControl.Left;
+            RelatedControl.Left := TempLeft;
+            LabelControl.Left := LabelControl.Left + (RelatedControl.Width - LabelControl.Width);
+         end;
+
+         if LabelControl.Alignment = taRightJustify then
+            LabelControl.Alignment := taLeftJustify;
+       end;
+     end
+     else
+     if Parent.Controls[i] is TWinControl then
+        AdjustRTLControls(TWinControl(Parent.Controls[i]));
 end;
 
 

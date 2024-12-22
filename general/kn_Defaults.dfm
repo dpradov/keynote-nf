@@ -21,9 +21,9 @@ object Form_Defaults: TForm_Defaults
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object LB_Scope: TLabel
-    Left = 8
+    Left = 14
     Top = 8
-    Width = 354
+    Width = 348
     Height = 18
     Alignment = taRightJustify
     AutoSize = False
@@ -40,7 +40,7 @@ object Form_Defaults: TForm_Defaults
   object Label1: TLabel
     Left = 14
     Top = 33
-    Width = 129
+    Width = 246
     Height = 13
     AutoSize = False
     Caption = '&Folder name:'
@@ -55,7 +55,7 @@ object Form_Defaults: TForm_Defaults
   object Label4: TLabel
     Left = 290
     Top = 33
-    Width = 89
+    Width = 76
     Height = 13
     AutoSize = False
     Caption = 'Folder &icon:'
@@ -144,9 +144,9 @@ object Form_Defaults: TForm_Defaults
           WordWrap = True
         end
         object Label2: TLabel
-          Left = 25
+          Left = 19
           Top = 158
-          Width = 95
+          Width = 125
           Height = 13
           Caption = 'I&mage icons in tree:'
           FocusControl = Combo_TreeImages
@@ -158,11 +158,13 @@ object Form_Defaults: TForm_Defaults
           ParentFont = False
         end
         object Label8: TLabel
-          Left = 7
+          Left = 13
           Top = 200
-          Width = 237
+          Width = 302
           Height = 13
+          AutoSize = False
           Caption = 'Default font and background color (Tree): '
+          FocusControl = BitBtn_TreeChromeHelp
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -172,9 +174,9 @@ object Form_Defaults: TForm_Defaults
           Transparent = False
         end
         object CB_TreeCheck: TCheckBox
-          Left = 18
+          Left = 16
           Top = 89
-          Width = 210
+          Width = 208
           Height = 17
           Hint = 'Display or hide checkboxes in ALL nodes'
           Caption = '&Show checkboxes in all nodes'
@@ -228,9 +230,9 @@ object Form_Defaults: TForm_Defaults
           TabStop = False
         end
         object CB_Vertical: TCheckBox
-          Left = 18
+          Left = 16
           Top = 66
-          Width = 210
+          Width = 208
           Height = 17
           Hint = 'Check to show tree ABOVE the editor'
           Caption = '&Vertical layout (tree on top)'
@@ -243,9 +245,9 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 2
         end
         object Combo_TreeImages: TComboBox
-          Left = 156
+          Left = 150
           Top = 155
-          Width = 176
+          Width = 194
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -257,9 +259,9 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 6
         end
         object CB_HideChecked: TCheckBox
-          Left = 18
+          Left = 16
           Top = 113
-          Width = 210
+          Width = 208
           Height = 17
           Hint = 'Show or hide checked nodes'
           Caption = '&Hide checked nodes'
@@ -272,7 +274,7 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 4
         end
         object BitBtn_TreeChromeHelp: TBitBtn
-          Left = 257
+          Left = 321
           Top = 194
           Width = 25
           Height = 25
@@ -285,7 +287,7 @@ object Form_Defaults: TForm_Defaults
         object CB_TreeChrome_AllNotes: TCheckBox
           Left = 21
           Top = 260
-          Width = 317
+          Width = 320
           Height = 17
           Hint = 
             'Font and BG color will be changed in the panels of ALL folders i' +
@@ -360,11 +362,10 @@ object Form_Defaults: TForm_Defaults
         ParentFont = False
         TabOrder = 0
         object Label_TabSize: TLabel
-          Left = 203
-          Top = 62
-          Width = 77
+          Left = 283
+          Top = 12
+          Width = 60
           Height = 14
-          Alignment = taRightJustify
           AutoSize = False
           Caption = 'Tab &Size:'
           FocusControl = Spin_TabSize
@@ -376,11 +377,13 @@ object Form_Defaults: TForm_Defaults
           ParentFont = False
         end
         object Label_EditorFonts: TLabel
-          Left = 7
+          Left = 13
           Top = 200
-          Width = 244
+          Width = 302
           Height = 13
+          AutoSize = False
           Caption = 'Default font and background color (Editor): '
+          FocusControl = BitBtn_FolderChromeHelp
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -390,12 +393,13 @@ object Form_Defaults: TForm_Defaults
           Transparent = False
         end
         object Label14: TLabel
-          Left = 30
-          Top = 117
-          Width = 58
+          Left = 15
+          Top = 142
+          Width = 73
           Height = 18
           AutoSize = False
           Caption = '&Language:'
+          FocusControl = Combo_DefEdLang
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -404,13 +408,14 @@ object Form_Defaults: TForm_Defaults
           ParentFont = False
         end
         object LB_Zoom: TLabel
-          Left = 167
-          Top = 37
-          Width = 113
+          Left = 248
+          Top = 65
+          Width = 92
           Height = 13
           Alignment = taRightJustify
           AutoSize = False
           Caption = 'Default Zoom (%)'
+          FocusControl = CB_Zoom
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -419,8 +424,8 @@ object Form_Defaults: TForm_Defaults
           ParentFont = False
         end
         object Label3: TLabel
-          Left = 171
-          Top = 36
+          Left = 260
+          Top = 84
           Width = 17
           Height = 22
           Hint = 
@@ -436,9 +441,9 @@ object Form_Defaults: TForm_Defaults
           ParentFont = False
         end
         object CB_WordWrap: TCheckBox
-          Left = 15
-          Top = 36
-          Width = 152
+          Left = 13
+          Top = 14
+          Width = 229
           Height = 17
           Hint = 'Apply word-wrapping to long lines'
           Caption = '&Wrap long lines'
@@ -451,9 +456,9 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 0
         end
         object CB_URLDetect: TCheckBox
-          Left = 15
-          Top = 85
-          Width = 323
+          Left = 13
+          Top = 63
+          Width = 229
           Height = 17
           Hint = 'Highlight URLs in editor'
           Caption = 'Detect and highlight &URLs in editor'
@@ -463,12 +468,12 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 2
         end
         object CB_UseTabChar: TCheckBox
-          Left = 15
-          Top = 61
-          Width = 210
+          Left = 13
+          Top = 39
+          Width = 229
           Height = 17
           Hint = 'Insert TAB character (#9) when Tab key pressed'
           Caption = 'Use &Tab character'
@@ -478,12 +483,12 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 1
           OnClick = CB_UseTabCharClick
         end
         object Spin_TabSize: TSpinEdit
-          Left = 286
-          Top = 59
+          Left = 284
+          Top = 32
           Width = 56
           Height = 22
           Hint = 'Number of spaces to insert when Tab key pressed'
@@ -500,9 +505,9 @@ object Form_Defaults: TForm_Defaults
           Value = 4
         end
         object Combo_DefEdLang: TLanguagesCombo
-          Left = 94
-          Top = 114
-          Width = 246
+          Left = 92
+          Top = 139
+          Width = 216
           Height = 22
           Language = 2048
           LanguageType = ltInstalled
@@ -516,11 +521,11 @@ object Form_Defaults: TForm_Defaults
           ParentShowHint = False
           ShowFlag = False
           ShowHint = True
-          TabOrder = 5
+          TabOrder = 6
         end
         object CB_Zoom: TComboBox
-          Left = 286
-          Top = 32
+          Left = 284
+          Top = 84
           Width = 56
           Height = 21
           Hint = 'Allows to use a default value other than 100%'
@@ -530,7 +535,7 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 1
+          TabOrder = 4
           OnExit = CB_ZoomExit
           OnKeyPress = CB_ZoomKeyPress
           Items.Strings = (
@@ -545,26 +550,26 @@ object Form_Defaults: TForm_Defaults
             '75')
         end
         object CB_PlainText: TCheckBox
-          Left = 15
-          Top = 154
-          Width = 323
+          Left = 13
+          Top = 112
+          Width = 326
           Height = 17
           Hint = 
             'If checked, new notes (or new entries of existing notes) will de' +
             'fault to plain text only, instead of Rich Text.'
           Caption = 'Default &Plain text only (do not save formatting information)'
           Font.Charset = DEFAULT_CHARSET
-          Font.Color = clRed
+          Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 6
+          TabOrder = 5
           StyleElements = [seClient, seBorder]
         end
         object BitBtn_FolderHelp: TBitBtn
-          Left = 315
-          Top = 1
+          Left = 317
+          Top = 137
           Width = 25
           Height = 25
           ImageIndex = 60
@@ -574,8 +579,8 @@ object Form_Defaults: TForm_Defaults
           OnClick = BitBtn_FolderHelpClick
         end
         object BitBtn_FolderChromeHelp: TBitBtn
-          Left = 257
-          Top = 193
+          Left = 317
+          Top = 194
           Width = 25
           Height = 25
           ImageIndex = 60
@@ -587,7 +592,7 @@ object Form_Defaults: TForm_Defaults
         object CB_InheritBGColor: TCheckBox
           Left = 131
           Top = 256
-          Width = 218
+          Width = 209
           Height = 17
           TabStop = False
           Caption = 'Inherit &BG color from active node'
@@ -639,7 +644,7 @@ object Form_Defaults: TForm_Defaults
   object Edit_Sample: TEdit
     Left = 140
     Top = 337
-    Width = 209
+    Width = 218
     Height = 21
     TabStop = False
     MaxLength = 127
@@ -664,7 +669,7 @@ object Form_Defaults: TForm_Defaults
     object CB_SaveDefaults: TCheckBox
       Left = 10
       Top = 7
-      Width = 355
+      Width = 341
       Height = 17
       Caption = 'Save as Defaults'
       Font.Charset = DEFAULT_CHARSET
@@ -680,7 +685,7 @@ object Form_Defaults: TForm_Defaults
     object CB_SaveAsDef: TCheckBox
       Left = 44
       Top = 28
-      Width = 320
+      Width = 277
       Height = 17
       Hint = 
         'Normally, properties are saved as defaults for all new folders y' +
@@ -731,7 +736,7 @@ object Form_Defaults: TForm_Defaults
   end
   object CB_RTL: TCheckBox
     Left = 203
-    Top = 79
+    Top = 81
     Width = 167
     Height = 17
     Hint = 

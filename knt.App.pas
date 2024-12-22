@@ -341,8 +341,10 @@ procedure TKntApp.ApplyBiDiModeOnForm(Form: TForm);
 begin
   if fUI_RTL = (Form.BiDiMode = bdRightToLeft) then exit;
 
-  if fUI_RTL then
-     Form.BiDiMode:= bdRightToLeft
+  if fUI_RTL then begin
+     Form.BiDiMode:= bdRightToLeft;
+     AdjustRTLControls(Form);
+  end
   else
      Form.BiDiMode:= bdLeftToRight;
 end;
