@@ -562,7 +562,7 @@ type
     urlUndefined,
     urlFile, urlHTTP, urlHTTPS, urlFTP, urlMailto,
     urlTelnet, urlNews, urlNNTP, urlGopher, urlWais, urlProspero,
-    urlNotes, urlCallto, urlOnenote, urlOutlook, urlTel, urlWebcal,
+    urlCintaNotes, urlNotes, urlCallto, urlOnenote, urlOutlook, urlTel, urlWebcal,
     urlKNTImage,
     urlOTHER
   );
@@ -572,7 +572,7 @@ const
     '',
     {'knt:', } 'file:', 'http:', 'https:', 'ftp:', 'mailto:',
     'telnet:', 'news:', 'nntp:', 'gopher:', 'wais:', 'prospero:',
-    'notes:', 'callto:', 'onenote:', 'outlook:', 'tel:', 'webcal:',
+    'cintanotes:', 'notes:', 'callto:', 'onenote:', 'outlook:', 'tel:', 'webcal:',
     'img:',
     '????:'
   );
