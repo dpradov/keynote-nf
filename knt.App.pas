@@ -240,6 +240,7 @@ var
 implementation
 uses
    GFTipDlg,
+   gf_Lang,
    kn_MacroMng,
    kn_VCLControlsMng,
    kn_LinksMng,
@@ -320,21 +321,33 @@ begin
    if fUI_RTL then
       BiDi:= bdRightToLeft;
 
-   if Form_Main.BiDiMode = BiDi then exit;
+   if Form_Main.BiDiMode <> BiDi then begin
+      Form_Main.BiDiMode:= BiDi;
+      Form_Main.Menu_TV.BiDiMode:= BiDi;
+      Form_Main.Menu_RTF.BiDiMode:= BiDi;
 
-   Form_Main.BiDiMode:= BiDi;
-   Form_Main.Menu_TV.BiDiMode:= BiDi;
-   Form_Main.Menu_RTF.BiDiMode:= BiDi;
+      if BiDi = bdRightToLeft then
+         BiDi:= bdRightToLeftNoAlign;
+      Form_Main.Combo_Font.BiDiMode:= BiDi;
 
-   if BiDi = bdRightToLeft then
-      BiDi:= bdRightToLeftNoAlign;
-   Form_Main.Combo_Font.BiDiMode:= BiDi;
+      // *1 To ensure icon is shown after changing BiDiMode
+      //    TabSheet  (TTab95Sheet) is an old component and has not BiDiMode property..
+      if ActiveFile <> nil then
+         for i := 0 to ActiveFile.Folders.Count -1 do begin
+             ActiveFile.Folders[i].UpdateTabSheet;       // *1
+             ActiveFile.Folders[i].TreeUI.ApplyBiDiMode;
+         end;
+   end;
 
-   // *1 To ensure icon is shown after changing BiDiMode
-   //    TabSheet  (TTab95Sheet) is an old component and has not BiDiMode property..
-   if ActiveFile <> nil then
-      for i := 0 to ActiveFile.Folders.Count -1 do
-          ActiveFile.Folders[i].UpdateTabSheet;       // *1
+   if (BiDI = bdLeftToRight) and IsRightToLeftLanguage() then begin  // UserDefaultUILanguage is RTL...
+      Form_Main.Combo_ResFind.BiDiMode:= bdRightToLeft;
+      Form_Main.Dock_Top.BiDiMode:= bdRightToLeftNoAlign;
+      Form_Main.Dock_Bottom.BiDiMode:= bdRightToLeftNoAlign;
+      if ActiveFile <> nil then
+         for i := 0 to ActiveFile.Folders.Count -1 do
+             ActiveFile.Folders[i].TreeUI.ApplyBiDiMode;
+   end;
+
 end;
 
 procedure TKntApp.ApplyBiDiModeOnForm(Form: TForm);

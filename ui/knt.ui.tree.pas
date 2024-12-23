@@ -358,6 +358,7 @@ uses
    gf_streams,
    gf_miscvcl,
    gf_files,
+   gf_Lang,
    kn_Global,
    kn_EditorUtils,
    knt.ui.editor,
@@ -562,14 +563,19 @@ begin
 end;
 
 procedure TKntTreeUI.ApplyBiDiMode;
+var
+   BiDi: TBiDiMode;
 begin
-   if App.UI_RTL then
-      TV.BiDiMode:= bdRightToLeftNoAlign
-   else
+   if TKntFolder(fFolder).RTL or IsRightToLeftLanguage then
+      Self.BiDiMode:= bdRightToLeft;   // It doesn't affect TV, where ParentBiDiMode=False
+
+   BiDi:= bdLeftToRight;
+   if App.UI_RTL or IsRightToLeftLanguage then
+      BiDi:= bdRightToLeftNoAlign;
    if TKntFolder(fFolder).RTL then
-      TV.BiDiMode:= bdRightToLeft
-   else
-      TV.BiDiMode:= bdLeftToRight;
+      BiDi:= bdRightToLeft;
+
+   TV.BiDiMode:= BiDi;
 end;
 
 procedure TKntTreeUI.FrameResize(Sender: TObject);

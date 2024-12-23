@@ -770,7 +770,6 @@ object Form_Main: TForm_Main
         Width = 141
         Height = 20
         Hint = 'Select font face'
-        ParentBiDiMode = False
         TabOrder = 0
         TabStop = False
         OnKeyDown = Combo_FontKeyDown
