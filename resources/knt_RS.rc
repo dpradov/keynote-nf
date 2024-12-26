@@ -283,7 +283,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 64470,  "currently open file has no folders"
 64471,  "Folder is Read-Only"
 64472,  " Printing folder..."
-64473,  " Finished printing folder."
+64473,  " Finished printing/previewing"
 64474,  "Set alarm... (Ctrl:Add  Shift:->Folder)"
 64475,  "Untitled"
 64476,  " (no file)"
@@ -891,4 +891,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 65088,  "Enter new extension for text files:"
 65089,  "Extension \"%s\" already listed."
 65090,  "Reset default text file extensions?"
+65091,  "Print Previewing..."
 }

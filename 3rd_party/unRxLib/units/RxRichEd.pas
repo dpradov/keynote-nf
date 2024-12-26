@@ -619,7 +619,9 @@ type
     // [dpv]: OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
     function Print(const Caption: string; OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1): integer; virtual;
   {$IFDEF RX_ENHPRINT}
-    procedure CreatePrnPrew(const Caption: string); virtual;
+    //procedure CreatePrnPrew(const Caption: string); virtual;
+    function CreatePrnPrew(const Caption: string; FirstPageMarginTop: integer = -1; ScreenDPI: Integer= 96): Integer;  // [dpv]
+
   {$ENDIF RX_ENHPRINT}
     class procedure RegisterConversionFormat(const AExtension: string;
       APlainText: Boolean; AConversionClass: TConversionClass);
@@ -6369,6 +6371,7 @@ begin
   end;
 end;
 
+(*  [dpv]
 {$IFDEF RX_ENHPRINT}
 procedure TRxCustomRichEdit.CreatePrnPrew(const Caption: string);
 var
@@ -6448,6 +6451,125 @@ begin
   end;
 end;
 {$ENDIF RX_ENHPRINT}
+*)
+
+
+{ *1
+Difference between hdc and hdcTarget
+- hdc (Current Rendering Device Handle):
+  This is the device context (HDC) where the text is currently being drawn.
+  In the case of preview, this should be the context of the canvas you are drawing on (e.g. the TMetafileCanvas.Handle
+   or the context of a TCanvas).
+
+- hdcTarget (Format Target Device Handle):
+  This is the context of the final target device, i.e. the place for which you are formatting the text.
+  When you preview for a printer, hdcTarget should be the printer's HDC (Printer.Handle in Delphi).
+
+  Windows uses hdcTarget to calculate precise metrics such as:
+   Text size and kerning.
+   Line spacing.
+   Font scaling based on the capabilities of the output device (in this case, the printer).
+   This ensures that the text is formatted taking into account the printer's characteristics, but drawn in the hdc
+   corresponding to the preview.
+
+ https://learn.microsoft.com/en-us/windows/win32/api/richedit/ns-richedit-formatrange
+ https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps
+}
+
+{$IFDEF RX_ENHPRINT}                                                                // [dpv]
+function TRxCustomRichEdit.CreatePrnPrew(const Caption: string;
+                                         FirstPageMarginTop: integer = -1;
+                                         ScreenDPI: Integer= 96): Integer;
+var
+  Range: TFormatRange;
+  LastChar, MaxLen, DPI, OldMap: Integer;
+  SaveRect, FullPageRect: TRect;
+  MetaCanvas: TMetafileCanvas;
+  PWidth, PHeight: Integer;
+  hdcMetacanvas: HDC;
+
+  function GetNewPageHDC (First: boolean): HDC;
+  begin
+    prnpreview:= TMetaFile.create;
+    prnpreview.width  := PWidth;
+    prnpreview.height := PHeight;
+    MetaCanvas:=TmetafileCanvas.create(prnpreview,0);
+    MetaCanvas.Brush.Color:= clWindow;
+    MetaCanvas.FillRect(FullPageRect);
+
+    if First and (FirstPageMarginTop <> -1) and (PrnPreviews.Count > 0) then begin
+       MetaCanvas.Draw(0, 0, PrnPreviews[PrnPreviews.Count-1]);
+       PrnPreviews.Remove(PrnPreviews[PrnPreviews.Count-1]);
+    end;
+    Result:= MetaCanvas.Handle;
+  end;
+
+begin
+  // PrnPreviews.clear;
+
+  percentdone:=0;
+  FillChar(Range, SizeOf(TFormatRange), 0);
+  with Printer, Range do begin
+    Title := Caption;
+
+    DPI := ScreenDPI;
+    PWidth  := MulDiv(PageWidth,  DPI, GetDeviceCaps(Handle, LOGPIXELSX));
+    PHeight := MulDiv(PageHeight, DPI, GetDeviceCaps(Handle, LOGPIXELSY));
+
+    FullPageRect.Top:= 0;
+    FullPageRect.Left:= 0;
+    FullPageRect.Right := PWidth;
+    FullPageRect.Bottom:= PHeight;
+
+    if IsRectEmpty(PageRect) then begin
+      rc.right  := PageWidth  * 1440 div DPI;
+      rc.bottom := PageHeight * 1440 div DPI;
+    end
+    else begin
+      rc.left   := PageRect.Left   * 1440 div DPI;
+      rc.top    := PageRect.Top    * 1440 div DPI;
+      rc.right  := PageRect.Right  * 1440 div DPI;
+      rc.bottom := PageRect.Bottom * 1440 div DPI;
+    end;
+    rcPage := rc;
+    SaveRect := rc;
+    hdcTarget := Printer.Handle;        //*1
+    hdc:= GetNewPageHDC(true);
+    LastChar := 0;
+  	MaxLen:= TextLength;
+    chrg.cpMax := -1;
+
+    // ensure printer DC is in text map mode
+    OldMap := SetMapMode(hdc, MM_TEXT);
+    SendMessage(Self.Handle, EM_FORMATRANGE, 0, 0);    // flush buffer
+    try
+      if FirstPageMarginTop >= 0 then
+         rc.Top:= FirstPageMarginTop * 1440 div DPI;
+
+      while (LastChar < MaxLen) and (LastChar <> -1) do begin
+        chrg.cpMin := LastChar;
+        LastChar := SendMessage(Self.Handle, EM_FORMATRANGE, 1, LPARAM(@Range));
+        if (LastChar < MaxLen) and (LastChar <> -1) then begin
+          MetaCanvas.Free;
+          PrnPreviews.Add(prnpreview);
+          hdc:= GetNewPageHDC(false);
+        end
+        else
+           Result:= MulDiv(Range.rc.Bottom, DPI, 1440);    // [dpv] Current printed height  (Twips -> Pixels)
+        PercentDone:=round(100*(LastChar/MaxLen));
+        rc := SaveRect;
+      end;
+      MetaCanvas.Free;
+      PrnPreviews.Add(prnpreview);
+    finally
+      SendMessage(Self.Handle, EM_FORMATRANGE, 0, 0);  // flush buffer
+      SetMapMode(hdc, OldMap);                         // restore previous map mode
+    end;
+  end;
+end;
+{$ENDIF RX_ENHPRINT}
+
+
 
 var
   Painting: Boolean = False;

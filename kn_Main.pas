@@ -3966,7 +3966,9 @@ end;
 procedure TForm_Main.MMFilePageSetupClick(Sender: TObject);
 begin
   try
+     PageSetupDlg.Options:= [psoMargins];
      PageSetupDlg.Execute;
+
    except
      On E : Exception do
         App.ErrorPopup(E);
@@ -3986,19 +3988,14 @@ end;
 
 procedure TForm_Main.MMNotePrintPreview_Click(Sender: TObject);
 begin
-  App.InfoPopup('Functionality temporarily unavailable');
-  {
-  if not App.CheckActiveEditor then exit;
-
   try
-     ActiveEditor.CreatePrnPrew(ActiveFolder.Name);
+     PrintRtfFolder(true);
 
   except
      On E : Exception do
        App.ErrorPopup(E);
   end;
-  }
-end; // MMPrintpreviewClick
+end;
 
 
 procedure TForm_Main.MMEditCopyAllClick(Sender: TObject);

@@ -109,18 +109,25 @@ type
     fFolder: TKntFolder;              // To allow to scroll through the images in the note
     fImagesInNote: TImageIDs;
     fIndexInNote: integer;
+    fCompactMode: boolean;
+
+    fImages: TList;
+    fImageIndex: integer;
 
     cScrollBoxTopInitial: integer;
 
     procedure SetImage(value: TKntImage);
-    procedure ChangeImage;
-    procedure ConfigureAndShowImage (KeepWindowSize: boolean);
+    procedure SetImages(value: TList);
+    procedure ClearImages;
+    procedure ChangeImage(ID: integer);
+    procedure ConfigureAndShowImage (KeepWindowSize: boolean; KeepAspect: boolean = False);
     procedure CheckClearUnregisteredImage;
     procedure ResizeImage;
     procedure DoExpand(Expand: boolean);
     procedure UpdatePositionAndZoom;
     procedure CheckUpdateCaption;
 
+    function  GetImageID: integer;
     procedure GetImagesInNote;
     procedure SetFolder(value: TKntFolder);
 
@@ -128,8 +135,15 @@ type
 
   public
     { Public declarations }
+    CorrectionRatio: Double; // When printing, a DPI of 96 is always assumed. If we want the visible width to
+                             // match the expected width, we must multiply by this correction factor.
+                             // This is of interest to us, for example, if we are showing the preview of a
+                             // printout, where the expected width is known and verifiable.
+
     property Image : TKntImage read fImage write SetImage;
     property Folder: TKntFolder read fFolder write SetFolder;
+
+    property Images: TList read fImages write SetImages;
 
   end;
 
@@ -147,7 +161,7 @@ procedure ClearImgViewerInstances;
 
 var
    LastImgViewerOpen: TForm_Image;
-   CompactMode: boolean;
+   CompactModeDefault: boolean;
 
 
 implementation
@@ -222,7 +236,10 @@ end;
 
 procedure TForm_Image.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-   CheckClearUnregisteredImage;
+   if fImages <> nil then
+      ClearImages
+   else
+      CheckClearUnregisteredImage;
    Free;
 end;
 
@@ -230,6 +247,8 @@ procedure TForm_Image.FormCreate(Sender: TObject);
 begin
   fChangingInCode:= false;
   fImageConfigured:= false;
+  fImages:= nil;
+  CorrectionRatio:= 1;
   cScrollBoxTopInitial:= cScrollBox.Top;
 end;
 
@@ -249,7 +268,7 @@ end;
 procedure TForm_Image.Button_CancelClick(Sender: TObject);
 begin
    if txtID.Focused then begin
-      txtID.Text:= fImageID.ToString;
+      txtID.Text:= GetImageID.ToString;
       Button_Cancel.SetFocus;
    end
    else
@@ -288,20 +307,59 @@ begin
   end;
 end;
 
+function  TForm_Image.GetImageID: integer;
+begin
+    if fImages <> nil then
+       Result:= fImageIndex + 1
+    else
+       Result:= fImageID;
+end;
+
 procedure TForm_Image.SetImage(value: TKntImage);
 begin
    if value = nil then exit;
+   if value = fImage then exit;
 
-   CheckClearUnregisteredImage;
+
+   if fImages = nil then
+      CheckClearUnregisteredImage;
 
    fImage:= value;
    fCurrentKntFile:= ActiveFile;
    fImageID:= fImage.ID;
 
    if Visible then begin
-     ConfigureAndShowImage (true);
+     ConfigureAndShowImage (true, (fImages <> nil));
      WindowState:= wsNormal;
    end;
+end;
+
+procedure TForm_Image.SetImages(value: TList);
+begin
+   ClearImages;
+
+   bBlack.Visible:= false;
+   bGray.Visible:= false;
+   bWhite.Visible:= false;
+   btnOpenFolder.Visible:= false;
+
+   fImages:= value;
+   fImageIndex:= 0;
+   Image:= fImages[0];
+end;
+
+procedure TForm_Image.ClearImages;
+var
+   i: Integer;
+begin
+   if fImages <> nil then begin
+      for i:= 0 to fImages.Count - 1 do begin
+          fImage:= fImages[i];
+          CheckClearUnregisteredImage;
+      end;
+      fImages.Clear;
+   end;
+
 end;
 
 procedure TForm_Image.CheckClearUnregisteredImage;
@@ -318,16 +376,28 @@ begin
     Button_Cancel.SetFocus;
     cScrollBox.SetFocus;
 
-    chkCompact.Checked:= CompactMode;
+    if fImages = nil then
+       chkCompact.Checked:= CompactModeDefault
+    else begin
+       chkCompact.Checked:= true;
+       chkCompact.Visible:= false;
+    end;
 
     ConfigureAndShowImage (false);
 
-    // By default, always visible
     WinOnTop.AlwaysOnTop:= true;
     btnAlwaysVisible.Down:= true;
+
+    if fImages <> nil then begin
+       Self.Width:= Self.Width + 550;
+       if Self.Width > Screen.Width then
+          Self.Width := Screen.Width;
+       Button_Modify.Visible:= false;
+    end;
+
 end;
 
-procedure TForm_Image.ConfigureAndShowImage (KeepWindowSize: boolean);
+procedure TForm_Image.ConfigureAndShowImage (KeepWindowSize: boolean; KeepAspect: boolean = False);
 var
   Pic: TSynPicture;
   W, H, MaxW, MaxH: integer;
@@ -335,10 +405,47 @@ var
   ImageSizerThanWindow: boolean;
   RegisteredImg: boolean;
 
+  procedure CalculateDimensions;
+  begin
+      W:= Round(Image.Width  * CorrectionRatio);
+      H:= Round(Image.Height * CorrectionRatio);
+
+      if KeepWindowSize then begin
+         ImageSizerThanWindow:= true;
+         if (W <= cScrollBox.Width) and (H <= cScrollBox.Height) then
+             ImageSizerThanWindow:= false;
+      end
+      else begin
+         ImageSizerThanWindow:= false;
+
+         Ratio:= H / W;
+         MaxW:= Screen.Width  - (Self.Width - cImage.Width) -70;
+         MaxH:= Screen.Height - (Self.Height - cImage.Height) -70;
+
+         if W > MaxW then begin
+            W:= MaxW;
+            H:= Round(W * Ratio);
+            if H > MaxH then
+               H:= MaxH;
+         end
+         else if H > MaxH then begin
+            H:= MaxH;
+            W:= Round(H / Ratio);
+            if W > MaxW then
+               W:= MaxW;
+         end;
+
+         Self.Width:=  W +  (Self.Width - cImage.Width) + 35;
+         Self.Height:= H +  (Self.Height - cImage.Height) + 35;
+      end;
+
+      fZoomFactor:= 1.0;
+  end;
+
 begin
    if Image = nil then exit;
 
-   txtID.Text:= Image.ID.ToString;
+   txtID.Text:= GetImageID.ToString;
    lblDetails.Caption:= Image.Details;
    lblDetails.Hint:= StringReplace(Image.Details, '|', ' -- ', [rfReplaceAll]);
    txtCaption.Text:= Image.Caption;
@@ -364,69 +471,46 @@ begin
       Caption:= Image.Name;
 
 
-   W:= Image.Width;
-   H:= Image.Height;
-   
-   if KeepWindowSize then begin
-      ImageSizerThanWindow:= true;
-      if (W <= cScrollBox.Width) and (H <= cScrollBox.Height) then
-          ImageSizerThanWindow:= false;
-   end
-   else begin
-      ImageSizerThanWindow:= false;
-      
-      Ratio:= H / W;
-      MaxW:= Screen.Width  - (Self.Width - cImage.Width)   -70;
-      MaxH:= Screen.Height - (Self.Height - cImage.Height) -70;
-
-      if W > MaxW then begin
-         W:= MaxW;
-         H:= Round(W * Ratio);
-         if H > MaxH then
-            H:= MaxH;
-      end
-      else if H > MaxH then begin
-         H:= MaxH;
-         W:= Round(H / Ratio);
-         if W > MaxW then
-            W:= MaxW;
-      end;
-
-      Self.Width:=  W +  (Self.Width - cImage.Width) + 35;
-      Self.Height:= H +  (Self.Height - cImage.Height) + 35;
-   end;
-
-   fZoomFactor:= 1.0;
    fChangingInCode:= true;
-   
    Pic:= TSynPicture.Create;
    try
       Pic.LoadFromStream(Image.ImageStream);
-      if KeepWindowSize then
+
+      if not KeepAspect then
+         CalculateDimensions;
+
+      if KeepWindowSize or KeepAspect then
          cImage.Picture:= nil;
-        
+
       cImage.Picture.Assign(Pic);
+      if not KeepWindowSize then begin
+         cImage.Align:= alClient;
+         cImage.Align:= alNone;
+      end;
 
-      cImage.AutoSize:= false;
-      cImage.Stretch:= true;
+      if not KeepAspect then begin
+         cImage.AutoSize:= false;
+         cImage.Stretch:= true;
 
-      fImageConfigured:= true;
+         fImageConfigured:= true;
 
-      if (W = Image.Width) and not ImageSizerThanWindow then begin
-         if not chkExpand.Checked then
-            DoExpand (false);
-         chkExpand.Checked:= false;
-         fChangingInCode:= false;
+         if (W = Round(Image.Width  * CorrectionRatio)) and not ImageSizerThanWindow then begin
+            if not chkExpand.Checked then
+               DoExpand (false);
+            chkExpand.Checked:= false;
+         end
+         else
+           chkExpand.Checked:= true;
+
          UpdatePositionAndZoom;
-
       end
       else begin
-        fChangingInCode:= false;
-        chkExpand.Checked:= true;
-        UpdatePositionAndZoom;
+         if chkExpand.Checked then
+            DoExpand (chkExpand.Checked);
       end;
 
    finally
+      fChangingInCode:= false;
       Pic.Free;
    end;
 end;
@@ -491,12 +575,18 @@ procedure TForm_Image.chkCompactClick(Sender: TObject);
 var
    Offset: integer;
 begin
-   CompactMode:= chkCompact.Checked;
-   lblDetails.Visible := not CompactMode;
-   lblLinked.Visible := not CompactMode;
-   txtCaption.Visible := not CompactMode;
+   if Image = nil then exit;
 
-   if CompactMode then begin
+   fCompactMode:= chkCompact.Checked;
+
+   if fImages = nil then
+      CompactModeDefault:= fCompactMode;
+
+   lblDetails.Visible := not fCompactMode;
+   lblLinked.Visible := not fCompactMode;
+   txtCaption.Visible := not fCompactMode;
+
+   if fCompactMode then begin
       Offset:= cScrollBoxTopInitial - lblDetails.Top;
       cScrollBox.SetBounds(cScrollBox.Left, lblDetails.Top, cScrollBox.Width, cScrollBox.Height + Offset );
    end
@@ -524,8 +614,8 @@ begin
       cImage.Align:= alNone;
       if not fChangingInCode then
          fZoomFactor := SimpleRoundTo(fZoomFactor - 0.05, -1);
-      cImage.Width  := Round(Image.Width  * fZoomFactor);
-      cImage.Height := Round(Image.Height * fZoomFactor);
+      cImage.Width  := Round(Image.Width  * fZoomFactor * CorrectionRatio);
+      cImage.Height := Round(Image.Height * fZoomFactor * CorrectionRatio);
    end;
 
    fChangingInCode:= false;
@@ -542,8 +632,8 @@ begin
    if chkExpand.Checked then
       chkExpand.Checked:= False;
 
-   cImage.Width :=  Round(Image.Width * fZoomFactor);
-   cImage.Height := Round(Image.Height * fZoomFactor);
+   cImage.Width :=  Round(Image.Width * fZoomFactor * CorrectionRatio);
+   cImage.Height := Round(Image.Height * fZoomFactor * CorrectionRatio);
 
    fChangingInCode:= false;
 
@@ -572,9 +662,6 @@ begin
 
   lblZoom.Caption:= Round(fZoomFactor * 100).ToString + ' %';
 end;
-
-
-
 
 
 
@@ -645,9 +732,13 @@ begin
 end;
 
 procedure TForm_Image.txtIDExit(Sender: TObject);
+var
+  ID: integer;
 begin
   Button_Modify.Default:= true;
-  ChangeImage;
+  ID:= -1;
+  TryStrToInt(txtID.Text, ID);
+  ChangeImage(ID)
 end;
 
 
@@ -660,19 +751,26 @@ begin
    end;
 end;
 
-procedure TForm_Image.ChangeImage;
+procedure TForm_Image.ChangeImage (ID: integer);
 var
   Img: TKntImage;
-  ID: integer;
 begin
-   if TryStrToInt(txtID.Text, ID) and (ID <> fImageID) then begin
-      Img:= ImageMng.GetImageFromID(ID);
+   if (ID <> GetImageID) then begin
+      Img:= nil;
+      if (fImages <> nil) then begin
+         if (ID >=1) and (ID <= fImages.Count) then begin
+            fImageIndex:= ID-1;
+            Img:= fImages[fImageIndex];
+         end;
+      end
+      else
+         Img:= ImageMng.GetImageFromID(ID);
       if (Img <> nil) then begin
          CheckUpdateCaption;
          Image:= Img;
       end;
    end;
-   txtID.Text:= fImageID.ToString;
+   txtID.Text:= GetImageID.ToString;
 end;
 
 procedure TForm_Image.SetFolder(value: TKntFolder);
@@ -687,22 +785,29 @@ var
   Img: TKntImage;
   ImgID: integer;
 begin
-    if CtrlDown then begin
-       Img:= ImageMng.GetPrevImage (fImageID);
-       if (Img = nil) then
-          Img:= ImageMng.GetPrevImage (ImageMng.NextTempImageID);
+    if fImages <> nil then begin
+       dec(fImageIndex);
+       if fImageIndex < 0 then
+          fImageIndex := fImages.Count-1;
+       Img:= fImages[fImageIndex];
     end
     else begin
-       GetImagesInNote;
-       if fImagesInNote = nil then exit;
-       Dec(fIndexInNote);
-       if fIndexInNote < 0 then
-          fIndexInNote:= Length(fImagesInNote)-1;
+       if CtrlDown then begin
+          Img:= ImageMng.GetPrevImage (fImageID);
+          if (Img = nil) then
+             Img:= ImageMng.GetPrevImage (ImageMng.NextTempImageID);
+       end
+       else begin
+          GetImagesInNote;
+          if fImagesInNote = nil then exit;
+          Dec(fIndexInNote);
+          if fIndexInNote < 0 then
+             fIndexInNote:= Length(fImagesInNote)-1;
 
-       fImageID:= fImagesInNote[fIndexInNote];
-       Img:= ImageMng.GetImageFromID(fImageID);
+          fImageID:= fImagesInNote[fIndexInNote];
+          Img:= ImageMng.GetImageFromID(fImageID);
+       end;
     end;
-
 
     CheckUpdateCaption;
     Image:= Img;
@@ -713,23 +818,32 @@ procedure TForm_Image.btnNextImageClick(Sender: TObject);
 var
   Img: TKntImage;
 begin
-    if CtrlDown then begin
-       Img:= ImageMng.GetNextImage (fImageID);
-       if (Img = nil) then
-          Img:= ImageMng.GetNextImage (0);
+    if fImages <> nil then begin
+       Inc(fImageIndex);
+       if fImageIndex >= fImages.Count then
+          fImageIndex:= 0;
+       Img:= fImages[fImageIndex];
     end
     else begin
-       GetImagesInNote;
-       if fImagesInNote = nil then exit;
-       Inc(fIndexInNote);
-       if fIndexInNote >= Length(fImagesInNote) then
-          fIndexInNote:= 0;
+       if CtrlDown then begin
+          Img:= ImageMng.GetNextImage (fImageID);
+          if (Img = nil) then
+             Img:= ImageMng.GetNextImage (0);
+       end
+       else begin
+          GetImagesInNote;
+          if fImagesInNote = nil then exit;
+          Inc(fIndexInNote);
+          if fIndexInNote >= Length(fImagesInNote) then
+             fIndexInNote:= 0;
 
-       fImageID:= fImagesInNote[fIndexInNote];
-       Img:= ImageMng.GetImageFromID(fImageID);
+          fImageID:= fImagesInNote[fIndexInNote];
+          Img:= ImageMng.GetImageFromID(fImageID);
+       end;
+
+       CheckUpdateCaption;
     end;
 
-    CheckUpdateCaption;
     Image:= Img;
     Button_Cancel.SetFocus;
 end;
@@ -803,29 +917,61 @@ begin
   inherited;
 end;
 
-procedure TForm_Image.FormKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TForm_Image.FormKeyDown(Sender: TObject; var Key: Word;  Shift: TShiftState);
+var
+  ID: Integer;
 begin
 
   case Key of
      VK_HOME: begin
-        cScrollBox.HorzScrollBar.Position:= 0;
-        if shift = [ssCtrl] then
-           cScrollBox.VertScrollBar.Position:= 0;
+        if cScrollBox.VertScrollBar.IsScrollBarVisible then begin
+           cScrollBox.HorzScrollBar.Position:= 0;
+           if shift = [ssCtrl] then
+              cScrollBox.VertScrollBar.Position:= 0;
+        end
+        else begin
+            if fImages <> nil then
+               ID:= 1
+            else begin
+               GetImagesInNote;
+               ID:= fImageID;
+               if fImagesInNote <> nil then
+                  ID:= fImagesInNote[0];
+            end;
+            ChangeImage(ID);
+        end;
         key:= 0;
      end;
      VK_END: begin
-        cScrollBox.HorzScrollBar.Position:= cScrollBox.HorzScrollBar.Range;
-        if shift = [ssCtrl] then
-           cScrollBox.VertScrollBar.Position:= cScrollBox.VertScrollBar.Range;
+        if cScrollBox.VertScrollBar.IsScrollBarVisible then begin
+           cScrollBox.HorzScrollBar.Position:= cScrollBox.HorzScrollBar.Range;
+           if shift = [ssCtrl] then
+              cScrollBox.VertScrollBar.Position:= cScrollBox.VertScrollBar.Range;
+        end
+        else
+            if fImages <> nil then
+               ID:= fImages.Count
+            else begin
+               GetImagesInNote;
+               ID:= fImageID;
+               if fImagesInNote <> nil then
+                  ID:= fImagesInNote[Length(fImagesInNote)-1];
+            end;
+            ChangeImage(ID);
         key:= 0;
      end;
      VK_PRIOR: begin
-        cScrollBox.VertScrollBar.Position:= 0;
+        if cScrollBox.VertScrollBar.IsScrollBarVisible then
+           cScrollBox.VertScrollBar.Position:= 0
+        else
+           btnPrevImageClick(nil);
         key:= 0;
      end;
      VK_NEXT: begin
-        cScrollBox.VertScrollBar.Position:= cScrollBox.VertScrollBar.Range;
+        if cScrollBox.VertScrollBar.IsScrollBarVisible then
+           cScrollBox.VertScrollBar.Position:= cScrollBox.VertScrollBar.Range
+        else
+           btnNextImageClick(nil);
         key:= 0;
      end;
 
@@ -853,7 +999,7 @@ procedure TForm_Image.FormResize(Sender: TObject);
 var
   Visible: boolean;
 begin
-  Visible:= Self.Width >= 382;
+  Visible:= (Self.Width >= 382) and (fImages = nil);
   bGray.Visible:= Visible;
   bWhite.Visible:= Visible;
   bBlack.Visible:= Visible;
@@ -885,6 +1031,6 @@ end;
 initialization
   LastImgViewerOpen:= nil;
   ImgViewerInstances:= TList.Create;
-  CompactMode:= False;
+  CompactModeDefault:= False;
 
 end.

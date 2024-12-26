@@ -43,7 +43,10 @@ uses
 
 
 procedure PasteIntoNew (const AsNewFolder: boolean);
-procedure PrintRtfFolder;
+function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
+function GetRealMonitorDPI: TPoint;
+function GetRealMonitorDPIx: Double;
+procedure PrintRtfFolder (PrintPreview: boolean = false);
 procedure EnableOrDisableUAS;
 procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
@@ -110,6 +113,7 @@ uses
    Printers,
    UWebBrowserWrapper,
    UAS,
+   SynGdiPlus,
 
    gf_misc,
    gf_miscvcl,
@@ -120,6 +124,8 @@ uses
    kn_const,
    kn_Cmd,
    kn_ClipUtils,
+   kn_ImagesMng,
+   kn_ImageForm,
    kn_LinksMng,
    knt.ui.tree,
    kn_VCLControlsMng,
@@ -867,67 +873,67 @@ end; // PasteIntoNew
 
 //=================================================================
 
-function GetPrintAreaInTwips: TRect;
-const
-  Inch = 1440; // Inch in System Units (TWIPS)
+function GetRealMonitorDPI: TPoint;
 var
-  Rect: TRect;
-  PageWidth, PageHeight: Integer;
-  mLeft, mTop, mRight, mBottom: Integer;
-  DPIx, DPIy: Integer;
-
-   function IsMetricSystem: Boolean;
-   var
-     Measure: array[0..1] of Char;
-   begin
-     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, Measure, SizeOf(Measure));
-     Result := StrToIntDef(Measure, 0) = 0;           // 0 = metric, 1 = imperial
-   end;
-
+  ScreenDC: HDC;
+  HorzSizeMM, VertSizeMM: Integer;
+  HorzResPixels, VertResPixels: Integer;
+  DPI_X, DPI_Y: Double;
 begin
-   // Printer resolution in pixels per inch (PPI)
-    DPIx := GetDeviceCaps(Printer.Handle, LOGPIXELSX);
-    DPIy := GetDeviceCaps(Printer.Handle, LOGPIXELSY);
+  ScreenDC := GetDC(0);
+  try
+    HorzResPixels := GetDeviceCaps(ScreenDC, HORZRES);
+    VertResPixels := GetDeviceCaps(ScreenDC, VERTRES);
+    HorzSizeMM := GetDeviceCaps(ScreenDC, HORZSIZE);          // millimeters
+    VertSizeMM := GetDeviceCaps(ScreenDC, VERTSIZE);
 
-    // PageSetupDlg.Margins:
-    // If the user is entering values in inches, MarginBottom expresses the margin in thousandths of an inch.
-    // If the user is entering values in millimeters, MarginBottom expresses the margin in hundredths of a millimeter.
-
-    // Converting margins from millimeters (or inches) to pixels, then to TWIPS
-    with Form_Main.PageSetupDlg do begin
-       if (Units = pmMillimeters ) or ((Units = pmDefault) and IsMetricSystem) then begin
-          mLeft   := PixelsToTwips(Round(MarginLeft  /100 / 25.4 * DPIx), DPIx);
-          mTop    := PixelsToTwips(Round(MarginTop   /100 / 25.4 * DPIy), DPIy);
-          mRight  := PixelsToTwips(Round(MarginRight /100 / 25.4 * DPIx), DPIx);
-          mBottom := PixelsToTwips(Round(MarginBottom/100 / 25.4 * DPIy), DPIy);
-       end
-       else begin
-          mLeft   := PixelsToTwips(Round(MarginLeft  /1000 * DPIx), DPIx);
-          mTop    := PixelsToTwips(Round(MarginTop   /1000 * DPIy), DPIy);
-          mRight  := PixelsToTwips(Round(MarginRight /1000 * DPIx), DPIx);
-          mBottom := PixelsToTwips(Round(MarginBottom/1000 * DPIy), DPIy);
-       end;
+    if (HorzSizeMM > 0) and (VertSizeMM > 0) then begin
+      DPI_X := HorzResPixels / (HorzSizeMM / 25.4);           // millimeters -> inches
+      DPI_Y := VertResPixels / (VertSizeMM / 25.4);
+    end
+    else begin
+      DPI_X := 96;                      // If physical size is not available, we assume 96 DPI as fallback
+      DPI_Y := 96;
     end;
+    Result := TPoint.Create(Round(DPI_X), Round(DPI_Y));
 
-    // Page dimensions in TWIPS
-    PageWidth := PixelsToTwips(Printer.PageWidth, DPIx);
-    PageHeight := PixelsToTwips(Printer.PageHeight, DPIy);
-
-    // Defining the printable area using margins
-    Rect.Left   := mLeft;
-    Rect.Top    := mTop;
-    Rect.Right  := PageWidth - mRight;
-    Rect.Bottom := PageHeight - mBottom;
-
-    Result:= Rect;
+  finally
+    ReleaseDC(0, ScreenDC);
+  end;
 end;
 
 
-function GetPrintAreaInPixels: TRect;
+function GetRealMonitorDPIx: Double;
+var
+  ScreenDC: HDC;
+  HorzSizeMM, HorzResPixels: Integer;
+  DPI_X: Double;
+begin
+  ScreenDC := GetDC(0);
+  try
+    HorzResPixels := GetDeviceCaps(ScreenDC, HORZRES);
+    HorzSizeMM := GetDeviceCaps(ScreenDC, HORZSIZE);          // millimeters
+
+    if (HorzSizeMM > 0) then
+      DPI_X := HorzResPixels / (HorzSizeMM / 25.4)           // millimeters -> inches
+    else
+      DPI_X := 96;                      // If physical size is not available, we assume 96 DPI as fallback
+
+    Result := DPI_X;
+
+  finally
+    ReleaseDC(0, ScreenDC);
+  end;
+end;
+
+
+function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
 var
   Rect: TRect;
   mLeft, mTop, mRight, mBottom: Integer;
-  DPIx, DPIy: Integer;
+  DPIx, DPIy: Double;
+  PageWidth, PageHeight: Integer;
+  OffsetX, OffsetY: Integer;
 
    function IsMetricSystem: Boolean;
    var
@@ -938,15 +944,67 @@ var
    end;
 
 begin
+    {
+    https://learn.microsoft.com/en-us/windows/win32/api/richedit/ns-richedit-formatrange
+    https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps
+
+
+    LOGPIXELSX:
+  	Number of pixels per logical inch along the screen width. In a system with multiple display monitors, this value
+    is the same for all monitors.
+
+    LOGPIXELSY:
+    Number of pixels per logical inch along the screen height.
+
+    HORZRES:
+    Width, in pixels, of the screen; or for printers, the width, in pixels, of the printable area of the page.
+
+    VERTRES:
+    Height, in raster lines, of the screen; or for printers, the height, in pixels, of the printable area of the page.
+
+    PHYSICALWIDTH:
+	  For printing devices: the width of the physical page, in device units. For example, a printer set to print
+    at 600 dpi on 8.5-x11-inch paper has a physical width value of 5100 device units. Note that the physical page
+    is almost always greater than the printable area of the page, and never smaller.
+
+    PHYSICALHEIGHT:
+	  For printing devices: the height of the physical page, in device units. For example, a printer set to print
+    at 600 dpi on 8.5-by-11-inch paper has a physical height value of 6600 device units.
+
+    PHYSICALOFFSETX:
+	  For printing devices: the distance from the left edge of the physical page to the left edge of the printable area,
+    in device units. For example, a printer set to print at 600 dpi on 8.5-by-11-inch paper, that cannot print on the
+    leftmost 0.25-inch of paper, has a horizontal physical offset of 150 device units.
+
+    PHYSICALOFFSETY:
+	  For printing devices: the distance from the top edge of the physical page to the top edge of the printable area,
+    in device units. For example, a printer set to print at 600 dpi on 8.5-by-11-inch paper, that cannot print on the
+    topmost 0.5-inch of paper, has a vertical physical offset of 300 device units.
+    }
+
    // Printer resolution in pixels per inch (PPI)
     DPIx := GetDeviceCaps(Printer.Handle, LOGPIXELSX);
     DPIy := GetDeviceCaps(Printer.Handle, LOGPIXELSY);
+
+    PageWidth  := Printer.PageWidth;          // = PHYSICALWIDTH
+    PageHeight := Printer.PageHeight;         // = PHYSICALHEIGHT
+    OffsetX := GetDeviceCaps(Printer.Handle, PHYSICALOFFSETX);
+    OffsetY := GetDeviceCaps(Printer.Handle, PHYSICALOFFSETY);
+
+    if ScreenDPI > 0 then begin
+       PageWidth  := Round(PageWidth  * ScreenDPI/DPIx);
+       PageHeight := Round(PageHeight * ScreenDPI/DPIy);
+       OffsetX := Round(OffsetX * ScreenDPI/DPIx);
+       OffsetY := Round(OffsetY * ScreenDPI/DPIx);
+       DPIx:= ScreenDPI;
+       DPIy:= ScreenDPI;
+    end;
 
     // PageSetupDlg.Margins:
     // If the user is entering values in inches, MarginBottom expresses the margin in thousandths of an inch.
     // If the user is entering values in millimeters, MarginBottom expresses the margin in hundredths of a millimeter.
 
-    // Converting margins from millimeters (or inches) to pixels, then to TWIPS
+    // Converting margins from millimeters (or inches) to pixels
     with Form_Main.PageSetupDlg do begin
        if (Units = pmMillimeters ) or ((Units = pmDefault) and IsMetricSystem) then begin
           mLeft   := Round(MarginLeft  /100 / 25.4 * DPIx);
@@ -962,18 +1020,24 @@ begin
        end;
     end;
 
+    if mLeft < OffsetX then
+       mLeft:= OffsetX;
+    if mTop < OffsetY then
+       mTop:= OffsetY;
+
     // Defining the printable area using margins
     Rect.Left   := mLeft;
     Rect.Top    := mTop;
-    Rect.Right  := Printer.PageWidth - mRight;
-    Rect.Bottom := Printer.PageHeight - mBottom;
+    Rect.Right  := PageWidth - mRight;
+    Rect.Bottom := PageHeight - mBottom;
 
     Result:= Rect;
 end;
 
 
-procedure PrintRtfFolder;
+procedure PrintRtfFolder(PrintPreview: boolean = false);
 var
+  operation: string;
   RTFAux: TAuxRichEdit;
   PrintAllNodes : boolean;
   Node : PVirtualNode;
@@ -984,9 +1048,20 @@ var
   PrintMode: string;
   Caption: string;
   NEntryTextSize: integer;
-  NEntryText, RTFwithImages: AnsiString;  
+  NEntryText, RTFwithImages: AnsiString;
   FirstPrint, NodeInNewPage: boolean;
   FirstPageMarginTop, LastPagePrintedHeight: integer;
+  PageRect: TRect;
+
+  DPI: Integer;
+  Img: TKntImage;
+  PrnPreviews: TList;
+  PrnPreview:  TMetafile;
+  PageWidth, i: integer;
+  Stream: TMemoryStream;
+  Images: TList;
+  Form_Image : TForm_Image;
+
 
 begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
@@ -997,9 +1072,14 @@ begin
   TreeUI:= ActiveFolder.TreeUI;
   TV:= TreeUI.TV;
 
+  if PrintPreview then
+     Operation:= GetRS(sMain97)
+  else
+     Operation:= GetRS(sMain29);
+
   if (TV.TotalCount > 1 ) then begin
     PrintMode:= '0';
-    if InputQuery( GetRS(sMain29), GetRS(sEdt49), PrintMode ) then
+    if InputQuery( Operation, GetRS(sEdt49), PrintMode ) then
        if PrintMode = '0' then
           PrintAllNodes := false
        else begin
@@ -1024,20 +1104,35 @@ begin
     RTFAux:= nil;
 
     try
-      App.ShowInfoInStatusBar(GetRS(sMain29));
+      App.ShowInfoInStatusBar(Operation);
       screen.Cursor := crHourGlass;
 
+      if PrintPreview then begin
+         DPI:= Screen.PixelsPerInch;
+         PageRect:= GetPrintAreaInPixels(DPI);
+      end
+      else
+         PageRect:= GetPrintAreaInPixels;
+
       if (not PrintAllNodes ) then begin
-          ActiveEditor.PageRect:= GetPrintAreaInPixels;
-          ActiveFolder.Editor.Print(Caption);
+          ActiveEditor.PageRect:= PageRect;
+          PrnPreviews:= ActiveEditor.PrnPreviews;
+          if PrintPreview then begin
+             ActiveEditor.PrnPreviews.Clear;
+             ActiveEditor.CreatePrnPrew(ActiveFolder.Name, -1, DPI);
+          end
+          else
+             ActiveFolder.Editor.Print(Caption);
       end
       else begin
         RTFAux:= CreateAuxRichEdit();
         RTFAux.PrepareEditorforPlainText(ActiveFolder.EditorChrome);
-        RTFAux.PageRect:= GetPrintAreaInPixels;
+        RTFAux.PageRect:= PageRect;
+        PrnPreviews:= RTFAux.PrnPreviews;
         FirstPrint:= True;
 
-        Printer.BeginDoc;
+        if not PrintPreview then
+           Printer.BeginDoc;
 
         Node := TV.GetFirst;
         if not TV.IsVisible[Node] then
@@ -1067,27 +1162,57 @@ begin
            if RTFAux.TextLength <> 0 then begin
               FirstPageMarginTop:= -1;
               if not FirstPrint then begin
-                 if NodeInNewPage then
-                    Printer.NewPage
+                 if NodeInNewPage then begin
+                    if not PrintPreview then
+                       Printer.NewPage;
+                 end
                  else
                     FirstPageMarginTop:= LastPagePrintedHeight;     // Adjust vertical position for next RichEdit
               end;
-              LastPagePrintedHeight:= RTFAux.Print(Caption, false, FirstPageMarginTop);
+              if PrintPreview then
+                 LastPagePrintedHeight:= RTFAux.CreatePrnPrew(Caption, FirstPageMarginTop, DPI)
+              else
+                 LastPagePrintedHeight:= RTFAux.Print(Caption, false, FirstPageMarginTop);
+
               FirstPrint:= False;
            end;
 
            Node := TV.GetNextNotHidden(Node);
         end;
-        Printer.EndDoc;
+        if not PrintPreview and Printer.Printing then
+           Printer.EndDoc;
+      end;
+
+      App.ShowInfoInStatusBar(GetRS(sMain30));
+      screen.Cursor := crDefault;
+
+      if PrintPreview then begin
+           Images:= TList.Create;
+           for i:= 0 to PrnPreviews.Count-1 do begin
+              PrnPreview:= PrnPreviews[i];
+              Stream:= TMemoryStream.Create;
+              PrnPreview.SaveToStream(Stream);
+              Img:= TKntImage.Create(0, '', true, imgWMF, PrnPreview.Width, PrnPreview.Height, 0, 0, Stream);
+              Img.Caption:= String.Format('Print preview: Page %d of %d', [i+1, PrnPreviews.Count]);
+              Img.ForceName(String.Format('Page_%d.%s', [i+1, IMAGE_FORMATS[imgWMF]]));
+              Images.Add(Img);
+              PrnPreview.Free;
+           end;
+           PrnPreviews.Clear;
+
+           Form_Image := TForm_Image.Create( Form_Main );
+           Form_Image.CorrectionRatio:= GetRealMonitorDPIx / DPI;
+           Form_Image.Images:= Images;
+           Form_Image.Show;
       end;
 
     finally
-      App.ShowInfoInStatusBar(GetRS(sMain30));
       screen.Cursor := crDefault;
       if Printer.Printing then
          Printer.EndDoc;
       if assigned( RTFAux ) then RTFAux.Free;
     end;
+
 
   end;
 end; // PrintRtfFolder

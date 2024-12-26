@@ -777,8 +777,9 @@ const
    sMain25 = 64469;   // no file is open
    sMain26 = 64470;   // currently open file has no folders
    sMain27 = 64471;   // Folder is Read-Only
-   sMain29 = 64472;   //  Printing folder...
-   sMain30 = 64473;   //  Finished printing folder.
+   sMain29 = 64472;   // Printing folder...
+   sMain97 = 65091;   // Print Previewing...
+   sMain30 = 64473;   //  Finished printing/previewing
    sMain34 = 64474;   // Set alarm... (Ctrl:Add  Shift:->Folder)
    sMain40 = 64475;   // Untitled
    sMain42 = 64476;   //  (no file)

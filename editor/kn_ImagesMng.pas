@@ -247,6 +247,7 @@ type
     destructor Destroy; override;
 
     procedure GenerateName(const FolderName: string; const Source: string; ZipPathFormat: boolean; const NameProposed: string = '');
+    procedure ForceName(Name: string);
 
     property ID: Integer read FID;
     property ImageFormat: TImageFormat read FImageFormat;
@@ -1075,6 +1076,11 @@ begin
 
 end;
 
+procedure TKntImage.ForceName(Name: string);
+begin
+   if fOwned then
+      FName:= Name;
+end;
 
 function TKntImage.GetName: String;
 begin
