@@ -1176,14 +1176,15 @@ begin
                        RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
                   end;
 
-                  if not SingleNodes then begin
+                  if not SingleNodes then
                      IndentContent(Level+1);
-                     inc( tmpExportedNodes )
-                  end
-                  else begin
+
+                  if SingleNodes or (ExportOptions.TargetFormat = xfPrinter) then begin
                      if FlushExportFile( RTFAux, myFolder, NNode.NodeName(TreeUI) ) then  // each node is saved to its own file
                         inc( ExportedNotes );
-                  end;
+                  end
+                  else
+                     inc( tmpExportedNodes );
 
                   FirstNodeExportedInFolder:= False;
                 end;
@@ -1208,7 +1209,7 @@ begin
 
 
               // if exporting all nodes to one file, flush nodes now
-              if not SingleNodes then begin
+              if not SingleNodes and (ExportOptions.TargetFormat <> xfPrinter)then begin
                 // we have gathered all nodes, now flush the file
                 InsertFolderHeading;
                 if FlushExportFile( RTFAux, myFolder, RemoveAccelChar( myFolder.Name )) then
