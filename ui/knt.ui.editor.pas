@@ -644,6 +644,7 @@ begin
   { *1
      hello \v\''11B1\''12\v0\fs36 BIG WORLD  =>  hello \fs36 BIG WORLD
      hello \v\''11B1\''12\v0 world           =>  hello world    (-> remove space after \v0)
+    \pard\cf3\b\v\'11B12\'12\v0 hello world  => \pard\cf3\b hello world  (-> don't remove space after \v0)
   }
 
 
@@ -701,7 +702,7 @@ begin
         len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
         if (pF > 0) and (pPrefix = pI + 2) and (len <= KNT_RTF_HIDDEN_MAX_LENGHT) then begin
            // Normal case: \v\'11B5\'12\v0 XXX
-            if Result[pI + len] = ' ' then          // *1
+            if (Result[pI + len] = ' ') and (Result[pI -1] = ' ') then          // *1
                Inc(len);
             Delete(Result, pI, len);
             pI:= pF+1;
