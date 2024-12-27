@@ -151,6 +151,7 @@ type
     function ConfirmAbort : boolean;
 
     function ExpandExpTokenString( const tpl, filename, folderName, nodename : string; const nodelevel, nodeindex : integer; TabSize: integer ) : string;
+    function SingleNodes: boolean;
   end;
 
 
@@ -221,6 +222,13 @@ begin
        FontSizes_Max := -1;
 end;
 
+function TForm_ExportNew.SingleNodes: boolean;
+begin
+  if ExportOptions.TargetFormat= xfPrinter then
+     Result:= ExportOptions.EachNoteOnNewPage
+  else
+     Result:= ExportOptions.SingleNodeFiles;
+end;
 
 procedure TForm_ExportNew.Edit_SymbolsExit(Sender: TObject);
 begin
@@ -257,7 +265,7 @@ var
          if LenSymbolsLevel < LengthsHeading_Min then
             LenSymbolsLevel:= LengthsHeading_Min;
 
-         if ExportOptions.IndentNestedNodes and not ExportOptions.SingleNodeFiles then begin
+         if ExportOptions.IndentNestedNodes and not SingleNodes then begin
             NumTabsLevel:= 1;
             if ExportOptions.TargetFormat = xfPlainText then
                NumTabsLevel:= ExportOptions.IndentValue div EditorOptions.IndentInc;
@@ -869,6 +877,7 @@ var
   FSize, SS, SL: integer;
   SSNode: integer;
   ImgFormatInsideRTF_BAK: TImageFormatToRTF;
+  FirstNodeExportedInFolder: boolean;
 
   procedure LoadNodeLevelTemplates;
   var
@@ -889,10 +898,54 @@ var
   var
      SS: integer;
   begin
+     if not ExportOptions.IndentNestedNodes then exit;
+
      SS:= RTFAux.SelStart;
      RTFAux.SetSelection(SSNode, SS, true);
      RTFAux.Paragraph.FirstIndentRelative := ExportOptions.IndentValue * (level-1);
      RTFAux.SelStart:= SS;
+  end;
+
+  procedure InsertNodeHeading;
+  begin
+     if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
+        var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
+        var StrAux: string;
+        RTFAux.PutRtfText(NodeHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
+
+        if ApplyAutoFontSizes then begin
+           FSize:= FontSizes_Max - (FontSizes_Inc*(Level+1));
+           if FSize < FontSizes_Min then
+              FSize := FontSizes_Min;
+           SS:= RTFAux.SelStart;
+           SL:= RTFAux.SelLength;
+           StrAux:= RTFAux.SelText;
+           if Copy(StrAux,SL-1,SL+1) = #13#13 then begin
+              RTFAux.SelLength:= SL-2;                   // Not include line break
+              RTFAux.SelAttributes.Size:= FSize;
+              RTFAux.SetSelection(SS+SL-2, SS+SL, true); // Line break
+              RTFAux.SelAttributes.Size:= FSize-4;
+           end
+           else
+              RTFAux.SelAttributes.Size:= FSize;
+
+           RTFAux.SetSelection(SS+SL, SS+SL, true);
+        end;
+     end;
+  end;
+
+  procedure InsertFolderHeading;
+  begin
+     if ( ExportOptions.IncludeFolderHeadings and ( FolderHeadingRTF <> '' )) then begin
+       var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
+       RTFAux.SelStart := 0;
+       RTFAux.PutRtfText(FolderHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
+       if ApplyAutoFontSizes then begin
+          SL:= RTFAux.SelLength;
+          RTFAux.SelAttributes.Size:= FontSizes_Max;
+          RTFAux.SetSelection(SL, SL, true);
+       end;
+     end;
   end;
 
 begin
@@ -1020,6 +1073,8 @@ begin
           RTFAux.Clear;
           RTFAux.PrepareEditorforPlainText(myFolder.EditorChrome);
 
+          FirstNodeExportedInFolder:= True;
+
           if ExportOptions.IncludeFolderHeadings then begin
              FolderHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
              if ShowHiddenMarkers then
@@ -1088,89 +1143,49 @@ begin
                      NodeStreamIsRTF := (copy(NodeText, 1, 6) = '{\rtf1');       // *2
                   end;
 
-                  case ExportOptions.SingleNodeFiles or (ExportOptions.TargetFormat = xfPrinter) of
-                      false : begin
-                        // nodes are gathered into a single file
-                        if NodeTextSize > 0 then begin
+                  // now for some treachery. In KeyNote, a user can mark a note as "plain text only". In such a node, all nodes are stored as
+                  // plain text, not RTF. However, the change from RTF to text (or back) occurs only when a node is DISPLAYED. So, it is possible
+                  // that user enabled "plain text only", but some tree nodes have not been viewed, hence are still in RTF. So, at this point
+                  // we cannot know if the node data we're about to export is RTF or plain text data. Yet we must pass the correct information
+                  // to PutRichText. Which is why we must check manually, like so:
+                  // NodeStreamIsRTF := ( copy( NodeText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
+                  //
+                  // *2 :
+                  // <<the change from RTF to text (or back) occurs only when a node is DISPLAYED>> That is not true currently. However:
+                  //  Folder can be PlainText and include a virtual node with RTF content
+                  //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
 
-                          // now for some treachery. In KeyNote, a user can mark a note as "plain text only". In such a node, all nodes are stored as
-                          // plain text, not RTF. However, the change from RTF to text (or back) occurs only when a node is DISPLAYED. So, it is possible
-                          // that user enabled "plain text only", but some tree nodes have not been viewed, hence are still in RTF. So, at this point
-                          // we cannot know if the node data we're about to export is RTF or plain text data. Yet we must pass the correct information
-                          // to PutRichText. Which is why we must check manually, like so:
-                          // NodeStreamIsRTF := ( copy( NodeText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
-                          //
-                          // *2 :
-                          // <<the change from RTF to text (or back) occurs only when a node is DISPLAYED>> That is not true currently. However:
-                          //  Folder can be PlainText and include a virtual node with RTF content
-                          //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
+                  if not SingleNodes then
+                      SSNode:= RTFAux.SelStart
+                  else begin
+                      SSNode:= 0;
+                      RTFAux.Clear;
+                      if FirstNodeExportedInFolder then
+                         InsertFolderHeading;
+                  end;
 
-                          SSNode:= RTFAux.SelStart;
+                  InsertNodeHeading;
+                  if NodeTextSize > 0 then begin
+                    RTFwithImages:= '';
+                    if NodeStreamIsRTF then
+                       RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
 
-                          // now add the node data to temp RTF storage
-                          if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
-                             var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
-                             var StrAux: string;
-                             RTFAux.PutRtfText(NodeHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
+                    if RTFwithImages <> '' then
+                       RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
+                    else
+                       RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
+                  end;
 
-                             if ApplyAutoFontSizes then begin
-                                FSize:= FontSizes_Max - (FontSizes_Inc*(Level+1));
-                                if FSize < FontSizes_Min then
-                                   FSize := FontSizes_Min;
-                                SS:= RTFAux.SelStart;
-                                SL:= RTFAux.SelLength;
-                                StrAux:= RTFAux.SelText;
-                                if Copy(StrAux,SL-1,SL+1) = #13#13 then begin
-                                   RTFAux.SelLength:= SL-2;                   // Not include line break
-                                   RTFAux.SelAttributes.Size:= FSize;
-                                   RTFAux.SetSelection(SS+SL-2, SS+SL, true); // Line break
-                                   RTFAux.SelAttributes.Size:= FSize-4;
-                                end
-                                else
-                                   RTFAux.SelAttributes.Size:= FSize;
+                  if not SingleNodes then begin
+                     IndentContent(Level+1);
+                     inc( tmpExportedNodes )
+                  end
+                  else begin
+                     if FlushExportFile( RTFAux, myFolder, NNode.NodeName(TreeUI) ) then  // each node is saved to its own file
+                        inc( ExportedNotes );
+                  end;
 
-                                RTFAux.SetSelection(SS+SL, SS+SL, true);
-                             end;
-                          end;
-
-                          RTFwithImages:= '';
-                          if NodeStreamIsRTF then
-                             RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
-
-                          if RTFwithImages <> '' then
-                             RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
-                          else
-                             RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
-
-                          if ExportOptions.IndentNestedNodes then
-                             IndentContent(Level+1);
-                        end;
-                        inc( tmpExportedNodes );
-                      end;
-
-                      true : begin
-                        // each node is saved to its own file
-                        //// (Here we do not have to check if node stream is plain text or RTF, because LoadFromStream handles both cases automatically!)
-
-                        if NodeTextSize > 0 then begin
-                           RTFwithImages:= '';
-                           if NodeStreamIsRTF then
-                              RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
-
-                           if RTFwithImages <> '' then
-                              RTFAux.PutRtfText(RTFwithImages,true,false)         // All hidden KNT characters are now removed from FlushExportFile
-                           else
-                              RTFAux.PutRtfText(NodeText, false, false);
-
-                           if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
-                              RTFAux.SelStart := 0;
-                              RTFAux.PutRtfText(NodeHeadingRTF, true);
-                           end;
-                        end;
-                        if FlushExportFile( RTFAux, myFolder, NNode.NodeName(TreeUI) ) then
-                          inc( ExportedNotes );
-                      end;
-                  end; // case ExportOptions.SingleNodeFiles
+                  FirstNodeExportedInFolder:= False;
                 end;
 
                 // access next node
@@ -1193,19 +1208,9 @@ begin
 
 
               // if exporting all nodes to one file, flush nodes now
-              if ( not ExportOptions.SingleNodeFiles ) and not (ExportOptions.TargetFormat = xfPrinter) then begin
+              if not SingleNodes then begin
                 // we have gathered all nodes, now flush the file
-                if ( ExportOptions.IncludeFolderHeadings and ( FolderHeadingRTF <> '' )) then begin
-                   var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
-                   RTFAux.SelStart := 0;
-                   RTFAux.PutRtfText(FolderHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
-                   if ApplyAutoFontSizes then begin
-                      SL:= RTFAux.SelLength;
-                      RTFAux.SelAttributes.Size:= FontSizes_Max;
-                      RTFAux.SetSelection(SL, SL, true);
-                   end;
-
-                end;
+                InsertFolderHeading;
                 if FlushExportFile( RTFAux, myFolder, RemoveAccelChar( myFolder.Name )) then
                    inc( ExportedNotes, tmpExportedNodes );
               end;

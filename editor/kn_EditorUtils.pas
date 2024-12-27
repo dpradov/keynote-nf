@@ -1204,6 +1204,8 @@ var
   Form_Image : TForm_Image;
 
 begin
+  if PrnPreviews.Count = 0 then exit;
+
   Images:= TList.Create;
   for i:= 0 to PrnPreviews.Count-1 do begin
      PrnPreview:= PrnPreviews[i];
