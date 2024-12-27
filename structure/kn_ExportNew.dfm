@@ -4,7 +4,7 @@ object Form_ExportNew: TForm_ExportNew
   HelpContext = 313
   BorderStyle = bsDialog
   Caption = 'Export note Folders'
-  ClientHeight = 397
+  ClientHeight = 406
   ClientWidth = 322
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object Form_ExportNew: TForm_ExportNew
   TextHeight = 13
   object Button_OK: TButton
     Left = 6
-    Top = 364
+    Top = 371
     Width = 75
     Height = 25
     Hint = 'Begin exporting note folders'
@@ -32,7 +32,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Cancel: TButton
     Left = 173
-    Top = 364
+    Top = 371
     Width = 69
     Height = 25
     Hint = 'Cancel and close this dialog box'
@@ -43,19 +43,19 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Help: TButton
     Left = 247
-    Top = 364
+    Top = 371
     Width = 69
     Height = 25
     Caption = 'Help'
-    TabOrder = 3
+    TabOrder = 4
     OnClick = Button_HelpClick
   end
   object Pages: TPage95Control
     Left = 5
     Top = 5
     Width = 311
-    Height = 348
-    ActivePage = Tab_Options
+    Height = 358
+    ActivePage = Tab_Main
     HotTrack = False
     TabInactiveColor = clBtnFace
     TabInactiveFont.Charset = DEFAULT_CHARSET
@@ -72,11 +72,12 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitHeight = 320
       object GroupBox_Source: TGroupBox
         Left = 2
         Top = 5
         Width = 292
-        Height = 141
+        Height = 146
         Caption = ' Source: What to export? '
         TabOrder = 0
         object RB_CurrentNote: TRadioButton
@@ -101,7 +102,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object RB_SelectedNotes: TRadioButton
           Left = 15
-          Top = 85
+          Top = 87
           Width = 116
           Height = 17
           Hint = 'Click to export only selected folders'
@@ -110,7 +111,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Button_Select: TButton
           Left = 159
-          Top = 75
+          Top = 83
           Width = 111
           Height = 25
           Hint = 'Choose which folders to export'
@@ -129,7 +130,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CheckBox_ExcludeHiddenNodes: TCheckBox
           Left = 15
-          Top = 113
+          Top = 118
           Width = 218
           Height = 17
           Hint = 'Don'#39't export nodes hidden'
@@ -139,9 +140,9 @@ object Form_ExportNew: TForm_ExportNew
       end
       object GroupBox_Target: TGroupBox
         Left = 2
-        Top = 152
+        Top = 161
         Width = 292
-        Height = 157
+        Height = 161
         Caption = ' Target: Where and how to export?  '
         TabOrder = 1
         object Label1: TLabel
@@ -227,11 +228,12 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitHeight = 320
       object GroupBox1: TGroupBox
         Left = 3
         Top = 5
         Width = 293
-        Height = 151
+        Height = 176
         Caption = ' Optional headings '
         TabOrder = 0
         object lblSymbols: TLabel
@@ -430,10 +432,45 @@ object Form_ExportNew: TForm_ExportNew
           Caption = 'Tab'
           TabOrder = 8
         end
+        object Edit_Sample: TEdit
+          Left = 121
+          Top = 147
+          Width = 158
+          Height = 21
+          TabStop = False
+          Enabled = False
+          MaxLength = 127
+          ReadOnly = True
+          TabOrder = 14
+        end
+        object BTN_Font: TBitBtn
+          Left = 85
+          Top = 145
+          Width = 30
+          Height = 25
+          Enabled = False
+          ImageIndex = 11
+          Images = Form_Main.IMG_Format
+          TabOrder = 13
+          TabStop = False
+          OnClick = BTN_FontClick
+        end
+        object CB_Font: TCheckBox
+          Left = 12
+          Top = 148
+          Width = 57
+          Height = 17
+          Hint = 'Set an unified font for all content'
+          HelpType = htKeyword
+          HelpKeyword = '313-7'
+          Caption = 'Font'
+          TabOrder = 12
+          OnClick = CB_FontClick
+        end
       end
       object RG_NodeMode: TRadioGroup
         Left = 3
-        Top = 160
+        Top = 186
         Width = 292
         Height = 66
         Caption = ' &When exporting...'
@@ -445,7 +482,7 @@ object Form_ExportNew: TForm_ExportNew
       end
       object RG_NodePrint: TRadioGroup
         Left = 3
-        Top = 160
+        Top = 186
         Width = 292
         Height = 66
         Caption = ' &When printing...'
@@ -458,9 +495,9 @@ object Form_ExportNew: TForm_ExportNew
       end
       object RG_HTML: TRadioGroup
         Left = 3
-        Top = 233
+        Top = 256
         Width = 292
-        Height = 81
+        Height = 68
         Margins.Top = 6
         Margins.Bottom = 6
         Caption = ' &Method for exporting HTML: '
@@ -468,7 +505,7 @@ object Form_ExportNew: TForm_ExportNew
         OnClick = RG_HTMLClick
       end
       object Btn_TknHlp: TBitBtn
-        Left = 275
+        Left = 276
         Top = 1
         Width = 24
         Height = 22
@@ -479,9 +516,9 @@ object Form_ExportNew: TForm_ExportNew
       end
       object GB_Additional: TGroupBox
         Left = 3
-        Top = 233
+        Top = 258
         Width = 292
-        Height = 81
+        Height = 66
         Caption = ' Other options '
         TabOrder = 5
         Visible = False
@@ -532,6 +569,7 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitHeight = 320
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
@@ -572,7 +610,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Preview: TButton
     Left = 85
-    Top = 364
+    Top = 371
     Width = 75
     Height = 25
     Caption = 'Pre&view'
@@ -585,6 +623,16 @@ object Form_ExportNew: TForm_ExportNew
     Options = [ofHideReadOnly, ofPathMustExist]
     Title = 'Select target filename'
     Left = 273
+    Top = 316
+  end
+  object FontDlg: TFontDialog
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Options = [fdEffects, fdForceFontExist]
+    Left = 242
     Top = 316
   end
 end

@@ -102,6 +102,10 @@ type
     CB_SaveImgDefWP: TCheckBox;
     CB_ShowPageNumber: TCheckBox;
     Button_Preview: TButton;
+    Edit_Sample: TEdit;
+    BTN_Font: TBitBtn;
+    CB_Font: TCheckBox;
+    FontDlg: TFontDialog;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -120,6 +124,8 @@ type
       var CallHelp: Boolean): Boolean;
     procedure Edit_SymbolsExit(Sender: TObject);
     procedure Button_PreviewClick(Sender: TObject);
+    procedure BTN_FontClick(Sender: TObject);
+    procedure CB_FontClick(Sender: TObject);
   private
     { Private declarations }
     LastPagePrintedHeight: integer;
@@ -152,6 +158,8 @@ type
 
     function ExpandExpTokenString( const tpl, filename, folderName, nodename : string; const nodelevel, nodeindex : integer; TabSize: integer ) : string;
     function SingleNodes: boolean;
+
+    procedure UpdateSampleFont;
   end;
 
 
@@ -165,10 +173,12 @@ procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string);
 
 var
   Form_ExportNew: TForm_ExportNew;
+  FontInfo: TFontInfo;
 
 implementation
 uses
    gf_misc,
+   gf_miscvcl,
    gf_files,  // Important. Needed to use TMemIniFileHelper (.ReadString, .WriteString)
    gf_strings,
    kn_RTFUtils,
@@ -518,6 +528,15 @@ begin
    CB_UseTab.Enabled:= Enabled;
 end;
 
+procedure TForm_ExportNew.CB_FontClick(Sender: TObject);
+begin
+   BTN_Font.Enabled:= CB_Font.Checked;
+   Edit_Sample.Enabled := CB_Font.Checked;
+   if CB_Font.Checked and (FontInfo.Name = '') then
+      BTN_FontClick(nil);
+end;
+
+
 procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
 var
    format: TExportFmt;
@@ -554,6 +573,11 @@ begin
      CB_ShowHiddenMarkers.Visible := (format = xfPlainText);
      CB_SaveImgDefWP.Visible := (format = xfRTF);
      CB_ShowPageNumber.Visible:= (format = xfPrinter);
+     CB_Font.Enabled := (format <> xfPlainText);
+     BTN_Font.Enabled := (format <> xfPlainText);
+     Edit_Sample.Enabled := (format <> xfPlainText);
+     CB_FontSizes.Enabled := (format <> xfPlainText);
+     Edit_FontSizes.Enabled := (format <> xfPlainText);
      CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
      if TExportFmt(Combo_Format.ItemIndex) <> xfPlainText then
          CB_ShowHiddenMarkers.Checked:= False;
@@ -811,6 +835,8 @@ begin
     // NodeLevelTemplate : string;
 
   end;
+
+  UpdateSampleFont;
 end; // OptionsToForm
 
 
@@ -875,7 +901,7 @@ var
   OnlyNotHiddenNodes, OnlyCheckedNodes: boolean;
   RTFwithImages: AnsiString;
   FSize, SS, SL: integer;
-  SSNode: integer;
+  SSNode, SSNodeContent: integer;
   ImgFormatInsideRTF_BAK: TImageFormatToRTF;
   FirstNodeExportedInFolder: boolean;
 
@@ -903,6 +929,20 @@ var
      SS:= RTFAux.SelStart;
      RTFAux.SetSelection(SSNode, SS, true);
      RTFAux.Paragraph.FirstIndentRelative := ExportOptions.IndentValue * (level-1);
+     RTFAux.SelStart:= SS;
+  end;
+
+  procedure ChangeFont;
+  var
+     SS: integer;
+  begin
+     if not CB_Font.Checked then exit;
+
+     SS:= RTFAux.SelStart;
+     RTFAux.SetSelection(SSNodeContent, SS, true);
+     RTFAux.SelAttributes.Name := FontInfo.Name;
+     RTFAux.SelAttributes.Size:= FontInfo.Size;
+     //RTFAux.SelAttributes.Style:= FontInfo.Style;
      RTFAux.SelStart:= SS;
   end;
 
@@ -1167,6 +1207,7 @@ begin
                   InsertNodeHeading;
                   if NodeTextSize > 0 then begin
                     RTFwithImages:= '';
+                    SSNodeContent:= RTFAux.SelStart;
                     if NodeStreamIsRTF then
                        RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
 
@@ -1174,6 +1215,8 @@ begin
                        RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
                     else
                        RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
+
+                    ChangeFont;
                   end;
 
                   if not SingleNodes then
@@ -1704,6 +1747,42 @@ begin
 end; // BUTTON SELECT CLICK
 
 
+procedure TForm_ExportNew.UpdateSampleFont;
+begin
+   if FontInfo.Name = '' then begin
+      Edit_Sample.Text := '';
+      CB_Font.Checked:= False;
+      BTN_Font.Enabled:= False;
+   end
+   else begin
+      Edit_Sample.Font.Color := FontInfo.Color;
+      //FontInfoToFont( FontInfo, Edit_Sample.Font );
+      Edit_Sample.Text := FontInfo.Name + #32 + inttostr( FontInfo.Size ) + ' pt '; // + FontStyleToStr( FontInfo.Style );
+   end;
+end;
+
+
+procedure TForm_ExportNew.BTN_FontClick(Sender: TObject);
+var
+  dpi: integer;
+  FI: TFontInfo;
+begin
+  dpi:= GetSystemPixelsPerInch;
+  FontDlg.Options := FontDlg.Options;
+  FI:= FontInfo;
+  if FontInfo.Name = '' then
+     FontInfo:= ActiveFolder.EditorChrome.Font;
+
+  FontInfoToFont( FontInfo, FontDlg.Font, dpi );
+  if FontDlg.Execute then
+     FontToFontInfo( FontDlg.Font, FontInfo, dpi )
+  else
+     FontInfo:= FI;
+
+  UpdateSampleFont;
+end;
+
+
 procedure TForm_ExportNew.Btn_TknHlpClick(Sender: TObject);
 begin
   messagedlg(format(GetRS(sExpFrm15),[_TokenChar,EXP_FILENAME,
@@ -1924,5 +2003,8 @@ begin
   end;
 end; // ExportNotesEx
 
+
+initialization
+  FontInfo.Name:= '';
 
 end.
