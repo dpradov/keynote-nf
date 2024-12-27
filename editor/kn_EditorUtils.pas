@@ -1119,10 +1119,10 @@ begin
           PrnPreviews:= ActiveEditor.PrnPreviews;
           if PrintPreview then begin
              ActiveEditor.PrnPreviews.Clear;
-             ActiveEditor.CreatePrnPrew(ActiveFolder.Name, -1, DPI);
+             ActiveEditor.CreatePrnPrew(ActiveFolder.Name, true, -1, DPI);
           end
           else
-             ActiveFolder.Editor.Print(Caption);
+             ActiveFolder.Editor.Print(Caption, true, true);
       end
       else begin
         RTFAux:= CreateAuxRichEdit();
@@ -1170,9 +1170,9 @@ begin
                     FirstPageMarginTop:= LastPagePrintedHeight;     // Adjust vertical position for next RichEdit
               end;
               if PrintPreview then
-                 LastPagePrintedHeight:= RTFAux.CreatePrnPrew(Caption, FirstPageMarginTop, DPI)
+                 LastPagePrintedHeight:= RTFAux.CreatePrnPrew(Caption, true, FirstPageMarginTop, DPI)
               else
-                 LastPagePrintedHeight:= RTFAux.Print(Caption, false, FirstPageMarginTop);
+                 LastPagePrintedHeight:= RTFAux.Print(Caption, true, FirstPrint, false, FirstPageMarginTop);
 
               FirstPrint:= False;
            end;

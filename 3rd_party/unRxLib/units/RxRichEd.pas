@@ -580,6 +580,7 @@ type
     PrnPreviews:TList;
     PrnPreview:Tmetafile;
   {$ENDIF RX_ENHPRINT}
+    PageNum: Integer;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Clear; {$IFDEF RX_D3} override; {$ENDIF}
@@ -617,10 +618,14 @@ type
     function FindNext: Boolean;
 
     // [dpv]: OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
-    function Print(const Caption: string; OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1): integer; virtual;
+    function Print(const Caption: string;
+                   ShowNumPage: boolean= true; StartNumPage: boolean= true;
+                   OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1): integer; virtual;
   {$IFDEF RX_ENHPRINT}
     //procedure CreatePrnPrew(const Caption: string); virtual;
-    function CreatePrnPrew(const Caption: string; FirstPageMarginTop: integer = -1; ScreenDPI: Integer= 96): Integer;  // [dpv]
+    function CreatePrnPrew(const Caption: string;
+                           ShowNumPage: boolean= true;
+                           FirstPageMarginTop: integer = -1; ScreenDPI: Integer= 96): Integer;  // [dpv]
 
   {$ENDIF RX_ENHPRINT}
     class procedure RegisterConversionFormat(const AExtension: string;
@@ -6293,15 +6298,39 @@ begin
       Result := GetTextLen;
 end;
 
-// [dpv]: OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
+// [dpv]: ShowNumPage, OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
 function TRxCustomRichEdit.Print(const Caption: string;
-                                 OwnPrintJob: boolean= true;
-                                 FirstPageMarginTop: integer = -1): integer;
+                                 ShowNumPage: boolean= true; StartNumPage: boolean= true;
+                                 OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1): integer;
 var
   Range: TFormatRange;
   LastChar, MaxLen, LogX, LogY, OldMap: Integer;
   SaveRect: TRect;
+  PWidth, PHeight: Integer;
   //TextLenEx: TGetTextLengthEx;                                  // dpv
+
+  function PixelsToTwips(Pixels, DPI: Integer): Integer;
+  begin
+    Result := MulDiv(Pixels, 1440, DPI);
+  end;
+
+  procedure AddPageNumber;
+  begin
+    if not ShowNumPage then exit;
+
+    with Range do begin
+       Printer.Canvas.Font.Size := 10;
+       Printer.Canvas.Font.Color:= clBlack;
+       Printer.Canvas.TextOut(
+          Printer.PageWidth div 2,
+          Printer.PageHeight - ((Printer.PageHeight - PageRect.Bottom) div 2),
+          Format('%d', [PageNum])
+        );
+    end;
+    inc(PageNum);
+  end;
+
+
 begin
 {$IFDEF RX_ENHPRINT}
   percentdone:=0;
@@ -6316,20 +6345,25 @@ begin
     LogX := GetDeviceCaps(Handle, LOGPIXELSX);
     LogY := GetDeviceCaps(Handle, LOGPIXELSY);
 
+    PWidth:=  PixelsToTwips(PageWidth, LogX);
+    PHeight:= PixelsToTwips(PageHeight, LogY);
+
     if IsRectEmpty(PageRect) then begin
-      rc.right := PageWidth * 1440 div LogX;
-      rc.bottom := PageHeight * 1440 div LogY;
+      rc.right := PWidth;
+      rc.bottom := PHeight;
     end
     else begin
-      rc.left := PageRect.Left * 1440 div LogX;
-      rc.top := PageRect.Top * 1440 div LogY;
-      rc.right := PageRect.Right * 1440 div LogX;
-      rc.bottom := PageRect.Bottom * 1440 div LogY;
+      rc.left :=   PixelsToTwips(PageRect.Left, LogX);
+      rc.top :=    PixelsToTwips(PageRect.Top, LogY);
+      rc.right :=  PixelsToTwips(PageRect.Right, LogX);
+      rc.bottom := PixelsToTwips(PageRect.Bottom, LogY);
     end;
-    rcPage := rc;
+    rcPage := Rect(0, 0, PWidth, PHeight);
     SaveRect := rc;
     LastChar := 0;
   	MaxLen:= TextLength;                                           // [dpv]
+    if StartNumPage then
+       PageNum:= 1;
   {                                                                // [dpv]
     if RichEditVersion >= 2 then begin
       with TextLenEx do begin
@@ -6346,13 +6380,17 @@ begin
     SendMessage(Self.Handle, EM_FORMATRANGE, 0, 0);    { flush buffer }
     try
       if FirstPageMarginTop >= 0 then
-         rc.Top:= FirstPageMarginTop*1440 div LogY;
+         rc.Top:= PixelsToTwips(FirstPageMarginTop, LogY)
+      else
+         AddPageNumber;
 
       repeat
         chrg.cpMin := LastChar;
         LastChar := SendMessage(Self.Handle, EM_FORMATRANGE, 1, LPARAM(@Range));
-        if (LastChar < MaxLen) and (LastChar <> -1) then
-           NewPage
+        if (LastChar < MaxLen) and (LastChar <> -1) then begin
+           NewPage;
+           AddPageNumber;
+        end
         else
            Result:= MulDiv(Range.rc.Bottom, LogY, 1440);    // [dpv] Current printed height  (Twips -> Pixels)
 
@@ -6460,11 +6498,9 @@ Difference between hdc and hdcTarget
   This is the device context (HDC) where the text is currently being drawn.
   In the case of preview, this should be the context of the canvas you are drawing on (e.g. the TMetafileCanvas.Handle
    or the context of a TCanvas).
-
 - hdcTarget (Format Target Device Handle):
   This is the context of the final target device, i.e. the place for which you are formatting the text.
   When you preview for a printer, hdcTarget should be the printer's HDC (Printer.Handle in Delphi).
-
   Windows uses hdcTarget to calculate precise metrics such as:
    Text size and kerning.
    Line spacing.
@@ -6478,8 +6514,8 @@ Difference between hdc and hdcTarget
 
 {$IFDEF RX_ENHPRINT}                                                                // [dpv]
 function TRxCustomRichEdit.CreatePrnPrew(const Caption: string;
-                                         FirstPageMarginTop: integer = -1;
-                                         ScreenDPI: Integer= 96): Integer;
+                                         ShowNumPage: boolean= true;
+                                         FirstPageMarginTop: integer = -1; ScreenDPI: Integer= 96): Integer;
 var
   Range: TFormatRange;
   LastChar, MaxLen, DPI, OldMap: Integer;
@@ -6487,6 +6523,24 @@ var
   MetaCanvas: TMetafileCanvas;
   PWidth, PHeight: Integer;
   hdcMetacanvas: HDC;
+
+  procedure AddPageNumber;
+  var
+    PageNum: Integer;
+  begin
+    if not ShowNumPage then exit;
+
+    with Range do begin
+       PageNum:= PrnPreviews.Count + 1;
+       MetaCanvas.Font.Size := 10;
+       MetaCanvas.Font.Color:= clBlack;
+       MetaCanvas.TextOut(
+          PWidth div 2,
+          PHeight - ((PHeight - PageRect.Bottom) div 2),
+          Format('%d', [PageNum])
+        );
+    end;
+  end;
 
   function GetNewPageHDC (First: boolean): HDC;
   begin
@@ -6496,6 +6550,8 @@ var
     MetaCanvas:=TmetafileCanvas.create(prnpreview,0);
     MetaCanvas.Brush.Color:= clWindow;
     MetaCanvas.FillRect(FullPageRect);
+
+    AddPageNumber;
 
     if First and (FirstPageMarginTop <> -1) and (PrnPreviews.Count > 0) then begin
        MetaCanvas.Draw(0, 0, PrnPreviews[PrnPreviews.Count-1]);
@@ -6531,7 +6587,7 @@ begin
       rc.right  := PageRect.Right  * 1440 div DPI;
       rc.bottom := PageRect.Bottom * 1440 div DPI;
     end;
-    rcPage := rc;
+    rcPage := FullPageRect;
     SaveRect := rc;
     hdcTarget := Printer.Handle;        //*1
     hdc:= GetNewPageHDC(true);
