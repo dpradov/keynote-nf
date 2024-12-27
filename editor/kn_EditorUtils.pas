@@ -47,6 +47,7 @@ function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
 function GetRealMonitorDPI: TPoint;
 function GetRealMonitorDPIx: Double;
 procedure PrintRtfFolder (PrintPreview: boolean = false);
+procedure ShowPrintPreview (PrnPreviews: TList; DPI: Integer = 96);
 procedure EnableOrDisableUAS;
 procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
@@ -110,7 +111,7 @@ type
 implementation
 
 uses
-   Printers,
+   Vcl.Printers,
    UWebBrowserWrapper,
    UAS,
    SynGdiPlus,
@@ -1052,16 +1053,8 @@ var
   FirstPrint, NodeInNewPage: boolean;
   FirstPageMarginTop, LastPagePrintedHeight: integer;
   PageRect: TRect;
-
   DPI: Integer;
-  Img: TKntImage;
   PrnPreviews: TList;
-  PrnPreview:  TMetafile;
-  PageWidth, i: integer;
-  Stream: TMemoryStream;
-  Images: TList;
-  Form_Image : TForm_Image;
-
 
 begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
@@ -1186,25 +1179,8 @@ begin
       App.ShowInfoInStatusBar(GetRS(sMain30));
       screen.Cursor := crDefault;
 
-      if PrintPreview then begin
-           Images:= TList.Create;
-           for i:= 0 to PrnPreviews.Count-1 do begin
-              PrnPreview:= PrnPreviews[i];
-              Stream:= TMemoryStream.Create;
-              PrnPreview.SaveToStream(Stream);
-              Img:= TKntImage.Create(0, '', true, imgWMF, PrnPreview.Width, PrnPreview.Height, 0, 0, Stream);
-              Img.Caption:= String.Format('Print preview: Page %d of %d', [i+1, PrnPreviews.Count]);
-              Img.ForceName(String.Format('Page_%d.%s', [i+1, IMAGE_FORMATS[imgWMF]]));
-              Images.Add(Img);
-              PrnPreview.Free;
-           end;
-           PrnPreviews.Clear;
-
-           Form_Image := TForm_Image.Create( Form_Main );
-           Form_Image.CorrectionRatio:= GetRealMonitorDPIx / DPI;
-           Form_Image.Images:= Images;
-           Form_Image.Show;
-      end;
+      if PrintPreview then
+         ShowPrintPreview(PrnPreviews);
 
     finally
       screen.Cursor := crDefault;
@@ -1217,6 +1193,35 @@ begin
   end;
 end; // PrintRtfFolder
 
+
+procedure ShowPrintPreview (PrnPreviews: TList; DPI: Integer = 96);
+var
+  Img: TKntImage;
+  PrnPreview:  TMetafile;
+  PageWidth, i: integer;
+  Stream: TMemoryStream;
+  Images: TList;
+  Form_Image : TForm_Image;
+
+begin
+  Images:= TList.Create;
+  for i:= 0 to PrnPreviews.Count-1 do begin
+     PrnPreview:= PrnPreviews[i];
+     Stream:= TMemoryStream.Create;
+     PrnPreview.SaveToStream(Stream);
+     Img:= TKntImage.Create(0, '', true, imgWMF, PrnPreview.Width, PrnPreview.Height, 0, 0, Stream);
+     Img.Caption:= String.Format(GetRS(sMain98), [i+1, PrnPreviews.Count]);
+     Img.ForceName(String.Format(GetRS(sMain99), [i+1, IMAGE_FORMATS[imgWMF]]));
+     Images.Add(Img);
+     PrnPreview.Free;
+  end;
+  PrnPreviews.Clear;
+
+  Form_Image := TForm_Image.Create( Form_Main );
+  Form_Image.CorrectionRatio:= GetRealMonitorDPIx / DPI;
+  Form_Image.Images:= Images;
+  Form_Image.Show;
+end;
 
 
 //=================================================================

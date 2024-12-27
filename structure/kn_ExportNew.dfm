@@ -21,34 +21,33 @@ object Form_ExportNew: TForm_ExportNew
   OnHelp = FormHelp
   TextHeight = 13
   object Button_OK: TButton
-    Left = 20
+    Left = 6
     Top = 364
     Width = 75
     Height = 25
     Hint = 'Begin exporting note folders'
-    Caption = 'E&xport'
     Default = True
     TabOrder = 0
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
-    Left = 100
+    Left = 173
     Top = 364
-    Width = 75
+    Width = 69
     Height = 25
     Hint = 'Cancel and close this dialog box'
     Cancel = True
     Caption = 'Close'
     ModalResult = 2
-    TabOrder = 1
+    TabOrder = 2
   end
   object Button_Help: TButton
-    Left = 179
+    Left = 247
     Top = 364
-    Width = 75
+    Width = 69
     Height = 25
     Caption = 'Help'
-    TabOrder = 2
+    TabOrder = 3
     OnClick = Button_HelpClick
   end
   object Pages: TPage95Control
@@ -73,10 +72,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GroupBox_Source: TGroupBox
         Left = 2
         Top = 5
@@ -446,7 +441,20 @@ object Form_ExportNew: TForm_ExportNew
         Items.Strings = (
           'Put all notes (nodes) in a single target file'
           'Export each note (node) to a separate target file')
+        TabOrder = 2
+      end
+      object RG_NodePrint: TRadioGroup
+        Left = 3
+        Top = 160
+        Width = 292
+        Height = 66
+        Caption = ' &When printing...'
+        ItemIndex = 0
+        Items.Strings = (
+          'Put all notes (nodes) contiguous'
+          'Start each note (node) on a new page')
         TabOrder = 1
+        Visible = False
       end
       object RG_HTML: TRadioGroup
         Left = 3
@@ -456,7 +464,7 @@ object Form_ExportNew: TForm_ExportNew
         Margins.Top = 6
         Margins.Bottom = 6
         Caption = ' &Method for exporting HTML: '
-        TabOrder = 2
+        TabOrder = 3
         OnClick = RG_HTMLClick
       end
       object Btn_TknHlp: TBitBtn
@@ -466,7 +474,7 @@ object Form_ExportNew: TForm_ExportNew
         Height = 22
         ImageIndex = 60
         Images = Form_Main.IMG_Toolbar
-        TabOrder = 3
+        TabOrder = 4
         OnClick = Btn_TknHlpClick
       end
       object GB_Additional: TGroupBox
@@ -475,7 +483,7 @@ object Form_ExportNew: TForm_ExportNew
         Width = 292
         Height = 81
         Caption = ' Other options '
-        TabOrder = 4
+        TabOrder = 5
         Visible = False
         object CB_ShowHiddenMarkers: TCheckBox
           Left = 12
@@ -488,7 +496,7 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '313-11'
           Caption = 'Show hidden marks and IDs'
-          TabOrder = 0
+          TabOrder = 2
           Visible = False
         end
         object CB_SaveImgDefWP: TCheckBox
@@ -503,6 +511,15 @@ object Form_ExportNew: TForm_ExportNew
           HelpKeyword = '576-4'
           Caption = 'Save images in default WordPad format'
           TabOrder = 1
+          Visible = False
+        end
+        object CB_ShowPageNumber: TCheckBox
+          Left = 12
+          Top = 24
+          Width = 253
+          Height = 17
+          Caption = 'Insert page numbers'
+          TabOrder = 0
           Visible = False
         end
       end
@@ -553,10 +570,21 @@ object Form_ExportNew: TForm_ExportNew
       end
     end
   end
+  object Button_Preview: TButton
+    Left = 85
+    Top = 364
+    Width = 75
+    Height = 25
+    Caption = 'Pre&view'
+    Default = True
+    TabOrder = 1
+    Visible = False
+    OnClick = Button_PreviewClick
+  end
   object SaveDlg: TSaveDialog
     Options = [ofHideReadOnly, ofPathMustExist]
     Title = 'Select target filename'
-    Left = 265
-    Top = 364
+    Left = 273
+    Top = 316
   end
 end

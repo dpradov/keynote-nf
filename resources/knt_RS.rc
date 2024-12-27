@@ -892,4 +892,9 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 65089,  "Extension \"%s\" already listed."
 65090,  "Reset default text file extensions?"
 65091,  "Print Previewing..."
+65092,  "Print preview: Page %d of %d"
+65093,  "Page_%d.%s"
+65094,  "Printer (PDF, ...)"
+65095,  "E&xport"
+65096,  "Print"
 }

@@ -426,6 +426,8 @@ type
     TreeSelection : TTreeSelection;
     ExcludeHiddenNodes: boolean;
     RTFImgsWordPad: boolean;          // 1: Save images in default, not optmized, WordPad format (ifWmetafile8)
+    EachNoteOnNewPage: boolean;
+    ShowPageNumber: boolean;
   end;
 
 type

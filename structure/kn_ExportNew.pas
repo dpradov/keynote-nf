@@ -34,6 +34,7 @@ uses
    Vcl.ComCtrls,
    Vcl.FileCtrl,
    Vcl.Samples.Spin,
+   Vcl.Printers,
 
    TB97Ctls,
    ComCtrls95,
@@ -79,6 +80,7 @@ type
     RG_TreePadVersion: TRadioGroup;
     RG_TreePadMode: TRadioGroup;
     RG_NodeMode: TRadioGroup;
+    RG_NodePrint: TRadioGroup;
     RG_TreePadMaster: TRadioGroup;
     CheckBox_ExcludeHiddenNodes: TCheckBox;
     TB_OpenDlgDir: TToolbarButton97;
@@ -98,6 +100,8 @@ type
     GB_Additional: TGroupBox;
     CB_ShowHiddenMarkers: TCheckBox;
     CB_SaveImgDefWP: TCheckBox;
+    CB_ShowPageNumber: TCheckBox;
+    Button_Preview: TButton;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -115,8 +119,13 @@ type
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
     procedure Edit_SymbolsExit(Sender: TObject);
+    procedure Button_PreviewClick(Sender: TObject);
   private
     { Private declarations }
+    LastPagePrintedHeight: integer;
+    PreviewMode: boolean;
+    FirstPrint: boolean;
+
   public
     { Public declarations }
     myKntFolder : TKntFolder;
@@ -468,7 +477,7 @@ end; // CloseQuery
 procedure TForm_ExportNew.RB_SelNotesClick(Sender: TObject);
 begin
   Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked
-                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote] ));
+                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote, xfPrinter] ));
   Button_Select.Enabled := RB_SelectedNotes.Checked;
 end;
 
@@ -506,20 +515,37 @@ var
    format: TExportFmt;
 begin
   Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked
-                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote] ));
+                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote, xfPrinter] ));
   format:= TExportFmt( Combo_Format.ItemIndex );
 
   Tab_TreePad.TabVisible:=  (format  = xfTreePad);
+  Button_Preview.Visible := (format = xfPrinter);
+  Button_Ok.Default:= (format <> xfPrinter);
+  if format <> xfPrinter then
+     Button_Ok.Caption:= GetRS(sExpFrm21)
+  else begin
+     Button_Ok.Caption:= GetRS(sExpFrm22);
+     Button_Preview.SetFocus;
+  end;
+
+  CheckBox_PromptOverwrite.Enabled:= (format <> xfPrinter);
+  CheckBox_Ask.Enabled:= (format <> xfPrinter);
+  TB_OpenDlgDir.Enabled:= (format <> xfPrinter);
+  Edit_Folder.Enabled:= (format <> xfPrinter);
+
   if format = xfKeyNote then
      Tab_Options.TabVisible:= false
 
   else begin
      Tab_Options.TabVisible := (format <> xfTreePad);
      RG_NodeMode.Enabled :=    (format <> xfTreePad);
+     RG_NodeMode.Visible := (format <> xfPrinter);
+     RG_NodePrint.Visible := (format = xfPrinter);
      RG_HTML.Visible := (format = xfHTML);
-     GB_Additional.Visible := (format in [xfPlainText, xfRTF]);
+     GB_Additional.Visible := (format in [xfPlainText, xfRTF, xfPrinter]);
      CB_ShowHiddenMarkers.Visible := (format = xfPlainText);
      CB_SaveImgDefWP.Visible := (format = xfRTF);
+     CB_ShowPageNumber.Visible:= (format = xfPrinter);
      CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
      if TExportFmt(Combo_Format.ItemIndex) <> xfPlainText then
          CB_ShowHiddenMarkers.Checked:= False;
@@ -568,6 +594,8 @@ begin
       ExportOptions.TreePadSingleFile := readbool( section, ExportOptionsIniStr.TreePadSingleFile, ExportOptions.TreePadSingleFile );
       ExportOptions.TreeSelection := TTreeSelection( readinteger( section, ExportOptionsIniStr.TreeSelection, ord( ExportOptions.TreeSelection )));
       ExportOptions.RTFImgsWordPad := readbool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
+      ExportOptions.EachNoteOnNewPage := readbool( section, ExportOptionsIniStr.EachNoteOnNewPage, ExportOptions.EachNoteOnNewPage );
+      ExportOptions.ShowPageNumber := readbool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
     end;
     
   finally
@@ -634,6 +662,8 @@ begin
       writebool( section, ExportOptionsIniStr.TreePadSingleFile, ExportOptions.TreePadSingleFile );
       writeinteger( section, ExportOptionsIniStr.TreeSelection, ord( ExportOptions.TreeSelection ));
       writebool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
+      writebool( section, ExportOptionsIniStr.EachNoteOnNewPage, ExportOptions.EachNoteOnNewPage );
+      writebool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
     end;
 
     IniFile.UpdateFile;
@@ -663,6 +693,8 @@ begin
     TreeSelection := TTreeSelection( Combo_TreeSelection.ItemIndex );
     TargetFormat := TExportFmt( Combo_Format.ItemIndex );
     SingleNodeFiles := ( RG_NodeMode.ItemIndex > 0 );
+    EachNoteOnNewPage := ( RG_NodePrint.ItemIndex > 0 );
+
     HTMLExportMethod := THTMLExportMethod(RG_HTML.ItemIndex);
 
     ExportPath := ProperFolderName( Edit_Folder.Text );
@@ -682,6 +714,7 @@ begin
     IndentUsingTabs := CB_UseTab.Checked;
 
     RTFImgsWordPad := CB_SaveImgDefWP.Checked;
+    ShowPageNumber := CB_ShowPageNumber.Checked;
 
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
@@ -709,6 +742,7 @@ begin
 
     CheckBox_ExcludeHiddenNodes.Checked:= ExcludeHiddenNodes;
     CB_ShowHiddenMarkers.Checked:= ShowHiddenMarkers;
+    CB_ShowPageNumber.Checked:= ShowPageNumber;
 
     Combo_TreeSelection.ItemIndex := ord( TreeSelection );
     Combo_Format.ItemIndex := ord( TargetFormat );
@@ -716,6 +750,12 @@ begin
       RG_NodeMode.ItemIndex := 1
     else
       RG_NodeMode.ItemIndex := 0;
+
+    if EachNoteOnNewPage then
+      RG_NodePrint.ItemIndex := 1
+    else
+      RG_NodePrint.ItemIndex := 0;
+
     RG_HTML.ItemIndex := ord(HTMLExportMethod);
     Edit_Folder.Text := ExportPath;
     CheckBox_PromptOverwrite.Checked := ConfirmOverwrite;
@@ -768,9 +808,16 @@ end; // OptionsToForm
 
 procedure TForm_ExportNew.Button_OKClick(Sender: TObject);
 begin
+  PreviewMode:= False;
   PerformExport;
 end;
 
+
+procedure TForm_ExportNew.Button_PreviewClick(Sender: TObject);
+begin
+  PreviewMode:= True;
+  PerformExport;
+end;
 
 function TForm_ExportNew.Validate : boolean;
 begin
@@ -902,6 +949,8 @@ begin
   StartLevel := 0;
   TreePadFN := '';
   TreePadNodeLevelInc := 0;
+  LastPagePrintedHeight := -1;
+  FirstPrint:= True;
 
   RTFAux:= CreateAuxRichEdit;
 
@@ -979,7 +1028,7 @@ begin
           end;
 
           case ExportOptions.TargetFormat of
-            xfPlainText, xfRTF, xfHTML : begin                                // =============================    xfPlainText, xfRTF, xfHTML
+            xfPlainText, xfRTF, xfHTML, xfPrinter : begin                                // =============================    xfPlainText, xfRTF, xfHTML, xfPrinter
 
               myFolder.SaveEditorToDataModel; // must flush contents of Note editor to active model object's internal stream
 
@@ -1039,7 +1088,7 @@ begin
                      NodeStreamIsRTF := (copy(NodeText, 1, 6) = '{\rtf1');       // *2
                   end;
 
-                  case ExportOptions.SingleNodeFiles of
+                  case ExportOptions.SingleNodeFiles or (ExportOptions.TargetFormat = xfPrinter) of
                       false : begin
                         // nodes are gathered into a single file
                         if NodeTextSize > 0 then begin
@@ -1140,11 +1189,11 @@ begin
                     tsSubtree : if (Level <= StartLevel ) then break;
                   end;
                 end;
-              end;                                   // <<<<<------------------ Iterate each node  (xfPlainText, xfRTF, xfHTML / ntTree)
+              end;                                   // <<<<<------------------ Iterate each node  (xfPlainText, xfRTF, xfHTML, xfPrinter / ntTree)
 
 
               // if exporting all nodes to one file, flush nodes now
-              if ( not ExportOptions.SingleNodeFiles ) then begin
+              if ( not ExportOptions.SingleNodeFiles ) and not (ExportOptions.TargetFormat = xfPrinter) then begin
                 // we have gathered all nodes, now flush the file
                 if ( ExportOptions.IncludeFolderHeadings and ( FolderHeadingRTF <> '' )) then begin
                    var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
@@ -1278,6 +1327,16 @@ begin
         end;
       end; // for NoteIdx := 1 to myKntFile.Folders.Count do
 
+
+      if (ExportOptions.TargetFormat = xfPrinter) then begin
+          if PreviewMode then
+             ShowPrintPreview(RTFAux.PrnPreviews, Screen.PixelsPerInch)
+          else
+          if Printer.Printing then
+             Printer.EndDoc;
+      end;
+
+
     except
       on E : Exception do begin
          WasError := true;
@@ -1292,6 +1351,7 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
+
     ExitMessage := Format(GetRS(sExpFrm12), [ExportedFolders, ExportedNotes] );
     if WasError then
        ExitMessage := ExitMessage + #13 + GetRS(sExpFrm13)
@@ -1299,8 +1359,9 @@ begin
     if DoAbort then
        ExitMessage := ExitMessage + #13 + GetRS(sExpFrm14);
 
-    if ( messagedlg( ExitMessage, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
-        ModalResult := mrCancel; // close dialog box is Cancel clicked
+    if not ((ExportOptions.TargetFormat = xfPrinter) and PreviewMode) or DoAbort or WasError then
+      if ( messagedlg( ExitMessage, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+          ModalResult := mrCancel; // close dialog box if Cancel clicked
 
   end;
 
@@ -1449,6 +1510,8 @@ var
   ext: string;
   Txt: string;
   Encoding: TEncoding;
+  FirstPageMarginTop: integer;
+  DPI: Integer;
 
 begin
   result := false;
@@ -1480,6 +1543,39 @@ begin
         else begin
            RTF.StreamFormat := sfPlainText;
            RTF.Lines.SaveToFile( FN, Encoding );
+        end;
+
+        result := true;
+      end;
+
+      xfPrinter : begin
+        RTF.RemoveKNTHiddenCharacters(false);
+
+        if RTF.TextLength <> 0 then begin
+           DPI:= -1;
+           if PreviewMode then
+              DPI:= Screen.PixelsPerInch;
+           RTF.PageRect:= GetPrintAreaInPixels(DPI);
+
+           FirstPageMarginTop:= -1;
+           if FirstPrint then begin
+              if not PreviewMode then
+                 Printer.BeginDoc;
+           end
+           else begin
+              if ExportOptions.EachNoteOnNewPage then begin
+                 if not PreviewMode then
+                    Printer.NewPage;
+              end
+              else
+                 FirstPageMarginTop:= LastPagePrintedHeight;     // Adjust vertical position for next Note (RichEdit)
+           end;
+           if PreviewMode then
+              LastPagePrintedHeight:= RTF.CreatePrnPrew(Caption, ExportOptions.ShowPageNumber, FirstPageMarginTop, DPI)
+           else
+              LastPagePrintedHeight:= RTF.Print(Caption, ExportOptions.ShowPageNumber, FirstPrint, false, FirstPageMarginTop);
+
+           FirstPrint:= False;
         end;
 
         result := true;

@@ -460,7 +460,8 @@ type
   TExportFmt = (
     xfPlainText, xfRTF, xfHTML,
     xfKeyNote,
-    xfTreePad
+    xfTreePad,
+    xfPrinter
   );
 
 type
@@ -1025,6 +1026,7 @@ begin
   EXPORT_FORMAT_NAMES[xfHTML]:=      'HTML';
   EXPORT_FORMAT_NAMES[xfKeyNote]:=   GetRS(sINFExptFrmt3);
   EXPORT_FORMAT_NAMES[xfTreePad]:=   'TreePad';
+  EXPORT_FORMAT_NAMES[xfPrinter]:=   GetRS(sINFExptFrmt4);
 
   NODE_ICON_KINDS[niNone]:=       GetRS(sINFIconKind1);
   NODE_ICON_KINDS[niStandard]:=   GetRS(sINFIconKind2);

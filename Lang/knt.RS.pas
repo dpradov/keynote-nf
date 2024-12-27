@@ -300,6 +300,8 @@ const
    sExpFrm18 = 64256;   //  Node exported to
    sExpFrm19 = 64257;   // Error exporting node:
    sExpFrm20 = 64258;   // 'Current node' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
+   sExpFrm21 = 65095;   // E&xport
+   sExpFrm22 = 65096;   // Print
 
    sFav01 = 64653;   // Error loading Favorites:
    sFav02 = 64654;   // Rename favorite location
@@ -562,6 +564,7 @@ const
    sINFExptFrmt1 = 64994;   // Plain text
    sINFExptFrmt2 = 64995;   // Rich text (RTF)
    sINFExptFrmt3 = 64996;   // KeyNote File (knt)
+   sINFExptFrmt4 = 65094;  // Printer (PDF, ...)
    sINFFormats1 = 65010;   // Keynote native
    sINFFormats2 = 65011;   // Keynote encrypted
    sINFFormats3 = 65012;   // Keynote compressed
@@ -779,6 +782,8 @@ const
    sMain27 = 64471;   // Folder is Read-Only
    sMain29 = 64472;   // Printing folder...
    sMain97 = 65091;   // Print Previewing...
+   sMain98 = 65092;   // Print preview: Page %d of %d
+   sMain99 = 65093;   // Page_%d.%s
    sMain30 = 64473;   //  Finished printing/previewing
    sMain34 = 64474;   // Set alarm... (Ctrl:Add  Shift:->Folder)
    sMain40 = 64475;   // Untitled

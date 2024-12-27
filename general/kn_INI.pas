@@ -891,7 +891,9 @@ type
     TreePadSingleFile,
     TreeSelection,
     ExcludeHiddenNodes,
-    RTFImgsWordPad: string;
+    RTFImgsWordPad,
+    EachNoteOnNewPage,
+    ShowPageNumber: string;
   end;
 
 const
@@ -921,7 +923,9 @@ const
     TreePadRTF : 'TreePadRTF';
     TreePadSingleFile : 'TreePadSingleFile';
     TreeSelection : 'TreeSelection';
-    ExcludeHiddenNodes: 'ExcludeHiddenNodes';     // [dpv]
+    ExcludeHiddenNodes: 'ExcludeHiddenNodes';
+    EachNoteOnNewPage: 'EachNoteOnNewPage';
+    ShowPageNumber: 'ShowPageNumber';
   );
 
 
@@ -2290,6 +2294,8 @@ begin
     TreeSelection := low( TTreeSelection );
     ExcludeHiddenNodes:= false;
     RTFImgsWordPad:= false;
+    EachNoteOnNewPage:= true;
+    ShowPageNumber:= true;
   end;
   ShowHiddenMarkers:= false;         // Global
 
