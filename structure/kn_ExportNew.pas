@@ -1565,8 +1565,11 @@ var
 begin
   result := false;
   Encoding:= TEncoding.Default;
-  FN := GetExportFilename( FN + '.EXT' );
-  if ( FN = '' ) then exit; // break condition
+
+  if ExportOptions.TargetFormat <> xfPrinter then begin
+     FN := GetExportFilename( FN + '.EXT' );
+     if ( FN = '' ) then exit; // break condition
+  end;
 
   try
     ext := Extractfileext( FN );
