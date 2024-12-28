@@ -257,6 +257,7 @@ uses
    gf_misc,
    gf_strings,
    gf_miscvcl,
+   gf_streams,
    kn_global,
    kn_LinksMng,
    kn_Macro,
@@ -632,20 +633,58 @@ begin
 end;
 
 
-function RemoveKNTHiddenCharactersInRTF(const s: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
+function RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
 var
    pI, pPrefix, pF, len: integer;
-   Prefix: AnsiString;
+   Prefix, EmptyBraces: AnsiString;
+   RTFIn: PAnsiChar;
+   RTFTextOut: AnsiString;
+   pIn, pOut, NBytes: integer;
+   LastCharIn: AnsiChar;
+
+   procedure CheckCreateResult;
+   begin
+      if RTFTextOut = '' then begin
+         SetLength(RTFTextOut, Length(S)+1000);
+         {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+            ZeroMemory(@RTFTextOut[1], Length(S)+1000);
+         {$ENDIF}
+      end
+      else
+         if (pOut + NBytes) > Length(RTFTextOut) then
+            SetLength(RTFTextOut, Length(RTFTextOut) + 4 * NBytes);
+   end;
+
+   procedure RemoveReplace (p: Integer);
+   begin
+      NBytes:= p - pIn;
+      CheckCreateResult;
+      Move(S[pIn], RTFTextOut[pOut], NBytes);
+      inc(pOut, NBytes);
+      Move(EmptyBraces[1], RTFTextOut[pOut], 2);
+      inc(pOut, 2);
+      pIn:= p + Len;
+   end;
+
 begin
   if S='' then Exit('');
 
   //  {\rtf1\ansi {\v\'11B5\'12} XXX };   {\rtf1\ansi \v\'11B5\'12\v0 XXX};  {\rtf1\ansi \v\'11T999999\'12\v0 XXX};
 
-  { *1
+  (* *1
      hello \v\''11B1\''12\v0\fs36 BIG WORLD  =>  hello \fs36 BIG WORLD
-     hello \v\''11B1\''12\v0 world           =>  hello world    (-> remove space after \v0)
-    \pard\cf3\b\v\'11B12\'12\v0 hello world  => \pard\cf3\b hello world  (-> don't remove space after \v0)
-  }
+                                                 hello {}\fs36 BIG WORLD
+     hello \v\''11B1\''12\v0 world           =>  hello world      (-> remove space after \v0)
+                                                 hello {}world    (-> remove space after \v0)
+
+    It is not easy to distinguish between these two possible cases. In the first case we should not remove the space after \v0
+    and in the second case we should. To avoid problems it seems convenient to replace the text to be removed with "{}",
+    always removing the space after \v0 :
+
+    \pard\cf3\b\v\'11B12\'12\v0 hello world  => \pard\cf3\b hello world
+                                                \pard\cf3\b{}hello world
+    Compre\v\''11B8\''12\v0 ssion and        => Compres{}ssion and       --> RichEdit will eventually turn it into Compresssion and
+  *)
 
 
   (*
@@ -688,42 +727,69 @@ begin
      hmAll:           Prefix:= KNT_RTF_HIDDEN_MARK_L;
   end;
 
-  Result:= s;
+  Result:= '';
+  EmptyBraces:= '{}';
+  RTFIn:= PAnsiChar(@S[1]);
+  LastCharIn:= S[Length(S)];
+  if LastCharIn <> #0 then
+     RTFIn[Length(S)-1] := #0;
+
+  pIn:= 1;
+  pOut:= 1;
   pI:= 1;
 
   repeat
-     pI:= Pos(AnsiString('\v\'), Result, pI);
+     pI:= PosPAnsiChar('\v\', RTFIn, pI);
 
      if pI > 0 then begin
-        pPrefix:= Pos(Prefix, Result, pI+2);
+        pPrefix:= PosPAnsiChar(PAnsiChar(Prefix), RTFIn, pI+2);
         if (pPrefix = 0) then break;
 
-        pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R + '\v0'), Result, pPrefix + Length(Prefix));
+        pF:= PosPAnsiChar(KNT_RTF_HIDDEN_MARK_R + '\v0', RTFIn, pPrefix + Length(Prefix));
         len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
         if (pF > 0) and (pPrefix = pI + 2) and (len <= KNT_RTF_HIDDEN_MAX_LENGHT) then begin
            // Normal case: \v\'11B5\'12\v0 XXX
-            if (Result[pI + len] = ' ') and (Result[pI -1] = ' ') then          // *1
+            if (S[pI + len] = ' ') then          // *1   (S[pI+Len]=RTFIn[pI + len-1])
                Inc(len);
-            Delete(Result, pI, len);
-            pI:= pF+1;
+            //Delete(Result, pI, len);
+            RemoveReplace(pI);
+
+            pI:= pF + 1;
         end
         else begin
            // Problematic case. Ex:
            //  \v\f1\fs40\'11B1\'12\v0 xxx                         --> \v\f1\fs40\v0 xxx                     ...> \v\f1\fs40 xxx
            //  \v\''11I1\''12\cf0\v0\f2\fs16\lang3082{\pict{...    --> \v\cf0\v0\f2\fs16\lang3082{\pict{...  ...> \cf0\f2\fs16\lang3082{\pict{...
 
-            pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), Result, pPrefix + Length(Prefix));        // Do not include \v0
+            pF:= PosPAnsiChar(KNT_RTF_HIDDEN_MARK_R, RTFIn, pPrefix + Length(Prefix));        // Do not include \v0
             if (pF = 0) then break;
 
             len:= pF-pPrefix + Length(KNT_RTF_HIDDEN_MARK_R);
-            if (len <= KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT) then
-               Delete(Result, pPrefix, len);
+            if (len <= KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT) then begin
+               //Delete(Result, pPrefix, len);
+               RemoveReplace(pPrefix);
+            end;
             pI:= pF+1;
         end;
 
      end;
 
   until pI = 0;
+
+  if pOut = 1 then
+     Result:= S
+
+  else begin
+     NBytes:= Length(S) - pIn;
+     CheckCreateResult;
+     Move(S[pIn], RTFTextOut[pOut], NBytes);
+     inc(pOut, NBytes);
+     SetLength(RTFTextOut, pOut);
+     if LastCharIn <> #0 then
+        RTFIn[pOut] := LastCharIn;
+
+     Result:= RTFTextOut;
+  end;
 
 end;
 
