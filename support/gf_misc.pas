@@ -197,7 +197,8 @@ procedure BrowsersRunning( var IsNetscape, IsMSIE : boolean );
 procedure AssociateApplication( const theEXT, theApp, IconSource : string; const IconIndex : integer );
 function GetWindowsPath : string;
 
-function LastPos( AChar : char; const AStr : string ) : integer;
+function LastPos( AChar : char; const AStr : string ) : integer; overload;
+function LastPos( const ASubStr : AnsiString; const AStr : AnsiString; PosFrom: Integer = -1 ) : integer; overload;
 function CtrlDown : Boolean;
 function ShiftDown : Boolean;
 function AltDown : Boolean;
@@ -708,8 +709,7 @@ function LastPos( AChar : char; const AStr : string ) : integer;
 var
   i : integer;
 begin
-  if ( AStr = '' ) then
-  begin
+  if ( AStr = '' ) then begin
     result := 0;
     exit;
   end;
@@ -718,6 +718,37 @@ begin
     dec( i );
   result := i;
 end; // LastPos
+
+function LastPos( const ASubStr : AnsiString; const AStr : AnsiString; PosFrom: Integer = -1 ) : integer;
+var
+  i : integer;
+
+  function Match: boolean;
+  var
+     j: integer;
+  begin
+      Result:= False;
+      for j := 1 to Length(ASubStr) do
+         if AStr[i + j-1] <> ASubStr[j] then Exit;
+      Result:= True;
+  end;
+
+begin
+  if ( AStr = '' ) then begin
+    result := 0;
+    exit;
+  end;
+
+  i:= PosFrom;
+  if i < 1 then
+    i := length( AStr );
+
+  while ( i > 0 ) and ( not Match) do begin
+    dec( i );
+  end;
+  result := i;
+end; // LastPos
+
 
 procedure SetDefaultFont( var theFont : TFontProperties );
 begin

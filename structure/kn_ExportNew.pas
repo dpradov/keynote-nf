@@ -45,7 +45,8 @@ uses
    knt.ui.editor,
    kn_Info,
    kn_KntFile,
-   kn_KntFolder
+   kn_KntFolder,
+   kn_LinksMng
    ;
 
 
@@ -131,6 +132,7 @@ type
     LastPagePrintedHeight: integer;
     PreviewMode: boolean;
     FirstPrint: boolean;
+    InfoExportedNotes: TInfoExportedNotesInRTF;
 
   public
     { Public declarations }
@@ -984,6 +986,7 @@ var
           SL:= RTFAux.SelLength;
           RTFAux.SelAttributes.Size:= FontSizes_Max;
           RTFAux.SetSelection(SL, SL, true);
+          RTFAux.SelStart:= 0;
        end;
      end;
   end;
@@ -1145,6 +1148,7 @@ begin
                  continue; // could not access starting node - perhaps tree has none
 
               tmpExportedNodes := 0;
+              SetLength(InfoExportedNotes, 1);
 
               while assigned( myTreeNode ) do begin          // ---------------------- Iterate each node
                 NNode:= TreeUI.GetNNode(myTreeNode);
@@ -1195,16 +1199,28 @@ begin
                   //  Folder can be PlainText and include a virtual node with RTF content
                   //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
 
-                  if not SingleNodes then
-                      SSNode:= RTFAux.SelStart
+                  var Idx: Integer:= 0;
+
+                  if not SingleNodes then begin
+                      SSNode:= RTFAux.SelStart;
+                      if ExportOptions.TargetFormat = xfRTF then begin
+                         SetLength(InfoExportedNotes, tmpExportedNodes+1);
+                         Idx:= tmpExportedNodes;
+                      end;
+                  end
                   else begin
                       SSNode:= 0;
                       RTFAux.Clear;
                       if FirstNodeExportedInFolder then
                          InsertFolderHeading;
                   end;
-
                   InsertNodeHeading;
+
+                  if ExportOptions.TargetFormat = xfRTF then begin
+                     InsertMarker(RTFAux, KNT_RTF_HIDDEN_DATA, NNode.GID);
+                     InfoExportedNotes[Idx].NNodeGID:= NNode.GID;
+                  end;
+
                   if NodeTextSize > 0 then begin
                     RTFwithImages:= '';
                     SSNodeContent:= RTFAux.SelStart;
@@ -1400,6 +1416,7 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
+    InfoExportedNotes:= nil;
 
     ExitMessage := Format(GetRS(sExpFrm12), [ExportedFolders, ExportedNotes] );
     if WasError then
@@ -1561,6 +1578,7 @@ var
   Encoding: TEncoding;
   FirstPageMarginTop: integer;
   DPI: Integer;
+  NodeText: AnsiString;
 
 begin
   result := false;
@@ -1601,8 +1619,6 @@ begin
       end;
 
       xfPrinter : begin
-        RTF.RemoveKNTHiddenCharacters(false);
-
         if RTF.TextLength <> 0 then begin
            DPI:= -1;
            if PreviewMode then
@@ -1635,10 +1651,17 @@ begin
 
       xfRTF : begin
         if ( ext = '' ) then FN := FN + ext_RTF;
+
+        NodeText:= RTF.RtfText;
+        NodeText:= ReplaceHyperlinksWithStandardBookmarks(NodeText);
+        NodeText:= ConvertToStandardBookmarks(NodeText, InfoExportedNotes, true);
+        TFile.WriteAllText(FN, NodeText);
+        {
         RTF.RemoveKNTHiddenCharacters(false);
         RTF.StreamFormat:= sfRichText;
-
         RTF.Lines.SaveToFile( FN );
+        }
+
         result := true;
       end;
 

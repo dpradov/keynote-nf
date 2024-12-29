@@ -35,6 +35,7 @@ uses
    Vcl.Clipbrd,
 
    VirtualTrees,
+   RxRichEd,
 
    kn_Info,
    kn_Const,
@@ -46,11 +47,19 @@ uses
    knt.ui.editor
    ;
 
+type
+   TInfoExportedNoteInRTF = record
+      NNodeGID: Cardinal;
+      PosIni: Integer;
+   end;
+   TInfoExportedNotesInRTF = Array of TInfoExportedNoteInRTF;
+
 
    // Links related routines
     procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
+    function InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer): string;
     function BuildKntURL( const aLocation : TLocation) : string;
     function BuildLocationFromKntURL( KntURL : string): TLocation;
     function GetTextURLFromKntLocation (Loc : TLocation; RelativePath: boolean = false): string;
@@ -76,8 +85,8 @@ uses
 
     function PathOfKntLink (myTreeNode: PVirtualNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
-    procedure UpdateLocation (Loc: TLocation; RaiseExcept: boolean= true);
-    procedure UpdateLocationTarget (Loc: TLocation; RaiseExcept: boolean= true);
+    function UpdateLocation (Loc: TLocation; RaiseExcept: boolean= true): boolean;
+    function UpdateLocationTarget (Loc: TLocation; RaiseExcept: boolean= true): boolean;
 
     // Navigation history
     procedure AddHistoryLocation( const aFolder : TKntFolder; const AddLocalMaintainingIndex: boolean;
@@ -90,6 +99,10 @@ uses
 
     function DeleteBookmark09 (Loc: TLocation): boolean;
 
+    function ReplaceHyperlinksWithStandardBookmarks(const S: AnsiString): AnsiString;
+    function ConvertToStandardBookmarks(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF;
+                                        RemoveAllHiddenCharacters: Boolean): AnsiString;
+
 var
    _Executing_History_Jump : boolean;
    _Executing_JumpToKNTLocation_ToOtherNote : boolean;
@@ -98,8 +111,6 @@ var
 
 implementation
 uses
-   RxRichEd,
-
    gf_misc,
    gf_files,
    gf_strings,
@@ -229,12 +240,12 @@ end; // PathOfKNTLink
 // GetNNode
 //=========================================
 
-procedure UpdateLocation (Loc: TLocation; RaiseExcept: boolean= true);
+function UpdateLocation (Loc: TLocation; RaiseExcept: boolean= true): boolean;
 var
   Ok: boolean;
 begin
    if not Loc.Calculated then
-      UpdateLocationTarget(Loc, RaiseExcept)
+      Ok:= UpdateLocationTarget(Loc, RaiseExcept)
 
    else begin
       Ok:= false;
@@ -255,11 +266,12 @@ begin
       end;
 
    end;
+   Result:= Ok;
 
 end;
 
 
-procedure UpdateLocationTarget (Loc: TLocation; RaiseExcept: boolean= true);
+function UpdateLocationTarget (Loc: TLocation; RaiseExcept: boolean= true): boolean;
 begin
    with Loc do begin
 
@@ -267,15 +279,18 @@ begin
       NNode:= nil;
       NEntry:= nil;
       Calculated:= true;
+      Result:= false;
 
 
       if NNodeGID <> 0 then begin  // lfNew2 format
          ActiveFile.GetNNodeByGID(NNodeGID, NNode, Folder);
-         if (NNode = nil) and RaiseExcept then
-            raise EInvalidLocation.Create(Format(GetRS(sLnk03b), [NNodeGID]))
+         if (NNode = nil) then begin
+             if RaiseExcept then
+                raise EInvalidLocation.Create(Format(GetRS(sLnk03b), [NNodeGID]))
+         end
          else begin
             NEntry:= NNode.Note.Entries[0];        // %%%
-            exit;
+            exit (True)
          end;
       end;
 
@@ -291,7 +306,7 @@ begin
             raise EInvalidLocation.Create(Format( GetRS(sLnk02), [FolderName] ));
       end;
 
-      if (Folder = nil) then exit;
+      if (Folder = nil) then exit;      // False
 
       // obtain NNODE
 
@@ -309,7 +324,13 @@ begin
          if NNode <> nil then
             NEntry:= NNode.Note.Entries[0];        // %%%
       end;
+
+      if NEntry <> nil then begin
+         NNodeGID:= NNode.GID;
+         Result:= true;
+      end;
    end;
+
 end;
 
 
@@ -589,6 +610,15 @@ end;
 // InsertOrMarkKNTLink
 //===============================================================
 
+function InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer): string;
+var
+   RTFMarker: AnsiString;
+begin
+   //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};  // Finally they will be inserted directly with \v...\v0 (see comment *2 next to KNT_RTF_BMK_HIDDEN_MARK in kn_const.pas)
+   RTFMarker:= Format('\v' + KNT_RTF_HIDDEN_MARK_L + KEY_Marker + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0', [TargetMarker]);
+   Editor.PutRtfText('{\rtf1\ansi' + RTFMarker + '}',  True);
+end;
+
 (*
   New KNT Links, vinculated to markers, not only to caret position
 
@@ -741,9 +771,7 @@ begin
             KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
          end;
 
-         //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};  // Finally they will be inserted directly with \v...\v0 (see comment *2 next to KNT_RTF_BMK_HIDDEN_MARK in kn_const.pas)
-         RTFMarker:= Format('\v' + KNT_RTF_HIDDEN_MARK_L + KEY_Marker + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0', [TargetMarker]);
-         Editor.PutRtfText('{\rtf1\ansi' + RTFMarker + '}',  true);
+         InsertMarker(Editor, KEY_Marker, TargetMarker);
       end;
       strTargetMarker:= Format(GetRS(sLnk31) + GetRS(sLnk32), [TargetMarker]);
       aLocation.Mark:= TargetMarker;
@@ -753,6 +781,161 @@ begin
   end;
 
 end; // InsertOrMarkKNTLink
+
+
+
+function GetURLLinkStandard(Loc: TLocation): AnsiString;
+var
+   Bk: AnsiString;
+begin
+  if (Loc.Mark > 0) then
+     Bk:= 'B' + Loc.Mark.ToString
+  else
+  if (Loc.CaretPos = 0) then
+     Bk:= 'B0'
+  else
+     Bk:= 'P' + Loc.CaretPos.ToString;
+
+  Result:= Format('\\l "%d_%s"', [Loc.NNodeGID, Bk])
+end;
+
+
+
+(*
+   {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+     ->
+   {{\field{\*\fldinst{HYPERLINK \\l "41_B11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+*)
+
+function ReplaceHyperlinksWithStandardBookmarks(const S: AnsiString): AnsiString;
+var
+   pIn, pOut, pI, pF, NBytes: integer;
+   URL, NewURL: AnsiString;
+   Loc: TLocation;
+
+const
+   sHYPERLINK = '\*\fldinst{HYPERLINK "file:';  // -> ", inclusive: 22
+
+begin
+  if S = '' then Exit('');
+
+  SetLength(Result, Length(S));
+{$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+  ZeroMemory(@Result[1], Length(S));
+{$ENDIF}
+
+  pIn:= 1;
+  pOut:= 1;
+  pI:= 0;
+
+  repeat
+     pI:= Pos(AnsiString(sHYPERLINK), S, pI+1);
+
+     if pI > 0 then begin
+        pF:= Pos('"}', S, pI + length(sHYPERLINK));
+        if (pF > 0) then begin
+            URL:= Copy(S, pI+22, pF-pI-22);
+            try
+              try
+                 Loc:= BuildLocationFromKntURL(URL);
+                 if UpdateLocation(Loc, false) or (Loc.NNodeGID <> 0) then begin
+                    NewURL:= GetURLLinkStandard(Loc);
+
+                    NBytes:= pI+21 - pIn;                 // 21 -> Do not include the first "
+                    Move(S[pIn], Result[pOut], NBytes);
+                    inc(pOut, NBytes);
+                    Move(NewURL[1], Result[pOut], Length(NewURL));
+                    inc(pOut, Length(NewURL));
+                    pIn:= pF+1;
+                 end;
+
+              finally
+                 Loc.Free;
+              end;
+
+            except
+            end;
+
+            pI:= pF;
+        end;
+     end;
+    until pI = 0;
+
+  if pOut = 1 then
+     Result:= S
+
+  else begin
+     NBytes:= Length(S) - pIn;
+     Move(S[pIn], Result[pOut], NBytes);
+     inc(pOut, NBytes);
+
+     SetLength(Result, pOut);
+  end;
+end;
+
+
+(*
+   If current NNodeGID=45
+    \pard\ltrpar\sa100\cf3\b\v\'11B13\'12\v0 Changing the storage mode\b0\par
+      ->
+    \pard\ltrpar\sa100\cf3\b{\*\bkmkstart 45_B13}{\*\bkmkend 45_B13} Changing the storage mode\b0\par
+*)
+
+function ConvertToStandardBookmarks(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF; RemoveAllHiddenCharacters: Boolean): AnsiString;
+var
+   i, pI, pF: integer;
+   Prefix: AnsiString;
+   HiddenMarks: THiddenMarks;
+   InfoExpNote: TInfoExportedNoteInRTF;
+   ProccessUntil: Integer;
+   GID: Cardinal;
+
+begin
+  if S='' then Exit('');
+
+  HiddenMarks:= hmAll;
+  if not RemoveAllHiddenCharacters then
+     HiddenMarks:= hmOnlyBookmarks;
+
+  if Length(InfoExportedNotes) = 1 then begin
+     Result:= RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, true, InfoExportedNotes[0].NNodeGID);
+     exit;
+  end;
+
+
+  Prefix:= KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
+  pI:= 0;
+
+  //  \v\'11D321\'12\v0
+  //  \v\f1\fs20\''11D1\''12\cf1\v0
+  //  ...
+  repeat
+     pI:= Pos(AnsiString(Prefix), S, pI+1);
+     pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), S, pI + Length(Prefix));
+     GID:= StrToIntDef(Copy(S,pI+Length(Prefix), pF-pI - Length(Prefix)), 0);
+     for i:= 0 to High(InfoExportedNotes) do begin
+        if InfoExportedNotes[i].NNodeGID= GID then begin
+           InfoExportedNotes[i].PosIni:= LastPos('\v\', S, pI);     // The normal will be: PosIni= pI-10
+           break;
+        end;
+     end;
+  until (pI = 0);
+
+  InfoExportedNotes[0].PosIni:= 1;
+  Result:= '';
+
+  for i:= 0 to High(InfoExportedNotes) do begin
+      InfoExpNote:= InfoExportedNotes[i];
+
+      if i = High(InfoExportedNotes) then
+         ProccessUntil:= -1
+      else
+         ProccessUntil:= InfoExportedNotes[i+1].PosIni;
+
+      RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, Result, true, InfoExpNote.NNodeGID, InfoExpNote.PosIni, ProccessUntil);
+  end;
+
+end;
 
 
 //===============================================================
@@ -1451,14 +1634,16 @@ begin
     end;
 
   except
-    on E : EInvalidLocation do
+    on E : EInvalidLocation do begin
+      if Location <> nil then
+         Location.Free;
       App.DoMessageBox( Format( GetRS(sLnk13), [E.Message] ), mtWarning, [mbOK]);
+    end;
 
-    on E : Exception do
-      begin
+    on E : Exception do begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk14);
       App.DoMessageBox( Format( GetRS(sLnk15), [E.Message]  ), mtError, [mbOK] );
-      end;
+    end;
   end;
 
 end; // JumpToKNTLocation

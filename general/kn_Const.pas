@@ -532,6 +532,7 @@ const
   KNT_RTF_HIDDEN_BOOKMARK = 'B';
   KNT_RTF_HIDDEN_Bookmark09 = 'b';       // Used with 9 bookmarks set with Search|Set Bookmark
   KNT_RTF_HIDDEN_IMAGE = 'I';
+  KNT_RTF_HIDDEN_DATA = 'D';             // Currently used to include auxiliar data, to identify begin of nodes
   KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
   (* *2
   KNT_RTF_BMK_HIDDEN_MARK = '{\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK + '%d'+ KNT_RTF_HIDDEN_MARK_R + '}';

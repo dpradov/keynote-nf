@@ -237,7 +237,14 @@ type
   function CreateAuxRichEdit: TAuxRichEdit;
 
   function RemoveKNTHiddenCharactersInText (const s: string; checkIfNeeded: boolean= true): string;
-  function RemoveKNTHiddenCharactersInRTF  (const s: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
+  function RemoveKNTHiddenCharactersInRTF  (const s: AnsiString; HiddenMarks: THiddenMarks;
+                                            ReplaceWithStdBk: Boolean = False;
+                                            NNodeGID: Cardinal= 0): AnsiString; overload;
+  procedure RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks;
+                                           var RTFTextOut: AnsiString;
+                                           ReplaceWithStdBk: Boolean = False; NNodeGID: Cardinal= 0;
+                                           Offset: Integer = 1; ProcessUntilOffset: Integer = -1);  overload;
+
   function GetHumanizedKNTHiddenCharacters (const s: string): string;
 
   procedure AddGlossaryTerm;
@@ -633,41 +640,101 @@ begin
 end;
 
 
-function RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks): AnsiString;
+function RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks;
+                                        ReplaceWithStdBk: Boolean = False; NNodeGID: Cardinal= 0 ): AnsiString;
+begin
+    RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, Result, ReplaceWithStdBk, NNodeGID);
+end;
+
+
+procedure RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks;
+                                         var RTFTextOut: AnsiString;
+                                         ReplaceWithStdBk: Boolean = False; NNodeGID: Cardinal= 0;
+                                         Offset: Integer = 1; ProcessUntilOffset: Integer = -1 );
 var
    pI, pPrefix, pF, len: integer;
-   Prefix, EmptyBraces: AnsiString;
+   Prefix: AnsiString;
    RTFIn: PAnsiChar;
-   RTFTextOut: AnsiString;
-   pIn, pOut, NBytes: integer;
+   pIn, pOut, pOut_Ini, NBytes: integer;
    LastCharIn: AnsiChar;
+
+   bmkID:  AnsiString;
+   bmkStd: AnsiString;
+   MarkID: integer;
+   ReplaceWith: AnsiString;
+
+const
+   BMK_STD = '{\*\bkmkstart %d_B%d}{\*\bkmkend %d_B%d}';
+   EmptyBraces = '{}';
+   PrefixBmk = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK;
+   PrefixData = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
+
 
    procedure CheckCreateResult;
    begin
-      if RTFTextOut = '' then begin
-         SetLength(RTFTextOut, Length(S)+1000);
-         {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
-            ZeroMemory(@RTFTextOut[1], Length(S)+1000);
-         {$ENDIF}
-      end
+      if RTFTextOut = '' then
+         SetLength(RTFTextOut, Length(S) + 4000)
       else
          if (pOut + NBytes) > Length(RTFTextOut) then
-            SetLength(RTFTextOut, Length(RTFTextOut) + 4 * NBytes);
+            SetLength(RTFTextOut, Length(RTFTextOut) + NBytes + 4000);
+
+   {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+      ZeroMemory(@RTFTextOut[pOut], 1000);
+   {$ENDIF}
+
    end;
 
-   procedure RemoveReplace (p: Integer);
+   procedure RemoveReplace (p: Integer; const ReplaceWith: AnsiString);
    begin
       NBytes:= p - pIn;
       CheckCreateResult;
       Move(S[pIn], RTFTextOut[pOut], NBytes);
       inc(pOut, NBytes);
-      Move(EmptyBraces[1], RTFTextOut[pOut], 2);
-      inc(pOut, 2);
+      Move(ReplaceWith[1], RTFTextOut[pOut], Length(ReplaceWith));
+      inc(pOut, Length(ReplaceWith));
       pIn:= p + Len;
    end;
 
+   function GetStdBk(pos: integer): AnsiString;
+   begin
+      Result:= Format(BMK_STD, [NNodeGID, MarkID, NNodeGID, MarkID]);
+   end;
+
+   function GetMarkID (pI, pF: Integer): integer; overload;
+   var
+      Str: AnsiString;
+      p: integer;
+   begin
+     Result:= -1;
+     // Normal case: \v\'11B36\'12\v0 XXX       -> ID: 36
+     // pI points to "\v\" and pF to "\'12\"
+     Str:= Copy(S, pI, pF-pI+1);
+     p:= Pos(PrefixBmk, Str);
+     if (p > 0) then
+        Result:= StrToIntDef(Copy(Str, p+Length(PrefixBmk), pF-pI-p-Length(PrefixBmk)+1),  0)
+     else begin
+        p:= Pos(PrefixData, Str);
+        if (p > 0) then
+           Result:= 0;
+     end;
+   end;
+
+   function GetMarkID (const Str: AnsiString): integer; overload;
+   var
+      p: integer;
+   begin
+     Result:= -1;
+     // Str: "\'11B36\'12"         ->ID: 36
+     if Str[5] = KNT_RTF_HIDDEN_BOOKMARK then
+        Result:= StrToIntDef(Copy(Str, 6, Length(Str)-9),  0)
+     else
+     if Str[5] = KNT_RTF_HIDDEN_DATA then
+        Result:= 0;
+   end;
+
+
 begin
-  if S='' then Exit('');
+  if S='' then Exit;
 
   //  {\rtf1\ansi {\v\'11B5\'12} XXX };   {\rtf1\ansi \v\'11B5\'12\v0 XXX};  {\rtf1\ansi \v\'11T999999\'12\v0 XXX};
 
@@ -684,6 +751,19 @@ begin
     \pard\cf3\b\v\'11B12\'12\v0 hello world  => \pard\cf3\b hello world
                                                 \pard\cf3\b{}hello world
     Compre\v\''11B8\''12\v0 ssion and        => Compres{}ssion and       --> RichEdit will eventually turn it into Compresssion and
+  *)
+
+  (*   *2
+     We need to detect this situation, tags used for informational purposes, as part of the text. 
+     It would really be something completely unusual, but at least it is given in the KeyNote help document...
+   <<... The use of these tags (e.g. "\v\'11I3\'12\v0") simplifies ...>>
+   It is represented in RTF:
+   <<... The use of these tags (e.g. "\cf3\\v\\'11I3\\'12\\v0\cf0 ") simplifies ...>>
+
+   If we don't take this into account we can turn it into the following, which will truncate further
+   processing of the generated RTF:
+   <<... The use of these tags (e.g. "\cf7\\v\{}\\v0\cf0 ") simplifies the ...>>   BAD
+
   *)
 
 
@@ -727,23 +807,39 @@ begin
      hmAll:           Prefix:= KNT_RTF_HIDDEN_MARK_L;
   end;
 
-  Result:= '';
-  EmptyBraces:= '{}';
   RTFIn:= PAnsiChar(@S[1]);
-  LastCharIn:= S[Length(S)];
-  if LastCharIn <> #0 then
-     RTFIn[Length(S)-1] := #0;
 
-  pIn:= 1;
-  pOut:= 1;
-  pI:= 1;
+  if ProcessUntilOffset > 1 then begin
+     LastCharIn:= S[ProcessUntilOffset];
+     if LastCharIn <> #0 then
+        RTFIn[ProcessUntilOffset-1] := #0;
+  end
+  else begin
+     LastCharIn:= S[Length(S)];
+     if LastCharIn <> #0 then
+        RTFIn[Length(S)-1] := #0;
+  end;
+
+
+  pIn:= Offset;
+  pOut:= Length(RTFTextOut)+1;
+  if (pOut > 1) and (RTFTextOut[pOut-1] = #0) then
+     dec(pOut);
+  pOut_Ini:= pOut;
+  pI:= Offset;
 
   repeat
      pI:= PosPAnsiChar('\v\', RTFIn, pI);
 
+     ReplaceWith:= EmptyBraces;
+
      if pI > 0 then begin
         pPrefix:= PosPAnsiChar(PAnsiChar(Prefix), RTFIn, pI+2);
         if (pPrefix = 0) then break;
+        if (pPrefix > 1) and (S[pPrefix-1] = '\') then begin    // See *2
+           pI:= pPrefix+1;
+           continue;
+        end;
 
         pF:= PosPAnsiChar(KNT_RTF_HIDDEN_MARK_R + '\v0', RTFIn, pPrefix + Length(Prefix));
         len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
@@ -751,8 +847,15 @@ begin
            // Normal case: \v\'11B5\'12\v0 XXX
             if (S[pI + len] = ' ') then          // *1   (S[pI+Len]=RTFIn[pI + len-1])
                Inc(len);
+               
+            if ReplaceWithStdBk then begin
+               MarkID:= GetMarkID(pI, pF);
+               if MarkID >= 0 then
+                  ReplaceWith:= GetStdBk(pI);
+            end;
+
             //Delete(Result, pI, len);
-            RemoveReplace(pI);
+            RemoveReplace(pI, ReplaceWith);
 
             pI:= pF + 1;
         end
@@ -766,8 +869,14 @@ begin
 
             len:= pF-pPrefix + Length(KNT_RTF_HIDDEN_MARK_R);
             if (len <= KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT) then begin
+               if ReplaceWithStdBk then begin
+                  MarkID:= GetMarkID(Copy(S, pPrefix, len));
+                  if MarkID >= 0 then
+                     ReplaceWith:= GetStdBk(pPrefix);
+               end;
+
                //Delete(Result, pPrefix, len);
-               RemoveReplace(pPrefix);
+               RemoveReplace(pPrefix, ReplaceWith);
             end;
             pI:= pF+1;
         end;
@@ -776,19 +885,25 @@ begin
 
   until pI = 0;
 
-  if pOut = 1 then
-     Result:= S
-
+  if (pOut = pOut_Ini) and (RTFTextOut = '') then begin
+     RTFTextOut:= S;
+  end
   else begin
-     NBytes:= Length(S) - pIn;
+     if ProcessUntilOffset > 1 then
+        NBytes:= ProcessUntilOffset - pIn
+     else
+        NBytes:= Length(S) - pIn;
      CheckCreateResult;
      Move(S[pIn], RTFTextOut[pOut], NBytes);
      inc(pOut, NBytes);
-     SetLength(RTFTextOut, pOut);
-     if LastCharIn <> #0 then
-        RTFIn[pOut] := LastCharIn;
+     SetLength(RTFTextOut, pOut-1);
+  end;
 
-     Result:= RTFTextOut;
+  if LastCharIn <> #0 then begin
+     if ProcessUntilOffset > 1 then
+        RTFIn[ProcessUntilOffset-1] := LastCharIn
+     else
+        RTFIn[Length(S)-1] := LastCharIn;
   end;
 
 end;
