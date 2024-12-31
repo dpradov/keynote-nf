@@ -4,7 +4,7 @@ object Form_ExportNew: TForm_ExportNew
   HelpContext = 313
   BorderStyle = bsDialog
   Caption = 'Export note Folders'
-  ClientHeight = 406
+  ClientHeight = 419
   ClientWidth = 322
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object Form_ExportNew: TForm_ExportNew
   TextHeight = 13
   object Button_OK: TButton
     Left = 6
-    Top = 371
+    Top = 387
     Width = 75
     Height = 25
     Hint = 'Begin exporting note folders'
@@ -32,7 +32,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Cancel: TButton
     Left = 173
-    Top = 371
+    Top = 387
     Width = 69
     Height = 25
     Hint = 'Cancel and close this dialog box'
@@ -43,7 +43,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Help: TButton
     Left = 247
-    Top = 371
+    Top = 387
     Width = 69
     Height = 25
     Caption = 'Help'
@@ -54,7 +54,7 @@ object Form_ExportNew: TForm_ExportNew
     Left = 5
     Top = 5
     Width = 311
-    Height = 358
+    Height = 374
     ActivePage = Tab_Main
     HotTrack = False
     TabInactiveColor = clBtnFace
@@ -72,7 +72,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 320
       object GroupBox_Source: TGroupBox
         Left = 2
         Top = 5
@@ -228,17 +227,49 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 320
+      object lblIndent: TLabel
+        Left = 172
+        Top = 137
+        Width = 60
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'Indents by'
+        FocusControl = Spin_Indent
+      end
+      object lblTblCont: TLabel
+        Left = 134
+        Top = 187
+        Width = 104
+        Height = 13
+        Alignment = taRightJustify
+        AutoSize = False
+        Caption = 'Max level depth'
+        FocusControl = Spin_MaxLevTbl
+      end
+      object CB_UseTab: TCheckBox
+        Left = 134
+        Top = 135
+        Width = 43
+        Height = 17
+        Hint = 
+          'Indent using TAB characters'#13#10'(False: use n'#186' spaces defined in No' +
+          'te'#39's Tab size)'
+        HelpType = htKeyword
+        HelpKeyword = '313-7'
+        Caption = 'Tab'
+        TabOrder = 2
+      end
       object GroupBox1: TGroupBox
         Left = 3
-        Top = 5
+        Top = 4
         Width = 293
-        Height = 176
+        Height = 122
         Caption = ' Optional headings '
         TabOrder = 0
         object lblSymbols: TLabel
           Left = 19
-          Top = 126
+          Top = 100
           Width = 39
           Height = 13
           Alignment = taRightJustify
@@ -247,22 +278,12 @@ object Form_ExportNew: TForm_ExportNew
         end
         object lblLength: TLabel
           Left = 143
-          Top = 125
+          Top = 99
           Width = 74
           Height = 13
           Alignment = taRightJustify
           Caption = 'Length heading'
           FocusControl = Edit_Folder
-        end
-        object lblIndent: TLabel
-          Left = 135
-          Top = 99
-          Width = 97
-          Height = 13
-          Alignment = taRightJustify
-          AutoSize = False
-          Caption = 'Indents by'
-          FocusControl = Spin_Indent
         end
         object CB_IncNoteHeading: TCheckBox
           Left = 12
@@ -277,7 +298,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_IncNodeHeading: TCheckBox
           Left = 12
-          Top = 44
+          Top = 46
           Width = 106
           Height = 17
           Hint = 'Include node headings'
@@ -360,7 +381,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Edit_LengthHeading: TEdit
           Left = 224
-          Top = 122
+          Top = 96
           Width = 55
           Height = 21
           Hint = 
@@ -375,11 +396,11 @@ object Form_ExportNew: TForm_ExportNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 11
+          TabOrder = 8
         end
         object Edit_Symbols: TEdit
           Left = 64
-          Top = 120
+          Top = 94
           Width = 55
           Height = 21
           Hint = 'Symbols to use with %< or %>:  Level1, Level2, ...'
@@ -391,117 +412,59 @@ object Form_ExportNew: TForm_ExportNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
-          OnExit = Edit_SymbolsExit
-        end
-        object CB_IndentNodes: TCheckBox
-          Left = 12
-          Top = 97
-          Width = 102
-          Height = 17
-          Hint = 'Indent nested nodes (heading and content)'
-          HelpType = htKeyword
-          HelpKeyword = '313-7'
-          Caption = 'Indent nodes'
           TabOrder = 7
-          OnClick = CB_IndentNodesClick
-        end
-        object Spin_Indent: TSpinEdit
-          Left = 239
-          Top = 95
-          Width = 40
-          Height = 22
-          HelpType = htKeyword
-          HelpKeyword = '313-7'
-          MaxLength = 3
-          MaxValue = 50
-          MinValue = 2
-          TabOrder = 9
-          Value = 16
-        end
-        object CB_UseTab: TCheckBox
-          Left = 131
-          Top = 97
-          Width = 43
-          Height = 17
-          Hint = 
-            'Indent using TAB characters'#13#10'(False: use n'#186' spaces defined in No' +
-            'te'#39's Tab size)'
-          HelpType = htKeyword
-          HelpKeyword = '313-7'
-          Caption = 'Tab'
-          TabOrder = 8
-        end
-        object Edit_Sample: TEdit
-          Left = 121
-          Top = 147
-          Width = 158
-          Height = 21
-          TabStop = False
-          Enabled = False
-          MaxLength = 127
-          ReadOnly = True
-          TabOrder = 14
-        end
-        object BTN_Font: TBitBtn
-          Left = 85
-          Top = 145
-          Width = 30
-          Height = 25
-          Enabled = False
-          ImageIndex = 11
-          Images = Form_Main.IMG_Format
-          TabOrder = 13
-          TabStop = False
-          OnClick = BTN_FontClick
-        end
-        object CB_Font: TCheckBox
-          Left = 12
-          Top = 148
-          Width = 57
-          Height = 17
-          Hint = 'Set an unified font for all content'
-          HelpType = htKeyword
-          HelpKeyword = '313-7'
-          Caption = 'Font'
-          TabOrder = 12
-          OnClick = CB_FontClick
+          OnExit = Edit_SymbolsExit
         end
       end
       object RG_NodeMode: TRadioGroup
         Left = 3
-        Top = 186
+        Top = 212
         Width = 292
         Height = 66
-        Caption = ' &When exporting...'
+        DefaultHeaderFont = False
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -5
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
         ItemIndex = 0
         Items.Strings = (
           'Put all notes (nodes) in a single target file'
           'Export each note (node) to a separate target file')
-        TabOrder = 2
+        TabOrder = 11
       end
       object RG_NodePrint: TRadioGroup
         Left = 3
-        Top = 186
+        Top = 212
         Width = 292
         Height = 66
-        Caption = ' &When printing...'
+        DefaultHeaderFont = False
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -5
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
         ItemIndex = 0
         Items.Strings = (
           'Put all notes (nodes) contiguous'
           'Start each note (node) on a new page')
-        TabOrder = 1
+        TabOrder = 10
         Visible = False
       end
       object RG_HTML: TRadioGroup
         Left = 3
-        Top = 256
+        Top = 285
         Width = 292
-        Height = 68
+        Height = 57
         Margins.Top = 6
         Margins.Bottom = 6
-        Caption = ' &Method for exporting HTML: '
-        TabOrder = 3
+        DefaultHeaderFont = False
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -5
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = []
+        TabOrder = 12
         OnClick = RG_HTMLClick
       end
       object Btn_TknHlp: TBitBtn
@@ -511,20 +474,19 @@ object Form_ExportNew: TForm_ExportNew
         Height = 22
         ImageIndex = 60
         Images = Form_Main.IMG_Toolbar
-        TabOrder = 4
+        TabOrder = 13
         OnClick = Btn_TknHlpClick
       end
       object GB_Additional: TGroupBox
         Left = 3
-        Top = 258
+        Top = 285
         Width = 292
-        Height = 66
-        Caption = ' Other options '
-        TabOrder = 5
+        Height = 57
+        TabOrder = 9
         Visible = False
         object CB_ShowHiddenMarkers: TCheckBox
           Left = 12
-          Top = 24
+          Top = 14
           Width = 253
           Height = 17
           Hint = 
@@ -538,7 +500,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SaveImgDefWP: TCheckBox
           Left = 12
-          Top = 24
+          Top = 13
           Width = 253
           Height = 17
           Hint = 
@@ -552,13 +514,100 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_ShowPageNumber: TCheckBox
           Left = 12
-          Top = 24
+          Top = 13
           Width = 253
           Height = 17
           Caption = 'Insert page numbers'
           TabOrder = 0
           Visible = False
         end
+      end
+      object Edit_Sample: TEdit
+        Left = 135
+        Top = 159
+        Width = 147
+        Height = 21
+        HelpType = htKeyword
+        HelpKeyword = '313-13'
+        TabStop = False
+        Enabled = False
+        MaxLength = 127
+        ReadOnly = True
+        TabOrder = 6
+      end
+      object BTN_Font: TBitBtn
+        Left = 98
+        Top = 157
+        Width = 30
+        Height = 25
+        Enabled = False
+        ImageIndex = 11
+        Images = Form_Main.IMG_Format
+        TabOrder = 5
+        TabStop = False
+        OnClick = BTN_FontClick
+      end
+      object CB_Font: TCheckBox
+        Left = 12
+        Top = 160
+        Width = 57
+        Height = 17
+        Hint = 'Set an unified font for all content'
+        HelpType = htKeyword
+        HelpKeyword = '313-13'
+        Caption = 'Font'
+        TabOrder = 4
+        OnClick = CB_FontClick
+      end
+      object Spin_Indent: TSpinEdit
+        Left = 242
+        Top = 133
+        Width = 40
+        Height = 22
+        HelpType = htKeyword
+        HelpKeyword = '313-7'
+        MaxLength = 3
+        MaxValue = 50
+        MinValue = 2
+        TabOrder = 3
+        Value = 16
+      end
+      object CB_IndentNodes: TCheckBox
+        Left = 12
+        Top = 135
+        Width = 102
+        Height = 17
+        Hint = 'Indent nested nodes (heading and content)'
+        HelpType = htKeyword
+        HelpKeyword = '313-7'
+        Caption = 'Indent nodes'
+        TabOrder = 1
+        OnClick = CB_IndentNodesClick
+      end
+      object CB_TableCont: TCheckBox
+        Left = 12
+        Top = 186
+        Width = 125
+        Height = 17
+        HelpType = htKeyword
+        HelpKeyword = '313-13'
+        Caption = 'Table of Contents'
+        TabOrder = 7
+        OnClick = CB_TableContClick
+      end
+      object Spin_MaxLevTbl: TSpinEdit
+        Left = 242
+        Top = 184
+        Width = 40
+        Height = 22
+        HelpType = htKeyword
+        HelpKeyword = '313-13'
+        Enabled = False
+        MaxLength = 2
+        MaxValue = 99
+        MinValue = 1
+        TabOrder = 8
+        Value = 16
       end
     end
     object Tab_TreePad: TTab95Sheet
@@ -569,7 +618,10 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 320
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object RG_TreePadVersion: TRadioGroup
         Left = 5
         Top = 5
@@ -610,7 +662,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Preview: TButton
     Left = 85
-    Top = 371
+    Top = 387
     Width = 75
     Height = 25
     Caption = 'Pre&view'

@@ -893,7 +893,8 @@ type
     ExcludeHiddenNodes,
     RTFImgsWordPad,
     EachNoteOnNewPage,
-    ShowPageNumber: string;
+    ShowPageNumber,
+    TableContMaxLvl: string;
   end;
 
 const
@@ -926,6 +927,7 @@ const
     ExcludeHiddenNodes: 'ExcludeHiddenNodes';
     EachNoteOnNewPage: 'EachNoteOnNewPage';
     ShowPageNumber: 'ShowPageNumber';
+    TableContMaxLvl: 'TableContMaxLvl';
   );
 
 
@@ -2296,6 +2298,7 @@ begin
     RTFImgsWordPad:= false;
     EachNoteOnNewPage:= true;
     ShowPageNumber:= true;
+    TableContMaxLvl:= 0;
   end;
   ShowHiddenMarkers:= false;         // Global
 

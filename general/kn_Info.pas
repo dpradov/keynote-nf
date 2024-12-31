@@ -428,6 +428,7 @@ type
     RTFImgsWordPad: boolean;          // 1: Save images in default, not optmized, WordPad format (ifWmetafile8)
     EachNoteOnNewPage: boolean;
     ShowPageNumber: boolean;
+    TableContMaxLvl : integer;       // 0 => No table of contents 1 => Only TOP level nodes, etc.
   end;
 
 type

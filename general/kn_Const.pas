@@ -466,7 +466,7 @@ type
 
 type
   TExportSource = (
-    expCurrentNote, expAllNotes, expSelectedNotes
+    expCurrentFolder, expAllFolders, expSelectedFolders
   );
 
 type

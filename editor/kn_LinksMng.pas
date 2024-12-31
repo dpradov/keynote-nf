@@ -62,6 +62,11 @@ type
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
     function InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer): string;
+    procedure InsertRtfHyperlink(const URLStr: string; const TextURL: string;
+                                 Editor: TRxRichEdit;
+                                 const sepL: string = '';
+                                 const sepR: string = '');
+
     function BuildKntURL( const aLocation : TLocation) : string;
     function BuildLocationFromKntURL( KntURL : string): TLocation;
     function GetTextURLFromKntLocation (Loc : TLocation; RelativePath: boolean = false): string;
@@ -382,9 +387,7 @@ begin
       {$IFDEF KNT_DEBUG}Log.Add('Insert HyperLink',  4 ); {$ENDIF}
 
       if UseHyperlink then begin
-           Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s{\field{\*\fldinst{HYPERLINK "'
-                                           + '%s"}}{\fldrslt{\cf1\ul %s}}}%s\cf0\ulnone}',
-                                           [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
+         InsertRtfHyperlink(URLStr, TextURL, Editor, sepL, sepR);
       end
       else begin
           if FileLink and KeyOptions.URLFileEncodeName then
@@ -410,6 +413,17 @@ begin
 
       SelLength := 0;
     end;
+end;
+
+
+procedure InsertRtfHyperlink(const URLStr: string; const TextURL: string;
+                             Editor: TRxRichEdit;
+                             const sepL: string = '';
+                             const sepR: string = '');
+begin
+     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s{\field{\*\fldinst{HYPERLINK "'
+                                     + '%s"}}{\fldrslt{\cf1\ul %s}}}%s\cf0\ulnone}',
+                                     [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
 end;
 
 

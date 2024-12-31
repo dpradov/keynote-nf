@@ -94,19 +94,22 @@ type
     Edit_Symbols: TEdit;
     lblSymbols: TLabel;
     lblLength: TLabel;
-    CB_IndentNodes: TCheckBox;
-    Spin_Indent: TSpinEdit;
-    lblIndent: TLabel;
-    CB_UseTab: TCheckBox;
     GB_Additional: TGroupBox;
     CB_ShowHiddenMarkers: TCheckBox;
     CB_SaveImgDefWP: TCheckBox;
     CB_ShowPageNumber: TCheckBox;
     Button_Preview: TButton;
+    FontDlg: TFontDialog;
     Edit_Sample: TEdit;
     BTN_Font: TBitBtn;
     CB_Font: TCheckBox;
-    FontDlg: TFontDialog;
+    Spin_Indent: TSpinEdit;
+    lblIndent: TLabel;
+    CB_UseTab: TCheckBox;
+    CB_IndentNodes: TCheckBox;
+    CB_TableCont: TCheckBox;
+    Spin_MaxLevTbl: TSpinEdit;
+    lblTblCont: TLabel;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -127,6 +130,7 @@ type
     procedure Button_PreviewClick(Sender: TObject);
     procedure BTN_FontClick(Sender: TObject);
     procedure CB_FontClick(Sender: TObject);
+    procedure CB_TableContClick(Sender: TObject);
   private
     { Private declarations }
     LastPagePrintedHeight: integer;
@@ -194,6 +198,7 @@ uses
    kn_Main,
    kn_NoteFileMng,
    kn_EditorUtils,
+   kn_LocationObj,
    knt.App,
    knt.RS
    ;
@@ -538,6 +543,15 @@ begin
       BTN_FontClick(nil);
 end;
 
+procedure TForm_ExportNew.CB_TableContClick(Sender: TObject);
+begin
+   if CB_TableCont.Checked then begin
+      if Spin_MaxLevTbl.Value = 0 then
+         Spin_MaxLevTbl.Value := 9;
+   end;
+   Spin_MaxLevTbl.Enabled:= CB_TableCont.Checked;
+   lblTblCont.Enabled:= CB_TableCont.Checked;
+end;
 
 procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
 var
@@ -630,6 +644,8 @@ begin
       ExportOptions.RTFImgsWordPad := readbool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
       ExportOptions.EachNoteOnNewPage := readbool( section, ExportOptionsIniStr.EachNoteOnNewPage, ExportOptions.EachNoteOnNewPage );
       ExportOptions.ShowPageNumber := readbool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
+      ExportOptions.TableContMaxLvl := readinteger( section, ExportOptionsIniStr.TableContMaxLvl, ExportOptions.TableContMaxLvl );
+
     end;
     
   finally
@@ -663,7 +679,7 @@ procedure TForm_ExportNew.WriteConfig;
 var
   IniFile : TMemIniFile;
   section : string;
-  
+
 begin
   IniFile := TMemIniFile.Create( myIniFN );
   try
@@ -698,6 +714,7 @@ begin
       writebool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
       writebool( section, ExportOptionsIniStr.EachNoteOnNewPage, ExportOptions.EachNoteOnNewPage );
       writebool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
+      writeinteger( section, ExportOptionsIniStr.TableContMaxLvl, ord( ExportOptions.TableContMaxLvl ));
     end;
 
     IniFile.UpdateFile;
@@ -714,12 +731,12 @@ begin
   with ExportOptions do begin
 
     if RB_CurrentNote.Checked then
-      ExportSource := expCurrentNote
+      ExportSource := expCurrentFolder
     else
     if RB_AllNotes.Checked then
-      ExportSource := expAllNotes
+      ExportSource := expAllFolders
     else
-      ExportSource := expSelectedNotes;
+      ExportSource := expSelectedFolders;
 
     ExcludeHiddenNodes:= CheckBox_ExcludeHiddenNodes.Checked;
     ShowHiddenMarkers:= CB_ShowHiddenMarkers.Checked;
@@ -749,6 +766,9 @@ begin
 
     RTFImgsWordPad := CB_SaveImgDefWP.Checked;
     ShowPageNumber := CB_ShowPageNumber.Checked;
+    TableContMaxLvl:= 0;
+    if CB_TableCont.Checked then
+       TableContMaxLvl:= Spin_MaxLevTbl.Value;
 
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
@@ -769,14 +789,18 @@ procedure TForm_ExportNew.OptionsToForm;
 begin
   with ExportOptions do begin
     case ExportSource of
-      expCurrentNote : RB_CurrentNote.Checked := true;
-      expAllNotes : RB_AllNotes.Checked := true;
-      expSelectedNotes : RB_SelectedNotes.Checked := true;
+      expCurrentFolder : RB_CurrentNote.Checked := true;
+      expAllFolders : RB_AllNotes.Checked := true;
+      expSelectedFolders : RB_SelectedNotes.Checked := true;
     end;
 
     CheckBox_ExcludeHiddenNodes.Checked:= ExcludeHiddenNodes;
     CB_ShowHiddenMarkers.Checked:= ShowHiddenMarkers;
     CB_ShowPageNumber.Checked:= ShowPageNumber;
+    CB_TableCont.Checked := (TableContMaxLvl <> 0);
+    Spin_MaxLevTbl.Enabled:= (TableContMaxLvl <> 0);
+    lblTblCont.Enabled:= (TableContMaxLvl <> 0);
+    Spin_MaxLevTbl.Value:= TableContMaxLvl;
 
     Combo_TreeSelection.ItemIndex := ord( TreeSelection );
     Combo_Format.ItemIndex := ord( TargetFormat );
@@ -906,6 +930,7 @@ var
   SSNode, SSNodeContent: integer;
   ImgFormatInsideRTF_BAK: TImageFormatToRTF;
   FirstNodeExportedInFolder: boolean;
+  TableOfContentsPendingToFlush: boolean;
 
   procedure LoadNodeLevelTemplates;
   var
@@ -991,6 +1016,114 @@ var
      end;
   end;
 
+  function NodeToBeExported(Node: PVirtualNode; TreeUI: TKntTreeUI): boolean;
+  begin
+     Result:= False;
+     with ExportOptions do begin
+       if  (TreeUI.TV.IsVisible[Node] or not ExcludeHiddenNodes) and
+           (( ExportSource <> expCurrentFolder ) or
+           (  TreeSelection in [tsNode, tsFullTree] ) or
+           (( TreeSelection = tsCheckedNodes ) and (Node.CheckState = csCheckedNormal)) or
+           (( TreeSelection = tsSubtree ) and ( TreeUI.TV.HasAsParent(Node, StartTreeNode) or ( StartTreeNode = Node )))) then
+
+         Result:= True;
+     end;
+  end;
+
+  procedure InsertTableOfContents;
+  var
+    i, SS, FontSize: integer;
+    Node: PVirtualNode;
+    Indent, S: string;
+    NNode: TNoteNode;
+    LastLevel, MaxLevel, SB: integer;
+
+    procedure InsertCaption (S: String; Sz: Integer);
+    begin
+      RTFAux.Paragraph.FirstIndent:= 0;
+      with RTFAux.SelAttributes do begin
+        Name:= 'Tahoma';
+        Size:= Sz;
+        Style:= [fsBold];
+      end;
+      RTFAux.AddText(S);
+      RTFAux.SelAttributes.Style:= [];
+    end;
+
+  begin
+      if ExportOptions.TableContMaxLvl <= 0 then exit;
+
+      MaxLevel:= ExportOptions.TableContMaxLvl-1;
+      InsertCaption(ActiveFile.File_NameNoExt + #13#13, 20);
+
+      for i := 1 to myKntFile.Folders.Count do begin
+        myFolder := myKntFile.Folders[i-1];
+        TreeUI:= myFolder.TreeUI;
+        if myFolder.Info <= 0 then continue;      // Folder has not been marked for exporting
+
+        InsertCaption(myFolder.Name + #13, 18);
+        RTFAux.SelAttributes.Size:= 10;
+        RTFAux.AddText(#13);
+
+        with ExportOptions do begin
+           if ((ExportSource = expCurrentFolder) and (TreeSelection in [tsNode, tsSubtree])) then
+              Node := TreeUI.FocusedNode
+           else
+              Node := TreeUI.GetFirstNode;
+
+           if not assigned(Node) then continue;            // could not access starting node - perhaps tree has none
+
+           StartTreeNode := Node;
+           StartLevel := TreeUI.TV.GetNodeLevel(Node);
+           Level:= StartLevel;
+           LastLevel:= Level;
+
+           while assigned(Node) do begin
+             if (Level <= MaxLevel) and NodeToBeExported(Node, TreeUI) then begin
+                NNode:= TreeUI.GetNNode(Node);
+                FontSize:= 16 - (2 * (Level-StartLevel));
+                if FontSize < 10 then
+                   FontSize := 10;
+                SB:= 2;
+                if Level < LastLevel then
+                   SB:= 6;
+                RTFAux.Paragraph.SpaceBefore := SB;
+                RTFAux.SelAttributes.Size := FontSize;
+                RTFAux.Paragraph.FirstIndent:= 16 * (level-StartLevel);
+                InsertRtfHyperlink('file:///<' + NNode.GID.ToString, NNode.NoteName, RTFAux);
+                RTFAux.AddText(#13);
+
+                LastLevel:= Level;
+             end;
+
+             Node := TreeUI.TV.GetNext(Node);
+             Level:= TreeUI.TV.GetNodeLevel(Node);
+
+             // check break conditions
+             if ( ExportOptions.ExportSource = expCurrentFolder ) then begin
+               if ( not assigned( Node )) then break;
+               case ExportOptions.TreeSelection of
+                  tsNode : break;
+                  tsSubtree : if (Level <= StartLevel ) then break;
+               end;
+             end;
+
+           end;
+
+        end;
+      end;
+      RTFAux.SelAttributes.Size:= 20;
+      RTFAux.AddText(#13#13);
+
+      if SingleNodes or (ExportOptions.TargetFormat = xfPrinter) then
+         FlushExportFile( RTFAux, myFolder, ActiveFile.File_NameNoExt )
+      else
+         TableOfContentsPendingToFlush:= true;
+
+  end;
+
+
+
 begin
   FormToOptions;
   if ( not Validate ) then exit;
@@ -1005,18 +1138,18 @@ begin
       myFolder:= myKntFile.Folders[pred(i)];
 
       case ExportOptions.ExportSource of
-          expCurrentNote : begin
+          expCurrentFolder : begin
             if ( myFolder = myKntFolder ) then
               myFolder.Info := 1
             else
               myFolder.Info := 0;
           end;
 
-          expAllNotes : begin
+          expAllFolders : begin
             myFolder.Info := 1;
           end;
 
-          expSelectedNotes : begin
+          expSelectedFolders : begin
             // nothing, notes already tagged for exporting
           end;
       end;
@@ -1047,6 +1180,7 @@ begin
   TreePadNodeLevelInc := 0;
   LastPagePrintedHeight := -1;
   FirstPrint:= True;
+  TableOfContentsPendingToFlush:= false;
 
   RTFAux:= CreateAuxRichEdit;
 
@@ -1073,7 +1207,7 @@ begin
          OnlyNotHiddenNodes:= ExportOptions.ExcludeHiddenNodes;
          OnlyCheckedNodes:= false;
 
-         if (ExportOptions.ExportSource = expCurrentNote ) then
+         if (ExportOptions.ExportSource = expCurrentFolder ) then
             if (ExportOptions.TreeSelection in [tsNode, tsSubtree]) then
                myTreeNode := ActiveFolder.TV.FocusedNode;
             if (ExportOptions.TreeSelection = tsCheckedNodes) then
@@ -1103,18 +1237,23 @@ begin
 
       PrepareExportOptions (ExportOptions.LengthHeading, ExportOptions.FontSizesInHeading);
 
+      InsertTableOfContents;
 
-      for FolderIdx := 1 to myKntFile.Folders.Count do begin             // ----------------------------------------------------------- FOR EACH NOTE :
+      for FolderIdx := 1 to myKntFile.Folders.Count do begin             // ----------------------------------------------------------- FOR EACH FOLDER :
         Application.ProcessMessages;
         if DoAbort then break;
 
         myFolder := myKntFile.Folders[pred( FolderIdx )];
         TreeUI:= myFolder.TreeUI;
         if ( myFolder.Info > 0 ) then begin
-          // this note has been marked for exporting
+          // this folder has been marked for exporting
 
-          RTFAux.Clear;
-          RTFAux.PrepareEditorforPlainText(myFolder.EditorChrome);
+          if TableOfContentsPendingToFlush then
+             TableOfContentsPendingToFlush:= false
+          else begin
+             RTFAux.Clear;
+             RTFAux.PrepareEditorforPlainText(myFolder.EditorChrome);
+          end;
 
           FirstNodeExportedInFolder:= True;
 
@@ -1130,7 +1269,7 @@ begin
 
               myFolder.SaveEditorToDataModel; // must flush contents of Note editor to active model object's internal stream
 
-              if (( ExportOptions.ExportSource = expCurrentNote ) and
+              if (( ExportOptions.ExportSource = expCurrentFolder ) and
                   ( ExportOptions.TreeSelection in [tsNode, tsSubtree] )) then
                 myTreeNode := TreeUI.FocusedNode
               else
@@ -1154,13 +1293,7 @@ begin
                 NNode:= TreeUI.GetNNode(myTreeNode);
 
                 // check if we should export this node
-                if  (TreeUI.TV.IsVisible[myTreeNode] or
-                      not ExportOptions.ExcludeHiddenNodes) and   // [dpv]
-                    (( ExportOptions.ExportSource <> expCurrentNote ) or
-                    ( ExportOptions.TreeSelection in [tsNode, tsFullTree] ) or
-                    (( ExportOptions.TreeSelection = tsCheckedNodes ) and (myTreeNode.CheckState = csCheckedNormal)) or
-                    (( ExportOptions.TreeSelection = tsSubtree ) and ( TreeUI.TV.HasAsParent(myTreeNode, StartTreeNode) or ( StartTreeNode = myTreeNode )))) then
-                begin
+                if NodeToBeExported(myTreeNode, TreeUI) then begin
                   NEntry:= NNode.Note.Entries[0];          //%%%
                   NEntry.Stream.Position := 0;
                   inc( ThisNodeIndex );
@@ -1259,7 +1392,7 @@ begin
                 if DoAbort then break;
 
                 // check break conditions
-                if ( ExportOptions.ExportSource = expCurrentNote ) then begin
+                if ( ExportOptions.ExportSource = expCurrentFolder ) then begin
                   if ( not assigned( myTreeNode )) then
                     break;
                   case ExportOptions.TreeSelection of
@@ -1288,7 +1421,7 @@ begin
               // we need to create a new file if no file has been created yet,
               // or if each note is saved to a separate TreePad file
               if (( TreePadFN = '' ) or ( not ExportOptions.TreePadSingleFile )) then begin
-                if ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote )) then
+                if ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentFolder )) then
                    TreePadFN := GetExportFilename( ExtractFilename( myKntFile.FileName )) // use file name
                 else
                    TreePadFN := GetExportFilename( RemoveAccelChar( myFolder.Name )); // use note name
@@ -1317,7 +1450,7 @@ begin
                   // only one top-level node) - if so, we don't need the dummy node. user can also force the creation of the dummy top-level node.
 
                   if ( ExportOptions.TreePadForceMaster or
-                     ((( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote )) or
+                     ((( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentFolder )) or
                      (( TreeUI.GetFirstNode <> nil ) and ( TreeUI.GetFirstNode.NextSibling <> nil ))))) then
                   begin
                     // create a dummy top-level node
@@ -1326,7 +1459,7 @@ begin
                     // because level 0 is the dummy node
 
                     TreePadFile.WriteLine(_TREEPAD_NODE);     // <node>
-                    if ( ExportOptions.TreePadForceMaster or ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentNote ))) then
+                    if ( ExportOptions.TreePadForceMaster or ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentFolder ))) then
                        TreePadFile.WriteLine(ExtractFilename( myKntFile.Filename ), True)     // Node title is filename
                     else
                        TreePadFile.WriteLine(RemoveAccelChar( myFolder.Name ), True);  // Node title is note name
