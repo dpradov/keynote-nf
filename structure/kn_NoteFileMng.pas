@@ -1828,10 +1828,10 @@ begin
                 ActiveFile.AddFolder( myFolder );
 
                 try
-                  CreateVCLControlsForFolder( myFolder );
 
                   NNode:= nil;
                   if ImportFileType <> itTreePad then begin
+                     CreateVCLControlsForFolder( myFolder );
                      NNode:= myFolder.TreeUI.NewNode(tnTop, nil, s, true );
                      NEntry:= NNode.Note.Entries[0];        //%%%
                      myFolder.TreeHidden:= true;
@@ -1856,6 +1856,7 @@ begin
                       myFolder.SetTreeProperties( DefaultTreeProperties );
                       myFolder.TreeChrome := DefaultTreeChrome;
                       myFolder.LoadFromTreePadFile( FN );
+                      CreateVCLControlsForFolder( myFolder );
                       end;
                     end;
 
