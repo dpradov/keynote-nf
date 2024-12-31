@@ -37,6 +37,7 @@ uses
    VirtualTrees,
    RxRichEd,
 
+   gf_misc,
    kn_Info,
    kn_Const,
    kn_KntFolder,
@@ -51,6 +52,7 @@ type
    TInfoExportedNoteInRTF = record
       NNodeGID: Cardinal;
       PosIni: Integer;
+      PosInKNTLinks: TIntegerList;     // Cursor positions referenced by internal KNT Links
    end;
    TInfoExportedNotesInRTF = Array of TInfoExportedNoteInRTF;
 
@@ -102,6 +104,8 @@ type
     function ReplaceHyperlinksWithStandardBookmarks(const S: AnsiString): AnsiString;
     function ConvertToStandardBookmarks(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF;
                                         RemoveAllHiddenCharacters: Boolean): AnsiString;
+    procedure GetInfoKNTLinksWithoutMarker(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF);
+    procedure InsertKNTLinksWithoutMarker(const RTF : TAuxRichEdit; InfoExportedNotes: TInfoExportedNotesInRTF);
 
 var
    _Executing_History_Jump : boolean;
@@ -111,7 +115,6 @@ var
 
 implementation
 uses
-   gf_misc,
    gf_files,
    gf_strings,
    gf_streams,
@@ -800,6 +803,9 @@ begin
 end;
 
 
+const
+   sHYPERLINK = '\*\fldinst{HYPERLINK "file:';  // -> ", inclusive: 22
+   PrefixData = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
 
 (*
    {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
@@ -812,9 +818,6 @@ var
    pIn, pOut, pI, pF, NBytes: integer;
    URL, NewURL: AnsiString;
    Loc: TLocation;
-
-const
-   sHYPERLINK = '\*\fldinst{HYPERLINK "file:';  // -> ", inclusive: 22
 
 begin
   if S = '' then Exit('');
@@ -884,7 +887,6 @@ end;
 function ConvertToStandardBookmarks(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF; RemoveAllHiddenCharacters: Boolean): AnsiString;
 var
    i, pI, pF: integer;
-   Prefix: AnsiString;
    HiddenMarks: THiddenMarks;
    InfoExpNote: TInfoExportedNoteInRTF;
    ProccessUntil: Integer;
@@ -903,16 +905,16 @@ begin
   end;
 
 
-  Prefix:= KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
   pI:= 0;
 
   //  \v\'11D321\'12\v0
-  //  \v\f1\fs20\''11D1\''12\cf1\v0
+  //  \v\f1\fs20\'11D1\'12\cf1\v0
   //  ...
+
   repeat
-     pI:= Pos(AnsiString(Prefix), S, pI+1);
-     pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), S, pI + Length(Prefix));
-     GID:= StrToIntDef(Copy(S,pI+Length(Prefix), pF-pI - Length(Prefix)), 0);
+     pI:= Pos(AnsiString(PrefixData), S, pI+1);
+     pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), S, pI + Length(PrefixData));
+     GID:= StrToIntDef(Copy(S,pI+Length(PrefixData), pF-pI - Length(PrefixData)), 0);
      for i:= 0 to High(InfoExportedNotes) do begin
         if InfoExportedNotes[i].NNodeGID= GID then begin
            InfoExportedNotes[i].PosIni:= LastPos('\v\', S, pI);     // The normal will be: PosIni= pI-10
@@ -936,6 +938,124 @@ begin
   end;
 
 end;
+
+
+procedure GetInfoKNTLinksWithoutMarker(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF);
+var
+   pI, pF: integer;
+   URL: AnsiString;
+   Loc: TLocation;
+
+   procedure AddPosition;
+   var
+     i: integer;
+     InfoExpNote: TInfoExportedNoteInRTF;
+   begin
+     for i:= 0 to High(InfoExportedNotes) do begin
+        with InfoExportedNotes[i] do begin
+           if NNodeGID= Loc.NNodeGID then begin
+              if PosInKNTLinks = nil then
+                 PosInKNTLinks:= TIntegerList.Create;
+              if PosInKNTLinks.IndexOf(Loc.CaretPos) < 0 then
+                 PosInKNTLinks.Add(Loc.CaretPos);
+              break;
+           end;
+        end;
+     end;
+   end;
+
+begin
+  if S = '' then Exit;
+
+  pI:= 0;
+  repeat
+     pI:= Pos(AnsiString(sHYPERLINK), S, pI+1);
+     if pI > 0 then begin
+        pF:= Pos('"}', S, pI + length(sHYPERLINK));
+        if (pF > 0) then begin
+           URL:= Copy(S, pI+22, pF-pI-22);
+           try
+             try
+                Loc:= BuildLocationFromKntURL(URL);
+                if UpdateLocation(Loc, false) or (Loc.NNodeGID <> 0) then begin
+                   if (Loc.Mark = 0) and (Loc.CaretPos <> 0) then
+                      AddPosition;        // It will be necessary to create a marker for the indicated 'position'
+                end;
+
+             finally
+                Loc.Free;
+             end;
+           except
+           end;
+           pI:= pF;
+        end;
+     end;
+  until pI = 0;
+end;
+
+
+procedure InsertKNTLinksWithoutMarker(const RTF : TAuxRichEdit; InfoExportedNotes: TInfoExportedNotesInRTF);
+var
+  InfoExpNote: TInfoExportedNoteInRTF;
+  i, j: integer;
+  pIN, pI, pF: integer;
+  GID: Integer;
+  Offset, SS, SSr: integer;
+  S: String;
+  Ch: Char;
+
+begin
+  // Note: The elements in InfoExportedNotes are added in the same order as they appear in the RTF file.
+
+  //  \v\'11D321\'12\v0
+  //  \v\f1\fs20\'11D1\'12\cf1\v0
+
+  pIN:= -1;
+
+  for i:= 0 to High(InfoExportedNotes) do begin
+     with InfoExportedNotes[i], RTF do begin
+        if PosInKNTLinks = nil then continue;          // No KNT Links without markers
+
+        repeat
+           Inc(pIN);
+           pI:= FindText(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_DATA, pIN, -1, []);
+           pF:= FindText(KNT_RTF_HIDDEN_MARK_R_CHAR, pI, pI+20, []);
+           S:=  GetTextRange(pI+2, pF);
+           pIN:= pF;
+           GID:= StrToIntDef(S, 0);
+        until GID = NNodeGID;
+
+        Offset:= pF + 1;
+        PosInKNTLinks.Sort(CompareIntegers);
+
+        for j:= 0 to PosInKNTLinks.Count-1 do begin
+           pI:= PosInKNTLinks[j];
+
+           SS:= pI + Offset;
+           RTF.SelStart:= SS;
+           SSr:= RTF.SelStart;
+           if SSr >= 1 then begin                  // See comment to VK_LEFT in TKntRichEdit.KeyDown (in  knt.ui.editor)
+              S:= GetTextRange(SSr-1, SSr);
+              if Length(S) > 0 then begin
+                 ch:= S[1];
+                 if (ch = KNT_RTF_HIDDEN_MARK_R_CHAR) or (ch = '"') then begin
+                    SelStart:= SSr-1;
+                    if SelStart <> SSr-1 then      // It will have been placed to the left of the first hidden character
+                    else
+                      SelStart:= SSr;              // It was not hidden. We leave it where it was.
+                 end;
+              end;
+           end;
+           InsertMarker(RTF, KNT_RTF_HIDDEN_BMK_POSITION, pI);
+           inc(Offset, Length(IntToStr(pI)) + 3);       // pI=123 ->  HP123H
+
+           pIN:= pI + 2;
+        end;
+     end;
+  end;
+
+end;
+
 
 
 //===============================================================

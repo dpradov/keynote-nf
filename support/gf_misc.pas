@@ -79,13 +79,16 @@ type
     procedure Assign(const AList: TIntegerList); inline;
     function Remove(const Value: integer): Integer; inline;
     procedure Clear; inline;
+    function IndexOf(const Value: integer): Integer; inline;
     function GetItem(Index: Integer): integer; inline;
     procedure SetItem(Index: Integer; const Value: integer); inline;
     property Items[Index: Integer]: integer read GetItem write SetItem; default;
     function Count: Integer; inline;
+    procedure Sort(Compare: TListSortCompare); inline;
     procedure Free; inline;
   end;
 
+  function CompareIntegers(Item1, Item2: Pointer): Integer;
 
 
 
@@ -1925,6 +1928,11 @@ begin
    FList.Clear;
 end;
 
+function TIntegerList.IndexOf(const Value: integer): Integer;
+begin
+   Result:= FList.IndexOf(Pointer(Value));
+end;
+
 function TIntegerList.GetItem(Index: Integer): integer;
 begin
   Result := Integer(FList[Index]);
@@ -1940,12 +1948,24 @@ begin
   Result := FList.Count;
 end;
 
+procedure TIntegerList.Sort (Compare: TListSortCompare);
+begin
+   FList.Sort(Compare);
+end;
+
 procedure TIntegerList.Free;
 begin
     FList.Free;
 end;
 
-
+function CompareIntegers(Item1, Item2: Pointer): Integer;
+var
+  Int1, Int2: Integer;
+begin
+  Int1 := Integer(Item1);
+  Int2 := Integer(Item2);
+  Result := Int1 - Int2;    // Upward comparison
+end;
 
 Initialization
   _OSIsWindowsNT := RunsOnWindowsNT;

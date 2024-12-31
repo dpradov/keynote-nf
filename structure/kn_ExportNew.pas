@@ -1228,10 +1228,13 @@ begin
                        RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
 
                     if RTFwithImages <> '' then
-                       RTFAux.PutRtfText(RTFwithImages, false)           // All hidden KNT characters are now removed from FlushExportFile
-                    else
-                       RTFAux.PutRtfText(NodeText, false);               // append to end of existing data
+                       NodeText:= RTFwithImages;
 
+                    if ExportOptions.TargetFormat = xfRTF then
+                       GetInfoKNTLinksWithoutMarker(NodeText, InfoExportedNotes);
+
+                    RTFAux.PutRtfText(NodeText, false);          // All hidden KNT characters are now removed from FlushExportFile
+                                                                 // Append to end of existing data
                     ChangeFont;
                   end;
 
@@ -1416,7 +1419,13 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
-    InfoExportedNotes:= nil;
+    if InfoExportedNotes <> nil then begin
+       for i:= 0 to High(InfoExportedNotes) do
+          if InfoExportedNotes[i].PosInKNTLinks <> nil then
+             InfoExportedNotes[i].PosInKNTLinks.Free;
+       InfoExportedNotes:= nil;
+    end;
+
 
     ExitMessage := Format(GetRS(sExpFrm12), [ExportedFolders, ExportedNotes] );
     if WasError then
@@ -1652,6 +1661,7 @@ begin
       xfRTF : begin
         if ( ext = '' ) then FN := FN + ext_RTF;
 
+        InsertKNTLinksWithoutMarker(RTF, InfoExportedNotes);
         NodeText:= RTF.RtfText;
         NodeText:= ReplaceHyperlinksWithStandardBookmarks(NodeText);
         NodeText:= ConvertToStandardBookmarks(NodeText, InfoExportedNotes, true);

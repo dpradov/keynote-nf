@@ -662,11 +662,14 @@ var
    bmkStd: AnsiString;
    MarkID: integer;
    ReplaceWith: AnsiString;
+   KeyMarker: AnsiChar;
 
 const
-   BMK_STD = '{\*\bkmkstart %d_B%d}{\*\bkmkend %d_B%d}';
+   BMK_STD = '{\*\bkmkstart %d_%s%d}{\*\bkmkend %d_%s%d}';
    EmptyBraces = '{}';
    PrefixBmk = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK;
+   PrefixBmkPos = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BMK_POSITION;
+
    PrefixData = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
 
 
@@ -697,7 +700,7 @@ const
 
    function GetStdBk(pos: integer): AnsiString;
    begin
-      Result:= Format(BMK_STD, [NNodeGID, MarkID, NNodeGID, MarkID]);
+      Result:= Format(BMK_STD, [NNodeGID, KeyMarker, MarkID,   NNodeGID, KeyMarker, MarkID]);
    end;
 
    function GetMarkID (pI, pF: Integer): integer; overload;
@@ -706,10 +709,16 @@ const
       p: integer;
    begin
      Result:= -1;
+     KeyMarker:= KNT_RTF_HIDDEN_BOOKMARK;
      // Normal case: \v\'11B36\'12\v0 XXX       -> ID: 36
      // pI points to "\v\" and pF to "\'12\"
      Str:= Copy(S, pI, pF-pI+1);
      p:= Pos(PrefixBmk, Str);
+     if (p <= 0) then begin
+        p:= Pos(PrefixBmkPos, Str);         // Equivalent, by positions: \v\'11P300\'12\v0
+        KeyMarker:= KNT_RTF_HIDDEN_BMK_POSITION;
+     end;
+
      if (p > 0) then
         Result:= StrToIntDef(Copy(Str, p+Length(PrefixBmk), pF-pI-p-Length(PrefixBmk)+1),  0)
      else begin
@@ -724,9 +733,12 @@ const
       p: integer;
    begin
      Result:= -1;
+     KeyMarker:= KNT_RTF_HIDDEN_BOOKMARK;
      // Str: "\'11B36\'12"         ->ID: 36
-     if Str[5] = KNT_RTF_HIDDEN_BOOKMARK then
-        Result:= StrToIntDef(Copy(Str, 6, Length(Str)-9),  0)
+     if Str[5] in [KNT_RTF_HIDDEN_BOOKMARK, KNT_RTF_HIDDEN_BMK_POSITION] then begin
+        Result:= StrToIntDef(Copy(Str, 6, Length(Str)-9),  0);
+        KeyMarker:= Str[5];
+     end
      else
      if Str[5] = KNT_RTF_HIDDEN_DATA then
         Result:= 0;
