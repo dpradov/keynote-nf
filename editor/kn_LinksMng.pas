@@ -61,7 +61,8 @@ type
     procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
-    function InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer): string;
+    procedure InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer);
+    procedure InsertHiddenKntCommand(Editor: TRxRichEdit; HiddenCommand: Char; Param: String);
     procedure InsertRtfHyperlink(const URLStr: string; const TextURL: string;
                                  Editor: TRxRichEdit;
                                  const sepL: string = '';
@@ -108,7 +109,8 @@ type
 
     function ReplaceHyperlinksWithStandardBookmarks(const S: AnsiString): AnsiString;
     function ConvertToStandardBookmarks(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF;
-                                        RemoveAllHiddenCharacters: Boolean): AnsiString;
+                                        RemoveAllHiddenCharacters: Boolean;
+                                        ExportOptions: TExportOptions): AnsiString;
     procedure GetInfoKNTLinksWithoutMarker(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF);
     procedure InsertKNTLinksWithoutMarker(const RTF : TAuxRichEdit; InfoExportedNotes: TInfoExportedNotesInRTF);
 
@@ -627,14 +629,20 @@ end;
 // InsertOrMarkKNTLink
 //===============================================================
 
-function InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer): string;
-var
-   RTFMarker: AnsiString;
+procedure InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer);
 begin
    //  {\rtf1\ansi {\v\'11B5\'12}};    => {\rtf1\ansi \v\'11B5\'12\v0};  // Finally they will be inserted directly with \v...\v0 (see comment *2 next to KNT_RTF_BMK_HIDDEN_MARK in kn_const.pas)
-   RTFMarker:= Format('\v' + KNT_RTF_HIDDEN_MARK_L + KEY_Marker + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0', [TargetMarker]);
-   Editor.PutRtfText('{\rtf1\ansi' + RTFMarker + '}',  True);
+   InsertHiddenKntCommand(Editor, KEY_Marker, TargetMarker.ToString);
 end;
+
+procedure InsertHiddenKntCommand(Editor: TRxRichEdit; HiddenCommand: Char; Param: String);
+var
+   RTFHiddenCommand: AnsiString;
+begin
+   RTFHiddenCommand:= '\v' + KNT_RTF_HIDDEN_MARK_L + HiddenCommand + Param + KNT_RTF_HIDDEN_MARK_R + '\v0';
+   Editor.PutRtfText('{\rtf1\ansi' + RTFHiddenCommand + '}',  True);
+end;
+
 
 (*
   New KNT Links, vinculated to markers, not only to caret position
@@ -898,57 +906,73 @@ end;
     \pard\ltrpar\sa100\cf3\b{\*\bkmkstart 45_B13}{\*\bkmkend 45_B13} Changing the storage mode\b0\par
 *)
 
-function ConvertToStandardBookmarks(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF; RemoveAllHiddenCharacters: Boolean): AnsiString;
+function ConvertToStandardBookmarks(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF;
+                                    RemoveAllHiddenCharacters: Boolean;
+                                    ExportOptions: TExportOptions): AnsiString;
 var
-   i, pI, pF: integer;
+   i, pI, pF, pOut: integer;
    HiddenMarks: THiddenMarks;
    InfoExpNote: TInfoExportedNoteInRTF;
-   ProccessUntil: Integer;
    GID: Cardinal;
+   NNode: TNoteNode;
 
 begin
   if S='' then Exit('');
 
-  HiddenMarks:= hmAll;
-  if not RemoveAllHiddenCharacters then
-     HiddenMarks:= hmOnlyBookmarks;
+  try
+     HiddenMarks:= hmAll;
+     if not RemoveAllHiddenCharacters then
+        HiddenMarks:= hmOnlyBookmarks;
 
-  if Length(InfoExportedNotes) = 1 then begin
-     Result:= RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, true, InfoExportedNotes[0].NNodeGID);
-     exit;
-  end;
-
-
-  pI:= 0;
-
-  //  \v\'11D321\'12\v0
-  //  \v\f1\fs20\'11D1\'12\cf1\v0
-  //  ...
-
-  repeat
-     pI:= Pos(AnsiString(PrefixData), S, pI+1);
-     pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), S, pI + Length(PrefixData));
-     GID:= StrToIntDef(Copy(S,pI+Length(PrefixData), pF-pI - Length(PrefixData)), 0);
-     for i:= 0 to High(InfoExportedNotes) do begin
-        if InfoExportedNotes[i].NNodeGID= GID then begin
-           InfoExportedNotes[i].PosIni:= LastPos('\v\', S, pI);     // The normal will be: PosIni= pI-10
-           break;
-        end;
+     if Length(InfoExportedNotes) = 1 then begin
+        Result:= RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, true, InfoExportedNotes[0].NNodeGID);
+        exit;
      end;
-  until (pI = 0);
 
-  InfoExportedNotes[0].PosIni:= 1;
-  Result:= '';
+     pI:= 0;
 
-  for i:= 0 to High(InfoExportedNotes) do begin
-      InfoExpNote:= InfoExportedNotes[i];
+     //  \v\'11D321\'12\v0
+     //  \v\f1\fs20\'11D1\'12\cf1\v0
+     //  ...
 
-      if i = High(InfoExportedNotes) then
-         ProccessUntil:= -1
-      else
-         ProccessUntil:= InfoExportedNotes[i+1].PosIni;
+     repeat
+        pI:= Pos(AnsiString(PrefixData), S, pI+1);
+        if pI <= 0 then break;
+        pF:= Pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), S, pI + Length(PrefixData));
+        if pF <= 0 then break;
 
-      RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, Result, true, InfoExpNote.NNodeGID, InfoExpNote.PosIni, ProccessUntil);
+        GID:= StrToIntDef(Copy(S,pI+Length(PrefixData), pF-pI - Length(PrefixData)), 0);
+        for i:= 0 to High(InfoExportedNotes) do begin
+           if InfoExportedNotes[i].NNodeGID= GID then begin
+              InfoExportedNotes[i].PosIni:= LastPos('\v\', S, pI);     // The normal will be: PosIni= pI-10
+              break;
+           end;
+        end;
+     until (pI = 0);
+
+     InfoExportedNotes[0].PosIni:= 1;
+     Result:= '';
+
+     for i:= 0 to High(InfoExportedNotes) do begin
+         InfoExpNote:= InfoExportedNotes[i];
+
+         pI:= InfoExpNote.PosIni;
+         if i = High(InfoExportedNotes) then
+            pF:= -1
+         else
+            pF:= InfoExportedNotes[i+1].PosIni;
+
+         if (pI <= 0) or ((i < High(InfoExportedNotes)) and (pF <= pI)) then
+            raise Exception.Create('Invalid Range');
+
+         RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, Result, pOut, true, InfoExpNote.NNodeGID, pI, pF);
+     end;
+
+  except
+     On E: Exception do begin
+        App.ErrorPopup(E, 'Converting to Std Bkmrks');
+        Result:= S;
+     end;
   end;
 
 end;

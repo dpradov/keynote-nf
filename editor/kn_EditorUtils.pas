@@ -43,9 +43,17 @@ uses
 
 
 procedure PasteIntoNew (const AsNewFolder: boolean);
+function GetPageDimensionesInRTF: AnsiString;
+function GetHeaderInRTF(const Header: AnsiString): AnsiString;
+function GetFooterInRTF: AnsiString;
 function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
 function GetRealMonitorDPI: TPoint;
 function GetRealMonitorDPIx: Double;
+procedure GetPrintDimensionsInPixels (var mLeft, mTop, mRight, mBottom: Integer;
+                                     var PageWidth, PageHeight: Integer;
+                                     var OffsetX, OffsetY: Integer;
+                                     var DPIx, DPIy: Double;
+                                     ScreenDPI: Double = -1);
 procedure PrintRtfFolder (PrintPreview: boolean = false);
 procedure ShowPrintPreview (PrnPreviews: TList; DPI: Integer = 96);
 procedure EnableOrDisableUAS;
@@ -131,6 +139,7 @@ uses
    knt.ui.tree,
    kn_VCLControlsMng,
    kn_MacroMng,
+   kn_RTFUtils,
    knt.App,
    knt.RS
    ;
@@ -928,14 +937,11 @@ begin
 end;
 
 
-function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
-var
-  Rect: TRect;
-  mLeft, mTop, mRight, mBottom: Integer;
-  DPIx, DPIy: Double;
-  PageWidth, PageHeight: Integer;
-  OffsetX, OffsetY: Integer;
-
+procedure GetPrintDimensionsInPixels (var mLeft, mTop, mRight, mBottom: Integer;
+                                      var PageWidth, PageHeight: Integer;
+                                      var OffsetX, OffsetY: Integer;
+                                      var DPIx, DPIy: Double;
+                                      ScreenDPI: Double = -1);
    function IsMetricSystem: Boolean;
    var
      Measure: array[0..1] of Char;
@@ -989,17 +995,19 @@ begin
 
     PageWidth  := Printer.PageWidth;          // = PHYSICALWIDTH
     PageHeight := Printer.PageHeight;         // = PHYSICALHEIGHT
+
     OffsetX := GetDeviceCaps(Printer.Handle, PHYSICALOFFSETX);
     OffsetY := GetDeviceCaps(Printer.Handle, PHYSICALOFFSETY);
 
     if ScreenDPI > 0 then begin
        PageWidth  := Round(PageWidth  * ScreenDPI/DPIx);
        PageHeight := Round(PageHeight * ScreenDPI/DPIy);
-       OffsetX := Round(OffsetX * ScreenDPI/DPIx);
-       OffsetY := Round(OffsetY * ScreenDPI/DPIx);
+       OffsetX :=    Round(OffsetX * ScreenDPI/DPIx);
+       OffsetY :=    Round(OffsetY * ScreenDPI/DPIx);
        DPIx:= ScreenDPI;
        DPIy:= ScreenDPI;
     end;
+
 
     // PageSetupDlg.Margins:
     // If the user is entering values in inches, MarginBottom expresses the margin in thousandths of an inch.
@@ -1021,18 +1029,84 @@ begin
        end;
     end;
 
+end;
+
+
+function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
+var
+  mLeft, mTop, mRight, mBottom: Integer;
+  DPIx, DPIy: Double;
+  PageWidth, PageHeight: Integer;
+  OffsetX, OffsetY: Integer;
+
+begin
+    GetPrintDimensionsInPixels(mLeft, mTop, mRight, mBottom, PageWidth, PageHeight, OffsetX, OffsetY, DPIx, DPIy, ScreenDPI);
+
     if mLeft < OffsetX then
        mLeft:= OffsetX;
     if mTop < OffsetY then
        mTop:= OffsetY;
 
     // Defining the printable area using margins
-    Rect.Left   := mLeft;
-    Rect.Top    := mTop;
-    Rect.Right  := PageWidth - mRight;
-    Rect.Bottom := PageHeight - mBottom;
+    Result.Left   := mLeft;
+    Result.Top    := mTop;
+    Result.Right  := PageWidth - mRight;
+    Result.Bottom := PageHeight - mBottom;
+end;
 
-    Result:= Rect;
+
+function GetPageDimensionesInRTF: AnsiString;
+var
+  mLeft, mTop, mRight, mBottom: Integer;
+  PageWidth, PageHeight: Integer;
+  OffsetX, OffsetY: Integer;
+  DPIx, DPIy: Double;
+  DPI: integer;
+const
+  FontHeight = 19-5;
+  // I'm going to assume, as a rough approximation to try to center (albeit partially) the header at the top margin, that the font
+  // used for this is Tahoma 12, which is most likely => 19 pixels --> Approx. -> 14
+  // When previewing and printing I will actually use Tahoma 12
+
+begin
+   DPI:= Screen.PixelsPerInch;
+   GetPrintDimensionsInPixels(mLeft, mTop, mRight, mBottom, PageWidth, PageHeight, OffsetX, OffsetY, DPIx, DPIy, DPI);
+   Result:= Format('\paperw%d\paperh%d\margl%d\margr%d\margt%d\margb%d \footery%d\headery%d ',
+     [PixelsToTwips(PageWidth, DPI),
+      PixelsToTwips(PageHeight, DPI),
+      PixelsToTwips(mLeft, DPI),
+      PixelsToTwips(mTop, DPI),
+      PixelsToTwips(mRight, DPI),
+      PixelsToTwips(mBottom, DPI),
+      PixelsToTwips(mBottom - FontHeight, DPI) div 2,
+      PixelsToTwips(mTop - FontHeight, DPI) div 2]);
+
+{
+   s: string;
+   h,w: integer;
+   Sz: TSize;
+
+   Form_Main.Canvas.Font.Name:= 'Tahoma';
+   Form_Main.Canvas.Font.Size:= 12;
+   s:= 'Header text...';
+   w:= Form_Main.Canvas.TextWidth(s);
+   h:= Form_Main.Canvas.TextHeight(s);
+   Sz:= Form_Main.Canvas.TextExtent(s);
+}
+
+end;
+
+
+function GetFooterInRTF: AnsiString;
+begin
+   //Result:= '{\footer \pard\qc\sa0 ' + TextToUseInRTF('Page') + ' {\field{\*\fldinst PAGE}}\par}';
+   Result:= '{\footer \pard\qc {\field{\*\fldinst PAGE}}\par}';
+end;
+
+
+function GetHeaderInRTF(const Header: AnsiString): AnsiString;
+begin
+   Result:= '{\header\pard\qr ' + Header + '\par}';
 end;
 
 

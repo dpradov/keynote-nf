@@ -2132,6 +2132,12 @@ object Form_Main: TForm_Main
         Hint = 'View or change page setup'
         OnClick = MMFilePageSetupClick
       end
+      object MMFilePrint: TMenuItem
+        Caption = 'Print...'
+        Hint = 'Print with advanced options'
+        ImageIndex = 44
+        OnClick = MMFilePrintClick
+      end
       object MMFileCopyTo: TMenuItem
         Caption = '&Copy To...'
         Hint = 'Copy current file to another directory'

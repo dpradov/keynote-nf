@@ -878,6 +878,7 @@ type
     MMViewEditorInfoPanel: TMenuItem;
     lblCalNotSup: TLabel;
     RTFM_RTL: TMenuItem;
+    MMFilePrint: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1281,6 +1282,7 @@ type
     procedure MMToolsRemoveDatesClick(Sender: TObject);
     procedure MMViewEditorInfoPanelClick(Sender: TObject);
     procedure RTFM_RTLClick(Sender: TObject);
+    procedure MMFilePrintClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -3962,6 +3964,10 @@ begin
   ClipCapMng.Toggle (TB_ClipCap.Down, ActiveEditor);
 end;
 
+procedure TForm_Main.MMFilePrintClick(Sender: TObject);
+begin
+   ExportNotesEx (True);
+end;
 
 procedure TForm_Main.MMFilePageSetupClick(Sender: TObject);
 begin

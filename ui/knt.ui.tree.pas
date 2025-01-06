@@ -219,6 +219,8 @@ type
 
   public
     function GetNodePath(aNode: PVirtualNode; const aDelimiter: string; const TopToBottom: boolean) : string;
+    function GetNodeAncestorsPath(aNode: PVirtualNode; const aDelimiter: string;
+                                  MaxDepth: integer; StartAtLevel: integer = 1) : string;
     procedure CopyNodePath(myTreeNode : PVirtualNode; const InsertInEditor : boolean);
     procedure PasteNodeName(Node : PVirtualNode; const PasteMode : TPasteNodeNameMode);
     procedure CopyNodeName(const IncludeNoteText: boolean);
@@ -1943,6 +1945,47 @@ begin
   result := s;
 
 end; // GetNodePath
+
+
+function TKntTreeUI.GetNodeAncestorsPath(aNode: PVirtualNode; const aDelimiter: string;
+                                         MaxDepth: integer; StartAtLevel: integer = 1) : string;
+var
+  s : string;
+  NNode : TNoteNode;
+  Level: integer;
+  Len: integer;
+  CheckTruncate: boolean;
+begin
+  result := '';
+
+  CheckTruncate:= True;
+  Len:= 0;
+  if assigned(aNode) then
+     Level:= TV.GetNodeLevel(aNode) + 1;
+
+  while assigned(aNode) and (aNode <> TV.RootNode) and (Level >= StartAtLevel) do begin
+    NNode := GetNNode(aNode);
+
+    if CheckTruncate and ((Level - StartAtLevel + 1) <= MaxDepth) then begin
+       Len:= Length(s);
+       CheckTruncate:= false;
+    end;
+
+    if (s = '') then
+       s := NNode.NoteName
+    else begin
+       s := NNode.NoteName + aDelimiter + s;
+    end;
+
+    aNode := aNode.Parent;
+    dec(Level);
+  end;
+
+  if Len > 0 then
+     s:= Copy(s, 1, Length(s)-Len-Length(aDelimiter));
+  result := s;
+
+end; // GetNodeAncestorsPath
 
 
 procedure TKntTreeUI.CopyNodePath(myTreeNode : PVirtualNode; const InsertInEditor : boolean);

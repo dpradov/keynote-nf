@@ -534,6 +534,14 @@ const
   KNT_RTF_HIDDEN_BMK_POSITION = 'P';     // Used to mark positons referenced by internal links without markers (in Export)
   KNT_RTF_HIDDEN_IMAGE = 'I';
   KNT_RTF_HIDDEN_DATA = 'D';             // Currently used to include auxiliar data, to identify begin of nodes
+  KNT_RTF_HIDDEN_FORMAT = 'F';           // To allow certain formatting of the text when exporting:
+  KNT_RTF_HIDDEN_FORMAT_DIMENSIONS = 'D';   //  D -> Page Dimensions (including margins)
+  KNT_RTF_HIDDEN_FORMAT_PAGE = 'P';         //  P -> new Page  (\v\'11FP\'12\v0) -> (\v{\page}\v0)  or -(\v{\sect}\v0)
+  KNT_RTF_HIDDEN_FORMAT_SECTION = 'S';      //  S -> new Section
+  KNT_RTF_HIDDEN_FORMAT_FOOTER = 'F';       //  F -> new Footer
+  KNT_RTF_HIDDEN_FORMAT_HEADER = 'H';       //  H -> new page Header (\v\'11FHMy header\'12\v0)
+  KNT_RTF_HIDDEN_FORMAT_PLUS = '+';         // To concat format commands: \v\'11FD+S+HMy header\'12\v0
+
   KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
   (* *2
   KNT_RTF_BMK_HIDDEN_MARK = '{\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK + '%d'+ KNT_RTF_HIDDEN_MARK_R + '}';

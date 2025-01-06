@@ -884,7 +884,6 @@ type
     NumbTabInPlainText,
     NodeHeading,
     NoteHeading,
-    SingleNodeFiles,
     TargetFormat,
     TreePadForceMaster,
     TreePadRTF,
@@ -892,9 +891,13 @@ type
     TreeSelection,
     ExcludeHiddenNodes,
     RTFImgsWordPad,
-    EachNoteOnNewPage,
+    SectionOnDepth,
+    SectionToFile,
+    EachNoteNewPg,
+    FilePerFolder,
     ShowPageNumber,
-    TableContMaxLvl: string;
+    TopLvlAsPgHeader,
+    TableContMaxDepth: string;
   end;
 
 const
@@ -918,16 +921,19 @@ const
     NumbTabInPlainText: 'NumbTabInPlainText';
     NodeHeading : 'NodeHeading';
     NoteHeading : 'NoteHeading';
-    SingleNodeFiles : 'SingleNodeFiles';
     TargetFormat : 'TargetFormat';
     TreePadForceMaster : 'TreePadForceMaster';
     TreePadRTF : 'TreePadRTF';
     TreePadSingleFile : 'TreePadSingleFile';
     TreeSelection : 'TreeSelection';
     ExcludeHiddenNodes: 'ExcludeHiddenNodes';
-    EachNoteOnNewPage: 'EachNoteOnNewPage';
+    SectionOnDepth: 'SectionOnDepth';
+    SectionToFile: 'SectionToFile';
+    EachNoteNewPg: 'EachNoteNewPg';
+    FilePerFolder: 'FilePerFolder';
     ShowPageNumber: 'ShowPageNumber';
-    TableContMaxLvl: 'TableContMaxLvl';
+    TopLvlAsPgHeader: 'TopLvlAsPgHeader';
+    TableContMaxDepth: 'TableContMaxDepth';
   );
 
 
@@ -2288,7 +2294,6 @@ begin
     NumbTabInPlainText:= ' ';
     NodeHeading := _DefaultNodeHeading;
     FolderHeading := _DefaultNoteHeading;
-    SingleNodeFiles := true;
     TargetFormat := low( TExportFmt );
     TreePadForceMaster := false;
     TreePadRTF := false;
@@ -2296,9 +2301,13 @@ begin
     TreeSelection := low( TTreeSelection );
     ExcludeHiddenNodes:= false;
     RTFImgsWordPad:= false;
-    EachNoteOnNewPage:= true;
+    SectionOnDepth:= 1;
+    SectionToFile:= false;
+    EachNoteNewPg:= false;
+    FilePerFolder:= false;
     ShowPageNumber:= true;
-    TableContMaxLvl:= 0;
+    TopLvlAsPgHeader:= 1;
+    TableContMaxDepth:= 0;
   end;
   ShowHiddenMarkers:= false;         // Global
 

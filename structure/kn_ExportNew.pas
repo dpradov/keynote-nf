@@ -72,7 +72,7 @@ type
     CheckBox_PromptOverwrite: TCheckBox;
     Edit_Folder: TEdit;
     CheckBox_Ask: TCheckBox;
-    GroupBox1: TGroupBox;
+    gbHeadings: TGroupBox;
     CB_IncNoteHeading: TCheckBox;
     CB_IncNodeHeading: TCheckBox;
     Edit_NodeHead: TComboBox;
@@ -80,12 +80,9 @@ type
     SaveDlg: TSaveDialog;
     RG_TreePadVersion: TRadioGroup;
     RG_TreePadMode: TRadioGroup;
-    RG_NodeMode: TRadioGroup;
-    RG_NodePrint: TRadioGroup;
     RG_TreePadMaster: TRadioGroup;
     CheckBox_ExcludeHiddenNodes: TCheckBox;
     TB_OpenDlgDir: TToolbarButton97;
-    RG_HTML: TRadioGroup;
     CB_LevelTemplates: TCheckBox;
     CB_FontSizes: TCheckBox;
     Edit_FontSizes: TEdit;
@@ -94,49 +91,63 @@ type
     Edit_Symbols: TEdit;
     lblSymbols: TLabel;
     lblLength: TLabel;
-    GB_Additional: TGroupBox;
-    CB_ShowHiddenMarkers: TCheckBox;
-    CB_SaveImgDefWP: TCheckBox;
-    CB_ShowPageNumber: TCheckBox;
-    Button_Preview: TButton;
+    btnPreview: TButton;
     FontDlg: TFontDialog;
-    Edit_Sample: TEdit;
-    BTN_Font: TBitBtn;
-    CB_Font: TCheckBox;
-    Spin_Indent: TSpinEdit;
-    lblIndent: TLabel;
-    CB_UseTab: TCheckBox;
-    CB_IndentNodes: TCheckBox;
+    CB_Section: TCheckBox;
+    Spin_SectDepth: TSpinEdit;
+    CB_SaveImgDefWP: TCheckBox;
+    CB_ShowHiddenMarkers: TCheckBox;
+    Spin_TblMaxDepth: TSpinEdit;
     CB_TableCont: TCheckBox;
-    Spin_MaxLevTbl: TSpinEdit;
-    lblTblCont: TLabel;
+    gbOther: TGroupBox;
+    Edit_Sample: TEdit;
+    CB_IndentNodes: TCheckBox;
+    Spin_Indent: TSpinEdit;
+    CB_Font: TCheckBox;
+    BTN_Font: TBitBtn;
+    CB_UseTab: TCheckBox;
+    lblIndent: TLabel;
+    CB_Header: TCheckBox;
+    Spin_PgHdDepth: TSpinEdit;
+    CB_ShowPageNumber: TCheckBox;
+    gbHTML: TGroupBox;
+    RG_HTML: TRadioGroup;
+    CB_SectionToFile: TCheckBox;
+    CB_SectionNewPg: TCheckBox;
+    btnPageSetup: TButton;
+    CB_NoteNewPg: TCheckBox;
+    CB_FolderNewFile: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure RB_SelNotesClick(Sender: TObject);
-    procedure Combo_FormatClick(Sender: TObject);
     procedure Button_OKClick(Sender: TObject);
     procedure Button_SelectClick(Sender: TObject);
     procedure Btn_TknHlpClick(Sender: TObject);
     procedure Button_HelpClick(Sender: TObject);
-    procedure CB_FontSizesClick(Sender: TObject);
-    procedure CB_IndentNodesClick(Sender: TObject);
-    procedure CB_IncNodeHeadingClick(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
     procedure Edit_SymbolsExit(Sender: TObject);
-    procedure Button_PreviewClick(Sender: TObject);
+    procedure btnPreviewClick(Sender: TObject);
     procedure BTN_FontClick(Sender: TObject);
     procedure CB_FontClick(Sender: TObject);
-    procedure CB_TableContClick(Sender: TObject);
+    procedure CB_SectionToFileClick(Sender: TObject);
+    procedure CB_SectionNewPgClick(Sender: TObject);
+    procedure btnPageSetupClick(Sender: TObject);
+
+    procedure CtrlUI_Changed(Sender: TObject);
+
   private
     { Private declarations }
+    PrinterMode: boolean;
     LastPagePrintedHeight: integer;
     PreviewMode: boolean;
     FirstPrint: boolean;
     InfoExportedNotes: TInfoExportedNotesInRTF;
+    IndexOfExportedFile: integer;
+    PrinterSelected: boolean;
+    ChangingFromCode: boolean;
 
   public
     { Public declarations }
@@ -153,9 +164,10 @@ type
     procedure PerformExport;
     procedure FormToOptions;
     procedure OptionsToForm;
-    function Validate : boolean;
+    function ValidatePath : boolean;
+    procedure CheckDependencies;
 
-    function FlushExportFile( const RTF : TAuxRichEdit; myFolder: TKntFolder; FN : string ) : boolean;
+    function FlushExportFile( const RTF : TAuxRichEdit; myFolder: TKntFolder; FN : string; const PageHeader: string = '') : boolean;
     procedure FlushTreePadData( var tf : TTextfile; const Name : string; const Level : integer; const RTF : TAuxRichEdit; const ClearRTF : boolean);
     function GetExportFilename( const FN : string ) : string;
     procedure PrepareRTFforPlainText (RTFAux : TRxRichEdit; TabSize: integer; RTFIndentValue: integer);
@@ -163,7 +175,6 @@ type
     function ConfirmAbort : boolean;
 
     function ExpandExpTokenString( const tpl, filename, folderName, nodename : string; const nodelevel, nodeindex : integer; TabSize: integer ) : string;
-    function SingleNodes: boolean;
 
     procedure UpdateSampleFont;
   end;
@@ -173,9 +184,9 @@ function LoadRTFHeadingTemplate( const Filename : string ) : string;
 function EscapeTextForRTF( const Txt : string ) : string;
 function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : string;
 
-procedure ExportNotesEx;
+procedure ExportNotesEx (PrinterMode: boolean = false);
 procedure ExportTreeNode;
-procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string);
+procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string; PrinterMode: boolean);
 
 var
   Form_ExportNew: TForm_ExportNew;
@@ -239,14 +250,6 @@ begin
        FontSizes_Max := -1;
 end;
 
-function TForm_ExportNew.SingleNodes: boolean;
-begin
-  if ExportOptions.TargetFormat= xfPrinter then
-     Result:= ExportOptions.EachNoteOnNewPage
-  else
-     Result:= ExportOptions.SingleNodeFiles;
-end;
-
 procedure TForm_ExportNew.Edit_SymbolsExit(Sender: TObject);
 begin
   if Edit_Symbols.Text = '' then
@@ -282,11 +285,11 @@ var
          if LenSymbolsLevel < LengthsHeading_Min then
             LenSymbolsLevel:= LengthsHeading_Min;
 
-         if ExportOptions.IndentNestedNodes and not SingleNodes then begin
+         if ExportOptions.IndentNestedNodes and (nodelevel > ExportOptions.SectionOnDepth) then begin
             NumTabsLevel:= 1;
             if ExportOptions.TargetFormat = xfPlainText then
                NumTabsLevel:= ExportOptions.IndentValue div EditorOptions.IndentInc;
-            Dec(LenSymbolsLevel, NumTabsLevel*TabSize * (nodelevel-1));
+            Dec(LenSymbolsLevel, NumTabsLevel*TabSize * (nodelevel-1-ExportOptions.SectionOnDepth));
          end;
 
          Dec(LenSymbolsLevel, headerLength);
@@ -424,14 +427,17 @@ begin
   Pages.ActivePage := Tab_Main;
   IsBusy := false;
   DoAbort := false;
+  ChangingFromCode:= false;
 
   myKntFolder := nil;
   myKntFile := nil;
   myINIFN := '';
+  PrinterMode:= false;
+  PrinterSelected:= false;
 
   for f := low( TExportFmt ) to high( TExportFmt ) do
      Combo_Format.Items.Add( EXPORT_FORMAT_NAMES[f] );
-     
+
   Combo_Format.ItemIndex := 0;
 
   for ts := low( ts ) to high( ts ) do
@@ -470,16 +476,25 @@ procedure TForm_ExportNew.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
 
-  ReadConfig (ExportOptions, myINIFN);
+  ReadConfig (ExportOptions, myINIFN, PrinterMode);
   OptionsToForm;
 
-  RB_SelNotesClick( RB_CurrentNote );
-  RB_CurrentNote.OnClick := RB_SelNotesClick;
-  RB_Allnotes.OnClick := RB_SelNotesClick;
-  RB_SelectedNotes.OnClick := RB_SelNotesClick;
+  CheckDependencies;
 
-  Combo_FormatClick( Combo_Format );
-  Combo_Format.OnClick := Combo_FormatClick;
+  RB_CurrentNote.OnClick :=   CtrlUI_Changed;
+  RB_Allnotes.OnClick :=      CtrlUI_Changed;
+  RB_SelectedNotes.OnClick := CtrlUI_Changed;
+
+  CB_FontSizes.OnClick:= CtrlUI_Changed;
+  CB_IncNodeHeading.OnClick:= CtrlUI_Changed;
+  CB_IndentNodes.OnClick:= CtrlUI_Changed;
+  CB_TableCont.OnClick:= CtrlUI_Changed;
+  CB_Header.OnClick:= CtrlUI_Changed;
+  CB_Section.OnClick:= CtrlUI_Changed;
+  Spin_PgHdDepth.OnChange:= CtrlUI_Changed;
+  Spin_SectDepth.OnChange:= CtrlUI_Changed;
+
+  Combo_Format.OnClick := CtrlUI_Changed;
 
 end; // ACTIVATE
 
@@ -499,109 +514,164 @@ begin
 end; // CloseQuery
 
 
-procedure TForm_ExportNew.RB_SelNotesClick(Sender: TObject);
+procedure TForm_ExportNew.CtrlUI_Changed(Sender: TObject);
 begin
-  Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked
-                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote, xfPrinter] ));
-  Button_Select.Enabled := RB_SelectedNotes.Checked;
+  CheckDependencies;
 end;
 
-
-procedure TForm_ExportNew.CB_FontSizesClick(Sender: TObject);
-begin
-   Edit_FontSizes.Enabled:= CB_FontSizes.Checked;
-end;
-
-
-procedure TForm_ExportNew.CB_IncNodeHeadingClick(Sender: TObject);
-var
-   Enabled: boolean;
-begin
-   Enabled:= CB_IncNodeHeading.Checked;
-   CB_LevelTemplates.Enabled:= Enabled;
-   Edit_Symbols.Enabled:= Enabled;
-   Edit_LengthHeading.Enabled:= Enabled;
-   lblSymbols.Enabled:= Enabled;
-   lblLength.Enabled:= Enabled;
-end;
-
-procedure TForm_ExportNew.CB_IndentNodesClick(Sender: TObject);
-var
-   Enabled: boolean;
-begin
-   Enabled:= CB_IndentNodes.Checked;
-   Spin_Indent.Enabled:= Enabled;
-   LblIndent.Enabled:= Enabled;
-   CB_UseTab.Enabled:= Enabled;
-end;
-
-procedure TForm_ExportNew.CB_FontClick(Sender: TObject);
-begin
-   BTN_Font.Enabled:= CB_Font.Checked;
-   Edit_Sample.Enabled := CB_Font.Checked;
-   if CB_Font.Checked and (FontInfo.Name = '') then
-      BTN_FontClick(nil);
-end;
-
-procedure TForm_ExportNew.CB_TableContClick(Sender: TObject);
-begin
-   if CB_TableCont.Checked then begin
-      if Spin_MaxLevTbl.Value = 0 then
-         Spin_MaxLevTbl.Value := 9;
-   end;
-   Spin_MaxLevTbl.Enabled:= CB_TableCont.Checked;
-   lblTblCont.Enabled:= CB_TableCont.Checked;
-end;
-
-procedure TForm_ExportNew.Combo_FormatClick(Sender: TObject);
+procedure TForm_ExportNew.CB_SectionToFileClick(Sender: TObject);
 var
    format: TExportFmt;
 begin
-  Combo_TreeSelection.Enabled := ( RB_CurrentNote.Checked
-                                  and ( TExportFmt(Combo_Format.ItemIndex) in [xfPlainText, xfRTF, xfHTML, xfKeyNote, xfPrinter] ));
-  format:= TExportFmt( Combo_Format.ItemIndex );
+   if ChangingFromCode then exit;
 
-  Tab_TreePad.TabVisible:=  (format  = xfTreePad);
-  Button_Preview.Visible := (format = xfPrinter);
-  Button_Ok.Default:= (format <> xfPrinter);
-  if format <> xfPrinter then
-     Button_Ok.Caption:= GetRS(sExpFrm21)
-  else begin
-     Button_Ok.Caption:= GetRS(sExpFrm22);
-     Button_Preview.SetFocus;
-  end;
+   format:= TExportFmt( Combo_Format.ItemIndex );
+   if format= xfRtf then
+      CB_SectionNewPg.Checked:= not CB_SectionToFile.Checked;
+  CheckDependencies;
+end;
 
-  CheckBox_PromptOverwrite.Enabled:= (format <> xfPrinter);
-  CheckBox_Ask.Enabled:= (format <> xfPrinter);
-  TB_OpenDlgDir.Enabled:= (format <> xfPrinter);
-  Edit_Folder.Enabled:= (format <> xfPrinter);
-
-  if format = xfKeyNote then
-     Tab_Options.TabVisible:= false
-
-  else begin
-     Tab_Options.TabVisible := (format <> xfTreePad);
-     RG_NodeMode.Enabled :=    (format <> xfTreePad);
-     RG_NodeMode.Visible := (format <> xfPrinter);
-     RG_NodePrint.Visible := (format = xfPrinter);
-     RG_HTML.Visible := (format = xfHTML);
-     GB_Additional.Visible := (format in [xfPlainText, xfRTF, xfPrinter]);
-     CB_ShowHiddenMarkers.Visible := (format = xfPlainText);
-     CB_SaveImgDefWP.Visible := (format = xfRTF);
-     CB_ShowPageNumber.Visible:= (format = xfPrinter);
-     CB_Font.Enabled := (format <> xfPlainText);
-     BTN_Font.Enabled := (format <> xfPlainText);
-     Edit_Sample.Enabled := (format <> xfPlainText);
-     CB_FontSizes.Enabled := (format <> xfPlainText);
-     Edit_FontSizes.Enabled := (format <> xfPlainText);
-     CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
-     if TExportFmt(Combo_Format.ItemIndex) <> xfPlainText then
-         CB_ShowHiddenMarkers.Checked:= False;
-  end;
+procedure TForm_ExportNew.CB_SectionNewPgClick(Sender: TObject);
+var
+   format: TExportFmt;
+begin
+   if ChangingFromCode then exit;
+   format:= TExportFmt( Combo_Format.ItemIndex );
+   if format= xfRtf then
+     CB_SectionToFile.Checked:= not CB_SectionNewPg.Checked;
+   CheckDependencies;
 end;
 
 
-procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string);
+procedure TForm_ExportNew.CheckDependencies;
+var
+   format: TExportFmt;
+   TreePadFmt, PrinterFmt, RtfFmt, NoPlainText, KntOrTreePadFmt, RtfOrPrinterFmt: boolean;
+   NodeHeadingEnabled, IndentNodesChecked: boolean;
+begin
+  if ChangingFromCode then exit;
+
+  ChangingFromCode:= True;
+  format:= TExportFmt( Combo_Format.ItemIndex );
+
+  TreePadFmt:=  (format = xfTreePad);
+  PrinterFmt:=  (format = xfPrinter);
+  RtfFmt:=      (format = xfRTF);
+  NoPlainText:= not (format = xfPlainText);
+  KntOrTreePadFmt:= format in [xfTreePad, xfKeyNote];
+  RtfOrPrinterFmt:= (format in [xfPrinter, xfRTF]);
+
+  Combo_TreeSelection.Enabled:= RB_CurrentNote.Checked and not TreePadFmt;
+  Button_Select.Enabled := RB_SelectedNotes.Checked;
+
+  Tab_TreePad.TabVisible:=  TreePadFmt;
+  Tab_Options.TabVisible := not KntOrTreePadFmt;
+
+  btnPreview.Visible := PrinterFmt;
+  btnPageSetup.Visible := PrinterFmt;
+  Button_Ok.Default:= not PrinterFmt;
+  if PrinterFmt then begin
+     Button_Ok.Caption:= GetRS(sExpFrm22);
+     Button_Ok.ImageIndex:= 44;
+     btnPreview.SetFocus;
+  end
+  else begin
+     Button_Ok.Caption:= GetRS(sExpFrm21);
+     Button_Ok.ImageIndex:= -1;
+  end;
+
+  CB_TableCont.Enabled := not KntOrTreePadFmt;
+  Spin_TblMaxDepth.Enabled:= not KntOrTreePadFmt and CB_TableCont.Checked;
+  if CB_TableCont.Checked then begin
+     if Spin_TblMaxDepth.Value = 0 then
+        Spin_TblMaxDepth.Value := 9;
+  end;
+
+  CB_ShowHiddenMarkers.Enabled := (format = xfPlainText);
+  if NoPlainText then
+     CB_ShowHiddenMarkers.Checked:= False;
+
+  CheckBox_PromptOverwrite.Enabled:= not PrinterFmt;
+  CheckBox_Ask.Enabled:=  not PrinterFmt;
+  TB_OpenDlgDir.Enabled:= not PrinterFmt;
+  Edit_Folder.Enabled:=   not PrinterFmt;
+
+  CB_Section.Enabled := not KntOrTreePadFmt;
+  Spin_SectDepth.Enabled:= CB_Section.Checked;
+  CB_SectionToFile.Enabled := RtfFmt and CB_Section.Checked;
+  CB_SectionNewPg.Enabled :=  RtfFmt and CB_Section.Checked;
+  if KntOrTreePadFmt then
+     CB_Section.Checked:= False;
+
+  if CB_Section.Checked then begin
+     if Spin_SectDepth.Value = 0 then
+        Spin_SectDepth.Value := 9;
+  end
+  else begin
+     CB_SectionToFile.Checked:= False;
+     CB_SectionNewPg.Checked:= False;
+  end;
+  if CB_SectionToFile.Checked then
+     CB_SectionNewPg.Checked:= False;
+  if PrinterFmt then begin
+     CB_SectionToFile.Checked:= False;
+     CB_SectionNewPg.Checked:= CB_Section.Checked;
+  end;
+  if RtfFmt then begin
+     if CB_Section.Checked and not CB_SectionToFile.Checked and not CB_SectionNewPg.Checked then
+        CB_SectionNewPg.Checked:= True;
+  end;
+  if (format in [xfPlainText, xfHTML]) then begin
+     CB_SectionToFile.Checked:= CB_Section.Checked;
+     CB_SectionNewPg.Checked:= False;
+  end;
+
+  CB_NoteNewPg.Enabled := RtfOrPrinterFmt;
+  CB_FolderNewFile.Enabled := (not CB_Section.Checked or not CB_SectionToFile.Checked) and not (format in [xfPrinter, xfTreePad, xfKeyNote]);
+  if CB_Section.Checked and CB_SectionToFile.Checked then
+     CB_FolderNewFile.Checked:= False;
+
+
+  CB_SaveImgDefWP.Enabled := RtfFmt;
+
+  CB_FontSizes.Enabled :=   NoPlainText;
+  Edit_FontSizes.Enabled := NoPlainText and (CB_FontSizes.Checked);
+  CB_UseTab.Enabled:= (format = xfPlainText) and (CB_IndentNodes.Checked);
+
+  CB_Header.Enabled := RtfOrPrinterFmt and CB_Section.Checked;
+  Spin_PgHdDepth.Enabled:= CB_Header.Enabled and CB_Header.Checked;
+  if CB_Header.Checked then begin
+     if Spin_PgHdDepth.Value = 0 then
+        Spin_PgHdDepth.Value := 9;
+  end;
+  if Spin_PgHdDepth.Value > Spin_SectDepth.Value then
+     Spin_PgHdDepth.Value:= Spin_SectDepth.Value;
+
+  NodeHeadingEnabled:= CB_IncNodeHeading.Checked;
+  CB_LevelTemplates.Enabled:=  NodeHeadingEnabled;
+  Edit_Symbols.Enabled:=       NodeHeadingEnabled;
+  Edit_LengthHeading.Enabled:= NodeHeadingEnabled;
+  lblSymbols.Enabled:= NodeHeadingEnabled;
+  lblLength.Enabled:=  NodeHeadingEnabled;
+
+  IndentNodesChecked:= CB_IndentNodes.Checked;
+  Spin_Indent.Enabled:= IndentNodesChecked;
+  LblIndent.Enabled:=   IndentNodesChecked;
+  CB_UseTab.Enabled:=   IndentNodesChecked;
+
+  CB_ShowPageNumber.Enabled:= RtfOrPrinterFmt;
+  CB_Font.Enabled :=     NoPlainText;
+  BTN_Font.Enabled :=    NoPlainText and CB_Font.Checked;
+  Edit_Sample.Enabled := NoPlainText and CB_Font.Checked;
+
+
+  RG_HTML.Enabled:= (format = xfHTML);
+
+  ChangingFromCode:= False;
+end;
+
+
+procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string; PrinterMode: boolean);
 var
   IniFile : TMemIniFile;
   section : string;
@@ -635,19 +705,24 @@ begin
       ExportOptions.ExportPath := readstring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       ExportOptions.NodeHeading := readstring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
       ExportOptions.FolderHeading := readstring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.FolderHeading );
-      ExportOptions.SingleNodeFiles := readbool( section, ExportOptionsIniStr.SingleNodeFiles, ExportOptions.SingleNodeFiles );
       ExportOptions.TargetFormat := TExportFmt( readinteger( section, ExportOptionsIniStr.TargetFormat, ord( ExportOptions.TargetFormat )));
       ExportOptions.TreePadRTF := readbool( section, ExportOptionsIniStr.TreePadRTF, ExportOptions.TreePadRTF );
       ExportOptions.TreePadForceMaster := readbool( section, ExportOptionsIniStr.TreePadForceMaster, ExportOptions.TreePadForceMaster );
       ExportOptions.TreePadSingleFile := readbool( section, ExportOptionsIniStr.TreePadSingleFile, ExportOptions.TreePadSingleFile );
       ExportOptions.TreeSelection := TTreeSelection( readinteger( section, ExportOptionsIniStr.TreeSelection, ord( ExportOptions.TreeSelection )));
       ExportOptions.RTFImgsWordPad := readbool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
-      ExportOptions.EachNoteOnNewPage := readbool( section, ExportOptionsIniStr.EachNoteOnNewPage, ExportOptions.EachNoteOnNewPage );
+      ExportOptions.SectionOnDepth := readinteger( section, ExportOptionsIniStr.SectionOnDepth, ExportOptions.SectionOnDepth );
+      ExportOptions.SectionToFile := readbool( section, ExportOptionsIniStr.SectionToFile, ExportOptions.SectionToFile );
+      ExportOptions.EachNoteNewPg := readbool( section, ExportOptionsIniStr.EachNoteNewPg, ExportOptions.EachNoteNewPg );
+      ExportOptions.FilePerFolder := readbool( section, ExportOptionsIniStr.FilePerFolder, ExportOptions.FilePerFolder );
       ExportOptions.ShowPageNumber := readbool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
-      ExportOptions.TableContMaxLvl := readinteger( section, ExportOptionsIniStr.TableContMaxLvl, ExportOptions.TableContMaxLvl );
+      ExportOptions.TopLvlAsPgHeader := readinteger( section, ExportOptionsIniStr.TopLvlAsPgHeader, ExportOptions.TopLvlAsPgHeader );
+      ExportOptions.TableContMaxDepth := readinteger( section, ExportOptionsIniStr.TableContMaxDepth, ExportOptions.TableContMaxDepth );
 
+      if PrinterMode then
+         ExportOptions.TargetFormat:= xfPrinter;
     end;
-    
+
   finally
     IniFile.Free;
   end;
@@ -673,7 +748,7 @@ begin
 end;
 
 
-// ReadConfig
+
 
 procedure TForm_ExportNew.WriteConfig;
 var
@@ -705,16 +780,22 @@ begin
       writestring( section, ExportOptionsIniStr.ExportPath, ExportOptions.ExportPath );
       writestring( section, ExportOptionsIniStr.NodeHeading, ExportOptions.NodeHeading );
       writestring( section, ExportOptionsIniStr.NoteHeading, ExportOptions.FolderHeading );
-      writebool( section, ExportOptionsIniStr.SingleNodeFiles, ExportOptions.SingleNodeFiles );
-      writeinteger( section, ExportOptionsIniStr.TargetFormat, ord( ExportOptions.TargetFormat ));
+
+      if not PrinterMode then
+         writeinteger( section, ExportOptionsIniStr.TargetFormat, ord( ExportOptions.TargetFormat ));
+
       writebool( section, ExportOptionsIniStr.TreePadForceMaster, ExportOptions.TreePadForceMaster );
       writebool( section, ExportOptionsIniStr.TreePadRTF, ExportOptions.TreePadRTF );
       writebool( section, ExportOptionsIniStr.TreePadSingleFile, ExportOptions.TreePadSingleFile );
       writeinteger( section, ExportOptionsIniStr.TreeSelection, ord( ExportOptions.TreeSelection ));
       writebool( section, ExportOptionsIniStr.RTFImgsWordPad, ExportOptions.RTFImgsWordPad );
-      writebool( section, ExportOptionsIniStr.EachNoteOnNewPage, ExportOptions.EachNoteOnNewPage );
+      writeinteger( section, ExportOptionsIniStr.SectionOnDepth, ExportOptions.SectionOnDepth );
+      writebool( section, ExportOptionsIniStr.SectionToFile, ExportOptions.SectionToFile );
+      writebool( section, ExportOptionsIniStr.EachNoteNewPg, ExportOptions.EachNoteNewPg );
+      writebool( section, ExportOptionsIniStr.FilePerFolder, ExportOptions.FilePerFolder );
       writebool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
-      writeinteger( section, ExportOptionsIniStr.TableContMaxLvl, ord( ExportOptions.TableContMaxLvl ));
+      writeinteger( section, ExportOptionsIniStr.TopLvlAsPgHeader, ExportOptions.TopLvlAsPgHeader );
+      writeinteger( section, ExportOptionsIniStr.TableContMaxDepth, ord( ExportOptions.TableContMaxDepth ));
     end;
 
     IniFile.UpdateFile;
@@ -743,8 +824,6 @@ begin
 
     TreeSelection := TTreeSelection( Combo_TreeSelection.ItemIndex );
     TargetFormat := TExportFmt( Combo_Format.ItemIndex );
-    SingleNodeFiles := ( RG_NodeMode.ItemIndex > 0 );
-    EachNoteOnNewPage := ( RG_NodePrint.ItemIndex > 0 );
 
     HTMLExportMethod := THTMLExportMethod(RG_HTML.ItemIndex);
 
@@ -766,9 +845,22 @@ begin
 
     RTFImgsWordPad := CB_SaveImgDefWP.Checked;
     ShowPageNumber := CB_ShowPageNumber.Checked;
-    TableContMaxLvl:= 0;
+
+    SectionOnDepth:= 0;
+    if CB_Section.Checked then
+       SectionOnDepth:= Spin_SectDepth.Value;
+    SectionToFile := (SectionOnDepth > 0) and CB_SectionToFile.Checked;
+
+    FilePerFolder:= CB_FolderNewFile.Checked;
+    EachNoteNewPg:= CB_NoteNewPg.Checked;
+
+    TopLvlAsPgHeader:= 0;
+    if CB_Header.Checked then
+       TopLvlAsPgHeader:= Spin_PgHdDepth.Value;
+
+    TableContMaxDepth:= 0;
     if CB_TableCont.Checked then
-       TableContMaxLvl:= Spin_MaxLevTbl.Value;
+       TableContMaxDepth:= Spin_TblMaxDepth.Value;
 
     NodeHeading := Edit_NodeHead.Text;
     if ( NodeHeading = '' ) then
@@ -787,82 +879,85 @@ end; // FormToOptions
 
 procedure TForm_ExportNew.OptionsToForm;
 begin
-  with ExportOptions do begin
-    case ExportSource of
-      expCurrentFolder : RB_CurrentNote.Checked := true;
-      expAllFolders : RB_AllNotes.Checked := true;
-      expSelectedFolders : RB_SelectedNotes.Checked := true;
-    end;
+  ChangingFromCode:= True;
+  try
+     with ExportOptions do begin
+       case ExportSource of
+         expCurrentFolder : RB_CurrentNote.Checked := true;
+         expAllFolders : RB_AllNotes.Checked := true;
+         expSelectedFolders : RB_SelectedNotes.Checked := true;
+       end;
 
-    CheckBox_ExcludeHiddenNodes.Checked:= ExcludeHiddenNodes;
-    CB_ShowHiddenMarkers.Checked:= ShowHiddenMarkers;
-    CB_ShowPageNumber.Checked:= ShowPageNumber;
-    CB_TableCont.Checked := (TableContMaxLvl <> 0);
-    Spin_MaxLevTbl.Enabled:= (TableContMaxLvl <> 0);
-    lblTblCont.Enabled:= (TableContMaxLvl <> 0);
-    Spin_MaxLevTbl.Value:= TableContMaxLvl;
+       CheckBox_ExcludeHiddenNodes.Checked:= ExcludeHiddenNodes;
+       CB_ShowHiddenMarkers.Checked:= ShowHiddenMarkers;
 
-    Combo_TreeSelection.ItemIndex := ord( TreeSelection );
-    Combo_Format.ItemIndex := ord( TargetFormat );
-    if SingleNodeFiles then
-      RG_NodeMode.ItemIndex := 1
-    else
-      RG_NodeMode.ItemIndex := 0;
+       CB_TableCont.Checked := (TableContMaxDepth > 0);
+       Spin_TblMaxDepth.Value:= TableContMaxDepth;
 
-    if EachNoteOnNewPage then
-      RG_NodePrint.ItemIndex := 1
-    else
-      RG_NodePrint.ItemIndex := 0;
+       CB_Header.Checked := (TopLvlAsPgHeader > 0);
+       Spin_PgHdDepth.Value:= TopLvlAsPgHeader;
 
-    RG_HTML.ItemIndex := ord(HTMLExportMethod);
-    Edit_Folder.Text := ExportPath;
-    CheckBox_PromptOverwrite.Checked := ConfirmOverwrite;
-    CheckBox_Ask.Checked := ConfirmFilenames;
+       CB_ShowPageNumber.Checked:= ShowPageNumber;
 
-    CB_IncNodeHeading.Checked := IncludeNodeHeadings;
-    CB_IncNoteHeading.Checked := IncludeFolderHeadings;
-    Edit_NodeHead.Text := NodeHeading;
-    Edit_NoteHead.Text := FolderHeading;
+       Combo_TreeSelection.ItemIndex := ord( TreeSelection );
+       Combo_Format.ItemIndex := ord( TargetFormat );
 
-    Edit_Symbols.Text:= SymbolsInHeading;
-    Edit_LengthHeading.Text:= LengthHeading;
-    Edit_FontSizes.Text:= FontSizesInHeading;
-    CB_LevelTemplates.Checked:= NodeLevelTemplates;
-    CB_FontSizes.Checked:= AutoFontSizesInHeading;
-    CB_IndentNodes.Checked := IndentNestedNodes;
-    Spin_Indent.Value:= IndentValue;
-    CB_UseTab.Checked:= IndentUsingTabs;
+       CB_Section.Checked:= SectionOnDepth > 0;
+       Spin_SectDepth.Value:= SectionOnDepth;
+       CB_SectionToFile.Checked:= SectionToFile;
 
-    CB_IndentNodesClick(nil);
-    CB_IncNodeHeadingClick(nil);
+       CB_FolderNewFile.Checked:= FilePerFolder;
+       CB_NoteNewPg.Checked:= EachNoteNewPg;
 
-    CB_SaveImgDefWP.Checked:= RTFImgsWordPad;
+       RG_HTML.ItemIndex := ord(HTMLExportMethod);
+       Edit_Folder.Text := ExportPath;
+       CheckBox_PromptOverwrite.Checked := ConfirmOverwrite;
+       CheckBox_Ask.Checked := ConfirmFilenames;
 
-    if TreePadRTF then
-      RG_TreePadVersion.ItemIndex := 1
-    else
-      RG_TreePadVersion.ItemIndex := 0;
+       CB_IncNodeHeading.Checked := IncludeNodeHeadings;
+       CB_IncNoteHeading.Checked := IncludeFolderHeadings;
+       Edit_NodeHead.Text := NodeHeading;
+       Edit_NoteHead.Text := FolderHeading;
 
-    if TreePadSingleFile then
-      RG_TreePadMode.ItemIndex := 1
-    else
-      RG_TreePadMode.ItemIndex := 0;
+       Edit_Symbols.Text:= SymbolsInHeading;
+       Edit_LengthHeading.Text:= LengthHeading;
+       Edit_FontSizes.Text:= FontSizesInHeading;
+       CB_LevelTemplates.Checked:= NodeLevelTemplates;
+       CB_FontSizes.Checked:= AutoFontSizesInHeading;
+       CB_IndentNodes.Checked := IndentNestedNodes;
+       Spin_Indent.Value:= IndentValue;
+       CB_UseTab.Checked:= IndentUsingTabs;
 
-    if TreePadForceMaster then
-      RG_TreePadMaster.ItemIndex := 1
-    else
-      RG_TreePadMaster.ItemIndex := 0;
+       CB_SaveImgDefWP.Checked:= RTFImgsWordPad;
 
-    {
-    HTMLTemplateFN : string;
-    HTMLWithFrames : boolean;
-    HTMLWithTemplate : boolean;
-    }
-    // NodeLevelTemplate : string;
+       if TreePadRTF then
+         RG_TreePadVersion.ItemIndex := 1
+       else
+         RG_TreePadVersion.ItemIndex := 0;
 
+       if TreePadSingleFile then
+         RG_TreePadMode.ItemIndex := 1
+       else
+         RG_TreePadMode.ItemIndex := 0;
+
+       if TreePadForceMaster then
+         RG_TreePadMaster.ItemIndex := 1
+       else
+         RG_TreePadMaster.ItemIndex := 0;
+
+       {
+       HTMLTemplateFN : string;
+       HTMLWithFrames : boolean;
+       HTMLWithTemplate : boolean;
+       }
+       // NodeLevelTemplate : string;
+
+     end;
+
+     UpdateSampleFont;
+  finally
+     ChangingFromCode:= false;
   end;
-
-  UpdateSampleFont;
 end; // OptionsToForm
 
 
@@ -872,14 +967,19 @@ begin
   PerformExport;
 end;
 
+procedure TForm_ExportNew.btnPageSetupClick(Sender: TObject);
+begin
+   Form_Main.MMFilePageSetupClick (nil);
+   PrinterSelected:= False;                   // To allow selecting printer again on previewing
+end;
 
-procedure TForm_ExportNew.Button_PreviewClick(Sender: TObject);
+procedure TForm_ExportNew.btnPreviewClick(Sender: TObject);
 begin
   PreviewMode:= True;
   PerformExport;
 end;
 
-function TForm_ExportNew.Validate : boolean;
+function TForm_ExportNew.ValidatePath : boolean;
 begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then begin
@@ -893,7 +993,7 @@ begin
   end;
 
   result := true;
-end; // Validate
+end;
 
 
 procedure TForm_ExportNew.PerformExport;
@@ -929,8 +1029,12 @@ var
   FSize, SS, SL: integer;
   SSNode, SSNodeContent: integer;
   ImgFormatInsideRTF_BAK: TImageFormatToRTF;
-  FirstNodeExportedInFolder: boolean;
+  FirstNodeExportedInFile, FirstNodeExportedInFolder, FirstNodeExportedInSection: boolean;
   TableOfContentsPendingToFlush: boolean;
+  FolderNameExported: string;
+  NumFoldersExported: integer;
+  FormatCommnd: string;
+  PageHeader: string;
 
   procedure LoadNodeLevelTemplates;
   var
@@ -951,11 +1055,9 @@ var
   var
      SS: integer;
   begin
-     if not ExportOptions.IndentNestedNodes then exit;
-
      SS:= RTFAux.SelStart;
      RTFAux.SetSelection(SSNode, SS, true);
-     RTFAux.Paragraph.FirstIndentRelative := ExportOptions.IndentValue * (level-1);
+     RTFAux.Paragraph.FirstIndentRelative := ExportOptions.IndentValue * level;
      RTFAux.SelStart:= SS;
   end;
 
@@ -973,31 +1075,50 @@ var
      RTFAux.SelStart:= SS;
   end;
 
+
+  procedure InsertPageDimensions;
+  begin
+     RTFAux.PutRtfText(NodeHeadingRTF, true);
+  end;
+
+
+  procedure ApplyFontSizes (UseMaxSize: boolean);
+  var
+    ApplyAutoFontSizes: boolean;
+    StrAux: string;
+  begin
+     ApplyAutoFontSizes:= ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
+     if not ApplyAutoFontSizes then exit;
+
+     if UseMaxSize then
+        FSize:= FontSizes_Max
+     else
+        FSize:= FontSizes_Max - (FontSizes_Inc*((Level+1)-StartLevel));
+
+     if FSize < FontSizes_Min then
+        FSize := FontSizes_Min;
+     SS:= RTFAux.SelStart;
+     SL:= RTFAux.SelLength;
+     StrAux:= RTFAux.SelText;
+     if Copy(StrAux,SL-1,SL+1) = #13#13 then begin
+        RTFAux.SelLength:= SL-2;                   // Not include line break
+        RTFAux.SelAttributes.Size:= FSize;
+        RTFAux.SetSelection(SS+SL-2, SS+SL, true); // Line break
+        RTFAux.SelAttributes.Size:= FSize-4;
+     end
+     else
+        RTFAux.SelAttributes.Size:= FSize;
+
+     RTFAux.SetSelection(SS+SL, SS+SL, true);
+  end;
+
   procedure InsertNodeHeading;
   begin
      if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
         var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
         var StrAux: string;
         RTFAux.PutRtfText(NodeHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
-
-        if ApplyAutoFontSizes then begin
-           FSize:= FontSizes_Max - (FontSizes_Inc*(Level+1));
-           if FSize < FontSizes_Min then
-              FSize := FontSizes_Min;
-           SS:= RTFAux.SelStart;
-           SL:= RTFAux.SelLength;
-           StrAux:= RTFAux.SelText;
-           if Copy(StrAux,SL-1,SL+1) = #13#13 then begin
-              RTFAux.SelLength:= SL-2;                   // Not include line break
-              RTFAux.SelAttributes.Size:= FSize;
-              RTFAux.SetSelection(SS+SL-2, SS+SL, true); // Line break
-              RTFAux.SelAttributes.Size:= FSize-4;
-           end
-           else
-              RTFAux.SelAttributes.Size:= FSize;
-
-           RTFAux.SetSelection(SS+SL, SS+SL, true);
-        end;
+        ApplyFontSizes (False);
      end;
   end;
 
@@ -1005,18 +1126,13 @@ var
   begin
      if ( ExportOptions.IncludeFolderHeadings and ( FolderHeadingRTF <> '' )) then begin
        var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
-       RTFAux.SelStart := 0;
        RTFAux.PutRtfText(FolderHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
-       if ApplyAutoFontSizes then begin
-          SL:= RTFAux.SelLength;
-          RTFAux.SelAttributes.Size:= FontSizes_Max;
-          RTFAux.SetSelection(SL, SL, true);
-          RTFAux.SelStart:= 0;
-       end;
+       ApplyFontSizes (True);
      end;
   end;
 
-  function NodeToBeExported(Node: PVirtualNode; TreeUI: TKntTreeUI): boolean;
+
+  function NodeToBeExported(Node, StartTreeNode: PVirtualNode; TreeUI: TKntTreeUI): boolean;
   begin
      Result:= False;
      with ExportOptions do begin
@@ -1030,13 +1146,15 @@ var
      end;
   end;
 
-  procedure InsertTableOfContents;
+  procedure InsertTableOfContents (FolderIdx: integer; AllExportedFolder: boolean);
   var
     i, SS, FontSize: integer;
-    Node: PVirtualNode;
-    Indent, S: string;
+    Node, StartTreeNode: PVirtualNode;
+    Indent, S, SEP: string;
+    myFolder : TKntFolder;
+    TreeUI: TKntTreeUI;
     NNode: TNoteNode;
-    LastLevel, MaxLevel, SB: integer;
+    Level, StartLevel, LastLevel, MaxLevel, SB: integer;
 
     procedure InsertCaption (S: String; Sz: Integer);
     begin
@@ -1051,19 +1169,21 @@ var
     end;
 
   begin
-      if ExportOptions.TableContMaxLvl <= 0 then exit;
+      if ExportOptions.TableContMaxDepth <= 0 then exit;
 
-      MaxLevel:= ExportOptions.TableContMaxLvl-1;
-      InsertCaption(ActiveFile.File_NameNoExt + #13#13, 20);
+      InsertCaption(myKntFile.File_NameNoExt + #13#13, 20);
 
+      SEP:= '';
       for i := 1 to myKntFile.Folders.Count do begin
         myFolder := myKntFile.Folders[i-1];
         TreeUI:= myFolder.TreeUI;
         if myFolder.Info <= 0 then continue;      // Folder has not been marked for exporting
+        if not AllExportedFolder and (i <> FolderIdx) then continue;
 
-        InsertCaption(myFolder.Name + #13, 18);
+        InsertCaption(SEP + myFolder.Name + #13, 18);
         RTFAux.SelAttributes.Size:= 10;
         RTFAux.AddText(#13);
+        SEP:= #13#13;
 
         with ExportOptions do begin
            if ((ExportSource = expCurrentFolder) and (TreeSelection in [tsNode, tsSubtree])) then
@@ -1077,9 +1197,10 @@ var
            StartLevel := TreeUI.TV.GetNodeLevel(Node);
            Level:= StartLevel;
            LastLevel:= Level;
+           MaxLevel:= StartLevel + ExportOptions.TableContMaxDepth-1;
 
            while assigned(Node) do begin
-             if (Level <= MaxLevel) and NodeToBeExported(Node, TreeUI) then begin
+             if (Level <= MaxLevel) and NodeToBeExported(Node, StartTreeNode, TreeUI) then begin
                 NNode:= TreeUI.GetNNode(Node);
                 FontSize:= 16 - (2 * (Level-StartLevel));
                 if FontSize < 10 then
@@ -1115,19 +1236,68 @@ var
       RTFAux.SelAttributes.Size:= 20;
       RTFAux.AddText(#13#13);
 
-      if SingleNodes or (ExportOptions.TargetFormat = xfPrinter) then
-         FlushExportFile( RTFAux, myFolder, ActiveFile.File_NameNoExt )
+      if ExportOptions.SectionToFile or (ExportOptions.TargetFormat = xfPrinter) then begin
+         FormatCommnd:= 'D+';
+         if ExportOptions.ShowPageNumber then
+            FormatCommnd:= FormatCommnd + 'F';
+         InsertHiddenKntCommand(RTFAux, KNT_RTF_HIDDEN_FORMAT, FormatCommnd);
+         FlushExportFile( RTFAux, myFolder, myKntFile.File_NameNoExt + ' - Contents' );
+      end
       else
          TableOfContentsPendingToFlush:= true;
 
   end;
 
+  procedure FreeInfoExportedNotes;
+  var
+     i: integer;
+  begin
+    if InfoExportedNotes <> nil then begin
+       for i:= 0 to High(InfoExportedNotes) do
+          if InfoExportedNotes[i].PosInKNTLinks <> nil then
+             InfoExportedNotes[i].PosInKNTLinks.Free;
+       InfoExportedNotes:= nil;
+    end;
+  end;
+
+  function HasChildrenExported (ParentNode: PVirtualNode): boolean;
+  var
+    Node: PVirtualNode;
+  begin
+     Result:= False;
+     Node:= ParentNode;
+     while assigned(Node) do begin
+       Node:= TreeUI.TV.GetNext(Node);
+       if not TreeUI.TV.HasAsParent(Node, ParentNode) then
+          break;
+       if NodeToBeExported(Node, StartTreeNode, TreeUI) then
+          Exit(True);
+     end;
+  end;
+
+  procedure FlushNotesToFile;
+  begin
+      assert((tmpExportedNodes = Length(InfoExportedNotes)) or not (ExportOptions.TargetFormat in [xfRTF, xfPrinter]));
+      if FlushExportFile( RTFAux, myFolder, FN, PageHeader) then
+         inc(ExportedNotes, tmpExportedNodes );
+      tmpExportedNodes:= 0;
+      FreeInfoExportedNotes;
+      RTFAux.Clear;
+  end;
 
 
 begin
   FormToOptions;
-  if ( not Validate ) then exit;
+  if ( not ValidatePath ) then exit;
   WriteConfig;
+
+  if (ExportOptions.TargetFormat= xfPrinter) then begin
+     if not PreviewMode or not PrinterSelected then
+        if not Form_Main.PrintDlg.Execute then exit;
+
+     PrinterSelected:= true;
+  end;
+
 
   if (ExportOptions.TargetFormat= xfKeyNote) and (ExportOptions.TreeSelection = tsNode) and (Combo_TreeSelection.Enabled) then
       if ( messagedlg( GetRS(sExpFrm20), mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
@@ -1157,7 +1327,7 @@ begin
       if ( myFolder.Info > 0 ) then
          inc( cnt );
   end;
-  
+
   if ( cnt = 0 ) then begin
     messagedlg( GetRS(sExpFrm04), mtError, [mbOK], 0 );
     exit;
@@ -1181,6 +1351,12 @@ begin
   LastPagePrintedHeight := -1;
   FirstPrint:= True;
   TableOfContentsPendingToFlush:= false;
+  IndexOfExportedFile:= 0;
+  tmpExportedNodes := 0;
+  NumFoldersExported:= 0;
+  PageHeader:= '';
+  if ExportOptions.TableContMaxDepth = 0 then
+     IndexOfExportedFile:= 1;
 
   RTFAux:= CreateAuxRichEdit;
 
@@ -1213,7 +1389,7 @@ begin
             if (ExportOptions.TreeSelection = tsCheckedNodes) then
                OnlyCheckedNodes:= true;
 
-         FN := GetExportFilename('Export_' + ExtractFileName(ActiveFile.FileName) );
+         FN := GetExportFilename('Export_' + ExtractFileName(myKntFile.FileName) );
          if FN <> ''  then begin
             ext := Extractfileext( FN );
             if (ext = '') then FN := FN + ext_KeyNote;
@@ -1237,8 +1413,6 @@ begin
 
       PrepareExportOptions (ExportOptions.LengthHeading, ExportOptions.FontSizesInHeading);
 
-      InsertTableOfContents;
-
       for FolderIdx := 1 to myKntFile.Folders.Count do begin             // ----------------------------------------------------------- FOR EACH FOLDER :
         Application.ProcessMessages;
         if DoAbort then break;
@@ -1248,14 +1422,15 @@ begin
         if ( myFolder.Info > 0 ) then begin
           // this folder has been marked for exporting
 
-          if TableOfContentsPendingToFlush then
-             TableOfContentsPendingToFlush:= false
-          else begin
-             RTFAux.Clear;
-             RTFAux.PrepareEditorforPlainText(myFolder.EditorChrome);
-          end;
+          inc(NumFoldersExported);
+          FirstNodeExportedInFolder:=  True;
 
-          FirstNodeExportedInFolder:= True;
+          var AllExportedFolders: Boolean;
+          AllExportedFolders:=  (ExportOptions.SectionToFile and (ExportOptions.SectionOnDepth > 0)) or
+                                 not (ExportOptions.FilePerFolder);
+          if (AllExportedFolders and (NumFoldersExported = 1)) or ExportOptions.FilePerFolder then
+             InsertTableOfContents (FolderIdx, AllExportedFolders);
+
 
           if ExportOptions.IncludeFolderHeadings then begin
              FolderHeading := ExpandExpTokenString( ExportOptions.FolderHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), '', 0, 0, myFolder.TabSize );
@@ -1286,20 +1461,18 @@ begin
               else
                  continue; // could not access starting node - perhaps tree has none
 
-              tmpExportedNodes := 0;
-              SetLength(InfoExportedNotes, 1);
 
               while assigned( myTreeNode ) do begin          // ---------------------- Iterate each node
                 NNode:= TreeUI.GetNNode(myTreeNode);
 
                 // check if we should export this node
-                if NodeToBeExported(myTreeNode, TreeUI) then begin
+                if NodeToBeExported(myTreeNode, StartTreeNode, TreeUI) then begin
                   NEntry:= NNode.Note.Entries[0];          //%%%
                   NEntry.Stream.Position := 0;
                   inc( ThisNodeIndex );
 
                   if ExportOptions.IncludeNodeHeadings then begin
-                     NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), NNode.NodeName(TreeUI), Level+1, ThisNodeIndex, myFolder.TabSize );
+                     NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), NNode.NodeName(TreeUI), (Level+1) - StartLevel, ThisNodeIndex, myFolder.TabSize );
                      if ShowHiddenMarkers then begin
                         NodeHeading:= NodeHeading + Format(' [%u]', [NNode.GID]);
                         if NNode.ID > 0 then
@@ -1332,26 +1505,72 @@ begin
                   //  Folder can be PlainText and include a virtual node with RTF content
                   //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
 
-                  var Idx: Integer:= 0;
+                  FormatCommnd:= '';
 
-                  if not SingleNodes then begin
-                      SSNode:= RTFAux.SelStart;
-                      if ExportOptions.TargetFormat = xfRTF then begin
-                         SetLength(InfoExportedNotes, tmpExportedNodes+1);
-                         Idx:= tmpExportedNodes;
-                      end;
-                  end
-                  else begin
-                      SSNode:= 0;
-                      RTFAux.Clear;
-                      if FirstNodeExportedInFolder then
-                         InsertFolderHeading;
+                  FirstNodeExportedInSection:= FirstNodeExportedInFolder or ((Level - StartLevel) < ExportOptions.SectionOnDepth);
+                  FirstNodeExportedInFile:= (FirstNodeExportedInFolder and ((NumFoldersExported=1) or ExportOptions.FilePerFolder))
+                                           or
+                                            (FirstNodeExportedInSection and ExportOptions.SectionToFile);
+
+
+                  if (tmpExportedNodes > 0) and (
+                      (FirstNodeExportedInSection and (ExportOptions.SectionToFile or (ExportOptions.TargetFormat = xfPrinter)) )
+                      or
+                      (ExportOptions.EachNoteNewPg and (ExportOptions.TargetFormat = xfPrinter)) ) then
+
+                     FlushNotesToFile;
+
+
+                  if FirstNodeExportedInFile then begin
+                     FormatCommnd:= FormatCommnd + 'D+';
+                     if ExportOptions.ShowPageNumber then
+                        FormatCommnd:= FormatCommnd + 'F+';
+                     FN:= RemoveAccelChar(myFolder.Name);
+                     if ExportOptions.SectionToFile and (ExportOptions.SectionOnDepth > 0) or
+                        ( (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection <> tsFullTree)) then
+                           FN:= FN + ' - ' +  NNode.NodeName(TreeUI);
+                     FolderNameExported:= myFolder.Name;
                   end;
+
+                  if FirstNodeExportedInSection then begin
+                     if (not FirstNodeExportedInFile or TableOfContentsPendingToFlush) then
+                        FormatCommnd:= FormatCommnd + 'S+';
+
+                     if CB_Header.Checked and CB_Header.Enabled and (ExportOptions.TopLvlAsPgHeader > 0) then begin
+                        var MaxDepth: Integer:= ExportOptions.TopLvlAsPgHeader;
+                        var relativeLevel: integer:= Level-StartLevel+1;              // beginning by 1
+                        if (MaxDepth > 1) and (MaxDepth >= relativeLevel) then
+                           MaxDepth:= relativeLevel-1;
+                        if (MaxDepth < ExportOptions.TopLvlAsPgHeader) and HasChildrenExported(NNode.TVNode) then
+                           inc(MaxDepth);
+                        PageHeader:= TreeUI.GetNodeAncestorsPath(NNode.TVNode, ' - ', MaxDepth, StartLevel+1);
+                        FormatCommnd:= FormatCommnd + 'H'+ PageHeader;
+                     end;
+                  end
+                  else
+                     if ExportOptions.EachNoteNewPg and not TableOfContentsPendingToFlush then
+                        FormatCommnd:= FormatCommnd + 'P';
+
+
+                  inc(tmpExportedNodes);
+                  if ExportOptions.TargetFormat in [xfRTF, xfPrinter] then
+                     SetLength(InfoExportedNotes, tmpExportedNodes);
+
+                  if not FirstNodeExportedInFile then
+                      SSNode:= RTFAux.SelStart
+                  else
+                      SSNode:= 0;
+
+
+                  if FormatCommnd <> '' then
+                     InsertHiddenKntCommand(RTFAux, KNT_RTF_HIDDEN_FORMAT, FormatCommnd);
+                  if FirstNodeExportedInFolder then
+                     InsertFolderHeading;
                   InsertNodeHeading;
 
                   if ExportOptions.TargetFormat = xfRTF then begin
                      InsertMarker(RTFAux, KNT_RTF_HIDDEN_DATA, NNode.GID);
-                     InfoExportedNotes[Idx].NNodeGID:= NNode.GID;
+                     InfoExportedNotes[tmpExportedNodes-1].NNodeGID:= NNode.GID;
                   end;
 
                   if NodeTextSize > 0 then begin
@@ -1371,17 +1590,14 @@ begin
                     ChangeFont;
                   end;
 
-                  if not SingleNodes then
-                     IndentContent(Level+1);
-
-                  if SingleNodes or (ExportOptions.TargetFormat = xfPrinter) then begin
-                     if FlushExportFile( RTFAux, myFolder, NNode.NodeName(TreeUI) ) then  // each node is saved to its own file
-                        inc( ExportedNotes );
-                  end
-                  else
-                     inc( tmpExportedNodes );
+                  var Depth: integer:= ExportOptions.SectionOnDepth;
+                  if Depth = 0 then Depth:= 1;
+                  if ExportOptions.IndentNestedNodes and ((Level - StartLevel) + 1 > Depth) then
+                     IndentContent((Level - StartLevel) + 1 - Depth);
 
                   FirstNodeExportedInFolder:= False;
+                  FirstNodeExportedInSection:= False;
+                  TableOfContentsPendingToFlush:= False;
                 end;
 
                 // access next node
@@ -1400,16 +1616,14 @@ begin
                     tsSubtree : if (Level <= StartLevel ) then break;
                   end;
                 end;
+
               end;                                   // <<<<<------------------ Iterate each node  (xfPlainText, xfRTF, xfHTML, xfPrinter / ntTree)
 
-
-              // if exporting all nodes to one file, flush nodes now
-              if not SingleNodes and (ExportOptions.TargetFormat <> xfPrinter)then begin
-                // we have gathered all nodes, now flush the file
-                InsertFolderHeading;
-                if FlushExportFile( RTFAux, myFolder, RemoveAccelChar( myFolder.Name )) then
-                   inc( ExportedNotes, tmpExportedNodes );
+              if (tmpExportedNodes > 0) and (ExportOptions.FilePerFolder) then begin
+                  FN:= myKntFile.File_NameNoExt + ' - ' + FolderNameExported;
+                  FlushNotesToFile;
               end;
+
             end;
 
 
@@ -1529,6 +1743,16 @@ begin
       end; // for NoteIdx := 1 to myKntFile.Folders.Count do
 
 
+      if tmpExportedNodes > 0 then begin
+          if not ExportOptions.SectionToFile or (ExportOptions.SectionOnDepth = 0) then begin
+             FN:= myKntFile.File_NameNoExt;
+             if (NumFoldersExported = 1) and (myKntFile.Folders.Count > 1) then
+                FN:= FN + ' - ' + FolderNameExported;
+          end;
+          FlushNotesToFile;
+      end;
+
+
       if (ExportOptions.TargetFormat = xfPrinter) then begin
           if PreviewMode then
              ShowPrintPreview(RTFAux.PrnPreviews, Screen.PixelsPerInch)
@@ -1552,13 +1776,7 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
-    if InfoExportedNotes <> nil then begin
-       for i:= 0 to High(InfoExportedNotes) do
-          if InfoExportedNotes[i].PosInKNTLinks <> nil then
-             InfoExportedNotes[i].PosInKNTLinks.Free;
-       InfoExportedNotes:= nil;
-    end;
-
+    FreeInfoExportedNotes;
 
     ExitMessage := Format(GetRS(sExpFrm12), [ExportedFolders, ExportedNotes] );
     if WasError then
@@ -1712,7 +1930,8 @@ begin
 end; // GetExportFilename
 
 
-function TForm_ExportNew.FlushExportFile( const RTF : TAuxRichEdit; myFolder: TKntFolder; FN : string ) : boolean;
+function TForm_ExportNew.FlushExportFile( const RTF : TAuxRichEdit; myFolder: TKntFolder; FN : string;
+                                          const PageHeader: string = '') : boolean;
 var
   StreamSize : integer;
   ext: string;
@@ -1725,6 +1944,8 @@ var
 begin
   result := false;
   Encoding:= TEncoding.Default;
+  if ExportOptions.SectionToFile then
+     FN := Format('%.2d - %s', [IndexOfExportedFile, FN]);
 
   if ExportOptions.TargetFormat <> xfPrinter then begin
      FN := GetExportFilename( FN + '.EXT' );
@@ -1773,7 +1994,9 @@ begin
                  Printer.BeginDoc;
            end
            else begin
-              if ExportOptions.EachNoteOnNewPage then begin
+              // From PerformExport, FlushExport will be called, if format=xfPrinter, every time a page break is required
+              // Unlike what happens in PrintRtfFolder (kn_EditorUtils), where FirstPageMarginTop:= LastPagePrintedHeight; is used
+              if True then begin
                  if not PreviewMode then
                     Printer.NewPage;
               end
@@ -1781,9 +2004,9 @@ begin
                  FirstPageMarginTop:= LastPagePrintedHeight;     // Adjust vertical position for next Note (RichEdit)
            end;
            if PreviewMode then
-              LastPagePrintedHeight:= RTF.CreatePrnPrew(Caption, ExportOptions.ShowPageNumber, FirstPageMarginTop, DPI)
+              LastPagePrintedHeight:= RTF.CreatePrnPrew(Caption, ExportOptions.ShowPageNumber, FirstPageMarginTop, DPI, PageHeader)
            else
-              LastPagePrintedHeight:= RTF.Print(Caption, ExportOptions.ShowPageNumber, FirstPrint, false, FirstPageMarginTop);
+              LastPagePrintedHeight:= RTF.Print(Caption, ExportOptions.ShowPageNumber, FirstPrint, false, FirstPageMarginTop, PageHeader);
 
            FirstPrint:= False;
         end;
@@ -1794,10 +2017,12 @@ begin
       xfRTF : begin
         if ( ext = '' ) then FN := FN + ext_RTF;
 
-        InsertKNTLinksWithoutMarker(RTF, InfoExportedNotes);
+        if InfoExportedNotes <> nil then                           // We can be writing only the table of contents
+           InsertKNTLinksWithoutMarker(RTF, InfoExportedNotes);
         NodeText:= RTF.RtfText;
         NodeText:= ReplaceHyperlinksWithStandardBookmarks(NodeText);
-        NodeText:= ConvertToStandardBookmarks(NodeText, InfoExportedNotes, true);
+        if InfoExportedNotes <> nil then
+           NodeText:= ConvertToStandardBookmarks(NodeText, InfoExportedNotes, true, ExportOptions);
         TFile.WriteAllText(FN, NodeText);
         {
         RTF.RemoveKNTHiddenCharacters(false);
@@ -1817,6 +2042,7 @@ begin
     end;
 
   finally
+    inc(IndexOfExportedFile);
     RTF.Clear;
     RTF.StreamFormat := sfRichText;
   end;
@@ -1907,13 +2133,22 @@ begin
     TabSel.myKntFile := myKntFile;
     if ( TabSel.ShowModal = mrOK ) then begin
       RB_SelectedNotes.Checked := true;
-      RB_SelNotesClick( RB_SelectedNotes );
+      CheckDependencies;
     end;
     
   finally
     TabSel.Free;
   end;
 end; // BUTTON SELECT CLICK
+
+
+procedure TForm_ExportNew.CB_FontClick(Sender: TObject);
+begin
+   BTN_Font.Enabled:= CB_Font.Checked;
+   Edit_Sample.Enabled := CB_Font.Checked;
+   if CB_Font.Checked and (FontInfo.Name = '') then
+      BTN_FontClick(nil);
+end;
 
 
 procedure TForm_ExportNew.UpdateSampleFont;
@@ -2086,7 +2321,7 @@ begin
           else
              RTFText:= Editor.RtfText;
 
-          ReadConfig (ExportOptions, INI_FN);
+          ReadConfig (ExportOptions, INI_FN, False);
           ImgFormatInsideRTF_BAK:= KeyOptions.ImgFormatInsideRTF;
           try
              if ExportOptions.RTFImgsWordPad then
@@ -2149,7 +2384,7 @@ begin
 end; // ExportTreeNode
 
 
-procedure ExportNotesEx;
+procedure ExportNotesEx (PrinterMode: boolean = false);
 var
   Form_Export : TForm_ExportNew;
 begin
@@ -2162,6 +2397,7 @@ begin
       myKntFile := ActiveFile;
       myINIFN := INI_FN;
     end;
+    Form_Export.PrinterMode:= PrinterMode;
 
     if ( Form_Export.ShowModal = mrOK ) then
     begin

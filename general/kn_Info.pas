@@ -418,7 +418,6 @@ type
     NumbTabInPlainText: string;
     NodeHeading : string;
     FolderHeading : string;
-    SingleNodeFiles : boolean;
     TargetFormat : TExportFmt;
     TreePadForceMaster : boolean;
     TreePadRTF : boolean;
@@ -426,9 +425,14 @@ type
     TreeSelection : TTreeSelection;
     ExcludeHiddenNodes: boolean;
     RTFImgsWordPad: boolean;          // 1: Save images in default, not optmized, WordPad format (ifWmetafile8)
-    EachNoteOnNewPage: boolean;
+    SectionOnDepth: integer;      // Value of "Section for each of the top N levels". >0 => Allows to create groupings of notes with a defined maximum depth level.
+    SectionToFile: boolean;       // True -> Each section is saved in a separate file
+                                  // False -> All sections go into the same file, starting on a new page
+    EachNoteNewPg: boolean;       // True: Start each note on a new page
+    FilePerFolder: boolean;
     ShowPageNumber: boolean;
-    TableContMaxLvl : integer;       // 0 => No table of contents 1 => Only TOP level nodes, etc.
+    TopLvlAsPgHeader: integer;    // Use the top N levels as page header. If > 0 and SectionOnDepth > 0 -> Show page header with the detail indicated
+    TableContMaxDepth : integer;  // Maximum depth in table of contents hierarchy
   end;
 
 type

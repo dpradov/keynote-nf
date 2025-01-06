@@ -617,15 +617,22 @@ type
     function ReplaceDialog(const SearchStr, ReplaceStr: string): TReplaceDialog;
     function FindNext: Boolean;
 
-    // [dpv]: OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
+    procedure PrintPageNumberAndHeader(Canvas: TCanvas;
+                                       PageWidth, PageHeight: integer; PageRect: TRect;
+                                       PageNum: Integer; ShowNumPage: boolean; Header: String = '');    // [dpv]
+
+    //function Print(const Caption: string): integer; virtual;
     function Print(const Caption: string;
                    ShowNumPage: boolean= true; StartNumPage: boolean= true;
-                   OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1): integer; virtual;
+                   OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1;
+                   const Header: string = ''): integer; virtual;                    // [dpv]
   {$IFDEF RX_ENHPRINT}
     //procedure CreatePrnPrew(const Caption: string); virtual;
     function CreatePrnPrew(const Caption: string;
                            ShowNumPage: boolean= true;
-                           FirstPageMarginTop: integer = -1; ScreenDPI: Integer= 96): Integer;  // [dpv]
+                           FirstPageMarginTop: integer = -1;
+                           ScreenDPI: Integer= 96;
+                           const Header: string = ''): Integer;                    // [dpv]
 
   {$ENDIF RX_ENHPRINT}
     class procedure RegisterConversionFormat(const AExtension: string;
@@ -6298,10 +6305,55 @@ begin
       Result := GetTextLen;
 end;
 
-// [dpv]: ShowNumPage, OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels) :
+procedure TRxCustomRichEdit.PrintPageNumberAndHeader(Canvas: TCanvas;
+                                                    PageWidth, PageHeight: integer; PageRect: TRect;
+                                                    PageNum: Integer; ShowNumPage: boolean;
+                                                    Header: String = '');
+var
+  Sz: TSize;
+  S: string;
+  Top: Integer;
+begin
+    if not ShowNumPage and (Header = '') then exit;
+
+    Canvas.Font.Name := 'Tahoma';
+    Canvas.Font.Size := 12;
+    Canvas.Font.Color:= clBlack;
+
+    S:= 'Tahoma';
+    if header <> '' then
+       S:= header;
+    Sz:= Canvas.TextExtent(S);
+
+    if ShowNumPage then begin
+       Top:= PageHeight - ((PageHeight - (PageRect.Bottom - (Sz.Height-5)) ) div 2);
+       Canvas.TextOut(
+          PageWidth div 2,
+          Top,
+          PageNum.ToString
+        );
+    end;
+
+    if Header <> '' then begin
+       Top:= (PageRect.Top - (Sz.Height-5)) div 2;
+       if Top < 0 then
+          Top:= PageRect.Top;
+
+       Canvas.TextOut(
+          PageWidth - (PageWidth - PageRect.Right) - Sz.Width - 5,
+          Top,
+          Header
+        );
+    end;
+end;
+
+
+
+// [dpv]: ShowNumPage, OwnPrintJob, FirstPageMarginTop (pixels), Result(LastPagePrintedHeight) (pixels), Header
 function TRxCustomRichEdit.Print(const Caption: string;
                                  ShowNumPage: boolean= true; StartNumPage: boolean= true;
-                                 OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1): integer;
+                                 OwnPrintJob: boolean= true; FirstPageMarginTop: integer = -1;
+                                 const Header: string = ''): integer;
 var
   Range: TFormatRange;
   LastChar, MaxLen, LogX, LogY, OldMap: Integer;
@@ -6314,22 +6366,11 @@ var
     Result := MulDiv(Pixels, 1440, DPI);
   end;
 
-  procedure AddPageNumber;
+  procedure AddPageNumberAndHeader;
   begin
-    if not ShowNumPage then exit;
-
-    with Range do begin
-       Printer.Canvas.Font.Size := 10;
-       Printer.Canvas.Font.Color:= clBlack;
-       Printer.Canvas.TextOut(
-          Printer.PageWidth div 2,
-          Printer.PageHeight - ((Printer.PageHeight - PageRect.Bottom) div 2),
-          Format('%d', [PageNum])
-        );
-    end;
+    PrintPageNumberAndHeader(Printer.Canvas, Printer.PageWidth, Printer.PageHeight, PageRect, PageNum, ShowNumPage, Header);
     inc(PageNum);
   end;
-
 
 begin
 {$IFDEF RX_ENHPRINT}
@@ -6382,14 +6423,14 @@ begin
       if FirstPageMarginTop >= 0 then
          rc.Top:= PixelsToTwips(FirstPageMarginTop, LogY)
       else
-         AddPageNumber;
+         AddPageNumberAndHeader;
 
       repeat
         chrg.cpMin := LastChar;
         LastChar := SendMessage(Self.Handle, EM_FORMATRANGE, 1, LPARAM(@Range));
         if (LastChar < MaxLen) and (LastChar <> -1) then begin
            NewPage;
-           AddPageNumber;
+           AddPageNumberAndHeader;
         end
         else
            Result:= MulDiv(Range.rc.Bottom, LogY, 1440);    // [dpv] Current printed height  (Twips -> Pixels)
@@ -6515,7 +6556,9 @@ Difference between hdc and hdcTarget
 {$IFDEF RX_ENHPRINT}                                                                // [dpv]
 function TRxCustomRichEdit.CreatePrnPrew(const Caption: string;
                                          ShowNumPage: boolean= true;
-                                         FirstPageMarginTop: integer = -1; ScreenDPI: Integer= 96): Integer;
+                                         FirstPageMarginTop: integer = -1;
+                                         ScreenDPI: Integer= 96;
+                                         const Header: string = ''): Integer;
 var
   Range: TFormatRange;
   LastChar, MaxLen, DPI, OldMap: Integer;
@@ -6523,24 +6566,6 @@ var
   MetaCanvas: TMetafileCanvas;
   PWidth, PHeight: Integer;
   hdcMetacanvas: HDC;
-
-  procedure AddPageNumber;
-  var
-    PageNum: Integer;
-  begin
-    if not ShowNumPage then exit;
-
-    with Range do begin
-       PageNum:= PrnPreviews.Count + 1;
-       MetaCanvas.Font.Size := 10;
-       MetaCanvas.Font.Color:= clBlack;
-       MetaCanvas.TextOut(
-          PWidth div 2,
-          PHeight - ((PHeight - PageRect.Bottom) div 2),
-          Format('%d', [PageNum])
-        );
-    end;
-  end;
 
   function GetNewPageHDC (First: boolean): HDC;
   begin
@@ -6551,7 +6576,8 @@ var
     MetaCanvas.Brush.Color:= clWindow;
     MetaCanvas.FillRect(FullPageRect);
 
-    AddPageNumber;
+    if ShowNumPage or (Header <> '') then
+       PrintPageNumberAndHeader(MetaCanvas, PWidth, PHeight, PageRect, PrnPreviews.Count + 1, ShowNumPage, Header);
 
     if First and (FirstPageMarginTop <> -1) and (PrnPreviews.Count > 0) then begin
        MetaCanvas.Draw(0, 0, PrnPreviews[PrnPreviews.Count-1]);

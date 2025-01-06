@@ -240,10 +240,12 @@ type
   function RemoveKNTHiddenCharactersInRTF  (const s: AnsiString; HiddenMarks: THiddenMarks;
                                             ReplaceWithStdBk: Boolean = False;
                                             NNodeGID: Cardinal= 0): AnsiString; overload;
-  procedure RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks;
-                                           var RTFTextOut: AnsiString;
-                                           ReplaceWithStdBk: Boolean = False; NNodeGID: Cardinal= 0;
-                                           Offset: Integer = 1; ProcessUntilOffset: Integer = -1);  overload;
+  procedure RemoveKNTHiddenCharactersInRTF (const S: AnsiString; HiddenMarks: THiddenMarks;
+                                            var RTFTextOut: AnsiString;
+                                            var pOut: integer;
+                                            ReplaceWithStdBk: Boolean = False;
+                                            NNodeGID: Cardinal= 0;
+                                            Offset: Integer = 1; ProcessUntilOffset: Integer = -1 ); overload;
 
   function GetHumanizedKNTHiddenCharacters (const s: string): string;
 
@@ -640,29 +642,37 @@ begin
 end;
 
 
-function RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks;
-                                        ReplaceWithStdBk: Boolean = False; NNodeGID: Cardinal= 0 ): AnsiString;
+function RemoveKNTHiddenCharactersInRTF  (const s: AnsiString; HiddenMarks: THiddenMarks;
+                                          ReplaceWithStdBk: Boolean = False;
+                                          NNodeGID: Cardinal= 0): AnsiString;
+var
+  pOut: integer;
 begin
-    RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, Result, ReplaceWithStdBk, NNodeGID);
+   // Offset = 1 => pOut = 1
+   RemoveKNTHiddenCharactersInRTF(S, HiddenMarks, Result, pOut, ReplaceWithStdBk, NNodeGID);
 end;
 
 
 procedure RemoveKNTHiddenCharactersInRTF(const S: AnsiString; HiddenMarks: THiddenMarks;
                                          var RTFTextOut: AnsiString;
-                                         ReplaceWithStdBk: Boolean = False; NNodeGID: Cardinal= 0;
+                                         var pOut: integer;
+                                         ReplaceWithStdBk: Boolean = False;
+                                         NNodeGID: Cardinal= 0;
                                          Offset: Integer = 1; ProcessUntilOffset: Integer = -1 );
 var
-   pI, pPrefix, pF, len: integer;
+   pI, pPrefix, pF, len, p: integer;
    Prefix: AnsiString;
    RTFIn: PAnsiChar;
-   pIn, pOut, pOut_Ini, NBytes: integer;
+   pIn, pOut_Ini, NBytes: integer;
    LastCharIn: AnsiChar;
 
    bmkID:  AnsiString;
    bmkStd: AnsiString;
-   MarkID: integer;
    ReplaceWith: AnsiString;
-   KeyMarker: AnsiChar;
+   HiddenCommand: AnsiChar;
+   HiddenSubCommand: AnsiChar;
+   HeaderText: AnsiString;
+   CommandsJoined: boolean;    // I try to avoid something like the following, but just in case it happens:  \cf0\v\f0\fs16\'11D14\'12\'11FS+HLevel1\'12\cf2\v0\f1\fs24\par
 
 const
    BMK_STD = '{\*\bkmkstart %d_%s%d}{\*\bkmkend %d_%s%d}';
@@ -673,77 +683,120 @@ const
    PrefixData = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
 
 
-   procedure CheckCreateResult;
+   procedure CheckCreateResult (N: Integer);
    begin
-      if RTFTextOut = '' then
-         SetLength(RTFTextOut, Length(S) + 4000)
+      if RTFTextOut = '' then begin
+         SetLength(RTFTextOut, Length(S) + 8000);
+         {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+         ZeroMemory(@RTFTextOut[pOut], 1000);
+         {$ENDIF}
+      end
       else
-         if (pOut + NBytes) > Length(RTFTextOut) then
-            SetLength(RTFTextOut, Length(RTFTextOut) + NBytes + 4000);
-
-   {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
-      ZeroMemory(@RTFTextOut[pOut], 1000);
-   {$ENDIF}
-
+         if (pOut + N) > Length(RTFTextOut) then begin
+            SetLength(RTFTextOut, Length(RTFTextOut) + N + 4000);
+            {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+            ZeroMemory(@RTFTextOut[pOut], 1000);
+            {$ENDIF}
+         end;
    end;
 
    procedure RemoveReplace (p: Integer; const ReplaceWith: AnsiString);
    begin
       NBytes:= p - pIn;
-      CheckCreateResult;
+
+      CheckCreateResult (NBytes + Length(ReplaceWith));
       Move(S[pIn], RTFTextOut[pOut], NBytes);
       inc(pOut, NBytes);
-      Move(ReplaceWith[1], RTFTextOut[pOut], Length(ReplaceWith));
-      inc(pOut, Length(ReplaceWith));
+      if ReplaceWith <> '' then begin
+         Move(ReplaceWith[1], RTFTextOut[pOut], Length(ReplaceWith));
+         inc(pOut, Length(ReplaceWith));
+      end;
+
       pIn:= p + Len;
    end;
 
-   function GetStdBk(pos: integer): AnsiString;
+   function GetStdBk(MarkID: integer): AnsiString;
    begin
-      Result:= Format(BMK_STD, [NNodeGID, KeyMarker, MarkID,   NNodeGID, KeyMarker, MarkID]);
+      Result:= Format(BMK_STD, [NNodeGID, HiddenCommand, MarkID,   NNodeGID, HiddenCommand, MarkID]);
    end;
 
-   function GetMarkID (pI, pF: Integer): integer; overload;
+
+   function GetRTFCommands (const Str: AnsiString): AnsiString;
    var
-      Str: AnsiString;
-      p: integer;
+      MarkID: integer;
+      p, LenCmd, L: integer;
+      HiddenSubCommand: AnsiChar;
+      Param: AnsiString;
    begin
-     Result:= -1;
-     KeyMarker:= KNT_RTF_HIDDEN_BOOKMARK;
-     // Normal case: \v\'11B36\'12\v0 XXX       -> ID: 36
-     // pI points to "\v\" and pF to "\'12\"
-     Str:= Copy(S, pI, pF-pI+1);
-     p:= Pos(PrefixBmk, Str);
-     if (p <= 0) then begin
-        p:= Pos(PrefixBmkPos, Str);         // Equivalent, by positions: \v\'11P300\'12\v0
-        KeyMarker:= KNT_RTF_HIDDEN_BMK_POSITION;
-     end;
+     // Str: "B36" or "I123" or
+     // "FP" or "FHMy page header" or "FD+F+S+HMy page header" or ...
 
-     if (p > 0) then
-        Result:= StrToIntDef(Copy(Str, p+Length(PrefixBmk), pF-pI-p-Length(PrefixBmk)+1),  0)
-     else begin
-        p:= Pos(PrefixData, Str);
-        if (p > 0) then
-           Result:= 0;
-     end;
+     {
+      *1 Remember (RTF Specification)
+      Section Break
+      \sbknone	No section break.
+      \sbkcol	Section break starts a new column.
+      \sbkpage	Section break starts a new page (the default).
+      \sbkeven	Section break starts at an even page.
+      \sbkodd	Section break starts at an odd page.
+
+     *2:
+     \page doesn't work if it's between \v and v0, but \sect does
+     }
+
+      Result:= '';
+      L:= Length(Str);
+
+      case HiddenCommand of
+        KNT_RTF_HIDDEN_BOOKMARK, KNT_RTF_HIDDEN_BMK_POSITION:
+            begin
+               MarkID:= StrToIntDef(Copy(Str, 2, L-1),  0);
+               Result:= GetStdBk(MarkID);
+            end;
+        KNT_RTF_HIDDEN_DATA:
+            begin
+               HiddenCommand:= KNT_RTF_HIDDEN_BOOKMARK;
+               Result:= GetStdBk(0);
+            end;
+
+        KNT_RTF_HIDDEN_FORMAT:
+            begin
+               p:= 2;
+               Result:= '';
+               repeat
+                  HiddenSubCommand:= Str[p];
+                  LenCmd:= 1;
+                  case HiddenSubCommand of
+                     KNT_RTF_HIDDEN_FORMAT_DIMENSIONS: Result:= Result + GetPageDimensionesInRTF;
+                     KNT_RTF_HIDDEN_FORMAT_SECTION:    Result:= Result + '\sect ';    // See *1
+                     KNT_RTF_HIDDEN_FORMAT_PAGE:       Result:= Result + '\sect ';    // See *2
+                     KNT_RTF_HIDDEN_FORMAT_FOOTER:     Result:= Result + GetFooterInRTF;
+                     KNT_RTF_HIDDEN_FORMAT_HEADER:     begin
+                                                         Param:= Copy(Str, p+1, L-2);
+                                                         Result:= Result + GetHeaderInRTF(Param);
+                                                         inc(LenCmd, Length(Param));
+                                                       end;
+                     else
+                        break;
+                  end;
+                  inc(p, LenCmd);
+                  if (p < L) and (Str[p] = KNT_RTF_HIDDEN_FORMAT_PLUS) then
+                     inc(p)
+                  else
+                     break;
+               until p >= L;
+            end;
+      end;
+
+      if Result = '' then
+         Result := EmptyBraces;
    end;
 
-   function GetMarkID (const Str: AnsiString): integer; overload;
-   var
-      p: integer;
-   begin
-     Result:= -1;
-     KeyMarker:= KNT_RTF_HIDDEN_BOOKMARK;
-     // Str: "\'11B36\'12"         ->ID: 36
-     if Str[5] in [KNT_RTF_HIDDEN_BOOKMARK, KNT_RTF_HIDDEN_BMK_POSITION] then begin
-        Result:= StrToIntDef(Copy(Str, 6, Length(Str)-9),  0);
-        KeyMarker:= Str[5];
-     end
-     else
-     if Str[5] = KNT_RTF_HIDDEN_DATA then
-        Result:= 0;
-   end;
 
+   function ValidHiddenLength: boolean;
+   begin
+       Result:= (len <= KNT_RTF_HIDDEN_MAX_LENGHT) or (HiddenCommand = KNT_RTF_HIDDEN_FORMAT);
+   end;
 
 begin
   if S='' then Exit;
@@ -751,10 +804,10 @@ begin
   //  {\rtf1\ansi {\v\'11B5\'12} XXX };   {\rtf1\ansi \v\'11B5\'12\v0 XXX};  {\rtf1\ansi \v\'11T999999\'12\v0 XXX};
 
   (* *1
-     hello \v\''11B1\''12\v0\fs36 BIG WORLD  =>  hello \fs36 BIG WORLD
-                                                 hello {}\fs36 BIG WORLD
-     hello \v\''11B1\''12\v0 world           =>  hello world      (-> remove space after \v0)
-                                                 hello {}world    (-> remove space after \v0)
+     hello \v\'11B1\'12\v0\fs36 BIG WORLD  =>  hello \fs36 BIG WORLD
+                                               hello {}\fs36 BIG WORLD
+     hello \v\'11B1\'12\v0 world           =>  hello world      (-> remove space after \v0)
+                                               hello {}world    (-> remove space after \v0)
 
     It is not easy to distinguish between these two possible cases. In the first case we should not remove the space after \v0
     and in the second case we should. To avoid problems it seems convenient to replace the text to be removed with "{}",
@@ -762,11 +815,11 @@ begin
 
     \pard\cf3\b\v\'11B12\'12\v0 hello world  => \pard\cf3\b hello world
                                                 \pard\cf3\b{}hello world
-    Compre\v\''11B8\''12\v0 ssion and        => Compres{}ssion and       --> RichEdit will eventually turn it into Compresssion and
+    Compre\v\'11B8\'12\v0 ssion and        => Compres{}ssion and       --> RichEdit will eventually turn it into Compresssion and
   *)
 
   (*   *2
-     We need to detect this situation, tags used for informational purposes, as part of the text. 
+     We need to detect this situation, tags used for informational purposes, as part of the text.
      It would really be something completely unusual, but at least it is given in the KeyNote help document...
    <<... The use of these tags (e.g. "\v\'11I3\'12\v0") simplifies ...>>
    It is represented in RTF:
@@ -833,16 +886,23 @@ begin
   end;
 
 
+  CommandsJoined:= False;
+
   pIn:= Offset;
-  pOut:= Length(RTFTextOut)+1;
+
+  if Offset = 1 then
+     pOut:= 1;
+
   if (pOut > 1) and (RTFTextOut[pOut-1] = #0) then
      dec(pOut);
   pOut_Ini:= pOut;
   pI:= Offset;
 
   repeat
-     pI:= PosPAnsiChar('\v\', RTFIn, pI);
+     if not CommandsJoined then
+        pI:= PosPAnsiChar('\v\', RTFIn, pI);
 
+     CommandsJoined:= False;
      ReplaceWith:= EmptyBraces;
 
      if pI > 0 then begin
@@ -853,23 +913,20 @@ begin
            continue;
         end;
 
+        p:= pPrefix + Length(KNT_RTF_HIDDEN_MARK_L);
+        HiddenCommand:= S[p];
+
         pF:= PosPAnsiChar(KNT_RTF_HIDDEN_MARK_R + '\v0', RTFIn, pPrefix + Length(Prefix));
         len:= pF-pI + Length(KNT_RTF_HIDDEN_MARK_R + '\v0');
-        if (pF > 0) and (pPrefix = pI + 2) and (len <= KNT_RTF_HIDDEN_MAX_LENGHT) then begin
+        if (pF > 0) and (pPrefix = pI + 2) and ValidHiddenLength then begin
            // Normal case: \v\'11B5\'12\v0 XXX
             if (S[pI + len] = ' ') then          // *1   (S[pI+Len]=RTFIn[pI + len-1])
                Inc(len);
-               
-            if ReplaceWithStdBk then begin
-               MarkID:= GetMarkID(pI, pF);
-               if MarkID >= 0 then
-                  ReplaceWith:= GetStdBk(pI);
-            end;
 
-            //Delete(Result, pI, len);
+            if ReplaceWithStdBk then
+               ReplaceWith:= GetRTFCommands(Copy(S, p, pF-p));  // Parameter: "B5"
+
             RemoveReplace(pI, ReplaceWith);
-
-            pI:= pF + 1;
         end
         else begin
            // Problematic case. Ex:
@@ -880,24 +937,22 @@ begin
             if (pF = 0) then break;
 
             len:= pF-pPrefix + Length(KNT_RTF_HIDDEN_MARK_R);
-            if (len <= KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT) then begin
-               if ReplaceWithStdBk then begin
-                  MarkID:= GetMarkID(Copy(S, pPrefix, len));
-                  if MarkID >= 0 then
-                     ReplaceWith:= GetStdBk(pPrefix);
-               end;
+            if ValidHiddenLength then begin
+               if ReplaceWithStdBk then
+                  ReplaceWith:= GetRTFCommands(Copy(S, p, pF-p));  // Parameter: "B5" or "I123" or "FHMy Header" or ...
 
-               //Delete(Result, pPrefix, len);
                RemoveReplace(pPrefix, ReplaceWith);
             end;
-            pI:= pF+1;
         end;
 
+        if Copy(S, pF + Length(KNT_RTF_HIDDEN_MARK_R), Length(KNT_RTF_HIDDEN_MARK_L)) = KNT_RTF_HIDDEN_MARK_L then   // Ex:  \cf0\v\f0\fs16\'11D14\'12\'11FS+HLevel1\'12\cf2\v0\f1\fs24\par
+           CommandsJoined:= True;
+        pI:= pF + 1;
      end;
 
   until pI = 0;
 
-  if (pOut = pOut_Ini) and (RTFTextOut = '') then begin
+  if (pOut = pOut_Ini) and (RTFTextOut = '') and (ProcessUntilOffset = -1) then begin
      RTFTextOut:= S;
   end
   else begin
@@ -905,10 +960,12 @@ begin
         NBytes:= ProcessUntilOffset - pIn
      else
         NBytes:= Length(S) - pIn;
-     CheckCreateResult;
+     CheckCreateResult(NBytes);
      Move(S[pIn], RTFTextOut[pOut], NBytes);
      inc(pOut, NBytes);
-     SetLength(RTFTextOut, pOut-1);
+
+     if ProcessUntilOffset = -1 then
+        SetLength(RTFTextOut, pOut-1);
   end;
 
   if LastCharIn <> #0 then begin
