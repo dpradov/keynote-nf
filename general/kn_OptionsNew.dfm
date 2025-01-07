@@ -184,7 +184,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 144
           Width = 206
           Height = 21
-          Hint = 'Select action to perform when ESC key is pressed'
+          Hint = 'Language in which the interface will be displayed'
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
