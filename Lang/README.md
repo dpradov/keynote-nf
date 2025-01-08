@@ -13,6 +13,7 @@ Comment=Translation by Ennovy and Plankje
 Name=Dutch
 LangFile=Keynote.dutch.lng
 TipFile=Keynote.dutch.tip
+RTL=0
 Translator=http://forum.goeiedageven.nl/
 ```
 <br>
@@ -211,6 +212,14 @@ This modification is reflected in the Keynote.dutch.lng file as:
 ```
 64743_knt_RS_sSty02= %s, %s space, %s, L:%d F:%d R:%d, Bef:%d Aft:%d
 ```
+
+## Translation to RTL languages
+The entire interface will be adapted to Right to Left (RTL) if the configured UI language is defined as RTL. The property "RTL" have been added to the keynote.lan to indicate if should be managed as RTL. A value of 1 means True.
+
+*	The tree and the editor will depend on the folder level option, instead.
+It would be possible to see the menus in RTL and at the same time the content of some trees in RTL and others in LTR, which may be of interest depending on the content of the trees.
+*	In order for it to display correctly, with controls aligned properly, etc., I'll still need to make some adjustments in some forms. Please, let me know.
+<br/>
 
 ## Creating or updating languages files (Developers)
 To keep translation files (.LNG) working and up to date, it is necessary to update the files 
