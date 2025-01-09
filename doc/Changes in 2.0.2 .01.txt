@@ -1,0 +1,119 @@
+
+Changes in 2.0.2 .01     (09 jan 2025)
+====================
+
+* Added support for RTL (Right to left) languages
+
+ - Shortcuts Ctrl-right+Shift-right and Ctr-left+Shift-left are again available to change current or selected paragraphs
+   between RTL (Ctrl-right+Shift-right) or LTR (Ctr-left+Shift-left).
+   These shortcuts were available in 1.9.5, but its use could interfere with other shortcuts including Ctrl and Shift
+   (like Ctrl+Shift+F11 or the one used as HotKey -usually Ctrl+Shift+F12, for example). After executing the desired
+   shortcut, CtrlR+ShiftR or CtrlL+ShiftL could also be executed, marking the file as modified (and changing the RTL/LTR
+   status of the paragraph).
+   Now those problems have been solved.
+
+ - A new entry have been added to the editor's context menu: Reading from right to left (RTL).
+   It is equivalent to using Ctrl-right+Shift-right and Ctr-left+Shift-left.
+
+ - A new Folder level option have been included, "RTL (Right to Left)", that defines default bidirectional mode for tree
+   and editor in folder. If set to True then the tree will be displayed as RTL, the editor will be set to RightToLeftNoAlign,
+   and also new notes will start an RTL paragraph by default.
+
+ - The entire interface will be adapted to RTL (*)(**) if the configured UI language (according a translated .LNG file) is
+   defined as RTL. A new property have been added to the keynote.lan for each language to indicate if should be managed
+   as RTL. The property is "RTL" (1 or 0)
+
+   (*) The tree and the editor will depend on the folder level option, instead.
+      It would be possible to see the menus in RTL and at the same time the content of some trees in RTL and others in LTR,
+      which may be of interest depending on the content of the trees.
+
+  (**) In order for it to display correctly, with controls aligned properly, etc., I'll still need to make some adjustments.
+
+  - Adjusted the layout of Folder properties dialog (F4/F6) to allow translation to an RTL language
+
+
+- - - - - - - - - - - 
+PRINT AND EXPORT IMPROVEMENTS
+
+* KNT internal links are now converted to standard RTF format (works with MS Word and LibreOffice)
+  This way hyperlinks pointing to other locations in the document will work.
+  For example in Word you can Ctrl+Click to follow a link (It also works Alt+Left to return to the initial position)
+  Using those editors editors you can save your RTF generated file to PDF format, with working links.
+
+  - Internal links without marker are also converted to standard RTF format. These are links created with versions of 
+    KeyNote prior to 1.8.0, where markers were not used to identify the destination, but only the position
+
+  - The exported document can be opened in WordPad but internal links won't work, because WordPad
+    doesn't recognize that kind of links (WordPad uses a limited subset of the Rich Text Format specification)
+    * If the exported document is modified and saved from WordPad, the data attached to the links
+      and the bookmarks themselves will be lost.
+
+- - -
+* Enabled (and redesigned) File | Print Preview
+ - Use of existing image viewer
+ - The shortcuts offered by the viewer are expanded:
+   if the image is displayed in full, clicking Home, End, Prior or Next moves between images in the note (or pages in the print preview).
+   
+* Page numbering is added to File|Print... and File|Print Preview
+
+- - -
+* Added "Printer (PDF, ...)" as a new target format in File | Export...
+  This allows to use all the functionality currently available for export when printing, either to paper (printer) or to PDF (eg.).
+
+* Export. New options:
+  * Table of Contents (with standard RTF links)	
+    The maximum depth of the tree hierarchy can be configured.
+	
+  * Use of Sections
+    By using sections it is possible to create groupings of notes with a defined maximum depth level. Seen another way, each time
+	a note with a depth equal to or less than the set value is processed a new section is started. If you enable the use of sections
+	you will be able to:
+    - Decide whether the section will start on a new page or be saved in a separate file (one of two alternatives)
+     (When printing, the only possible option, automatically selected, will be to start each section on a new page)
+
+    - Set a section-dependent page header
+      By default, the name of the highest level node on which the node depends (and which is included in the export) will be used 
+	  as the page header. It is possible to define, through the option "Top N levels as Page Header (in sections)", the level of 
+	  detail in the header, adding the name of other lower level parent nodes.
+      The value set for the number of levels in the page header may be less than or equal to the depth indicated for the section
+      The use of page headers is available both when exporting to RTF and when printing and previewing.
+
+    In current version, when exporting keynote folders, you could choose to put all nodes to a single target file, or to export each 
+	tree node to a separate target file. Now it is also possible with the use of sections; you only have to define a depth value equal
+	or higher than the level of the deepest node you want to consider.
+
+  * Start each Note on a new Page
+    Allows all notes to start on a new page. This option is only available for RTF export and printing, and can be activated
+	independently of using sections or the "Save each Folder to a new File" option.
+
+  * Save each Folder to a new File
+    When you include notes from more than one folder as the export source, if you activate the "Save each Folder to a new File" 
+	option, a file will be generated for each folder to be exported. Otherwise, all of them will be exported to a single file 
+	(unless sections are being used and these are saved to disk)..
+    This option can only be selected if sections are not used or are not configured by setting "Save each Section to a new File".
+
+  * Insert page number as Footer
+  
+  * Body Font
+    Allows to customize the font of the entire exported document (name and size, without changing the font style such as bold or italics).
+    With this option you can generate a document with a uniform and neat appearance
+
+* Also: 
+  - Was ignoring 'Font Sizes' when selected 'Export each note to a separated target file'
+  - Other improvements to the export process, such as the way file names are generated.
+
+- - - -
+* Added "cintanotes:" as a new URL scheme (Ref: #775)
+
+- - - - - - - - - 
+* Fixed: After importing a TreePad file, there were no nodes visible
+  Ref: #782
+
+* Find All panel: Change in layout  (Ref: #787)
+
+* Fixed: Some words marked as target for bookmarks could be [partially] ignored when removing hidden marks   (ex: exporting to RTF)
+  Besides when exporting to RTF or HTML, it also could be detected: copying a text including that bookmark
+  and pasting it into another program. In the process of removing hidden bookmarks, a word (or fraction) could be ignored.
+  For example, in note "Image management in KeyNote NF" in Help, if we copied the text that includes "Compression and
+  encryption" (selecting also text before), and paste outside of it the text pasted was "ssion and encryption" instead of
+  "Compression and encryption"

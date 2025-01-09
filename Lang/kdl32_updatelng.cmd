@@ -32,6 +32,10 @@ del Keynote.french_WRK.lng.bak
 copy Keynote.french_WRK.lng   Keynote.french_WRK.lng.bak
 "..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.french_WRK.lng  Keynote.lng -! -x
 
+del Keynote.japanese_WRK.lng.bak
+copy Keynote.japanese_WRK.lng   Keynote.japanese_WRK.lng.bak
+"..\..\src\3rd_party\Kryvich Delphi Localizer\lngupdate.exe" Keynote.japanese_WRK.lng  Keynote.lng -! -x
+
 
 echo ****************** 
 

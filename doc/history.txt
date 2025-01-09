@@ -3,6 +3,33 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.0.2.1   (09 jan 2025)
+--------------------------
+(Detailed info in doc\Changes in 2.0.2 .01.txt)
+
+* Added support for RTL (Right to left) languages
+
+Print and Export improvements:
+* KNT internal links are now converted to standard RTF format (works with MS Word and LibreOffice)
+* Enabled (and redesigned) File | Print Preview
+* Page numbering is added to File|Print... and File|Print Preview
+* Added "Printer (PDF, ...)" as a new target format in File | Export.... (Preview available)
+* Export. New options:
+  * Table of Contents
+  * Use of Sections
+   - Section will start on a new page or be saved in a separate file
+   - Section-dependent page header
+  * Start each Note on a new Page 
+  * Save each Folder to a new File
+  * Insert page number as Footer
+  * Body Font
+  
+* Added "cintanotes:" as a new URL scheme
+* Find All panel: Change in layout  
+* Fixed: After importing a TreePad file, there were no nodes visible
+* Fixed: Some words marked as target for bookmarks could be [partially] ignored when removing hidden marks
+
+
 v 2.0.1.1   (15 dec 2024)
 --------------------------
 (Detailed info in doc\Changes in 2.0.1 .01.txt)
