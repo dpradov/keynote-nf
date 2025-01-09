@@ -1,0 +1,15 @@
+[English]
+Comment=Initially: identical to text incrusted in .exe
+Name=English
+LangFile=Keynote.english.lng
+TipFile=Keynote.english.tip
+Translator=""
+RTL=0
+
+[Japanese]
+Comment=Compatible with v2.0.1.01
+Name=Japanese
+LangFile=Keynote.japanese.lng
+TipFile=Keynote.japanese.tip
+Translator=coolvitto
+RTL=0
