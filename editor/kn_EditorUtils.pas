@@ -1071,7 +1071,7 @@ const
 begin
    DPI:= Screen.PixelsPerInch;
    GetPrintDimensionsInPixels(mLeft, mTop, mRight, mBottom, PageWidth, PageHeight, OffsetX, OffsetY, DPIx, DPIy, DPI);
-   Result:= Format('\paperw%d\paperh%d\margl%d\margr%d\margt%d\margb%d \footery%d\headery%d ',
+   Result:= Format('\paperw%d\paperh%d\margl%d\margt%d\margr%d\margb%d \footery%d\headery%d ',
      [PixelsToTwips(PageWidth, DPI),
       PixelsToTwips(PageHeight, DPI),
       PixelsToTwips(mLeft, DPI),
