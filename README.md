@@ -2,7 +2,10 @@
 
 <p align="center">
 <img width="650" src="https://github.com/dpradov/keynote-nf/blob/master/doc/Images/Img1.png">
+<br/>
+<sup><a href = "https://raw.githubusercontent.com/dpradov/keynote-nf/master/doc/Help/KeyNoteNF%20Help.pdf">KeyNoteNF Help.pdf</a></sup>	
 <p/>
+
 
 
 ## KeyNote NF
@@ -51,6 +54,9 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
  * *Improved Export* 
    * Added new tokens and options for note/node heading
    * Added new options for indenting nested nodes
+   * KNT internal links are converted to standard RTF format (works with MS Word and LibreOffice)
+   * Added "Printer (PDF, ...)" as a new target format in File | Export.... (Preview also available)
+   * Table of Contents, sections, page number, page header, etc.
  
  * *Checkboxes on children of selected nodes* <br>
    * Selecting checkboxes for all nodes (View/Tree Checkboxes -- now View/All nodes Checkboxes) is still posible. Besides, checkboxes can be shown only on children of selected nodes (Children Checkbox)
@@ -76,6 +82,9 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
 ### References, documentation and contact information
 In [References.md](doc/References.md) you will get information about where to find documentation and help about KeyNote, and 
 relevant addresses and contact information.
+
+Also available the complete help file in PDF: [KeyNoteNF Help.pdf](https://raw.githubusercontent.com/dpradov/keynote-nf/master/doc/Help/KeyNoteNF%20Help.pdf)
+
 <br><br>
 
 ### Name. Compatibility
