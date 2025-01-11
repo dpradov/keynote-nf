@@ -2532,8 +2532,9 @@ begin
       else
          FSavedActiveFolderID := 0;
 
-      if Assigned(ActiveFolder) then
-         ActiveFolder.SaveEditorToDataModel;
+      for i := 0 to FFolders.Count -1 do
+         FFolders[i].SaveEditorToDataModel;
+
 
 
       case FFileFormat of
