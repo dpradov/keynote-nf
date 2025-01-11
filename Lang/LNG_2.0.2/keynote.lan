@@ -1,9 +1,10 @@
-[Japanese]
+﻿[Japanese]
 Comment=v2.0.2.01
 Name=Japanese
 LangFile=Keynote.japanese.lng
 TipFile=Keynote.japanese.tip
 Translator=coolvitto
+RTL=0
 
 [English]
 Comment=Initially: identical to text incrusted in .exe
@@ -11,3 +12,4 @@ Name=English
 LangFile=Keynote.english.lng
 TipFile=Keynote.english.tip
 Translator=
+RTL=0

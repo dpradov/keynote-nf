@@ -1,16 +1,18 @@
-[English]
+﻿[English]
 Comment=Initially: identical to text incrusted in .exe
 Name=English
 LangFile=Keynote.english.lng
 TipFile=Keynote.english.tip
 Translator=
+RTL=0
 
 [Spanish]
 Comment=Partially translated
-Name=Spanish (Castellano)
+Name=Spanish (Español-Castellano)
 LangFile=Keynote.spanish.lng
 TipFile=Keynote.spanish.tip
 Translator=dprado.keynote@gmail.com
+RTL=0
 
 [Dutch]
 Comment=Translation by Ennovy and Plankje
@@ -18,6 +20,7 @@ Name=Dutch
 LangFile=Keynote.dutch.lng
 TipFile=Keynote.dutch.tip
 Translator=http://forum.goeiedageven.nl/
+RTL=0
 
 [German]
 Comment=OPTION - menu and .tip file aren't translated yet
@@ -25,6 +28,7 @@ Name=German
 LangFile=Keynote.german.lng
 TipFile=Keynote.english.tip
 Translator=Klaus Utech  (http://www.klausutech.com)
+RTL=0
 
 [Chinese  Simplified]
 Comment=Includes the main UI elements. The .tip file aren't translated yet
@@ -32,6 +36,7 @@ Name=Chinese  Simplified
 LangFile=Keynote.chinese-simplified.lng
 TipFile=Keynote.english.tip
 Translator=xbeta  (http://xbeta.info)
+RTL=0
 
 [French]
 Comment=The .tip file aren't translated yet
@@ -39,6 +44,7 @@ Name=French
 LangFile=Keynote.french.lng
 TipFile=Keynote.english.tip
 Translator=Picou (picou.keynote@gmail.com)
+RTL=0
 
 [Japanese]
 Comment=
@@ -46,3 +52,4 @@ Name=Japanese
 LangFile=Keynote.japanese.lng
 TipFile=Keynote.japanese.tip
 Translator=coolvitto
+RTL=0
