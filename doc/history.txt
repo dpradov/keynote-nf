@@ -3,6 +3,15 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.0.3.1   (11 jan 2025)
+--------------------------
+IMPORTANT (2.0.0+): 
+* Fixed: Saving is ignoring changes not yet committed, in other Folders editors (#791)
+
+* Fixed: Incorrect margins in exported RTF
+* Export: 'Page Setup...' and 'Preview' are now also available when selected RTF as the target format
+
+
 v 2.0.2.1   (09 jan 2025)
 --------------------------
 (Detailed info in doc\Changes in 2.0.2 .01.txt)

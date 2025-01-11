@@ -135,8 +135,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Release>2</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.2.1;FileVersion=2.0.2.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.2.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>3</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.3.1;FileVersion=2.0.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.3.1;Comments=;ProgramID=</VerInfo_Keys>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <DCC_MapFile>3</DCC_MapFile>
         <VerInfo_Build>1</VerInfo_Build>
@@ -162,8 +162,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Release>2</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.2.1;FileVersion=2.0.2.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.2.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>3</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.3.1;FileVersion=2.0.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.3.1;Comments=;ProgramID=</VerInfo_Keys>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>keynote_Icon.ico</UWP_DelphiLogo150>
