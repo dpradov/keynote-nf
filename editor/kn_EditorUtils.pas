@@ -46,7 +46,7 @@ procedure PasteIntoNew (const AsNewFolder: boolean);
 function GetPageDimensionesInRTF: AnsiString;
 function GetHeaderInRTF(const Header: AnsiString): AnsiString;
 function GetFooterInRTF: AnsiString;
-function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
+function GetPrintAreaInPixels (ScreenDPI: Double = -1; IgnorePrinterOffset: Boolean = False): TRect;
 function GetRealMonitorDPI: TPoint;
 function GetRealMonitorDPIx: Double;
 procedure GetPrintDimensionsInPixels (var mLeft, mTop, mRight, mBottom: Integer;
@@ -1032,7 +1032,7 @@ begin
 end;
 
 
-function GetPrintAreaInPixels (ScreenDPI: Double = -1): TRect;
+function GetPrintAreaInPixels (ScreenDPI: Double = -1; IgnorePrinterOffset: Boolean = False): TRect;
 var
   mLeft, mTop, mRight, mBottom: Integer;
   DPIx, DPIy: Double;
@@ -1042,10 +1042,12 @@ var
 begin
     GetPrintDimensionsInPixels(mLeft, mTop, mRight, mBottom, PageWidth, PageHeight, OffsetX, OffsetY, DPIx, DPIy, ScreenDPI);
 
-    if mLeft < OffsetX then
-       mLeft:= OffsetX;
-    if mTop < OffsetY then
-       mTop:= OffsetY;
+    if not IgnorePrinterOffset then begin
+       if mLeft < OffsetX then
+          mLeft:= OffsetX;
+       if mTop < OffsetY then
+          mTop:= OffsetY;
+    end;
 
     // Defining the printable area using margins
     Result.Left   := mLeft;

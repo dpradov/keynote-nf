@@ -143,6 +143,7 @@ type
     PrinterMode: boolean;
     LastPagePrintedHeight: integer;
     PreviewMode: boolean;
+    IgnorePrinterOffset: boolean;
     FirstPrint: boolean;
     InfoExportedNotes: TInfoExportedNotesInRTF;
     IndexOfExportedFile: integer;
@@ -567,8 +568,10 @@ begin
   Tab_TreePad.TabVisible:=  TreePadFmt;
   Tab_Options.TabVisible := not KntOrTreePadFmt;
 
-  btnPreview.Visible := PrinterFmt;
-  btnPageSetup.Visible := PrinterFmt;
+  IgnorePrinterOffset:= not PrinterFmt;
+
+  btnPreview.Visible := RtfOrPrinterFmt;
+  btnPageSetup.Visible := RtfOrPrinterFmt;
   Button_Ok.Default:= not PrinterFmt;
   if PrinterFmt then begin
      Button_Ok.Caption:= GetRS(sExpFrm22);
@@ -974,9 +977,30 @@ begin
 end;
 
 procedure TForm_ExportNew.btnPreviewClick(Sender: TObject);
+var
+  formatBak: TExportFmt;
+  SectionToFileBak: boolean;
 begin
   PreviewMode:= True;
-  PerformExport;
+
+  formatBak:= TExportFmt( Combo_Format.ItemIndex );
+  try
+     if formatBak <> xfPrinter then begin
+        SectionToFileBak:= CB_SectionToFile.Checked;
+        Combo_Format.ItemIndex := ord(xfPrinter);
+        CheckDependencies;
+        IgnorePrinterOffset:= True;
+     end;
+     PerformExport;
+
+  finally
+     if formatBak <> TExportFmt( Combo_Format.ItemIndex ) then begin
+        Combo_Format.ItemIndex := ord(formatBak);
+        CB_SectionToFile.Checked:= SectionToFileBak;
+        CheckDependencies;
+     end;
+  end;
+
 end;
 
 function TForm_ExportNew.ValidatePath : boolean;
@@ -1291,7 +1315,7 @@ begin
   if ( not ValidatePath ) then exit;
   WriteConfig;
 
-  if (ExportOptions.TargetFormat= xfPrinter) then begin
+  if ((ExportOptions.TargetFormat= xfPrinter) and not IgnorePrinterOffset) then begin
      if not PreviewMode or not PrinterSelected then
         if not Form_Main.PrintDlg.Execute then exit;
 
@@ -1986,7 +2010,7 @@ begin
            DPI:= -1;
            if PreviewMode then
               DPI:= Screen.PixelsPerInch;
-           RTF.PageRect:= GetPrintAreaInPixels(DPI);
+           RTF.PageRect:= GetPrintAreaInPixels(DPI, IgnorePrinterOffset);
 
            FirstPageMarginTop:= -1;
            if FirstPrint then begin
