@@ -182,6 +182,7 @@
         <DCCReference Include="..\RxResConst_swe.pas"/>
         <DCCReference Include="..\RxResConst_tur.pas"/>
         <DCCReference Include="..\RxResConst_ukr.pas"/>
+        <DCCReference Include="..\..\..\..\various\tom_TLB.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

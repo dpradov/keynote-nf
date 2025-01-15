@@ -140,6 +140,7 @@ contains
   RxResConst_svk in '..\RxResConst_svk.pas',
   RxResConst_swe in '..\RxResConst_swe.pas',
   RxResConst_tur in '..\RxResConst_tur.pas',
-  RxResConst_ukr in '..\RxResConst_ukr.pas';
+  RxResConst_ukr in '..\RxResConst_ukr.pas',
+  tom_TLB in '..\..\..\..\various\tom_TLB.pas';
 
 end.
