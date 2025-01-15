@@ -18,6 +18,9 @@ adapted to be compiled with Embarcadero Delphi Communiy Edition 11.3 (Alexandria
 KeyNote NF consists of two Delphi projects. The main project, keynote.dpr, 
 is the base application. The other project, kntutils.dpr, generates a DLL, used by
 the base application. Actually the DLL contains very little functionality.
+* Since version 2.0.1, functionality exposed from kntutils.dll is now included in keynote.exe
+  (kntutils.dll is no longer needed)
+
 
 
 ******************************************************************************************
@@ -42,11 +45,14 @@ install most of them (Components.dpk). The rest must be installed separately:
    => Install: Packages\Components.dpk
 
 2 - DCPcrypt v1.3
-   => Install: 3rd_party\dcpcrypt-1_3\DCP_d4.dpk
+   => Install: 3rd_party\DCP_d4.dpk       (dcpcrypt-1_3)
 
 3 - unRxLib: Unofficial version Rx library for Delphi 2005 .. Alexandria   (v1.21)    
    => Build:   3rd_party\unRxLib\units\packages_D11_Alexandria\RtmRxCtl280.dproj
    => Install: 3rd_party\unRxLib\units\packages_D11_Alexandria\DclRxCtl280.dproj
+
+- - - - - - - - 
+ Since version 1.8.0 kn_SendMail.pas is excluded with EXCLUDEEMAIL (-> do not requiered to compile ICS-Internet Component Suite v8.70 library) (SHA-1: 3caf1da453d40 01/08/23)
 
 4 - ICS-Internet Component Suite v8.70
    Unzip the file 3rd_party\ICS_v8\_icsv870.zip in some location (e.g. "<somePath>\icsv870)")
@@ -67,10 +73,20 @@ install most of them (Components.dpk). The rest must be installed separately:
         Once installed (first one, e.g.) the following configuration will be defined in  Options -> Language -> Delphi -> Library -> Library path:
             $(BDSCatalogRepository)\ICS_FMX-8.70-11\source\
             $(BDSCatalogRepository)\ICS_FMX-8.70-11\source\include
+- - - - - - - -              
+
+5 - Virtual-TreeView
+  => Open the project group "3rd_party\Virtual-TreeView\Packages\RAD Studio 10.4+\VirtualTreeView.groupproj"
+  => Right click on "VirtualTreesD*.bpl" and click "Install"
+  => Go to "Tools > Options > Language > Delphi Options > Library > Library Path > [...]"
+     Browse to the "Source" folder of VirtualTreeView, press "OK", "Add", "OK"
+     Do this for both Win32 and Win64 platform, which you can choose in the dropdown box.
+  => Close the RAD Studio Options dialog by clicking "Save".
+
              
 KeyNote NF:
-5 - Open "KeyNote_NF.groupproj", where there are two projects "kntutils.dll" and "keynote.exe"
-    Build both projects.
+6 - Open the project "KeyNote.dpr", that generates "keynote.exe"
+
 
     
 Note:		  

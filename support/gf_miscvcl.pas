@@ -96,7 +96,7 @@ function DarkenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function GetHotColorFor(BackColor, FontColor: TColor): TColor;
 function InvertColor(Color: TColor): TColor;
-function ColorInformation(Color: TColor): string;
+//function ColorInformation(Color: TColor): string;      // Included in ColorPicker
 
 function CheckCalendarInTDateTimePicker(AOwner: TWinControl): boolean;
 function PrepareTDateTimePicker(Control: TDateTimePicker): boolean;
@@ -772,6 +772,7 @@ begin
 
 end;
 
+{      // Included in ColorPicker
 
 function ColorInformation(Color: TColor): string;
 var
@@ -790,7 +791,7 @@ begin
   end;
 
 end;
-
+}
 
 // There is a bug in Delphi, and it does not handle certain calendars correctly, such as the Um-Al-Qura Calendar
 // used in Saudi Arabia.

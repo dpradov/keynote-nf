@@ -35,7 +35,6 @@ uses
    VirtualTrees,
    RxRichEd,
    UWebBrowserWrapper,
-   RichPrint,
    TB97,
 
    gf_files,

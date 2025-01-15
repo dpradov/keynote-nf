@@ -8,9 +8,8 @@ package Components;
 {$R '..\3rd_party\tb97_178a\Source\TB97Reg.dcr'}
 {$R '..\3rd_party\topmostwindow\TopWnd.dcr'}
 {$R '..\3rd_party\wordweb\FreeWordWeb.dcr'}
-{$R '..\3rd_party\richprint\RichPrint.dcr'}
-{$R '..\support\GFLog.dcr'}
-
+//{$R '..\3rd_party\richprint\RichPrint.dcr'}
+//{$R '..\support\GFLog.dcr'}
 {$R '..\3rd_party\ComCtrls95\ComCtrls95.dcr'}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
@@ -60,6 +59,25 @@ contains
   MD5 in '..\3rd_party\ICS_InternetComponentSuite\MD5.pas',
   SmtpProt in '..\3rd_party\ICS_InternetComponentSuite\SmtpProt.pas',
   WSockbuf in '..\3rd_party\ICS_InternetComponentSuite\WSockbuf.pas',
+
+  TreeNTRegister in '..\3rd_party\treent\TreeNTRegister.pas',
+  CommCtrl98 in '..\3rd_party\treent\CommCtrl98.pas',
+  TNTEditor in '..\3rd_party\treent\TNTEditor.pas',
+  TreeNT in '..\3rd_party\treent\TreeNT.pas',
+
+  arrowbtn in '..\3rd_party\richprint\arrowbtn.pas',
+  Converters in '..\3rd_party\richprint\Converters.pas',
+  OLERichEdit in '..\3rd_party\richprint\OLERichEdit.pas',
+  RichOle in '..\3rd_party\richprint\RichOle.pas',
+  RichPreview2 in '..\3rd_party\richprint\RichPreview2.pas',
+  RichPreview in '..\3rd_party\richprint\RichPreview.pas',
+  RichPrint in '..\3rd_party\richprint\RichPrint.pas',
+
+  gf_strings in '..\support\gf_strings.pas',
+  gf_Files in '..\support\gf_Files.pas',
+  gf_misc in '..\support\gf_misc.pas',
+  gf_miscvcl in '..\support\gf_miscvcl.pas',
+  GFLog in '..\support\GFLog.pas';
 }
 
   AJBSpellerReg in '..\3rd_party\ajbspeller\AJBSpellerReg.pas',
@@ -97,28 +115,9 @@ contains
 
   TopWnd in '..\3rd_party\topmostwindow\TopWnd.pas',
 
-  TreeNTRegister in '..\3rd_party\treent\TreeNTRegister.pas',
-  CommCtrl98 in '..\3rd_party\treent\CommCtrl98.pas',
-  TNTEditor in '..\3rd_party\treent\TNTEditor.pas',
-  TreeNT in '..\3rd_party\treent\TreeNT.pas',
-
   FreeWordWeb in '..\3rd_party\wordweb\FreeWordWeb.pas',
 
-  arrowbtn in '..\3rd_party\richprint\arrowbtn.pas',
-  Converters in '..\3rd_party\richprint\Converters.pas',
-  OLERichEdit in '..\3rd_party\richprint\OLERichEdit.pas',
-  RichOle in '..\3rd_party\richprint\RichOle.pas',
-  RichPreview2 in '..\3rd_party\richprint\RichPreview2.pas',
-  RichPreview in '..\3rd_party\richprint\RichPreview.pas',
-  RichPrint in '..\3rd_party\richprint\RichPrint.pas',
-
   ComCtrls95 in '..\3rd_party\ComCtrls95\ComCtrls95.pas',
-  CC95_Register in '..\3rd_party\ComCtrls95\CC95_Register.pas',
-
-  gf_strings in '..\support\gf_strings.pas',
-  gf_Files in '..\support\gf_Files.pas',
-  gf_misc in '..\support\gf_misc.pas',
-  gf_miscvcl in '..\support\gf_miscvcl.pas',
-  GFLog in '..\support\GFLog.pas';
-
+  CC95_Register in '..\3rd_party\ComCtrls95\CC95_Register.pas'
+  ;
 end.

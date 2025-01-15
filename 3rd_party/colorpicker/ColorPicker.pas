@@ -207,13 +207,17 @@ type
     property PopupMenu;
   end;
 
+  function ColorInformation(Color: TColor): string;       // [dpv]
+
 procedure Register;
 
 implementation
 
 uses
    System.Win.Registry,
-   gf_miscvcl;
+   Vcl.ImgList
+   ;
+
 
 resourcestring
   STR_01 = 'Right-click to set custom colors';
@@ -954,6 +958,26 @@ begin
      Btn2.Enabled:= Value;
      Invalidate;
 end;
+
+
+function ColorInformation(Color: TColor): string;
+var
+  RGBColor: Cardinal;
+  R, G, B: Integer;
+begin
+  Result:= ColorToString(Color);
+  if Copy(Result,1,2) = 'cl' then
+     Result:= Copy(Result,3)
+  else begin
+     RGBColor:= GetRGBFromColor(Color);
+     R := GetRValue(RGBColor);
+     G := GetGValue(RGBColor);
+     B := GetBValue(RGBColor);
+     Result:= Format('RGB=%d,%d,%d', [R,G,B]);
+  end;
+
+end;
+
 
 end.
 
