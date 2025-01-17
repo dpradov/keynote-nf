@@ -693,8 +693,8 @@ begin
   TCItem.mask := TCIF_TEXT;
   TCItem.pszText := Buffer;
   TCItem.cchTextMax := SizeOf(Buffer);
-  if SendMessage(FTabControl.Handle, TCM_GETITEM, Index,
-    Longint(@TCItem)) = 0 then TabControlError('TTabStrings.Get');
+  if SendMessage(FTabControl.Handle, TCM_GETITEM, Index, LPARAM(@TCItem)) = 0 then
+     TabControlError('TTabStrings.Get');
   Result := Buffer;
 end;
 
@@ -708,8 +708,8 @@ var
   TCItem: TTCItem;
 begin
   TCItem.mask := TCIF_PARAM;
-  if SendMessage(FTabControl.Handle, TCM_GETITEM, Index,
-    Longint(@TCItem)) = 0 then TabControlError('TTabStrings.GetObject');
+  if SendMessage(FTabControl.Handle, TCM_GETITEM, Index, LPARAM(@TCItem)) = 0 then
+     TabControlError('TTabStrings.GetObject');
   Result := TObject(TCItem.lParam);
 end;
 
@@ -719,8 +719,8 @@ var
 begin
   TCItem.mask := TCIF_TEXT;
   TCItem.pszText := PChar(S);
-  if SendMessage(FTabControl.Handle, TCM_SETITEM, Index,
-    Longint(@TCItem)) = 0 then TabControlError('TTabStrings.Put');
+  if SendMessage(FTabControl.Handle, TCM_SETITEM, Index, LPARAM(@TCItem)) = 0 then
+      TabControlError('TTabStrings.Put');
   FTabControl.TabsChanged;
 end;
 
@@ -729,9 +729,9 @@ var
   TCItem: TTCItem;
 begin
   TCItem.mask := TCIF_PARAM;
-  TCItem.lParam := Longint(AObject);
-  if SendMessage(FTabControl.Handle, TCM_SETITEM, Index,
-    Longint(@TCItem)) = 0 then TabControlError('TTabStrings.PutObject');
+  TCItem.lParam := LPARAM(AObject);
+  if SendMessage(FTabControl.Handle, TCM_SETITEM, Index, LPARAM(@TCItem)) = 0 then
+     TabControlError('TTabStrings.PutObject');
 end;
 
 procedure TTabStrings.Insert(Index: Integer; const S: string);
@@ -740,8 +740,8 @@ var
 begin
   TCItem.mask := TCIF_TEXT;
   TCItem.pszText := PChar(S);
-  if SendMessage(FTabControl.Handle, TCM_INSERTITEM, Index,
-    Longint(@TCItem)) < 0 then TabControlError('TTabStrings.Insert');
+  if SendMessage(FTabControl.Handle, TCM_INSERTITEM, Index, LPARAM(@TCItem)) < 0 then
+     TabControlError('TTabStrings.Insert');
   FTabControl.TabsChanged;
 end;
 
@@ -817,7 +817,8 @@ var
   TCItem: TTCItem;
 begin
   TCItem.mask := TCIF_IMAGE;
-  if SendMessage(FTabControl.Handle, TCM_GETITEM, Index, Longint(@TCItem)) = 0 then TabControlError('TImageIndexStrings.Get');
+  if SendMessage(FTabControl.Handle, TCM_GETITEM, Index, LPARAM(@TCItem)) = 0 then
+     TabControlError('TImageIndexStrings.Get');
   Result := inttostr(TCItem.iImage);
 end;
 
@@ -845,8 +846,8 @@ begin
   except
         TCItem.iImage := -1;
   end;
-  if SendMessage(FTabControl.Handle, TCM_SETITEM, Index,
-    Longint(@TCItem)) = 0 then TabControlError('TImageIndexStrings.Put');
+  if SendMessage(FTabControl.Handle, TCM_SETITEM, Index, LPARAM(@TCItem)) = 0 then
+     TabControlError('TImageIndexStrings.Put');
   FTabControl.TabsChanged;
 end;
 
@@ -1001,7 +1002,7 @@ end;
 function TCustomTab95Control.GetDisplayRect: TRect;
 begin
   Result := ClientRect;
-  SendMessage(Handle, TCM_ADJUSTRECT, 0, Integer(@Result));
+  SendMessage(Handle, TCM_ADJUSTRECT, 0, LPARAM(@Result));
   Inc(Result.Top, 2);
 end;
 
@@ -1187,7 +1188,7 @@ end;
 
 procedure TCustomTab95Control.UpdateTabSize;
 begin
-  SendMessage(Handle, TCM_SETITEMSIZE, 0, Integer(FTabSize));
+  SendMessage(Handle, TCM_SETITEMSIZE, 0, LPARAM(Cardinal(FTabSize)));
   TabsChanged;
 end;
 
@@ -1306,7 +1307,7 @@ begin
           if (images <> nil) then
           begin
                tcitem.mask := TCIF_Image;
-               if sendmessage(self.handle,TCM_GetItem,pageindex,LongInt(@tcitem)) = 0 then
+               if sendmessage(self.handle,TCM_GetItem,pageindex, LPARAM(@tcitem)) = 0 then
                   TabControlError('TCustomTab95Control.DrawTab');
                if (tcitem.iImage <> -1) then
                begin
@@ -1788,13 +1789,13 @@ end;
 procedure TCustomTab95Control.SetFlatSeperators(value:boolean);
 begin
      fflatseperators := value;
-     sendmessage(handle, TCM_SETEXTENDEDSTYLE, TCS_EX_FLATSEPARATORS, integer(value));
+     sendmessage(handle, TCM_SETEXTENDEDSTYLE, TCS_EX_FLATSEPARATORS, LPARAM(value));
 end;
 
 function TCustomTab95Control.GetFlatSeperators:boolean;
 begin
      result := false;
-     sendmessage(handle, TCM_GETEXTENDEDSTYLE, TCS_EX_FLATSEPARATORS, integer(result));
+     sendmessage(handle, TCM_GETEXTENDEDSTYLE, TCS_EX_FLATSEPARATORS, LPARAM(result));
      if result <> fflatseperators then
      begin
           SetFlatSeperators(fflatseperators);
@@ -1819,7 +1820,7 @@ begin
      inherited;
      if (hottrack) and not (csdesigning in componentstate) then
      begin
-          sendmessage(handle,TCM_GetItemRect, fmouseovertab, longint(@OldTab));
+          sendmessage(handle,TCM_GetItemRect, fmouseovertab, LPARAM(@OldTab));
           InvalidateRect(handle,@OldTab,false);
           fmouseovertab := -1;
      end;
@@ -1831,7 +1832,7 @@ var
 begin
      HitTest.pt := point(x,y);
      HitTest.flags := TCHT_ONITEM;
-     result :=  sendmessage(handle,TCM_HITTEST,0,longint(@HitTest));
+     result :=  sendmessage(handle,TCM_HITTEST,0,LPARAM(@HitTest));
 end;
 
 procedure TCustomTab95Control.wmnchittest(var message:TWMNCHitTest);
@@ -1845,7 +1846,7 @@ begin
      begin
           HitTest.pt := screentoclient(point(message.XPos,message.ypos));
           HitTest.flags := TCHT_ONITEM;
-          result :=  sendmessage(handle,TCM_HITTEST,0,longint(@HitTest));
+          result :=  sendmessage(handle,TCM_HITTEST,0,LPARAM(@HitTest));
           if (result <> fmouseovertab) then
           begin
                if assigned(fontabtrack) then
@@ -1853,8 +1854,8 @@ begin
                DisplayTabHint(result);
                if (hottrack) then
                begin
-                    sendmessage(handle,TCM_GetItemRect, fmouseovertab, longint(@OldTab));
-                    sendmessage(handle,TCM_GetItemRect, result, longint(@NewTab));
+                    sendmessage(handle,TCM_GetItemRect, fmouseovertab, LPARAM(@OldTab));
+                    sendmessage(handle,TCM_GetItemRect, result, LPARAM(@NewTab));
                     InvalidateRect(handle,@OldTab,false);
                     InvalidateRect(handle,@NewTab,false);
                end;
@@ -2152,7 +2153,7 @@ begin
                   dec(workingindex);
                dec(loop);
           end;
-          if SendMessage(FPageControl.Handle, TCM_SETITEM, workingIndex, Longint(@TCItem)) = 0 then
+          if SendMessage(FPageControl.Handle, TCM_SETITEM, workingIndex, LPARAM(@TCItem)) = 0 then
              TabControlError('TTab95Sheet.SetImageIndex')
           else
               fimageindex := value;
@@ -2180,7 +2181,7 @@ begin
                   dec(workingindex);
                dec(loop);
           end;
-          if SendMessage(FPageControl.Handle, TCM_GETITEM, WorkingIndex, Longint(@TCItem)) = 0 then TabControlError('TTab95Sheet.GetImageIndex');
+          if SendMessage(FPageControl.Handle, TCM_GETITEM, WorkingIndex, LPARAM(@TCItem)) = 0 then TabControlError('TTab95Sheet.GetImageIndex');
           result := TCItem.iImage;
           if result <> fimageindex then result := fimageindex;
      end;
@@ -2702,7 +2703,7 @@ var
   HitTestInfo: TTCHitTestInfo;
 begin
   HitTestInfo.pt := SmallPointToPoint(Message.Pos);
-  HitIndex := SendMessage(Handle, TCM_HITTEST, 0, Longint(@HitTestInfo));
+  HitIndex := SendMessage(Handle, TCM_HITTEST, 0, LPARAM(@HitTestInfo));
   if (HitIndex >= 0) and (HitIndex <> TabIndex) then Message.Result := 1;
 end;
 

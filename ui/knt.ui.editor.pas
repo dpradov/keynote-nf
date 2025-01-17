@@ -2358,7 +2358,7 @@ begin
   result := DefaultEditorProperties.DefaultZoom;
   if ( _LoadedRichEditVersion < 3 ) then exit; // cannot zoom
 
-  SendMessage( Handle, EM_GETZOOM, integer(@w), integer(@l) );
+  SendMessage( Handle, EM_GETZOOM, WPARAM(@w), LPARAM(@l) );
   if ( w = 0 ) then w := 1;
   if ( l = 0 ) then l := 1;
   result := makepercentage( w, l );

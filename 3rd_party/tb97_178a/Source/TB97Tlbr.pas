@@ -402,12 +402,14 @@ end;
 procedure TCustomToolbar97.Paint;
 var
   S: Integer;
+  Ls: TLineSep;
 begin
   inherited;
   { Long separators when not docked }
   if not Docked then
     for S := 0 to LineSeps.Count-1 do begin
-      with TLineSep(LineSeps[S]) do begin
+      Ls:= TLineSep(Cardinal(LineSeps[S]));
+      with Ls do begin
         if Blank then Continue;
         Canvas.Pen.Color := clBtnShadow;
         Canvas.MoveTo (1, Y-4);  Canvas.LineTo (ClientWidth-1, Y-4);
@@ -621,7 +623,7 @@ begin
                 LongInt(NewLineSep) := 0;
                 NewLineSep.Y := CurLinePixel;
                 NewLineSep.Blank := PreviousSep.Blank;
-                LineSeps.Add (Pointer(NewLineSep));
+                LineSeps.Add (Pointer(Cardinal(NewLineSep)));
               end;
             end;
           end;
@@ -734,9 +736,9 @@ function CompareNewSizes (const Item1, Item2, ExtraData: Pointer): Integer; far;
 begin
   { Sorts in descending order }
   if ExtraData = nil then
-    Result := TSmallPoint(Item2).X - TSmallPoint(Item1).X
+    Result := TSmallPoint(Cardinal(Item2)).X - TSmallPoint(Cardinal(Item1)).X
   else
-    Result := TSmallPoint(Item2).Y - TSmallPoint(Item1).Y;
+    Result := TSmallPoint(Cardinal(Item2)).Y - TSmallPoint(Cardinal(Item1)).Y;
 end;
 
 procedure TCustomToolbar97.BuildPotentialSizesList (SizesList: TList);
@@ -752,7 +754,7 @@ begin
     { Add the widest size to the list }
     FFloatingRightX := 0;
     S := OrderControls(False, dtNotDocked, nil);
-    SizesList.Add (Pointer(PointToSmallPoint(S)));
+    SizesList.Add (Pointer(Cardinal(PointToSmallPoint(S))));
     { Calculate and add rest of sizes to the list }
     LastY := S.Y;
     X := S.X-1;
@@ -766,8 +768,8 @@ begin
         if (S.Y = LastY) and (SizesList.Count > 1) then
           SizesList.Delete (SizesList.Count-1);
         S2 := PointToSmallPoint(S);
-        if SizesList.IndexOf(Pointer(S2)) = -1 then
-          SizesList.Add (Pointer(S2));
+        if SizesList.IndexOf(Pointer(Cardinal(S2))) = -1 then
+          SizesList.Add (Pointer(Cardinal(S2)));
         LastY := S.Y;
         Dec (X);
       end
@@ -800,9 +802,9 @@ begin
     NewSizes := TList.Create;
     BuildPotentialSizesList (NewSizes);
     for I := 0 to NewSizes.Count-1 do begin
-      P := SmallPointToPoint(TSmallPoint(NewSizes.List[I]));
+      P := SmallPointToPoint(TSmallPoint(Cardinal(NewSizes.List[I])));
       AddFloatingNCAreaToSize (P);
-      NewSizes.List[I] := Pointer(PointToSmallPoint(P));
+      NewSizes.List[I] := Pointer(Cardinal(PointToSmallPoint(P)));
     end;
     ListSortEx (NewSizes, CompareNewSizes,
       Pointer(Ord(ASizeHandle in [twshTop, twshBottom])));
@@ -810,10 +812,10 @@ begin
     SizeSens := MaxSizeSens;
     { Adjust sensitivity if it's too high }
     for I := 0 to NewSizes.Count-1 do begin
-      Pointer(S) := NewSizes[I];
+      S := TSmallPoint(Cardinal(NewSizes[I]));
       if (S.X = Width) and (S.Y = Height) then begin
         if I > 0 then begin
-          Pointer(N) := NewSizes[I-1];
+          N := TSmallPoint(Cardinal(NewSizes[I-1]));
           if ASizeHandle in [twshLeft, twshRight] then
             NewSize := N.X - S.X - 1
           else
@@ -821,7 +823,7 @@ begin
           if NewSize < SizeSens then SizeSens := NewSize;
         end;
         if I < NewSizes.Count-1 then begin
-          Pointer(N) := NewSizes[I+1];
+          N := TSmallPoint(Cardinal(NewSizes[I+1]));
           if ASizeHandle in [twshLeft, twshRight] then
             NewSize := S.X - N.X - 1
           else
@@ -889,7 +891,7 @@ begin
       if (not Reverse and (I < 0)) or
          (Reverse and (I >= NewSizes.Count)) then
         Break;
-      Pointer(P) := NewSizes[I];
+      P := TSmallPoint(Cardinal(NewSizes[I]));
       if SizeHandle in [twshLeft, twshRight] then begin
         if (not Reverse and ((I = NewSizes.Count-1) or (Pos.X >= P.X))) or
            (Reverse and ((I = 0) or (Pos.X < P.X))) then begin

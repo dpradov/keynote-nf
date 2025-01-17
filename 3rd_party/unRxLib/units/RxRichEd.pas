@@ -4620,7 +4620,7 @@ begin
         if smSelection in Mode then TextType := TextType or SFF_SELECTION;
         if (TextType and SF_TEXT <> 0) and (TextType and SF_UNICODE <> 0) and (Stream.Size = 0) and (RichEdit.TextLength > 0) then
            Stream.Write(UTF8_BOM[1], length(UTF8_BOM));
-        SendMessage(RichEdit.Handle, EM_STREAMOUT, TextType, Longint(@EditStream));
+        SendMessage(RichEdit.Handle, EM_STREAMOUT, TextType, LPARAM(@EditStream));
 
       This way the editor were saved in UTF8 format, with BOM
       Current TRichEditStrings.SaveToStream works ok with TEncoding and it is not necessary to use something like that
@@ -5393,7 +5393,7 @@ procedure TRxCustomRichEdit.PutRtfText (const sRTF: string; const DoInsert: bool
 var
   aSTE: TSetTextEx;
   s: AnsiString;
-  paramRTF: NativeUInt;
+  paramRTF: LPARAM;
 begin
   if sRTF = '' then exit;
 
@@ -5426,14 +5426,14 @@ begin
              aSTE.codepage:= CP_UTF8;
              s:= UTF8Encode(sRTF);
           end;
-          paramRTF:= longint(PAnsiChar(s));
+          paramRTF:= LPARAM(PAnsiChar(s));
        end
        else begin
           aSTE.codepage:= 1200;   // 1200 (Unicode)
-          paramRTF:= longint(PChar(sRTF));
+          paramRTF:= LPARAM(PChar(sRTF));
        end;
 
-       SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), paramRTF);           // EM_SETTEXTEX
+       SendMessage(Handle, EM_SETTEXTEX, WPARAM(@aSTE), paramRTF);           // EM_SETTEXTEX
     end;
 
     if not KeepSelected then
@@ -5473,7 +5473,7 @@ begin
        aSTE.codepage:= CP_ACP;          // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
        //aSTE.codepage:= StringCodePage(sRTF);
        {$IFDEF KNT_DEBUG} Log.Add('PutRtfText [RawByteString] / RichEdtVer >= 3   Codepage:' + aSTE.Codepage.ToString, 4 );  {$ENDIF}
-       SendMessage(Handle, EM_SETTEXTEX, longint(@aSTE), longint(PAnsiChar(sRTF)));
+       SendMessage(Handle, EM_SETTEXTEX, WPARAM(@aSTE), LPARAM(PAnsiChar(sRTF)));
     end;
 
     if not KeepSelected then
@@ -7084,12 +7084,12 @@ procedure TRxCustomRichEdit.RemoveMargins;                          // [dpv]
 var
    Rect: TRect;
 begin
-   SendMessage(Handle, EM_GETRECT, 0, Longint(@Rect));
+   SendMessage(Handle, EM_GETRECT, 0, LPARAM(@Rect));
    Rect.Left:= 0;
    Rect.Top:= 0;
    Rect.Right:= 0;
    Rect.Bottom:= 0;
-   SendMessage(Handle, EM_SETRECT, 0, Longint(@Rect));
+   SendMessage(Handle, EM_SETRECT, 0, LPARAM(@Rect));
 end;
 
 

@@ -476,6 +476,35 @@
   {$DEFINE RX_D28} //Alexandria specific
 {$ENDIF}
 
+{$IFDEF VER360} { Embarcadero Delphi 12 Athens 29.x }      // [DPV]
+  {$DEFINE RX_D3}
+  {$DEFINE RX_D4}
+  {$DEFINE RX_D5}
+  {$DEFINE RX_D6}
+  {$DEFINE RX_D7}
+  {$DEFINE RX_D9}
+  {$DEFINE RX_D10}
+  {$DEFINE RX_D11}
+  {$DEFINE RX_D12}
+  {$DEFINE RX_D14}
+  {$DEFINE RX_D15}
+  {$DEFINE RX_D16}
+  {$DEFINE RX_D17}
+  {$DEFINE RX_D18}
+  {$DEFINE RX_D19}
+  {$DEFINE RX_D20}
+  {$DEFINE RX_D21}
+  {$DEFINE RX_D22}
+  {$DEFINE RX_D23}
+  {$DEFINE RX_D24}
+  {$DEFINE RX_D25}
+  {$DEFINE RX_D26}
+  {$DEFINE RX_D27}
+  {$DEFINE RX_D28}
+  {$DEFINE RX_D29} //Athens specific
+{$ENDIF}
+
+
 {$DEFINE MSWINDOWS}
 
 {$IFNDEF VER80}                  { Delphi 1.x     }

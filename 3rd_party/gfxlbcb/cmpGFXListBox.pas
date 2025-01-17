@@ -40,7 +40,7 @@ type
     f_QuickPaint: Boolean;
     f_OnStateChange: TStateChangeEvent;
     f_CheckBoxes : boolean; // [x] MJ added this line 25.06.2001 (KeyNote)
-    function CreateItemObject(p_Index: Integer): LongInt;
+    function CreateItemObject(p_Index: Integer): NativeInt;
     procedure InvalidateItem(p_Index: Integer);
     procedure ChangeState(p_Index: Integer);
     procedure SetChecked(p_Index: Integer; const p_Checked: Boolean);
@@ -165,7 +165,7 @@ begin
   end;
 end;
 
-function TGFXListBox.CreateItemObject(p_Index: Integer): LongInt;
+function TGFXListBox.CreateItemObject(p_Index: Integer): NativeInt;
 var
   v_ItemObject: TItemObject;
 begin
@@ -173,11 +173,11 @@ begin
   begin
     {Create a TItemObject for the new Item}
       v_ItemObject := TItemObject.Create;
-            Result := LongInt(v_ItemObject);
+            Result := NativeInt(v_ItemObject);
   end else
   begin
    {Return a pointer to the item's Object}
-    Result := LongInt(Items.Objects[p_Index]);
+    Result := NativeInt(Items.Objects[p_Index]);
   end;
 end;
 

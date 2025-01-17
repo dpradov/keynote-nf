@@ -639,7 +639,7 @@ end;
 
 procedure TPropsStorage.LoadCharProperty(const S: string; PropInfo: PPropInfo);
 begin
-  SetOrdProp(FObject, PropInfo, Integer(S[1]));
+  SetOrdProp(FObject, PropInfo, NativeInt(S[1]));
 end;
 
 procedure TPropsStorage.LoadEnumProperty(const S: string; PropInfo: PPropInfo);
@@ -680,7 +680,7 @@ end;
 
 procedure TPropsStorage.LoadWCharProperty(const S: string; PropInfo: PPropInfo);
 begin
-  SetOrdProp(FObject, PropInfo, LongInt(S[1]));
+  SetOrdProp(FObject, PropInfo, NativeInt(S[1]));
 end;
 
 procedure TPropsStorage.LoadVariantProperty(const S: string; PropInfo: PPropInfo);
@@ -755,7 +755,7 @@ begin
   if Trim(S) = '' then Exit;
   if CompareText(SNull, Trim(S)) = 0 then
   begin
-    SetOrdProp(FObject, PropInfo, LongInt(nil));
+    SetOrdProp(FObject, PropInfo, NativeInt(nil));
     Exit;
   end;
   P := Pos('.', S);
@@ -774,18 +774,18 @@ begin
   else
     Root := FOwner;
   if (Root <> nil) then
-    SetOrdProp(FObject, PropInfo, LongInt(Root.FindComponent(Name)));
+    SetOrdProp(FObject, PropInfo, NativeInt(Root.FindComponent(Name)));
 end;
 {$ELSE}
 begin
   if Trim(S) = '' then Exit;
   if CompareText(SNull, Trim(S)) = 0 then
   begin
-    SetOrdProp(FObject, PropInfo, LongInt(nil));
+    SetOrdProp(FObject, PropInfo, NativeInt(nil));
     Exit;
   end;
   if (FOwner <> nil) then
-    SetOrdProp(FObject, PropInfo, LongInt(FOwner.FindComponent(Trim(S))));
+    SetOrdProp(FObject, PropInfo, NativeInt(FOwner.FindComponent(Trim(S))));
 end;
 {$ENDIF}
 

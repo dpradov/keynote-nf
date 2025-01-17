@@ -2641,7 +2641,7 @@ begin
       if PtInRect(FDataList.ClientRect, ListPos) then begin
         StopTracking;
         MousePos := PointToSmallPoint(ListPos);
-        SendMessage(FDataList.Handle, WM_LBUTTONDOWN, 0, Integer(MousePos));
+        SendMessage(FDataList.Handle, WM_LBUTTONDOWN, 0, LPARAM(MousePos));
         Exit;
       end;
     end;

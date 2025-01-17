@@ -430,15 +430,15 @@ begin
   Hdr.stStart := Range[1];
   SetLength(Days, Hdr.cDayState);
   Hdr.prgDayState := @Days[0];
-  SendMessage(Handle, CN_NOTIFY, Integer(Handle), Integer(@Hdr));
+  SendMessage(Handle, CN_NOTIFY, WPARAM(Handle), LPARAM(@Hdr));
   // update day state
-  SendMessage(Handle, MCM_SETDAYSTATE, Hdr.cDayState, Longint(Hdr.prgDayState))
+  SendMessage(Handle, MCM_SETDAYSTATE, Hdr.cDayState, LPARAM(Hdr.prgDayState))
 end;
 
 //From ComControl98 (TreeNT)
 function MonthCal_GetMonthRange(hmc: HWND; gmr: DWORD; rgst: PSystemTime): DWORD;
 begin
-  Result := SendMessage(hmc, MCM_GETMONTHRANGE, gmr, Longint(rgst));
+  Result := SendMessage(hmc, MCM_GETMONTHRANGE, gmr, LPARAM(rgst));
 end;
 
 

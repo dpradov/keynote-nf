@@ -647,7 +647,7 @@ begin
       PropInfo := GetPropInfo(obj.ClassInfo, el);
       if (PropInfo = Nil) or (PropInfo.PropType^.Kind <> tkClass) then
         Break; // Such class property not exists
-      obj := Pointer(longint(GetPropValue(Obj, PropInfo)));
+      obj := Pointer(NativeInt(GetPropValue(Obj, PropInfo)));
       CheckClass:
       SplitBy(s, '.', el);
       if s = '' then begin // el is property name

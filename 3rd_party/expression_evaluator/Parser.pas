@@ -112,7 +112,7 @@ type
 
 procedure Register;
 
-{$ifdef Win32}
+{$IF Defined(Win32) or Defined(Win64)}
   {$R *.D32}
 {$else}
   {$R *.D16}

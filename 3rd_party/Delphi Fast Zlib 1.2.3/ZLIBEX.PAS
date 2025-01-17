@@ -183,7 +183,11 @@ function ZDecompressStream(inStream, outStream: TStream): Int64;    // [dpv]
 {** export routines ********************************************************}
 
 function adler32(adler: LongInt; const buf: PAnsiChar; len: Integer): LongInt;
+
+{$IFNDEF WIN64}
 procedure MoveI32(const Source; var Dest; Count: Integer);
+{$endif}
+
 procedure ZFastCompressString(var s: string; level: TZCompressionLevel);
 procedure ZFastDecompressString(var s: string);
 procedure ZSendToBrowser(var s: string);
@@ -195,7 +199,7 @@ function inflateInit_(var strm: TZStreamRec; version: PAnsiChar; recsize: Intege
 function inflateInit2_(var strm: TZStreamRec; windowBits: integer;  version: PAnsiChar; recsize: integer): integer;
 function inflate(var strm: TZStreamRec; flush: Integer): Integer;
 function inflateEnd(var strm: TZStreamRec): Integer;
-function inflateReset(var strm: TZStreamRec): Integer; 
+function inflateReset(var strm: TZStreamRec): Integer;
 
 type
   EZLibError = class(Exception);
@@ -205,18 +209,32 @@ type
 implementation
 
 {** link zlib 1.2.3 **************************************************************}
+
+{$IFDEF WIN64}
+{**  bcc64.exe" -c -O2 -tWM *.c  **}
+   {$L Zlib_x64/adler32.o}
+   {$L Zlib_x64/deflate.o}
+   {$L Zlib_x64/infback.o}
+   {$L Zlib_x64/inffast.o}
+   {$L Zlib_x64/inflate.o}
+   {$L Zlib_x64/inftrees.o}
+   {$L Zlib_x64/trees.o}
+   {$L Zlib_x64/compress.o}
+   {$L Zlib_x64/crc32.o}
+
+{$ELSE}
 {** bcc32 -c -6 -O2 -Ve -X -pr -a8 -b -d -k- -vi -tWM -r -RT- -ff *.c **}
 
-{$L Zlib/adler32.obj}
-{$L Zlib/deflate.obj}
-{$L Zlib/infback.obj}
-{$L Zlib/inffast.obj}
-{$L Zlib/inflate.obj}
-{$L Zlib/inftrees.obj}
-{$L Zlib/trees.obj}
-{$L Zlib/compress.obj}
-{$L Zlib/crc32.obj}
-
+   {$L Zlib/adler32.obj}
+   {$L Zlib/deflate.obj}
+   {$L Zlib/infback.obj}
+   {$L Zlib/inffast.obj}
+   {$L Zlib/inflate.obj}
+   {$L Zlib/inftrees.obj}
+   {$L Zlib/trees.obj}
+   {$L Zlib/compress.obj}
+   {$L Zlib/crc32.obj}
+{$ENDIF}
 {*****************************************************************************
 *  note: do not reorder the above -- doing so will result in external        *
 *  functions being undefined                                                 *
@@ -268,7 +286,11 @@ const
 
   {** return code messages **************************************************}
 
-  _z_errmsg: array[0..9] of PChar = (
+{$IFNDEF WIN64}
+_z_errmsg: array[0..9] of PChar = (
+{$ELSE}
+z_errmsg: array[0..9] of PChar = (
+{$ENDIF}
     'need dictionary', // Z_NEED_DICT      (2)
     'stream end', // Z_STREAM_END     (1)
     '', // Z_OK             (0)
@@ -290,6 +312,8 @@ const
 
   SZInvalid = 'Invalid ZStream operation!';
 
+
+{$IFNDEF WIN64}
 {*********************** Peter Morris not aligned move **********************}
 
 procedure MoveI32(const Source; var Dest; Count: Integer); register;
@@ -311,6 +335,8 @@ asm
         pop   ESI
     @JustQuit:
 end;
+{$endif}
+
 {****************************************************************************}
 
 {** deflate routines ********************************************************}
@@ -361,6 +387,18 @@ end;
 
 {** c function implementations **********************************************}
 
+{$IFDEF WIN64}
+procedure memset(p: Pointer; b: Byte; count: Integer); cdecl;
+begin
+  FillChar(p^, count, b);
+end;
+
+procedure memcpy(dest, source: Pointer; count: Integer); cdecl;
+begin
+  Move(source^, dest^, count);
+end;
+
+{$ELSE}
 procedure _memset(p: Pointer; b: Byte; count: Integer); cdecl;
 begin
   FillChar(p^, count, b);
@@ -380,6 +418,9 @@ procedure _free(Block: Pointer); cdecl;
 begin
   FreeMem(Block);
 end;
+
+{$ENDIF}
+
 
 {** custom zlib routines ****************************************************}
 
@@ -412,7 +453,11 @@ begin
 
   if code < 0 then
   begin
+    {$IFNDEF WIN64}
     raise EZCompressionError.Create(_z_errmsg[2 - code]);
+    {$ELSE}
+    raise EZCompressionError.Create(z_errmsg[2 - code]);
+    {$ENDIF}
   end;
 end;
 
@@ -422,7 +467,11 @@ begin
 
   if code < 0 then
   begin
-    raise EZDecompressionError.Create(_z_errmsg[2 - code]);
+   {$IFNDEF WIN64}
+   raise EZDecompressionError.Create(_z_errmsg[2 - code]);
+   {$ELSE}
+   raise EZDecompressionError.Create(z_errmsg[2 - code]);
+   {$ENDIF}
   end;
 end;
 
@@ -573,7 +622,8 @@ var
 begin
   ZCompress(pointer(s), length(s)*SizeOf(Char), outBuf, outBytes, level);
   SetLength(s, outBytes);
-  MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
+//MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
+  Move(outBuf^, pointer(s)^, outBytes);                     // [dpv]
   FreeMem(outBuf);
 end;
 
@@ -584,7 +634,8 @@ var
 begin
   ZDecompress(pointer(s), Length(s)*SizeOf(Char), outBuf, outBytes);
   SetLength(s, outBytes);
-  MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
+//MoveI32(pointer(outBuf)^, pointer(s)^, outBytes);
+  Move(outBuf^, pointer(s)^, outBytes);                     // [dpv]
   FreeMem(outBuf);
 end;
 
@@ -800,7 +851,11 @@ begin
 
     except
         on E : EZCompressionError do
+          {$IFNDEF WIN64}
            if E.Message = _z_errmsg[2 - Z_BUF_ERROR] then begin
+          {$ELSE}
+           if E.Message = z_errmsg[2 - Z_BUF_ERROR] then begin
+          {$ENDIF}
                inStream.Position:= inStreamPosition;
                outStream.Position:= outStreamPosition;
                bufferOutSize:= bufferOutSize + InitialBufferOutSize;
@@ -812,7 +867,11 @@ begin
 
   until (Retry = 0) or (Retry > NumMaxRetriesOnBufferError);
   if Retry > NumMaxRetriesOnBufferError then
+    {$IFNDEF WIN64}
      raise EZCompressionError.Create(_z_errmsg[2 - Z_BUF_ERROR]);
+    {$ELSE}
+     raise EZCompressionError.Create(z_errmsg[2 - Z_BUF_ERROR]);
+    {$ENDIF}
 end;
 
 {** TCustomZStream **********************************************************}

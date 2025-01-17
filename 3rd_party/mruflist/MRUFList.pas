@@ -487,6 +487,7 @@ end;
 
 function TdfsMRUFileList.GetAutoSaveRootKey: TRootKey;
 begin
+{$IFNDEF WIN64}
   case FRegistryKey of
     HKEY_CLASSES_ROOT:   Result := rkClassesRoot;
     HKEY_LOCAL_MACHINE:  Result := rkLocalMachine;
@@ -496,6 +497,20 @@ begin
   else
     Result := rkCurrentUser;
   end;
+
+{$ELSE}
+  case FRegistryKey of
+    Integer(HKEY_CLASSES_ROOT):   Result := rkClassesRoot;
+    Integer(HKEY_LOCAL_MACHINE):  Result := rkLocalMachine;
+    Integer(HKEY_USERS):          Result := rkUsers;
+    Integer(HKEY_CURRENT_CONFIG): Result := rkCurrentConfig;
+    Integer(HKEY_DYN_DATA):       Result := rkDynData;
+  else
+    Result := rkCurrentUser;
+  end;
+
+{$ENDIF}
+
 end;
 {$ENDIF}
 
