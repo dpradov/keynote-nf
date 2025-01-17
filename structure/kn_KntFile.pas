@@ -91,6 +91,7 @@ type
     fFolders: TFolderList;
     fNotes: TNoteList;
     fNextNNodeGID: Cardinal;     // Global ID of next note node to be created
+    fNotesSorted: boolean;       // Normally notes are ordered by GID
 
     FBookmarks : TBookmarks;
     FTextPlainVariablesInitialized: boolean;
@@ -205,6 +206,7 @@ type
     procedure GetNNodeByGID(const aGID : Cardinal; var NNode: TNoteNode; var Folder: TKntFolder);
     function  GetNNodeByFolderAndID (FolderID: Cardinal; NodeID: Word): TNoteNode;
     property NextNNoteGID: Cardinal read fNextNNodeGID;             // NoteGID:  identifies Note UNIQUELY in whole file
+    procedure CheckNotesSorted;
     procedure RecalcNextNNodeGID;
     procedure VerifyNoteGIDs;
     function AddLoadedNote(Folder: TKntFolder): TNoteNode;
@@ -284,6 +286,7 @@ begin
   FNoMultiBackup := false;
   FSavedWithRichEdit3 := false;
   fNextNNodeGID:= 1;                // by default (for new files), next GID must be 1, not 0
+  fNotesSorted:= true;
   SetVersion;
 
   fFolders := TFolderList.Create;
@@ -708,33 +711,101 @@ procedure TKntFile.GetNNodeByGID( const aGID : Cardinal; var NNode: TNoteNode; v
 var
   F: TKntFolder;
   i: integer;
+  N: TNote;
 begin
-  for i := 0 to Folders.Count-1 do begin
-     F:= Folders[i];
+  // *1  The vast majority of nodes will be the only node for a note, with which they share a GID
 
-     NNode:= F.GetNNodeByGID(aGID);
-     if NNode <> nil then begin
-        Folder:= F;
-        exit;
+  N:= GetNoteByGID(aGID);     // *1
+  if N <> nil then begin
+     NNode:= N.NNodes[0].NNode;
+     Folder:= TKntFolder(N.NNodes[0].Folder);
+  end
+  else begin
+     for i := 0 to Folders.Count-1 do begin
+        F:= Folders[i];
+
+        NNode:= F.GetNNodeByGID(aGID);
+        if NNode <> nil then begin
+           Folder:= F;
+           exit;
+        end;
      end;
-  end;
 
-  NNode:= nil;
-  Folder:= nil;
+     NNode:= nil;
+     Folder:= nil;
+  end;
 end;
 
 
 function TKntFile.GetNoteByGID(const aGID: Cardinal): TNote;
 var
    N: TNote;
-   i: integer;
+   i, B,T: Cardinal;
+   Dif: Int64;
+
+   function NoteByGIDAscending: TNote;
+   var
+      j: Cardinal;
+   begin
+      for j := i to T do
+         if Notes[j].GID = aGID then
+            exit(Notes[j]);
+      exit(nil);
+   end;
+
+   function NoteByGIDDescending: TNote;
+   var
+      j: Cardinal;
+   begin
+      for j := i downto B do
+         if Notes[j].GID = aGID then
+            exit(Notes[j]);
+      exit(nil);
+   end;
+
 begin
-  if aGID >= 1 then
-     for i := 0 to Notes.Count-1 do begin
-        N:= Notes[i];
-         if N.GID = aGID then
-            exit(N);
+  // GID=0 is not a valid value, and GIDs cannot be repeated
+
+  if aGID >= 1 then begin
+     T:= Notes.Count - 1;
+     B:= 0;
+
+     i:= aGID -1;
+     if i > T then
+        i:= T;
+     T:= i;
+
+     if not fNotesSorted then begin
+        i:= 0;
+        exit(NoteByGIDAscending());
      end;
+
+     repeat
+        N:= Notes[i];
+        if N.GID = aGID then
+           exit(N);
+
+        Dif:= Int64(N.GID) - Int64(aGID);
+        if Dif > 0 then begin
+           dec(i);
+           if Dif < 50 then
+              exit(NoteByGIDDescending());
+           T:= i;
+        end
+        else begin
+           inc(i);
+           if Dif > -50 then
+              exit(NoteByGIDAscending());
+           B:= i;
+        end;
+
+        if B >= T then
+           break;
+
+        i:= B + ((T-B) div 2);
+     until false;
+  end;
+
   Result:= nil;
 end;
 
@@ -750,6 +821,41 @@ begin
           Result := Folder.GetNNodeByID(NodeID);
    end;
 end;
+
+
+procedure TKntFile.CheckNotesSorted;
+var
+  i: integer;
+  lastGID : Cardinal;
+  N: TNote;
+begin
+  lastGID:= 0;
+  for i := 0 to Notes.Count-1 do begin
+     N:= Notes[i];
+     if N.GID <= lastGID then begin
+        fNotesSorted:= false;
+        break;
+     end;
+     lastGID:= N.GID;
+  end;
+end;
+
+
+function CompareNotes(Item1, Item2: Pointer): Integer;
+var
+  N1, N2: TNote;
+begin
+  N1:= TNote(Item1);
+  N2:= TNote(Item2);
+
+  Result:= 1;               //  N1.GID > N2.GID
+  if N1.GID = N2.GID then
+     Result:= 0
+  else
+  if N1.GID < N2.GID then
+     Result:= -1;
+end;
+
 
 
 procedure TKntFile.RecalcNextNNodeGID;
@@ -2196,6 +2302,10 @@ begin
     List.EndUpdate;
     List.Free;
   end;
+
+  CheckNotesSorted;
+  if not fNotesSorted then
+     Notes.Sort(CompareNotes);
 
   FModified := false;
 
