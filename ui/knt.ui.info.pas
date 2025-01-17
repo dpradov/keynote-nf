@@ -34,7 +34,6 @@ type
      ['{8D9BDE14-3373-482A-B097-0C1E4F4A981C}']
      procedure SetFocusOnEditor;
      procedure ConfigureEditor;
-     procedure Free;
 
      function GetEditor: TKntRichEdit;
      function GetNNode: TNoteNode;

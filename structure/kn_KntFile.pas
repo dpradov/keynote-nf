@@ -152,6 +152,7 @@ type
 
     constructor Create;
     destructor Destroy; override;
+    procedure ReleaseNoteUIs;
 
 
   private
@@ -309,7 +310,6 @@ begin
         if F <> nil then
            F.Free;           // It will free all it's NNodes
      end;
-
     fFolders.Free;
     fFolders := nil;
   end;
@@ -328,6 +328,15 @@ begin
 
   inherited Destroy;
 end; // DESTROY
+
+
+procedure TKntFile.ReleaseNoteUIs;
+var
+   i: integer;
+begin
+  for i := 0 to FFolders.Count-1 do
+     FFolders[i].NoteUI:= nil;
+end;
 
 
 {$ENDREGION }

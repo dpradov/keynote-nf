@@ -1040,6 +1040,7 @@ begin
 
         if assigned( KntFile ) then begin
           try
+            KntFile.ReleaseNoteUIs;     // Unbind interface before releasing object (which is done after TTab95Sheet.Free)
             DestroyVCLControls;
           except
             // showmessage( 'BUG: error in DestroyVCLControls' );

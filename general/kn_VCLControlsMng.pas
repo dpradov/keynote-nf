@@ -411,10 +411,7 @@ begin
 
    _ALLOW_VCL_UPDATES := false;
    try
-     if assigned( aFolder.NoteUI ) then begin
-       aFolder.NoteUI.Free;
-       aFolder.NoteUI:= nil;
-     end;
+     aFolder.NoteUI:= nil;       // Unbind interface before releasing object (which is done after aFolder.TabSheet.Free;)
 
      if assigned( aFolder.Splitter ) then
        FreeAndNil(aFolder.Splitter);
