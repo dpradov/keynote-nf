@@ -255,17 +255,17 @@ Type
   TBuffers = Array [0..1] of TKeyboardState;
 Var
   pKeyBuffers : ^TBuffers;
-  lparam: cardinal;
+  LP: LPARAM;
 Begin
   (* check if the target window exists *)
   If IsWindow(hWindow) Then Begin
     (* set local variables to default values *)
     pKeyBuffers := Nil;
-    lparam := MakeLong(0, MapVirtualKey(key, 0));
+    LP := MakeLParam(0, MapVirtualKey(key, 0));
 
     (* modify lparam if special key requested *)
     If specialkey Then
-      lparam := lparam or $1000000;
+      LP := LP or $1000000;
 
     (* allocate space for the key state buffers *)
     New(pKeyBuffers);
@@ -275,15 +275,13 @@ Begin
       GetKeyboardState( pKeyBuffers^[1] );
       FillChar(pKeyBuffers^[0], Sizeof(TKeyboardState), 0);
 
-      (* set the requested modifier keys to "down" state in the buffer
-*)
+      (* set the requested modifier keys to "down" state in the buffer *)
       If ssShift In shift Then
         pKeyBuffers^[0][VK_SHIFT] := $80;
       If ssAlt In shift Then Begin
-        (* Alt needs special treatment since a bit in lparam needs also
-be set *)
+        (* Alt needs special treatment since a bit in lparam needs also be set *)
         pKeyBuffers^[0][VK_MENU] := $80;
-        lparam := lparam or $20000000;
+        LP := LP or $20000000;
       End;
       If ssCtrl In shift Then
         pKeyBuffers^[0][VK_CONTROL] := $80;
@@ -299,12 +297,12 @@ be set *)
 
       (* post the key messages *)
       If ssAlt In Shift Then Begin
-        PostMessage( hWindow, WM_SYSKEYDOWN, key, lparam);
-        PostMessage( hWindow, WM_SYSKEYUP, key, lparam or $C0000000);
+        PostMessage( hWindow, WM_SYSKEYDOWN, key, LP);
+        PostMessage( hWindow, WM_SYSKEYUP, key, LP or $C0000000);
       End
       Else Begin
-        PostMessage( hWindow, WM_KEYDOWN, key, lparam);
-        PostMessage( hWindow, WM_KEYUP, key, lparam or $C0000000);
+        PostMessage( hWindow, WM_KEYDOWN, key, LP);
+        PostMessage( hWindow, WM_KEYUP, key, LP or $C0000000);
       End;
       (* process the messages *)
       Application.ProcessMessages;

@@ -2708,8 +2708,8 @@ begin
       end;
     end;
 
-    perform(ScrollMsg, MakeLong(SBVal, GetScrollPos(handle, ScrollVal)), 0);
-    perform(ScrollMsg, MakeLong(SB_ENDSCROLL, GetScrollPos(handle, ScrollVal)), 0);
+    perform(ScrollMsg, MakeWParam(SBVal, GetScrollPos(handle, ScrollVal)), 0);
+    perform(ScrollMsg, MakeWParam(SB_ENDSCROLL, GetScrollPos(handle, ScrollVal)), 0);
 
 end; // Navigate
 

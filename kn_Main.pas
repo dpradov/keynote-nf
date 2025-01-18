@@ -5823,8 +5823,7 @@ begin
     begin
       Handle := ( Menu_StdEdit.PopupComponent as TCustomEdit ).Handle;
       StdEMUndo.Enabled := ( sendmessage( Handle, EM_CANUNDO, 0, 0 ) <> 0 );
-      SendMessage( Handle, EM_GETSEL, Longint( @Selection.StartPos ),
-        Longint( @Selection.EndPos ));
+      SendMessage( Handle, EM_GETSEL, WPARAM( @Selection.StartPos ), LPARAM( @Selection.EndPos ));
       HasSelection := Selection.EndPos > Selection.StartPos;
     end
     else

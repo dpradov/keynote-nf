@@ -136,7 +136,7 @@ end;
 procedure TKNTCustomHotKey.CreateWnd;
 begin
   inherited CreateWnd;
-  SendMessage(Handle, HKM_SETRULES, Byte(FInvalidKeys), MakeLong(Byte(FModifiers), 0));
+  SendMessage(Handle, HKM_SETRULES, Byte(FInvalidKeys), MakeLParam(Byte(FModifiers), 0));
   SendMessage(Handle, HKM_SETHOTKEY, MakeWord(Byte(FHotKey), Byte(FModifiers)), 0);
 end;
 
@@ -154,7 +154,7 @@ begin
   if Value <> FModifiers then
   begin
     FModifiers := Value;
-    SendMessage(Handle, HKM_SETRULES, Byte(FInvalidKeys), MakeLong(Byte(Value), 0));
+    SendMessage(Handle, HKM_SETRULES, Byte(FInvalidKeys), MakeLParam(Byte(Value), 0));
     SendMessage(Handle, HKM_SETHOTKEY, MakeWord(Byte(FHotKey), Byte(FModifiers)), 0);
   end;
 end;
@@ -164,7 +164,7 @@ begin
   if Value <> FInvalidKeys then
   begin
     FInvalidKeys := Value;
-    SendMessage(Handle, HKM_SETRULES, Byte(Value), MakeLong(Byte(FModifiers), 0));
+    SendMessage(Handle, HKM_SETRULES, Byte(Value), MakeLParam(Byte(FModifiers), 0));
     SendMessage(Handle, HKM_SETHOTKEY, MakeWord(Byte(FHotKey), Byte(FModifiers)), 0);
   end;
 end;
