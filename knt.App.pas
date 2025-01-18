@@ -214,6 +214,8 @@ var
 
    ActiveFileIsBusy : boolean;
    AFileIsLoading: boolean;
+   HandlingTimerTick: boolean;
+   UpdatingTextPlain: boolean;
 
    IgnoringEditorChanges: boolean;
 
@@ -297,6 +299,8 @@ begin
    ActiveFileIsBusy := false;
 
    IgnoringEditorChanges:= false;
+   HandlingTimerTick:= false;
+   UpdatingTextPlain:= false;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin

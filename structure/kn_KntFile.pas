@@ -28,6 +28,7 @@ uses
    Vcl.FileCtrl,
    Vcl.Controls,
    Vcl.Dialogs,
+   Vcl.Forms,
 
    VirtualTrees,
    VirtualTrees.BaseTree,
@@ -512,18 +513,23 @@ var
   AllNotesInitialized: boolean;
   RTFAux: TAuxRichEdit;
 begin
-    if FIsBusy or (FFolders = nil) then Exit;
-    if FTextPlainVariablesInitialized then Exit;
+  if FIsBusy or (FFolders = nil) then Exit;
+  if FTextPlainVariablesInitialized then Exit;
+  if UpdatingTextPlain then Exit;
 
-    RTFAux:= CreateAuxRichEdit;
-    try
+  UpdatingTextPlain:= True;
+  RTFAux:= CreateAuxRichEdit;
+  try
+    repeat
       try
         AllNotesInitialized:= True;
 
         for i := 0 to FFolders.Count -1 do begin
            myFolder := FFolders[i];
-           if not myFolder.InitializeTextPlainVariables(nMax, RTFAux) then
-               AllNotesInitialized:= false;
+           if not myFolder.InitializeTextPlainVariables(nMax, RTFAux) then begin
+              AllNotesInitialized:= false;
+              break;
+           end;
         end;
 
         if AllNotesInitialized then
@@ -532,9 +538,14 @@ begin
       except
       end;
 
-    finally
-      RTFAux.Free;
-    end;
+      if (MillisecondsIdle < 450) then exit;
+
+    until FTextPlainVariablesInitialized or FIsBusy;
+
+  finally
+    RTFAux.Free;
+    UpdatingTextPlain:= False;
+  end;
 
 end;
 

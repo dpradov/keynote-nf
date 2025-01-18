@@ -1723,30 +1723,64 @@ end; // GetEditorProperties
 
 {$REGION TextPlain }
 
+procedure InitializeTextPlain_Compare(NEntry: TNoteEntry; RTFAux: TAuxRichEdit); forward;
+
 function TKntFolder.InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
+var
+  AStr: AnsiString;
+  Str: String;
+//Ok: Integer;
+
 begin
     Result:= False;  // Initialization was required?
+//  Ok:= 1;
 
     if NEntry.TextPlain = '' then begin
-       LoadStreamInRTFAux (NEntry.Stream, RTFAux);
-       NEntry.TextPlain:= RTFAux.TextPlain;
-       Result:= True;
+       if NEntry.IsPlainTXT then begin
+         AStr:= MemoryStreamToString(NEntry.Stream);
+         Str:= TryUTF8ToUnicodeString(AStr);
+         Str:= StringReplace(Str, #13#10, #13, [rfReplaceAll]);
+         if (Length(Str) > 1) and (Str[1] = #$FEFF)  then      // UTF16_BE_BOM = AnsiString(#$FEFF)
+            Delete(Str, 1, 1);
+       end
+       else begin
+          LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+          NEntry.TextPlain:= RTFAux.TextPlain;
+       end;
+
+{
+       if NEntry.IsPlainTXT then begin
+          LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+          NEntry.TextPlain:= RTFAux.TextPlain;
+          assert(not (NEntry.IsPlainTXT and (Str <> NEntry.TextPlain)));
+          if Ok= 2 then
+             InitializeTextPlain_Compare(NEntry, RTFAux);
+       end;
+}
+       Result:= (NEntry.TextPlain <> '');  // If it haven't data, don't count it in TKntFolder.InitializeTextPlainVariables
     end;
 end;
-
 
 function TKntFolder.InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit): boolean;
 var
   i, N: integer;
   NEntry: TNoteEntry;
+  LastTick, Tick: integer;
+
 begin
   Result:= false;          // Returns True if all nodes have TextPlain initialized
 
   N:= 0;
+  LastTick:= GetTickCount;
   for i := 0 to NNodes.Count - 1 do  begin
-     if (i mod 20) = 0 then begin
-        Application.ProcessMessages;
+
+     if (i mod 60) = 0 then begin
         if (MillisecondsIdle <= 450) then Exit;
+        Tick:= GetTickCount;
+        if Tick - LastTick > 1000 then begin
+           Application.ProcessMessages;
+           LastTick:= Tick;
+        end;
      end;
 
      NEntry:= NNodes[i].Note.Entries[0];                  // %%%
@@ -1770,6 +1804,112 @@ begin
    NEntry:= NNode.Note.Entries[0];         // %%%
    Self.InitializeTextPlain(NEntry, RTFAux);
    Result:= NEntry.TextPlain;
+end;
+
+
+procedure InitializeTextPlain_Compare(NEntry: TNoteEntry; RTFAux: TAuxRichEdit);
+var
+    AStr: AnsiString;
+    Tick: integer;
+    Total1,Total2,Total3, Total4, Total5: Single;
+    i, N: integer;
+    LBuffer: TBytes;
+    Str1,Str2,Str3,Str4,Str5: String;
+    S: string;
+    Ok: boolean;
+
+begin
+     Ok:= True;
+     N:= 300000;
+
+     // The first two strings used for comparison contained ANSI text, small in size. The first in UTF8
+     // was small, and the second occupied 15481 bytes, with characters in multiple languages, along with Non-Emoji Symbol,
+     // with symbols from:
+     //   https://www.lennyfacecopypaste.com/text-symbols/square-rectangle.html
+     //   https://www.prepressure.com/fonts/basics/emoji-list
+     //    ...
+
+     //1:   N:300.000 ->   0,21799 | 1,04700  | utf8:   0,20299 |     11,156
+     //2:   N:300.000 -> 374,0697  | -        | utf8: 428,90    | 20.568,9
+     //3:   N:300.000 ->   0,125   | 0,42199  | utf8:   0,15600 |      6,85900
+     //4:   N:300.000 ->   0,32800 | 1,20299  | utf8:   0,23499 |     10,84399
+     //5:   N:300.000 ->   0,20299 | 0,5      | utf8:   0,20299 |      6,43800
+
+     // The most optimal option is the third one, using MemoryStreamToString, TryUTF8ToUnicodeString and StringReplace
+     // Compared to it, getting it using RichText, with calls to LoadStreamInRTFAux and RTFAux.TextPlain
+     // is many orders of magnitude slower. Almost 3000 times slower:
+
+     //3:   N:300.000 ->      1   | -        | utf8:      1    |        1
+     //2:   N:300.000 -> x 2992   | -        | utf8:  x 826    |   x 2998
+
+
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+        AStr:= MemoryStreamToString(NEntry.Stream);
+        Str1:= TryUTF8ToUnicodeString(AStr);
+        Str1:= StringWithoutLineFeeds(Str1);
+     end;
+     Total1:= (GetTickCount - Tick)/1000;        // N:300.000 -> 0,21799 | 1,04700  | utf8: 0,20299  | 11,156
+
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+       LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+       NEntry.TextPlain:= RTFAux.TextPlain;
+     end;
+     Total2:= (GetTickCount - Tick)/1000;       // N:10.000 -> 12,46899 | ..       | utf8: 14,296699
+                                                // N: 1.000 ->   ..     | ..       | utf8: ..         | 68,56300
+                                      // .. =>    N:300.000 -> 374,0697 | ..       | utf8: 428,90     | 20568,9
+   try
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+        AStr:= MemoryStreamToString(NEntry.Stream);
+        Str3:= TryUTF8ToUnicodeString(AStr);
+        Str3:= StringReplace(Str3,#13#10,#13,[rfReplaceAll]);
+        if (Length(Str3)>1) and (Str3[1]=#$FEFF)  then      // UTF16_BE_BOM = AnsiString(#$FEFF)
+           Delete(Str3,1,1);
+     end;
+     Total3:= (GetTickCount - Tick)/1000;        // N:300.000 -> 0,125      | 0,42199  | utf8: 0,15600 | 6,85900
+   except
+    On E: Exception do
+       S:= E.Message;
+   end;
+
+   try
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+        SetLength(LBuffer, NEntry.Stream.Size);
+        NEntry.Stream.Position:= 0;
+        NEntry.Stream.Read(LBuffer[0], NEntry.Stream.Size);
+        Str4:= ConvertToUnicodeString(LBuffer);
+        Str4:= StringWithoutLineFeeds(Str4);
+     end;
+     Total4:= (GetTickCount - Tick)/1000;        // N:300.000 -> 0,32800    | 1,20299  | utf8: 0,23499 | 10,84399
+   except
+    On E: Exception do
+       S:= E.Message;
+   end;
+
+   try
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+        SetLength(LBuffer, NEntry.Stream.Size);
+        NEntry.Stream.Position:= 0;
+        NEntry.Stream.Read(LBuffer[0], NEntry.Stream.Size);
+        Str5:= ConvertToUnicodeString(LBuffer);
+        Str5:= StringReplace(Str5,#13#10,#13,[rfReplaceAll]);
+        if (Length(Str5)>1) and (Str5[1]=#$FEFF)  then      // UTF16_BE_BOM = AnsiString(#$FEFF)
+           Delete(Str5,1,1);
+     end;
+     Total5:= (GetTickCount - Tick)/1000;         // N:300.000 -> 0,20299 | 0,5     | utf8: 0,20299 | 6,43800
+   except
+    On E: Exception do
+       S:= E.Message;
+   end;
+
+
+   if not ((NEntry.TextPlain=Str1) and (str1=Str3) and (str1=Str4) and (str1=Str5)) then
+      Ok:= False;
+
 end;
 
 

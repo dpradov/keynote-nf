@@ -2369,76 +2369,83 @@ var
   Hrs, Mins : integer;
   _MillisecondsIdle: DWord;
 begin
-  inc( Timer_Tick );
-  inc( Timer_TickAlarm);
-  {
-    timer may trigger THREE kinds of things:
-    1. auto-saving current file
-    2. minimizing keynote and/or closing file after a period of inactivity.
+  if HandlingTimerTick then exit;
 
-    3. Show Alarms on nodes           [dpv*]
-    4. Invoke ImagesManager.CleanUp   [dpv]
-  }
-
-  if ( Timer_Tick >= KeyOptions.AutoSaveOnTimerInt * ( 60000 div _TIMER_INTERVAL ) ) then
-  begin
-    Timer_Tick := 0;
-    if Form_Main.HaveKntFolders( false, false ) then begin
-      if (( not ActiveFile.ChangedOnDisk ) and ActiveFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then begin
-        if (( ActiveFile.FileName <> '' ) and ( not ActiveFile.ReadOnly )) then begin
-          // only if saved previously
-         {$IFDEF KNT_DEBUG}
-           Log.Add( '-- Saving on TIMER' );
-         {$ENDIF}
-           KntFileSave( ActiveFile.FileName );
-        end;
-      end;
-    end;
-  end;
-
+  HandlingTimerTick:= True;
   try
-    if KeyOptions.TimerClose then begin
-      Hrs := ( KeyOptions.TimerCloseInt DIV 60 );
-      Mins := ( KeyOptions.TimerCloseInt MOD 60 );
-      if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then begin
-        Timer_Tick := 0;
-        AutoCloseKntFile;
-        // auto-closing minimizes too, so we exit here
-        exit;
-      end;
-    end;
+     inc( Timer_Tick );
+     inc( Timer_TickAlarm);
+     {
+       timer may trigger THREE kinds of things:
+       1. auto-saving current file
+       2. minimizing keynote and/or closing file after a period of inactivity.
 
-    if KeyOptions.TimerMinimize then begin
-      if ( not IsIconic( Application.Handle )) then begin
-        Hrs := ( KeyOptions.TimerMinimizeInt DIV 60 );
-        Mins := ( KeyOptions.TimerMinimizeInt MOD 60 );
-        if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then
-          Application.Minimize;
-      end;
-    end;
+       3. Show Alarms on nodes           [dpv*]
+       4. Invoke ImagesManager.CleanUp   [dpv]
+     }
+     try
+        if ( Timer_Tick >= KeyOptions.AutoSaveOnTimerInt * ( 60000 div _TIMER_INTERVAL ) ) then
+        begin
+          Timer_Tick := 0;
+          if Form_Main.HaveKntFolders( false, false ) then begin
+            if (( not ActiveFile.ChangedOnDisk ) and ActiveFile.Modified and KeyOptions.AutoSave and KeyOptions.AutoSaveOnTimer ) then begin
+              if (( ActiveFile.FileName <> '' ) and ( not ActiveFile.ReadOnly )) then begin
+                // only if saved previously
+               {$IFDEF KNT_DEBUG}
+                 Log.Add( '-- Saving on TIMER' );
+               {$ENDIF}
+                 KntFileSave( ActiveFile.FileName );
+              end;
+            end;
+          end;
+        end;
+
+        if KeyOptions.TimerClose then begin
+          Hrs := ( KeyOptions.TimerCloseInt DIV 60 );
+          Mins := ( KeyOptions.TimerCloseInt MOD 60 );
+          if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then begin
+            Timer_Tick := 0;
+            AutoCloseKntFile;
+            // auto-closing minimizes too, so we exit here
+            exit;
+          end;
+        end;
+
+        if KeyOptions.TimerMinimize then begin
+          if ( not IsIconic( Application.Handle )) then begin
+           Hrs := ( KeyOptions.TimerMinimizeInt DIV 60 );
+           Mins := ( KeyOptions.TimerMinimizeInt MOD 60 );
+           if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then
+             Application.Minimize;
+         end;
+       end;
 
 
-    if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Comprobamos cada 15 segundos
-        Timer_TickAlarm:= 0;
-        AlarmMng.checkAlarms;
-        ImageMng.CheckFreeImageStreamsNotRecentlyUsed;     // This method will only work if ImageManager.Enabled and if more than X minutes have passed since the previous cleanup
-    end;
+       if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Comprobamos cada 15 segundos
+           Timer_TickAlarm:= 0;
+           AlarmMng.checkAlarms;
+           ImageMng.CheckFreeImageStreamsNotRecentlyUsed;     // This method will only work if ImageManager.Enabled and if more than X minutes have passed since the previous cleanup
+       end;
 
 
-    _MillisecondsIdle:= MillisecondsIdle;
-    if KeyOptions.CheckUpdOnStartup and (_MillisecondsIdle > 3000) and not FirstTimeRun then
-       CheckForUpdate(true);
+       _MillisecondsIdle:= MillisecondsIdle;
+       if KeyOptions.CheckUpdOnStartup and (_MillisecondsIdle > 3000) and not FirstTimeRun then
+          CheckForUpdate(true);
 
-    if EditorOptions.WordCountTrack and (_MillisecondsIdle >= 450) then
-       if assigned(ActiveEditor) then
-          ActiveEditor.UpdateWordCount;
+       if EditorOptions.WordCountTrack and (_MillisecondsIdle >= 450) then
+          if assigned(ActiveEditor) then
+             ActiveEditor.UpdateWordCount;
 
-    if (ActiveFile <> nil) and (not ActiveFile.TextPlainVariablesInitialized) and (_MillisecondsIdle >= 450) then
-       ActiveFile.UpdateTextPlainVariables(150);
+     finally
+        HandlingTimerTick:= False;
+     end;
 
+     if (not UpdatingTextPlain) and (ActiveFile <> nil) and (not ActiveFile.TextPlainVariablesInitialized)
+                                                                  and (_MillisecondsIdle >= 450) then
+        ActiveFile.UpdateTextPlainVariables(Integer.MaxValue);  // It can continue running for multiple timer ticks
 
   except
-     // drop all exceptions here
+        // drop all exceptions here
   end;
 
 end; // OnTimer

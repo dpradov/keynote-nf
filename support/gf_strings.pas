@@ -56,6 +56,7 @@ procedure CharToChar(var s : string; const oldchar, newchar : char);
 function RemoveAccelChar(const s : string) : string;
 procedure CollapseSpaces(var s : string);
 function TrimPunct(s : string) : string;
+function StringWithoutLineFeeds(const Str: String): string;
 
 function TailMatch(const LongerString, ShorterString : string) : boolean;
 procedure UnquoteString(var s : string);
@@ -247,6 +248,39 @@ begin
   end;
   result := s;
 end; // TrimPunct
+
+
+
+{
+ Do not use. It is faster to use StringReplace. See method TKntFolder.InitializeTextPlain
+ See also time comparison performed in TKntFolder.InitializeTextPlain_Compare
+}
+// #13#10 => #13
+function StringWithoutLineFeeds(const Str: String): string;
+var
+  s,t: integer;
+begin
+    if Str='' then
+       Result := ''
+
+    else begin
+       SetLength(Result, Length(Str));
+       s:= 1;
+       t:= 1;
+       if (Length(Str)>1) and (Str[1]=#$FEFF)  then      // UTF16_BE_BOM = AnsiString(#$FEFF)
+          inc(s);
+       repeat
+          Result[t]:= Str[s];
+          if (Str[s]=#13) and (Str[s+1] = #10) then
+             inc(s);
+          inc(s);
+          inc(t);
+       until s >= Length(Str)-1;
+       Result[t]:= Str[s];
+       SetLength(Result, t);
+    end;
+
+end;
 
 
 function StrToCSVText(
