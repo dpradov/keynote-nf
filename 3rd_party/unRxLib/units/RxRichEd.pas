@@ -6731,10 +6731,8 @@ begin
   { RichEd20 does not pass the WM_RBUTTONUP message to defwndproc, }
   { so we get no WM_CONTEXTMENU message. Simulate message here.    }
   //if Win32MajorVersion < 5 then //bug on W2K, no popup invoked
-  {$IFNDEF WIN64}
-    Perform(WM_CONTEXTMENU, Handle, LParam(PointToSmallPoint(
-      ClientToScreen(SmallPointToPoint(TWMMouse(Message).Pos)))));
-  {$ENDIF}
+    Perform(WM_CONTEXTMENU, Handle, LParam(Cardinal(PointToSmallPoint(
+      ClientToScreen(SmallPointToPoint(TWMMouse(Message).Pos))))));
   inherited;
 end;
 {$ENDIF}

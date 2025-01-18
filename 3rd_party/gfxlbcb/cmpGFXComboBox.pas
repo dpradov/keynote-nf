@@ -38,7 +38,7 @@ type
   private
   	f_Extended: Boolean;
     f_ImageList: TImageList;
-    function CreateItemObject(p_Index: Integer): LongInt;
+    function CreateItemObject(p_Index: Integer): NativeInt;
     procedure SetImageIndex(p_Index: Integer; const p_ImageIndex: Integer);
 		function GetImageIndex(p_Index: Integer): Integer;
     procedure SetImageList(p_ImageList: TImageList);
@@ -142,7 +142,7 @@ begin
   end;
 end;
 
-function TGFXComboBox.CreateItemObject(p_Index: Integer): LongInt;
+function TGFXComboBox.CreateItemObject(p_Index: Integer): NativeInt;
 var
 	v_ItemObject: TItemObject;
 begin
@@ -151,11 +151,11 @@ begin
   begin
   	{Create a TItemObject for the new Item}
 	  v_ItemObject := TItemObject.Create;
-		Result := LongInt(v_ItemObject);
+		Result := NativeInt(v_ItemObject);
 	end else
   begin
 		{Return a pointer to the item's Object}
-  	Result := LongInt(Items.Objects[p_Index]);
+  	Result := NativeInt(Items.Objects[p_Index]);
   end;
 end;
 
