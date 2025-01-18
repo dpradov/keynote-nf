@@ -240,6 +240,7 @@ begin
         opensuccess := false;
         linksModified:= false;
         App.Virtual_UnEncrypt_Warning_Done:= false;
+        KntFile := nil;
 
         try
           try
