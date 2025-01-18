@@ -83,7 +83,7 @@ var
 begin
   {$IFNDEF CFORM}with Data do begin{$ENDIF}
   Move(InBlock,xL,4);
-  Move(pointer(longint(@InBlock)+4)^,xR,4);
+  Move(pointer(NativeInt(@InBlock)+4)^,xR,4);
   xL:= (xL shr 24) or ((xL shr 8) and $FF00) or ((xL shl 8) and $FF0000) or (xL shl 24);
   xR:= (xR shr 24) or ((xR shr 8) and $FF00) or ((xR shl 8) and $FF0000) or (xR shl 24);
   xL:= xL xor PBox[0];
@@ -123,7 +123,7 @@ begin
   xL:= (xL shr 24) or ((xL shr 8) and $FF00) or ((xL shl 8) and $FF0000) or (xL shl 24);
   xR:= (xR shr 24) or ((xR shr 8) and $FF00) or ((xR shl 8) and $FF0000) or (xR shl 24);
   Move(xR,OutBlock,4);
-  Move(xL,pointer(longint(@OutBlock)+4)^,4);
+  Move(xL,pointer(NativeInt(@OutBlock)+4)^,4);
   {$IFNDEF CFORM}end;{$ENDIF}
 end;
 
@@ -137,7 +137,7 @@ var
 begin
   {$IFNDEF CFORM}with Data do begin{$ENDIF}
   Move(InBlock,xL,4);
-  Move(pointer(longint(@InBlock)+4)^,xR,4);
+  Move(pointer(NativeInt(@InBlock)+4)^,xR,4);
   xL:= (xL shr 24) or ((xL shr 8) and $FF00) or ((xL shl 8) and $FF0000) or (xL shl 24);
   xR:= (xR shr 24) or ((xR shr 8) and $FF00) or ((xR shl 8) and $FF0000) or (xR shl 24);
   xL:= xL xor PBox[17];
@@ -177,7 +177,7 @@ begin
   xL:= (xL shr 24) or ((xL shr 8) and $FF00) or ((xL shl 8) and $FF0000) or (xL shl 24);
   xR:= (xR shr 24) or ((xR shr 8) and $FF00) or ((xR shl 8) and $FF0000) or (xR shl 24);
   Move(xR,OutBlock,4);
-  Move(xL,pointer(longint(@OutBlock)+4)^,4);
+  Move(xL,pointer(NativeInt(@OutBlock)+4)^,4);
   {$IFNDEF CFORM}end;{$ENDIF}
 end;
 
@@ -306,15 +306,15 @@ begin
   {$ELSE}with Data do begin{$ENDIF}
   for i:= 1 to (Size div 8) do
   begin
-    XorBlock(pointer(longint(@InData)+((i-1)*8)),@LB,@TB,Sizeof(TB));
+    XorBlock(pointer(NativeInt(@InData)+((i-1)*8)),@LB,@TB,Sizeof(TB));
     {$IFDEF CFORM}Encrypt(TB,TB){$ELSE}BlowfishEncryptECB(Data,TB,TB){$ENDIF};
-    Move(TB,pointer(longint(@OutData)+((i-1)*8))^,Sizeof(TB));
+    Move(TB,pointer(NativeInt(@OutData)+((i-1)*8))^,Sizeof(TB));
     Move(TB,LB,Sizeof(TB));
   end;
   if (Size mod 8)<> 0 then
   begin
     {$IFDEF CFORM}Encrypt(LB,TB){$ELSE}BlowfishEncryptECB(Data,LB,TB){$ENDIF};
-    XorBlock(@TB,@pointer(longint(@InData)+Size-(Size mod 8))^,@pointer(longint(@OutData)+Size-(Size mod 8))^,Size mod 8);
+    XorBlock(@TB,@pointer(NativeInt(@InData)+Size-(Size mod 8))^,@pointer(NativeInt(@OutData)+Size-(Size mod 8))^,Size mod 8);
   end;
   FillChar(TB,Sizeof(TB),$FF);
   {$IFNDEF CFORM}end;{$ENDIF}
@@ -335,19 +335,19 @@ begin
   {$ELSE}with Data do begin{$ENDIF}
   for i:= 1 to (Size div 8) do
   begin
-    Move(pointer(longint(@InData)+((i-1)*8))^,TB,Sizeof(TB));
+    Move(pointer(NativeInt(@InData)+((i-1)*8))^,TB,Sizeof(TB));
     {$IFDEF CFORM}
-    Decrypt(pointer(longint(@InData)+((i-1)*8))^,pointer(longint(@OutData)+((i-1)*8))^);
+    Decrypt(pointer(NativeInt(@InData)+((i-1)*8))^,pointer(NativeInt(@OutData)+((i-1)*8))^);
     {$ELSE}
-    BlowfishDecryptECB(Data,pointer(longint(@InData)+((i-1)*8))^,pointer(longint(@OutData)+((i-1)*8))^);
+    BlowfishDecryptECB(Data,pointer(NativeInt(@InData)+((i-1)*8))^,pointer(NativeInt(@OutData)+((i-1)*8))^);
     {$ENDIF}
-    XorBlock(@LB,pointer(longint(@OutData)+((i-1)*8)),pointer(longint(@OutData)+((i-1)*8)),Sizeof(TB));
+    XorBlock(@LB,pointer(NativeInt(@OutData)+((i-1)*8)),pointer(NativeInt(@OutData)+((i-1)*8)),Sizeof(TB));
     Move(TB,LB,Sizeof(TB));
   end;
   if (Size mod 8)<> 0 then
   begin
     {$IFDEF CFORM}Encrypt(LB,TB){$ELSE}BlowfishEncryptECB(Data,LB,TB){$ENDIF};
-    XorBlock(@TB,@pointer(longint(@InData)+Size-(Size mod 8))^,@pointer(longint(@OutData)+Size-(Size mod 8))^,Size mod 8);
+    XorBlock(@TB,@pointer(NativeInt(@InData)+Size-(Size mod 8))^,@pointer(NativeInt(@OutData)+Size-(Size mod 8))^,Size mod 8);
   end;
   FillChar(TB,Sizeof(TB),$FF);
   {$IFNDEF CFORM}end;{$ENDIF}

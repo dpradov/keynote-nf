@@ -242,7 +242,7 @@ var
   temp: array[0..51] of word;
   p: PWord;
 begin
-  p:= pointer(longint(@temp)+Sizeof(Temp));
+  p:= pointer(NativeInt(@temp)+Sizeof(Temp));
   Dec(p);
   t1:= MulInv(EK^);
   Inc(EK);
@@ -422,15 +422,15 @@ begin
   {$ELSE}with Data do begin{$ENDIF}
   for i:= 1 to (Size div 8) do
   begin
-    XorBlock(pointer(longint(@InData)+((i-1)*8)),@LB,@TB,Sizeof(TB));
+    XorBlock(pointer(NativeInt(@InData)+((i-1)*8)),@LB,@TB,Sizeof(TB));
     {$IFDEF CFORM}Encrypt(TB,TB){$ELSE}IDEAEncryptECB(Data,TB,TB){$ENDIF};
-    Move(TB,pointer(longint(@OutData)+((i-1)*8))^,Sizeof(TB));
+    Move(TB,pointer(NativeInt(@OutData)+((i-1)*8))^,Sizeof(TB));
     Move(TB,LB,Sizeof(TB));
   end;
   if (Size mod 8)<> 0 then
   begin
     {$IFDEF CFORM}Encrypt(LB,TB){$ELSE}IDEAEncryptECB(Data,LB,TB){$ENDIF};
-    XorBlock(@TB,@pointer(longint(@InData)+Size-(Size mod 8))^,@pointer(longint(@OutData)+Size-(Size mod 8))^,Size mod 8);
+    XorBlock(@TB,@pointer(NativeInt(@InData)+Size-(Size mod 8))^,@pointer(NativeInt(@OutData)+Size-(Size mod 8))^,Size mod 8);
   end;
   FillChar(TB,Sizeof(TB),$FF);
   {$IFNDEF CFORM}end;{$ENDIF}
@@ -451,19 +451,19 @@ begin
   {$ELSE}with Data do begin{$ENDIF}
   for i:= 1 to (Size div 8) do
   begin
-    Move(pointer(longint(@InData)+((i-1)*8))^,TB,Sizeof(TB));
+    Move(pointer(NativeInt(@InData)+((i-1)*8))^,TB,Sizeof(TB));
     {$IFDEF CFORM}
-    Decrypt(pointer(longint(@InData)+((i-1)*8))^,pointer(longint(@OutData)+((i-1)*8))^);
+    Decrypt(pointer(NativeInt(@InData)+((i-1)*8))^,pointer(NativeInt(@OutData)+((i-1)*8))^);
     {$ELSE}
-    IDEADecryptECB(Data,pointer(longint(@InData)+((i-1)*8))^,pointer(longint(@OutData)+((i-1)*8))^);
+    IDEADecryptECB(Data,pointer(NativeInt(@InData)+((i-1)*8))^,NativeInt(NativeInt(@OutData)+((i-1)*8))^);
     {$ENDIF}
-    XorBlock(@LB,pointer(longint(@OutData)+((i-1)*8)),pointer(longint(@OutData)+((i-1)*8)),Sizeof(TB));
+    XorBlock(@LB,pointer(NativeInt(@OutData)+((i-1)*8)),pointer(NativeInt(@OutData)+((i-1)*8)),Sizeof(TB));
     Move(TB,LB,Sizeof(TB));
   end;
   if (Size mod 8)<> 0 then
   begin
     {$IFDEF CFORM}Encrypt(LB,TB){$ELSE}IDEAEncryptECB(Data,LB,TB){$ENDIF};
-    XorBlock(@TB,@pointer(longint(@InData)+Size-(Size mod 8))^,@pointer(longint(@OutData)+Size-(Size mod 8))^,Size mod 8);
+    XorBlock(@TB,@pointer(NativeInt(@InData)+Size-(Size mod 8))^,@pointer(NativeInt(@OutData)+Size-(Size mod 8))^,Size mod 8);
   end;
   FillChar(TB,Sizeof(TB),$FF);
   {$IFNDEF CFORM}end;{$ENDIF}

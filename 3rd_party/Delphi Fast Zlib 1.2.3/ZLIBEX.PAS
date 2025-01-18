@@ -502,7 +502,7 @@ begin
         Inc(outSize, delta);
         ReallocMem(outBuffer, outSize);
 
-        zstream.next_out := PAnsiChar(Integer(outBuffer) + zstream.total_out);
+        zstream.next_out := PAnsiChar(NativeInt(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
       end;
     finally
@@ -543,7 +543,7 @@ begin
         Inc(outSize, delta);
         ReallocMem(outBuffer, outSize);
 
-        zstream.next_out := PAnsiChar(Integer(outBuffer) + zstream.total_out);
+        zstream.next_out := PAnsiChar(NativeInt(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
       end;
     finally
@@ -587,7 +587,7 @@ begin
         Inc(outSize, delta);
         ReallocMem(outBuffer, outSize);
 
-        zstream.next_out := PAnsiChar(Integer(outBuffer) + zstream.total_out);
+        zstream.next_out := PAnsiChar(NativeInt(outBuffer) + zstream.total_out);
         zstream.avail_out := delta;
       end;
     finally
