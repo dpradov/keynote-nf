@@ -1822,9 +1822,20 @@ var
     S: string;
     Ok: boolean;
 
+  procedure Wait;
+  var
+     i, j: NativeInt;
+  begin
+     j:= 0;
+     for i:= 0 to Cardinal.MaxValue div 2 do
+        inc(j);
+  end;
+
 begin
      Ok:= True;
      N:= 300000;
+
+     Form_Main.Timer.Enabled := false;
 
      // The first two strings used for comparison contained ANSI text, small in size. The first in UTF8
      // was small, and the second occupied 15481 bytes, with characters in multiple languages, along with Non-Emoji Symbol,
@@ -1847,6 +1858,8 @@ begin
      //2:   N:300.000 -> x 2992   | -        | utf8:  x 826    |   x 2998
 
 
+     Sleep(1000);
+     Wait;
      Tick:= GetTickCount;
      for i:= 1 to N do begin
         AStr:= MemoryStreamToString(NEntry.Stream);
@@ -1855,6 +1868,8 @@ begin
      end;
      Total1:= (GetTickCount - Tick)/1000;        // N:300.000 -> 0,21799 | 1,04700  | utf8: 0,20299  | 11,156
 
+     Sleep(1000);
+     Wait;
      Tick:= GetTickCount;
      for i:= 1 to N do begin
        LoadStreamInRTFAux (NEntry.Stream, RTFAux);
@@ -1864,6 +1879,8 @@ begin
                                                 // N: 1.000 ->   ..     | ..       | utf8: ..         | 68,56300
                                       // .. =>    N:300.000 -> 374,0697 | ..       | utf8: 428,90     | 20568,9
    try
+     Sleep(1000);
+     Wait;
      Tick:= GetTickCount;
      for i:= 1 to N do begin
         AStr:= MemoryStreamToString(NEntry.Stream);
@@ -1879,6 +1896,8 @@ begin
    end;
 
    try
+     Sleep(1000);
+     Wait;
      Tick:= GetTickCount;
      for i:= 1 to N do begin
         SetLength(LBuffer, NEntry.Stream.Size);
@@ -1894,6 +1913,8 @@ begin
    end;
 
    try
+     Sleep(1000);
+     Wait;
      Tick:= GetTickCount;
      for i:= 1 to N do begin
         SetLength(LBuffer, NEntry.Stream.Size);
@@ -1914,6 +1935,7 @@ begin
    if not ((NEntry.TextPlain=Str1) and (str1=Str3) and (str1=Str4) and (str1=Str5)) then
       Ok:= False;
 
+   Form_Main.Timer.Enabled := True;
 end;
 
 
