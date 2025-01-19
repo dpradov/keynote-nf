@@ -519,6 +519,7 @@ begin
 
   UpdatingTextPlain:= True;
   RTFAux:= CreateAuxRichEdit;
+  RTFAux.BeginUpdate;             // This instruction reduces the times obtained (See InitializeTextPlain_Compare_RTF, in kn_KntFolder)
   try
     repeat
       try

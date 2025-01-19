@@ -1724,6 +1724,7 @@ end; // GetEditorProperties
 {$REGION TextPlain }
 
 procedure InitializeTextPlain_Compare(NEntry: TNoteEntry; RTFAux: TAuxRichEdit); forward;
+procedure InitializeTextPlain_Compare_RTF(NEntry: TNoteEntry; RTFAux: TAuxRichEdit);  forward;
 
 function TKntFolder.InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
 var
@@ -1746,6 +1747,9 @@ begin
        else begin
           LoadStreamInRTFAux (NEntry.Stream, RTFAux);
           NEntry.TextPlain:= RTFAux.TextPlain;
+{          if Ok= 2 then
+             InitializeTextPlain_Compare_RTF(NEntry, RTFAux);
+}
        end;
 
 {
@@ -1909,6 +1913,134 @@ begin
 
    if not ((NEntry.TextPlain=Str1) and (str1=Str3) and (str1=Str4) and (str1=Str5)) then
       Ok:= False;
+
+end;
+
+
+procedure InitializeTextPlain_Compare_RTF(NEntry: TNoteEntry; RTFAux: TAuxRichEdit);
+var
+    AStr: AnsiString;
+    Tick: integer;
+    Total1,Total2,Total3, Total4, Total5: Single;
+    i, N: integer;
+    Str1,Str2,Str3,Str4,Str5: String;
+    S: string;
+    Ok: boolean;
+
+  procedure Wait;
+  var
+     i, j: NativeInt;
+  begin
+     j:= 0;
+     for i:= 0 to Cardinal.MaxValue div 2 do
+        inc(j);
+  end;
+
+begin
+     Ok:= True;
+     N:= 100;
+
+     Form_Main.Timer.Enabled := false;
+     {
+      100 iterations
+      The times obtained with LoadStreamInRTFAux are in all cases better than with PutRtfText
+      As an optimization, I can see that the use of BeginUpdate and EndUpdate significantly improves the times obtained.
+      Among other things, the times obtained with the use of BeginUpdate are more stable, probably without BeginUpdate
+      many unnecessary messages are generated whose management by the system can give rise to these variations.
+
+      As an example (Stream size in Bytes -> Times in seconds (several attempts measured)
+      Tamaño                   Without BeginUpdate                           WITH BeginUpdate
+      172                0,015                                            0,016
+      1735               0,422 0,406  0,39    (-> x 1,78)                 0,25 0,234  0,2189
+      5045               0,5                  (-> x 1,52)                 0,328
+     19410               0,594                (-> x 1,584)                0,375
+     65152               1,375  2,547         (-> x 1,375 - x 1,94)       1  1,312
+     89922               1,562  2,891 2,844   (-> x 1,407 - x 2,20)       1,11  1,313  1,312
+    149082               9,235 17,906 17,719  (-> x 1,79  - x 3,176)      5,156  5,637  5,61
+     }
+
+
+     Sleep(1000);
+     Wait;
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+        LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+        Str1:= RTFAux.TextPlain;
+     end;
+     Total1:= (GetTickCount - Tick)/1000;
+
+     Sleep(1000);
+     Wait;
+     Tick:= GetTickCount;
+     RTFAux.BeginUpdate;
+     for i:= 1 to N do begin
+        LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+        Str2:= RTFAux.TextPlain;
+     end;
+     RTFAux.EndUpdate;
+     Total2:= (GetTickCount - Tick)/1000;
+
+
+     Sleep(1000);
+     Wait;
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+        LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+        Str1:= RTFAux.TextPlain;
+     end;
+     Total3:= (GetTickCount - Tick)/1000;
+
+     Sleep(1000);
+     Wait;
+     Tick:= GetTickCount;
+     RTFAux.BeginUpdate;
+     for i:= 1 to N do begin
+        LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+        Str2:= RTFAux.TextPlain;
+     end;
+     RTFAux.EndUpdate;
+     Total4:= (GetTickCount - Tick)/1000;
+
+
+{
+     Sleep(1000);
+     Wait;
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+       RTFAux.Clear;
+       AStr:= MemoryStreamToString(NEntry.Stream);
+       Str3:= TryUTF8ToUnicodeString(AStr);
+       RTFAux.PutRtfText(Str3, True);
+       Str3:= RTFAux.TextPlain;
+     end;
+     Total3:= (GetTickCount - Tick)/1000;
+
+     Sleep(1000);
+     Wait;
+     Tick:= GetTickCount;
+     for i:= 1 to N do begin
+       RTFAux.Clear;
+       AStr:= MemoryStreamToString(NEntry.Stream);
+       RTFAux.PutRtfText(AStr, True);
+       Str4:= RTFAux.TextPlain;
+     end;
+     Total4:= (GetTickCount - Tick)/1000;
+
+     Sleep(1000);
+     Wait;
+     Tick:= GetTickCount;
+     RTFAux.BeginUpdate;
+     for i:= 1 to N do begin
+       RTFAux.Clear;
+       AStr:= MemoryStreamToString(NEntry.Stream);
+       RTFAux.PutRtfText(AStr, True);
+       Str5:= RTFAux.TextPlain;
+     end;
+     RTFAux.EndUpdate;
+     Total5:= (GetTickCount - Tick)/1000;
+}
+
+  Form_Main.Timer.Enabled := true;
 
 end;
 
