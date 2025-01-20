@@ -123,6 +123,9 @@ type
     fNNodesFlagged: boolean;
     fLastTreeSearch: string;
 
+    fColsSizeAdjusted: boolean;
+    fAuxResize: integer;
+
   protected
     // Create. Destroy
     procedure SetFolder(aFolder: TObject);
@@ -151,6 +154,7 @@ type
     procedure TV_CompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     //procedure TV_SavingTree(Sender: TObject; Node: PVirtualNode; var S: string);
 
+    procedure TV_Resize(Sender: TObject);
     procedure TV_HeaderCustomDrawTreeHeaderDrawQueryElements(
                                     Sender: TVTHeader; var PaintInfo: THeaderPaintInfo; var Elements: THeaderPaintElements);
     procedure TV_AdvancedHeaderDraw(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo; const Elements: THeaderPaintElements);
@@ -393,6 +397,9 @@ const
   FILTER_PANEL_WIDTH = 175;
   FILTER_PANEL_MAX_WIDTH_ALIGNBOTTOM = 420;
 
+  MIN_WIDTH_NAME_COL = 200;
+  FLAGGED_COL_WIDTH = 20;
+
 
 
 
@@ -440,6 +447,8 @@ begin
    fTreeFilterApplied:= false;
    fFilterOutUnflaggedApplied:= false;
    fChangesInFlagged:= false;
+   fColsSizeAdjusted:= false;
+   fAuxResize:= 0;
 
    fNumberingDepthLimit:= 2;
 
@@ -453,9 +462,10 @@ begin
 
    with TV.Header do begin
        Height := 18;
-       Options:= [hoAutoResize, hoColumnResize,hoDblClickResize,hoDrag,hoShowHint, hoOwnerDraw];
+       Options:= [hoColumnResize,hoDblClickResize,hoDrag,hoShowHint, hoOwnerDraw];
        AutoSize := False;
        with Columns.Add do begin
+           Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor, coVisible, coSmartResize];
            Text:= GetRS(sTree62);       // Name
            Hint:= GetRS(sTree63);       // Note name
            Position:= 1;
@@ -463,15 +473,16 @@ begin
        end;
        with Columns.Add do begin
            Text:= GetRS(sTree64);      // Date
-           Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
+           Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coShowDropMark, coStyleColor];
            Hint:= GetRS(sTree65);      // Note creation date
            Position:= 2;
            Style:= vsOwnerDraw;
        end;
        with Columns.Add do begin
+           Text:= '*';
            Hint:= GetRS(sTree66);  // Flagged
-           Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coResizable, coShowDropMark, coStyleColor];
-           Width:= 18;
+           Options := [coAllowClick, coDraggable, coEnabled, coParentBidiMode, coParentColor, coShowDropMark, coStyleColor];
+           Width:= FLAGGED_COL_WIDTH;
            Position:= 0;
            Style:= vsOwnerDraw;
        end;
@@ -606,6 +617,56 @@ begin
         PnlInf.Left:= PnlInf.Left - LeftShift;
      end;
    end;
+end;
+
+
+procedure TKntTreeUI.TV_Resize(Sender: TObject);
+var
+   W: integer;
+   VerticalScrollBarWidth: integer;
+   ColNamePos: integer;
+   ColNameLastPos: boolean;
+begin
+   fColsSizeAdjusted:= True;
+
+   if fAuxResize > 3 then
+     TV.BeginUpdate;
+
+   W:= 0;
+   ColNameLastPos:= True;
+
+   with TV.Header do begin
+      TV.Header.AutoFitColumns(False,smaUseColumnOption);
+      ColNamePos:= Columns[0].Position;
+      Columns[2].Width:= FLAGGED_COL_WIDTH;
+
+      if coVisible in Columns[1].Options then begin
+         W:= Columns[1].Width;
+         if Columns[1].Position > ColNamePos then
+            ColNameLastPos:= false;
+      end;
+      if coVisible in Columns[2].Options then begin
+         inc(W, FLAGGED_COL_WIDTH);
+         if Columns[2].Position > ColNamePos then
+            ColNameLastPos:= false;
+      end;
+
+      if (W > 0) and (not ColNameLastPos) then begin
+         VerticalScrollBarWidth:= 0;
+         if TV.IsVerticalScrollBarVisible  then
+            VerticalScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL) + 3;
+
+         W:= TV.Width - W- VerticalScrollBarWidth - 5;
+         if W < MIN_WIDTH_NAME_COL then
+            W := MIN_WIDTH_NAME_COL;
+         Columns[0].Width:= W;
+      end;
+   end;
+
+   if fAuxResize > 3 then
+     TV.EndUpdate
+   else
+     inc(fAuxResize);
 end;
 
 
@@ -896,6 +957,7 @@ begin
      OnHeaderDrawQueryElements:= TV_HeaderCustomDrawTreeHeaderDrawQueryElements;
      OnAdvancedHeaderDraw:= TV_AdvancedHeaderDraw;
      OnHeaderDragged:= TV_HeaderDragged;
+     OnResize:= TV_Resize;
    end;
 
    TKntFolder(fFolder).NoteUI.SetOnEnter(NoteUIEnter);
@@ -997,6 +1059,8 @@ begin
          Options:= Options - [hoVisible];
 
    end;
+
+   TV_Resize(nil);
 end;
 
 
@@ -1205,19 +1269,19 @@ var
 begin
   with PaintInfo do begin
     // First check the column member. If it is NoColumn then it's about the header background.
-    if Column = nil then begin
+//    if Column = nil then begin
 //      if hpeBackground in Elements then begin
 //        TargetCanvas.Brush.Color := TV.Color;// clBackground;
 //        TargetCanvas.FillRect(PaintRectangle);
 //      end;
-    end
-    else begin
+//    end
+//    else begin
         Color:=     DarkenColor(TV.Color, 10);
         if Color = TV.Color then
            Color:= LightenColor(Color, 15);
         TargetCanvas.Brush.Color := Color;
         TargetCanvas.FillRect(PaintRectangle);
-    end;
+//    end;
   end;
 
 end;
@@ -1232,7 +1296,7 @@ begin
 
   with PaintInfo do begin
     if Column = nil then
-      // Elements := [hpeBackground] // No other flag is recognized for the header background.
+       Elements := [hpeBackground] // No other flag is recognized for the header background.
     else begin
       Elements := [hpeBackground{, hpeText, hpeDropMark, hpeHeaderGlyph, hpeSortGlyph}];
       // Using the index here ensures a column, regardless of its position, always has the same draw style.
@@ -2139,6 +2203,7 @@ begin
   TV.PopupMenu := PopupMenu;               // Restore menu -> resume menu events triggered by shortcut keys
   if GetNNode(Node).NumberingMethod <> NoNumbering then
      TV.ReinitNode(Node, false);
+  TV_Resize(nil);
 end;
 
 
@@ -4177,6 +4242,10 @@ begin
       Folder.Editor.Refresh;
 
    OnAfterChangesOnTreeWidth;
+
+   if not fColsSizeAdjusted then
+      TV_Resize(nil);
+   fColsSizeAdjusted:= False;
 end;
 
 
