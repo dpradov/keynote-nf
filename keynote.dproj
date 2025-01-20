@@ -3,12 +3,12 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>20.1</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">keynote</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -87,11 +87,10 @@
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.7.9.8;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <Icon_MainIcon>keynote_Icon.ico</Icon_MainIcon>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
@@ -112,8 +111,8 @@
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.3.1;FileVersion=2.0.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.3.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>4</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.4.1 (x86);FileVersion=2.0.4.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.4.1;Comments=;ProgramID=</VerInfo_Keys>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <DCC_MapFile>3</DCC_MapFile>
         <VerInfo_Build>1</VerInfo_Build>
@@ -121,10 +120,10 @@
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Build>0</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <DCC_MapFile>3</DCC_MapFile>
+        <VerInfo_Release>4</VerInfo_Release>
+        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.4.1 (x64);FileVersion=2.0.4.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.0.4.1;Comments=</VerInfo_Keys>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;KNT_DEBUG;$(DCC_Define)</DCC_Define>
@@ -136,8 +135,8 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.3.1;FileVersion=2.0.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.3.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Release>4</VerInfo_Release>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.4.1 (x86);FileVersion=2.0.4.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.4.1;Comments=;ProgramID=</VerInfo_Keys>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>keynote_Icon.ico</UWP_DelphiLogo150>
@@ -151,15 +150,16 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Build>0</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Release>4</VerInfo_Release>
+        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.4.1 (x64);FileVersion=2.0.4.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.0.4.1;Comments=</VerInfo_Keys>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <UsePackages>true</UsePackages>
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

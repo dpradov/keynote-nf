@@ -3,6 +3,16 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.0.4.1   (20 jan 2025)
+--------------------------
+* Offered two versions: 32-bit and 64-bit.
+* Fixed: Returned the tree panel horizontal scrollbar to its original behavior (pre 2.0.0) (Ref: #797)
+* Fixed column reposition behavior (using drag and drop on column headers).
+* Significant time reduction in Find searches
+* Optimization of the caching process for data used to perform searches
+* Optimized .knt loading, especially for files with a LOT of notes
+
+
 v 2.0.3.1   (11 jan 2025)
 --------------------------
 IMPORTANT (2.0.0+): 
