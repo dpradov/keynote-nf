@@ -92,7 +92,7 @@ type
     fNNodesInSubtree: TNoteNodeArray;
     fDropTargetNode: PVirtualNode;
     fDropTargetNodeInsMode: TNodeInsertMode;
-    fSimulateClickTimer: TTimer;
+    fTimer: TTimer;
 
     fTreeWidthExpanded: boolean;
     fTreeWidth_N: Cardinal;
@@ -124,8 +124,7 @@ type
     fNNodesFlagged: boolean;
     fLastTreeSearch: string;
 
-    fColsSizeAdjusted: boolean;
-    fAuxResize: integer;
+    fColsSizeAdjusting: integer;
 
   protected
     // Create. Destroy
@@ -183,7 +182,7 @@ type
   public
     procedure ApplyBiDiMode;
     procedure UpdateTreeChrome;
-    procedure UpdateTreeColumns;
+    procedure UpdateTreeColumns (ResizeCols: boolean = True);
     procedure ShowAdditionalColumns (Show: boolean);
     function AdditionalColumnsAreVisible: boolean;
     function GetSizeOfColDate: integer;
@@ -425,7 +424,7 @@ begin
 
   fDropTargetNode:= nil;
   fDropTargetNodeInsMode:= tnAddLast;
-  fSimulateClickTimer:= nil;
+  fTimer:= nil;
 end;
 
 
@@ -450,8 +449,7 @@ begin
    fTreeFilterApplied:= false;
    fFilterOutUnflaggedApplied:= false;
    fChangesInFlagged:= false;
-   fColsSizeAdjusted:= false;
-   fAuxResize:= 0;
+   fColsSizeAdjusting:= 0;
 
    fNumberingDepthLimit:= 2;
 
@@ -575,7 +573,13 @@ begin
    if Folder.TreeMaxWidth > Folder.TreeWidth then
       SplitterNote.Color:= clLtGray;
 
-   UpdateTreeColumns;
+   UpdateTreeColumns (False);
+
+   fTimer := TTimer.Create(Self);
+   fTimer.Interval := 5;
+   fTimer.OnTimer := TV_Resize;
+   fTimer.Tag:= 9999;
+   fTimer.Enabled:= True;
 end;
 
 procedure TKntTreeUI.ApplyBiDiMode;
@@ -630,10 +634,16 @@ var
    ColNamePos: integer;
    ColNameLastPos: boolean;
 begin
-   fColsSizeAdjusted:= True;
+   if fColsSizeAdjusting = 1 then exit;
+   fColsSizeAdjusting:= 1;
 
-   if fAuxResize > 3 then
-     TV.BeginUpdate;
+   if (fTimer <> nil) and (fTimer.Tag = 9999) then begin
+       fTimer.Free;
+       fTimer:= nil;
+       TV.OnResize:= TV_Resize;
+   end;
+
+   TV.BeginUpdate;
 
    W:= 0;
    ColNameLastPos:= True;
@@ -666,10 +676,8 @@ begin
       end;
    end;
 
-   if fAuxResize > 3 then
-     TV.EndUpdate
-   else
-     inc(fAuxResize);
+   TV.EndUpdate;
+   fColsSizeAdjusting:= 2;
 end;
 
 
@@ -960,7 +968,6 @@ begin
      OnHeaderDrawQueryElements:= TV_HeaderCustomDrawTreeHeaderDrawQueryElements;
      OnAdvancedHeaderDraw:= TV_AdvancedHeaderDraw;
      OnHeaderDragged:= TV_HeaderDragged;
-     OnResize:= TV_Resize;
    end;
 
    TKntFolder(fFolder).NoteUI.SetOnEnter(NoteUIEnter);
@@ -1016,7 +1023,7 @@ begin
 
 end;
 
-procedure TKntTreeUI.UpdateTreeColumns;
+procedure TKntTreeUI.UpdateTreeColumns (ResizeCols: boolean = True);
 var
   Folder: TKntFolder;
   NamePos: integer;
@@ -1063,7 +1070,8 @@ begin
 
    end;
 
-   TV_Resize(nil);
+   if ResizeCols then
+      TV_Resize(nil);
 end;
 
 
@@ -1230,14 +1238,14 @@ end;
 
 procedure TKntTreeUI.TV_HeaderDragged(Sender: TVTHeader; Column: TColumnIndex; OldPosition: Integer);
 begin
-  if not Assigned(fSimulateClickTimer) then begin
-    fSimulateClickTimer := TTimer.Create(Self);
-    fSimulateClickTimer.Interval := 10;                // Short delay to allow time for internal actions to complete
-    fSimulateClickTimer.OnTimer := SimulateDoubleClick;
+  if not Assigned(fTimer) then begin
+    fTimer := TTimer.Create(Self);
+    fTimer.Interval := 10;                // Short delay to allow time for internal actions to complete
+    fTimer.OnTimer := SimulateDoubleClick;
   end;
 
-  fSimulateClickTimer.Tag := Column;
-  fSimulateClickTimer.Enabled := True;
+  fTimer.Tag := Column;
+  fTimer.Enabled := True;
 end;
 
 
@@ -1247,9 +1255,9 @@ var
   LP: LPARAM;
   ColumnIndex: Integer;
 begin
-  ColumnIndex := fSimulateClickTimer.Tag;
-  fSimulateClickTimer.Free;                   // Stop and delete the timer
-  fSimulateClickTimer:= nil;
+  ColumnIndex := fTimer.Tag;
+  fTimer.Free;                   // Stop and delete the timer
+  fTimer:= nil;
   P:= TV.Header.Columns[ColumnIndex].GetRect.CenterPoint;
   LP := MakeLParam(P.X, P.Y);
   TV.Perform(WM_LBUTTONDOWN, MK_LBUTTON, LP);
@@ -4281,9 +4289,9 @@ begin
 
    OnAfterChangesOnTreeWidth;
 
-   if not fColsSizeAdjusted then
+   if fColsSizeAdjusting <> 2 then
       TV_Resize(nil);
-   fColsSizeAdjusted:= False;
+   fColsSizeAdjusting:= 0;
 end;
 
 
