@@ -300,18 +300,22 @@ var
   pH will have the position of the first occurrence of the beginning of the hidden text, from the position to search for.
 
   If the hidden text is not found (pH=0) or it is placed to the right of the localized text, it does not affect us. We have successfully found
-  the first appearance        
+  the first appearance
 
-  If we find only hidden text, or the position of the hidden text is lower than that of the serched text, how do we know that there 
+  If we find only hidden text, or the position of the hidden text is lower than that of the serched text, how do we know that there
   was no hidden text that we have not located precisely because it is 'mixed' with that hidden text?
   In this case we must do a search step by step, which ignores possible characters from our hidden string, and which should start
   some distance to the left of the hidden text (in anticipation of case E) and continue searching assuming that the beginning
   of the string to search for could be immediately before the hidden text (case F)
-         
-  Although it would not be normal, there could be more than one string hidden within the text to be searched for (case H). If upon 
+
+  Although it would not be normal, there could be more than one string hidden within the text to be searched for (case H). If upon
   reaching the second hidden string we see keeping the match in the search text comparison, we will simply ignore this second string and continue
   comparing. If after passing the last character of the first hidden string there was no match, we should continue looking for new possible
   hidden texts, to repeat the process.
+
+  NOTE: IgnoreKNTHiddenMarks => The search will be performed without special treatment of possible hidden characters, if any.
+       This allows you to locate these characters, if you are interested, but it can also speed up the search when you know that
+       there cannot be hidden characters when searching within note names or in plain, non-RTF notes.
 }
 
  p: integer;          // Position of the search text (first occurrence)
@@ -365,7 +369,7 @@ begin
         else begin
            posIT:= pH - LenPattern+ 1;          // in anticipation of case E (at least 1 character would be placed after the hidden string)
            pHf:= pH;
-           
+
            if posIT <= 0 then
               posIT:= 1;
 
@@ -962,6 +966,8 @@ var
   SearchingByDates: boolean;
   LastLocationAdded_Str: String;
   LastLocationAdded_NodeName: boolean;
+  SearchingInNonRTFText: boolean;
+  ClearRTFAux: boolean;
 
   SearchIn: string;
   LastDScope, CurrentDScope: TDistanceScope;
@@ -1105,6 +1111,8 @@ type
              LastLocationAdded_Str:= Paragraph;
              LastLocationAdded_NodeName:= SearchingInNodeName;
           end;
+
+          //Form_Main.LblFindAllNumResults.Caption:= '  ' + MatchCount.ToString + GetRS(sFnd13);
        end;
 
        procedure GetCurrentNode;
@@ -1284,15 +1292,18 @@ type
              PositionsLastLocationAdded[i]:= -1;
        end;
 
-       procedure FindPatternInText (SearchingInNodeName: boolean);
+       procedure FindPatternInText (SearchingInNodeName: boolean; SearchingInNonRTFText: boolean);
        var
           wordidx : integer;
+          IgnoreKNTHiddenMarks: boolean;
+
        begin
+          IgnoreKNTHiddenMarks:= not (SearchingInNodeName or SearchingInNonRTFText);
           case SearchModeToApply of
               smPhrase :
                   begin
                       repeat
-                         PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1) -1;
+                         PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1, IgnoreKNTHiddenMarks) -1;
                          { PatternPos := EditControl.FindText(myFindOptions.Pattern, SearchOrigin, -1, SearchOpts ); }
                          if ( PatternPos >= 0 ) then begin
                              SearchOrigin := PatternPos + PatternLen; // move forward in text
@@ -1368,7 +1379,7 @@ type
                              ReusedWordPos:= true;
                           end
                           else
-                             PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText) -1;
+                             PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText, IgnoreKNTHiddenMarks) -1;
                           { PatternPos := EditControl.FindText(thisWord, 0, -1, SearchOpts); }
 
                           if (CurrentDScope <> dsAll) then begin
@@ -1614,6 +1625,8 @@ begin
 
   wordList := TSearchWordList.Create;
   RTFAux:= CreateAuxRichEdit;
+  RTFAux.Clear;
+  RTFAux.BeginUpdate;
 
 
   try
@@ -1621,6 +1634,7 @@ begin
       if not TreeFilter  then begin
          ClearLocationList( Location_List );
          ClearResultsSearch;
+         Form_Main.LblFindAllNumResults.Caption:= '';
       end;
 
       SearchPatternToSearchWords (wordList, TextToFind, myFindOptions);
@@ -1659,6 +1673,9 @@ begin
             GetNextFolder();
       end;
 
+      // To make sure that RTFAux is empty after calling PrepareTextPlain, if we are explicitily interested in having
+      // the RTF content of the node, in case the Emphasized option is used
+      ClearRTFAux:= (myFindOptions.EmphasizedSearch <> esNone);
 
       // Go through each Folder
       repeat
@@ -1674,8 +1691,7 @@ begin
             repeat
                 nodeToFilter:= true;               // I assume the pattern will not be found, so the node will be filtered (if ApplyFilter=True)
                 SearchOrigin := 0;                 // starting a new node
-                RTFAux.Clear;                      // Let's make sure it's empty before calling PrepareTextPlain, just in case it wasn't necessary to use it.
-                                                   // and we are interested in having the RTF content of the node (in case the Emphasized option is used)
+
                 SearchModeToApply := myFindOptions.SearchMode;    // Within each NNode we can temporarily switch from smAll to smAny
 
                 if assigned(myTreeNode) then
@@ -1706,17 +1722,18 @@ begin
                         if not myFindOptions.MatchCase then
                            TextPlain:= AnsiUpperCase( TextPlain);
 
-                        FindPatternInText(true);
+                        FindPatternInText(true, true);
                       end;
 
                       if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
-                         TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux);
+                         TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, ClearRTFAux);
                          TextPlain:= TextPlainBAK;
                          if not myFindOptions.MatchCase then
                             TextPlain:=  AnsiUpperCase(TextPlain);
 
                          SearchOrigin := 0;
-                         FindPatternInText(false);
+                         SearchingInNonRTFText:= myNNode.Note.Entries[0].IsPlainTXT;   // ### Entries[0]
+                         FindPatternInText(false, SearchingInNonRTFText);
                       end;
                    end;
 
@@ -2077,6 +2094,7 @@ var
   TV: TVTree;
   NNode: TNoteNode;
   SearchInImLinkTextPlain: boolean;  // True: PatternPos is a position in imLinkTextPlain
+  IgnoreKNTHiddenMarks: boolean;
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -2310,11 +2328,12 @@ begin
                ReplacingLastNodeHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same node will be optimized if this node has no images
             end;
 
+            IgnoreKNTHiddenMarks:= NNode.Note.Entries[0].IsRTF;   // ### Entries[0]
 
             if FindOptions.MatchCase then
-               PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
+               PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks) -1
             else
-               PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText) -1;
+               PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks) -1;
 
             {
             PatternPos := EditControl.FindText(
@@ -2464,9 +2483,9 @@ begin
 
       repeat
          if FindOptions.MatchCase then
-            PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText) -1
+            PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, True) -1
          else
-            PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText) -1;
+            PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, True) -1;
 
          if PatternPos < 0 then begin
             var Wrap: boolean := FindOptions.Wrap and not Is_ReplacingAll;
