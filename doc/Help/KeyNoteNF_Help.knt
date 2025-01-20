@@ -5356,7 +5356,7 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=0801252149
+LM=2001252022
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
@@ -5463,7 +5463,7 @@ Tip\b0 : \f0\lang1033 After you have used the "Find All" command, right-click th
 \f1\lang3082\par
 \par
 
-\pard\li360\v\'11I210\'12\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:210,211,634"}}{\fldrslt {210_Clipb_08ene.png}}}     \v\'11I211\'12\v0\f1\lang3082{\field{\*\fldinst{HYPERLINK "img:211,309,533"}}{\fldrslt {211_Clipb_08ene.png}}}\par
+\pard\li360\v\'11I215\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:215,209,638"}}{\fldrslt {215_Clipb_20ene.png}}}\lang1033      \v\'11I216\'12\v0\f1\lang3082{\field{\*\fldinst{HYPERLINK "img:216,312,600"}}{\fldrslt {216_Clipb_20ene.png}}}\par
 
 \pard\f0\lang1033\par
 \par
@@ -16398,7 +16398,7 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=0901251820
+LM=2001252013
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -16422,6 +16422,13 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.0.4\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 KeyNote NF is offered in two versions, 32-bit and 64-bit.\par
+{\pntext\f3\'B7\tab}Significant time reduction in Find searches. Also in caching process for data used to perform searches\par
+{\pntext\f3\'B7\tab}Optimized .knt loading, especially for files with a LOT of notes\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.0.2\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Print and Export improvements:\par
@@ -16499,7 +16506,7 @@ The \b main changes/improvements of the latest versions\b0  are highlighted belo
 %*
 GI=120
 ND=News
-LM=0712241230
+LM=2001252014
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
@@ -16508,6 +16515,12 @@ LM=0712241230
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 KeyNote\f0\lang3082  NF:  News\cf2\lang1033\par
 \cf0\b0\fs20\par
+\par
+
+\pard\sa120\cf1\b\fs24\lang3082 20\f1\lang1045  \f0\lang3082 jan\f1\lang1045  202\f0\lang3082 5\cf2\lang1033\par
+
+\pard\cf0\b0\fs20 KeyNote NF is offered in two versions, 32-bit and 64-bit\par
+\par
 \par
 
 \pard\sa120\cf1\b\fs24\lang3082 07\f1\lang1045  \f0\lang3082 dic\f1\lang1045  202\f0\lang3082 4\cf2\lang1033\par
@@ -17135,7 +17148,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=215
+II=217
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -17289,10 +17302,10 @@ PD=204||204_Clipb_07dic.png|1|489|198|245941648||1|1||0
 PD=207||207_Clipb_06ene.png|1|669|467|1317509020||1|1||0
 PD=208||208_Clipb_06ene.png|1|334|411|2637135484||1|1||0
 PD=209||209_Clipb_06ene.png|1|279|109|3349534461||1|1||0
-PD=210||210_Clipb_08ene.png|1|211|634|2075147463||1|1||0
-PD=211||211_Clipb_08ene.png|1|309|533|2133121723||1|1||0
 PD=212||212_Clipb_08ene.png|1|387|530|136024720||1|1||0
 PD=213||213_Clipb_08ene.png|1|387|530|2421678084||1|1||0
 PD=214||214_Clipb_08ene.png|1|387|530|3693120505||1|1||0
+PD=215||215_Clipb_20ene.png|1|209|638|636872966||1|1||0
+PD=216||216_Clipb_20ene.png|1|312|600|784430773||1|1||0
 %EI
 %%
