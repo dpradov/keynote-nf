@@ -92,7 +92,6 @@ type
     fNNodesInSubtree: TNoteNodeArray;
     fDropTargetNode: PVirtualNode;
     fDropTargetNodeInsMode: TNodeInsertMode;
-    fTimer: TTimer;
 
     fTreeWidthExpanded: boolean;
     fTreeWidth_N: Cardinal;
@@ -124,6 +123,7 @@ type
     fNNodesFlagged: boolean;
     fLastTreeSearch: string;
 
+    fTimer: TTimer;
     fColsSizeAdjusting: integer;
 
   protected
@@ -424,7 +424,6 @@ begin
 
   fDropTargetNode:= nil;
   fDropTargetNodeInsMode:= tnAddLast;
-  fTimer:= nil;
 end;
 
 
@@ -450,6 +449,7 @@ begin
    fFilterOutUnflaggedApplied:= false;
    fChangesInFlagged:= false;
    fColsSizeAdjusting:= 0;
+   fTimer:= nil;
 
    fNumberingDepthLimit:= 2;
 
