@@ -1743,6 +1743,7 @@ begin
          Str:= StringReplace(Str, #13#10, #13, [rfReplaceAll]);
          if (Length(Str) > 1) and (Str[1] = #$FEFF)  then      // UTF16_BE_BOM = AnsiString(#$FEFF)
             Delete(Str, 1, 1);
+         NEntry.TextPlain:= Str;
        end
        else begin
           LoadStreamInRTFAux (NEntry.Stream, RTFAux);
