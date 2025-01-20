@@ -92,6 +92,7 @@ type
     fNNodesInSubtree: TNoteNodeArray;
     fDropTargetNode: PVirtualNode;
     fDropTargetNodeInsMode: TNodeInsertMode;
+    fSimulateClickTimer: TTimer;
 
     fTreeWidthExpanded: boolean;
     fTreeWidth_N: Cardinal;
@@ -160,6 +161,7 @@ type
     procedure TV_AdvancedHeaderDraw(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo; const Elements: THeaderPaintElements);
 
     procedure TV_HeaderDragged(Sender: TVTHeader; Column: TColumnIndex; OldPosition: Integer);
+    procedure SimulateDoubleClick(Sender: TObject);
     procedure TV_NodeClick(Sender: TBaseVirtualTree; const HitInfo: THitInfo);
 
     function GetFocused: boolean;
@@ -423,6 +425,7 @@ begin
 
   fDropTargetNode:= nil;
   fDropTargetNodeInsMode:= tnAddLast;
+  fSimulateClickTimer:= nil;
 end;
 
 
@@ -1227,7 +1230,42 @@ end;
 
 procedure TKntTreeUI.TV_HeaderDragged(Sender: TVTHeader; Column: TColumnIndex; OldPosition: Integer);
 begin
-   TKntFolder(FFolder).Modified:= True;
+  if not Assigned(fSimulateClickTimer) then begin
+    fSimulateClickTimer := TTimer.Create(Self);
+    fSimulateClickTimer.Interval := 10;                // Short delay to allow time for internal actions to complete
+    fSimulateClickTimer.OnTimer := SimulateDoubleClick;
+  end;
+
+  fSimulateClickTimer.Tag := Column;
+  fSimulateClickTimer.Enabled := True;
+end;
+
+
+procedure TKntTreeUI.SimulateDoubleClick(Sender: TObject);
+var
+  P: TPoint;
+  LP: LPARAM;
+  ColumnIndex: Integer;
+begin
+  ColumnIndex := fSimulateClickTimer.Tag;
+  fSimulateClickTimer.Free;                   // Stop and delete the timer
+  fSimulateClickTimer:= nil;
+  P:= TV.Header.Columns[ColumnIndex].GetRect.CenterPoint;
+  LP := MakeLParam(P.X, P.Y);
+  TV.Perform(WM_LBUTTONDOWN, MK_LBUTTON, LP);
+  TV.Perform(WM_LBUTTONUP, 0, LP);
+
+  TV.Perform(WM_LBUTTONDOWN, MK_LBUTTON, LP);
+  TV.Perform(WM_LBUTTONUP, 0, LP);
+
+  TV_Resize(nil);
+
+  with TV.Header do begin
+     if coVisible in Columns[1].Options then
+        TKntFolder(Folder).PosDateCol:= Columns[1].Position + 1;
+     if coVisible in Columns[2].Options then
+        TKntFolder(Folder).PosFlaggedCol:= Columns[2].Position + 1;
+  end;
 end;
 
 
