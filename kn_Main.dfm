@@ -1061,7 +1061,7 @@ object Form_Main: TForm_Main
         object Label1: TLabel
           Left = 7
           Top = 7
-          Width = 100
+          Width = 61
           Height = 13
           Caption = '&Find All text:'
           FocusControl = Combo_ResFind
@@ -1114,8 +1114,17 @@ object Form_Main: TForm_Main
           Transparent = False
           ExplicitLeft = 248
         end
+        object CB_ResFind_Filter: TCheckBox
+          Left = 10
+          Top = 64
+          Width = 97
+          Height = 17
+          Hint = 'Show or hide nodes based on search conditions'
+          Caption = 'Filter folder[s]'
+          TabOrder = 2
+        end
         object Combo_ResFind: TComboBox
-          Left = 5
+          Left = 34
           Top = 30
           Width = 162
           Height = 22
@@ -1134,12 +1143,11 @@ object Form_Main: TForm_Main
           OnKeyDown = Combo_ResFindKeyDown
         end
         object Btn_ResFind: TButton
-          Left = 168
+          Left = 5
           Top = 29
           Width = 28
           Height = 25
           Hint = 'Search for text and display all matches'
-          Anchors = [akTop, akRight]
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -1153,11 +1161,12 @@ object Form_Main: TForm_Main
           OnClick = Btn_ResFindClick
         end
         object Btn_ResFlip: TButton
-          Left = 5
+          Left = 114
           Top = 58
-          Width = 85
+          Width = 83
           Height = 25
           Hint = 'Toggle options and search results display'
+          Anchors = [akTop, akRight]
           Caption = 'Results'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1165,17 +1174,8 @@ object Form_Main: TForm_Main
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 2
-          OnClick = Btn_ResFlipClick
-        end
-        object CB_ResFind_Filter: TCheckBox
-          Left = 96
-          Top = 64
-          Width = 97
-          Height = 17
-          Hint = 'Show or hide nodes based on search conditions'
-          Caption = 'Filter folder[s]'
           TabOrder = 3
+          OnClick = Btn_ResFlipClick
         end
       end
       object Ntbk_ResFind: TNotebook
@@ -1217,6 +1217,7 @@ object Form_Main: TForm_Main
             TabOrder = 0
             UndoLimit = 0
             WantTabs = True
+            WordSelection = False
             OnContextPopup = FindAllResultsContextPopup
           end
         end
