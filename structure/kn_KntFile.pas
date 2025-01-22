@@ -1531,7 +1531,6 @@ var
   Note: TNote;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
-  Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
 
    procedure UpdateImagesStorageMode (Stream: TMemoryStream);
@@ -1566,10 +1565,9 @@ begin
          if not Note.IsVirtual then begin
             if Note.NNodes[0].NNode <> NNode then continue;
             NEntry:= NNode.Note.Entries[0];                     //%%%
-            if NEntry.IsPlainTXT then continue;
+            if NEntry.IsPlainTXT or (NEntry.Stream.Size = 0) then continue;
 
-            Stream:= NEntry.Stream;
-            UpdateImagesStorageMode (Stream);
+            UpdateImagesStorageMode (NEntry.Stream);
             if Length(ImagesIDs) > 0 then
                NEntry.TextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
 
@@ -1617,6 +1615,7 @@ begin
       try
          NEntry:= NNode.Note.Entries[0];         // %%%%
          Stream:= nEntry.Stream;
+         if Stream.Size = 0 then exit;
 
          if TargetFormat = sfPlainText then begin
             ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
@@ -2423,7 +2422,7 @@ begin
      for j := 0 to Folder.NNodes.Count-1 do begin
         NNode := Folder.NNodes[j];
         NEntry:= NNode.Note.Entries[0];          // %%%
-        if NEntry.IsHTML then continue;
+        if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
 
         NewRTF:= ConvertKNTLinksToNewFormat(NEntry.Stream.Memory, NEntry.Stream.Size, NoteGIDs, GIDsNotConverted);
         if NewRTF <> '' then begin

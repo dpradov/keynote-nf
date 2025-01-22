@@ -511,7 +511,10 @@ begin
     {$IFDEF KNT_DEBUG}
      if log.Active and  (log.MaxDbgLevel >= 4) then begin
         dataSize:= NEntry.Stream.Size;
-        str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 250);
+        if dataSize > 0 then
+           str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 250)
+        else
+           str:= '';
         Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
      end;
     {$ENDIF}

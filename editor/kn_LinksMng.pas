@@ -1547,6 +1547,7 @@ begin
   end
   else begin
      Stream:= Loc.NEntry.Stream;
+     if Stream.Size = 0 then exit;
 
      RTFText:= PAnsiChar(Stream.Memory);
      RTFBookmark:= Format(KNT_RTF_Bmk09_HIDDEN_MARK, [Loc.Mark]);

@@ -2852,6 +2852,8 @@ begin
 
 
    Result:= '';
+   if BufSize = 0 then exit;
+
    RTFText:= PAnsiChar(Buffer);
 
    if (Length(RTFText) > BufSize) then begin
@@ -3375,6 +3377,7 @@ const
 
 begin
     Result:= nil;
+    if Stream.Size = 0 then exit;
 
     pID:= 0;
     Num:= 0;

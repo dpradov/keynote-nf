@@ -2086,6 +2086,7 @@ var
 
 begin
     Result:= nil;
+    if Stream.Size = 0 then exit;
 
     strRTF:= ImageMng.ProcessImagesInRTF(Stream.Memory, Stream.Size, Self.Name, ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, ExitIfAllImagesInSameModeDest);
     if strRTF <> '' then begin                           // Changes in images must be reflected (=> ContainsImages=true)
