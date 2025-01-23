@@ -630,7 +630,7 @@ end;
 procedure TKntTreeUI.TV_Resize(Sender: TObject);
 var
    W: integer;
-   VerticalScrollBarWidth: integer;
+   VertScrollBarWidth: integer;
    ColNamePos: integer;
    ColNameLastPos: boolean;
 begin
@@ -664,16 +664,18 @@ begin
             ColNameLastPos:= false;
       end;
 
-      if (W > 0) and (not ColNameLastPos) then begin
-         VerticalScrollBarWidth:= 0;
-         if TV.IsVerticalScrollBarVisible  then
-            VerticalScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL) + 3;
+      VertScrollBarWidth:= 0;
+      if TV.IsVerticalScrollBarVisible  then
+         VertScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL) + 8;
 
-         W:= TV.Width - W- VerticalScrollBarWidth - 5;
+      if ((W > 0) and (not ColNameLastPos)) or (Columns[0].Width + W + VertScrollBarWidth < TV.Width) then begin
+
+         W:= TV.Width - W- VertScrollBarWidth;
          if W < MIN_WIDTH_NAME_COL then
             W := MIN_WIDTH_NAME_COL;
          Columns[0].Width:= W;
       end;
+
    end;
 
    TV.EndUpdate;
