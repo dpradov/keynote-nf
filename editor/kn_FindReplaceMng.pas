@@ -688,7 +688,6 @@ var
   SW: TSearchWord;
   Delims : CharacterSet;
   InDScope: boolean;
-  SearchMode: TSearchMode;
 
   procedure AddWord;
   begin
@@ -703,19 +702,31 @@ begin
 
   if ( SearchPattern = '' ) then exit;
 
-  s := '';
-  p := 0;
-  prevch := #0;
-  InQuotes := false;
+  if myFindOptions.SearchMode <> smPhrase then begin
+     s := '';
+     p := 0;
+     prevch := #0;
+     InQuotes := false;
 
-  SearchMode:= myFindOptions.SearchMode;
+     Delims:= [#32, CHR_SEP_SENTENCE, CHR_SEP_PARAGRAPH];
+     aStr:= SearchPattern;
 
-  Delims:= [#32, CHR_SEP_SENTENCE, CHR_SEP_PARAGRAPH];
-  aStr:= SearchPattern;
+     aStr:= StringReplace(aStr, FIND_PARAGRAPH_SCOPE_SEP, CHR_SEP_PARAGRAPH, [rfReplaceAll]);
+     aStr:= StringReplace(aStr, FIND_SENTENCE_SCOPE_SEP,  CHR_SEP_SENTENCE, [rfReplaceAll]);
+     L := length( aStr );
 
-  aStr:= StringReplace(aStr, FIND_PARAGRAPH_SCOPE_SEP, CHR_SEP_PARAGRAPH, [rfReplaceAll]);
-  aStr:= StringReplace(aStr, FIND_SENTENCE_SCOPE_SEP,  CHR_SEP_SENTENCE, [rfReplaceAll]);
-  L := length( aStr );
+     if (aStr[1] = CHR_SEP_PARAGRAPH) or (aStr[1] = CHR_SEP_SENTENCE) or
+        (aStr[L] = CHR_SEP_PARAGRAPH) or (aStr[L] = CHR_SEP_SENTENCE) then begin
+         myFindOptions.SearchMode := smPhrase;
+     end;
+  end;
+
+  if myFindOptions.SearchMode = smPhrase then begin
+     s:= SearchPattern;
+     AddWord;
+     exit;
+  end;
+
 
   try
     while ( p < L ) do begin
@@ -1639,6 +1650,7 @@ begin
 
       SearchPatternToSearchWords (wordList, TextToFind, myFindOptions);
       SetLength(PositionsLastLocationAdded, wordList.Count);
+
       if TreeFilter then
          myFindOptions.EmphasizedSearch:= esNone;
 
