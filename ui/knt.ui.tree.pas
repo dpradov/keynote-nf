@@ -2857,6 +2857,7 @@ function TKntTreeUI.MoveTreeNode(MovingNode : PVirtualNode; const aDir : TDirect
 var
   t : string;
   PreviousParent, theSibling : PVirtualNode;
+  WasExpanded: boolean;
 
 begin
   if not Assigned(MovingNode) then
@@ -2893,11 +2894,14 @@ begin
         // RIGHT demotes node 1 level down
         dirLeft : begin
           if MovingNode.Parent <> TV.RootNode then begin
+            WasExpanded:= TV.Expanded[MovingNode];
+            TV.Expanded[MovingNode]:= false;
             // becomes its parent's sibling
             TV.MoveTo(MovingNode, MovingNode.Parent, TVTNodeAttachMode.amInsertAfter, False);
             SetNumberingMethod(MovingNode);
             SetupNewTreeNode(MovingNode);
             t := '';
+            TV.Expanded[MovingNode]:= WasExpanded;
           end;
         end;
         dirRight : begin
