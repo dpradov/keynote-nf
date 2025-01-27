@@ -314,6 +314,7 @@ object Form_KntFileMgr: TForm_KntFileMgr
     TreeOptions.SelectionOptions = [toAlwaysSelectNode, toSelectNextNodeOnRemoval]
     OnChange = TVSelectionChange
     OnCompareNodes = TV_CompareNodes
+    OnDblClick = TVDblClick
     OnGetText = TVGetText
     OnPaintText = TVPaintText
     OnGetImageIndex = TVGetImageIndex

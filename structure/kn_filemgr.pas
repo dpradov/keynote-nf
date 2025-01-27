@@ -99,6 +99,7 @@ type
                          Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     procedure TVSelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure TVmgrDblClick(Sender: TObject);
+    procedure TVDblClick(Sender: TObject);
 
   private
     function GetFileInfo(Node: PVirtualNode): TKntFileInfo;
@@ -577,8 +578,7 @@ begin
   end;
 end;
 
-
-procedure TForm_KntFileMgr.TVmgrDblClick(Sender: TObject);
+procedure TForm_KntFileMgr.TVDblClick(Sender: TObject);
 begin
   OK_Click := true;
   ModalResult := mrOK;
