@@ -2227,7 +2227,7 @@ end;
 
 procedure TForm_ExportNew.Button_HelpClick(Sender: TObject);
 begin
-  ActiveKeyNoteHelp(Pages.ActivePage.HelpContext);  // Node
+  ActiveKeyNoteHelp(PChar(Pages.ActivePage.HelpKeyword));  // Node+Marker
   //Application.HelpCommand( HELP_CONTEXT, HelpContext );
 end;
 

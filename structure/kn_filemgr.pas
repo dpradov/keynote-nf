@@ -98,7 +98,6 @@ type
     procedure TVPaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas;
                          Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     procedure TVSelectionChange(Sender: TBaseVirtualTree; Node: PVirtualNode);
-    procedure TVmgrDblClick(Sender: TObject);
     procedure TVDblClick(Sender: TObject);
 
   private
