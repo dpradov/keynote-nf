@@ -2273,11 +2273,13 @@ begin
     if (FRTLShortcutToExecute <> rtNone) then begin          // See comment *1 and *2 in AppRestore
          if (ActiveEditor <> nil) and (not ActiveEditor.ReadOnly) then begin
             if MilliSecondsBetween(FRTLShortcutDetectedAt, now) > 50  then begin
+              if (GetKeyState(VK_CONTROL) >= 0) or (GetKeyState(VK_SHIFT) >= 0) then begin
                 case FRTLShortcutToExecute of
                    rtRTL: ActiveEditor.Paragraph.RTL:= true;
                    rtLTR: ActiveEditor.Paragraph.RTL:= false;
                 end;
                 FRTLShortcutToExecute:= rtNone;
+              end;
             end;
          end
          else
