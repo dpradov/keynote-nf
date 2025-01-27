@@ -687,13 +687,21 @@ procedure TKntTreeUI.UpdateTreeOptions;
 begin
   // Updates options for current folder's tree based on global tree options
 
+  // Note: If there are no columns created (the default column, -1, is used), the tree appears to behave as if the
+  // "toDisableAutoscrollOnFocus" option was checked, even if it is not.
+  // But as soon as there is any column, even if it is just one, it is essential to activate that option if we want
+  // "Disable scrolling a node or column into view if it gets focused."
+  // That is what I can see in the Advanced\SpeedDemo example (there are no columns defined), as well as in the
+  // Advanced\GeneralAbilitiesDemo demo, where there are columns, and where only after removing those columns (and adjusting
+  // the code to use the -1 column) does the behavior become that way (without setting toDisableAutoscrollOnFocus).
+
   with TV do begin
       DragMode := dmAutomatic;
 
       TreeOptions.MiscOptions := [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave,
                                   toToggleOnDblClick, toWheelPanning, toEditOnClick];
       TreeOptions.AutoOptions := [toAutoDropExpand, toAutoScrollOnExpand, toAutoTristateTracking, toAutoHideButtons,
-                                  toAutoDeleteMovedNodes, toAutoChangeScale];
+                                  toAutoDeleteMovedNodes, toAutoChangeScale, toDisableAutoscrollOnFocus];
       TreeOptions.SelectionOptions := [toMultiSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval];
       TreeOptions.StringOptions := [toAutoAcceptEditChange];
 
