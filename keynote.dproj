@@ -112,17 +112,17 @@
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>5</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.1 (x86);FileVersion=2.0.5.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.2 (x86);FileVersion=2.0.5.2;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.2;Comments=;ProgramID=</VerInfo_Keys>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <DCC_MapFile>3</DCC_MapFile>
-        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Build>2</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>5</VerInfo_Release>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.1 (x64);FileVersion=2.0.5.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.1;Comments=</VerInfo_Keys>
+        <VerInfo_Build>2</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.2 (x64);FileVersion=2.0.5.2;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.2;Comments=</VerInfo_Keys>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
@@ -136,7 +136,7 @@
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>5</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.1 (x86);FileVersion=2.0.5.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.1;Comments=;ProgramID=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.2 (x86);FileVersion=2.0.5.2;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.2;Comments=;ProgramID=</VerInfo_Keys>
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>keynote_Icon.ico</UWP_DelphiLogo150>
@@ -145,14 +145,14 @@
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Build>2</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
         <VerInfo_MinorVer>0</VerInfo_MinorVer>
         <VerInfo_Release>5</VerInfo_Release>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.1 (x64);FileVersion=2.0.5.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.1;Comments=</VerInfo_Keys>
+        <VerInfo_Build>2</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.0.5.2 (x64);FileVersion=2.0.5.2;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.0.5.2;Comments=</VerInfo_Keys>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>

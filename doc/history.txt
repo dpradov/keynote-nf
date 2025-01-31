@@ -3,6 +3,13 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.0.5.2   (31 jan 2025)
+--------------------------
+Fixed: Nodes were not scrolled into view when clicking on internal link or search result
+ Regression in (2.0.5 .1) after adjustments for:
+ * Fixed: Horizontal scroll's position is reset to show node into view when focused (#797)
+
+
 v 2.0.5.1   (31 jan 2025)
 --------------------------
 * Fixed: Access violation when deleting or certain other actions with new/completely empty nodes (Ref #800)

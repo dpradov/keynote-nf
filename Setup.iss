@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "2.0.5.1"
-#define AppVersion "2.0.5 .01"
+#define Version "2.0.5.2"
+#define AppVersion "2.0.5 .02"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -18,7 +18,7 @@
 [Setup]
 SignTool=mySignTool
 TouchDate=2025-01-31
-TouchTime=19:00
+TouchTime=21:30
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
