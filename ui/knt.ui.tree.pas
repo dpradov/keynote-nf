@@ -1205,6 +1205,7 @@ end;
 procedure TKntTreeUI.SetFocusedNode(value: PVirtualNode);
 begin
    TV.FocusedNode:= value;
+   TV.ScrollIntoView(TV.FocusedNode, false);
 end;
 
 
@@ -1213,6 +1214,7 @@ begin
    TV.FocusedNode:= Node;
    TV.ClearSelection;
    TV.Selected[Node] := True;
+   TV.ScrollIntoView(TV.FocusedNode, false);
 end;
 
 
