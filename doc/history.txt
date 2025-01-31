@@ -3,6 +3,21 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.0.5.1   (31 jan 2025)
+--------------------------
+* Fixed: Access violation when deleting or certain other actions with new/completely empty nodes (Ref #800)
+* Fixed: Horizontal scroll's position is reset to show node into view when focused (#797)
+* Fixed: Nodes were being shown shortened when they actually fit in the width of the panel (#797)
+* Fixed: Moving to the left (Shift+Left) a subtree with thousands of children, while expanded, can cause a
+  "ghost" node to appear as the last node in the tree. Ref: #803
+* Fixed: RCtrl+RShft or LCtrl+LShft will only be handled as RTL or LTR on key release, and only if no other
+  shortcut matches (Ref: #806)
+* Searching for "..", "...", "aa...", "...aaa", etc. (without quotes) will assume "Exact phrase" as search
+  mode instead of an [incomplete] search of words in the same paragraph or sentence
+* Fixed: Double click to open in File Manager #807
+* Fixed: Style names do not support Unicode
+
+
 v 2.0.4.1   (20 jan 2025)
 --------------------------
 * Offered two versions: 32-bit and 64-bit.
