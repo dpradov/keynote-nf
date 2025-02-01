@@ -1205,7 +1205,6 @@ end;
 procedure TKntTreeUI.SetFocusedNode(value: PVirtualNode);
 begin
    TV.FocusedNode:= value;
-   TV.ScrollIntoView(TV.FocusedNode, false);
 end;
 
 
@@ -1214,7 +1213,6 @@ begin
    TV.FocusedNode:= Node;
    TV.ClearSelection;
    TV.Selected[Node] := True;
-   TV.ScrollIntoView(TV.FocusedNode, false);
 end;
 
 
@@ -1507,6 +1505,8 @@ end;
 procedure TKntTreeUI.TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
 begin
   if (not assigned(Node)) then exit;
+
+  TV.ScrollIntoView(Node, false);
 
   if (Node <> fLastNodeSelected) then begin
      TKntFolder(Folder).NodeSelected(Node, fLastNodeSelected);
