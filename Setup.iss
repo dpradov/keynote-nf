@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "2.0.5.2"
-#define AppVersion "2.0.5 .02"
+#define Version "2.0.5.3"
+#define AppVersion "2.0.5 .03"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
