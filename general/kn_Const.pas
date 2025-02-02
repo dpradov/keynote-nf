@@ -527,8 +527,12 @@ const
 
   KNT_RTF_HIDDEN_MARK_L = '\''11';
   KNT_RTF_HIDDEN_MARK_R = '\''12';
-  KNT_RTF_HIDDEN_MARK_L_CHAR = Chr(17);    // 17 ($11): DC1 (Device Control 1)
-  KNT_RTF_HIDDEN_MARK_R_CHAR = Chr(18);    // 18 ($12): DC2 (Device Control 2)
+  KNT_RTF_HIDDEN_MARK_EndLink = '\''13';
+  KNT_RTF_HIDDEN_MARK_AUX = '\''14';
+  KNT_RTF_HIDDEN_MARK_L_CHAR       = Chr(17);    // 17 ($11): DC1 (Device Control 1)
+  KNT_RTF_HIDDEN_MARK_R_CHAR       = Chr(18);    // 18 ($12): DC2 (Device Control 2)
+  KNT_RTF_HIDDEN_MARK_EndLink_CHAR = Chr(19);    // 19 ($13): DC3 (Device Control 3)
+  KNT_RTF_HIDDEN_MARK_AUX_CHAR     = Chr(20);    // 20 ($14): DC4 (Device Control 4)
   KNT_RTF_HIDDEN_BOOKMARK = 'B';
   KNT_RTF_HIDDEN_Bookmark09 = 'b';       // Used with 9 bookmarks set with Search|Set Bookmark
   KNT_RTF_HIDDEN_BMK_POSITION = 'P';     // Used to mark positons referenced by internal links without markers (in Export)
@@ -541,18 +545,19 @@ const
   KNT_RTF_HIDDEN_FORMAT_FOOTER = 'F';       //  F -> new Footer
   KNT_RTF_HIDDEN_FORMAT_HEADER = 'H';       //  H -> new page Header (\v\'11FHMy header\'12\v0)
   KNT_RTF_HIDDEN_FORMAT_PLUS = '+';         // To concat format commands: \v\'11FD+S+HMy header\'12\v0
+  KNT_RTF_HIDDEN_LINK = 'L';
 
   KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
   (* *2
   KNT_RTF_BMK_HIDDEN_MARK = '{\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK + '%d'+ KNT_RTF_HIDDEN_MARK_R + '}';
   KNT_RTF_IMG_HIDDEN_MARK = '{\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R + '}';
   *)
-  KNT_RTF_BMK_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
+  KNT_RTF_BMK_HIDDEN_MARK   = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_BOOKMARK   + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
   KNT_RTF_Bmk09_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_Bookmark09 + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
-  KNT_RTF_IMG_HIDDEN_MARK = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
-  KNT_RTF_IMG_HIDDEN_MARK_CONTENT = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE    + '%d'+ KNT_RTF_HIDDEN_MARK_R;
+  KNT_RTF_IMG_HIDDEN_MARK   = '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE      + '%d'+ KNT_RTF_HIDDEN_MARK_R + '\v0';
+  KNT_RTF_IMG_HIDDEN_MARK_CONTENT =  KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_IMAGE      + '%d'+ KNT_RTF_HIDDEN_MARK_R;
 
-  KNT_RTF_IMG_HIDDEN_MARK_CHAR =    KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE + '%d' + KNT_RTF_HIDDEN_MARK_R_CHAR;
+  KNT_RTF_IMG_HIDDEN_MARK_CHAR =     KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE + '%d'+ KNT_RTF_HIDDEN_MARK_R_CHAR;
 
   {
      \v\'11T999999\'12\v0    -> 20 max (If necessary we can increase it)
@@ -561,10 +566,25 @@ const
   KNT_RTF_HIDDEN_MAX_LENGHT = 20;
   KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT = 15;
 
+  LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
+  LINK_RTF    = '{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{\cf1\ul %s}}}';
+  LINK_RTF_2  = '{\field{\*\fldinst{HYPERLINK %s}}{\fldrslt{%s}}}';
+
   KNT_IMG_LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK "img:';
   //KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt{\ul\cf0 %s}}}';    // {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
   KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt {%s}}}';    // If used {\fldrslt{\ul\cf0 %s} it ends up with something like {\fldrslt{\ul\cf0\cf0\ul %s}. (Idem with \ul\cf1 .. \cf1\ul etc)
 
+  KNT_RTF_FOLDED_LINK_PREFIX =       KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK;                                             //  \'11L
+  KNT_RTF_FOLDED_LINK =        '{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}'; //  {\'11L%s@%s\'12}
+  KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '"fold:"@';                                //  \''11L"fold:"@
+  KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"fold:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"fold:"@+$12
+
+  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}';
+  KNT_RTF_END_FOLDED =             '\v0 ...' + KNT_RTF_HIDDEN_MARK_EndLink;                   // \v0 ...\'13
+  KNT_RTF_END_FOLDED_WITHOUT_v0 =      '...' + KNT_RTF_HIDDEN_MARK_EndLink;                   //     ...\'13
+  KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR = '...' + KNT_RTF_HIDDEN_MARK_EndLink_CHAR;              //     ...$13
+
+  KNT_IMG_LINK_FOLDED_PREFIX =    KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_LINK + '"img:';
 
 
 type

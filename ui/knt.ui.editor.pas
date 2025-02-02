@@ -249,6 +249,16 @@ type
 
   function GetHumanizedKNTHiddenCharacters (const s: string): string;
 
+  function GetWordAtCursorFromRichEd(
+                           RichEdit: TRxRichEdit;
+                           const LeaveSelected : boolean;
+                           const IgnoreActualSelection: boolean = False;
+                           const DiscardKNTHiddenCharacters: boolean= True;
+                           const SpacesAsWordDelim: boolean= False) : string;
+
+  function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+  function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+
   procedure AddGlossaryTerm;
   procedure EditGlossaryTerms;
 
@@ -289,6 +299,9 @@ uses
 
 
 const
+  WORD_MAX_LENGTH = 40;
+  FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH = 500;
+
   RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK: integer= 15;
   RTFCONVERSON_MAX_DIF_TO_IGNORE: integer= 5;
 
@@ -986,6 +999,799 @@ begin
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_R_CHAR,                             ']', [rfReplaceAll]);
 end;
 
+
+
+//----------------------
+
+
+function RTFLinkToLinkFolded(const RTFLink: AnsiString; Offset: integer;
+                             var PosRTFLinkEnd: integer; var RTFLinkFolded: AnsiString): boolean;
+var
+  p1,p2,p3: integer;
+  URL, TextURL: AnsiString;
+  L: integer;
+begin
+
+  Result:= false;
+  try
+
+  (*
+	   {\field{\*\fldinst{HYPERLINK xxxx}}{\fldrslt{yyyy}}}  ===> {\'11Lxxxx@yyyy\'12}
+
+	   Ex: {\field{\*\fldinst{HYPERLINK "img:22,33,44"}}{\fldrslt{\ul\cf1 ABC}}}
+	        ===>
+  		   {\'11L"img:22,33,44"@\ul\cf1 ABC\'12}
+
+     LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
+     KNT_RTF_FOLDED_LINK = {\'11L%s@%s\'12}
+  *)
+
+   p1:= Pos('}}', RTFLink, Offset + Length(LINK_PREFIX));
+   URL:= Copy(RTFLink, Offset + Length(LINK_PREFIX), p1 - Offset - Length(LINK_PREFIX));
+
+   p2:= Pos('\fldrslt{', RTFLink, p1);
+   p3:= Pos('}}}', RTFLink, p2);
+   L:= Length('\fldrslt{');
+   TextURL:= Copy(RTFLink, p2 + L, p3-p2-L);
+
+   p1:= Pos('}}}', RTFLink, p3);
+
+   PosRTFLinkEnd:= p1+2;      // RTFLink[PosRTFImageEnd] = '}'
+
+   RTFLinkFolded:= Format(KNT_RTF_FOLDED_LINK, [URL, TextURL]);
+
+   Result:= true;
+
+ except
+ end;
+
+end;
+
+
+function RTFLinkFoldedToLink(const RTFLinkFolded: AnsiString;
+                             Offset: integer; PosRTFLinkEnd: integer;
+                             var RTFLink: AnsiString): boolean;
+var
+  p1,p2,p3: integer;
+  URL, TextURL: AnsiString;
+  L: integer;
+begin
+
+  Result:= false;
+  try
+
+  (*
+     \'11Lxxxx@yyyy\'12      => 	   {\field{\*\fldinst{HYPERLINK xxxx}}{\fldrslt{yyyy}}}
+
+	   Ex: \'11L"img:22,33,44"@\ul\cf1 ABC\'12  => {\field{\*\fldinst{HYPERLINK "img:22,33,44"}}{\fldrslt{\ul\cf1 ABC}}}
+
+     KNT_RTF_FOLDED_LINK_PREFIX = \'11L
+
+     PosRTFLinkEnd points to \'12
+  *)
+
+   p1:= Pos('@', RTFLinkFolded, Offset);
+   URL:= Copy(RTFLinkFolded, Offset + Length(KNT_RTF_FOLDED_LINK_PREFIX), p1 - Offset - Length(KNT_RTF_FOLDED_LINK_PREFIX));
+
+   p2:= Pos(KNT_RTF_HIDDEN_MARK_R, RTFLinkFolded, p1);
+   p2:= PosRTFLinkEnd;
+   TextURL:= Copy(RTFLinkFolded, p1 + 1, p2-p1-1);
+
+   RTFLink:= Format(LINK_RTF_2, [URL, TextURL]);
+
+   Result:= true;
+
+ except
+ end;
+
+end;
+
+
+procedure MarkEndVisibleExtract(RTFAux : TAuxRichEdit; TextPlain: String; OffsetVisibleExtract: Integer = 1);
+var
+  Len: integer;
+  p: integer;
+  Txt: string;
+
+   function GetRestOfSentence(const Text: string; PosInsideSentence: integer): string;
+   var
+     p, pR_Scope, i: integer;
+   begin
+     { We have a position (PosInsideScope) located within a sentence. We have to locate
+       the end of it and return it from that initial position
+       .... [ ......  X ....... ] ....
+
+        #9: TAB   #7:column separator in Tables
+
+        KNT_RTF_HIDDEN_MARK_EndLink_CHAR = Chr(19);    // 19 (#$13): DC3 (Device Control 3)
+        #$FFFC = Unicode Character (U+FFFC)  Object Replacement Character   https://www.compart.com/en/unicode/U+FFFC
+     }
+
+     pR_Scope:= Pos(#13, Text, PosInsideSentence);
+     if pR_Scope <= 0 then
+        pR_Scope:= Text.Length;
+
+     for p := PosInsideSentence + 1 to pR_Scope-1 do
+       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)
+              or (Text[p] = KNT_RTF_HIDDEN_MARK_EndLink_CHAR)
+              or (Text[p] = #$FFFC) then
+          break;
+
+     if Text[p] = #$FFFC then
+        dec(p);
+     if p < pR_Scope then
+        pR_Scope:= p;
+     Result:= Copy(Text, PosInsideSentence, pR_Scope - PosInsideSentence + 1);
+   end;
+
+begin
+  { If two spaces are found, they will be used as the end of the visible extract, otherwise the entire sentence will be used
+   --or until the appearance of a link or an image  }
+
+  Txt:= GetRestOfSentence(TextPlain, OffsetVisibleExtract);
+  p:= pos('  ', Txt);               // End at the first double space we find
+  if p > 0 then
+     delete(Txt, p+2, Length(Txt));
+
+  p:= pos('HYPERLINK', Txt);        // Do not include hyperlink texts, truncate at that point
+  if p > 0 then
+     delete(Txt, p-1, Length(Txt));
+
+  p:= Length(Txt) + OffsetVisibleExtract -1;
+
+  if Copy(Txt, Length(Txt)-Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) + 1,
+               Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) ) = KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR then
+     dec(p, Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR));
+
+  RTFAux.SelStart:= p;
+  RTFAux.SelLength:= 0;
+  RTFAux.SelText:= KNT_RTF_HIDDEN_MARK_AUX_CHAR;
+end;
+
+
+function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+var
+   pI, pF, len, p, PosRTFLinkEnd: integer;
+   pIn, pOut, NBytes: integer;
+   RTFInWithImagesHidden: AnsiString;
+   ReplaceWith: AnsiString;
+   RTFAux : TAuxRichEdit;
+
+
+   procedure CheckCreateResult (N: Integer);
+   begin
+      if RTFOut = '' then begin
+         SetLength(RTFOut, Length(RTFIn) + 150);
+         {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+         ZeroMemory(@RTFOut[pOut], 150);
+         {$ENDIF}
+      end
+      else
+         if (pOut + N) > Length(RTFOut) then begin
+            SetLength(RTFOut, Length(RTFOut) + N + 100);
+            {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+            ZeroMemory(@RTFOut[pOut], 100);
+            {$ENDIF}
+         end;
+   end;
+
+   procedure RemoveReplace (p: Integer; const ReplaceWith: AnsiString);
+   begin
+      NBytes:= p - pIn;
+
+      CheckCreateResult (NBytes + Length(ReplaceWith));
+      Move(RTFIn[pIn], RTFOut[pOut], NBytes);
+      inc(pOut, NBytes);
+      if ReplaceWith <> '' then begin
+         Move(ReplaceWith[1], RTFOut[pOut], Length(ReplaceWith));
+         inc(pOut, Length(ReplaceWith));
+      end;
+
+      pIn:= p + Len;
+   end;
+
+
+begin
+ (*
+   We want to get an output RTF text (RTFOut) that is the folding of the received RTF text (RTFIn). Folding
+   involves hiding all the content of the text except for an initial extract that will remain visible.
+   We must take several precautions:
+       - RichText does not allow nested use of \v and \v0, nor to include hyperlinks within \v and \v0
+         In our application the \v and \v0 controls are related to the use of hidden custom bookmarks, used
+         as destination of links or as image identification, e.g. (Example: \v\'11B5\'12\v0)
+         but also by the management of a folded block
+
+
+      - RichText also does not allow to keep an image hidden. If we do for example:
+         \v Image [IMAGEN] hidden \v0
+         Lo cambiará a:
+         \v Image\v0 [IMAGEN]\v hidden \v0
+
+      - The text we are going to fold can contain other folded blocks, which will become nested folded blocks
+        These blocks will have parts protected with \protect and \protect0
+
+   * We need to hide any images by converting them to the hidden imLink format.
+    * We need to remove the control marks \v and \v0, as well as the existing \protect and \protect0
+
+     This removal is not easy without correctly parsing all the Rtf content. Therefore, the safest thing to do is to
+     use a RichEdit control:
+     * We will select all the text and unprotect it and make it visible.
+         By doing so, our hidden bookmarks, with their 'special' characters, will be visible. Ex: \'11B5\'12
+       but that is not a problem because in the end everything will be hidden (except the visible extract, where we will
+       explicitly hide these internal bookmarks)
+
+   * Add \v after the part that should be visible, as an extract.
+     We will use a mark (#$14), which we will insert to indicate the final position of that visible extract.
+
+   From this point we will be able to work directly with an RTF text string (dumped onto RTFIn from the RTFAux control):
+
+	* We must transform hyperlinks into hidden bookmarks (although without \v and \v0)
+
+	   {\field{\*\fldinst{HYPERLINK xxxx}}{\fldrslt{yyyy}}}  ===> {\'11Lxxxx@yyyy\'12}
+
+	   Ex: {\field{\*\fldinst{HYPERLINK "img:22,33,44"}}{\fldrslt{\ul\cf1 ABC}}}
+	        ===>
+  		   {\'11L"img:22,33,44"@\ul\cf1 ABC\'12}
+
+
+	* We must protect the entire text, adding at the beginning \protect\{link [collapsed]}
+	    Ex: "En un lugar de la Mancha de cuyo nombre no quiero acordarme"
+		  ->
+		  Ex: \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}En un lugar de la Mancha de cuyo nombre no quiero acordarme
+
+	* Add at the end, as a closing: "\v0 ...\'13\protect0"
+     We are making use of another ANSI character that should not be at all normal to find in a text, #$13, as an aid to
+     mark the end of folded blocks. (// 19 ($13): DC2 (Device Control 3) )
+
+
+  ** Note: Folding is much easier than expanding.
+
+  As an example of folding:
+  (Two spaces are being used to mark the end of the visible excerpt and not using the complete sentence --or even the appearance of a link or an image--, which is the default behavior
+   "muy difícil  \v de" )
+
+    RTFIn = '{\rtf1\ansi
+              En un lugar de la \v\''11B7\''12\v0 Mancha  de cuyo
+              \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}-muy dificil  \v de \''11B5\''12recordar-\v0 ...\''13\protect0
+              nombre no quiero \v\''11B6\''12\v0 acordarme}';
+
+    RTFOut= '{\rtf1\ansi
+              \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}
+              En un lugar de la \v\''11B7\''12\v0 Mancha  \v de cuyo
+              \''11L"fold:"@\ul\cf1 +\''12-muy dificil  de \''11B5\''12recordar-...\''13
+              nombre no quiero \''11B6\''12acordarme\v0 ...\''13\protect0}';
+
+*)
+
+//    RTFIn:= '{\rtf1\ansi En un lugar de la \v\''11B7\''12\v0 Mancha  de cuyo ' +
+//             '\protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}muy difícil  \v de ' +
+//             '\''11B5\''12recordar\v0 ...\''13\protect0 ' +
+//             'nombre no quiero \v\''11B6\''12\v0 acordarme}';
+
+  if RTFIn='' then Exit;
+
+
+  RTFInWithImagesHidden:= ImageMng.ProcessImagesInRTF(RTFIn, '', imLink, '', 0, false);
+  if RTFInWithImagesHidden <> '' then begin
+     RTFIn:= RTFInWithImagesHidden;
+     RTFInWithImagesHidden:= '';
+  end;
+
+  RTFAux:= CreateAuxRichEdit;
+  try
+     RTFAux.Clear;
+     RTFAux.BeginUpdate;
+
+     // It will add a \par at the end that we should ignore:
+     // The end will be of the form: ...\par'#$D#$A'}'#$D#$A#0
+     RTFAux.PutRtfText(RTFIn, true, false, true);
+
+     RTFAux.SelStart:= 0;
+     RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
+     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True));       // We will insert #$14 to indicate the final position of that visible excerpt
+
+     RTFAux.SelectAll;
+     RTFAux.SelAttributes.Protected := True;
+     RTFAux.SelAttributes.Hidden:= False;
+
+     RTFIn:= RTFAux.RtfText;
+
+  finally
+     RTFAux.Free;
+  end;
+
+
+  // From this point on we do not need to use the RichEdit control, we can work with the RTFIn string
+
+  pIn:= 1;
+  pOut:= 1;
+  RTFOut := '';
+
+  pI:= Pos('\protect', RTFIn, 1);
+  Len:= 0;                                                        // Add, without replacing
+  RemoveReplace(pI + Length('\protect'), KNT_RTF_BEGIN_FOLDED);
+
+  // We need to make sure that the hidden internal markers ($11...$12) remain hidden in the part we serve as a visible extract. 
+  // We use as help the #$14 mark we inserted from MarkEndVisibleExtract
+  pI:= pI + Length('\protect');
+  p:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pI);
+
+  ReplaceWith:= Copy(RTFIn, pI, p - pI);
+  ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
+  ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
+  ReplaceWith:= ReplaceWith + '\v ';
+
+  Len:= p - pI +  Length(KNT_RTF_HIDDEN_MARK_AUX);           // Length to be replaced
+  RemoveReplace(pI, ReplaceWith);
+
+  repeat
+     pI:= Pos(LINK_PREFIX, RTFIn, pI);                      // LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
+
+     if pI > 0 then begin
+        if not RTFLinkToLinkFolded(RTFIn, pI, PosRTFLinkEnd, ReplaceWith) then
+           exit;    // ToDO
+
+        Len:= PosRTFLinkEnd - pI +1;
+        RemoveReplace(pI, ReplaceWith);
+
+        pI:= PosRTFLinkEnd + 1;
+     end;
+  until pI = 0;
+
+  // Add \v0 ...\'13 before last }  (there will be no \protect0 because it is not necessary, since it applies to everything)
+  // Remember: remove the extra line break that is being added in RTFAux.PutRtfTex
+  // The end will be like this: ...\par'#$D#$A'}'#$D#$A#0
+  pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
+  Len:= Length('\par'+#$D#$A + '}');
+  RemoveReplace(pI, KNT_RTF_END_FOLDED + '}');
+
+  NBytes:= Length(RTFIn) - pIn;
+  CheckCreateResult(NBytes);
+  Move(RTFIn[pIn], RTFOut[pOut], NBytes);
+  inc(pOut, NBytes);
+
+  SetLength(RTFOut, pOut-1);
+end;
+
+
+// --------------------------------------
+
+function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+
+type
+   TFoldedLink = record
+     pI, pF: integer;
+     FoldedBlock: boolean;
+     pEndBlock: integer;
+     FirstLevel: boolean;
+     Visible: boolean;
+   end;
+
+var
+   i, j, k: integer;
+   pI, pF, pAux, pEnd, p, len : integer;
+   pEnd_Last1stLevelBlock, pIplain_Last1stLevelBlock: integer;
+   Num1stLevelBlocks: integer;
+   pIn, pOut, NBytes: integer;
+   ReplaceWith: AnsiString;
+   RTFAux : TAuxRichEdit;
+   TextPlain: String;
+   FoldedLinks: array of TFoldedLink;
+   RTFOutWithProcessedImages: AnsiString;
+
+
+   procedure CheckCreateResult (N: Integer);
+   begin
+      if RTFOut = '' then begin
+         SetLength(RTFOut, Length(RTFIn) + 150);
+         {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+         ZeroMemory(@RTFOut[pOut], 150);
+         {$ENDIF}
+      end
+      else
+         if (pOut + N) > Length(RTFOut) then begin
+            SetLength(RTFOut, Length(RTFOut) + N + 100);
+            {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+            ZeroMemory(@RTFOut[pOut], 100);
+            {$ENDIF}
+         end;
+   end;
+
+   procedure RemoveReplace (p: Integer; const ReplaceWith: AnsiString);
+   begin
+      NBytes:= p - pIn;
+
+      CheckCreateResult (NBytes + Length(ReplaceWith));
+      Move(RTFIn[pIn], RTFOut[pOut], NBytes);
+      inc(pOut, NBytes);
+      if ReplaceWith <> '' then begin
+         Move(ReplaceWith[1], RTFOut[pOut], Length(ReplaceWith));
+         inc(pOut, Length(ReplaceWith));
+      end;
+
+      pIn:= p + Len;
+   end;
+
+begin
+ (*
+   We want to cancel the adjustments made on the text to be folded
+
+   Ex1:
+   \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}En un lugar de la Mancha \v de cuyo nombre no quiero acordarme\v0 ...\'13\protect0
+   -->
+   En un lugar de la Mancha de cuyo nombre no quiero acordarme
+
+   Ex2:
+   \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}Extracto visible\v LALALA {\'11L"fold:"@\ul\cf1 +\'12}TEXTO ANIDADO BLABLABLA...\'13 LALALA2\v0 ...\'13\protect0
+   -->
+   Extracto visible LALALA \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}TEXTO ANIDADO\v BLABLABLA\v0 ...\'13\protect0 LALALA2
+
+   In Ex1 there is no nested collapsed block, so the link and other hidden codes used to manage the collapsed text disappear.
+   In Ex2 there was a nested collapsed block. In this case the link and other hidden codes used to manage the main collapsed text disappear, but the ones necessary
+   for the first level nested block(s) we are dealing with appear.
+
+   We must take into account that although we have been able to build the RTF text in this way, more or less cleanly, when the time comes to expand, the RTF may be modified.
+   For example we could have
+     \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}Extracto visible \v HOLA {\'11L"fold:"@\ul\cf1 +\'12}ANIDADO...\'13 ADIOS \v0 ...\'13\protect0
+
+   And have become:
+     {\protect\f1\lang1049{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1\cf1\ul +}}}}\protect\f1\fs20\lang1049 Extracto visible \v HOLA \'11L"fold:"@\cf1\ul +\'12\cf0\ulnone ANIDADO...\'13 ADIOS  \v0 ...\'13\protect0
+
+   For this reason, it is convenient to perform certain initial actions from a RichEdit control:
+
+
+     - Select all and unprotect and make all visible
+        Ex: \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}Extracto visible \v LALALA....
+             {\'11L"fold:"@\ul\cf1 +\'12}TEXTO ANIDADO BLABLABLA...\'13 LALALA2\v0 ...\'13\protect0
+
+         If we look at it as Text (or TextPlain), what we have is:
+         Ex: HYPERLINK "fold:"+Extracto visible LALALA $L"fold:"@+$TEXTO ANIDADO BLABLABLA...$LALALA2...$
+         ($ will actually correspond to codes #$11, #$12 or #$13
+
+     - Select the text corresponding to the initial link (up to the "+" included) and delete it:
+       Ex: Extracto visible LALALA $L"fold:"@+$TEXTO ANIDADO BLABLABLA...$LALALA2...$
+
+     - Remove end of collapsed block (...$)
+       Ex: Extracto visible LALALA $L"fold:"@+$TEXTO ANIDADO BLABLABLA...$LALALA2
+
+
+   And now, working with the text string (RtfText):
+
+    - Locate the positions of all the folded links and identify which ones correspond to folded blocks and which of these
+      are first level (they are not nested in another folded block)
+
+        [ ] -> first level folded blocks ("fold:")
+        ( ) -> nested folded blocks
+        <>  -> "Normal" links, folded, but not blocks
+        *   -> hidden marker. Example: \v\''11B7\''12\v0 ---- \''11B7\''12
+        ... -> part that will remain visible.
+
+                    pI pAux          pEnd          pI    pAux    pEnd
+        |...*..<>..[...   (  <> ) *  ]....*.......[..<>..        ]...*.|
+
+         pI   pF    pAux         pEnd
+       [$11--$12    \v           \v0 ...$13]
+
+       pI   pF
+       <    >
+
+       In FoldedLinks we will save for each folded block: pI, pF, pEnd, FirstLevel?
+       And for each "normal" folded link: pI, pF
+
+      * In this identification process, if we locate first-level folded blocks we will have to make their initial extracts
+        visible, and to do so we will have to locate their final position. To do this we must use the plain text, not the
+        RTF, so the way to not invalidate the positions recorded for each folded link and at the same time be able to mark
+        the end of these visible extracts so that we can pre-empt them later is to insert a special character (#$14) that
+        we will then ignore. Each time we insert one of these characters we will increase the positions already recorded for
+        the folded links that are located after it, in the length occupied by that character in RTF mode (\'14). We will also
+        increase the final position recorded for the first-level folded block itself in which we have placed the mark. Since
+        this is a first-level block, there is no block processed before it that we must increase its positions, since all of
+        them will be prior to the mark; if it were not so, this block that we are processing would not be first level..
+        If we have had to insert these marks we will need to retrieve the RTF content again from the RichEdit control. From 
+        this point on we will no longer need to access the RichText control, this last RTF text will be enough for us.
+
+
+    - From this information the only thing that will be necessary to search, with Pos(...),
+
+     - Replace all link markers with the corresponding LINK, taking into account:
+        * In the case of folded blocks ("fold:"), only do this if they are first-level blocks.
+        * If they are first-level folded blocks (to be converted into LINKs), add \protect before and \v after the visible extract.
+
+           Extracto visible LALALA $L"fold:"@+$TEXTO ANIDADO BLABLABLA...$LALALA2
+             ->
+           Extracto visible LALALA \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}TEXTO ANIDADO\v BLABLABLA...\'13 LALALA2
+
+      * Replace the string "...\'13" identified as the end of the folded block with '\v0 ...\'13\protect0'
+
+             ....TEXTO ANIDADO\v BLABLABLA...\'13 LALALA2
+              ->
+             ....TEXTO ANIDADO\v BLABLABLA\v0 ...\'13\protect0 LALALA2
+
+      * We need to make sure that hidden markers ($11...$12) stay hidden in the parts that become visible, so we need to add \v and \v0 to them
+      -> Outside the first level collapsed blocks and in the visible excerpt of them
+
+      * The text to be expanded may contain images in hidden mode (imLink) If the current mode is imImage we must
+        make them visible, as long as they are not inside a nested block, not a first-level block
+
+      - The text to be collapsed may contain other collapsed blocks, which will become nested collapsed blocks
+        These blocks will have parts protected with \protect and \protect0
+
+      * We need to remove the \v and \v0 control codes, as well as the existing \protect and \protect0
+      * We need to hide possible images by converting them to the hidden internal format
+
+
+    Example of conversion with a first-level collapsed block nested inside the one we are going to expand, and several hidden markers
+    to consider, where some must be hidden again because they will be exposed in an excerpt that will now become visible. Even the
+    first hidden marker in this example (\v\''11B7\''12\v0) will have to be hidden because the RTF string that will be used to perform
+    the processing will be obtained after all the content has been unprotected and made visible, for the reason indicated above.
+
+
+    (Two spaces are being used to mark the end of the visible excerpt in the nested collapsed block, rather than using
+    the entire sentence --or even the appearance of a link or image--, which is the default behavior.
+    "muy difícil  de")
+
+    RTFIn:= '{\rtf1\ansi
+              \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}
+              En un lugar de la \v\''11B7\''12\v0 Mancha  \v de cuyo
+              \''11L"fold:"@\ul\cf1 +\''12-muy difícil  de \''11B5\''12recordar-...\''13
+              nombre no quiero \''11B6\''12acordarme\v0 ...\''13\protect0}';
+
+    RTFOut= '{\rtf1\ansi
+              En un lugar de la \v\''11B7\''12\v0 Mancha de cuyo
+              \protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}-muy difícil  \v de \''11B5\''12recordar-\v0 ...\''13\protect0
+              nombre no quiero \v\''11B6\''12\v0 acordarme}';
+*)
+
+
+//  RTFIn:= '{\rtf1\ansi\protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}' +
+//           'En un lugar de la \v\''11B7\''12\v0 Mancha  \v de cuyo \''11L"fold:"@\ul\cf1 +\''12' +
+//           '-muy dificil  de \''11B5\''12recordar-...\''13nombre no quiero \''11B6\''12acordarme\v0 ...\''13\protect0}';
+
+  if RTFIn='' then Exit;
+
+
+  RTFAux:= CreateAuxRichEdit;
+
+  try
+     RTFAux.Clear;
+     RTFAux.BeginUpdate;
+
+     RTFAux.PutRtfText(RTFIn, false, false, true);
+
+     // First actions performed directly on the RichEdit control:
+     RTFAux.SelectAll;
+     RTFAux.SelAttributes.Protected := False;
+     RTFAux.SelAttributes.Hidden:= False;
+
+     RTFAux.SelStart:= 0;
+     RTFAux.SelLength:= Length('HYPERLINK "fold:"+');          // 18 ..
+     RTFAux.SelText:= '';
+
+     RTFAux.SelStart:= RTFAux.TextLength- Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);  // 4 ..
+     RTFAux.SelLength:= Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);
+     RTFAux.SelText:= '';
+
+
+     // We retrieve the RTF content (RTFIn) and the equivalent plain text (TextPlain) and continue without needing to
+     // interact with the RichEdit control
+     RTFIn:= RTFAux.RtfText;
+     TextPlain:= RTFAux.TextPlain;
+
+     pIn:= 1;
+     pOut:= 1;
+     RTFOut := '';
+
+
+    // Identify all folded links, as well as those corresponding to first-level folded blocks
+     SetLength(FoldedLinks, 40);
+     i:= 0;
+     pI:= 1;
+     repeat
+        pI:= Pos(KNT_RTF_FOLDED_LINK_PREFIX, RTFIn, pI);
+        if pI > 0 then begin
+           FoldedLinks[i].pI:= pI;
+           pF:= Pos(KNT_RTF_HIDDEN_MARK_R, RTFIn, pI);
+           FoldedLinks[i].pF:= pF;                                                        // KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = \''11L"fold:"@
+           FoldedLinks[i].FoldedBlock:= (Copy(RTFIn, pI, Length(KNT_RTF_FOLDED_LINK_BLOCK_PREFIX)) = KNT_RTF_FOLDED_LINK_BLOCK_PREFIX);
+           FoldedLinks[i].pEndBlock:= 0;
+           FoldedLinks[i].Visible:= False;
+           inc(i);
+           inc(pI);
+           if i > Length(FoldedLinks) then
+              SetLength(FoldedLinks, Length(FoldedLinks) + 20);
+        end;
+     until pI = 0;
+     SetLength(FoldedLinks, i);
+
+    // Record for each folded block its corresponding closure
+    // We are traversing the block closure strings ...\'13 from start to end, and the blocks cannot
+    // intersect. Therefore, we will link the closure string to the first block we find, here traversing
+    // from the last block to the first, where the closure position is after its start.
+     for i:= 0 to Length(FoldedLinks)-1 do begin
+        if not FoldedLinks[i].FoldedBlock then continue;
+        pEnd:= Pos(KNT_RTF_END_FOLDED_WITHOUT_v0, RTFIn, FoldedLinks[i].pI);          // KNT_RTF_END_FOLDED_WITHOUT_v0 = ...\'13
+        for j:= Length(FoldedLinks)-1 downto 0 do begin
+            if not FoldedLinks[j].FoldedBlock then continue;
+            if (pEnd > FoldedLinks[j].pF) and (FoldedLinks[j].pEndBlock = 0) then begin
+               FoldedLinks[j].pEndBlock:= pEnd;
+               break;
+            end;
+        end;
+     end;
+
+    // Mark the first-level folded blocks ("fold:") located and insert a mark (#$14) for each one
+    // that points to the end of the visible excerpt
+     pEnd_Last1stLevelBlock:= 0;
+     pIplain_Last1stLevelBlock:= 0;
+     Num1stLevelBlocks:= 0;
+
+     for i:= 0 to Length(FoldedLinks)-1 do begin
+        pI:= FoldedLinks[i].pI;
+        if pI > pEnd_Last1stLevelBlock then
+           FoldedLinks[i].Visible:= True;                    // It can be a 'normal' link, and visible, outside of any block (not considering the one we are expanding...)
+        if not FoldedLinks[i].FoldedBlock then continue;
+
+        if pI > pEnd_Last1stLevelBlock then begin            // If Visible
+           pF:= FoldedLinks[i].pF;
+           FoldedLinks[i].FirstLevel:= True;
+           pEnd_Last1stLevelBlock:= FoldedLinks[i].pEndBlock;
+
+           // Mark the final position of the visible extract ------------------
+           // We are not going to update the TextPlain variable after each insertion of $14. Instead we will take into account
+           // the offset when transferring the position of the start of the visible text to MarkEndVisibleExtract (with Num1stLevelBlocks)
+           // (Offset of 1 byte in PlainText, and 4 in Rtf; the latter to be reflected in FoldedLinks)
+           // In pIplain_Last1stLevelBlock we are saving the start position of the last processed first-level folded block
+           // but referring to TextPlain, not to the RTF string, therefore the position where '$11L"fold:"@+#$12' is located
+           pIplain_Last1stLevelBlock:= Pos(KNT_RTF_FOLDED_LINK_BLOCK_CHAR, TextPlain, pIplain_Last1stLevelBlock + 1);
+           pF:= pIplain_Last1stLevelBlock + Length(KNT_RTF_FOLDED_LINK_BLOCK_CHAR) + Num1stLevelBlocks;  // pF -> Primer carácter del extracto
+
+           // Insert character $14 -> \'14 (4 characters in RTF) KNT_RTF_HIDDEN_MARK_AUX = \'14
+           // I can't save in FoldedLinks[i] the position of this marker ($14) because the insertion is based
+           // on TextPlain and not on the RTF code, which is what we save in FoldedLinks and what we need for further processing
+           MarkEndVisibleExtract(RTFAux, TextPlain, pF);
+
+           // We need to shift the positions recorded in the following links by the length of the inserted mark,
+           // since we will base ourselves on those positions later, using at the same time the RTF with the added marks #$14
+           inc(FoldedLinks[i].pEndBlock, Length(KNT_RTF_HIDDEN_MARK_AUX));
+           for j:= i + 1 to Length(FoldedLinks)-1 do begin
+               inc(FoldedLinks[j].pI, Length(KNT_RTF_HIDDEN_MARK_AUX));
+               inc(FoldedLinks[j].pF, Length(KNT_RTF_HIDDEN_MARK_AUX));
+               inc(FoldedLinks[j].pEndBlock, Length(KNT_RTF_HIDDEN_MARK_AUX));
+           end;
+
+           inc(Num1stLevelBlocks);
+           // ------------------
+
+        end;
+     end;
+
+     if pEnd_Last1stLevelBlock <> 0 then
+        RTFIn:= RTFAux.RtfText;              // Due to the displacement caused by the insertion of \'14
+
+  finally
+     RTFAux.Free;
+  end;
+
+  // From this point on we do not need to use the RichEdit control, we can work with the RTFIn string
+
+
+
+   { Replace all link markers with the corresponding LINK, taking into account:
+      * In the case of folding blocks ("fold:"), only do so if they are first-level blocks.
+      * If they are first-level folded blocks, it is necessary to add other commands at the beginning and end of the block
+        (\protect, \protecto) as well as treating the visible extract
+      * We must ensure that the hidden markers ($11...$12) remain hidden in the parts that become visible,
+   }
+
+  // Position of the next hidden marker. If it does not match any of the identified ones, it is a non-link marker, 
+  // and we must keep it hidden (by adding \v and \v0) if it is to be in a visible area
+  p:= Pos(KNT_RTF_HIDDEN_MARK_L, RTFIn, 1);
+
+  for i:= 0 to Length(FoldedLinks) - 1 do begin
+     if not FoldedLinks[i].Visible then continue;
+     if FoldedLinks[i].FoldedBlock and not FoldedLinks[i].FirstLevel then continue;    // Redundant?
+
+     pI:= FoldedLinks[i].pI;        // Start of a "normal" link or a first-level folded block (both visible, the second with hidden content)
+     pF:= FoldedLinks[i].pF;
+     pEnd:= FoldedLinks[i].pEndBlock;
+     if not FoldedLinks[i].FoldedBlock then
+       pEnd:= pF;
+
+     if (p > 0) then begin
+        if (p < pI) then begin
+           // Let's grab all the text (that will be visible) between p and pI, and add
+           // \v and \v0 to the hidden markers
+(*        pIn                     p                              pI
+          v                       v                              v
+ RTFIn:= ' .... En un lugar de la \''11B7\''12Mancha  \v de cuyo \''11L"fold:"@\ul\cf1 +\''12-muy difícil
+
+ RTFOut= ' .... En un lugar de la \v\''11B7\''12\v0 Mancha  de cuyo \protect{\field{\*\fldinst{HYPERLINK "fold:"}....
+*)
+           ReplaceWith:= Copy(RTFIn, p, pI - p);
+           ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
+           ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
+           Len:= pI - p;                            // Length to be replaced
+           RemoveReplace(p, ReplaceWith)
+        end;
+        p:= Pos(KNT_RTF_HIDDEN_MARK_L, RTFIn, pEnd + 1);
+     end;
+
+
+     if not RTFLinkFoldedToLink(RTFIn, pI, pF, ReplaceWith) then  // -> ReplaceWith: Hyperlink RTF "desplegado"
+        exit;    // ToDO
+
+     Len:= pF + Length(KNT_RTF_HIDDEN_MARK_R) - pI;    // Length to replace (Between \''11 and \''12 , inclusive)
+     if not FoldedLinks[i].FoldedBlock then            // It is a 'normal' Link (not of type FoldedBlock)
+     (*                   pI                                  pF
+                          v                                   v
+       RTFIn:= '....AAAAAA\''11L"http:midir.com"@\ul\cf1 MiDIR\''12 BBBBBBBB
+
+       RTFOut= '....AAAAAA\{\field{\*\fldinst{HYPERLINK "http:midir.com"}}{\fldrslt{\ul\cf1 MiDIR}}}BBBBBBBBB
+     *)
+        RemoveReplace(pI, ReplaceWith)
+
+     else begin                                  // It is a first level FoldedBlock
+
+(*
+                     pI                     pF   pF'           pAux                         pEnd
+                     v                      v    v             v                            v
+    RTFIn:= '....cuyo\''11L"fold:"@\ul\cf1 +\''12-muy difícil  \''14de \''11B5\''12recordar-...\''13
+              nombre no quiero \''11B6\''12 acordarme\v0 ...\''13\protect0}';
+
+    RTFOut= '....cuyo\protect{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}-muy dificil  \v de \''11B5\''12recordar-\v0...\''13\protect0
+              nombre no quiero \v\''11B6\''12\v0 acordarme}';
+*)
+
+
+        ReplaceWith:= '\protect' + ReplaceWith;
+        RemoveReplace(pI, ReplaceWith);
+        pAux:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pF);   // $14. Mark used to identify the end of the visible extract...
+
+        inc(pF, Length(KNT_RTF_HIDDEN_MARK_R));        // pF --> pF'
+        ReplaceWith:= Copy(RTFIn, pF, pAux - pF);
+        ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
+        ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
+        ReplaceWith:= ReplaceWith + '\v ';
+
+        Len:= pAux - pF +  Length(KNT_RTF_HIDDEN_MARK_AUX);      //  Length to be replaced
+        RemoveReplace(pF, ReplaceWith);
+
+        Len:= Length(KNT_RTF_END_FOLDED_WITHOUT_v0);
+        RemoveReplace(pEnd, KNT_RTF_END_FOLDED + '\protect0 ');
+     end;
+
+  end;
+
+  if p > pEnd then begin
+     pEnd:= Length(RTFIn);
+     ReplaceWith:= Copy(RTFIn, p, pEnd - p);
+     ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
+     ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
+     Len:= pEnd - p;                            // Length to be replaced
+     RemoveReplace(p, ReplaceWith)
+  end
+  else begin
+     NBytes:= Length(RTFIn) - pIn;
+     CheckCreateResult(NBytes);
+     Move(RTFIn[pIn], RTFOut[pOut], NBytes);
+     inc(pOut, NBytes);
+  end;
+
+  SetLength(RTFOut, pOut-1);
+
+  // A \par will have been added at the end that we must remove:
+  //  ...\par'#$D#$A'}'#$D#$A  --->  ...}
+  ReplaceWith:= '}';
+  RTFOut[pOut-Length('\par'+#$D#$A+'}'+#$D#$A)]:= '}';
+  SetLength(RTFOut, pOut - Length('\par'+#$D#$A+'}'+#$D#$A));
+
+
+  RTFOutWithProcessedImages:= ImageMng.ProcessImagesInRTF(RTFOut, '', ActiveFolder.ImagesMode, '', 0, false);
+  if RTFOutWithProcessedImages <> '' then
+     RTFOut:= RTFOutWithProcessedImages;
+end;
+
+
 //----------------------
 
 procedure TKntRichEdit.HideKNTHiddenMarks(Selection: boolean = true);
@@ -1633,6 +2439,7 @@ end;  // KeyPress
 procedure TKntRichEdit.RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
 begin
   AllowChange := EditorOptions.EditProtected;
+  // ToDO: Check if it is a collapsed text. Prevent editing in that case
 end; // RxRTF_ProtectChangeEx
 
 
@@ -3068,10 +3875,12 @@ begin
 end;
 
 
-function TKntRichEdit.GetWordAtCursor( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
-                                          const DiscardKNTHiddenCharacters: boolean= True;
-                                          const SpacesAsWordDelim: boolean= False
-                                           ) : string;
+function GetWordAtCursorFromRichEd(
+                          RichEdit: TRxRichEdit;
+                          const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
+                          const DiscardKNTHiddenCharacters: boolean= True;
+                          const SpacesAsWordDelim: boolean= False
+                          ) : string;
 var
   L, R,  Rm, Offset: integer;
   SS, SL: integer;
@@ -3088,13 +3897,14 @@ var
   end;
 
 begin
+ with RichEdit do begin
   SL:= SelLength;
   if (SL > 0) and not IgnoreActualSelection then Exit(SelText);
 
   SS:=  SelStart;
-  L:= SS-40;
+  L:= SS-WORD_MAX_LENGTH;
   if L < 0 then L:= 0;
-  R:= SS + 40;
+  R:= SS + WORD_MAX_LENGTH;
 
 
   SelStart:= L;
@@ -3171,8 +3981,19 @@ begin
       end;
 
   end;
+ end;
 
-end;   // GetWordAtCursor
+end;   // GetWordAtCursorFromRichEd
+
+
+function TKntRichEdit.GetWordAtCursor( const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
+                                          const DiscardKNTHiddenCharacters: boolean= True;
+                                          const SpacesAsWordDelim: boolean= False
+                                           ) : string;
+begin
+    Result:= GetWordAtCursorFromRichEd(Self, LeaveSelected, IgnoreActualSelection, DiscardKNTHiddenCharacters, SpacesAsWordDelim);
+end;
+
 
 
 function TKntRichEdit.CheckReadOnly: boolean;

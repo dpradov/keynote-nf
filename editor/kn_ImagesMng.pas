@@ -2748,7 +2748,8 @@ function TImageMng.ProcessImagesInRTF(const Buffer: Pointer; BufSize: integer;
                                           ): AnsiString;
 var
   SelStartBak: integer;
-  pIn, pOut,  pPict, pLinkImg, pRTFImageEnd, pID,pIDr, pIDff, pIDcheck: integer;
+  pIn, pOut,  pPict, pLinkImg, pLinkImgFolded, pRTFImageEnd, pID,pIDr, pIDff, pIDcheck: integer;
+  LinkImgFolded: boolean;
   pPatt1,pPatt2, pImgIni: integer;
   In_shppict: boolean;
   ImgRTF, RTFTextOut, ImgIDStr,StrAux: AnsiString;
@@ -2846,6 +2847,7 @@ begin
    pOut:= 1;
    pPict:= -99;
    pLinkImg:= -99;
+   pLinkImgFolded:= -99;
    pPatt1:= -99;
    pPatt2:= -99;
    In_shppict:= false;
@@ -2872,14 +2874,15 @@ begin
          MaintainWMF_EMF:= true;
       pPict:= PosPAnsiChar('{\pict{', RTFText, pIn) -1;                             // *2
       pLinkImg:= PosPAnsiChar(KNT_IMG_LINK_PREFIX, RTFText, pIn) -1;
-      if (pPict >= 0) or (pLinkImg >= 0) then
+      pLinkImgFolded:= PosPAnsiChar(KNT_IMG_LINK_FOLDED_PREFIX, RTFText, pIn) -1;
+      if (pPict >= 0) or (pLinkImg >= 0) or (pLinkImgFolded >= 0) then
           ContainsImages:= true;
 
       if ImagesModeDest = imLink then begin
          if pPict = -1 then exit
       end
       else begin
-         if pLinkImg = -1 then exit
+         if (pLinkImg = -1) and (pLinkImgFolded = -1) then exit
       end;
    end;
 
@@ -2993,14 +2996,31 @@ begin
                end;
             end;
 
-            if (pPict = -1) and (pLinkImg = -1) then
+            if (pLinkImgFolded <> -1) and ((pLinkImgFolded < pPict) or (pPict=-1))
+                                      and ((pLinkImgFolded < pLinkImg) or (pLinkImg=-1)) then begin
+               if pLinkImgFolded < 0 then begin
+                  pLinkImgFolded:= PosPAnsiChar(KNT_IMG_LINK_FOLDED_PREFIX, RTFText, pIn)-1;
+                  if pLinkImgFolded >= BufSize then
+                     pLinkImgFolded := -1;
+               end;
+            end;
+
+            if (pPict = -1) and (pLinkImg = -1) and (pLinkImgFolded = -1) then
                break;
 
 
 
-            if (pLinkImg >= 0) and ((pLinkImg < pPict) or (pPict=-1)) then begin
+            if ((pLinkImg >= 0) and ((pLinkImg < pPict) or (pPict=-1)))
+                 or  ((pLinkImgFolded >= 0) and ((pLinkImgFolded < pPict) or (pPict=-1)))  then begin
                ImageMode:= imLink;                            // The image is in link mode
-               pImgIni:= pLinkImg;
+               if (pLinkImgFolded >= 0) and ((pLinkImgFolded < pLinkImg) or (pLinkImg=-1)) then begin
+                  pImgIni:= pLinkImgFolded;
+                  LinkImgFolded:= True;
+               end
+               else begin
+                  pImgIni:= pLinkImg;
+                  LinkImgFolded:= False;
+               end;
             end
             else begin
                ImageMode:= imImage;
@@ -3106,14 +3126,18 @@ begin
                   StrAux:= StringReplace(StrAux, ImgIDStr, '', []);
                   Inc(Discount, Length(ImgIDStr));
                end;
-               Move(StrAux[1], RTFTextOut[pOut - (pImgIni-pIDff+1)], Length(StrAux));
+               if StrAux <> '' then              // It may be if it is LinkImgFolded
+                  Move(StrAux[1], RTFTextOut[pOut - (pImgIni-pIDff+1)], Length(StrAux));
                Dec(pOut, Discount);
             end;
 
 
 
-            if ImageMode = imLink then      // Image is in link mode
-               RTFLinkToImage (RTFText, pLinkImg, WidthGoal, HeightGoal, pRTFImageEnd )
+            if ImageMode = imLink then begin     // Image is in link mode
+               RTFLinkToImage (RTFText, pImgIni, WidthGoal, HeightGoal, pRTFImageEnd, LinkImgFolded);
+               if LinkImgFolded then                                          // We will not convert folded image links
+                  ImgRTF:= Copy(RTFText+1, pImgIni, pRTFImageEnd-pImgIni + 1);
+            end
             else
                RTFPictToImage (RTFText, pPict, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, pRTFImageEnd, GetStream);
 
@@ -3176,7 +3200,10 @@ begin
                    end
                    else
                       ID:= ImgID;
-                   ImgRTF:= GetRTFforImageInsertion(ID, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, False, StreamRegistered, MaintainWMF_EMF);
+
+                   if not LinkImgFolded then     // We will not convert folded image links. We already have the link on ImgRTF
+                      ImgRTF:= GetRTFforImageInsertion(ID, Stream, ImgFormat, Width, Height, WidthGoal, HeightGoal, False, StreamRegistered, MaintainWMF_EMF);
+
                    if ImageMode = imLink then
                       SetLength(RTFTextOut, Length(RTFTextOut) + Length(ImgRTF) + 100)
                    else
@@ -3198,11 +3225,15 @@ begin
                         if ImgCaption = '' then ImgCaption:= Img.FileName;
                      end;
 
-
-                  ImgRTF:= Format(KNT_IMG_LINK, [ImgID, WidthGoal, HeightGoal, URLToRTF(ImgCaption, true)]);         // {\field{\*\fldinst{HYPERLINK "img:%d:%d,%d}"}}{\fldrslt{\ul\cf1 %s}}}
+                  if not LinkImgFolded then     // We will not convert folded image links. We already have the link on ImgRTF
+                     ImgRTF:= Format(KNT_IMG_LINK, [ImgID, WidthGoal, HeightGoal, URLToRTF(ImgCaption, true)]);         // {\field{\*\fldinst{HYPERLINK "img:%d:%d,%d}"}}{\fldrslt{\ul\cf1 %s}}}
                   if (fStorageMode <> smEmbRTF) and (ImgID <> 0) then begin
-                      if not ImgIDwasPresent then     // The tag with the image ID was incorrect and had to be re-registered, or we are converting from smEmbRTF
-                         ImgRTF:= Format(KNT_RTF_IMG_HIDDEN_MARK, [ImgID]) + ImgRTF
+                      if not ImgIDwasPresent then begin    // The tag with the image ID was incorrect and had to be re-registered, or we are converting from smEmbRTF
+                         var LinkImg: AnsiString:= KNT_RTF_IMG_HIDDEN_MARK;
+                         if LinkImgFolded then
+                            LinkImg:= KNT_RTF_IMG_HIDDEN_MARK_CONTENT;
+                         ImgRTF:= Format(LinkImg, [ImgID]) + ImgRTF
+                      end
                       else
                          CheckHiddenMarkInLink;
                   end;
@@ -3223,14 +3254,18 @@ begin
                In_shppict:= false;
             end;
 
-            if ImageMode = imLink then       // Image was in link mode
-               pLinkImg:= -99                // We will go back to look for another one. We have already 'consumed' this one
+            if ImageMode = imLink then begin      // Image was in link mode
+               if LinkImgFolded then
+                  pLinkImgFolded:= -99           // We will go back to look for another one. We have already 'consumed' this one
+               else
+                  pLinkImg:= -99;                // Idem
+            end
             else
-               pPict:= -99;                  // Idem
+               pPict:= -99;                      // Idem
 
             pIn:= pRTFImageEnd + 1;
 
-         until (pPict = -1) and (pLinkImg = -1);
+         until (pPict = -1) and (pLinkImg = -1) and (pLinkImgFolded = -1);
 
 
          { Search and mark to eliminate any possible hidden label that may have been left isolated, abandoned, 

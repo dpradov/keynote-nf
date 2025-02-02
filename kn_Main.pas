@@ -879,6 +879,9 @@ type
     lblCalNotSup: TLabel;
     RTFM_RTL: TMenuItem;
     MMFilePrint: TMenuItem;
+    N88: TMenuItem;
+    RTFMFold: TMenuItem;
+    RTFMUnfold: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1283,6 +1286,8 @@ type
     procedure MMViewEditorInfoPanelClick(Sender: TObject);
     procedure RTFM_RTLClick(Sender: TObject);
     procedure MMFilePrintClick(Sender: TObject);
+    procedure RTFMFoldClick(Sender: TObject);
+    procedure RTFMUnfoldClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -4362,6 +4367,58 @@ procedure TForm_Main.MMMergeNotestoFileClick(Sender: TObject);
 begin
   // MergeToKNTFile;
 end;
+
+{ FOLD / UNFOLD
+  ToDo:
+  - Exporting and folded blocks
+  - Editing folded blocks -> control from RxRTFProtectChangeEx (knt.ui.editor)
+  - Find All (or Find) with matches in collapsed text
+  - Click on '+' link
+  - Identifying start and end of a block to collapse from Ctrl+DblClick
+  - Blocks and using Tags
+  ...
+}
+
+procedure TForm_Main.RTFMFoldClick(Sender: TObject);
+var
+  RTFIn, RTFOut: AnsiString;
+  SS, SL: integer;
+begin
+   if ActiveEditor.ReadOnly then begin
+      App.WarnEditorIsReadOnly;
+      exit;
+   end;
+
+   SS:= ActiveEditor.SelStart;
+   SL:= ActiveEditor.SelLength;
+   if ActiveEditor.GetTextRange(SS+SL-1, SS+SL) = #13 then
+      ActiveEditor.SelLength:= SL-1;
+   RTFIn:= ActiveEditor.RtfSelText;
+   PrepareRTFtoBeFolded(RTFIn, RTFOut);
+   ActiveEditor.RtfSelText:= RTFOut;
+   ActiveEditor.SelStart:= SS;
+end;
+
+procedure TForm_Main.RTFMUnfoldClick(Sender: TObject);
+var
+  RTFIn, RTFOut: AnsiString;
+  SS: integer;
+begin
+   if ActiveEditor.ReadOnly then begin
+      App.WarnEditorIsReadOnly;
+      exit;
+   end;
+
+  // Provisional. Finally, we won't have to select the text to Expand. We'll just have to click
+  // on the "+" link, or indicate this action within a collapsed block.
+
+   RTFIn:= ActiveEditor.RtfSelText;
+   SS:= ActiveEditor.SelStart;
+   PrepareRTFtoBeExpanded(RTFIn, RTFOut);
+   ActiveEditor.RtfSelText:= RTFOut;
+   ActiveEditor.SelStart:= SS;
+end;
+
 
 procedure TForm_Main.RTFMPlainTextClick(Sender: TObject);
 begin

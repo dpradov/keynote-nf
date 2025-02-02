@@ -423,8 +423,7 @@ procedure InsertRtfHyperlink(const URLStr: string; const TextURL: string;
                              const sepL: string = '';
                              const sepR: string = '');
 begin
-     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s{\field{\*\fldinst{HYPERLINK "'
-                                     + '%s"}}{\fldrslt{\cf1\ul %s}}}%s\cf0\ulnone}',
+     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
                                      [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
 end;
 
@@ -2444,7 +2443,6 @@ end; // Insert URL
 
 function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): AnsiString;
 const
-   LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
    KntLINK_PREFIX_2 = 'file:///*';
    KntLINK_PREFIX_1 = '"' + KntLINK_PREFIX_2;
    KntLINK_PREFIX_4 = 'file:///<';

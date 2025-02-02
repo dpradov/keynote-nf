@@ -108,7 +108,8 @@ uses
   function RTFLinkToImage (Buffer: Pointer;
                            PictOffset: integer;
                            var WidthGoal, HeightGoal: integer;
-                           var PosRTFImageEnd: integer
+                           var PosRTFImageEnd: integer;
+                           LinkImgFolded: boolean
                            ): boolean;
 
   function GetImageIDinPlaintext (Str: String): integer;
@@ -1024,7 +1025,8 @@ end;
 function RTFLinkToImage(Buffer: Pointer;
                     PictOffset: integer;
                     var WidthGoal, HeightGoal: integer;
-                    var PosRTFImageEnd: integer
+                    var PosRTFImageEnd: integer;
+                    LinkImgFolded: boolean
                     ): boolean;
 var
   p1,p2,p3: integer;
@@ -1040,15 +1042,26 @@ begin
 
 
   (*
+  If LinkImgFolded = False:
+
    KNT_IMG_LINK = '{\field{\*\fldinst{HYPERLINK "img:%d,%d,%d"}}{\fldrslt{\ul\cf1 %s}}}';
                    {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
 
                    {\field{\*\fldinst{HYPERLINK "img:999999,2000,2000"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
 
    KNT_IMG_LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK "img:'
+
+  If LinkImgFolded = True:
+
+   KNT_IMG_LINK_FOLDED =          \'11L"img:999999,2000,2000"$\ul\cf1 textOfHyperlink\'12
+   KNT_IMG_LINK_FOLDED_PREFIX =   \'11L"img:"
+
   *)
 
-   pIni:= 1 + PictOffset + Length(KNT_IMG_LINK_PREFIX);
+   if LinkImgFolded then
+     pIni:= 1 + PictOffset + Length(KNT_IMG_LINK_FOLDED_PREFIX)
+   else
+     pIni:= 1 + PictOffset + Length(KNT_IMG_LINK_PREFIX);
 
    p1:= PosPAnsiChar(',', RTF, pIni);         // [pIni, p1] -> ID
    p2:= PosPAnsiChar(',', RTF, p1+1);         // [p1, p2]   -> WidthGoal
@@ -1063,9 +1076,14 @@ begin
      HeightGoal := -1;
    end;
 
-   p1:= PosPAnsiChar('}}}', RTF, p3);
-
-   PosRTFImageEnd:= p1+2  -1;      // Point to the last character => RTF[PosRTFImageEnd] = '}'
+   if LinkImgFolded then begin
+      p1:= PosPAnsiChar(KNT_RTF_HIDDEN_MARK_R, RTF, p3);
+      PosRTFImageEnd:= p1+ Length(KNT_RTF_HIDDEN_MARK_R)-1 -1;
+   end
+   else begin
+      p1:= PosPAnsiChar('}}}', RTF, p3);
+      PosRTFImageEnd:= p1+ Length('}}}')-1  -1;      // Point to the last character => RTF[PosRTFImageEnd] = '}'
+   end;
 
  except
      on E : Exception do begin

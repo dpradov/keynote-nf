@@ -3944,6 +3944,19 @@ object Form_Main: TForm_Main
       Caption = 'Reading from right to left (RTL)'
       OnClick = RTFM_RTLClick
     end
+    object N88: TMenuItem
+      Caption = '-'
+    end
+    object RTFMFold: TMenuItem
+      Caption = 'Fold'
+      Hint = 'Collapse selected text'
+      OnClick = RTFMFoldClick
+    end
+    object RTFMUnfold: TMenuItem
+      Caption = 'Unfold'
+      Hint = 'Expand folded/collapsed text'
+      OnClick = RTFMUnfoldClick
+    end
     object N19: TMenuItem
       Caption = '-'
     end
