@@ -6,6 +6,12 @@ TipFile=Keynote.japanese.tip
 Translator=coolvitto
 RTL=0
 
+[Chinese Simplified]
+Name=Chinese  Simplified
+LangFile=Keynote.chinese-simplified.lng
+TipFile=Keynote.chinese-simplified.tip
+Translator=xbeta (http://xbeta.info)
+
 [English]
 Comment=Initially: identical to text incrusted in .exe
 Name=English
