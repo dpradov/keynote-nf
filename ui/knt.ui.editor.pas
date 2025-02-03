@@ -1412,6 +1412,17 @@ var
       pIn:= p + Len;
    end;
 
+   procedure RemoveReplace_EnsureHiddenMarksNotVisible (pIni, pEnd: integer; LengthToBeReplaced: integer; const AddFinal: AnsiString = '');
+   begin
+     ReplaceWith:= Copy(RTFIn, pIni, pEnd - pIni);
+     ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
+     ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
+     if AddFinal <> '' then
+        ReplaceWith:= ReplaceWith + AddFinal;
+     Len:= LengthToBeReplaced;
+     RemoveReplace(pIni, ReplaceWith);
+   end;
+
 begin
  (*
    We want to cancel the adjustments made on the text to be folded
@@ -1707,11 +1718,8 @@ begin
 
  RTFOut= ' .... En un lugar de la \v\''11B7\''12\v0 Mancha  de cuyo \protect{\field{\*\fldinst{HYPERLINK "fold:"}....
 *)
-           ReplaceWith:= Copy(RTFIn, p, pI - p);
-           ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
-           ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
-           Len:= pI - p;                            // Length to be replaced
-           RemoveReplace(p, ReplaceWith)
+           RemoveReplace_EnsureHiddenMarksNotVisible(p, pI, pI - p);
+
         end;
         p:= Pos(KNT_RTF_HIDDEN_MARK_L, RTFIn, pEnd + 1);
      end;
@@ -1748,13 +1756,7 @@ begin
         pAux:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pF);   // $14. Mark used to identify the end of the visible extract...
 
         inc(pF, Length(KNT_RTF_HIDDEN_MARK_R));        // pF --> pF'
-        ReplaceWith:= Copy(RTFIn, pF, pAux - pF);
-        ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
-        ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
-        ReplaceWith:= ReplaceWith + '\v ';
-
-        Len:= pAux - pF +  Length(KNT_RTF_HIDDEN_MARK_AUX);      //  Length to be replaced
-        RemoveReplace(pF, ReplaceWith);
+        RemoveReplace_EnsureHiddenMarksNotVisible(pF, pAux, pAux - pF + Length(KNT_RTF_HIDDEN_MARK_AUX), '\v ');
 
         Len:= Length(KNT_RTF_END_FOLDED_WITHOUT_v0);
         RemoveReplace(pEnd, KNT_RTF_END_FOLDED + '\protect0 ');
@@ -1764,11 +1766,7 @@ begin
 
   if p > pEnd then begin
      pEnd:= Length(RTFIn);
-     ReplaceWith:= Copy(RTFIn, p, pEnd - p);
-     ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
-     ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
-     Len:= pEnd - p;                            // Length to be replaced
-     RemoveReplace(p, ReplaceWith)
+     RemoveReplace_EnsureHiddenMarksNotVisible(p, pEnd, pEnd-p);
   end
   else begin
      NBytes:= Length(RTFIn) - pIn;
