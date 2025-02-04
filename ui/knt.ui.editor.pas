@@ -2640,7 +2640,7 @@ begin
    end;
 
    if (ImgID <> 0) or (Img <> nil) then
-      ImageMng.OpenImageViewer(ImgID, false, false, Img);
+      ImageMng.OpenImageViewer(ImgID, CtrlDown, false, Img);
 
    inherited;
 end;

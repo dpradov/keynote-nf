@@ -3868,37 +3868,39 @@ begin
 
       if ShowExternalViewer then begin
          FilePath:= GetImagePath(Img);
-         OpenImageFile(FilePath);
+         if FileExists(FilePath) then begin
+            OpenImageFile(FilePath);
+            exit;
+         end;
+      end;
+
+      if ActiveEditor.NNodeObj <> nil then
+         ActiveFolder.SaveEditorToDataModel;
+
+      UsingOpenViewer:= false;
+
+      OpenedViewer:= ImgViewerInstance;
+      if (OpenedViewer <> nil) and (KeyOptions.ImgSingleViewerInstance) then begin
+         Form_Image:= OpenedViewer;
+         UsingOpenViewer:= true;
       end
       else begin
-         if ActiveEditor.NNodeObj <> nil then
-            ActiveFolder.SaveEditorToDataModel;
-
-         UsingOpenViewer:= false;
-
-         OpenedViewer:= ImgViewerInstance;
-         if (OpenedViewer <> nil) and (KeyOptions.ImgSingleViewerInstance) then begin
-            Form_Image:= OpenedViewer;
-            UsingOpenViewer:= true;
-         end
-         else begin
-            Form_Image := TForm_Image.Create( Form_Main );
-            NewImageViewer(Form_Image);
-         end;
-
-         { We use kn_ImageForm.LastFormImageOpened to be able to give focus to the viewer from Form_Main.RxRTFMouseUp,
-           since it is lost if we open the viewer by right-clicking on a link. But we do not want to lose focus on the
-           main screen if KeyOptions.ImgSingleViewerInstance=True and the viewer had already been created previously
-           (it was visible before clicking on the link) to, among others, favor being able to implement the
-           ImgHotTrackViewer option. For this we look at ImgViewerInstance
-         }
-         if SetLastFormImageOpened and (OpenedViewer = nil) then
-            kn_ImageForm.LastImgViewerOpen:= Form_Image;
-         Form_Image.Image:= Img;
-         Form_Image.Folder:= ActiveFolder;
-         if not UsingOpenViewer then
-            Form_Image.Show;
+         Form_Image := TForm_Image.Create( Form_Main );
+         NewImageViewer(Form_Image);
       end;
+
+      { We use kn_ImageForm.LastFormImageOpened to be able to give focus to the viewer from Form_Main.RxRTFMouseUp,
+        since it is lost if we open the viewer by right-clicking on a link. But we do not want to lose focus on the
+        main screen if KeyOptions.ImgSingleViewerInstance=True and the viewer had already been created previously
+        (it was visible before clicking on the link) to, among others, favor being able to implement the
+        ImgHotTrackViewer option. For this we look at ImgViewerInstance
+      }
+      if SetLastFormImageOpened and (OpenedViewer = nil) then
+         kn_ImageForm.LastImgViewerOpen:= Form_Image;
+      Form_Image.Image:= Img;
+      Form_Image.Folder:= ActiveFolder;
+      if not UsingOpenViewer then
+         Form_Image.Show;
 
    except
      on E: Exception do
