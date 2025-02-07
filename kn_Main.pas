@@ -4380,43 +4380,13 @@ end;
 }
 
 procedure TForm_Main.RTFMFoldClick(Sender: TObject);
-var
-  RTFIn, RTFOut: AnsiString;
-  SS, SL: integer;
 begin
-   if ActiveEditor.ReadOnly then begin
-      App.WarnEditorIsReadOnly;
-      exit;
-   end;
-
-   SS:= ActiveEditor.SelStart;
-   SL:= ActiveEditor.SelLength;
-   if ActiveEditor.GetTextRange(SS+SL-1, SS+SL) = #13 then
-      ActiveEditor.SelLength:= SL-1;
-   RTFIn:= ActiveEditor.RtfSelText;
-   PrepareRTFtoBeFolded(RTFIn, RTFOut);
-   ActiveEditor.RtfSelText:= RTFOut;
-   ActiveEditor.SelStart:= SS;
+   ActiveEditor.Fold (True);
 end;
 
 procedure TForm_Main.RTFMUnfoldClick(Sender: TObject);
-var
-  RTFIn, RTFOut: AnsiString;
-  SS: integer;
 begin
-   if ActiveEditor.ReadOnly then begin
-      App.WarnEditorIsReadOnly;
-      exit;
-   end;
-
-  // Provisional. Finally, we won't have to select the text to Expand. We'll just have to click
-  // on the "+" link, or indicate this action within a collapsed block.
-
-   RTFIn:= ActiveEditor.RtfSelText;
-   SS:= ActiveEditor.SelStart;
-   PrepareRTFtoBeExpanded(RTFIn, RTFOut);
-   ActiveEditor.RtfSelText:= RTFOut;
-   ActiveEditor.SelStart:= SS;
+   ActiveEditor.Unfold;
 end;
 
 

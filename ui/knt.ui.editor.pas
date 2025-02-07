@@ -75,6 +75,7 @@ type
     DraggingImage_PosImage: integer;
     DraggingImage_PosFirstHiddenChar: integer;
     FPopupMenuBAK: TPopupMenu;
+    FUnfolding: boolean;
 
   private
     fFileObj:   TObject;
@@ -123,6 +124,7 @@ type
     procedure CleanWordCount;
 
   public
+    class constructor Create;
     constructor Create( AOwner : TComponent ); override;
     destructor Destroy; override;
 
@@ -190,6 +192,8 @@ type
     procedure ReconsiderImageDimensionGoals(Selection: boolean; ImagesMode: TImagesMode);
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode; ReconsiderDimensionsGoal: boolean); overload;
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode); overload;
+    procedure Fold (SelectedText: boolean);
+    procedure Unfold;
 
     function GetZoom: integer;
     procedure SetZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );
@@ -249,6 +253,7 @@ type
 
   function GetHumanizedKNTHiddenCharacters (const s: string): string;
 
+  function IsWordDelimiter(i: integer; const Str: string; const SpaceAsWDelim: boolean): boolean; inline;
   function GetWordAtCursorFromRichEd(
                            RichEdit: TRxRichEdit;
                            const LeaveSelected : boolean;
@@ -256,8 +261,17 @@ type
                            const DiscardKNTHiddenCharacters: boolean= True;
                            const SpacesAsWordDelim: boolean= False) : string;
 
-  function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+  function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString;
+                                  AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+  function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
+  function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit;
+                              var pBeginBlock, pEndBlock: integer; FoldedBlock: boolean;
+                              const WordOpening: string; WordClosing: string;
+                              WordOpening_Nested: string = '';
+                              IsTag: boolean = false;
+                              IgnoreFoldedBlocks: boolean = True): boolean;
+
 
   procedure AddGlossaryTerm;
   procedure EditGlossaryTerms;
@@ -405,6 +419,12 @@ end;
 //=========================================================================================
 //        TKntRichEdit
 //=========================================================================================
+
+class constructor TKntRichEdit.Create;
+begin
+   FUnfolding:= False;
+end;
+
 
 constructor TKntRichEdit.Create( AOwner : TComponent );
 begin
@@ -1087,7 +1107,7 @@ begin
 end;
 
 
-procedure MarkEndVisibleExtract(RTFAux : TAuxRichEdit; TextPlain: String; OffsetVisibleExtract: Integer = 1);
+procedure MarkEndVisibleExtract(RTFAux : TAuxRichEdit; TextPlain: String; OffsetVisibleExtract: Integer = 1; MinLenExtract: integer = 0);
 var
   Len: integer;
   p: integer;
@@ -1107,21 +1127,27 @@ var
         #$FFFC = Unicode Character (U+FFFC)  Object Replacement Character   https://www.compart.com/en/unicode/U+FFFC
      }
 
-     pR_Scope:= Pos(#13, Text, PosInsideSentence);
-     if pR_Scope <= 0 then
+     pR_Scope:= Pos(#13, Text, PosInsideSentence) -1;
+     if pR_Scope <= -1 then
         pR_Scope:= Text.Length;
 
-     for p := PosInsideSentence + 1 to pR_Scope-1 do
-       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)
-              or (Text[p] = KNT_RTF_HIDDEN_MARK_EndLink_CHAR)
-              or (Text[p] = #$FFFC) then
-          break;
+     if pR_Scope <= MinLenExtract then
+        Result:= Copy(Text,1, MinLenExtract)
 
-     if Text[p] = #$FFFC then
-        dec(p);
-     if p < pR_Scope then
-        pR_Scope:= p;
-     Result:= Copy(Text, PosInsideSentence, pR_Scope - PosInsideSentence + 1);
+     else begin
+        p:= 1;
+        for p := PosInsideSentence + 1 to pR_Scope-1 do
+          if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)
+                 or (Text[p] = KNT_RTF_HIDDEN_MARK_EndLink_CHAR)
+                 or (Text[p] = #$FFFC) then
+             break;
+
+        if Text[p] = #$FFFC then
+           dec(p);
+        if p < pR_Scope then
+           pR_Scope:= p;
+        Result:= Copy(Text, PosInsideSentence, pR_Scope - PosInsideSentence + 1);
+     end;
    end;
 
 begin
@@ -1149,7 +1175,7 @@ begin
 end;
 
 
-function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
 var
    pI, pF, len, p, PosRTFLinkEnd: integer;
    pIn, pOut, NBytes: integer;
@@ -1284,11 +1310,16 @@ begin
 
      // It will add a \par at the end that we should ignore:
      // The end will be of the form: ...\par'#$D#$A'}'#$D#$A#0
-     RTFAux.PutRtfText(RTFIn, true, false, true);
+     RTFAux.PutRtfText(RTFIn, true, false);
+
+     if AddEndGenericBlock then begin
+        RTFAux.SelStart:= RTFAux.TextLength;
+        RTFAux.AddText(KNT_RTF_END_GENERIC_BLOCK);
+     end;
 
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
-     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True));       // We will insert #$14 to indicate the final position of that visible excerpt
+     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
 
      RTFAux.SelectAll;
      RTFAux.SelAttributes.Protected := True;
@@ -1311,7 +1342,7 @@ begin
   Len:= 0;                                                        // Add, without replacing
   RemoveReplace(pI + Length('\protect'), KNT_RTF_BEGIN_FOLDED);
 
-  // We need to make sure that the hidden internal markers ($11...$12) remain hidden in the part we serve as a visible extract. 
+  // We need to make sure that the hidden internal markers ($11...$12) remain hidden in the part we serve as a visible extract.
   // We use as help the #$14 mark we inserted from MarkEndVisibleExtract
   pI:= pI + Length('\protect');
   p:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pI);
@@ -1373,6 +1404,7 @@ var
    pEnd_Last1stLevelBlock, pIplain_Last1stLevelBlock: integer;
    Num1stLevelBlocks: integer;
    pIn, pOut, NBytes: integer;
+   OffsetC: integer;                 // Correction offset
    ReplaceWith: AnsiString;
    RTFAux : TAuxRichEdit;
    TextPlain: String;
@@ -1385,14 +1417,14 @@ var
       if RTFOut = '' then begin
          SetLength(RTFOut, Length(RTFIn) + 150);
          {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
-         ZeroMemory(@RTFOut[pOut], 150);
+         ZeroMemory(@RTFOut[pOut], Length(RTFIn) + 150 -1);
          {$ENDIF}
       end
       else
          if (pOut + N) > Length(RTFOut) then begin
             SetLength(RTFOut, Length(RTFOut) + N + 100);
             {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
-            ZeroMemory(@RTFOut[pOut], 100);
+            ZeroMemory(@RTFOut[pOut], N + 100 -1);
             {$ENDIF}
          end;
    end;
@@ -1575,7 +1607,7 @@ begin
      RTFAux.SelAttributes.Hidden:= False;
 
      RTFAux.SelStart:= 0;
-     RTFAux.SelLength:= Length('HYPERLINK "fold:"+');          // 18 ..
+     RTFAux.SelLength:= Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR);          // 18 ..
      RTFAux.SelText:= '';
 
      RTFAux.SelStart:= RTFAux.TextLength- Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);  // 4 ..
@@ -1663,6 +1695,13 @@ begin
 
            // We need to shift the positions recorded in the following links by the length of the inserted mark,
            // since we will base ourselves on those positions later, using at the same time the RTF with the added marks #$14
+           // This offset may need to be adjusted as the #$14 marks are processed (we'll use OffsetC )
+           // This is because depending on where it falls, the modified RTF may be increased by 4 characters ("\'14") or less.
+           // If the character is located right after a control command, the mark will be placed right after it,
+           // eliminating the space that separates the command from the subsequent text. In this example the increment is 3:
+           //    \highlight0 KeyNote NF\b0  is an evolution of Tranglos
+           //    \highlight0\'14KeyNote NF\b0  is an evolution of Tranglos
+
            inc(FoldedLinks[i].pEndBlock, Length(KNT_RTF_HIDDEN_MARK_AUX));
            for j:= i + 1 to Length(FoldedLinks)-1 do begin
                inc(FoldedLinks[j].pI, Length(KNT_RTF_HIDDEN_MARK_AUX));
@@ -1694,6 +1733,8 @@ begin
       * We must ensure that the hidden markers ($11...$12) remain hidden in the parts that become visible,
    }
 
+  OffsetC:= 0;
+
   // Position of the next hidden marker. If it does not match any of the identified ones, it is a non-link marker, 
   // and we must keep it hidden (by adding \v and \v0) if it is to be in a visible area
   p:= Pos(KNT_RTF_HIDDEN_MARK_L, RTFIn, 1);
@@ -1702,9 +1743,9 @@ begin
      if not FoldedLinks[i].Visible then continue;
      if FoldedLinks[i].FoldedBlock and not FoldedLinks[i].FirstLevel then continue;    // Redundant?
 
-     pI:= FoldedLinks[i].pI;        // Start of a "normal" link or a first-level folded block (both visible, the second with hidden content)
-     pF:= FoldedLinks[i].pF;
-     pEnd:= FoldedLinks[i].pEndBlock;
+     pI:= FoldedLinks[i].pI + OffsetC;        // Start of a "normal" link or a first-level folded block (both visible, the second with hidden content)
+     pF:= FoldedLinks[i].pF + OffsetC;
+     pEnd:= FoldedLinks[i].pEndBlock + OffsetC;
      if not FoldedLinks[i].FoldedBlock then
        pEnd:= pF;
 
@@ -1759,7 +1800,9 @@ begin
         RemoveReplace_EnsureHiddenMarksNotVisible(pF, pAux, pAux - pF + Length(KNT_RTF_HIDDEN_MARK_AUX), '\v ');
 
         Len:= Length(KNT_RTF_END_FOLDED_WITHOUT_v0);
-        RemoveReplace(pEnd, KNT_RTF_END_FOLDED + '\protect0 ');
+        if Copy(RTFIn, pEnd-1, Len) = KNT_RTF_END_FOLDED_WITHOUT_v0 then
+           dec(OffsetC, 1);
+        RemoveReplace(pEnd + OffsetC, KNT_RTF_END_FOLDED + '\protect0 ');
      end;
 
   end;
@@ -1787,6 +1830,335 @@ begin
   RTFOutWithProcessedImages:= ImageMng.ProcessImagesInRTF(RTFOut, '', ActiveFolder.ImagesMode, '', 0, false);
   if RTFOutWithProcessedImages <> '' then
      RTFOut:= RTFOutWithProcessedImages;
+end;
+
+
+{ ToDO: Nested open tag blocks
+  #ToDO: ....
+    ....
+    #BUG:
+    ....
+    ...
+    ##         (And/or ##BUG, and ## => close all previous Tags?)
+  ....
+  ...
+  ##           (And/or ##ToDO ?)
+}
+function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit;
+                            var pBeginBlock, pEndBlock: integer; FoldedBlock: boolean;
+                            const WordOpening: string; WordClosing: string;
+                            WordOpening_Nested: string = '';
+                            IsTag: boolean = false;
+                            IgnoreFoldedBlocks: boolean = True): boolean;
+var
+  pI, pF: integer;
+  Lo, Lc: integer;
+  pfI, pfF: integer;
+  nEnd: integer;
+  OffsetOpInCl: integer;
+  IsProtected: boolean;
+  IsValid: boolean;
+  CheckWholeWords: boolean;
+  ConsiderNestedBlocks: boolean;
+  IsOpenTag: boolean;                 // A tag like #ToDO: (with ":" or inmediateliby before $13), closed with ## or the end of the note
+
+  function WordIsValid (const Word: string; var p: integer): boolean;
+  var
+     pfI, pfF, L: integer;
+  begin
+     Result:= True;
+     L:= Length(Word);
+     if (CheckWholeWords and ((p+L <= Length(TxtPlain)) and not IsWordDelimiter(p+L, TxtPlain, False)) ) then
+        Result:= False;
+
+     if Result and (IgnoreFoldedBlocks and PositionInFoldedBlock(TxtPlain, p, Editor, pfI, pfF) ) then begin
+        Result:= False;
+        p:= pfF;                   // Saltar el bloque folded
+     end;
+  end;
+
+  function CheckProtectedAtPos(X: integer): boolean;
+  var
+    SS, SL: integer;
+  begin
+      Result:= True;                                    // By default we will assume yes, and check if Editor is provided
+      if Editor <> nil then begin
+         Editor.BeginUpdate;
+         SS:= Editor.SelStart;
+         SL:= Editor.SelLength;
+
+         Editor.SetSelection(X-1, X, False);
+         IsProtected:= Editor.SelAttributes.Protected;
+
+         Editor.SelStart:= SS;
+         Editor.SelLength:= SL;
+         Editor.EndUpdate;
+
+         if not IsProtected then
+            Result:= False;
+      end;
+  end;
+
+begin
+   Result:= False;
+
+   if FoldedBlock and not CheckProtectedAtPos(PosSS) then exit;
+
+   // If WordOpening = '' or is searching for a FoldedBlock -> CheckWholeWords=ConsiderNestedBlocks= False
+   ConsiderNestedBlocks:= True;
+   CheckWholeWords:= not FoldedBlock and (WordOpening <> '');
+
+   if WordClosing = '' then begin
+      ConsiderNestedBlocks:= False;
+      if WordOpening = '' then
+         WordClosing:= KNT_RTF_END_GENERIC_BLOCK;
+   end;
+
+   if ConsiderNestedBlocks and (WordOpening_Nested = '') then
+      WordOpening_Nested:= WordOpening;
+
+   // Is the opening token included in the closing token? Ex: "IF" / "END IF". Determine in which position
+   OffsetOpInCl:= 0;
+   if CheckWholeWords then
+      OffsetOpInCl:= Pos(WordOpening, WordClosing, 1);
+
+   Lo:= Length(WordOpening);
+
+   pBeginBlock:= 0;
+
+
+   // PosSS: Must start at 1 -> Ex: Editor.SelStart +1
+
+   // Locate the start (as internal as possible in relation to the position) of the block,
+   // ensuring, if necessary, that complete words are located, that the found word is not really
+   // a closing word that includes an opening word, and ignoring folded blocks if so indicated.
+   if (WordOpening = '') or (Copy(TxtPlain, PosSS, Lo) = WordOpening) then begin
+      pBeginBlock:= PosSS;
+      if IsTag and (Copy(TxtPlain, PosSS+Lo, 1)[1] in [':', #13] ) then begin
+         IsOpenTag:= True;
+         WordClosing:= KNT_RTF_END_TAG;     // '##'
+      end;
+   end
+   else begin
+      pI:= 0;
+      repeat
+        IsValid:= True;
+        pI:= Pos(WordOpening, TxtPlain, pI + 1);
+        if (pI > 0) and not FoldedBlock then begin
+           if ( (OffsetOpInCl > 0) and (pI-OffsetOpInCl >=1) and (Copy(TxtPlain, pI-OffsetOpInCl+1, Lc) = WordClosing) ) or
+              ( not WordIsValid(WordOpening, pI) ) then
+              IsValid:= False;
+        end;
+        if (pI > 0) and (pI <= PosSS) and IsValid then
+           pBeginBlock:= pI;
+      until (pI = 0) or (pI >= PosSS);
+   end;
+
+
+   Lc:= Length(WordClosing);
+
+
+   // Locate the end of the block, taking into account, if necessary, the presence of nested blocks
+   // If we have found a folded block when searching for the opening, we will have skipped the entire block. But we can
+   // find another one while searching for the end.
+   if pBeginBlock > 0 then begin
+      pI:= pBeginBlock;
+      pF:= pI;
+
+      nEnd:= 1;
+      repeat
+        IsValid:= True;
+        if WordClosing = '' then
+           pF:= 0
+        else begin
+           pF:= Pos(WordClosing, TxtPlain, pF + Lc);
+           if (pF > 0) and not FoldedBlock and not WordIsValid(WordClosing, pF) then
+               IsValid:= False;
+        end;
+
+        if (pF > 0) and IsValid then begin
+           dec(nEnd);
+           if ConsiderNestedBlocks then begin
+              repeat
+                 IsValid:= True;
+                 pI:= Pos(WordOpening_Nested, TxtPlain, pI + Lo);
+                 if (pI > 0) and (pI < pF) and (not FoldedBlock) and
+                       ( ((OffsetOpInCl > 0) and (Copy(TxtPlain, pI-OffsetOpInCl+1, Lc) = WordClosing)) or
+                          not WordIsValid(WordOpening, pI) ) then
+                    IsValid:= False;
+              until IsValid or (pI = 0) or (pI > pF);
+              if (pI > 0) and (pI < pF) then
+                 inc(nEnd);                   // Found nested block
+           end;
+        end;
+      until (pF = 0) or (nEnd=0);
+
+
+      if pF > 0 then begin
+         pEndBlock:= pF + Lc -1;
+         Result:= True;
+      end
+      else
+      // If IsTag: IsOpenTag=True  -> WordClosing=KNT_RTF_END_TAG -> Find the end of the note
+      //           IsOpenTag=False -> WordClosing=''              -> Find the end of the paragraph or note
+      if (WordClosing = '') or (WordClosing = KNT_RTF_END_GENERIC_BLOCK) or (WordClosing = KNT_RTF_END_TAG)  then begin
+          if (WordClosing <> KNT_RTF_END_TAG) then
+             pF:= Pos(#13, TxtPlain, pBeginBlock + 1);
+          if pF < 0 then
+             pF:= Length(TxtPlain);
+          if not CheckProtectedAtPos(pF) then begin
+             pEndBlock:= pF-1;
+             Result:= True;
+          end;
+      end;
+
+   end;
+
+end;
+
+
+function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
+begin
+   Result:= GetBlockAtPosition(TxtPlain, PosSS, Editor, pBeginBlock, pEndBlock, True,
+                              KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR,
+                              KNT_RTF_FOLDED_LINK_BLOCK_CHAR, False, False);
+end;
+
+
+function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var IsTag: boolean): boolean;
+begin
+   Result:= False;
+   IsTag:= False;
+   ClosingToken:= '';
+
+   // ToDO.. Maintenance...
+   // ToDO Token case treatment...
+
+   // Some TESTs:
+   if OpeningToken = 'IF' then begin
+      ClosingToken:= 'END IF';
+      Result:= True;
+   end
+   else
+   if OpeningToken = '**' then begin        // Closing = Opening -> Does not allow nested blocks
+      ClosingToken:= '**';
+      Result:= True;
+   end
+   else
+   if OpeningToken = '<>' then begin        // Closing <> Opening -> Yes it allows nested blocks
+      ClosingToken:= '</>';
+      Result:= True;
+   end
+   else
+   if OpeningToken = 'BGN' then begin
+      ClosingToken:= 'END';
+      Result:= True;
+   end
+   else
+   if OpeningToken = '#ToDO' then begin
+      Result:= True;
+      IsTag:= True;
+   end;
+
+end;
+
+procedure TKntRichEdit.Fold (SelectedText: boolean);
+var
+  RTFIn, RTFOut: AnsiString;
+  SS, SL: integer;
+  WordAtPos, ClosingWord: String;
+  IsTag: boolean;
+  TxtPlain: String;
+  pI, pF, p: integer;
+  AddEndGenericBlock: Boolean;
+  MinLenExtract: integer;
+
+begin
+   if CheckReadOnly then exit;
+
+   BeginUpdate;
+   try
+      SS:= SelStart;
+      SL:= SelLength;
+
+      // Do not allow folding inside a folded block or partially selecting it
+      SelLength:= 0;
+      if SelAttributes.Protected then exit;
+      SelStart:= SS + SL;
+      if SelAttributes.Protected then exit;
+
+      AddEndGenericBlock:= False;
+      MinLenExtract:= 0;
+
+      SelStart:= SS;
+      SelLength:= SL;
+      if SelectedText then begin
+         AddEndGenericBlock:= True;                  // -> KNT_RTF_END_GENERIC_BLOCK
+         if GetTextRange(SS+SL-1, SS+SL) = #13 then
+            SelLength:= SL-1;
+      end
+      else begin
+         TxtPlain:= Self.TextPlain;
+         //WordAtCursor:= GetWordAtCursor(True,true);
+         WordAtPos:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
+         SS:= SelStart;
+         if TxtPlain[SS] = '#' then begin
+            WordAtPos:= '#' + WordAtPos;
+            dec(SS);
+            SelStart:= SS;
+         end;
+
+         if not GetClosingToken(WordAtPos, ClosingWord, IsTag) then begin
+           // It is not a defined block opening word, nor a tag.
+           // The initial position will be considered, and the final position will be the position of the following [.]
+           // (which is not included in another block) and if not found, the end of the paragraph
+            WordAtPos:= '';
+         end
+         else   // The token is recognized
+            MinLenExtract:= Length(WordAtPos);
+
+         if IsTag and (TxtPlain[SS+Length(WordAtPos)+1] = ':') then begin
+            inc(MinLenExtract);
+         end;
+
+         if not GetBlockAtPosition(TxtPlain, SS+1, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True) then exit;
+
+         SetSelection(SS, pF, false);
+      end;
+
+      RTFIn:= RtfSelText;
+      PrepareRTFtoBeFolded(RTFIn, RTFOut, AddEndGenericBlock, MinLenExtract);
+      RtfSelText:= RTFOut;
+
+      sleep(100);         // If we don't do this, the initial word will remain selected.
+      SelStart:= SS;
+      SelLength:= 0;
+
+   finally
+      EndUpdate;
+   end;
+
+end;
+
+procedure TKntRichEdit.Unfold;
+var
+  RTFIn, RTFOut: AnsiString;
+  SS: integer;
+  pI, pF: integer;
+begin
+   if CheckReadOnly then exit;
+
+   if PositionInFoldedBlock(Self.TextPlain, Self.SelStart+1, Self, pI, pF) then begin
+      BeginUpdate;
+      SetSelection(pI, pF, false);
+      RTFIn:= RtfSelText;
+      PrepareRTFtoBeExpanded(RTFIn, RTFOut);
+      FUnfolding:= True;
+      RtfSelText:= RTFOut;
+      FUnfolding:= False;
+      SelStart:= pI-1;
+      EndUpdate;
+   end;
 end;
 
 
@@ -2435,9 +2807,17 @@ end;  // KeyPress
 
 
 procedure TKntRichEdit.RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
+var
+  pI, pF: integer;
 begin
-  AllowChange := EditorOptions.EditProtected;
-  // ToDO: Check if it is a collapsed text. Prevent editing in that case
+  if FUnfolding then
+     AllowChange:= True
+
+  else begin
+     AllowChange := EditorOptions.EditProtected;
+     if PositionInFoldedBlock(Self.TextPlain, Self.SelStart+1, Self, pI, pF) then
+        AllowChange:= False;
+  end;
 end; // RxRTF_ProtectChangeEx
 
 
@@ -2640,7 +3020,11 @@ begin
    end;
 
    if (ImgID <> 0) or (Img <> nil) then
-      ImageMng.OpenImageViewer(ImgID, CtrlDown, false, Img);
+      ImageMng.OpenImageViewer(ImgID, CtrlDown, false, Img)
+
+   else
+   if CtrlDown then
+      Fold (false);
 
    inherited;
 end;
@@ -3873,6 +4257,13 @@ begin
 end;
 
 
+function IsWordDelimiter(i: integer; const Str: string; const SpaceAsWDelim: boolean): boolean; inline;
+begin
+ Result:= (Str[i]<>KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[i]<>KNT_RTF_HIDDEN_MARK_R_CHAR)
+            and (   (SpaceAsWDelim and (Str[i] in [#32,#9,#13,#10]))
+                 or (not SpaceAsWDelim and not IsCharAlphaNumeric(Str[i])) );
+end;
+
 function GetWordAtCursorFromRichEd(
                           RichEdit: TRxRichEdit;
                           const LeaveSelected : boolean; const IgnoreActualSelection: boolean = False;
@@ -3885,14 +4276,6 @@ var
   SSw: integer;
   Str: string;
   KeepSelected: boolean;
-
-
-  function IsWordDelimiter(i: integer; const Str: string; const SpaceAsWDelim: boolean): boolean; inline;
-  begin
-    Result:= (Str[i]<>KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[i]<>KNT_RTF_HIDDEN_MARK_R_CHAR)
-               and (   (SpaceAsWDelim and (Str[i] in [#32,#9,#13,#10]))
-                    or (not SpaceAsWDelim and not IsCharAlphaNumeric(Str[i])) );
-  end;
 
 begin
  with RichEdit do begin

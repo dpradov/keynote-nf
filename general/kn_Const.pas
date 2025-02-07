@@ -580,11 +580,14 @@ const
   KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"fold:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"fold:"@+$12
 
   KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}';
+  KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "fold:"+';
   KNT_RTF_END_FOLDED =             '\v0 ...' + KNT_RTF_HIDDEN_MARK_EndLink;                   // \v0 ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0 =      '...' + KNT_RTF_HIDDEN_MARK_EndLink;                   //     ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR = '...' + KNT_RTF_HIDDEN_MARK_EndLink_CHAR;              //     ...$13
 
   KNT_IMG_LINK_FOLDED_PREFIX =    KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_LINK + '"img:';
+  KNT_RTF_END_GENERIC_BLOCK = '[.]';
+  KNT_RTF_END_TAG = '##';
 
 
 type
@@ -594,7 +597,7 @@ type
     urlFile, urlHTTP, urlHTTPS, urlFTP, urlMailto,
     urlTelnet, urlNews, urlNNTP, urlGopher, urlWais, urlProspero,
     urlCintaNotes, urlNotes, urlCallto, urlOnenote, urlOutlook, urlTel, urlWebcal,
-    urlKNTImage,
+    urlKNTImage, urlKNTFold,
     urlOTHER
   );
 
@@ -604,7 +607,7 @@ const
     {'knt:', } 'file:', 'http:', 'https:', 'ftp:', 'mailto:',
     'telnet:', 'news:', 'nntp:', 'gopher:', 'wais:', 'prospero:',
     'cintanotes:', 'notes:', 'callto:', 'onenote:', 'outlook:', 'tel:', 'webcal:',
-    'img:',
+    'img:', 'fold:',
     '????:'
   );
 

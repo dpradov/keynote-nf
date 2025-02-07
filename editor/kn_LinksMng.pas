@@ -1980,6 +1980,7 @@ begin
     _selectStart := Editor.SelStart;
     _selectionLenght := Editor.SelLength;
 
+    Editor.BeginUpdate;
     Try
         // If uses {\field{\*\fldinst{HYPERLINK "hyperlink" ... ) then next char will be "", hidden
         Editor.SetSelection(endPosURL+1, endPosURL+1, false);
@@ -2008,6 +2009,7 @@ begin
     Finally
         Editor.SelStart:= _selectStart;
         Editor.SelLength:= _selectionLenght;
+        Editor.EndUpdate;
     End;
 
 End;
@@ -2082,6 +2084,11 @@ begin
       end;
 
       exit;
+  end
+  else
+  if (URLType = urlKNTFold) then begin
+     Editor.Unfold;
+     exit;
   end;
 
 
