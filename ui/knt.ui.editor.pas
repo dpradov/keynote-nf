@@ -1852,7 +1852,7 @@ function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxR
                             IsTag: boolean = false;
                             IgnoreFoldedBlocks: boolean = True): boolean;
 var
-  pI, pF: integer;
+  p, pI, pF: integer;
   Lo, Lc: integer;
   pfI, pfF: integer;
   nEnd: integer;
@@ -2007,7 +2007,14 @@ begin
              pF:= Pos(#13, TxtPlain, pBeginBlock + 1);
           if pF = 0 then
              pF:= Length(TxtPlain);
-          if not CheckProtectedAtPos(pF) then begin
+
+          if (pF - pBeginBlock) < 50 then begin
+             p:= Pos(' ', TxtPlain, pBeginBlock);
+             if (p >= pF) or ((pF - p) < 10) then
+                pF:= 0;
+          end;
+
+          if (p > 0) and not CheckProtectedAtPos(pF) then begin
              pEndBlock:= pF-1;
              Result:= True;
           end;
