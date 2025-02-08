@@ -1787,44 +1787,6 @@ Button_Prev.Caption=前のヒント(&P)
 
 [TKntTreeUI]
 
-[TPreview2]
-Caption=次ページ
-Panel1.Label1.Caption=ページ番号 :
-Panel1.Label2.Hint=実際のページ番号 (2番目のウィンドウ)
-Panel1.Label2.Caption=ラベル2
-
-[TRichPreviewForm]
-Caption=印刷プレビュー (書式設定)
-Panel1.ArrowButton1.Hint=前のページを表示 [PgDn]
-Panel1.ArrowButton2.Hint=次のページを表示 [PgUp]
-Panel1.Label1.Caption=次 
-Panel1.Label2.Caption=前
-Panel1.SpeedButton1.Hint=ドキュメントから選択した項目の印刷 ['P' キー]
-Panel1.SpeedButton1.Caption=印刷(&P)
-Panel1.Label4.Caption=ページ番号 :
-Panel1.SpeedButton2.Hint=拡大表示 ['L' キー]
-Panel1.SpeedButton2.Caption=拡大(&L)
-Panel1.SpeedButton3.Hint=縮小表示 ['S' キー]
-Panel1.SpeedButton3.Caption=縮小(&S)
-Panel1.Label6.Caption=ズームの単位 :
-Panel1.Label7.Hint=ズームの実際のサイズ (ダブルクリックすると値が 1 になります)
-Panel1.Label8.Caption=ズーム係数 :
-Panel1.Label3.Caption=ページ
-Panel1.Label9.Caption=ページ
-Panel1.Label10.Hint=総ページ数
-Panel1.BitBtn1.Hint=このプレビューを閉じる
-Panel1.MaskEdit1.Hint=入力ステップサイズのズーム
-Panel1.CheckBox1.Hint=1 つのウィンドウに 4 ページ
-Panel1.CheckBox1.Caption=コンパクト
-Edit1.Hint=現在のページ番号 (手動で変更可能) 
-
-[TRichPrntProgDlg]
-Caption=印刷の進行状況
-lblStatus.Caption=lblステータス
-lblTitle.Caption=lblタイトル
-lblPageNumDesc.Caption=ページ番号 :
-lblPageNumber.Caption=lblページ番号
-
 [TUpdateVersion]
 Caption=更新の確認 - KeyNote NF
 Label1.Caption=使用バージョン :

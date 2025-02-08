@@ -1942,44 +1942,6 @@ Button_Prev.Caption=&Anterior
 
 [TKntTreeUI]
 
-[TPreview2]
-Caption=next page(s)
-Panel1.Label1.Caption=Número página:
-(!)Panel1.Label2.Hint=Actual page number (second window)
-Panel1.Label2.Caption=Label2
-
-[TRichPreviewForm]
-(!)Caption=Print Preview (Formatting)
-(!)Panel1.ArrowButton1.Hint=Showing previous pages [PgDn]
-(!)Panel1.ArrowButton2.Hint=Showing next pages [PgUp]
-(!)Panel1.Label1.Caption=NEXT 
-(!)Panel1.Label2.Caption=PREVIOUS
-(!)Panel1.SpeedButton1.Hint=Printing of selection from document ['P' key]
-(!)Panel1.SpeedButton1.Caption=&Printing
-(!)Panel1.Label4.Caption=Page number:
-(!)Panel1.SpeedButton2.Hint=Larger zoom ['L' key]
-(!)Panel1.SpeedButton2.Caption=&Larger
-(!)Panel1.SpeedButton3.Hint=Smaller zoom ['S' key]
-(!)Panel1.SpeedButton3.Caption=&Smaller
-(!)Panel1.Label6.Caption=Zoom step:
-(!)Panel1.Label7.Hint=Actual size of the zoom (double click for a value of one)
-(!)Panel1.Label8.Caption=Zoom factor:
-(!)Panel1.Label3.Caption=page
-(!)Panel1.Label9.Caption=page
-(!)Panel1.Label10.Hint=Total number of pages
-(!)Panel1.BitBtn1.Hint=Closing this preview
-(!)Panel1.MaskEdit1.Hint=Input step size zooming
-(!)Panel1.CheckBox1.Hint=Four pages on one window
-(!)Panel1.CheckBox1.Caption=Compact
-(!)Edit1.Hint=Number of current page (can be changed manually) 
-
-[TRichPrntProgDlg]
-(!)Caption=Print Progress
-(!)lblStatus.Caption=lblStatus
-(!)lblTitle.Caption=lblTitle
-(!)lblPageNumDesc.Caption=Page Number:
-(!)lblPageNumber.Caption=lblPageNumber
-
 [TUpdateVersion]
 (!)Caption=Check for Updates - KeyNote NF
 (!)Label1.Caption=Your version is :

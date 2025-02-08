@@ -1785,44 +1785,6 @@ Button_Prev.Caption=(&P)上一条
 
 [TKntTreeUI]
 
-[TPreview2]
-Caption=下一页
-Panel1.Label1.Caption=页码：
-Panel1.Label2.Hint=实际页码（第二个窗口）
-Panel1.Label2.Caption=标签2
-
-[TRichPreviewForm]
-Caption=打印预览（格式）
-Panel1.ArrowButton1.Hint=显示上一页 [PgDn]
-Panel1.ArrowButton2.Hint=显示下一页 [PgUp]
-Panel1.Label1.Caption=下一页
-Panel1.Label2.Caption=上一页
-Panel1.SpeedButton1.Hint=打印文档选定部分 ['P' 键]
-Panel1.SpeedButton1.Caption=(&P)打印
-Panel1.Label4.Caption=页码：
-Panel1.SpeedButton2.Hint=放大缩放 ['L' 键]
-Panel1.SpeedButton2.Caption=(&L)放大
-Panel1.SpeedButton3.Hint=缩小缩放 ['S' 键]
-Panel1.SpeedButton3.Caption=(&S)缩小
-Panel1.Label6.Caption=缩放步长：
-Panel1.Label7.Hint=缩放的实际大小（双击可设为一）
-Panel1.Label8.Caption=缩放因子：
-Panel1.Label3.Caption=页
-Panel1.Label9.Caption=页
-Panel1.Label10.Hint=总页数
-Panel1.BitBtn1.Hint=关闭此预览
-Panel1.MaskEdit1.Hint=输入步长缩放
-Panel1.CheckBox1.Hint=一个窗口显示四页
-Panel1.CheckBox1.Caption=紧凑
-Edit1.Hint=当前页码（可以手动更改）
-
-[TRichPrntProgDlg]
-Caption=打印进度
-lblStatus.Caption=lblStatus
-lblTitle.Caption=lblTitle
-lblPageNumDesc.Caption=页码：
-lblPageNumber.Caption=lblPageNumber
-
 [TUpdateVersion]
 Caption=检查更新 - KeyNote NF
 Label1.Caption=您的版本是：

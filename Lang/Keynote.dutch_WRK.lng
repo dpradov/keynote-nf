@@ -2043,44 +2043,6 @@ Button_Prev.Caption=V&orige Tip
 
 [TKntTreeUI]
 
-[TPreview2]
-Caption=volgende pagina('s)
-Panel1.Label1.Caption=Paginanummer:
-Panel1.Label2.Hint=Actueel paginanummer (tweede venster)
-Panel1.Label2.Caption=Label2
-
-[TRichPreviewForm]
-Caption=Afdrukvoorbeeld (opmaak)
-Panel1.ArrowButton1.Hint=Vorige pagina's weergeven [PgDn]
-Panel1.ArrowButton2.Hint=Volgende pagina's weergeven [PgUp]
-Panel1.Label1.Caption=VOLGENDE 
-Panel1.Label2.Caption=VORIGE
-Panel1.SpeedButton1.Hint=Selectie van document afdrukken ['P' key]
-Panel1.SpeedButton1.Caption=&Printen
-Panel1.Label4.Caption=Paginanummer:
-Panel1.SpeedButton2.Hint=Inzoomen ['L' toets]
-Panel1.SpeedButton2.Caption=&Groter
-Panel1.SpeedButton3.Hint=Uitzoomen ['S' toets]
-Panel1.SpeedButton3.Caption=&Kleiner
-Panel1.Label6.Caption=Zoomgrootte:
-Panel1.Label7.Hint=Actuele grootte van de zoom (dubbelklik voor waarde)
-Panel1.Label8.Caption=Zoomfactor:
-Panel1.Label3.Caption=pagina
-Panel1.Label9.Caption=pagina
-Panel1.Label10.Hint=Aantal pagina's
-Panel1.BitBtn1.Hint=Voorbeeld sluiten
-Panel1.MaskEdit1.Hint=Zoomgrootte invoeren
-Panel1.CheckBox1.Hint=Vier pagina's in een venster
-Panel1.CheckBox1.Caption=Compact
-Edit1.Hint=Aantal exemplaren (handmatig aanpassen mogelijk) 
-
-[TRichPrntProgDlg]
-Caption=Print voortgang
-lblStatus.Caption=lblStatus
-lblTitle.Caption=lblTitle
-lblPageNumDesc.Caption=Paginanummer:
-lblPageNumber.Caption=lblPageNumber
-
 [TUpdateVersion]
 (!)Caption=Check for Updates - KeyNote NF
 (!)Label1.Caption=Your version is :
