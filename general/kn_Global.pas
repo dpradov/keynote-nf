@@ -66,6 +66,7 @@ const
    procedure AddSearchModes;
    procedure AddSearchScopes;
    procedure AddSearchChkModes;
+   procedure AddSearchFoldedModes;
 
    function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
@@ -284,6 +285,19 @@ begin
   end;
 end;
 
+procedure AddSearchFoldedModes;
+var
+   sf : TSearchFoldedMode;
+begin
+  if not assigned(Form_Main) then exit;
+  with Form_Main do begin
+      CbFindFoldedMode.Items.Clear;
+      for sf := low( TSearchFoldedMode ) to high( TSearchFoldedMode ) do
+        CbFindFoldedMode.Items.Add( SEARCH_FOLDEDMODES[sf] );
+      CbFindFoldedMode.ItemIndex := 0;
+  end;
+end;
+
 
 //====================================================================
 procedure InitializeKeynote (Form_Main: TForm_Main);
@@ -473,6 +487,7 @@ begin
       AddSearchModes;
       AddSearchScopes;
       AddSearchChkModes;
+      AddSearchFoldedModes;
 
       Form_Chars := nil;
       {                                    // Unncessary with TForm_CharsNew

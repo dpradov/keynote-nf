@@ -877,7 +877,8 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
-    ExplicitWidth = 755
+    ExplicitWidth = 779
+    ExplicitHeight = 694
   end
   object Dock_Left: TDock97
     Left = 0
@@ -1286,6 +1287,22 @@ object Form_Main: TForm_Main
               ParentFont = False
               Visible = False
             end
+            object Label4: TLabel
+              Left = 10
+              Top = 518
+              Width = 183
+              Height = 13
+              Anchors = [akLeft, akTop, akRight]
+              AutoSize = False
+              Caption = 'Folded mode:'
+              FocusControl = CbFindFoldedMode
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              ParentFont = False
+            end
             object CB_ResFind_CaseSens: TCheckBox
               Left = 10
               Top = 9
@@ -1472,6 +1489,24 @@ object Form_Main: TForm_Main
               Caption = 'Use path of node'
               TabOrder = 7
               OnClick = CB_ResFind_PathInNamesClick
+            end
+            object CbFindFoldedMode: TComboBox
+              Left = 10
+              Top = 536
+              Width = 183
+              Height = 21
+              Hint = 
+                'Include or exclude depending on the pattern found in a folded te' +
+                'xt'
+              Style = csDropDownList
+              Anchors = [akLeft, akTop, akRight]
+              Font.Charset = DEFAULT_CHARSET
+              Font.Color = clWindowText
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              Font.Style = []
+              ParentFont = False
+              TabOrder = 17
             end
           end
         end

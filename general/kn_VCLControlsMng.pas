@@ -591,6 +591,7 @@ begin
      RG_ResFind_ChkMode.ItemIndex := ord( FindOptions.CheckMode );
      CB_ResFind_PathInNames.Checked := FindOptions.SearchPathInNodeNames;
      CB_ResFind_PathInNames.Enabled:= ( TSearchScope( RG_ResFind_Scope.ItemIndex ) <> ssOnlyContent );
+     CbFindFoldedMode.ItemIndex:= ord( FindOptions.FoldedMode);
   end;
 
 

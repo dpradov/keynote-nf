@@ -1269,6 +1269,73 @@ type
            end;
        end;
 
+
+       function CheckFolded(SearchingInNodeName: boolean;
+                            PatternPos1: integer;
+                            PatternPosN: integer = -1): boolean;
+       var
+         pI, pF, pIcontent: integer;
+         InFolded: boolean;
+         FirstWord: string;
+
+         function CheckPosition(Position: integer): boolean;
+         var
+            InTaggedFolded: boolean;
+            p,p1,p2: integer;
+         begin
+            Result:= False;
+            InTaggedFolded:= False;
+
+            Inc(Position);   // Position starts at zero
+
+            if (pI = -99) or not ((Position >= pI) and (Position <= pF)) then
+               InFolded:= PositionInFoldedBlock(TextPlain, Position, nil, pI, pF);
+
+            if not InFolded then
+               pI:= -99;
+
+            if (InFolded and (myFindOptions.FoldedMode = sfExcludeFolded)) or
+               (not InFolded and (myFindOptions.FoldedMode = sfOnlyFolded)) then
+               exit;
+
+            if (InFolded and (myFindOptions.FoldedMode = sfExcludeTaggedFolded)) then begin
+               // "Tagged" folded: a folded block that begins with a tag
+
+               pIcontent:= pI + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR);
+               p:= Integer.MaxValue;
+               p1:= Pos(#13, TextPlain, pIcontent);
+               if (p1 > 0) and (p1 < pF) then
+                  p:= p1;
+               p2:= Pos(' ', TextPlain, pIcontent);
+               if (p2 > 0) and (p2 < pF) and (p2 < p) then
+                  p:= p2;
+
+               if p < Integer.MaxValue then begin
+                  FirstWord:= Copy(TextPlain, pIcontent, p-pIcontent);
+                  if (FirstWord <> '') and (FirstWord[Length(FirstWord)] = ':') then
+                     delete(FirstWord, Length(FirstWord), 1);
+
+                  if (FirstWord <> '') and IsTag(FirstWord) then
+                     exit;
+               end;
+            end;
+
+            Result:= True;
+         end;
+
+       begin
+           if SearchingInNodeName or (myFindOptions.FoldedMode = sfAll) or (PatternPos1 < 0) then exit(True);
+
+           Result:= False;
+           pI:= -99;
+           if not CheckPosition(PatternPos1) then
+              exit;
+           if (PatternPosN >= 0) and not CheckPosition(PatternPosN) then
+              exit;
+
+           Result:= True;
+       end;
+
        function RememberLastPositionsFound (PatternPos1, PatternPosN: integer): boolean;
        var
           i, p: integer;
@@ -1320,7 +1387,8 @@ type
                              SearchOrigin := PatternPos + PatternLen; // move forward in text
                              if myFindOptions.EmphasizedSearch = esParagraph then
                                 Paragraph:= GetTextScope(TextPlain, dsParagraph, PatternPos + 1, pL_DScope, pR_DScope, 1);
-                             if CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, TextToFind, PatternPos,'',-1, pL_DScope, pR_DScope) then
+                             if CheckFolded(SearchingInNodeName, PatternPos,-1) and
+                                CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, TextToFind, PatternPos,'',-1, pL_DScope, pR_DScope) then
                                 AddLocation(SearchingInNodeName, lsNormal, TextToFind, PatternPos,nil,-1,-1,'',-1,Paragraph);
                          end;
                          Application.ProcessMessages;
@@ -1507,6 +1575,7 @@ type
                           // -> pL_DScope, pR_DScope will be used
 
                           if not CheckNewPositionsFound(PatternPos1, PatternPosN) or
+                             not CheckFolded(SearchingInNodeName,PatternPos, PatternPosN) or
                              not CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, PatternInPos1, PatternPos1, PatternInPosN, PatternPosN, pL_DScope, pR_DScope) then begin
                              SearchOrigin := PatternPos1 + PatternInPos1.Length;
                              continue;
@@ -1584,7 +1653,10 @@ begin
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
 
-  if not TreeFilter then begin
+  if TreeFilter then
+     myFindOptions.FoldedMode:= sfAll
+
+  else begin
      FindOptions.MatchCase:= myFindOptions.MatchCase;
      FindOptions.WholeWordsOnly:= myFindOptions.WholeWordsOnly;
      FindOptions.AllTabs:= myFindOptions.AllTabs;
@@ -1592,6 +1664,7 @@ begin
      FindOptions.SearchScope:= myFindOptions.SearchScope;
      FindOptions.SearchMode:= myFindOptions.SearchMode;
      FindOptions.CheckMode:= myFindOptions.CheckMode;
+     FindOptions.FoldedMode:= myFindOptions.FoldedMode;
      FindOptions.HiddenNodes:= myFindOptions.HiddenNodes;
      FindOptions.SearchPathInNodeNames:= myFindOptions.SearchPathInNodeNames;
 

@@ -445,6 +445,10 @@ type
     scOnlyNonChecked, scOnlyChecked, scAll
   );
 
+type
+  TSearchFoldedMode = (
+     sfAll, sfExcludeFolded, sfExcludeTaggedFolded, sfOnlyFolded
+  );
 
 type
   TPasteNodeNameMode = (
@@ -576,11 +580,11 @@ const
 
   KNT_RTF_FOLDED_LINK_PREFIX =       KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK;                                             //  \'11L
   KNT_RTF_FOLDED_LINK =        '{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}'; //  {\'11L%s@%s\'12}
-  KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '"fold:"@';                                //  \''11L"fold:"@
-  KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"fold:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"fold:"@+$12
+  KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '"FOLD:"@';                                //  \''11L"FOLD:"@
+  KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
 
-  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "fold:"}}{\fldrslt{\ul\cf1 +}}}';
-  KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "fold:"+';
+  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 +}}}';
+  KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"+';
   KNT_RTF_END_FOLDED =             '\v0 ...' + KNT_RTF_HIDDEN_MARK_EndLink;                   // \v0 ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0 =      '...' + KNT_RTF_HIDDEN_MARK_EndLink;                   //     ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR = '...' + KNT_RTF_HIDDEN_MARK_EndLink_CHAR;              //     ...$13
@@ -1034,6 +1038,7 @@ var
   SEARCH_MODES : array[TSearchMode] of string;
   SEARCH_SCOPES : array[TSearchScope] of string;
   SEARCH_CHKMODES : array[TSearchCheckMode] of string;
+  SEARCH_FOLDEDMODES : array[TSearchFoldedMode] of string;
   SYMBOL_NAME_LIST : array[1..10] of string;
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
@@ -1159,6 +1164,11 @@ begin
   SEARCH_CHKMODES[scOnlyNonChecked]:= GetRS(sINFSrchChk1);
   SEARCH_CHKMODES[scOnlyChecked]:=    GetRS(sINFSrchChk2);
   SEARCH_CHKMODES[scAll]:=            GetRS(sINFSrchChk3);
+
+  SEARCH_FOLDEDMODES[sfAll]:=                 GetRS(sINFSrchFolded1);
+  SEARCH_FOLDEDMODES[sfExcludeFolded]:=       GetRS(sINFSrchFolded2);
+  SEARCH_FOLDEDMODES[sfExcludeTaggedFolded]:= GetRS(sINFSrchFolded3);
+  SEARCH_FOLDEDMODES[sfOnlyFolded]:=          GetRS(sINFSrchFolded4);
 
   SYMBOL_NAME_LIST[1]:=   GetRS(sINFSymb0);
   SYMBOL_NAME_LIST[2]:=   GetRS(sINFSymb1);

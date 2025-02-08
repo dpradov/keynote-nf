@@ -261,6 +261,7 @@ type
                            const DiscardKNTHiddenCharacters: boolean= True;
                            const SpacesAsWordDelim: boolean= False) : string;
 
+  function IsTag(const Word: string): boolean;
   function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString;
                                   AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
@@ -2004,7 +2005,7 @@ begin
       if (WordClosing = '') or (WordClosing = KNT_RTF_END_GENERIC_BLOCK) or (WordClosing = KNT_RTF_END_TAG)  then begin
           if (WordClosing <> KNT_RTF_END_TAG) then
              pF:= Pos(#13, TxtPlain, pBeginBlock + 1);
-          if pF < 0 then
+          if pF = 0 then
              pF:= Length(TxtPlain);
           if not CheckProtectedAtPos(pF) then begin
              pEndBlock:= pF-1;
@@ -2012,6 +2013,8 @@ begin
           end;
       end;
 
+      if pF <= PosSS then
+         Result:= False;
    end;
 
 end;
@@ -2025,7 +2028,7 @@ begin
 end;
 
 
-function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var IsTag: boolean): boolean;
+function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
 begin
    Result:= False;
    IsTag:= False;
@@ -2055,11 +2058,18 @@ begin
       Result:= True;
    end
    else
-   if OpeningToken = '#ToDO' then begin
+   if (OpeningToken = '#ToDO') or (IgnoreTagCase and (OpeningToken.ToUpper = '#TODO')) then begin
       Result:= True;
       IsTag:= True;
    end;
 
+end;
+
+function IsTag(const Word: string): boolean;
+var
+  ClosingToken: string;
+begin
+  GetClosingToken(Word, ClosingToken, Result, True);
 end;
 
 procedure TKntRichEdit.Fold (SelectedText: boolean);

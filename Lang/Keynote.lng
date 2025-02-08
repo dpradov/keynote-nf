@@ -2697,5 +2697,9 @@ Button_OK.Caption=&Close
 55094_knt_RS_sINFExptFrmt4=Printer (PDF, ...)
 55095_knt_RS_sExpFrm22=E&xport
 55096_knt_RS_sExpFrm22=Print
+55097_knt_RS_sINFSrchFolded1=All
+55098_knt_RS_sINFSrchFolded2=Exclude folded
+55099_knt_RS_sINFSrchFolded3=Exclude tagged folded
+55100_knt_RS_sINFSrchFolded4=Only folded
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

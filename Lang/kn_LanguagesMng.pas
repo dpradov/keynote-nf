@@ -177,6 +177,7 @@ begin
                     AddSearchModes;
                     AddSearchScopes;
                     AddSearchChkModes;
+                    AddSearchFoldedModes;
                     if assigned (Form_Main) then
                        Form_Main.SetupUIHints;
                  end;

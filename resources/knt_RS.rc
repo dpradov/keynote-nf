@@ -897,4 +897,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55094,  "Printer (PDF, ...)"
 55095,  "E&xport"
 55096,  "Print"
+55097,  "All"
+55098,  "Exclude folded"
+55099,  "Exclude tagged folded"
+55100,  "Only folded"
 }

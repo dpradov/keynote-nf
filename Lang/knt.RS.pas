@@ -600,6 +600,10 @@ const
    sINFSrchScope1 = 55016;   // Only node names
    sINFSrchScope2 = 55017;   // Only note contents
    sINFSrchScope3 = 55018;   // All
+   sINFSrchFolded1 = 55097;  // All
+   sINFSrchFolded2 = 55098;  // Exclude folded
+   sINFSrchFolded3 = 55099;  // Exclude tagged folded
+   sINFSrchFolded4 = 55100;  // Only folded   
    sINFStyRg1 = 54205;   // Font
    sINFStyRg2 = 54206;   // Paragraph
    sINFStyRg3 = 54207;   // Font and paragraph

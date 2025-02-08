@@ -882,6 +882,8 @@ type
     N88: TMenuItem;
     RTFMFold: TMenuItem;
     RTFMUnfold: TMenuItem;
+    CbFindFoldedMode: TComboBox;
+    Label4: TLabel;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -5609,6 +5611,8 @@ begin
      myFindOptions.CreatedUntil := CB_CreatedUntil.Date;
 
   myFindOptions.EmphasizedSearch:= esNone;
+  myFindOptions.FoldedMode:= TSearchFoldedMode(CbFindFoldedMode.ItemIndex);
+  
 
   ApplyFilter:= CB_ResFind_Filter.Checked;
 

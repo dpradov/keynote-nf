@@ -792,7 +792,8 @@ type
     Wrap,
     ResetNextAftN,
     SearchPathInNodeNames,
-    ShowChildren: string;
+    ShowChildren,
+    FoldedMode: string;
   end;
 
 const
@@ -827,6 +828,7 @@ const
     ResetNextAftN: 'ResetNextAftN';
     SearchPathInNodeNames: 'SearchPathInNodeNames';
     ShowChildren: 'ShowChildren';
+    FoldedMode: 'FoldedMode';
   );
 
 type
@@ -1249,6 +1251,7 @@ begin
     ResetNextAftN := 0;
     WordAtCursor := true;
     Wrap := false;
+    FoldedMode:= sfAll;
   end;
 end; // InitializeFindOptions
 
@@ -1605,6 +1608,7 @@ begin
       writebool( section, FindOptionsIniStr.Wrap, FindOptions.Wrap );
       writeinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope ));
       writeinteger( section, FindOptionsIniStr.CheckMode, ord( FindOptions.CheckMode ));
+      writeinteger( section, FindOptionsIniStr.FoldedMode, ord( FindOptions.FoldedMode ));
       writeinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN);
       writebool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       writebool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
@@ -2004,6 +2008,7 @@ begin
       FindOptions.SearchMode := TSearchMode( readinteger( section, FindOptionsIniStr.SearchMode, ord( FindOptions.SearchMode )));
       FindOptions.SearchScope := TSearchScope( readinteger( section, FindOptionsIniStr.SearchScope, ord( FindOptions.SearchScope )));
       FindOptions.CheckMode := TSearchCheckMode( readinteger( section, FindOptionsIniStr.CheckMode, ord( FindOptions.CheckMode )));
+      FindOptions.FoldedMode := TSearchFoldedMode( readinteger( section, FindOptionsIniStr.FoldedMode, ord( FindOptions.FoldedMode )));
       FindOptions.ResetNextAftN := readinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN );
       FindOptions.SearchPathInNodeNames := readbool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       FindOptions.ShowChildren := readbool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
