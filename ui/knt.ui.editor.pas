@@ -1845,6 +1845,9 @@ end;
   ...
   ##           (And/or ##ToDO ?)
 }
+
+// PosSS, pBeginBlock, pEndBlock: Begin at zero
+
 function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit;
                             var pBeginBlock, pEndBlock: integer; FoldedBlock: boolean;
                             const WordOpening: string; WordClosing: string;
@@ -1888,7 +1891,7 @@ var
          SS:= Editor.SelStart;
          SL:= Editor.SelLength;
 
-         Editor.SetSelection(X-1, X, False);
+         Editor.SetSelection(X, X+1, False);
          IsProtected:= Editor.SelAttributes.Protected;
 
          Editor.SelStart:= SS;
@@ -1904,6 +1907,8 @@ begin
    Result:= False;
 
    if FoldedBlock and not CheckProtectedAtPos(PosSS) then exit;
+
+   inc(PosSS);   // We are going to work using Pos(...), and strings whose characters start at 1..
 
    // If WordOpening = '' or is searching for a FoldedBlock -> CheckWholeWords=ConsiderNestedBlocks= False
    ConsiderNestedBlocks:= True;
@@ -1927,8 +1932,6 @@ begin
 
    pBeginBlock:= 0;
 
-
-   // PosSS: Must start at 1 -> Ex: Editor.SelStart +1
 
    // Locate the start (as internal as possible in relation to the position) of the block,
    // ensuring, if necessary, that complete words are located, that the found word is not really
@@ -1996,7 +1999,7 @@ begin
 
 
       if pF > 0 then begin
-         pEndBlock:= pF + Lc -1;
+         pEndBlock:= pF + Lc -1;     // pEndBlock points to the last character of the block (e.g. $13 in folded blocks) TxtPlain[pEndBlock] = #$13
          Result:= True;
       end
       else
@@ -2005,8 +2008,12 @@ begin
       if (WordClosing = '') or (WordClosing = KNT_RTF_END_GENERIC_BLOCK) or (WordClosing = KNT_RTF_END_TAG)  then begin
           if (WordClosing <> KNT_RTF_END_TAG) then
              pF:= Pos(#13, TxtPlain, pBeginBlock + 1);
-          if pF = 0 then
+          if pF = 0 then begin
              pF:= Length(TxtPlain);
+             pEndBlock:= pF;
+          end
+          else
+             pEndBlock:= pF-1;         // Excluding #13
 
           if (pF - pBeginBlock) < 50 then begin
              p:= Pos(' ', TxtPlain, pBeginBlock);
@@ -2014,16 +2021,17 @@ begin
                 pF:= 0;
           end;
 
-          if (p > 0) and not CheckProtectedAtPos(pF) then begin
-             pEndBlock:= pF-1;
+          if (p > 0) and not CheckProtectedAtPos(pF) then
              Result:= True;
-          end;
       end;
 
-      if pF <= PosSS then
+      if pEndBlock < PosSS then
          Result:= False;
    end;
 
+   // Finally, express starting at 0
+   dec(pBeginBlock);
+   dec(pEndBlock);
 end;
 
 
@@ -2119,7 +2127,7 @@ begin
          //WordAtCursor:= GetWordAtCursor(True,true);
          WordAtPos:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
          SS:= SelStart;
-         if TxtPlain[SS] = '#' then begin
+         if (SS >= 1) and (TxtPlain[SS] = '#') then begin
             WordAtPos:= '#' + WordAtPos;
             dec(SS);
             SelStart:= SS;
@@ -2138,9 +2146,9 @@ begin
             inc(MinLenExtract);
          end;
 
-         if not GetBlockAtPosition(TxtPlain, SS+1, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True) then exit;
+         if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True) then exit;
 
-         SetSelection(SS, pF, false);
+         SetSelection(SS, pF+1, false);
       end;
 
       RTFIn:= RtfSelText;
@@ -2165,9 +2173,9 @@ var
 begin
    if CheckReadOnly then exit;
 
-   if PositionInFoldedBlock(Self.TextPlain, Self.SelStart+1, Self, pI, pF) then begin
+   if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
       BeginUpdate;
-      SetSelection(pI, pF, false);
+      SetSelection(pI, pF+1, false);
       RTFIn:= RtfSelText;
       PrepareRTFtoBeExpanded(RTFIn, RTFOut);
       FUnfolding:= True;
@@ -2825,14 +2833,27 @@ end;  // KeyPress
 
 procedure TKntRichEdit.RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
 var
-  pI, pF: integer;
+  pI, pF, SS: integer;
 begin
   if FUnfolding then
      AllowChange:= True
 
   else begin
      AllowChange := EditorOptions.EditProtected;
-     if PositionInFoldedBlock(Self.TextPlain, Self.SelStart+1, Self, pI, pF) then
+
+     SS:= EndPos;
+     BeginUpdate;
+     SetSelection(SS, SS+1, False);
+     if not SelAttributes.Protected and (SS > 0) then
+        dec(SS);                                     // Cursor can be just after the last character of the protected block, and press BACKSPACE..
+     if StartPos <> EndPos then begin
+        SetSelection(StartPos, StartPos+1, False);
+        if SelAttributes.Protected then
+           SS:= StartPos;
+     end;
+     SetSelection(StartPos, EndPos, False);
+     EndUpdate;
+     if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then
         AllowChange:= False;
   end;
 end; // RxRTF_ProtectChangeEx

@@ -1286,7 +1286,7 @@ type
             Result:= False;
             InTaggedFolded:= False;
 
-            Inc(Position);   // Position starts at zero
+            // Position starts at zero
 
             if (pI = -99) or not ((Position >= pI) and (Position <= pF)) then
                InFolded:= PositionInFoldedBlock(TextPlain, Position, nil, pI, pF);
