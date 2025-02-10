@@ -49,7 +49,7 @@ object Form_OptionsNew: TForm_OptionsNew
     Top = 6
     Width = 364
     Height = 377
-    PageIndex = 8
+    PageIndex = 15
     TabOrder = 1
     object PG_Interface: TPage
       Left = 0
@@ -1259,8 +1259,6 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -1715,8 +1713,6 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101
@@ -2738,7 +2734,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 8
+          TabOrder = 7
         end
         object CheckBox_UseOldColorDlg: TCheckBox
           Left = 10
@@ -2787,7 +2783,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 7
+          TabOrder = 6
         end
         object CheckBox_LongCombos: TCheckBox
           Left = 10
@@ -2846,7 +2842,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 10
+          TabOrder = 8
         end
       end
     end
@@ -3473,6 +3469,102 @@ object Form_OptionsNew: TForm_OptionsNew
         end
       end
     end
+    object PG_FoldedBl: TPage
+      Left = 0
+      Top = 0
+      HelpContext = 253
+      Caption = 'PG_FoldedBl'
+      object GroupBox_FoldingBl: TGroupBox
+        Left = 5
+        Top = 5
+        Width = 350
+        Height = 364
+        Caption = ' Folding Blocks '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 0
+        object btnFBNew: TButton
+          Left = 15
+          Top = 327
+          Width = 85
+          Height = 25
+          Caption = '&New..'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          OnClick = btnFBNewClick
+        end
+        object btnFBEdit: TButton
+          Left = 108
+          Top = 327
+          Width = 85
+          Height = 25
+          Caption = '&Edit...'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          OnClick = btnFBEditClick
+        end
+        object btnFBDelete: TButton
+          Left = 241
+          Top = 327
+          Width = 85
+          Height = 25
+          Caption = '&Delete'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          OnClick = btnFBDeleteClick
+        end
+        object LVfb: TListView
+          Left = 15
+          Top = 23
+          Width = 311
+          Height = 298
+          Columns = <
+            item
+              Caption = 'Opening'
+              Width = 90
+            end
+            item
+              Caption = 'Closing'
+              Width = 120
+            end
+            item
+              Caption = 'Case Sens.'
+              Width = 80
+            end>
+          ColumnClick = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -12
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          HideSelection = False
+          ReadOnly = True
+          RowSelect = True
+          ParentFont = False
+          TabOrder = 3
+          ViewStyle = vsReport
+        end
+      end
+    end
     object PG_Language: TPage
       Left = 0
       Top = 0
@@ -3666,8 +3758,6 @@ object Form_OptionsNew: TForm_OptionsNew
           AllowAllUp = True
           GroupIndex = 3
           Flat = False
-          Glyph.Data = {00000000}
-          GlyphMask.Data = {00000000}
           ImageIndex = 1
           Images = Form_Main.IMG_Toolbar
           RepeatInterval = 101

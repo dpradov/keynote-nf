@@ -1288,8 +1288,11 @@ type
 
             // Position starts at zero
 
-            if (pI = -99) or not ((Position >= pI) and (Position <= pF)) then
+            if (pI = -99) or not ((Position >= pI) and (Position <= pF)) then begin
                InFolded:= PositionInFoldedBlock(TextPlain, Position, nil, pI, pF);
+               inc(pI);
+               inc(pF);
+            end;
 
             if not InFolded then
                pI:= -99;

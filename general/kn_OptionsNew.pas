@@ -309,6 +309,10 @@ type
     CB_ExtKNTLnkInNewInst: TCheckBox;
     cbCtrlUpDownMode: TComboBox;
     Label34: TLabel;
+    btnFBNew: TButton;
+    btnFBEdit: TButton;
+    btnFBDelete: TButton;
+    LVfb: TListView;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -367,8 +371,11 @@ type
     procedure TVPaintText(Sender: TBaseVirtualTree;
       const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
       TextType: TVSTTextType);
+    procedure btnFBNewClick(Sender: TObject);
+    procedure btnFBEditClick(Sender: TObject);
+    procedure btnFBDeleteClick(Sender: TObject);
   private
-    fOptions: array[0..15] of TOption;
+    fOptions: array[0..16] of TOption;
     procedure CheckImgMaxAutoWidthGoalValue;
     procedure CheckImgCompressionQualityValue;
     procedure CheckImgRatioSizePngVsJPGValue;
@@ -392,6 +399,8 @@ type
     Icons_Change_Disable : boolean;
     AutoCloseWarned : boolean;
 
+    FoldingBlocks_Changed : boolean;
+
 
     procedure FormToOptions;
     procedure OptionsToForm;
@@ -405,6 +414,8 @@ type
     procedure ResetIcons;
     procedure ClipCapToForm;
     function FormToClipCap : boolean;
+    procedure DeleteBlock;
+    procedure EditBlock( const NewBlock : boolean );
   end;
 
 
@@ -421,6 +432,8 @@ uses
     kn_LanguagesMng,
     kn_global,
     kn_Main,
+    kn_FoldBlockDef,
+    knt.ui.editor,
     knt.App,
     knt.RS
     ;
@@ -579,6 +592,26 @@ begin
      cbCtrlUpDownMode.Items.Add( CTRL_UP_DOWN_MODE[j] );
   cbCtrlUpDownMode.ItemIndex := 1;
 
+
+  var Item : TListItem;
+  var CaseSens: string;
+  FoldingBlocks_Changed:= False;
+  LVfb.Items.BeginUpdate;
+  try
+     for i := 0 to Length(FoldBlocks) -1 do begin
+        Item := LVfb.Items.Add;
+        Item.caption := FoldBlocks[i].Opening;
+        Item.subitems.add( FoldBlocks[i].Closing);
+        CaseSens:= '';
+        if FoldBlocks[i].CaseSensitive then
+           CaseSens:= 'x';
+        Item.subitems.add(CaseSens);
+     end;
+  finally
+    LVfb.Items.EndUpdate;
+  end;
+
+
   CreateMenu;
 end; // CREATE
 
@@ -603,6 +636,7 @@ begin
    Formats [249]
    Clipboard [250]
    File Types [251]
+   Folding Blocks [253]
    Other [252]
 }
 
@@ -624,7 +658,9 @@ begin
   fOptions[12].Caption:= GetRS(sOptS12);
   fOptions[13].Caption:= GetRS(sOptS13);
   fOptions[14].Caption:= GetRS(sOptS14);
-  fOptions[15].Caption:= GetRS(sOptS15);
+  fOptions[15].Caption:= GetRS(sOptS16);
+  fOptions[16].Caption:= GetRS(sOptS15);
+
 
   fOptions[0].Parent:= True;
   fOptions[4].Parent:= True;
@@ -707,6 +743,11 @@ begin
   BitBtn_TknHlp.OnClick := BitBtn_TknHlpClick;
   BitBtn_TknHlp2.OnClick := BitBtn_TknHlpClick;
   Combo_Size.OnKeyPress := Combo_SizeKeyPress;
+
+  if (LVfb.Items.Count > 0 ) then begin
+     LVfb.Selected := LVfb.Items[0];
+     LVfb.ItemFocused := LVfb.Selected;
+  end;
 
   TV.FocusedNode:= TV.GetFirst();
 
@@ -1919,7 +1960,8 @@ begin
       12: HC:= 249;
       13: HC:= 250;
       14: HC:= 251;
-      15: HC:= 252;
+      15: HC:= 253;
+      16: HC:= 252;
     end;
     //self.HelpContext := Pages.HelpContext;
     self.HelpContext := HC;
@@ -2106,6 +2148,137 @@ begin
   chkImgHotTrackViewer.Enabled:= chkImgSingleViewerInstance.Checked;
   if not chkImgSingleViewerInstance.Checked then
      chkImgHotTrackViewer.Checked:= False;
+end;
+
+
+// --------------------------------
+
+
+procedure TForm_OptionsNew.EditBlock( const NewBlock : boolean );
+var
+  Form_BlockDef : TForm_FoldBlockDef;
+  Opening, Closing, CaseSens : string;
+  Item, dupItem : TListItem;
+  i : integer;
+begin
+
+  Item := nil;
+
+  if NewBlock then begin
+     Opening := '';
+     Closing := '';
+  end
+  else begin
+     Item := LVfb.Selected;
+     if ((not assigned( Item )) or
+        (LVfb.Items.Count = 0 )) then begin
+        messagedlg( GetRS(sFoldBl0), mtInformation, [mbOK], 0 );
+        exit;
+     end;
+     Opening := Item.Caption;
+     Closing := Item.Subitems[0];
+     CaseSens := Item.Subitems[1];
+  end;
+
+
+  Form_BlockDef := TForm_FoldBlockDef.Create( self );
+  try
+    with Form_BlockDef do begin
+       Edit_Opening.Text := Opening;
+       Edit_Closing.Text := Closing;
+       chkCaseSens.Checked:= (CaseSens = 'x');
+    end;
+
+    if ( Form_BlockDef.ShowModal = mrOK ) then begin
+      with Form_BlockDef do begin
+         Opening := Edit_Opening.Text;
+         Closing := Edit_Closing.Text;
+         CaseSens := '';
+         if chkCaseSens.Checked then
+            CaseSens := 'x';
+      end;
+
+      if (Opening = '') or (Closing = '') then begin
+         messagedlg( GetRS(sFoldBl1), mtError, [mbOK], 0 );
+         exit;
+      end;
+
+      dupItem := nil;
+
+      if NewBlock then begin
+          if (LVfb.Items.Count > 0) then begin
+             for i := 0 to LVfb.Items.Count -1 do begin
+                if LVfb.Items[i].Caption = Opening then begin
+                   dupItem := LVfb.Items[i];
+                   break;
+                end;
+             end;
+          end;
+
+          if assigned(dupItem) then begin
+             if App.DoMessageBox( Format(GetRS(sFoldBl2), [Opening, dupItem.subitems[0]] ), mtConfirmation, [mbYes,mbNo] ) <> mrYes then
+                exit;
+             Item := dupItem;
+          end;
+      end;
+
+      try
+        if ( Item = nil ) then
+           Item := LVfb.Items.Add;
+
+        Item.Caption := Opening;
+        Item.Subitems.Clear;
+        Item.Subitems.Add(Closing);
+        Item.Subitems.Add(CaseSens);
+        LVfb.Selected := Item;
+
+        FoldingBlocks_Changed:= True;
+
+      except
+        on E : Exception do
+           messagedlg( E.Message, mtError, [mbOK], 0 );
+      end;
+
+    end;
+  finally
+    Form_BlockDef.Free;
+  end;
+
+  LVfb.SetFocus;
+end;
+
+
+procedure TForm_OptionsNew.DeleteBlock;
+var
+  item : TListItem;
+begin
+  item := LVfb.Selected;
+
+  if not assigned(item) then begin
+    messagedlg( GetRS(sFoldBl0), mtInformation, [mbOK], 0 );
+    exit;
+  end;
+
+  LVfb.Items.Delete( LVfb.Items.IndexOf( item ));
+  FoldingBlocks_Changed:= True;
+end;
+
+
+
+procedure TForm_OptionsNew.btnFBNewClick(Sender: TObject);
+begin
+  EditBlock( true );
+end;
+
+procedure TForm_OptionsNew.btnFBEditClick(Sender: TObject);
+begin
+  EditBlock( false );
+end;
+
+procedure TForm_OptionsNew.btnFBDeleteClick(Sender: TObject);
+begin
+  DeleteBlock;
+  LVfb.SetFocus;
 end;
 
 end.

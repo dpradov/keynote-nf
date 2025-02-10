@@ -50,6 +50,7 @@ const
   ext_BAK        = '.bak'; // backup files
   ext_TEMP       = '.k$$'; // temporary files
   ext_Expand     = '.exp'; // Expand Text list
+  ext_Fold       = '.fld'; // Pairs of tokens (opening and closing) to define folding blocks
   ext_TXT        = '.txt';
   ext_HLP        = '.hlp'; // Help
   ext_CHM        = '.chm'; // Help       *1

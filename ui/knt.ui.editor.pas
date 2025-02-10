@@ -277,10 +277,19 @@ type
   procedure AddGlossaryTerm;
   procedure EditGlossaryTerms;
 
+type
+  TFoldingBlock = record
+     Opening: String;
+     Closing: String;
+     CaseSensitive: boolean;
+  end;
 
+procedure LoadFoldingBlockInfo;
+procedure SaveFoldingBlockInfo(LV: TListView);
 
 var
   _LoadedRichEditVersion : Single;
+   FoldBlocks: Array of TFoldingBlock;
 
 
 implementation
@@ -2021,7 +2030,7 @@ begin
                 pF:= 0;
           end;
 
-          if (p > 0) and not CheckProtectedAtPos(pF) then
+          if (pF > 0) and not CheckProtectedAtPos(pF) then
              Result:= True;
       end;
 
@@ -2043,39 +2052,34 @@ begin
 end;
 
 
-function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
+function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
+var
+   i: integer;
 begin
    Result:= False;
    IsTag:= False;
    ClosingToken:= '';
 
+   // Closing = Opening -> Does not allow nested blocks
+   // Closing <> Opening -> Yes it allows nested blocks
+   for i := 0 to Length(FoldBlocks) -1 do begin
+     if (FoldBlocks[i].CaseSensitive and (OpeningToken = FoldBlocks[i].Opening)) or
+        (not FoldBlocks[i].CaseSensitive and (OpeningToken.ToUpper = FoldBlocks[i].Opening.ToUpper)) then begin
+        ClosingToken:= FoldBlocks[i].Closing;
+        CaseSens:= FoldBlocks[i].CaseSensitive;
+        Exit(True);
+     end;
+   end;
+
+
    // ToDO.. Maintenance...
    // ToDO Token case treatment...
 
    // Some TESTs:
-   if OpeningToken = 'IF' then begin
-      ClosingToken:= 'END IF';
-      Result:= True;
-   end
-   else
-   if OpeningToken = '**' then begin        // Closing = Opening -> Does not allow nested blocks
-      ClosingToken:= '**';
-      Result:= True;
-   end
-   else
-   if OpeningToken = '<>' then begin        // Closing <> Opening -> Yes it allows nested blocks
-      ClosingToken:= '</>';
-      Result:= True;
-   end
-   else
-   if OpeningToken = 'BGN' then begin
-      ClosingToken:= 'END';
-      Result:= True;
-   end
-   else
    if (OpeningToken = '#ToDO') or (IgnoreTagCase and (OpeningToken.ToUpper = '#TODO')) then begin
       Result:= True;
       IsTag:= True;
+      CaseSens:= False;
    end;
 
 end;
@@ -2083,8 +2087,9 @@ end;
 function IsTag(const Word: string): boolean;
 var
   ClosingToken: string;
+  CaseSens: boolean;
 begin
-  GetClosingToken(Word, ClosingToken, Result, True);
+  GetClosingToken(Word, ClosingToken, CaseSens, Result, True);
 end;
 
 procedure TKntRichEdit.Fold (SelectedText: boolean);
@@ -2092,7 +2097,7 @@ var
   RTFIn, RTFOut: AnsiString;
   SS, SL: integer;
   WordAtPos, ClosingWord: String;
-  IsTag: boolean;
+  CaseSens, IsTag: boolean;
   TxtPlain: String;
   pI, pF, p: integer;
   AddEndGenericBlock: Boolean;
@@ -2133,7 +2138,7 @@ begin
             SelStart:= SS;
          end;
 
-         if not GetClosingToken(WordAtPos, ClosingWord, IsTag) then begin
+         if not GetClosingToken(WordAtPos, ClosingWord, CaseSens, IsTag) then begin
            // It is not a defined block opening word, nor a tag.
            // The initial position will be considered, and the final position will be the position of the following [.]
            // (which is not included in another block) and if not found, the end of the paragraph
@@ -2146,6 +2151,11 @@ begin
             inc(MinLenExtract);
          end;
 
+         if not CaseSens then begin
+            TxtPlain:= TxtPlain.ToUpper;
+            WordAtPos:= WordAtPos.ToUpper;
+            ClosingWord:= ClosingWord.ToUpper;
+         end;
          if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True) then exit;
 
          SetSelection(SS, pF+1, false);
@@ -5183,6 +5193,73 @@ begin
 
 end; // EditGlossaryTerms
 
+
+//--------------------------------------------
+
+procedure LoadFoldingBlockInfo;
+var
+   i, p1,p2: integer;
+   str: string;
+   SL: TStringList;
+begin
+    try
+       if FileExists( FoldingBlock_FN) then begin
+          SL := TStringList.Create;
+          SL.LoadFromFile (FoldingBlock_FN);
+          SetLength(FoldBlocks, SL.Count);
+          for i := 0 to SL.Count -1 do begin
+             Str:= SL[i];
+             p1:= Pos(',', Str, 1);
+             p2:= Pos(',', Str, p1+1);
+             if (p1 > 0) and (p2 > 0) then begin
+                FoldBlocks[i].Opening:= Trim(Copy(Str,1,p1-1));
+                FoldBlocks[i].Closing:= Trim(Copy(Str,p1+1,p2-1-p1));
+                FoldBlocks[i].CaseSensitive := (Trim(Copy(Str,p2+1)))[1]='1';
+             end;
+          end;
+          SL.Free;
+       end;
+
+    except
+      On E : Exception do begin
+        ShowMessage( GetRS(sFoldBl4) + E.Message );
+      end;
+    end;
+end;
+
+
+procedure SaveFoldingBlockInfo(LV: TListView);
+var
+  i : integer;
+  SL : TStringList;
+  Item : TListItem;
+  Opening, Closing, CaseSens: String;
+begin
+   try
+     SL := TStringList.Create;
+     try
+       SetLength(FoldBlocks, LV.Items.Count);
+       for i := 0 to LV.Items.Count -1 do begin
+          Item := LV.Items[i];
+          Opening:= Item.Caption;
+          Closing:= Item.Subitems[0];
+          CaseSens:= Item.Subitems[1];
+          FoldBlocks[i].Opening:= Opening;
+          FoldBlocks[i].Closing:= Closing;
+          FoldBlocks[i].CaseSensitive:= (CaseSens = 'x');
+          SL.Add(Opening + ', ' + Closing + ', ' + BOOLEANSTR[FoldBlocks[i].CaseSensitive]);
+       end;
+       SL.SaveToFile( FoldingBlock_FN, TEncoding.UTF8);
+
+     finally
+       SL.Free;
+     end;
+
+ except
+   on E : Exception do
+      messagedlg( GetRS(sFoldBl3) + E.Message, mtError, [mbOK], 0 );
+ end;
+end;
 
 //--------------------------------------------
 

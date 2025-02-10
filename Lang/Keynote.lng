@@ -2701,5 +2701,11 @@ Button_OK.Caption=&Close
 55098_knt_RS_sINFSrchFolded2=Exclude folded
 55099_knt_RS_sINFSrchFolded3=Exclude tagged folded
 55100_knt_RS_sINFSrchFolded4=Only folded
+55101_knt_RS_sFoldBl0=No item selected
+55102_knt_RS_sFoldBl1=Opening and closing tokens cannot be blank
+55103_knt_RS_sFoldBl2=Opening token already exists: "%s" | "%s". OK to redefine?
+55104_knt_RS_sFoldBl3=Error saving Folding Block list:
+55105_knt_RS_sFoldBl4=Error loading Folding Block list:
+55106_knt_RS_sOptS16=Folding Blocks
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

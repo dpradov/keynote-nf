@@ -108,6 +108,7 @@ var
     MailINI_FN : string; // INI file for email options (keymail.ini)
 {$ENDIF}
     Glossary_FN : string;
+    FoldingBlock_FN : string;
     NoteHeadingTpl_FN: string;     // Template for note heading, when exporting (notehead.rtf)
     NodeHeadingTpl_FN: string;     // Template for node heading, when exporting (nodehead.rtf)
 
@@ -734,11 +735,13 @@ begin
       Log_StoreTick( 'End stylemgr', 2 );
 
 
-      if ( not App.opt_NoReadOpt ) then
+      if ( not App.opt_NoReadOpt ) then begin
          kn_Glossary.LoadGlossaryInfo;
+         knt.ui.editor.LoadFoldingBlockInfo;
+      end;
 
 
-      Log_StoreTick( 'End glossary', 2 );
+      Log_StoreTick( 'End glossary+Folding blocks', 2 );
 
       if FirstTimeRun then begin
         if ( KntFileToLoad = '' ) then begin
@@ -882,6 +885,7 @@ begin
         MGR_FN := changefileext( INI_FN, ext_MGR );
       Style_FN := changefileext( INI_FN, ext_Style );
       Glossary_FN := changefileext( INI_FN, ext_Expand );
+      FoldingBlock_FN := changefileext( INI_FN, ext_Fold );
       Scratch_FN :=  Path + 'scratch.rtf';
       Toolbar_FN :=  Path + ToolbarFileName;
       Keyboard_FN := Path + KeyboardFileName;

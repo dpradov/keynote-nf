@@ -498,6 +498,12 @@ const
    sGlss04 = 54646;   // Glossary terms: %d
    sGlss05 = 54647;   // Error loading Glossary list:
 
+   sFoldBl0 = 55101;  // No item selected
+   sFoldBl1 = 55102;  // Opening and closing tokens cannot be blank
+   sFoldBl2 = 55103;  // Opening token already exists: "%s" | "%s". OK to redefine?
+   sFoldBl3 = 55104;  // Error saving Folding Block list:
+   sFoldBl4 = 55105;  // Error loading Folding Block list:
+
    sImg01 = 54675;   // Invalid Storage definition:
    sImg02 = 54676;   // Invalid Image definition:
    sImg03 = 54677;   // Invalid Embedded Image:
@@ -868,6 +874,7 @@ const
    sOptS13 = 54910;   // Clipboard
    sOptS14 = 54911;   // File Types
    sOptS15 = 54880;   // Other
+   sOptS16 = 55106;   // Folding Blocks
 
    sPass01 = 54873;   // Passphrase cannot be blank.
    sPass02 = 54874;   // File "%s" is encrypted

@@ -139,6 +139,7 @@ uses
   knt.ui.note in 'ui\knt.ui.note.pas' {KntNoteUI: TFrame},
   knt.ui.info in 'ui\knt.ui.info.pas',
   VirtualTrees.Accessibility_MOD in 'ui\VirtualTrees.Accessibility_MOD.pas',
+  kn_FoldBlockDef in 'editor\kn_FoldBlockDef.pas' {Form_FoldBlockDef},
 {$IFDEF EMBED_UTILS_DLL}
   dll_Hotkey in 'general\dll_Hotkey.pas',
   dll_KBD in 'general\dll_KBD.pas',

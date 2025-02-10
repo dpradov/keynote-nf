@@ -75,6 +75,7 @@ uses
    kn_PluginsMng,
    kn_LinksMng,
    kn_Main,
+   knt.ui.editor,
    knt.App,
    knt.RS
    ;
@@ -828,6 +829,10 @@ begin
               end
               else
                  SaveCategoryBitmapsUser( ICN_FN );
+            end;
+
+            if Form_Options.FoldingBlocks_Changed then begin
+               SaveFoldingBlockInfo(Form_Options.LVfb);
             end;
 
             if oldLanguageUI <> KeyOptions.LanguageUI then

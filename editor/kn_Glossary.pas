@@ -375,19 +375,6 @@ begin
 end;
 
 
-procedure EditGlossaryTerms;
-var
-  Form_Glossary : TForm_Glossary;
-begin
-  Form_Glossary := TForm_Glossary.Create( Form_Main );
-  try
-     Form_Glossary.ShowModal;
-  finally
-     Form_Glossary.Free;
-  end;
-end;
-
-
 Initialization
   GlossaryList := TStringList.Create;
   with GlossaryList do begin

@@ -901,4 +901,10 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55098,  "Exclude folded"
 55099,  "Exclude tagged folded"
 55100,  "Only folded"
+55101,  "No item selected"
+55102,  "Opening and closing tokens cannot be blank"
+55103,  "Opening token already exists: \"%s\" | \"%s\". OK to redefine?"
+55104,  "Error saving Folding Block list:"
+55105,  "Error loading Folding Block list:"
+55106,  "Folding Blocks"
 }
