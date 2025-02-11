@@ -1578,7 +1578,7 @@ type
                           // -> pL_DScope, pR_DScope will be used
 
                           if not CheckNewPositionsFound(PatternPos1, PatternPosN) or
-                             not CheckFolded(SearchingInNodeName,PatternPos, PatternPosN) or
+                             not CheckFolded(SearchingInNodeName,PatternPos1, PatternPosN) or
                              not CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, PatternInPos1, PatternPos1, PatternInPosN, PatternPosN, pL_DScope, pR_DScope) then begin
                              SearchOrigin := PatternPos1 + PatternInPos1.Length;
                              continue;
