@@ -19,6 +19,7 @@ interface
 uses
    Winapi.Windows,
    Winapi.Messages,
+   Winapi.DWMAPI,  // DWMAPI is required for modern shadows
    Winapi.ShellAPI,
    Winapi.RichEdit,
    System.Classes,
@@ -33,12 +34,15 @@ uses
    Vcl.ComCtrls,
    Vcl.Forms,
    Vcl.Dialogs,
+   Vcl.StdCtrls,
    Vcl.ExtDlgs,
    Vcl.ExtCtrls,
    Vcl.Menus,
    RxRichEd,
+   VirtualTrees, VirtualTrees.Types, VirtualTrees.BaseTree, VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
    kn_Info,
-   kn_Const
+   kn_Const,
+   knt.model.note
 ;
 
 type
@@ -48,6 +52,27 @@ type
 type
   TKntRichEdit= class;
   TChangedSelectionEvent = procedure(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false) of object;
+
+
+//======================================
+
+  TTagSelector = class(TForm)
+  private
+    ShowingCaretInExternalControl: boolean;
+  public
+    ControlUI: TWinControl;
+    TV: TVirtualStringTree;
+    constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); reintroduce;
+    procedure CreateParams(var Params: TCreateParams); override;
+    destructor Destroy; override;
+
+    procedure Selector_OnActivate(Sender: TObject);
+    procedure TV_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+    procedure TV_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
+    procedure TV_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure TV_KeyPress(Sender: TObject; var Key: Char);
+    procedure DeactivedForm(Sender: TObject);
+  end;
 
 
 //======================================
@@ -261,7 +286,7 @@ type
                            const DiscardKNTHiddenCharacters: boolean= True;
                            const SpacesAsWordDelim: boolean= False) : string;
 
-  function IsTag(const Word: string): boolean;
+  function IsATag(const Word: string): boolean;
   function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString;
                                   AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
@@ -287,9 +312,26 @@ type
 procedure LoadFoldingBlockInfo;
 procedure SaveFoldingBlockInfo(LV: TListView);
 
+procedure CreateTagSelector;
+procedure CloseTagSelector;
+procedure CheckEndTagIntroduction;
+procedure EndTagIntroduction;
+procedure GetMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
+procedure ShowTagSelector(WidthName, WidthDesc: integer);
+procedure UpdateTagSelector;
+
+
 var
   _LoadedRichEditVersion : Single;
    FoldBlocks: Array of TFoldingBlock;
+
+   cTagSelector: TTagSelector;
+   PotentialNTags: TNoteTagList;
+   CaretPosTag: integer;
+   TagSubstr: string;
+
+const
+   TagCharsDelimiters = [' ', ':', ',', #13, #9, '#'];
 
 
 implementation
@@ -473,6 +515,8 @@ begin
   }
   OnStartDrag := RxRTFStartDrag;    // See comment *4 in RxRichEd
   OnEndDrag   := RxRTFEndDrag;        // ,,
+
+  CreateTagSelector;
 end; // TKntRichEdit CREATE
 
 
@@ -2052,6 +2096,14 @@ begin
 end;
 
 
+function IsATag(const Word: string): boolean;
+begin
+  if (Word = '') or (Word[1] <> '#') then
+     exit(False);
+  Result:=  (ActiveFile.GetNTagByName(Copy(Word,2)) <> nil);
+end;
+
+
 function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
 var
    i: integer;
@@ -2071,12 +2123,7 @@ begin
      end;
    end;
 
-
-   // ToDO.. Maintenance...
-   // ToDO Token case treatment...
-
-   // Some TESTs:
-   if (OpeningToken = '#ToDO') or (IgnoreTagCase and (OpeningToken.ToUpper = '#TODO')) then begin
+   if IsATag(OpeningToken) then begin
       Result:= True;
       IsTag:= True;
       CaseSens:= False;
@@ -2084,13 +2131,6 @@ begin
 
 end;
 
-function IsTag(const Word: string): boolean;
-var
-  ClosingToken: string;
-  CaseSens: boolean;
-begin
-  GetClosingToken(Word, ClosingToken, CaseSens, Result, True);
-end;
 
 procedure TKntRichEdit.Fold (SelectedText: boolean);
 var
@@ -2751,6 +2791,60 @@ begin
      exit;
   end;
 
+
+  case SelectingTagsMode of
+     stNoTags:
+        if key = '#' then begin
+           CaretPosTag:= SelStart;
+           var StartTag: boolean:= False;
+           if (CaretPosTag = 0) then
+              StartTag:= True
+           else begin
+              var ch: Char:= GetTextRange(CaretPosTag-1, CaretPosTag)[1];
+              if ((ch <> '#') and (ch in TagCharsDelimiters)) then
+                StartTag:= True
+           end;
+           if StartTag then begin
+              cTagSelector.ControlUI:= Self;
+              SelectingTagsMode := stHashTyped;
+           end;
+        end;
+
+     stHashTyped:
+        if not (key in TagCharsDelimiters) then begin
+           SelectingTagsMode:= stWithTagSelector;
+           TagSubstr:= Key;
+           UpdateTagSelector;
+        end
+        else
+           SelectingTagsMode := stNoTags;
+
+     stWithTagSelector, stWithoutTagSelector:
+         if Key = Char(VK_BACK) then
+            delete(TagSubstr, Length(TagSubstr), 1);
+
+      stTagSelected:
+         begin
+            BeginUpdate;
+            SetSelection(CaretPosTag+1, SelStart, true);
+            SelText:= TagSubstr;
+            SelStart:= CaretPosTag+1 + Length(TagSubstr);
+            SelLength:= 0;
+            EndUpdate;
+            if key in [#13, ':'] then begin
+               EndTagIntroduction;
+               key:= ' ';
+            end
+            else begin
+               SelectingTagsMode := stWithTagSelector;
+               key:= #0;
+               exit;
+            end;
+         end;
+
+  end;
+
+
   posBegin:= 0;     // To avoid compiler warning on SelStart:= posBegin (but really no necessary)
 
   case key of
@@ -2879,6 +2973,8 @@ var
 begin
   if FUpdating > 0 then exit;
   if FIgnoreSelectionChange then exit;
+  if SelectingTagsMode <> stNoTags then
+     CheckEndTagIntroduction;
 
   App.Kbd.RTFUpdating := true;
   try
@@ -5358,9 +5454,397 @@ begin
 end; // WordWebLookup
 
 
+//----------------------------------------
+
+const
+   MARGIN_LEFT_TAGSEL_TV = 10;
+
+procedure CreateTagSelector;
+begin
+  if cTagSelector <> nil then exit;
+
+  cTagSelector:= TTagSelector.CreateNew(Form_Main);
+end;
+
+
+procedure UpdateTagSelector;
+var
+  MaxNameWidth, MaxDescWidth: integer;
+  Node: PVirtualNode;
+begin
+   if TagSubstr <> '' then
+      ActiveFile.UpdateNTagsMatching(TagSubstr, PotentialNTags);
+
+   if (TagSubstr <> '') and (PotentialNTags.Count > 0) then begin
+      GetMaxWidth(PotentialNTags, MaxNameWidth, MaxDescWidth);
+      ShowTagSelector(MaxNameWidth, MaxDescWidth);
+      with cTagSelector do begin
+         TV.RootNodeCount := PotentialNTags.Count;
+         Node:= TV.GetFirst;
+         TV.FocusedNode:= Node;
+         TV.ClearSelection;
+         TV.Selected[Node] := True;
+         TV.Invalidate;
+      end;
+   end
+   else begin
+     cTagSelector.Visible:= False;
+     SelectingTagsMode := stWithoutTagSelector;
+   end;
+end;
+
+
+procedure CloseTagSelector;
+begin
+   if cTagSelector.Visible then
+      cTagSelector.Visible:= False;
+   if PotentialNTags <> nil then
+      PotentialNTags.Clear;
+   PotentialNTags:= nil;
+end;
+
+
+procedure CheckEndTagIntroduction;
+var
+   SS, EndRange: integer;
+   Editor: TRxRichEdit;
+   Txt: string;
+const
+   MAX_LENGTH = 65;
+
+   function GetTagSubstr: string;
+   var
+      i: integer;
+   begin
+      Result:= '';
+      for i:= 2 to Length(Txt) do begin
+         if Txt[i] in TagCharsDelimiters then begin
+            Result:= Copy(Txt, 2, i-2);
+            exit;
+         end;
+      end;
+   end;
+
+begin
+   if cTagSelector.ControlUI is TRxRichEdit then begin
+      Editor:= TRxRichEdit(cTagSelector.ControlUI);
+      SS:= Editor.SelStart;
+      if (SelectingTagsMode = stHashTyped) and (SS = CaretPosTag+1) or
+         (SS = CaretPosTag) and (Editor.GetTextRange(SS, SS+1) = '#') then
+         exit;
+      EndRange:= SS;
+      if (SS < CaretPosTag) or (SS > CaretPosTag + MAX_LENGTH) then
+         EndRange:= CaretPosTag + MAX_LENGTH;
+      Txt:= Editor.GetTextRange(CaretPosTag, EndRange);
+   end;
+
+   if (Txt <> '') and (Txt[1] = '#') then begin
+      if (SS < CaretPosTag) then
+         Txt:= Txt + ' ';    // If the label is written right at the end and the cursor is moved to the left of # -> we will add it
+      Txt:= GetTagSubstr;
+      if Txt <> '' then begin
+         TagSubstr:= Txt;
+         EndTagIntroduction;
+      end
+      else begin
+         Txt:= Editor.GetTextRange(CaretPosTag, SS + MAX_LENGTH) + ' ';
+         Txt:= GetTagSubstr;              // GetTagSubstr uses Txt..
+         if Txt <> TagSubstr then begin
+            TagSubstr:= Txt;
+            UpdateTagSelector;
+         end;
+      end;
+   end
+   else begin
+      SelectingTagsMode:= stNoTags;
+      CloseTagSelector;
+   end;
+end;
+
+
+procedure EndTagIntroduction;
+begin
+   CloseTagSelector;
+   if TagSubstr <> '' then begin
+      if TagSubstr[Length(TagSubstr)] = '.' then
+         delete(TagSubstr, Length(TagSubstr), 1);
+      ActiveFile.AddNTag(TagSubstr, 'Description with possible alias, ... ');
+   end;
+   TagSubstr:= '';
+   SelectingTagsMode:= stNoTags;
+end;
+
+
+var
+  CursorBeginPosTag: TPoint;
+  FontHeight, SpaceBef: integer;
+
+
+
+procedure GetMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
+var
+  i: integer;
+  NTag: TNoteTag;
+  W, iName, iDesc: integer;
+begin
+  // -> Approximated widths
+  MaxNameWidth:= 0;             // We will initially store the maximum length of the strings, not the width...
+  MaxDescWidth:= 0;
+  if NTags <> nil then begin
+     for i := 0 to NTags.Count-1 do begin
+        NTag:= NTags[i];
+        W:= Length(NTag.Name);
+        if W > MaxNameWidth then begin
+           MaxNameWidth:= W;
+           iName:= i;
+        end;
+
+        if NTag.Description <> '' then begin
+           W:= Length(NTag.Description);
+           if W > MaxDescWidth then begin
+              MaxDescWidth:= W;
+              iDesc:= i;
+           end;
+        end;
+     end;
+  end;
+  MaxNameWidth:= cTagSelector.TV.Canvas.TextWidth(NTags[iName].Name) + 20;
+  MaxDescWidth:= cTagSelector.TV.Canvas.TextWidth(NTags[iDesc].Description) + 20;
+end;
+
+
+procedure ShowTagSelector(WidthName, WidthDesc: integer);
+var
+  CursorPos: TPoint;
+  SS, SL: integer;
+  NumItems, SelectorHeight, ScrollW: integer;
+  MarginR: integer;
+  Editor: TKntRichEdit;
+begin
+
+   if not cTagSelector.Visible then begin
+      if cTagSelector.ControlUI is TKntRichEdit then begin
+         Editor:= TKntRichEdit(cTagSelector.ControlUI);
+         with Editor do begin
+             CursorPos:= ClientToScreen(GetCharPos(SelStart));
+             BeginUpdate;
+             SS:= SelStart;
+             SL:= SelLength;
+             SelLength:= 1;
+             FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
+             SetSelection(SS, SS+SL, True);
+             SpaceBef:= Paragraph.SpaceBefore;
+             SpaceBef:= TwipsToPixels(SpaceBef, Screen.PixelsPerInch);
+             EndUpdate;
+         end;
+      end;
+      CursorBeginPosTag:= CursorPos;
+   end
+   else
+      CursorPos:= CursorBeginPosTag;
+
+
+    ScrollW:= 0;
+    MarginR:= MARGIN_LEFT_TAGSEL_TV;
+    NumItems:= PotentialNTags.Count;
+
+    if NumItems > 10 then begin
+       NumItems:= 10;
+       ScrollW:= cTagSelector.ControlUI.GetSystemMetrics(SM_CXVSCROLL) + 5;
+       MarginR:= ScrollW;
+    end;
+
+    SelectorHeight:= (NumItems * cTagSelector.TV.DefaultNodeHeight) + 4;
+    cTagSelector.Height:= SelectorHeight;
+    cTagSelector.TV.Height:= SelectorHeight-4;
+
+    cTagSelector.Width:= WidthName + WidthDesc + MARGIN_LEFT_TAGSEL_TV + MarginR;
+    cTagSelector.TV.Width:= WidthName + WidthDesc + ScrollW;
+    cTagSelector.TV.Header.Columns[0].Width:= WidthName;
+    cTagSelector.TV.Header.Columns[1].Width:= WidthDesc;
+    cTagSelector.TV.Top:= 2;
+    cTagSelector.TV.Left:= MARGIN_LEFT_TAGSEL_TV;
+
+    if (CursorPos.X + cTagSelector.Width - MARGIN_LEFT_TAGSEL_TV) > Screen.WorkAreaRect.Right then
+        cTagSelector.Left:= CursorPos.X + (Screen.WorkAreaRect.Right -(CursorPos.X + cTagSelector.Width - MARGIN_LEFT_TAGSEL_TV))
+    else
+        cTagSelector.Left:= CursorPos.X - MARGIN_LEFT_TAGSEL_TV;
+
+    if (CursorPos.Y + SelectorHeight + 1.5 * FontHeight) > Screen.WorkAreaRect.Bottom   then
+       cTagSelector.Top:= CursorPos.Y - SelectorHeight - Round(1.5 * FontHeight)- SpaceBef
+    else
+       cTagSelector.Top:= CursorPos.Y + Round(1.5 * FontHeight) + SpaceBef;
+
+    if not cTagSelector.Visible then begin
+       cTagSelector.Visible:= True;
+       cTagSelector.BringToFront;
+    end;
+end;
+
+
+
+const
+  DWMWA_NCRENDERING_POLICY = 2;
+  DWMNCRP_ENABLED = 2;
+
+var
+  DWMShadowAvailable: Boolean = True;       // Global variable to avoid repeating failed attempts
+
+
+procedure EnableShadow(FormHandle: HWND);
+var
+  AttrValue: Integer;
+begin
+  if not DWMShadowAvailable then Exit;
+  try
+    AttrValue := DWMNCRP_ENABLED;    // Enable non-client rendering
+    DwmSetWindowAttribute(FormHandle, DWMWA_NCRENDERING_POLICY, @AttrValue, SizeOf(AttrValue));
+  except
+    DWMShadowAvailable := False;
+  end;
+end;
+
+
+constructor TTagSelector.CreateNew(AOwner: TComponent; Dummy: Integer);
+begin
+   inherited CreateNew(AOwner, Dummy);     // This prevents the .dfm from being loaded (as if it tries to do inherited Create, which would give an error)
+
+   ShowingCaretInExternalControl:= False;
+   BorderStyle:= bsSingle;
+   FormStyle := fsStayOnTop;
+   PopupParent := Application.MainForm;     // Prevent it from appearing in the taskbar and keep focus on the main application
+
+   StyleElements:= [];
+   Font.Name := 'Tahoma';
+   Font.Size:= 10;
+   Color:= clWhite;
+   Ctl3D:= false;
+   OnActivate:= Selector_OnActivate;
+
+   TV:= TVirtualStringTree.Create(Form_Main);
+   with TV do begin
+     Parent:= Self;
+     BorderStyle:= bsNone;
+     Anchors:= [];
+     WantTabs:= True;
+     OnGetText:= TV_GetText;
+     OnPaintText:= TV_PaintText;
+     OnKeyDown := TV_KeyDown;
+     OnKeyPress := TV_KeyPress;
+     TreeOptions.PaintOptions := [toThemeAware];
+     ScrollBarOptions.ScrollBars:= ssVertical;
+   end;
+
+   with TV.Header do begin
+       with Columns.Add do
+           Position:= 0;
+       with Columns.Add do
+           Position:= 1;
+       MainColumn:= 0;
+   end;
+
+   Self.OnDeactivate:= DeactivedForm;
+
+   Visible:= false;
+   EnableShadow(Self.Handle);    // Activate the shadow once the window is already created
+end;
+
+
+procedure TTagSelector.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.Style := WS_POPUP or WS_BORDER;                                     // Keep borders without title or buttons
+  Params.ExStyle := Params.ExStyle or WS_EX_LAYERED or WS_EX_TOOLWINDOW;
+end;
+
+
+destructor TTagSelector.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure KeepCaretVisible(RichEditHandle: HWND);
+begin
+  // Ensure that the caret continues to be displayed even if the RichEdit does not have focus
+  PostMessage(RichEditHandle, WM_KILLFOCUS, 0, 0);
+  PostMessage(RichEditHandle, WM_SETFOCUS, 0, 0);
+  ShowCaret(RichEditHandle);
+end;
+
+procedure TTagSelector.Selector_OnActivate(Sender: TObject);
+var
+  Editor: TKntRichEdit;
+begin
+  if cTagSelector.ControlUI is TKntRichEdit then begin
+     Editor:= TKntRichEdit(cTagSelector.ControlUI);
+     ShowingCaretInExternalControl:= True;
+     KeepCaretVisible(Editor.Handle);
+  end;
+end;
+
+procedure TTagSelector.TV_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+var
+  NTag: TNoteTag;
+begin
+   NTag:= PotentialNTags[Node.Index];
+   case Column of
+     -1, 0: CellText:= NTag.Name;
+         1: CellText:= NTag.Description;
+    end;
+end;
+
+procedure TTagSelector.TV_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
+var
+  Color: TColor;
+  NTag: TNoteTag;
+begin
+   if TV.Selected[Node] and (Column <= 0) then exit;
+   NTag:= PotentialNTags[Node.Index];
+   if not AnsiStartsText(TagSubstr, NTag.Name) then
+      TargetCanvas.Font.Color := $FF4D4D;
+end;
+
+procedure TTagSelector.TV_KeyPress(Sender: TObject; var Key: Char);
+begin
+  if key in [#13, #9, ':'] then begin
+     TagSubstr:= PotentialNTags[TV.FocusedNode.Index].Name;
+     SelectingTagsMode:= stTagSelected;
+  end;
+  if (Key >= #32) or (key in [#13, #9]) then
+     PostMessage(ControlUI.Handle, WM_CHAR, Word(Key), 0);
+end;
+
+procedure TTagSelector.TV_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key in [VK_ESCAPE, VK_BACK, VK_DELETE, VK_LEFT, VK_RIGHT, VK_HOME, VK_END] then begin
+    if key = VK_ESCAPE then begin
+       SelectingTagsMode:= stWithoutTagSelector;
+       CloseTagSelector;
+       Key:= 0;
+    end
+    else begin
+       PostKeyEx( ControlUI.Handle, Key, Shift, False );
+       Key:= 0;
+    end;
+  end;
+end;
+
+
+procedure TTagSelector.DeactivedForm(Sender: TObject);
+begin
+   if (SelectingTagsMode = stWithTagSelector) and not ShowingCaretInExternalControl then begin
+      SelectingTagsMode:= stNoTags;
+      CloseTagSelector;
+   end;
+   ShowingCaretInExternalControl:= False;
+end;
+
 
 Initialization
    ShowingSelectionInformation:= false;
+   cTagSelector:= nil;
+   PotentialNTags:= nil;
+
 
 end.
 

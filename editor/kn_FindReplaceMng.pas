@@ -1318,7 +1318,7 @@ type
                   if (FirstWord <> '') and (FirstWord[Length(FirstWord)] = ':') then
                      delete(FirstWord, Length(FirstWord), 1);
 
-                  if (FirstWord <> '') and IsTag(FirstWord) then
+                  if (FirstWord <> '') and IsATag(FirstWord) then
                      exit;
                end;
             end;

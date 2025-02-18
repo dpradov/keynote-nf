@@ -229,7 +229,7 @@ type
     nesIsSummary,      // Only one entry can be used as Summary in a note
     nesIsStarred,
     nesIsDoc,
-  //-- 
+  //--
     nesIsToDO,
     nesIsRequirements
   );
@@ -237,12 +237,22 @@ type
   TNoteEntryStates = set of TNoteEntryState;
 
 
-  TNoteTag = class(TObject)                        // TODO
+  TNoteTag = class(TObject)
   private
-    fTagID : Cardinal;
+    fID : Cardinal;
     fName : string;
-    fAlias : TAliasArray;
+    fDescription: string;
+    //fAlias : TAliasArray;
+
+  protected
+    procedure SetID( ID : Cardinal );
   public
+    constructor Create;
+    destructor Destroy; override;
+
+    property ID : Cardinal read fID write SetID;
+    property Name : String read fName write fName;
+    property Description : String read fDescription write fDescription;
   end;
 
 
@@ -1324,6 +1334,38 @@ procedure TNoteNode.StringToStates(HexStr: string);
 begin
    IntToSet(StrToIntDef('$' + HexStr, 0), States, SizeOf(TNoteNodeStates));
 end;
+
+{$ENDREGION }
+
+
+// =========================================================================================================
+//     TNoteTag
+// =========================================================================================================
+
+{$REGION TNoteTag }
+
+constructor TNoteTag.Create;
+begin
+  inherited Create;
+
+  fID := 0;
+  fName := '';
+  fDescription := '';
+end;
+
+
+destructor TNoteTag.Destroy;
+begin
+  inherited Destroy;
+end;
+
+
+procedure TNoteTag.SetID( ID : Cardinal );
+begin
+  if ( fID = 0 ) then
+    fID := ID;
+end;
+
 
 {$ENDREGION }
 

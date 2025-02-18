@@ -89,6 +89,7 @@ type
 
     FPageCtrl : TPage95Control;
 
+    fNoteTags: TNoteTagList;
     fFolders: TFolderList;
     fNotes: TNoteList;
     fNextNNodeGID: Cardinal;     // Global ID of next note node to be created
@@ -179,6 +180,7 @@ type
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     function  Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
     procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
+    procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string; List: TStringList);
     function  ConvertKNTLinksToNewFormatInNotes(NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
@@ -199,6 +201,21 @@ type
     procedure RemoveImagesCountReferences (Note: TNote); overload;
     procedure UpdateImagesCountReferences (myFolder: TKntFolder); overload;
     procedure UpdateImagesCountReferences (Note: TNote); overload;
+
+
+  private
+    function InternalAddNTag( NTag : TNoteTag ) : integer;
+    procedure VerifyNTagsIds;
+    procedure GenerateNTagID( ANTag : TNoteTag );
+  public
+    property NoteTags: TNoteTagList read fNoteTags;
+    function GetNTagByID( const aID : Cardinal ) : TNoteTag;
+    function GetNTagByName( const aName : string ) : TNoteTag;
+    function AddNTag(const Name, Description : string) : integer;
+    procedure DeleteNTag( NTag : TNoteTag );
+    function GetNTagsCount : integer;
+    function CheckNTagsSorted: boolean;
+    procedure UpdateNTagsMatching(const Str : string; var NTags: TNoteTagList);
 
 
   public
@@ -290,6 +307,7 @@ begin
   fNotesSorted:= true;
   SetVersion;
 
+  fNoteTags:= TNoteTagList.Create;
   fFolders := TFolderList.Create;
   fNotes := TNoteList.Create;
 
@@ -307,6 +325,11 @@ var
    i: integer;
 begin
   IsBusy:= True;
+
+  if fNoteTags <> nil then begin
+     fNoteTags.Free;
+     fNoteTags:= nil;
+  end;
 
   if fFolders <> nil then begin
      for i := 0 to fFolders.Count-1 do begin
@@ -1143,7 +1166,7 @@ var
                Digits:= true;
                break;
             end;
-         
+
          if not Digits then 
             exit;
 
@@ -1163,7 +1186,7 @@ var
             str:= StringReplace(str, LongDateSeparator,' ', [rfReplaceAll]);
             Result:= StrToDateTimeDef(str, 0, DateFormatSts[High(DateFormatSts)]);
          end;
-      
+
      except
      end;
   end;
@@ -1183,7 +1206,7 @@ begin
 
   if App.DoMessageBox (msg + GetRS(sFile23) + GetRS(sFile24), mtWarning, [mbYes, mbNo, mbCancel]) <> mrYes then exit;
 
-  
+
   PrepareDateFormatSettings;
   RTFAux:= CreateAuxRichEdit;
   
@@ -1203,7 +1226,7 @@ begin
            continue;
         
         LastModif:= 0;
-        
+
         if (N.DateCreated = 0) or RemoveDateFromName or ForceReconsidere then begin
            
            if (N.DateCreated = 0) or ForceReconsidere then begin     // Search in note content
@@ -1517,6 +1540,234 @@ end;
 
 
 {$ENDREGION }
+
+
+// Note Tags  =========================================
+
+{$REGION Note Tags }
+
+function CompareNTagsByID(Item1, Item2: Pointer): Integer;
+var
+  T1, T2: TNoteTag;
+begin
+  T1:= TNoteTag(Item1);
+  T2:= TNoteTag(Item2);
+
+  Result:= 1;               //  N1.GID > N2.GID
+  if T1.ID = T2.ID then
+     Result:= 0
+  else
+  if T1.ID < T2.ID then
+     Result:= -1;
+end;
+
+
+function CompareNTagsByNameAndDesc(Item1, Item2: Pointer): Integer;
+var
+  T1, T2: TNoteTag;
+  T1s, T2s: boolean;
+begin
+  T1:= TNoteTag(Item1);
+  T2:= TNoteTag(Item2);
+
+  T1s:= AnsiStartsText(TagSubstr, T1.Name);
+  T2s:= AnsiStartsText(TagSubstr, T2.Name);
+  if T1s then begin
+     if T2s then
+        Result:= AnsiCompareText( T1.Name, T2.Name)
+     else
+        Result:= -1;
+  end
+  else
+  if T2s then
+     Result:= 1
+  else
+     Result:= AnsiCompareText( T1.Name, T2.Name );
+end;
+
+
+function TKntFile.GetNTagByID( const aID : Cardinal ) : TNoteTag;
+var
+  i, j, T : Cardinal;
+  NTag: TNoteTag;
+begin
+   result := nil;
+   if (aID = 0) or (NoteTags.Count = 0) then exit;
+
+   T:= NoteTags.Count - 1;
+   i:= aID -1;
+   if i > T then
+      i:= T;
+
+   NTag:= NoteTags[i];
+   if NTag.ID = aID then
+       exit(NTag);
+
+   if aID > NTag.ID then begin
+      for j := i to T do
+         if NoteTags[j].ID = aID then
+            exit(NoteTags[j]);
+   end
+   else begin
+      for j := i downto 0 do
+         if NoteTags[j].ID = aID then
+            exit(NoteTags[j]);
+   end;
+
+   exit(nil);
+end;
+
+
+function TKntFile.GetNTagByName( const aName : string ) : TNoteTag;
+//  NOT case-sensitive
+var
+  i: integer;
+  NTag: TNoteTag;
+begin
+  result := nil;
+  if (NoteTags.Count = 0) then exit;
+
+  for i := 0 to NoteTags.Count-1 do begin
+     NTag:= NoteTags[i];
+     if ( AnsiCompareText( NTag.Name, aName ) = 0 ) then
+        exit(NTag);
+  end;
+
+end;
+
+
+procedure TKntFile.UpdateNTagsMatching(const Str : string; var NTags: TNoteTagList);
+//  NOT case-sensitive
+var
+  i: integer;
+  NTag: TNoteTag;
+begin
+   if NTags = nil then
+      NTags:= TNoteTagList.Create;
+
+   NTags.Clear;
+   if Length(Str) < 3 then begin
+      for i := 0 to NoteTags.Count-1 do begin
+         NTag:= NoteTags[i];
+         if AnsiStartsText(Str, NTag.Name) then
+            NTags.Add(NTag);
+      end;
+   end
+   else begin
+      for i := 0 to NoteTags.Count-1 do begin
+         NTag:= NoteTags[i];
+         if AnsiContainsText(NTag.Name, Str) or AnsiContainsText(NTag.Description, Str) then
+            NTags.Add(NTag);
+      end;
+   end;
+   NTags.Sort(CompareNTagsByNameAndDesc);
+end;
+
+
+
+function TKntFile.InternalAddNTag( NTag : TNoteTag ) : integer;
+begin
+  result := NoteTags.Add( NTag );
+end;
+
+
+function TKntFile.AddNTag(const Name, Description : string) : integer;
+var
+   NTag: TNoteTag;
+begin
+  result := -1;
+  if Name = '' then exit;
+
+  if GetNTagByName(Name) = nil then begin
+     NTag:= TNoteTag.Create;
+     InternalAddNTag( NTag );
+     GenerateNTagID( NTag );
+     NTag.Name:= Name;
+     NTag.Description:= Description;
+     Modified := true;
+  end;
+end;
+
+
+procedure TKntFile.DeleteNTag( NTag : TNoteTag );
+begin
+  if NTag = nil then exit;
+
+  fNoteTags.Remove(NTag);
+  NTag.Free;
+  Modified := true;
+end;
+
+procedure TKntFile.VerifyNTagsIds;
+var
+  i: integer;
+  hID: Cardinal;
+  NTag: TNoteTag;
+begin
+  hID:= 0;
+  for i := 0 to NoteTags.Count-1 do begin
+     NTag := NoteTags[i];
+     if NTag.ID <= 0 then begin
+        if hID > 0 then begin
+           inc(hID);
+           NTag.ID:= hID;
+        end
+        else begin
+           GenerateNTagID(NTag);
+           hID:= NTag.ID;
+        end;
+     end;
+  end;
+end;
+
+
+procedure TKntFile.GenerateNTagID( ANTag : TNoteTag );
+var
+  i: integer;
+  hiID : Cardinal;
+  NTag : TNoteTag;
+begin
+  hiID := 0;
+
+  for i := 0 to NoteTags.Count-1 do begin
+     NTag := NoteTags[i];
+     if NTag.ID > hiID then
+        hiID := NTag.ID; // find highest ID
+  end;
+
+  inc( hiID ); // make it one higher
+  ANTag.ID := hiID;
+end;
+
+
+function TKntFile.GetNTagsCount : integer;
+begin
+  if assigned( fNoteTags ) then
+    result := fNoteTags.Count
+  else
+    result := 0;
+end;
+
+function TKntFile.CheckNTagsSorted: boolean;
+var
+  i: integer;
+  lastID : Cardinal;
+  T: TNoteTag;
+begin
+  Result:= True;
+  lastID:= 0;
+  for i := 0 to NoteTags.Count-1 do begin
+     T:= NoteTags[i];
+     if T.ID <= lastID then
+        exit(False);
+     lastID:= T.ID;
+  end;
+end;
+
+
+
+{$ENDREGION }
+
 
 
 // Images  =========================================
@@ -2320,6 +2571,16 @@ begin
 
   FModified := false;
 
+end;
+
+
+procedure TKntFile.LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
+begin
+  // ToDO
+  if not CheckNTagsSorted then
+    NoteTags.Sort(CompareNTagsByID);
+
+  FModified := false;
 end;
 
 
