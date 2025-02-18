@@ -217,6 +217,7 @@ type
     procedure ReconsiderImageDimensionGoals(Selection: boolean; ImagesMode: TImagesMode);
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode; ReconsiderDimensionsGoal: boolean); overload;
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode); overload;
+    function EnsureGetRtfSelText: AnsiString;
     procedure Fold (SelectedText: boolean);
     procedure Unfold;
 
@@ -353,6 +354,7 @@ uses
    kn_ImagesUtils,
    kn_MacroMng,
    kn_NoteFileMng,
+   kn_KntFolder,
    kn_Cmd,
    kn_StyleObj,
    kn_CharsNew,
@@ -2201,7 +2203,7 @@ begin
          SetSelection(SS, pF+1, false);
       end;
 
-      RTFIn:= RtfSelText;
+      RTFIn:= EnsureGetRtfSelText;
       PrepareRTFtoBeFolded(RTFIn, RTFOut, AddEndGenericBlock, MinLenExtract);
       RtfSelText:= RTFOut;
 
@@ -2226,13 +2228,23 @@ begin
    if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
       BeginUpdate;
       SetSelection(pI, pF+1, false);
-      RTFIn:= RtfSelText;
+      RTFIn:= EnsureGetRtfSelText;
       PrepareRTFtoBeExpanded(RTFIn, RTFOut);
       FUnfolding:= True;
       RtfSelText:= RTFOut;
       FUnfolding:= False;
       SelStart:= pI-1;
       EndUpdate;
+   end;
+end;
+
+
+function TKntRichEdit.EnsureGetRtfSelText: AnsiString;
+begin
+   Result:= RtfSelText;
+   if (NNodeObj <> nil) and (Copy(Result, 1, 6 ) <> '{\rtf1') then begin
+      TKntFolder(FolderObj).SaveEditorToDataModel;
+      Result:= RtfSelText;
    end;
 end;
 
