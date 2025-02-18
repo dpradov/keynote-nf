@@ -1423,7 +1423,7 @@ begin
      TargetCanvas.Font.Style := TargetCanvas.Font.Style + [fsBold];
 
   Color:= clNone;
-  if fFindFilterApplied and NNode.FindFilterMatch then
+  if fFindFilterApplied and NNode.FindFilterMatch and not (TV.Selected[Node] and (Column <= 0)) then
      Color:= clBlue
   else
      Color:= NNode.NodeColor;
