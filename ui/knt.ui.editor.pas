@@ -2146,7 +2146,7 @@ var
   MinLenExtract: integer;
 
 begin
-   if CheckReadOnly then exit;
+   if CheckReadOnly or PlainText then exit;
 
    BeginUpdate;
    try

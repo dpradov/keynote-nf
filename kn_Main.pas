@@ -7201,7 +7201,8 @@ begin
     MMInsertObject.Enabled:= SupportsRTF;
 
     RTFMPlainText.Checked:= not SupportsRTF;
-
+    RTFMFold.Enabled:= SupportsRTF;
+    RTFMUnfold.Enabled:= SupportsRTF;
 end;
 
 procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean);
