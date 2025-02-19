@@ -2301,6 +2301,9 @@ begin
                else if NextBlock = nbNotes then
                    LoadNotes(tf, FileExhausted, NextBlock)
 
+               else if NextBlock = nbTags then
+                   LoadNoteTags(tf, FileExhausted, NextBlock)
+
                else begin
                    case NextBlock of
                      nbRTF, nbTree  : Folder := TKntFolder.Create(Self);
@@ -2575,12 +2578,55 @@ end;
 
 
 procedure TKntFile.LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
+var
+  s, key : AnsiString;
+  p: Integer;
+  NTag: TNoteTag;
 begin
-  // ToDO
-  if not CheckNTagsSorted then
-    NoteTags.Sort(CompareNTagsByID);
+   NTag:= nil;
 
-  FModified := false;
+   while ( not tf.eof()) do begin
+      s:= tf.readln();
+
+      if ( s = _NF_StoragesDEF ) then begin
+        NextBlock:= nbImages;         // Images definition begins
+        break;
+      end;
+      if ( s = _NF_EOF ) then begin
+        FileExhausted := true;
+        break; // END OF FILE
+      end;
+
+      p := pos('=', s );
+      if p <> 3 then continue;  // not a valid key=value format
+      key := copy(s, 1, 2);
+      delete(s, 1, 3);
+
+      if ( key = _TagID ) then begin
+          if (NTag <> nil) and (NTag.Name <> '') then
+             Self.InternalAddNTag(NTag);
+          NTag:= TNoteTag.Create;
+          NTag.ID:= StrToUIntDef(s, 0);
+      end
+      else
+      if ( key = _TagName ) then begin
+         if NTag = nil then                        // It wouldn't be normal..
+            NTag:= TNoteTag.Create;
+         NTag.Name:= TryUTF8ToUnicodeString(s);
+      end
+      else
+      if ( key = _TagDescription ) then begin
+         if NTag = nil then                        // It wouldn't be normal..
+            NTag:= TNoteTag.Create;
+         NTag.Description:= TryUTF8ToUnicodeString(s);
+      end
+   end;
+
+   if (NTag <> nil) and (NTag.Name <> '') then
+      Self.InternalAddNTag(NTag);
+
+   if not CheckNTagsSorted then
+      NoteTags.Sort(CompareNTagsByID);
 end;
 
 
@@ -2813,6 +2859,7 @@ var
   var
      i: integer;
      ClipCapOnFolder: TKntFolder;
+     NTag: TNoteTag;
   begin
     //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
     if FFileFormat = nffKeyNote then begin
@@ -2842,7 +2889,7 @@ var
        end;
     end;
 
-   
+
     if ExportingMode then begin
        NotesToSave:= TNoteList.Create;
        for i := 0 to FFolders.Count -1 do
@@ -2879,7 +2926,20 @@ var
 
     SerializeBookmarks(tf);
 
-    Log_StoreTick( 'After saving Folders', 1 );
+    // Save Tags
+    if NoteTags.Count > 0 then begin
+       tf.WriteLine(_NF_Tags);
+       for i := 0 to NoteTags.Count -1 do begin
+          NTag:= NoteTags[i];
+          tf.WriteLine(_TagID + '=' + NTag.ID.ToString);
+          tf.WriteLine(_TagName + '=' + NTag.Name);
+          if NTag.Description <> '' then
+             tf.WriteLine(_TagDescription + '=' + NTag.Description);
+       end;
+    end;
+
+
+    Log_StoreTick( 'After saving Folders, bookmarks and tags', 1 );
 
 
     if SaveImages then begin

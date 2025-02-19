@@ -305,6 +305,7 @@ const
   _NF_EmbeddedIMAGES  = '%EI';
   _NF_Bookmarks       = '%BK';
   _NF_Bookmark        = 'BK';
+  _NF_Tags            = '%T';
 
 
 const
@@ -420,7 +421,8 @@ type
     nbRTF,        // = ntRTF                  (old knt files)
     nbTree,       // = ntTree                 (= Folder)
     nbImages,     // = Images Definition
-    nbBookmarks
+    nbBookmarks,
+    nbTags
   );
   //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
   TNoteNameStr = string;
@@ -952,6 +954,12 @@ const
   _NodeDC_DM = 'NT';        // Used in Keynote v.1.6.9: creation and modification dates of nodes
                             // NT=YYYYMMDDtHHMMSS.YYYYMMDDtHHMMSS
                             // Example: NT=20200113T115321.20241211T115236
+
+   // Tokens for Tags
+  _TagID = 'ID';
+  _TagName = 'TN';
+  _TagDescription = 'TD';
+
 
 const
   // special FlagsStr constant characters
