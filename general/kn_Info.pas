@@ -724,6 +724,7 @@ type
     ShowScratch : boolean;
     ShowTemplate : boolean;
     ShowFavorites : boolean;
+    ShowTags : boolean;
     Stacked : boolean;
     TabOrientation : TTabOrientation;
   end;

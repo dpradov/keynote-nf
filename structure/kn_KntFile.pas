@@ -63,7 +63,6 @@ type
 type
   TBookmarks = array[0..MAX_BOOKMARKS] of TLocation;
 
-
 type
   TKntFile = class( TObject )
   private
@@ -90,6 +89,7 @@ type
     FPageCtrl : TPage95Control;
 
     fNoteTags: TNoteTagList;
+    fNoteTagsSorted: TNoteTagList;
     fFolders: TFolderList;
     fNotes: TNoteList;
     fNextNNodeGID: Cardinal;     // Global ID of next note node to be created
@@ -207,8 +207,10 @@ type
     function InternalAddNTag( NTag : TNoteTag ) : integer;
     procedure VerifyNTagsIds;
     procedure GenerateNTagID( ANTag : TNoteTag );
+    function GetNoteTagsSorted: TNoteTagList;
   public
     property NoteTags: TNoteTagList read fNoteTags;
+    property NoteTagsSorted: TNoteTagList read GetNoteTagsSorted;
     function GetNTagByID( const aID : Cardinal ) : TNoteTag;
     function GetNTagByName( const aName : string ) : TNoteTag;
     function AddNTag(const Name, Description : string) : integer;
@@ -216,6 +218,7 @@ type
     function GetNTagsCount : integer;
     function CheckNTagsSorted: boolean;
     procedure UpdateNTagsMatching(const Str : string; var NTags: TNoteTagList);
+    procedure SortNoteTags;
 
 
   public
@@ -307,6 +310,7 @@ begin
   fNotesSorted:= true;
   SetVersion;
 
+  fNoteTagsSorted:= nil;
   fNoteTags:= TNoteTagList.Create;
   fFolders := TFolderList.Create;
   fNotes := TNoteList.Create;
@@ -327,9 +331,16 @@ begin
   IsBusy:= True;
 
   if fNoteTags <> nil then begin
+     for i := 0 to fNoteTags.Count-1 do
+         fNoteTags[i].Free;
      fNoteTags.Free;
      fNoteTags:= nil;
   end;
+  if fNoteTagsSorted <> nil then begin
+     fNoteTagsSorted.Free;
+     fNoteTagsSorted:= nil;
+  end;
+
 
   if fFolders <> nil then begin
      for i := 0 to fFolders.Count-1 do begin
@@ -1561,6 +1572,11 @@ begin
      Result:= -1;
 end;
 
+function CompareNTagsByName(Item1, Item2: Pointer): Integer;
+begin
+  Result:= AnsiCompareText( TNoteTag(Item1).Name, TNoteTag(Item2).Name)
+end;
+
 
 function CompareNTagsByNameAndDesc(Item1, Item2: Pointer): Integer;
 var
@@ -1668,6 +1684,8 @@ end;
 function TKntFile.InternalAddNTag( NTag : TNoteTag ) : integer;
 begin
   result := NoteTags.Add( NTag );
+  if fNoteTagsSorted <> nil then
+     fNoteTagsSorted.Add(NTag);
 end;
 
 
@@ -1680,11 +1698,12 @@ begin
 
   if GetNTagByName(Name) = nil then begin
      NTag:= TNoteTag.Create;
-     InternalAddNTag( NTag );
-     GenerateNTagID( NTag );
      NTag.Name:= Name;
      NTag.Description:= Description;
+     InternalAddNTag( NTag );
+     GenerateNTagID( NTag );
      Modified := true;
+     App.TagsUpdated;
   end;
 end;
 
@@ -1694,8 +1713,11 @@ begin
   if NTag = nil then exit;
 
   fNoteTags.Remove(NTag);
+  if fNoteTagsSorted <> nil then
+     fNoteTagsSorted.Remove(NTag);
   NTag.Free;
   Modified := true;
+  App.TagsUpdated;
 end;
 
 procedure TKntFile.VerifyNTagsIds;
@@ -1764,6 +1786,23 @@ begin
   end;
 end;
 
+
+function TKntFile.GetNoteTagsSorted: TNoteTagList;
+var
+   i: integer;
+begin
+  if fNoteTagsSorted = nil then begin
+     fNoteTagsSorted:= TNoteTagList.Create;
+     for i := 0 to NoteTags.Count-1 do
+        fNoteTagsSorted.Add(NoteTags[i]);
+  end;
+  Result:= fNoteTagsSorted;
+end;
+
+procedure TKntFile.SortNoteTags;
+begin
+   NoteTagsSorted.Sort(CompareNTagsByName);
+end;
 
 
 {$ENDREGION }

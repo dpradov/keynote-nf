@@ -1016,7 +1016,7 @@ object Form_Main: TForm_Main
     Width = 210
     Height = 695
     Hint = 'Right-click for resource panel options'
-    ActivePage = ResTab_Find
+    ActivePage = ResTab_Tags
     Align = alRight
     FlatSeperators = False
     HotTrack = False
@@ -1041,7 +1041,6 @@ object Form_Main: TForm_Main
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 648
       object Panel_ResFind: TPanel
         Left = 0
         Top = 0
@@ -1789,6 +1788,37 @@ object Form_Main: TForm_Main
         TabOrder = 0
         OnClick = ListBox_ResFavClick
         OnDblClick = FavMJumpClick
+      end
+    end
+    object ResTab_Tags: TTab95Sheet
+      Caption = 'Tags'
+      GripAlign = gaLeft
+      ImageIndex = -1
+      StaticPageIndex = -1
+      TabVisible = True
+      ExplicitHeight = 648
+      DesignSize = (
+        202
+        649)
+      object TVTags: TVirtualStringTree
+        Left = 0
+        Top = 2
+        Width = 200
+        Height = 622
+        Anchors = [akLeft, akTop, akRight, akBottom]
+        Header.AutoSizeIndex = 0
+        Header.MainColumn = -1
+        TabOrder = 0
+        Columns = <>
+      end
+      object txtFilterTags: TEdit
+        Left = 0
+        Top = 628
+        Width = 200
+        Height = 21
+        TabStop = False
+        Anchors = [akLeft, akRight, akBottom]
+        TabOrder = 1
       end
     end
   end
@@ -4394,6 +4424,12 @@ object Form_Main: TForm_Main
       Tag = 5
       Caption = 'Fa&vorites Tab'
       Hint = 'Show or hide the "Favorites" tab'
+      OnClick = ResMPluginTabClick
+    end
+    object ResMTagsTab: TMenuItem
+      Tag = 6
+      Caption = 'Ta&gs Tab'
+      Hint = 'Show or hide the "Tags" tab'
       OnClick = ResMPluginTabClick
     end
   end

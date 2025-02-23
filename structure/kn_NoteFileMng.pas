@@ -455,6 +455,8 @@ begin
                App.ShowCurrentZoom(ActiveEditor.ZoomCurrent);       // If we don't do this and Scratchpad was visible, it will be displayed at its zoom (100)
             Log_StoreTick( 'After GetFileState and activate KntFolder', 1 );
             UpdateOpenFile;
+            App.TagsUpdated;
+            txtFilterTags.Text:= '';
           end;
 
           Log_StoreTick( 'After UpdateFolderDisplay, UpdateFileState', 1 );
@@ -1072,6 +1074,8 @@ begin
         AlarmMng.Clear;
         ImageMng.Clear;
         TKntTreeUI.ClearGlobalData;
+        App.TagsUpdated;
+        txtFilterTags.Text:= '';
 
         KntFile.IsBusy := false;
         screen.Cursor := crDefault;

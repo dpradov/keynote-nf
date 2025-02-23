@@ -1030,6 +1030,9 @@ const
    sVCL16 = 54400;   // paragraph formatting
    sVCL17 = 54401;   // font formatting
 
+   sTag1  = 55107;   // Name
+   sTag2  = 55108;   // Description
+
 
 implementation
 

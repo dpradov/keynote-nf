@@ -2707,5 +2707,7 @@ Button_OK.Caption=&Close
 55104_knt_RS_sFoldBl3=Error saving Folding Block list:
 55105_knt_RS_sFoldBl4=Error loading Folding Block list:
 55106_knt_RS_sOptS16=Folding Blocks
+55107_knt_RS_sTag1=Name
+55108_knt_RS_sTag2=Description
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

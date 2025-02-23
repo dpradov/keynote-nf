@@ -890,6 +890,13 @@ begin
              ListBox_ResFav.Items.Clear;
           if ( ListBox_ResFav.Items.Count = 0 ) then
             DisplayFavorites;
+        end
+        else
+        if ( Pages_Res.ActivePage = ResTab_Tags ) then begin
+           var TS: TTagsState:= App.TagsState;
+           App.TagsState := tsVisible;
+           if TS = tsPendingUpdate then
+              App.TagsUpdated;
         end;
 
      end
@@ -903,7 +910,12 @@ begin
         except
         end;
      end;
+
+     if ( Pages_Res.ActivePage <> ResTab_Tags ) and (App.TagsState = tsVisible) then
+         App.TagsState:= tsHidden;
+
   end;
+
 
 end; // UpdateResPanelContents
 

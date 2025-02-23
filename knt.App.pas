@@ -63,6 +63,7 @@ type
       RxRTFKeyProcessed : boolean;    // for TAB handling; some tabs are eaten by TRichEdit, others must not be
       RTFUpdating : boolean;          // TRUE while in RxRTFSelectionChange; some things cannot be done during that time
    end;
+   TTagsState = (tsHidden, tsPendingUpdate, tsVisible);
 
    TNNodeSelectedEvent = procedure(NNode: TNoteNode) of object;
    TFolderSelectedEvent = procedure(Folder: TKntFolder) of object;
@@ -107,6 +108,7 @@ type
 
       fVirtualUnEncryptWarningDone: boolean;
       fUI_RTL: boolean;
+      fTagsState: TTagsState;
 
       constructor Create;
       procedure Initialize;
@@ -167,6 +169,9 @@ type
 
       function CheckActiveEditor: boolean;
       function CheckActiveEditorNotReadOnly: boolean;
+
+      procedure TagsUpdated;
+      property TagsState: TTagsState read fTagsState write fTagsState;
 
       procedure ShowInfoInStatusBar(const str: string);
       procedure WarnEditorIsReadOnly;
@@ -304,6 +309,7 @@ begin
    IgnoringEditorChanges:= false;
    HandlingTimerTick:= false;
    UpdatingTextPlain:= false;
+   fTagsState:= tsPendingUpdate;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
@@ -823,6 +829,22 @@ begin
    ActiveFile:= aFile;
    ActiveFileIsBusy := false;
    AFileIsLoading:= false;
+end;
+
+procedure TKntApp.TagsUpdated;
+begin
+   if ActiveFile = nil then begin
+      Form_Main.TVTags.RootNodeCount:= 0;
+      exit;
+   end;
+
+   if App.TagsState = tsVisible then begin
+      ActiveFile.SortNoteTags;
+      Form_Main.TVTags.RootNodeCount:= ActiveFile.NoteTags.Count;
+      Form_Main.CheckFilterTags;
+   end
+   else
+      App.TagsState := tsPendingUpdate;
 end;
 
 

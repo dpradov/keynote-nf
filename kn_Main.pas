@@ -31,6 +31,7 @@ uses
    System.ImageList,
    System.Actions,
    System.DateUtils,
+   System.StrUtils,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -65,6 +66,10 @@ uses
    TopWnd,
    ColorPicker,
    VirtualTrees,
+   VirtualTrees.Types,
+   VirtualTrees.BaseTree,
+   VirtualTrees.BaseAncestorVCL,
+   VirtualTrees.AncestorVCL,
 
    kn_Info,
    kn_Msgs,
@@ -884,6 +889,10 @@ type
     RTFMUnfold: TMenuItem;
     CbFindFoldedMode: TComboBox;
     Label4: TLabel;
+    ResTab_Tags: TTab95Sheet;
+    TVTags: TVirtualStringTree;
+    txtFilterTags: TEdit;
+    ResMTagsTab: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1323,13 +1332,19 @@ type
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
 
+    procedure txtFilterTagsChange(Sender: TObject);
+    procedure SetupTagsTab;
+    procedure TVTags_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+    procedure TVTags_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
+  public
+    procedure CheckFilterTags;
+
   public
     Res_RTF: TKntRichEdit;
     ShortcutAltDownMenuItem: TMenuItem;
-	
+
     PrintDlg: TPrintDialog;
     PageSetupDlg : TPageSetupDialog;
-	
 
 
     procedure UpdateOpenFile;
@@ -1711,6 +1726,8 @@ begin
   Combo_Font.OnChange := nil;
   Combo_FontSize.OnClick := Combo_FontSizeClick;
   Combo_Zoom.OnClick := Combo_FontSizeClick;
+
+  SetupTagsTab;
 
   // Timer.Enabled := true;
   Application.OnDeactivate := AppDeactivate;
@@ -5366,6 +5383,107 @@ begin
   ConfigurePlugin( '' );
 end; // ConfigurePlugin
 
+
+procedure TForm_Main.SetupTagsTab;
+begin
+   txtFilterTags.OnChange:= txtFilterTagsChange;
+
+   with TVTags do begin
+     OnGetText:= TVTags_GetText;
+     OnPaintText:= TVTags_PaintText;
+     TreeOptions.PaintOptions := [];
+
+     TreeOptions.MiscOptions := [toFullRepaintOnResize, toInitOnSave, toWheelPanning, toEditOnClick, toEditable];
+     TreeOptions.SelectionOptions := [toMultiSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval];
+     TreeOptions.StringOptions := [toAutoAcceptEditChange];
+
+     IncrementalSearch:= isVisibleOnly;
+   end;
+
+   with TVTags.Header do begin
+       Height := 18;
+       Options:= [hoAutoResize,hoAutoSpring,hoColumnResize,hoDblClickResize,hoShowHint, hoVisible];
+       AutoSizeIndex:= 1;
+       with Columns.Add do begin
+           Position:= 0;
+           Text:= GetRS(sTag1);       // Name
+           Options:= Options + [coVisible];
+       end;
+       with Columns.Add do begin
+           Text:= GetRS(sTag2);       // Description
+           Position:= 1;
+           Options:= Options + [coVisible, coSmartResize, coAutoSpring];
+       end;
+       MainColumn:= 0;
+   end;
+   TVTags.Header.Columns[0].Width:= 100;
+end;
+
+procedure TForm_Main.TVTags_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+var
+  NTag: TNoteTag;
+begin
+   if (ActiveFile = nil) or (ActiveFile.NoteTags=nil) then exit;
+
+   NTag:= ActiveFile.NoteTagsSorted[Node.Index];
+   case Column of
+     -1, 0: CellText:= NTag.Name;
+         1: CellText:= NTag.Description;
+    end;
+end;
+
+procedure TForm_Main.TVTags_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
+var
+  Color: TColor;
+  NTag: TNoteTag;
+  txt: string;
+begin
+   if TVTPaintOption.toShowFilteredNodes in TVTags.TreeOptions.PaintOptions then exit;
+   if (ActiveFile = nil) or (ActiveFile.NoteTagsSorted = nil) then exit;
+   if Sender.Selected[Node] and (Column <= 0) then exit;
+
+   txt:= txtFilterTags.Text;
+
+   NTag:= ActiveFile.NoteTagsSorted[Node.Index];
+   if not AnsiStartsText(txt, NTag.Name) then
+      TargetCanvas.Font.Color := $FF4D4D;
+end;
+
+
+procedure TForm_Main.txtFilterTagsChange(Sender: TObject);
+begin
+   CheckFilterTags;
+end;
+
+procedure TForm_Main.CheckFilterTags;
+var
+  Node: PVirtualNode;
+  NTag: TNoteTag;
+  txt: String;
+  Filtered: boolean;
+begin
+   if TVTags.TotalCount = 0 then exit;
+
+   txt:= txtFilterTags.Text;
+
+   TVTags.BeginUpdate;
+
+   if txt <> '' then begin
+      for Node in TVTags.Nodes() do begin
+         NTag:= ActiveFile.NoteTagsSorted [Node.Index];
+         Filtered:= not ( ((Length(txt) >= 1) and AnsiStartsText(txt, NTag.Name)) or
+                          ((Length(txt) >= 3) and (AnsiContainsText(NTag.Name, txt) or AnsiContainsText(NTag.Description, txt) ))  );
+         TVTags.IsFiltered[Node]:= Filtered;
+      end;
+      TVTags.TreeOptions.PaintOptions := TVTags.TreeOptions.PaintOptions - [TVTPaintOption.toShowFilteredNodes]
+   end
+   else
+      TVTags.TreeOptions.PaintOptions := TVTags.TreeOptions.PaintOptions + [TVTPaintOption.toShowFilteredNodes];
+
+   TVTags.EndUpdate;
+end;
+
+
 procedure TForm_Main.ResMRightClick(Sender: TObject);
 begin
   if ( sender is TMenuItem ) then
@@ -5404,6 +5522,7 @@ begin
     ResMTemplateTab.Checked := ShowTemplate;
     ResMPluginTab.Checked := ShowPlugin;
     ResMFavTab.Checked := ShowFavorites;
+    ResMTagsTab.Checked := ShowTags;
   end;
 end;
 
@@ -5430,6 +5549,7 @@ begin
     if ShowTemplate then inc( VisibleTabs );
     if ShowPlugin then inc( VisibleTabs );
     if ShowFavorites then inc( VisibleTabs );
+    if ShowTags then inc( VisibleTabs );
   end;
   CantHideTab := ( VisibleTabs < 2 );
 
@@ -5498,6 +5618,17 @@ begin
           end;
           sheet := ResTab_Favorites;
         end;
+        6 : begin
+          ShowTags := ( not ShowTags );
+          if ( CantHideTab and ( not ShowTags )) then
+          begin
+            CannotHideTabMsg;
+            ShowTags := true;
+            exit;
+          end;
+          sheet := ResTab_Tags;
+        end;
+
       end;
     end;
   end;
@@ -5510,6 +5641,7 @@ begin
     ResTab_Template.TabVisible := ShowTemplate;
     ResTab_Plugins.TabVisible := ShowPlugin;
     ResTab_Favorites.TabVisible := ShowFavorites;
+    ResTab_Tags.TabVisible := ShowTags;
   end;
 
   if (( sender is TMenuItem ) and assigned( sheet )) then

@@ -907,4 +907,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55104,  "Error saving Folding Block list:"
 55105,  "Error loading Folding Block list:"
 55106,  "Folding Blocks"
+55107,  "Name"
+55108,  "Description"
 }

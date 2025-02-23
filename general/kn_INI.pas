@@ -843,6 +843,7 @@ type
     ShowScratch,
     ShowTemplate,
     ShowFavorites,
+    ShowTags,
     Stacked,
     TabOrientation : string;
   end;
@@ -860,6 +861,7 @@ const
     ShowScratch : 'ShowScratch';
     ShowTemplate : 'ShowTemplate';
     ShowFavorites : 'ShowFavorites';
+    ShowTags: 'ShowTags';
     Stacked : 'Stacked';
     TabOrientation : 'TabOrientation'
   );
@@ -1623,6 +1625,7 @@ begin
       writebool( section, ResPanelOptionsIniStr.ShowScratch, ResPanelOptions.ShowScratch );
       writebool( section, ResPanelOptionsIniStr.ShowTemplate, ResPanelOptions.ShowTemplate );
       writebool( section, ResPanelOptionsIniStr.ShowFavorites, ResPanelOptions.ShowFavorites );
+      writebool( section, ResPanelOptionsIniStr.ShowTags, ResPanelOptions.ShowTags );
       writebool( section, ResPanelOptionsIniStr.Stacked, ResPanelOptions.Stacked );
       writeinteger( section, ResPanelOptionsIniStr.TabOrientation, ord( ResPanelOptions.TabOrientation ));
 
@@ -2027,6 +2030,7 @@ begin
       ResPanelOptions.ShowScratch := readbool( section, ResPanelOptionsIniStr.ShowScratch, ResPanelOptions.ShowScratch );
       ResPanelOptions.ShowTemplate := readbool( section, ResPanelOptionsIniStr.ShowTemplate, ResPanelOptions.ShowTemplate );
       ResPanelOptions.ShowFavorites := readbool( section, ResPanelOptionsIniStr.ShowFavorites, ResPanelOptions.ShowFavorites );
+      ResPanelOptions.ShowTags := readbool( section, ResPanelOptionsIniStr.ShowTags, ResPanelOptions.ShowTags );
       ResPanelOptions.Stacked := readbool( section, ResPanelOptionsIniStr.Stacked, ResPanelOptions.Stacked );
       ResPanelOptions.TabOrientation := TTabOrientation( readinteger( section, ResPanelOptionsIniStr.TabOrientation, ord( ResPanelOptions.TabOrientation )));
       try
@@ -2272,6 +2276,7 @@ begin
     ShowScratch := true;
     ShowTemplate := true;
     ShowFavorites := true;
+    ShowTags := true;
     Stacked := false;
     TabOrientation := low( TabOrientation );
   end;
