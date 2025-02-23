@@ -1031,7 +1031,11 @@ const
    sVCL17 = 54401;   // font formatting
 
    sTag1  = 55107;   // Name
-   sTag2  = 55108;   // Description
+   sTag2  = 55108;   // Description / alias
+   sTag3  = 55109;   // The tag name cannot be blank or include #, : or spaces
+   sTag4  = 55110;   // OK to delete Tag "%s"?
+   sTag5  = 55111;   // OK to delete ALL SELECTED tags?
+   sTag6  = 55112;   // Creating new Tag
 
 
 implementation

@@ -908,5 +908,9 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55105,  "Error loading Folding Block list:"
 55106,  "Folding Blocks"
 55107,  "Name"
-55108,  "Description"
+55108,  "Description / alias"
+55109,  "The tag name cannot be blank or include #, : or spaces"
+55110,  "OK to delete Tag \"%s\"?"
+55111,  "OK to delete ALL SELECTED tags?"
+55112,  "Creating new Tag"
 }

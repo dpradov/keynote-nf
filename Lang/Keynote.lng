@@ -2708,6 +2708,10 @@ Button_OK.Caption=&Close
 55105_knt_RS_sFoldBl4=Error loading Folding Block list:
 55106_knt_RS_sOptS16=Folding Blocks
 55107_knt_RS_sTag1=Name
-55108_knt_RS_sTag2=Description
+55108_knt_RS_sTag2=Description / alias
+55109_knt_RS_sTag3=Tag name cannot be blank, nor include #,: or spaces
+55110_knt_RS_sTag4=OK to delete Tag "%s"?
+55111_knt_RS_sTag5=OK to delete ALL SELECTED tags?
+55112_knt_RS_sTag6=Creating new Tag
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

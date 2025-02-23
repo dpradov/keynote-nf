@@ -190,6 +190,7 @@ begin
           KntFile.IsBusy := false;        // If FileIsBusy=true -> FileSetModified would be ignored
           App.FileSetModified;
           UpdateOpenFile;
+          App.TagsUpdated;
         {$IFDEF KNT_DEBUG}
           Log.Add( 'KntFileNew result: ' + inttostr( result ));
         {$ENDIF}

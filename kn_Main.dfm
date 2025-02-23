@@ -5278,4 +5278,29 @@ object Form_Main: TForm_Main
       OnExecute = actFileSaveExecute
     end
   end
+  object Menu_Tags: TPopupMenu
+    HelpContext = 307
+    Left = 472
+    Top = 344
+    object TagsMAdd: TMenuItem
+      Caption = '&Create new Tag'
+      ShortCut = 45
+      OnClick = TagsMAddClick
+    end
+    object TagsMEdit: TMenuItem
+      Caption = '&Edit Tag'
+      Hint = 'Edit selected tag'
+      ShortCut = 113
+      OnClick = TagsMEditClick
+    end
+    object TagsMDel: TMenuItem
+      Caption = '&Delete Tag[s]'
+      Hint = 'Delete selected tag[s]'
+      ShortCut = 46
+      OnClick = TagsMDelClick
+    end
+    object MenuItem2: TMenuItem
+      Caption = '-'
+    end
+  end
 end

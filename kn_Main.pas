@@ -893,6 +893,11 @@ type
     TVTags: TVirtualStringTree;
     txtFilterTags: TEdit;
     ResMTagsTab: TMenuItem;
+    Menu_Tags: TPopupMenu;
+    TagsMAdd: TMenuItem;
+    MenuItem2: TMenuItem;
+    TagsMEdit: TMenuItem;
+    TagsMDel: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1299,6 +1304,9 @@ type
     procedure MMFilePrintClick(Sender: TObject);
     procedure RTFMFoldClick(Sender: TObject);
     procedure RTFMUnfoldClick(Sender: TObject);
+    procedure TagsMAddClick(Sender: TObject);
+    procedure TagsMEditClick(Sender: TObject);
+    procedure TagsMDelClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1334,8 +1342,16 @@ type
 
     procedure txtFilterTagsChange(Sender: TObject);
     procedure SetupTagsTab;
+    procedure TVTags_GetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
     procedure TVTags_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
     procedure TVTags_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
+    procedure TVTags_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure RenameTag;
+    procedure TVTags_CreateEditor(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
+    procedure TVTags_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+    procedure TVTags_Edited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
+    procedure TVTags_NewText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; NewText: string);
+    procedure TVTagsSelectAlone(Node: PVirtualNode);
   public
     procedure CheckFilterTags;
 
@@ -2763,6 +2779,7 @@ begin
              ( activecontrol = ListBox_ResTpl ) or
              ( activecontrol = ListBox_ResPlugins ) or
              ( activecontrol = ListBox_ResFav ) or
+             ( activecontrol = TVTags ) or
              ( activecontrol = Combo_Zoom ) or
              ( activecontrol = Combo_Style ) then
           begin
@@ -5391,13 +5408,22 @@ begin
    with TVTags do begin
      OnGetText:= TVTags_GetText;
      OnPaintText:= TVTags_PaintText;
+
+     OnKeyDown:= TVTags_KeyDown;
+     OnEditing := TVTags_Editing;
+     OnCreateEditor:= TVTags_CreateEditor;
+     OnEdited := TVTags_Edited;
+     OnNewText:= TVTags_NewText;
+
      TreeOptions.PaintOptions := [];
 
-     TreeOptions.MiscOptions := [toFullRepaintOnResize, toInitOnSave, toWheelPanning, toEditOnClick, toEditable];
-     TreeOptions.SelectionOptions := [toMultiSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval];
+     TreeOptions.MiscOptions := [toFullRepaintOnResize, toInitOnSave, toWheelPanning, toEditOnClick, toEditable, toGridExtensions];
+     TreeOptions.SelectionOptions := [toMultiSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval, toExtendedFocus];
      TreeOptions.StringOptions := [toAutoAcceptEditChange];
 
+     HintMode:= hmTooltip;
      IncrementalSearch:= isVisibleOnly;
+     PopupMenu:= Menu_Tags;
    end;
 
    with TVTags.Header do begin
@@ -5410,7 +5436,7 @@ begin
            Options:= Options + [coVisible];
        end;
        with Columns.Add do begin
-           Text:= GetRS(sTag2);       // Description
+           Text:= GetRS(sTag2);       // Description / alias
            Position:= 1;
            Options:= Options + [coVisible, coSmartResize, coAutoSpring];
        end;
@@ -5418,6 +5444,20 @@ begin
    end;
    TVTags.Header.Columns[0].Width:= 100;
 end;
+
+
+procedure TForm_Main.TVTags_GetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
+var
+  NTag: TNoteTag;
+begin
+   //if not KntTreeOptions.ShowTooltips then exit;
+   NTag:= ActiveFile.NoteTagsSorted[Node.Index];
+   case Column of
+     -1, 0: HintText:= NTag.Name;
+         1: HintText:= NTag.Description;
+    end;
+end;
+
 
 procedure TForm_Main.TVTags_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
 var
@@ -5482,6 +5522,154 @@ begin
 
    TVTags.EndUpdate;
 end;
+
+
+procedure TForm_Main.TVTags_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  ptCursor : TPoint;
+begin
+  if TVTags.IsEditing then exit;
+
+  case key of
+    VK_F10 : if ( shift = [ssShift] ) then begin
+      key := 0;
+      GetCursorPos( ptCursor );
+      TVTags.PopupMenu.Popup(ptCursor.X, ptCursor.Y);
+    end;
+
+    VK_SPACE, VK_F2 : if ( Shift = [] ) then begin
+      key := 0;
+      RenameTag;
+    end;
+  end;
+
+end;
+
+
+procedure TForm_Main.TVTagsSelectAlone(Node: PVirtualNode);
+begin
+   TVTags.FocusedNode:= Node;
+   TVTags.ClearSelection;
+   TVTags.Selected[Node] := True;
+end;
+
+procedure TForm_Main.TagsMAddClick(Sender: TObject);
+var
+   TagName: string;
+   Node: PVirtualNode;
+   NTag: TNoteTag;
+begin
+   if InputQuery( GetRS(sTag6), GetRS(sTag1), TagName ) then begin
+      TagName := trim(TagName);
+      if IsValidTagName(TagName) then begin
+         ActiveFile.AddNTag(TagName, '');
+         for Node in TVTags.Nodes() do begin
+            NTag:= ActiveFile.NoteTagsSorted [Node.Index];
+            if NTag.Name = TagName then begin
+               TVTagsSelectAlone(Node);
+               exit;
+            end;
+         end;
+      end
+      else
+         App.ErrorPopup(GetRS(sTag3));
+   end;
+end;
+
+procedure TForm_Main.TagsMDelClick(Sender: TObject);
+var
+  Node: PVirtualNode;
+  TVSelectedNodes: TNodeArray;
+  NTag: TNoteTag;
+  i: integer;
+begin
+  if (ActiveFile = nil) or ActiveFile.ReadOnly then exit;
+
+  if TVTags.SelectedCount <= 1 then begin
+     Node:= TVTags.FocusedNode;
+     if Node = nil then exit;
+     NTag:= ActiveFile.NoteTagsSorted[Node.Index];
+     if (App.DoMessageBox(Format(GetRS(sTag4), [NTag.Name]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     ActiveFile.DeleteNTag(NTag);
+  end
+  else begin
+     if (App.DoMessageBox(GetRS(sTag5) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     TVSelectedNodes:= TVTags.GetSortedSelection(True);
+     App.TagsState := tsHidden;
+     try
+        for i := High(TVSelectedNodes) downto 0 do begin
+           NTag:= ActiveFile.NoteTagsSorted[TVSelectedNodes[i].Index];
+           ActiveFile.DeleteNTag(NTag);
+        end;
+     finally
+        App.TagsState := tsVisible;
+        App.TagsUpdated;
+     end;
+  end;
+end;
+
+
+procedure TForm_Main.TagsMEditClick(Sender: TObject);
+begin
+   RenameTag;
+end;
+
+procedure TForm_Main.RenameTag;
+var
+  Node: PVirtualNode;
+begin
+  if (ActiveFile = nil) or ActiveFile.ReadOnly then exit;
+
+  Node:= TVTags.FocusedNode;
+  if Node = nil then exit;
+
+  TVTags.EditNode(Node, TVTags.FocusedColumn)
+end;
+
+
+procedure TForm_Main.TVTags_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+begin
+   Allowed := not ActiveFile.ReadOnly;
+end;
+
+procedure TForm_Main.TVTags_CreateEditor(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
+begin
+   // To create and use the generic tag editor. This handler lets us know when editing is started, to disable
+   // the context menu, and avoid interference from associated shortcuts.
+   // We can't use TV_Editing because the OnEditing event is called from DoCanEdit, not DoEdit, and what it's
+   // looking for is to know if editing is allowed.
+    EditLink:= nil;
+    TVTags.PopupMenu := nil;                   // stop menu events triggered by shortcut keys
+end;
+
+
+// Called in VirtualTree, when edit ended ok and also when was cancelled..
+procedure TForm_Main.TVTags_Edited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
+begin
+  TVTags.PopupMenu := Menu_Tags;               // Restore menu -> resume menu events triggered by shortcut keys
+end;
+
+
+procedure TForm_Main.TVTags_NewText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; NewText: string);
+var
+  NTag: TNoteTag;
+begin
+  NTag:= ActiveFile.NoteTagsSorted [Node.Index];
+  case Column of
+    -1, 0: if not IsValidTagName(NewText) then begin
+              App.ShowInfoInStatusBar(GetRS(sTag3));
+              exit;
+           end
+           else
+              NTag.Name:= NewText;
+
+        1: NTag.Description:= NewText;
+  end;
+
+  App.FileSetModified;
+end;
+
+
 
 
 procedure TForm_Main.ResMRightClick(Sender: TObject);

@@ -320,6 +320,7 @@ procedure EndTagIntroduction;
 procedure GetMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
 procedure ShowTagSelector(WidthName, WidthDesc: integer);
 procedure UpdateTagSelector;
+function IsValidTagName (var Name: string): boolean;
 
 
 var
@@ -5580,10 +5581,27 @@ begin
    if TagSubstr <> '' then begin
       if TagSubstr[Length(TagSubstr)] = '.' then
          delete(TagSubstr, Length(TagSubstr), 1);
-      ActiveFile.AddNTag(TagSubstr, 'Description with possible alias, ... ');
+      ActiveFile.AddNTag(TagSubstr, '');
    end;
    TagSubstr:= '';
    SelectingTagsMode:= stNoTags;
+end;
+
+
+function IsValidTagName (var Name: string): boolean;
+var
+   i: integer;
+begin
+   if Name = '' then exit(False);
+
+   Result:= True;
+   for i:= 1 to Length(Name) do begin
+      if Name[i] in TagCharsDelimiters then
+         exit (False);
+   end;
+
+   if Name[Length(Name)] = '.' then
+      delete(Name, Length(Name), 1);
 end;
 
 
@@ -5602,6 +5620,7 @@ begin
   // -> Approximated widths
   MaxNameWidth:= 0;             // We will initially store the maximum length of the strings, not the width...
   MaxDescWidth:= 0;
+  iDesc:= -1;
   if NTags <> nil then begin
      for i := 0 to NTags.Count-1 do begin
         NTag:= NTags[i];
@@ -5621,7 +5640,8 @@ begin
      end;
   end;
   MaxNameWidth:= cTagSelector.TV.Canvas.TextWidth(NTags[iName].Name) + 20;
-  MaxDescWidth:= cTagSelector.TV.Canvas.TextWidth(NTags[iDesc].Description) + 20;
+  if iDesc >= 0 then
+     MaxDescWidth:= cTagSelector.TV.Canvas.TextWidth(NTags[iDesc].Description) + 20;
 end;
 
 

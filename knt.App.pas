@@ -835,8 +835,11 @@ procedure TKntApp.TagsUpdated;
 begin
    if ActiveFile = nil then begin
       Form_Main.TVTags.RootNodeCount:= 0;
+      Form_Main.TVTags.PopupMenu:= nil;
       exit;
-   end;
+   end
+   else
+      Form_Main.TVTags.PopupMenu:= Form_Main.Menu_Tags;
 
    if App.TagsState = tsVisible then begin
       ActiveFile.SortNoteTags;
