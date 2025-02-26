@@ -4,6 +4,7 @@ object KntNoteUI: TKntNoteUI
   Width = 578
   Height = 480
   Align = alClient
+  BiDiMode = bdLeftToRight
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
@@ -52,9 +53,9 @@ object KntNoteUI: TKntNoteUI
       OnMouseEnter = txtCreationDateMouseEnter
     end
     object txtName: TEdit
-      Left = 1
+      Left = 131
       Top = 2
-      Width = 456
+      Width = 326
       Height = 22
       TabStop = False
       Alignment = taCenter
@@ -66,6 +67,22 @@ object KntNoteUI: TKntNoteUI
       OnEnter = txtEnter
       OnExit = txtNameExit
       OnMouseEnter = txtNameMouseEnter
+    end
+    object txtTags: TEdit
+      Left = 0
+      Top = 2
+      Width = 129
+      Height = 22
+      TabStop = False
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+      OnChange = txtTagsChange
+      OnEnter = txtTagsEnter
+      OnExit = txtTagsExit
+      OnKeyPress = txtTagsKeyPress
+      OnKeyUp = txtTagsKeyUp
+      OnMouseDown = txtTagsMouseDown
     end
   end
 end

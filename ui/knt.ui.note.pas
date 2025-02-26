@@ -49,11 +49,18 @@ type
     pnlIdentif: TPanel;
     txtCreationDate: TEdit;
     txtName: TEdit;
+    txtTags: TEdit;
     procedure txtNameChange(Sender: TObject);
     procedure txtEnter(Sender: TObject);
     procedure txtNameMouseEnter(Sender: TObject);
     procedure txtCreationDateMouseEnter(Sender: TObject);
     procedure txtNameExit(Sender: TObject);
+    procedure txtTagsKeyPress(Sender: TObject; var Key: Char);
+    procedure txtTagsExit(Sender: TObject);
+    procedure txtTagsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure txtTagsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure txtTagsChange(Sender: TObject);
+    procedure txtTagsEnter(Sender: TObject);
 
   private class var
     FColorTxts: TColor;
@@ -133,6 +140,10 @@ type
     procedure SetFocusOnEditor;
     procedure NNodeDeleted;
 
+  protected
+    procedure CheckBeginOfTag;
+    function GetCaretPosTag: integer;
+    function GetEndOfWord: integer;
   end;
 
 
@@ -194,9 +205,11 @@ begin
    FColorTxts:= RGB(248,248,248);
    txtName.Color:= FColorTxts;
    txtCreationDate.Color:= FColorTxts;
+   txtTags.Color:= FColorTxts;
    if KeyOptions.EditorInfoPanelTop then begin
       txtName.Top:= 0;
       txtCreationDate.Top:= 0;
+      txtTags.Top:= 0;
       pnlIdentif.Align:= alTop;
    end;
 
@@ -354,6 +367,137 @@ end;
 {$ENDREGION}
 
 
+// Tags =========================================
+
+{$REGION Tags }
+
+
+procedure TKntNoteUI.CheckBeginOfTag;
+begin
+  if (SelectingTagsMode = stNoTags) then begin
+     CaretPosTag:= GetCaretPosTag;
+     cTagSelector.ControlUI:= txtTags;
+     SelectingTagsMode := stWithoutTagSelector;
+  end;
+  if cTagSelector.ControlUI = txtTags then
+     CheckEndTagIntroduction
+  else
+     SelectingTagsMode := stNoTags;
+end;
+
+
+procedure TKntNoteUI.txtTagsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   if Key in [VK_BACK, VK_DELETE] then exit;
+
+   if key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END] then
+      CheckBeginOfTag;
+end;
+
+procedure TKntNoteUI.txtTagsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  // The first CheckBeginOfTag could have caused a tag to be added
+  // The second tries to check if we are located in another tag, to show the selector
+  CheckBeginOfTag;
+  CheckBeginOfTag;
+end;
+
+procedure TKntNoteUI.txtTagsChange(Sender: TObject);
+begin
+  CheckBeginOfTag;
+end;
+
+procedure TKntNoteUI.txtTagsEnter(Sender: TObject);
+begin
+   txtTags.Hint:= '';
+end;
+
+procedure TKntNoteUI.txtTagsExit(Sender: TObject);
+begin
+   txtTags.SelStart:= 0;
+   CheckBeginOfTag;
+
+   SelectingTagsMode:= stNoTags;
+   CloseTagSelector;
+
+   txtTags.Hint:= txtTags.Text;
+end;
+
+
+function TKntNoteUI.GetCaretPosTag: integer;
+var
+   i, SS: integer;
+   txt: string;
+begin
+   Result:= 1;
+   if txtTags.GetTextLen = 0 then exit;
+
+   SS:= txtTags.SelStart;
+   txt:= txtTags.Text;
+
+   for i:= SS downto 1 do
+      if Txt[i] in TagCharsDelimiters then
+         break;
+   Result:= i+1;
+end;
+
+
+function TKntNoteUI.GetEndOfWord: integer;
+var
+   i, SS: integer;
+   txt: string;
+begin
+   SS:= txtTags.SelStart;
+   txt:= txtTags.Text;
+
+   for i:= SS to txtTags.GetTextLen do
+      if Txt[i] in TagCharsDelimiters then
+         break;
+   Result:= i;
+end;
+
+
+procedure TKntNoteUI.txtTagsKeyPress(Sender: TObject; var Key: Char);
+var
+ txt: string;
+ ch: Char;
+ StartTag: boolean;
+ SS: integer;
+begin
+
+  case SelectingTagsMode of
+     stNoTags:
+         begin
+           CaretPosTag:= GetCaretPosTag;
+           cTagSelector.ControlUI:= txtTags;
+           SelectingTagsMode := stWithoutTagSelector;
+         end;
+
+     stTagSelected:
+         begin
+            SS:= GetEndOfWord;
+            txtTags.SelStart:= CaretPosTag-1;
+            txtTags.SelLength:= SS - CaretPosTag;
+            txtTags.SelText:= TagSubstr;
+            if key in [#13, ':'] then begin
+               EndTagIntroduction;
+               key:= ' ';
+            end
+            else begin
+               SelectingTagsMode := stWithTagSelector;
+               key:= #0;
+               exit;
+            end;
+         end;
+
+  end;
+
+end;
+
+
+{$ENDREGION}
+
+
 // Load and save Editor from Note node =========================================
 
 {$REGION Load, save and configure Editor for a Note node }
@@ -411,6 +555,7 @@ begin
        else begin
           txtName.Text:= '';
           txtCreationDate.Text:= '';
+          txtTags.Text:= '';
           ConfigureEditor;
        end;
 
