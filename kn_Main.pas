@@ -5478,13 +5478,19 @@ var
   NTag: TNoteTag;
   txt: string;
 begin
-   if TVTPaintOption.toShowFilteredNodes in TVTags.TreeOptions.PaintOptions then exit;
+   if (TVTPaintOption.toShowFilteredNodes in TVTags.TreeOptions.PaintOptions) and
+      (ActiveFile.NoteTagsTemporalAdded.Count = 0) then exit;
+
    if (ActiveFile = nil) or (ActiveFile.NoteTagsSorted = nil) then exit;
    if Sender.Selected[Node] and (Column <= 0) then exit;
 
    txt:= txtFilterTags.Text;
 
    NTag:= ActiveFile.NoteTagsSorted[Node.Index];
+
+   if (ActiveFile.NoteTagsTemporalAdded.Count > 0) and (ActiveFile.NoteTagsTemporalAdded.IndexOf(NTag) >= 0) then
+       TargetCanvas.Font.Color := clGreen
+   else
    if not AnsiStartsText(txt, NTag.Name) then
       TargetCanvas.Font.Color := $FF4D4D;
 end;

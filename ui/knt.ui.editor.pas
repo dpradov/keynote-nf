@@ -259,6 +259,7 @@ type
     procedure RunSpellchecker;
     procedure WordWebLookup;
 
+    procedure CommitAddedTags;
 
   end; // TKntRichEdit
 
@@ -2591,6 +2592,8 @@ procedure TKntRichEdit.DoExit;
 begin
   if SelectingTagsMode <> stNoTags then
      CheckEndTagIntroduction;
+
+  CommitAddedTags;
   inherited;
 end;
 
@@ -5475,6 +5478,59 @@ begin
 end; // WordWebLookup
 
 
+// Go through the temporarily added tags, removing those that may have been added by mistake.
+// This method does not search for all possible tags present, which may have been added not only
+// with the help of the selector but in other ways, such as copying and pasting.
+// That more exhaustive search will only be performed when saving the note
+procedure TKntRichEdit.CommitAddedTags;
+var
+   i, p, pF: integer;
+   Txt: string;
+   NTag: TNoteTag;
+   N: integer;
+   NextConfirmedID: Cardinal;
+   TagsStateBAK: TTagsState;
+
+begin
+   if ActiveFile.NoteTagsTemporalAdded.Count = 0 then exit;
+
+   Txt:= Self.TextPlain;
+   Txt:= Txt.ToUpper;
+
+  // Delete all temporarily added tags not found in the text, that must have been added by mistake.
+  // The IDs of the rest of temporarily added tags can be modified, to avoid unnecessarily increasing the value of the Tag IDs
+
+   N:= ActiveFile.NoteTagsTemporalAdded.Count-1;
+   NextConfirmedID:= ActiveFile.NoteTagsTemporalAdded[0].ID;
+
+   TagsStateBAK:= App.TagsState;
+   App.TagsState := tsHidden;
+
+   for i := 0 to N do begin
+      NTag:= ActiveFile.NoteTagsTemporalAdded[i];
+      p:= Pos('#' + NTag.Name.ToUpper, Txt, 1);
+      pF:= p + Length(NTag.Name) + 1;
+      if not (
+         (p > 0)                                                  and
+         ((p = 1)            or (Txt[p-1] in TagCharsDelimiters)) and
+         ((pF > Length(Txt)) or (Txt[pF]  in TagCharsDelimiters)) ) then begin
+         p:= -1;
+      end;
+
+      if p <= 0 then
+         ActiveFile.DeleteNTag(NTag)
+      else begin
+         NTag.ID:= NextConfirmedID;
+         inc(NextConfirmedID);
+      end;
+   end;
+   ActiveFile.NoteTagsTemporalAdded.Clear;
+
+   App.TagsState := TagsStateBAK;
+   App.TagsUpdated;
+end;
+
+
 //----------------------------------------
 
 const
@@ -5608,13 +5664,25 @@ end;
 
 
 procedure EndTagIntroduction;
+var
+  NTag: TNoteTag;
 begin
    SelectingTagsMode:= stNoTags;
    CloseTagSelector;
    if TagSubstr <> '' then begin
       if TagSubstr[Length(TagSubstr)] = '.' then
          delete(TagSubstr, Length(TagSubstr), 1);
-      ActiveFile.AddNTag(TagSubstr, '');
+      NTag:= ActiveFile.AddNTag(TagSubstr, '');
+      if NTag <> nil then
+         ActiveFile.NoteTagsTemporalAdded.Add(NTag)
+      else begin
+         NTag:= ActiveFile.GetTemporalNTagByName(TagSubstr);
+         if NTag <> nil then begin
+            NTag.Name:= TagSubstr;      // If you are adding it temporarily and you change its spelling, we assume that you want to correct it. Eg: "TOdo" and then "ToDO"
+            if App.TagsState = tsVisible then
+               Form_Main.TVTags.Invalidate;
+         end;
+      end;
    end;
    TagSubstr:= '';
 end;
@@ -5899,6 +5967,9 @@ var
 begin
    if TV.Selected[Node] and (Column <= 0) then exit;
    NTag:= PotentialNTags[Node.Index];
+   if (ActiveFile.NoteTagsTemporalAdded.Count > 0) and (ActiveFile.NoteTagsTemporalAdded.IndexOf(NTag) >= 0) then
+     TargetCanvas.Font.Color := clGreen
+   else
    if not AnsiStartsText(TagSubstr, NTag.Name) then
       TargetCanvas.Font.Color := $FF4D4D;
 end;

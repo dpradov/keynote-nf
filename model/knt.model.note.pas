@@ -1362,7 +1362,7 @@ end;
 
 procedure TNoteTag.SetID( ID : Cardinal );
 begin
-  if ( fID = 0 ) then
+//  if ( fID = 0 ) then
     fID := ID;
 end;
 

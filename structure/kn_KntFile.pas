@@ -90,6 +90,7 @@ type
 
     fNoteTags: TNoteTagList;
     fNoteTagsSorted: TNoteTagList;
+    fNoteTagsTemporalAdded: TNoteTagList;
     fFolders: TFolderList;
     fNotes: TNoteList;
     fNextNNodeGID: Cardinal;     // Global ID of next note node to be created
@@ -211,9 +212,11 @@ type
   public
     property NoteTags: TNoteTagList read fNoteTags;
     property NoteTagsSorted: TNoteTagList read GetNoteTagsSorted;
+    property NoteTagsTemporalAdded: TNoteTagList read fNoteTagsTemporalAdded;
     function GetNTagByID( const aID : Cardinal ) : TNoteTag;
     function GetNTagByName( const aName : string ) : TNoteTag;
-    function AddNTag(const Name, Description : string) : integer;
+    function GetTemporalNTagByName( const aName : string ) : TNoteTag;
+    function AddNTag(const Name, Description : string) : TNoteTag;
     procedure DeleteNTag( NTag : TNoteTag );
     function GetNTagsCount : integer;
     function CheckNTagsSorted: boolean;
@@ -311,6 +314,7 @@ begin
   SetVersion;
 
   fNoteTagsSorted:= nil;
+  fNoteTagsTemporalAdded:= TNoteTagList.Create;
   fNoteTags:= TNoteTagList.Create;
   fFolders := TFolderList.Create;
   fNotes := TNoteList.Create;
@@ -1652,6 +1656,24 @@ begin
 end;
 
 
+function TKntFile.GetTemporalNTagByName( const aName : string ) : TNoteTag;
+//  NOT case-sensitive
+var
+  i: integer;
+  NTag: TNoteTag;
+begin
+  result := nil;
+  if (NoteTagsTemporalAdded.Count = 0) then exit;
+
+  for i := 0 to NoteTagsTemporalAdded.Count-1 do begin
+     NTag:= NoteTagsTemporalAdded[i];
+     if ( AnsiCompareText( NTag.Name, aName ) = 0 ) then
+        exit(NTag);
+  end;
+
+end;
+
+
 procedure TKntFile.UpdateNTagsMatching(const Str : string; var NTags: TNoteTagList);
 //  NOT case-sensitive
 var
@@ -1689,11 +1711,11 @@ begin
 end;
 
 
-function TKntFile.AddNTag(const Name, Description : string) : integer;
+function TKntFile.AddNTag(const Name, Description : string) : TNoteTag;
 var
    NTag: TNoteTag;
 begin
-  result := -1;
+  result := nil;
   if Name = '' then exit;
 
   if GetNTagByName(Name) = nil then begin
@@ -1704,6 +1726,7 @@ begin
      GenerateNTagID( NTag );
      Modified := true;
      App.TagsUpdated;
+     result:= NTag;
   end;
 end;
 

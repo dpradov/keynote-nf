@@ -144,6 +144,7 @@ type
     procedure CheckBeginOfTag;
     function GetCaretPosTag: integer;
     function GetEndOfWord: integer;
+    procedure CommitAddedTags;
   end;
 
 
@@ -409,6 +410,7 @@ end;
 
 procedure TKntNoteUI.txtTagsEnter(Sender: TObject);
 begin
+   ActiveFile.NoteTagsTemporalAdded.Clear;
    txtTags.Hint:= '';
 end;
 
@@ -420,6 +422,7 @@ begin
    SelectingTagsMode:= stNoTags;
    CloseTagSelector;
 
+   CommitAddedTags;
    txtTags.Hint:= txtTags.Text;
 end;
 
@@ -493,6 +496,62 @@ begin
   end;
 
 end;
+
+
+procedure TKntNoteUI.CommitAddedTags;
+var
+   i, pI, pF: integer;
+   txt, tagName: string;
+   TagsAdded: Array of string;
+   N: integer;
+   TagsStateBAK: TTagsState;
+
+   procedure CheckTag;
+   begin
+      if pI = pF then exit;
+      tagName:= Copy(txt, pI, pF-pI+1);
+      if (ActiveFile.GetTemporalNTagByName(tagName) <> nil) or (ActiveFile.GetNTagByName(tagName) = nil) then begin
+         inc(N);
+         SetLength(TagsAdded, N);
+         TagsAdded[N-1]:= tagName;
+      end;
+   end;
+
+begin
+   N:= 0;
+   txt:= txtTags.Text;
+   if trim(txt) <> '' then begin
+      pI:= 1;
+      for i:= 1 to txt.Length do begin
+         if Txt[i] in TagCharsDelimiters then begin
+            pF:= i-1;
+            CheckTag;
+            pI:= i+1;
+         end;
+      end;
+      pF:= i;
+      CheckTag;
+   end;
+
+  // Delete all temporarily added tags, and then add the ones identified in the text.
+  // This will cause the ones added by mistake to be discarded, while also not unnecessarily increasing the value of the Tag IDs
+
+   for i := 0 to ActiveFile.NoteTagsTemporalAdded.Count-1 do
+      ActiveFile.DeleteNTag(ActiveFile.NoteTagsTemporalAdded[i]);
+   ActiveFile.NoteTagsTemporalAdded.Clear;
+
+   TagsStateBAK:= App.TagsState;
+   App.TagsState := tsHidden;
+
+   for i := 0 to High(TagsAdded) do
+       ActiveFile.AddNTag(TagsAdded[i], '');
+   App.TagsState := TagsStateBAK;
+   App.TagsUpdated;                            // Perform the sorting only once
+
+
+   TagsAdded:= nil;
+end;
+
 
 
 {$ENDREGION}
