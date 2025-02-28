@@ -109,6 +109,8 @@ type
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
+    procedure EditTags;
+    procedure UpdateTagsHint;
   public
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
 
@@ -294,6 +296,7 @@ end;
 procedure TKntNoteUI.NoteUIEnter(Sender: TObject);
 begin
   App.EditorFocused(Editor);
+  UpdateTagsHint;
   if Assigned(FOnEnterOnEditor) then
     FOnEnterOnEditor(Self);
 end;
@@ -316,6 +319,12 @@ begin
    pnlIdentif.Visible := not value;
 end;
 
+procedure TKntNoteUI.EditTags;
+begin
+   SetInfoPanelHidden(False);
+   txtTags.SetFocus;
+   txtTags.SelStart:= txtTags.GetTextLen;
+end;
 
 procedure TKntNoteUI.txtNameChange(Sender: TObject);
 begin
@@ -428,12 +437,14 @@ begin
    ActiveFile.NoteTagsTemporalAdded.Clear;
    if txtTags.Text = ' #' then
       txtTags.Text:= '';
-   txtTags.Font.Color:= $C00000;
+   txtTags.Font.Color:= clMaroon;
    txtTags.Hint:= '';
    AdjustTxtTagsWidth(True);
 end;
 
 procedure TKntNoteUI.txtTagsExit(Sender: TObject);
+var
+  Color: TColor;
 begin
    txtTags.SelStart:= 0;
    CheckBeginOfTag;
@@ -442,12 +453,16 @@ begin
    CloseTagSelector;
 
    CommitAddedTags;
-   txtTags.Hint:= txtTags.Text;
-   if txtTags.Text = '' then
-      txtTags.Text := ' #'
-   else
-      txtTags.Font.Color:= clWindowText;
+   UpdateTagsHint;
+   Color:= clWindowText;
+   if txtTags.Text = '' then begin
+      txtTags.Text := ' #';
+      Color:= clGray;
+   end;
+   txtTags.Font.Color:= Color;
    AdjustTxtTagsWidth;
+
+   InfoPanelHidden:= Folder.EditorInfoPanelHidden;
 end;
 
 
@@ -605,6 +620,19 @@ begin
   end;
 end;
 
+procedure TKntNoteUI.UpdateTagsHint;
+var
+  Hint: string;
+begin
+    Hint:= txtTags.Text;
+    if Hint = ' #' then
+       Hint:= '';
+    txtTags.Hint:= Hint;
+    if (Hint = '') then
+        Hint:= GetRS(sTag7);
+    Form_Main.RTFMTags.Hint:= Hint;
+end;
+
 
 procedure TKntNoteUI.AdjustTxtTagsWidth (AllowEdition: boolean = False);
 var
@@ -752,7 +780,7 @@ begin
                S:= S + Result.Tags[i].Name + ' ';
          end;
          txtTags.Text:= S;
-         txtTags.Hint:= S;
+         UpdateTagsHint;
          if S = '' then begin
             txtTags.Text:= ' #';
             txtTags.Font.Color:= clGray;

@@ -53,6 +53,7 @@ type
      procedure ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
      procedure ReloadImagesOnEditor;
 
+     procedure EditTags;
      procedure SetInfoPanelHidden(value: boolean);
      procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
 

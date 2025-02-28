@@ -898,6 +898,7 @@ type
     MenuItem2: TMenuItem;
     TagsMEdit: TMenuItem;
     TagsMDel: TMenuItem;
+    RTFMTags: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1307,6 +1308,7 @@ type
     procedure TagsMAddClick(Sender: TObject);
     procedure TagsMEditClick(Sender: TObject);
     procedure TagsMDelClick(Sender: TObject);
+    procedure RTFMTagsClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -4425,6 +4427,11 @@ begin
    ActiveEditor.Unfold;
 end;
 
+procedure TForm_Main.RTFMTagsClick(Sender: TObject);
+begin
+   ActiveFolder.NoteUI.EditTags;
+end;
+
 
 procedure TForm_Main.RTFMPlainTextClick(Sender: TObject);
 begin
@@ -7541,6 +7548,9 @@ begin
     TB_Images.Enabled:=  SupportsRegImages and VinculatedToNote;
 
     RTFMPlainText.Enabled:= VinculatedToNote;
+    RTFMTags.Enabled:= VinculatedToNote;
+    if (not VinculatedToNote) then
+       RTFMTags.Hint:= '';
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);

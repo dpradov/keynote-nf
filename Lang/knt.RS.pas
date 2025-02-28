@@ -1036,6 +1036,8 @@ const
    sTag4  = 55110;   // OK to delete Tag "%s"?
    sTag5  = 55111;   // OK to delete ALL SELECTED tags?
    sTag6  = 55112;   // Creating new Tag
+   sTag7  = 55113;   // Edit tags applied to the note
+
 
 
 implementation

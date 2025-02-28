@@ -2713,5 +2713,6 @@ Button_OK.Caption=&Close
 55110_knt_RS_sTag4=OK to delete Tag "%s"?
 55111_knt_RS_sTag5=OK to delete ALL SELECTED tags?
 55112_knt_RS_sTag6=Creating new Tag
+55113_knt_RS_sTag7=Edit tags applied to the note
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

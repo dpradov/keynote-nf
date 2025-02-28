@@ -4022,6 +4022,10 @@ object Form_Main: TForm_Main
       Hint = 'Expand folded/collapsed text'
       OnClick = RTFMUnfoldClick
     end
+    object RTFMTags: TMenuItem
+      Caption = 'Tags...'
+      OnClick = RTFMTagsClick
+    end
     object N19: TMenuItem
       Caption = '-'
     end
