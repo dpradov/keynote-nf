@@ -93,11 +93,12 @@ type
     property Editor : TKntRichEdit read GetEditor;
 
   public
+    property Folder: TKntFolder read FKntFolder;
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
-    function ReloadDatesFromDataModel: TNoteEntry;
+    function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
     function  SaveToDataModel: TMemoryStream;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
@@ -405,7 +406,8 @@ end;
 
 procedure TKntNoteUI.txtTagsChange(Sender: TObject);
 begin
-  CheckBeginOfTag;
+  if not ActiveFileIsBusy then
+     CheckBeginOfTag;
 end;
 
 procedure TKntNoteUI.txtTagsEnter(Sender: TObject);
@@ -501,20 +503,44 @@ end;
 procedure TKntNoteUI.CommitAddedTags;
 var
    i, pI, pF: integer;
-   txt, tagName: string;
-   TagsAdded: Array of string;
+   Txt, tagName: string;
+   NTag: TNoteTag;
+   TagsAssigned: TNoteTagArray;
+   TagsCreated: array of string;
    N: integer;
    TagsStateBAK: TTagsState;
+   NEntry: TNoteEntry;
+
+   function DuplicateTag(aName: string): boolean;
+   var
+     i: integer;
+   begin
+      Result:= false;
+      for i := 0 to High(TagsAssigned) do begin
+          if ( AnsiCompareText( TagsAssigned[i].Name, aName ) = 0 ) then
+               exit(true);
+      end;
+   end;
 
    procedure CheckTag;
    begin
       if pI = pF then exit;
       tagName:= Copy(txt, pI, pF-pI+1);
-      if (ActiveFile.GetTemporalNTagByName(tagName) <> nil) or (ActiveFile.GetNTagByName(tagName) = nil) then begin
-         inc(N);
-         SetLength(TagsAdded, N);
-         TagsAdded[N-1]:= tagName;
+      if DuplicateTag(tagName) then exit;
+
+      inc(N);
+      SetLength(TagsAssigned, N);
+      SetLength(TagsCreated, N);
+      NTag:= ActiveFile.GetTemporalNTagByName(tagName);
+      TagsCreated[N-1]:= '';
+      if NTag <> nil then
+         TagsCreated[N-1]:= tagName
+      else begin
+         NTag:= ActiveFile.GetNTagByName(tagName);
+         if NTag = nil then                       // It must have been added by pasting, not typing.
+            TagsCreated[N-1]:= tagName
       end;
+      TagsAssigned[N-1]:= NTag;
    end;
 
 begin
@@ -543,13 +569,19 @@ begin
    TagsStateBAK:= App.TagsState;
    App.TagsState := tsHidden;
 
-   for i := 0 to High(TagsAdded) do
-       ActiveFile.AddNTag(TagsAdded[i], '');
+   for i := 0 to High(TagsCreated) do begin
+       if TagsCreated[i] <> '' then begin
+          NTag:= ActiveFile.AddNTag(TagsCreated[i], '');
+          TagsAssigned[i]:= NTag;
+       end;
+   end;
    App.TagsState := TagsStateBAK;
    App.TagsUpdated;                            // Perform the sorting only once
 
 
-   TagsAdded:= nil;
+  NEntry:= Note.Entries[0];       // %%%%
+  NEntry.Tags:= TagsAssigned;
+  App.NEntryModified(NEntry, Note, Folder);
 end;
 
 
@@ -634,10 +666,11 @@ end;
 // TODO: We will have to manage the possible multiple entries of a note.
 // FOR THE MOMENT we will work with what we will assume is the only entry
 
-function TKntNoteUI.ReloadDatesFromDataModel: TNoteEntry;
+function TKntNoteUI.ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
 var
   S: string;
   ActiveFileIsBusyBAK: boolean;
+  i: integer;
 begin
    Result:= nil;
    if not assigned(NNode) then exit;
@@ -655,6 +688,15 @@ begin
       end
       else
          txtCreationDate.Text:= '';
+
+      if ReloadTags then begin
+         S:= '';
+         if Result.Tags <> nil then
+            for i:= 0 to High(Result.Tags) do
+               S:= S + Result.Tags[i].Name + ' ';
+         txtTags.Text:= S;
+         txtTags.Hint:= S;
+      end;
 
    finally
       ActiveFileIsBusy:= ActiveFileIsBusyBAK;
@@ -679,7 +721,7 @@ var
  NEntry: TNoteEntry;
 
 begin
-   NEntry:= ReloadDatesFromDataModel;
+   NEntry:= ReloadMetadataFromDataModel;
    if NEntry = nil then exit;
 
    BeforeEditorLoaded(Note);     //%%% ¿Informar tb. del posible cambio de NEntry?

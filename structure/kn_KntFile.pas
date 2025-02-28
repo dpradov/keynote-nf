@@ -1291,7 +1291,7 @@ begin
         end;       
      end;
 
-     F.NoteUI.ReloadDatesFromDataModel;
+     F.NoteUI.ReloadMetadataFromDataModel(false);
      F.TreeUI.ShowAdditionalColumns(true);
 
      F.Modified:= True;
@@ -2586,8 +2586,9 @@ begin
           else
           if ( key = _DateCreated ) then
              NEntry.Created:= StrToDate_Compact(s)
-
-           // ToDO:       fTags: TNoteTagList;
+          else
+          if ( key = _NEntryTags ) then
+             NEntry.StringToTags(s)
        end;
 
        if InNote then begin
@@ -2856,7 +2857,8 @@ var
      if (NEntry.States <> []) and (NEntry.States <> [nesModified]) then
        tf.WriteLine(_NEntryState + '=' + NEntry.StatesToString);
 
-     // ToDO: fTags: TNoteTagList
+     if NEntry.Tags <> nil then
+        tf.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);
 
      if not Note.IsVirtual then
         SaveTextToFile(tf, NEntry.Stream, NEntry.IsPlainTXT);

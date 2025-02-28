@@ -40,6 +40,7 @@ type
  TNoteList = TSimpleObjList<TNote>;           // TList<TNote>;            >> System.Generics.Collections
  TNoteNodeList = TSimpleObjList<TNoteNode>;   // TList<TNoteNode>;
  TNoteTagList= TSimpleObjList<TNoteTag>;      // TList<TNoteTag>;
+ TNoteTagArray = Array of TNoteTag;
 
  TResource = TNote;                           // TODO: Define TResource as a structure with a note and a typology (at least)
  TResourceList = TSimpleObjList<TResource>;
@@ -300,7 +301,7 @@ type
     fID: Word;
     fStates: TNoteEntryStates;
     fDateCreated: TDateTime;
-    fTags: TNoteTagList;
+    fTags: TNoteTagArray;
     fStream : TMemoryStream;
     fTextPlain : string;
 
@@ -325,7 +326,7 @@ type
     property States: TNoteEntryStates read fStates;
     procedure SetModified;
     property Modified: boolean read GetModified write SetModified_;
-    property Tags: TNoteTagList read fTags;
+    property Tags: TNoteTagArray read fTags write fTags;
     property Created: TDateTime read fDateCreated write fDateCreated;
 
 
@@ -335,6 +336,9 @@ type
 
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
+
+    function TagsToString: string;
+    procedure StringToTags(Str: string);
   end;
 
 
@@ -971,8 +975,7 @@ begin
   if assigned(fStream) then
      fStream.Free;
 
-  if fTags <> nil then
-     fTags.Free;
+  fTags:= nil;
 
   inherited Destroy;
 end;
@@ -987,10 +990,8 @@ begin
   fStream.Position := 0;
   fTextPlain:= Source.TextPlain;
 
+  fTags:= Source.fTags;
   fStates:= Source.States;          // TODO: nesEntryAndNote ....
-
-  if assigned(Source.fTags) and (Source.fTags.Count > 0) then
-     fTags:= TNoteTagList.Create(Source.fTags);
 
   SetModified;
 end;
@@ -1071,6 +1072,48 @@ procedure TNoteEntry.StringToStates(HexStr: string);
 begin
    IntToSet(StrToIntDef('$' + HexStr, 0), fStates, SizeOf(TNoteEntryStates));
 end;
+
+function TNoteEntry.TagsToString: string;
+var
+   i: integer;
+begin
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         Result:= Result + Tags[i].ID.ToString + ',';
+      delete(Result, Length(Result),1);           // Remove last ','
+   end;
+end;
+
+procedure TNoteEntry.StringToTags(Str: string);
+var
+   i, pI: integer;
+   N: integer;
+   IDTag: Cardinal;
+   NTag: TNoteTag;
+begin
+   if Str = '' then begin
+      fTags:= nil;
+      exit;
+   end;
+
+   Str:= Str + ',';
+   pI:= 1;
+   for i:= 1 to Length(Str) do begin
+      if Str[i] = ',' then begin
+         IDTag:= StrToUIntDef(Copy(Str, pI, i-pI), 0);
+         if (IDTag <> 0) then begin
+            NTag:= ActiveFile.GetNTagByID(IDTag);
+            if (NTag <> nil) then begin
+               inc(N);
+               SetLength(fTags, N);
+               fTags[N-1]:= NTag;
+            end;
+         end;
+         pI:= i+1;
+      end;
+   end;
+end;
+
 
 {$ENDREGION }
 

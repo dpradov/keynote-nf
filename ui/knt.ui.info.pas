@@ -43,7 +43,7 @@ type
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
      procedure ReloadFromDataModel;
-     function ReloadDatesFromDataModel: TNoteEntry;
+     function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
      procedure ReloadNoteName;
      function  SaveToDataModel: TMemoryStream;
 

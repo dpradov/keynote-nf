@@ -935,6 +935,8 @@ const
   _NEntryID = 'id';
   _NEntryState = 'NS';
   //DC=21-05-2003 15:25:25       Date and time the entry was created
+  _NEntryTags = 'TG';
+
 
   // Tokens for note nodes (in folder)
   //GI=2  Optional: Global ID (GID) of the note referenced by the Node.
