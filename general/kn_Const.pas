@@ -305,7 +305,7 @@ const
   _NF_EmbeddedIMAGES  = '%EI';
   _NF_Bookmarks       = '%BK';
   _NF_Bookmark        = 'BK';
-  _NF_Tags            = '%T';
+  _NF_Tags            = '%TG';
 
 
 const

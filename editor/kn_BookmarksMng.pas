@@ -158,10 +158,6 @@ begin
     while ( not tf.eof()) do begin
        s:= tf.readln();
 
-       if ( s = _NF_Tags ) then begin
-         NextBlock:= nbTags;            // Tag list begins
-         break;
-       end;
        if ( s = _NF_StoragesDEF ) then begin
          NextBlock:= nbImages;         // Images definition begins
          break;

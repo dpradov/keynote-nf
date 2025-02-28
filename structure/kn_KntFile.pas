@@ -2309,15 +2309,20 @@ begin
               end; // _NF_COMMENT
 
 
+              if ( ds = _NF_Tags ) then begin
+                InHead := false;
+                NextBlock:= nbTags;
+                break;
+              end;
 
-             if Copy(ds,1,2) = _NumNotes then begin
+              if Copy(ds,1,2) = _NumNotes then begin
                 var NumNotes: integer;
                 InHead := false;
                 NextBlock:= nbNotes;
                 NumNotes:= StrToIntDef(Copy(ds,4), 0);
                 fNotes.Capacity:= NumNotes;
                 break;
-             end;
+              end;
 
               // '%' markers, start a new entry
               if FVersion.Major < '3' then
@@ -2650,9 +2655,12 @@ begin
    while ( not tf.eof()) do begin
       s:= tf.readln();
 
-      if ( s = _NF_StoragesDEF ) then begin
-        NextBlock:= nbImages;         // Images definition begins
-        break;
+      if Copy(s,1,2) = _NumNotes then begin
+         var NumNotes: integer;
+         NextBlock:= nbNotes;
+         NumNotes:= StrToIntDef(Copy(s,4), 0);
+         fNotes.Capacity:= NumNotes;
+         break;
       end;
       if ( s = _NF_EOF ) then begin
         FileExhausted := true;
@@ -2952,6 +2960,19 @@ var
     end;
 
 
+    // Save Tags
+    if NoteTags.Count > 0 then begin
+       tf.WriteLine(_NF_Tags);
+       for i := 0 to NoteTags.Count -1 do begin
+          NTag:= NoteTags[i];
+          tf.WriteLine(_TagID + '=' + NTag.ID.ToString);
+          tf.WriteLine(_TagName + '=' + NTag.Name);
+          if NTag.Description <> '' then
+             tf.WriteLine(_TagDescription + '=' + NTag.Description);
+       end;
+    end;
+
+
     if ExportingMode then begin
        NotesToSave:= TNoteList.Create;
        for i := 0 to FFolders.Count -1 do
@@ -2961,7 +2982,7 @@ var
        // Save Notes (TNote) with its Entries (TNoteEntry)
        tf.WriteLine(_NumNotes + '=' + NotesToSave.Count.ToString);
        for i := 0 to NotesToSave.Count -1 do
-          WriteNote(NotesToSave[i]);             
+          WriteNote(NotesToSave[i]);
     end
     else begin
        // Save Notes (TNote) with its Entries (TNoteEntry)
@@ -2988,20 +3009,7 @@ var
 
     SerializeBookmarks(tf);
 
-    // Save Tags
-    if NoteTags.Count > 0 then begin
-       tf.WriteLine(_NF_Tags);
-       for i := 0 to NoteTags.Count -1 do begin
-          NTag:= NoteTags[i];
-          tf.WriteLine(_TagID + '=' + NTag.ID.ToString);
-          tf.WriteLine(_TagName + '=' + NTag.Name);
-          if NTag.Description <> '' then
-             tf.WriteLine(_TagDescription + '=' + NTag.Description);
-       end;
-    end;
-
-
-    Log_StoreTick( 'After saving Folders, bookmarks and tags', 1 );
+    Log_StoreTick( 'After saving Folders and bookmarks', 1 );
 
 
     if SaveImages then begin
