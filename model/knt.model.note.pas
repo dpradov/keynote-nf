@@ -337,6 +337,7 @@ type
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
 
+    function HaveSameTags(SomeTags: TNoteTagArray): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
   end;
@@ -1114,6 +1115,22 @@ begin
    end;
 end;
 
+// Consider also the order of tags
+function TNoteEntry.HaveSameTags(SomeTags: TNoteTagArray): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   if (Length(Tags) = Length(SomeTags)) then begin
+      Result:= True;
+      if (Tags <> nil)  then begin
+         for i:= 0 to High(Tags) do
+            if Tags[i] <> SomeTags[i] then
+               exit(False);
+      end;
+   end;
+
+end;
 
 {$ENDREGION }
 

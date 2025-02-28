@@ -71,6 +71,8 @@ type
     FKntFolder: TKntFolder;
     FEditor: TKntRichEdit;
 
+    FCanvasAux: TControlCanvas;
+
     FInfoPanelHidden: boolean;
     FNNodeDeleted: boolean;
     fImagesReferenceCount: TImageIDs;
@@ -146,6 +148,9 @@ type
     function GetCaretPosTag: integer;
     function GetEndOfWord: integer;
     procedure CommitAddedTags;
+    procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
+
+    procedure FrameResize(Sender: TObject);
   end;
 
 
@@ -203,6 +208,7 @@ begin
    end;
 
    OnEnter:= NoteUIEnter;
+   OnResize:= FrameResize;
 
    FColorTxts:= RGB(248,248,248);
    txtName.Color:= FColorTxts;
@@ -214,6 +220,10 @@ begin
       txtTags.Top:= 0;
       pnlIdentif.Align:= alTop;
    end;
+
+   FCanvasAux := TControlCanvas.Create;
+   FCanvasAux.Control := txtTags;
+   FCanvasAux.Font := TxtTags.Font;
 
    SetReadOnly(KntFolder.ReadOnly);
 
@@ -229,6 +239,9 @@ begin
       App.EditorUnavailable(FEditor);
       FreeAndNil(FEditor);
     end;
+
+   if assigned(FCanvasAux) then
+      FCanvasAux.Free;
 
    fImagesReferenceCount:= nil;
 
@@ -413,7 +426,11 @@ end;
 procedure TKntNoteUI.txtTagsEnter(Sender: TObject);
 begin
    ActiveFile.NoteTagsTemporalAdded.Clear;
+   if txtTags.Text = ' #' then
+      txtTags.Text:= '';
+   txtTags.Font.Color:= $C00000;
    txtTags.Hint:= '';
+   AdjustTxtTagsWidth(True);
 end;
 
 procedure TKntNoteUI.txtTagsExit(Sender: TObject);
@@ -426,6 +443,11 @@ begin
 
    CommitAddedTags;
    txtTags.Hint:= txtTags.Text;
+   if txtTags.Text = '' then
+      txtTags.Text := ' #'
+   else
+      txtTags.Font.Color:= clWindowText;
+   AdjustTxtTagsWidth;
 end;
 
 
@@ -506,7 +528,7 @@ var
    Txt, tagName: string;
    NTag: TNoteTag;
    TagsAssigned: TNoteTagArray;
-   TagsCreated: array of string;
+   TagsNames: array of string;
    N: integer;
    TagsStateBAK: TTagsState;
    NEntry: TNoteEntry;
@@ -516,8 +538,8 @@ var
      i: integer;
    begin
       Result:= false;
-      for i := 0 to High(TagsAssigned) do begin
-          if ( AnsiCompareText( TagsAssigned[i].Name, aName ) = 0 ) then
+      for i := 0 to High(TagsNames) do begin
+          if ( AnsiCompareText( TagsNames[i], aName ) = 0 ) then
                exit(true);
       end;
    end;
@@ -530,17 +552,14 @@ var
 
       inc(N);
       SetLength(TagsAssigned, N);
-      SetLength(TagsCreated, N);
+      SetLength(TagsNames, N);
+      TagsNames[N-1]:= tagName;
       NTag:= ActiveFile.GetTemporalNTagByName(tagName);
-      TagsCreated[N-1]:= '';
       if NTag <> nil then
-         TagsCreated[N-1]:= tagName
-      else begin
-         NTag:= ActiveFile.GetNTagByName(tagName);
-         if NTag = nil then                       // It must have been added by pasting, not typing.
-            TagsCreated[N-1]:= tagName
-      end;
-      TagsAssigned[N-1]:= NTag;
+         NTag:= nil
+      else
+         NTag:= ActiveFile.GetNTagByName(tagName);  // If return NTag is nil must have been added by pasting, not typing.
+      TagsAssigned[N-1]:= NTag;        // NTag = nil => New tag that will be created
    end;
 
 begin
@@ -569,9 +588,9 @@ begin
    TagsStateBAK:= App.TagsState;
    App.TagsState := tsHidden;
 
-   for i := 0 to High(TagsCreated) do begin
-       if TagsCreated[i] <> '' then begin
-          NTag:= ActiveFile.AddNTag(TagsCreated[i], '');
+   for i := 0 to High(TagsAssigned) do begin
+       if TagsAssigned[i] = nil then begin
+          NTag:= ActiveFile.AddNTag(TagsNames[i], '');
           TagsAssigned[i]:= NTag;
        end;
    end;
@@ -579,11 +598,48 @@ begin
    App.TagsUpdated;                            // Perform the sorting only once
 
 
-  NEntry:= Note.Entries[0];       // %%%%
-  NEntry.Tags:= TagsAssigned;
-  App.NEntryModified(NEntry, Note, Folder);
+  NEntry:= Note.Entries[0];                               // %%%%
+  if not NEntry.HaveSameTags(TagsAssigned) then begin
+     NEntry.Tags:= TagsAssigned;
+     App.NEntryModified(NEntry, Note, Folder);
+  end;
 end;
 
+
+procedure TKntNoteUI.AdjustTxtTagsWidth (AllowEdition: boolean = False);
+var
+  MinNoteNameWidth, MaxAvailableWidth: integer;
+  MaxAvailableForTags, TagsWidth: integer;
+
+begin
+  MinNoteNameWidth:= FCanvasAux.TextWidth(Note.Name) + 10;
+  TagsWidth:= FCanvasAux.TextWidth(txtTags.Text) + 10;
+
+  MaxAvailableWidth:= pnlIdentif.Width - txtCreationDate.Width -4;
+  MaxAvailableForTags:= MaxAvailableWidth;
+
+  if not AllowEdition then
+     dec(MaxAvailableForTags, MinNoteNameWidth)
+
+  else begin
+     TagsWidth:= TagsWidth * 2;
+     if TagsWidth < 170 then
+        TagsWidth:= 170;
+  end;
+  if TagsWidth > MaxAvailableForTags then
+     TagsWidth := MaxAvailableForTags;
+
+  txtTags.Width:= TagsWidth;
+  txtName.Width:= MaxAvailableWidth - TagsWidth;
+  txtName.Left:= txtTags.Left + TagsWidth + 2;
+end;
+
+
+procedure TKntNoteUI.FrameResize(Sender: TObject);
+begin
+   if Note <> nil then
+      AdjustTxtTagsWidth(txtTags.Focused);
+end;
 
 
 {$ENDREGION}
@@ -691,11 +747,20 @@ begin
 
       if ReloadTags then begin
          S:= '';
-         if Result.Tags <> nil then
+         if Result.Tags <> nil then begin
             for i:= 0 to High(Result.Tags) do
                S:= S + Result.Tags[i].Name + ' ';
+         end;
          txtTags.Text:= S;
          txtTags.Hint:= S;
+         if S = '' then begin
+            txtTags.Text:= ' #';
+            txtTags.Font.Color:= clGray;
+         end
+         else
+            txtTags.Font.Color:= clWindowText;
+
+         AdjustTxtTagsWidth;
       end;
 
    finally

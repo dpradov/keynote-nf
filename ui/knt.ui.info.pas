@@ -54,6 +54,7 @@ type
      procedure ReloadImagesOnEditor;
 
      procedure SetInfoPanelHidden(value: boolean);
+     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
 
      procedure SetReadOnly( AReadOnly : boolean );
      procedure NNodeDeleted;

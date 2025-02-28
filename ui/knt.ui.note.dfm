@@ -53,9 +53,9 @@ object KntNoteUI: TKntNoteUI
       OnMouseEnter = txtCreationDateMouseEnter
     end
     object txtName: TEdit
-      Left = 131
+      Left = 35
       Top = 2
-      Width = 326
+      Width = 421
       Height = 22
       TabStop = False
       Alignment = taCenter
@@ -71,7 +71,7 @@ object KntNoteUI: TKntNoteUI
     object txtTags: TEdit
       Left = 0
       Top = 2
-      Width = 129
+      Width = 33
       Height = 22
       TabStop = False
       ParentShowHint = False
