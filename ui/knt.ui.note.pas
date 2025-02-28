@@ -533,6 +533,8 @@ begin
          end;
 
   end;
+  if (Key = #13) and (SelectingTagsMode = stWithoutTagSelector) then
+     Editor.SetFocus;
 
 end;
 
@@ -563,6 +565,8 @@ var
    begin
       if pI = pF then exit;
       tagName:= Copy(txt, pI, pF-pI+1);
+      if Trim(tagName) = '' then exit;
+
       if DuplicateTag(tagName) then exit;
 
       inc(N);
@@ -618,6 +622,7 @@ begin
      NEntry.Tags:= TagsAssigned;
      App.NEntryModified(NEntry, Note, Folder);
   end;
+  txtTags.Text:= NEntry.TagsNames;
 end;
 
 procedure TKntNoteUI.UpdateTagsHint;
@@ -774,11 +779,7 @@ begin
          txtCreationDate.Text:= '';
 
       if ReloadTags then begin
-         S:= '';
-         if Result.Tags <> nil then begin
-            for i:= 0 to High(Result.Tags) do
-               S:= S + Result.Tags[i].Name + ' ';
-         end;
+         S:= Result.TagsNames;
          txtTags.Text:= S;
          UpdateTagsHint;
          if S = '' then begin

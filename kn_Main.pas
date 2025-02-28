@@ -2783,7 +2783,8 @@ begin
              ( activecontrol = ListBox_ResFav ) or
              ( activecontrol = TVTags ) or
              ( activecontrol = Combo_Zoom ) or
-             ( activecontrol = Combo_Style ) then
+             ( activecontrol = Combo_Style ) or
+             ( activecontrol.Name = 'txtTags') then
           begin
             // if these controls are focused,
             // switch focus to editor

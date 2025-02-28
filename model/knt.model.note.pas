@@ -337,6 +337,7 @@ type
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
 
+    function TagsNames: string;
     function HaveSameTags(SomeTags: TNoteTagArray): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
@@ -1072,6 +1073,16 @@ end;
 procedure TNoteEntry.StringToStates(HexStr: string);
 begin
    IntToSet(StrToIntDef('$' + HexStr, 0), fStates, SizeOf(TNoteEntryStates));
+end;
+
+function TNoteEntry.TagsNames: string;
+var
+   i: integer;
+begin
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         Result:= Result + Tags[i].Name + ' ';
+   end;
 end;
 
 function TNoteEntry.TagsToString: string;
