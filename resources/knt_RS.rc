@@ -910,9 +910,11 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55107,  "Name"
 55108,  "Description / alias"
 55109,  "The tag name cannot be blank or include #, : or spaces"
-55110,  "OK to delete Tag \"%s\"?"
-55111,  "OK to delete ALL SELECTED tags?"
+55110,  "OK to delete Tag \"%s\"%s?"
+55111,  "OK to delete ALL SELECTED tags%s?"
 55112,  "Creating new Tag"
 55113,  "Edit tags applied to the note"
 55114,  "OK to ALSO replace \"#%s\" with \"#%s\" within the EXISTING NOTES text"
+55115,  " (with ALL REFERENCES)"
+55116,  "OK to ALSO delete ALL REFERENCES within the EXISTING NOTES text?"
 }

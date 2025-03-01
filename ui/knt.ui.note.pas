@@ -978,7 +978,7 @@ begin
                 { If the node has images we will make sure that in TextPlain we save the version corresponding to imLink,
                   to facilitate search management. See notes on TImageMng.GetPositionOffset }
                 NEntry.TextPlain := '';
-                FKntFolder.InitializeTextPlain(NEntry, RTFAux_Note);
+                InitializeTextPlain(NEntry, RTFAux_Note);
              end;
              NEntry.Stream.Position := 0;
              Result:= NEntry.Stream;
@@ -997,7 +997,7 @@ begin
      end
      else
        if (NEntry.TextPlain = '') then
-          FKntFolder.InitializeTextPlain(NEntry, RTFAux_Note);
+          InitializeTextPlain(NEntry, RTFAux_Note);
 
   end;
 end;

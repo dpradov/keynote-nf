@@ -337,6 +337,9 @@ type
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
 
+    function HasTag(TagID: Cardinal): boolean; overload;
+    function HasTag(TagName: string): boolean; overload;
+    procedure RemoveTag(TagID: Cardinal);
     function TagsNames: string;
     function HaveSameTags(SomeTags: TNoteTagArray): boolean;
     function TagsToString: string;
@@ -1074,6 +1077,54 @@ procedure TNoteEntry.StringToStates(HexStr: string);
 begin
    IntToSet(StrToIntDef('$' + HexStr, 0), fStates, SizeOf(TNoteEntryStates));
 end;
+
+
+function TNoteEntry.HasTag(TagID: Cardinal): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         if Tags[i].ID = TagID then
+            exit(True);
+   end;
+end;
+
+
+function TNoteEntry.HasTag(TagName: string): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         if (AnsiCompareText( Tags[i].Name, TagName ) = 0 ) then
+            exit(True);
+   end;
+end;
+
+
+procedure TNoteEntry.RemoveTag(TagID: Cardinal);
+var
+   i, j: integer;
+   NewTags: TNoteTagArray;
+begin
+   if Tags <> nil then begin
+      SetLength(NewTags, Length(Tags));
+      j:= 0;
+      for i:= 0 to High(Tags) do
+         if Tags[i].ID <> TagID then begin
+            NewTags[j]:= Tags[i];
+            inc(j);
+         end;
+      if j < i then begin
+         SetLength(NewTags, j);
+         Tags:= NewTags;
+      end;
+   end;
+end;
+
 
 function TNoteEntry.TagsNames: string;
 var

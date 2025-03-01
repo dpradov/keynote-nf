@@ -218,6 +218,7 @@ type
     function GetTemporalNTagByName( const aName : string ) : TNoteTag;
     function AddNTag(const Name, Description : string) : TNoteTag;
     procedure DeleteNTag( NTag : TNoteTag );
+    procedure DeleteNTagReferences( NTag : TNoteTag; RemoveRefInNotesText: boolean);
     function GetNTagsCount : integer;
     function CheckNTagsSorted: boolean;
     procedure UpdateNTagsMatching(const Str : string; var NTags: TNoteTagList);
@@ -272,6 +273,7 @@ uses
    knt.ui.tree,
    kn_AlertMng,
    kn_BookmarksMng,
+   kn_FindReplaceMng,
    knt.App,
    knt.RS
    ;
@@ -1742,6 +1744,32 @@ begin
   Modified := true;
   App.TagsUpdated;
 end;
+
+
+procedure TKntFile.DeleteNTagReferences( NTag : TNoteTag; RemoveRefInNotesText: boolean);
+var
+  i, j: integer;
+  Note: TNote;
+  NEntry: TNoteEntry;
+  TagID: Cardinal;
+  TagName: string;
+begin
+  TagID:= NTag.ID;
+  TagName:= NTag.Name;
+
+  for i := 0 to Notes.Count-1 do begin
+     Note:= Notes[i];
+     for j := 0 to High(Note.Entries) do begin
+         NEntry:= Note.Entries[j];
+         if NEntry.HasTag(TagID) then
+            NEntry.RemoveTag(TagID);
+     end;
+  end;
+
+  if RemoveRefInNotesText then
+     ReplaceInNotes(TagName, '', True, False, False);
+end;
+
 
 procedure TKntFile.VerifyNTagsIds;
 var

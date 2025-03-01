@@ -290,11 +290,11 @@ type
 
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit ): boolean;
-    function InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
     function PrepareTextPlain (NNode: TNoteNode; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
 
   end; // TKntFolder
 
+  function InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
   procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
 
 implementation
@@ -1726,7 +1726,7 @@ end; // GetEditorProperties
 procedure InitializeTextPlain_Compare(NEntry: TNoteEntry; RTFAux: TAuxRichEdit); forward;
 procedure InitializeTextPlain_Compare_RTF(NEntry: TNoteEntry; RTFAux: TAuxRichEdit);  forward;
 
-function TKntFolder.InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
+function InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
 var
   AStr: AnsiString;
   Str: String;
@@ -1807,7 +1807,7 @@ begin
       NoteUI.SaveToDataModel;
 
    NEntry:= NNode.Note.Entries[0];         // %%%
-   if Self.InitializeTextPlain(NEntry, RTFAux) and ClearRTFAux and NEntry.IsRTF then
+   if InitializeTextPlain(NEntry, RTFAux) and ClearRTFAux and NEntry.IsRTF then
       RTFAux.Clear;
    Result:= NEntry.TextPlain;
 end;

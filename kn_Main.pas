@@ -5600,30 +5600,70 @@ var
   TVSelectedNodes: TNodeArray;
   NTag: TNoteTag;
   i: integer;
+  MsgRemovingRef: string;
+  RemoveRefInNotesText: boolean;
+
+  function CheckRemovingReferencesInNotesText: boolean;
+  begin
+     Result:= RemoveRefInNotesText or (App.DoMessageBox(GetRS(sTag10), mtConfirmation, [mbYes,mbNo]) = mrYes);
+  end;
+
 begin
   if (ActiveFile = nil) or ActiveFile.ReadOnly then exit;
+
+  {
+   Depending on a new option (to be implemented), AutoDiscoverTags, you may be asked whether to also remove,
+   from the text of existing notes, all references to deleted tags.
+
+   If AutoDiscoverTags=True, it makes no sense to ask whether or not to remove references within the text of notes,
+   as they would be automatically added back when saving the notes. They will therefore be removed, and this will
+   be indicated along with the initial confirmation on whether to delete the tag.
+   In the case that AutoDiscoverTags=False KeyNote will ask for confirmation. It could be that we do not want to
+   remove references (uses) to tags already applied, which could still be searched for.
+   In fact, it could be a way to make it easier to find certain 'sensitive' information, perhaps hidden in folded
+   text, tagged with a tag not included in the visible list of tags.
+  }
+  MsgRemovingRef:= '';
+  RemoveRefInNotesText:= False;
+  if KeyOptions.AutoDiscoverTags then begin
+     MsgRemovingRef:= GetRS(sTag9);
+     RemoveRefInNotesText:= True;
+  end;
 
   if TVTags.SelectedCount <= 1 then begin
      Node:= TVTags.FocusedNode;
      if Node = nil then exit;
      NTag:= ActiveFile.NoteTagsSorted[Node.Index];
-     if (App.DoMessageBox(Format(GetRS(sTag4), [NTag.Name]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     if (App.DoMessageBox(Format(GetRS(sTag4), [NTag.Name, MsgRemovingRef]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     RemoveRefInNotesText:= CheckRemovingReferencesInNotesText();
+     ActiveFile.DeleteNTagReferences(NTag, RemoveRefInNotesText);
      ActiveFile.DeleteNTag(NTag);
   end
   else begin
-     if (App.DoMessageBox(GetRS(sTag5) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     if (App.DoMessageBox(Format(GetRS(sTag5), [MsgRemovingRef]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     RemoveRefInNotesText:= CheckRemovingReferencesInNotesText();
+
      TVSelectedNodes:= TVTags.GetSortedSelection(True);
      App.TagsState := tsHidden;
+     TVTags.BeginUpdate;
      try
         for i := High(TVSelectedNodes) downto 0 do begin
            NTag:= ActiveFile.NoteTagsSorted[TVSelectedNodes[i].Index];
+           ActiveFile.DeleteNTagReferences(NTag, RemoveRefInNotesText);
            ActiveFile.DeleteNTag(NTag);
         end;
      finally
         App.TagsState := tsVisible;
         App.TagsUpdated;
+        TVTags.ClearSelection;
+        TVTags.EndUpdate;
      end;
   end;
+
+  for i:= 0 to ActiveFile.Folders.Count-1 do
+     ActiveFile.Folders[i].NoteUI.RefreshTags;
+
+  TVTags.SetFocus;
 end;
 
 

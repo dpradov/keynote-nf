@@ -2216,7 +2216,7 @@ begin
 
      finally
        try
-          JumpToLocation(LocBeforeReplacing);
+          JumpToLocation(LocBeforeReplacing, true, false);
        finally
           LocBeforeReplacing.Free;
        end;
@@ -2847,7 +2847,8 @@ begin
   ReplaceWith:= FindOptions.ReplaceWith;
   if FindOptions.TagSearch then begin
      Text_To_Find := '#' + Text_To_Find.ToUpper;
-     ReplaceWith := '#' + ReplaceWith;
+     if ReplaceWith <> '' then
+        ReplaceWith := '#' + ReplaceWith;
   end;
 
 
@@ -2942,12 +2943,13 @@ begin
   if ( ReplaceCnt > 0 ) then begin
      if ReplaceAll then begin
         Editor.SelLength:= 0;
-        DoMessageBox(txtMessage, GetRS(sFnd12), 0, handle);
+        if not FindOptions.TagSearch then
+           DoMessageBox(txtMessage, GetRS(sFnd12), 0, handle);
      end;
      App.ActivateFolder(ActiveFolder);
   end
   else
-      if not SelectedTextToReplace then begin
+      if not SelectedTextToReplace and not FindOptions.TagSearch then begin
          DoMessageBox(Format( GetRS(sFnd02), [Text_To_Find] ), GetRS(sFnd12), 0, handle);
       end;
 
