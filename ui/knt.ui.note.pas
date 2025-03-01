@@ -101,6 +101,7 @@ type
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
     function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
+    procedure RefreshTags;
     function  SaveToDataModel: TMemoryStream;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
@@ -370,6 +371,7 @@ begin
    if txtName.Focused and not txtName.ReadOnly then
       txtName.Color:= clWindow;
 
+   txtName.SelLength:= 0;
    NoteUIEnter(Sender);
 end;
 
@@ -778,23 +780,32 @@ begin
       else
          txtCreationDate.Text:= '';
 
-      if ReloadTags then begin
-         S:= Result.TagsNames;
-         txtTags.Text:= S;
-         UpdateTagsHint;
-         if S = '' then begin
-            txtTags.Text:= ' #';
-            txtTags.Font.Color:= clGray;
-         end
-         else
-            txtTags.Font.Color:= clWindowText;
-
-         AdjustTxtTagsWidth;
-      end;
+      if ReloadTags then
+         RefreshTags;
 
    finally
       ActiveFileIsBusy:= ActiveFileIsBusyBAK;
    end;
+end;
+
+
+procedure TKntNoteUI.RefreshTags;
+var
+   S: string;
+   NEntry: TNoteEntry;
+begin
+   NEntry:= Note.Entries[0];       // %%%%
+   S:= NEntry.TagsNames;
+   txtTags.Text:= S;
+   UpdateTagsHint;
+   if S = '' then begin
+      txtTags.Text:= ' #';
+      txtTags.Font.Color:= clGray;
+   end
+   else
+      txtTags.Font.Color:= clWindowText;
+
+   AdjustTxtTagsWidth;
 end;
 
 

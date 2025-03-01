@@ -769,6 +769,7 @@ type
     SearchPathInNodeNames: boolean;      // ,,
     ShowChildren: boolean;      // show children of matching nodes
     EmphasizedSearch: TEmphasizedSerch;  // for "Find all" (resource panel) ONLY
+    TagSearch: boolean;   // Search for a tag (#MyTag). It must meet certain other criteria.
   end;
 
 const

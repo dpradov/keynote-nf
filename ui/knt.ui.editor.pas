@@ -363,6 +363,7 @@ uses
    kn_CharsNew,
    kn_Glossary,
    kn_ExpTermDef,
+   kn_FindReplaceMng,
    knt.App,
    knt.RS
   ;
@@ -5484,7 +5485,7 @@ end; // WordWebLookup
 // That more exhaustive search will only be performed when saving the note
 procedure TKntRichEdit.CommitAddedTags;
 var
-   i, p, pF: integer;
+   i, p: integer;
    Txt: string;
    NTag: TNoteTag;
    N: integer;
@@ -5508,15 +5509,7 @@ begin
 
    for i := 0 to N do begin
       NTag:= ActiveFile.NoteTagsTemporalAdded[i];
-      p:= Pos('#' + NTag.Name.ToUpper, Txt, 1);
-      pF:= p + Length(NTag.Name) + 1;
-      if not (
-         (p > 0)                                                  and
-         ((p = 1)            or (Txt[p-1] in TagCharsDelimiters)) and
-         ((pF > Length(Txt)) or (Txt[pF]  in TagCharsDelimiters)) ) then begin
-         p:= -1;
-      end;
-
+      p:= FindTag('#' + NTag.Name.ToUpper, Txt, 1);
       if p <= 0 then
          ActiveFile.DeleteNTag(NTag)
       else begin

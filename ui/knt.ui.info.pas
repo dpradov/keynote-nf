@@ -54,6 +54,7 @@ type
      procedure ReloadImagesOnEditor;
 
      procedure EditTags;
+     procedure RefreshTags;
      procedure SetInfoPanelHidden(value: boolean);
      procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
 

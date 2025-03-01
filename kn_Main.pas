@@ -1349,6 +1349,7 @@ type
     procedure TVTags_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     procedure TVTags_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure RenameTag;
+    function CheckRenameTagInNotes(const OldName, NewName: string): boolean;
     procedure TVTags_CreateEditor(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
     procedure TVTags_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
     procedure TVTags_Edited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
@@ -5409,6 +5410,9 @@ begin
 end; // ConfigurePlugin
 
 
+//======================================================================================== TAGS
+
+
 procedure TForm_Main.SetupTagsTab;
 begin
    txtFilterTags.OnChange:= txtFilterTagsChange;
@@ -5640,6 +5644,20 @@ begin
   TVTags.EditNode(Node, TVTags.FocusedColumn)
 end;
 
+function TForm_Main.CheckRenameTagInNotes(const OldName, NewName: string): boolean;
+begin
+     case App.DoMessageBox( Format(GetRS(sTag8), [OldName, NewName]), mtConfirmation, [mbYes,mbNo,mbCancel], def1) of
+       mrNo :     Result:= True;
+       mrCancel : Result:= False;
+       mrYes:
+         begin
+             Result:= True;
+             ReplaceInNotes(OldName, NewName, True, False, False);
+         end;
+     end;
+
+end;
+
 
 procedure TForm_Main.TVTags_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
 begin
@@ -5675,13 +5693,19 @@ begin
               exit;
            end
            else
+           if CheckRenameTagInNotes(NTag.Name, NewText) then begin
               NTag.Name:= NewText;
+              if (ActiveFolder <> nil) then
+                 ActiveFolder.NoteUI.RefreshTags;
+           end;
 
         1: NTag.Description:= NewText;
   end;
 
   App.FileSetModified;
 end;
+
+//========================================================================================
 
 
 

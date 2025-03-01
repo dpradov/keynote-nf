@@ -914,4 +914,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55111,  "OK to delete ALL SELECTED tags?"
 55112,  "Creating new Tag"
 55113,  "Edit tags applied to the note"
+55114,  "OK to ALSO replace \"#%s\" with \"#%s\" within the EXISTING NOTES text"
 }

@@ -1037,7 +1037,7 @@ const
    sTag5  = 55111;   // OK to delete ALL SELECTED tags?
    sTag6  = 55112;   // Creating new Tag
    sTag7  = 55113;   // Edit tags applied to the note
-
+   sTag8  = 55114;   // OK to ALSO replace "#%s" with "#%s" within the EXISTING NOTES text?
 
 
 implementation

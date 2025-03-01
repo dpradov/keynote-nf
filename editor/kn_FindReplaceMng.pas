@@ -76,6 +76,9 @@ procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
 procedure RunReplace;
 procedure RunReplaceNext;
 
+function FindTag(const Substr: string; const Str: String; SearchOrigin: integer): integer;
+procedure ReplaceInNotes(const ToReplace, ReplaceWith: string; TagSearch: boolean; MatchCase: boolean; WholeWordsOnly: boolean);
+
 procedure ClearFindAllResults;
 procedure UpdateFindAllResultsWidth;
 procedure FindResultsToEditor( const SelectedOnly : boolean );
@@ -277,6 +280,23 @@ begin
 
 end;
 
+// IMPORTANT: Substr is assumed to be in upper case and starts with #. Str is also is assumed to be in upper case
+
+function FindTag(const Substr: string; const Str: String; SearchOrigin: integer): integer;
+var
+   p, pF: integer;
+begin
+   p:= Pos(Substr, Str, SearchOrigin);
+   pF:= p + Length(Substr);
+   if not (
+      (p > 0)                                                  and
+      ((p = 1)            or (Str[p-1] in TagCharsDelimiters)) and
+      ((pF > Length(Str)) or (Str[pF]  in TagCharsDelimiters)) ) then begin
+      p:= -1;
+   end;
+
+   Result:= p;
+end;
 
 
 function FindPattern (const Substr: string; const Str: String; SearchOrigin: integer; var SizeInternalHiddenText: integer; IgnoreKNTHiddenMarks: boolean = true): integer;
@@ -313,7 +333,7 @@ var
   comparing. If after passing the last character of the first hidden string there was no match, we should continue looking for new possible
   hidden texts, to repeat the process.
 
-  NOTE: IgnoreKNTHiddenMarks => The search will be performed without special treatment of possible hidden characters, if any.
+  NOTE: IgnoreKNTHiddenMarks=False => The search will be performed without special treatment of possible hidden characters, if any.
        This allows you to locate these characters, if you are interested, but it can also speed up the search when you know that
        there cannot be hidden characters when searching within note names or in plain, non-RTF notes.
 }
@@ -334,7 +354,13 @@ begin
     SizeInternalHiddenText:= 0;
 
     if (Substr = '') or (Str='') then Exit(0);
-   
+
+    if FindOptions.TagSearch then begin
+       Result:= FindTag(Substr, Str, SearchOrigin);
+       exit;
+    end;
+
+
     LenPattern:= Length(Substr);
     LenStr := Length(Str);
     pH:= 0;
@@ -2151,6 +2177,61 @@ begin
       RunFindNext;
 end;
 
+procedure ReplaceInNotes(const ToReplace, ReplaceWith: string; TagSearch: boolean; MatchCase: boolean; WholeWordsOnly: boolean);
+var
+  FindOptionsBAK: TFindOptions;
+  LocBeforeReplacing: TLocation;
+
+begin
+
+  try
+     LocBeforeReplacing:= nil;
+     GetKntLocation (ActiveFolder, LocBeforeReplacing, false);
+     LocBeforeReplacing.ScrollPosInEditor:= ActiveFolder.Editor.GetScrollPosInEditor;
+     FindOptionsBAK:= FindOptions;
+     _Executing_History_Jump:= True;         // A way to not record note selections in the history mechanism
+
+     if TagSearch then begin
+        MatchCase:= False;
+        WholeWordsOnly:= False;
+     end;
+
+     try
+        FindOptions.Pattern:= ToReplace;
+        FindOptions.ReplaceWith:= ReplaceWith;
+        FindOptions.TagSearch:= TagSearch;
+        FindOptions.MatchCase:= MatchCase;
+        FindOptions.WholeWordsOnly:= WholeWordsOnly;
+
+        with FindOptions do begin
+           FindNew:= True;
+           EntireScope:= True;
+           ReplaceConfirm:= False;
+           HiddenNodes:= True;
+           AllNodes:= True;
+           AllTabs_FindReplace:= True;
+           Wrap:= True;
+        end;
+        ReplaceEventProc(True);
+
+     finally
+       try
+          JumpToLocation(LocBeforeReplacing);
+       finally
+          LocBeforeReplacing.Free;
+       end;
+       FindOptions:= FindOptionsBAK;
+       _Executing_History_Jump:= False;
+     end;
+
+  except
+    on E : Exception do begin
+      App.ErrorPopup(E);
+    end;
+  end;
+
+end;
+
 
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 begin
@@ -2656,6 +2737,7 @@ var
   Original_Confirm : boolean;
   Original_EntireScope : boolean;
   SelectedTextToReplace: boolean;
+  ReplaceWith: string;
   DoReplace: Boolean;
   txtMessage: string;
   handle: HWND;
@@ -2762,6 +2844,13 @@ begin
 
   ReplaceCnt := 0;
   Text_To_Find := FindOptions.Pattern;
+  ReplaceWith:= FindOptions.ReplaceWith;
+  if FindOptions.TagSearch then begin
+     Text_To_Find := '#' + Text_To_Find.ToUpper;
+     ReplaceWith := '#' + ReplaceWith;
+  end;
+
+
   Original_Confirm := FindOptions.ReplaceConfirm;
   Original_EntireScope := FindOptions.EntireScope;
 
@@ -2816,7 +2905,7 @@ begin
 
                 if GetReplacementConfirmation then begin
                    inc(ReplaceCnt);
-                   Editor.AddText(FindOptions.ReplaceWith);
+                   Editor.AddText(ReplaceWith);
                    if Editor.NNodeObj <> nil then
                       App.ChangeInEditor(Editor);
                 end;
