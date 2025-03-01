@@ -273,6 +273,7 @@ procedure TKntNoteUI.SetReadOnly( AReadOnly : boolean );
 begin
    Editor.ReadOnly:= AReadOnly;
    txtName.ReadOnly:= AReadOnly;
+   txtTags.ReadOnly:= AReadOnly;
 
    ConfigureEditor;
 end;
@@ -436,6 +437,8 @@ end;
 
 procedure TKntNoteUI.txtTagsEnter(Sender: TObject);
 begin
+   if txtTags.ReadOnly then exit;
+
    ActiveFile.NoteTagsTemporalAdded.Clear;
    if txtTags.Text = ' #' then
       txtTags.Text:= '';
@@ -519,6 +522,7 @@ begin
 
      stTagSelected:
          begin
+            if txtTags.ReadOnly then exit;
             SS:= GetEndOfWord;
             txtTags.SelStart:= CaretPosTag-1;
             txtTags.SelLength:= SS - CaretPosTag;
