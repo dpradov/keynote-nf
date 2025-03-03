@@ -214,14 +214,15 @@ type
     property NoteTagsSorted: TNoteTagList read GetNoteTagsSorted;
     property NoteTagsTemporalAdded: TNoteTagList read fNoteTagsTemporalAdded;
     function GetNTagByID( const aID : Cardinal ) : TNoteTag;
-    function GetNTagByName( const aName : string ) : TNoteTag;
-    function GetTemporalNTagByName( const aName : string ) : TNoteTag;
+    function GetNTagByName( const aName : string ) : TNoteTag; overload;
+    function GetNTagByName( const aName : string; const NTags: TNoteTagList) : TNoteTag; overload;
     function AddNTag(const Name, Description : string) : TNoteTag;
     procedure DeleteNTag( NTag : TNoteTag );
     procedure DeleteNTagReferences( NTag : TNoteTag; RemoveRefInNotesText: boolean);
     function GetNTagsCount : integer;
     function CheckNTagsSorted: boolean;
     procedure UpdateNTagsMatching(const Str : string; var NTags: TNoteTagList);
+    //function ContainsNTagsMatching(const Str : string; const NTags: TNoteTagList): boolean;
     procedure SortNoteTags;
 
 
@@ -1642,33 +1643,22 @@ end;
 
 function TKntFile.GetNTagByName( const aName : string ) : TNoteTag;
 //  NOT case-sensitive
-var
-  i: integer;
-  NTag: TNoteTag;
 begin
-  result := nil;
-  if (NoteTags.Count = 0) then exit;
-
-  for i := 0 to NoteTags.Count-1 do begin
-     NTag:= NoteTags[i];
-     if ( AnsiCompareText( NTag.Name, aName ) = 0 ) then
-        exit(NTag);
-  end;
-
+  result:= GetNTagByName(aName, NoteTags);
 end;
 
 
-function TKntFile.GetTemporalNTagByName( const aName : string ) : TNoteTag;
+function TKntFile.GetNTagByName( const aName : string; const NTags: TNoteTagList) : TNoteTag;
 //  NOT case-sensitive
 var
   i: integer;
   NTag: TNoteTag;
 begin
   result := nil;
-  if (NoteTagsTemporalAdded.Count = 0) then exit;
+  if (NTags.Count = 0) then exit;
 
-  for i := 0 to NoteTagsTemporalAdded.Count-1 do begin
-     NTag:= NoteTagsTemporalAdded[i];
+  for i := 0 to NTags.Count-1 do begin
+     NTag:= NTags[i];
      if ( AnsiCompareText( NTag.Name, aName ) = 0 ) then
         exit(NTag);
   end;
@@ -1703,6 +1693,20 @@ begin
    NTags.Sort(CompareNTagsByNameAndDesc);
 end;
 
+{ Not used by now
+function TKntFile.ContainsNTagsMatching(const Str : string; const NTags: TNoteTagList): boolean;
+//  NOT case-sensitive
+var
+  i: integer;
+begin
+   Result:= False;
+   if (NTags <> nil) and (NTags.Count > 0) then begin
+      for i := 0 to NTags.Count-1 do
+         if AnsiStartsText(Str, NTags[i].Name) then
+            exit(True);
+   end;
+end;
+}
 
 
 function TKntFile.InternalAddNTag( NTag : TNoteTag ) : integer;

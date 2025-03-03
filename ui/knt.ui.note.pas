@@ -431,7 +431,7 @@ end;
 
 procedure TKntNoteUI.txtTagsChange(Sender: TObject);
 begin
-  if not ActiveFileIsBusy then
+  if not ActiveFileIsBusy and (SelectingTagsMode <> stTagSelected ) then
      CheckBeginOfTag;
 end;
 
@@ -440,8 +440,10 @@ begin
    if txtTags.ReadOnly then exit;
 
    ActiveFile.NoteTagsTemporalAdded.Clear;
+   IgnoreTagSubstr:= '';
    if txtTags.Text = ' #' then
       txtTags.Text:= '';
+   txtTags.Color:= clWindow;
    txtTags.Font.Color:= clMaroon;
    txtTags.Hint:= '';
    AdjustTxtTagsWidth(True);
@@ -464,6 +466,7 @@ begin
       txtTags.Text := ' #';
       Color:= clGray;
    end;
+   txtTags.Color:= FColorTxts;
    txtTags.Font.Color:= Color;
    AdjustTxtTagsWidth;
 
@@ -523,21 +526,30 @@ begin
      stTagSelected:
          begin
             if txtTags.ReadOnly then exit;
+
+            if Key = #9   then Key:= #0;
+            if Key <> '.' then Key:= ' ';
             SS:= GetEndOfWord;
             txtTags.SelStart:= CaretPosTag-1;
             txtTags.SelLength:= SS - CaretPosTag;
             txtTags.SelText:= TagSubstr;
-            if key in [#13, ':'] then begin
-               EndTagIntroduction;
-               key:= ' ';
-            end
-            else begin
-               SelectingTagsMode := stWithTagSelector;
-               key:= #0;
-               exit;
-            end;
-         end;
+            if Key <> #0 then
+               txtTags.SelText:= Key;
 
+            case key of
+              #9: SelectingTagsMode := stWithTagSelector;
+              '.': begin
+                 SelectingTagsMode := stWithTagSelector;
+                 TagSubstr:= TagSubstr + '.';
+                 UpdateTagSelector;
+              end;
+              else                           // ' ' #13 ':' ',' '#'
+                EndTagIntroduction;
+            end;
+
+            key:= #0;
+            exit;
+         end;
   end;
   if (Key = #13) and (SelectingTagsMode = stWithoutTagSelector) then
      Editor.SetFocus;
@@ -572,14 +584,15 @@ var
       if pI = pF then exit;
       tagName:= Copy(txt, pI, pF-pI+1);
       if Trim(tagName) = '' then exit;
-
+      if tagName[Length(tagName)] = '.' then
+         delete(tagName, Length(tagName), 1);
       if DuplicateTag(tagName) then exit;
 
       inc(N);
       SetLength(TagsAssigned, N);
       SetLength(TagsNames, N);
       TagsNames[N-1]:= tagName;
-      NTag:= ActiveFile.GetTemporalNTagByName(tagName);
+      NTag:= ActiveFile.GetNTagByName(tagName, ActiveFile.NoteTagsTemporalAdded);
       if NTag <> nil then
          NTag:= nil
       else

@@ -163,6 +163,7 @@ const
    partsOfNumbers = '0123456789.,';
    digitsNumbers = '0123456789';
 
+function MillisecondsIdle: DWord;
 function RunsOnWindowsNT : boolean;
 function GetCommandInterpreter : string;
 function TranslateShellExecuteError( const ErrCode : integer ) : string;
@@ -284,6 +285,16 @@ const
   TIME_ZONE_ID_UNKNOWN  = 0;
   TIME_ZONE_ID_STANDARD = 1;
   TIME_ZONE_ID_DAYLIGHT = 2;
+
+
+function MillisecondsIdle: DWord;
+var
+   liInfo: TLastInputInfo;
+begin
+   liInfo.cbSize := SizeOf(TLastInputInfo) ;
+   GetLastInputInfo(liInfo) ;
+   Result := (GetTickCount - liInfo.dwTime);
+end;
 
 
 function GetCommandInterpreter : string;

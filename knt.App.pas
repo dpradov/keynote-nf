@@ -200,9 +200,6 @@ type
   function GetTreeUI(TV: TVirtualStringTree): TKntTreeUI;
 
 
-type
-   TIntroducingTagsMode = (stNoTags, stHashTyped, stWithTagSelector, stWithoutTagSelector, stTagSelected);
-
 var
    App: TKntApp;
 
@@ -225,7 +222,6 @@ var
    UpdatingTextPlain: boolean;
 
    IgnoringEditorChanges: boolean;
-   SelectingTagsMode: TIntroducingTagsMode;
 
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas

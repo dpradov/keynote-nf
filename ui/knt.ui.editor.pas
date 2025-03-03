@@ -260,6 +260,7 @@ type
     procedure WordWebLookup;
 
     procedure CommitAddedTags;
+    procedure CheckSelectingRegisteredTag(TypingBack: boolean = false);
 
   end; // TKntRichEdit
 
@@ -315,27 +316,37 @@ type
 procedure LoadFoldingBlockInfo;
 procedure SaveFoldingBlockInfo(LV: TListView);
 
+
 procedure CreateTagSelector;
 procedure CloseTagSelector;
-procedure CheckEndTagIntroduction;
+procedure CheckEndTagIntroduction(OnTypedHash: boolean= false);
 procedure EndTagIntroduction;
 procedure GetMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
 procedure ShowTagSelector(WidthName, WidthDesc: integer);
 procedure UpdateTagSelector;
 function IsValidTagName (var Name: string): boolean;
 
+const
+   TagCharsDelimiters = [' ', ':', ',', #13, #9, '#'];
+
+type
+   TIntroducingTagsMode = (stNoTags, stHashTyped, stWithTagSelector, stWithoutTagSelector, stTagSelected);
 
 var
   _LoadedRichEditVersion : Single;
    FoldBlocks: Array of TFoldingBlock;
 
-   cTagSelector: TTagSelector;
-   PotentialNTags: TNoteTagList;
+   SelectingTagsMode: TIntroducingTagsMode;
    CaretPosTag: integer;
    TagSubstr: string;
+   cTagSelector: TTagSelector;
+   PotentialNTags: TNoteTagList;
+   IgnoreTagSubstr: string;           // If we identify an unregistered tag, and KeyOptions.AutoDiscoverTags=False -> save here its name, to not register it.
+   IgnoreSelectorForTagSubsr: string;  { If we press ESC and thus hide the selector, we can take note of which tag is there right now, so as not to show the selector again
+                                         if it doesn't change, and thus not offer it again when the selection changes (for example by pressing <- or -> )
+                                         We also use it to avoid CheckSelectingRegisteredTag being called continuously (from TForm_Main.ApplicationEventsIdle)
+                                         once we have checked that there is no tag at the cursor position. }
 
-const
-   TagCharsDelimiters = [' ', ':', ',', #13, #9, '#'];
 
 
 implementation
@@ -373,13 +384,15 @@ uses
 const
   WORD_MAX_LENGTH = 40;
   FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH = 500;
+  TAG_MAX_LENGTH = 65;
+
 
   RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK: integer= 15;
   RTFCONVERSON_MAX_DIF_TO_IGNORE: integer= 5;
 
   procedure RemoveKNTHiddenCharactersFromEditor (Editor: TRxRichEdit; selection: boolean= true); forward;
   function GetRichEditorWithNoKNTHiddenCharacters (Editor: TRxRichEdit; HiddenMarksToRemove: THiddenMarks; const selection: boolean= true): TRxRichEdit; forward;
-
+  function GetTagSubstr(Txt: string): string; forward;
 
 
 function CreateAuxRichEdit: TAuxRichEdit;
@@ -2735,12 +2748,16 @@ begin
           CheckToSelectImageHiddenMarkOnDelete;
 
        VK_BACK:
-          if FSupportsRegisteredImages then begin
-             if SelLength = 0 then
-                Offset:= -1
-             else
-                Offset:= 0;
-             CheckToSelectLeftImageHiddenMark(Offset);
+          begin
+             if FSupportsRegisteredImages then begin
+                if SelLength = 0 then
+                   Offset:= -1
+                else
+                   Offset:= 0;
+                CheckToSelectLeftImageHiddenMark(Offset);
+             end;
+             if (SelectingTagsMode = stNoTags) then
+                ActiveEditor.CheckSelectingRegisteredTag(True);
           end;
     end;
 
@@ -2764,7 +2781,7 @@ end; // KeyDown
 procedure TKntRichEdit.KeyPress(var Key: Char);
 var
   Sel: TCharRange;
-  SelectionLength: integer;
+  SS, SL: integer;
   posBegin, posEnd: integer;
   L, toLine: integer;
   MoveSelectedLines, ShiftPressed: boolean;
@@ -2801,6 +2818,48 @@ var
      end;
   end;
 
+  procedure ProccessKeyHash;
+  var
+    str: string;
+  begin
+     if cTagSelector.ControlUI = Self then
+        CheckEndTagIntroduction(true);
+
+     // We are calling ProccessKeyHash having already inserted the # character, so SelStart already has the value
+     // that we have been saving in CaretPosTag
+     CaretPosTag:= SelStart;
+     if (CaretPosTag = 1) or (GetTextRange(CaretPosTag-2, CaretPosTag-1)[1] <> '#') then begin
+        IgnoreTagSubstr:= '';
+        IgnoreSelectorForTagSubsr:= '';
+        cTagSelector.ControlUI:= Self;
+        SelectingTagsMode := stHashTyped;
+
+        // In case we add a # to an existing word, which forms a registered tag:
+        str:= GetTextRange(CaretPosTag, CaretPosTag+1);
+        if (str='') or not (str[1] in TagCharsDelimiters) then begin
+           str:= GetTextRange(CaretPosTag-1, CaretPosTag + TAG_MAX_LENGTH) + ' ';
+           str:= GetTagSubstr(str);
+           TagSubstr:= str;
+           UpdateTagSelector;
+        end;
+     end;
+  end;
+
+   function GetEndOfSelectionNeededForTag: integer;
+   var
+      i: integer;
+      Txt: string;
+   begin
+      txt:= ActiveEditor.GetTextRange(SS, SS + TAG_MAX_LENGTH) + ' ';
+      for i:= 1 to Length(Txt) do
+         if Txt[i] in TagCharsDelimiters then
+            break;
+      Result:= SS + i;
+
+      if (Key <> Txt[i]) then
+         dec(Result);
+   end;
+
 
 begin
   if ( App.Kbd.RxRTFKeyProcessed or ((Key = #9) and (GetKeyState(VK_CONTROL) < 0)) ) then begin
@@ -2818,56 +2877,56 @@ begin
   end;
 
   if (SelectingTagsMode = stNoTags) or (cTagSelector.ControlUI = Self) then
-     case SelectingTagsMode of
-        stNoTags:
-           if key = '#' then begin
-              CaretPosTag:= SelStart + 1;
-              var StartTag: boolean:= False;
-              if (CaretPosTag = 1) then
-                 StartTag:= True
-              else begin
-                 var ch: Char:= GetTextRange(CaretPosTag-1, CaretPosTag)[1];
-                 if ((ch <> '#') and (ch in TagCharsDelimiters)) then
-                   StartTag:= True
-              end;
-              if StartTag then begin
-                 cTagSelector.ControlUI:= Self;
-                 SelectingTagsMode := stHashTyped;
-              end;
-           end;
+     if (Key = '#') and (SelectingTagsMode <> stTagSelected) then begin
+        AddText('#');
+        Key:= #0;
+        ProccessKeyHash;
+     end
+     else
+        case SelectingTagsMode of
 
-        stHashTyped:
-           if not (key in TagCharsDelimiters) then begin
-              SelectingTagsMode:= stWithTagSelector;
-              TagSubstr:= Key;
-              UpdateTagSelector;
-           end
-           else
-              SelectingTagsMode := stNoTags;
+           stHashTyped:
+              if not (key in TagCharsDelimiters) then begin
+                 SelectingTagsMode:= stWithTagSelector;
+                 TagSubstr:= Key;
+                 UpdateTagSelector;
+              end
+              else
+                 SelectingTagsMode := stNoTags;
 
-        stWithTagSelector, stWithoutTagSelector:
-            if Key = Char(VK_BACK) then
-               delete(TagSubstr, Length(TagSubstr), 1);
+            stTagSelected:
+               begin
+                  if Key = #9  then Key:= #0;
+                  if Key = #13 then Key:= ' ';
 
-         stTagSelected:
-            begin
-               BeginUpdate;
-               SetSelection(CaretPosTag, SelStart, true);
-               SelText:= TagSubstr;
-               SelStart:= CaretPosTag + Length(TagSubstr);
-               EndUpdate;
-               if key in [#13, ':'] then begin
-                  EndTagIntroduction;
-                  key:= ' ';
-               end
-               else begin
-                  SelectingTagsMode := stWithTagSelector;
-                  key:= #0;
+                  BeginUpdate;
+                  SS:= SelStart;
+                  SS:= GetEndOfSelectionNeededForTag;
+                  SetSelection(CaretPosTag, SS, true);
+                  SelText:= TagSubstr;
+                  SelStart:= CaretPosTag + Length(TagSubstr);
+                  if Key <> #0 then
+                     AddText(Key);
+                  EndUpdate;
+                  case key of
+                      #9: SelectingTagsMode := stWithTagSelector;
+                     '#': begin
+                       EndTagIntroduction;
+                       ProccessKeyHash;
+                     end;
+                     '.': begin
+                        SelectingTagsMode := stWithTagSelector;
+                        TagSubstr:= TagSubstr + '.';
+                        UpdateTagSelector;
+                     end
+                     else
+                        EndTagIntroduction;
+                  end;
+                  Key:= #0;
                   exit;
                end;
-            end;
 
-     end;
+        end;
 
 
   posBegin:= 0;     // To avoid compiler warning on SelStart:= posBegin (but really no necessary)
@@ -2920,7 +2979,7 @@ begin
                             RemoveTABorSpaces(RTFAux, L, TabSize);
                          end;
 
-                      SelectionLength:= RTFAux.TextLength;
+                      SL:= RTFAux.TextLength;
                       if PlainText  then
                          Str:= RTFAux.Text + #13#10
                       else
@@ -2929,7 +2988,7 @@ begin
                       PutRtfText(Str, True);
 
                       SelStart:= posBegin;                           // MoveSelectedLines=True => posBegin is initialized
-                      SelLength:= SelectionLength + 1;
+                      SelLength:= SL + 1;
                    finally
                       RTFAux.Free;
                       EndUpdate;
@@ -2998,8 +3057,17 @@ var
 begin
   if FUpdating > 0 then exit;
   if FIgnoreSelectionChange then exit;
-  if (SelectingTagsMode <> stNoTags) and (cTagSelector.ControlUI = Self) then
-     CheckEndTagIntroduction;
+  if (SelectingTagsMode <> stNoTags) and (cTagSelector.ControlUI = Self) then begin
+     if (Self.SelLength > 0) then begin
+        SelectingTagsMode := stWithoutTagSelector;
+        CloseTagSelector;
+     end
+     else
+        CheckEndTagIntroduction;
+  end
+  else
+  if IgnoreSelectorForTagSubsr = ' ' then
+     IgnoreSelectorForTagSubsr := '';
 
   App.Kbd.RTFUpdating := true;
   try
@@ -3117,6 +3185,11 @@ var
    bakS, S: integer;
    MousePos: TPoint;
 begin
+  if (SelectingTagsMode = stWithTagSelector) then begin
+     SelectingTagsMode:= stWithoutTagSelector;
+     CloseTagSelector;
+  end;
+
   if (Button = mbRight) then begin
       if SelLength > 0 then exit;
 
@@ -5479,6 +5552,80 @@ begin
 end; // WordWebLookup
 
 
+procedure TKntRichEdit.CheckSelectingRegisteredTag(TypingBack: boolean = false);
+var
+  Str: string;
+  i: integer;
+  SS, p, CaretPos: integer;
+  MaxLength: integer;
+
+begin
+    if IgnoreSelectorForTagSubsr <> '' then exit;
+
+    CaretPosTag:= -1;
+    SS:= ActiveEditor.SelStart;
+    if TypingBack and (SS > 0) then
+       dec(SS);
+    Str:= ActiveEditor.GetTextRange(SS, SS+1);
+    if (Str = '#') and
+      ((SS >= ActiveEditor.TextLength-1) or (ActiveEditor.GetTextRange(SS, SS+1)[1] <> '#' )) then
+       CaretPosTag:= SS
+
+    else begin
+       MaxLength:= TAG_MAX_LENGTH;
+       if SS < TAG_MAX_LENGTH then
+          MaxLength:= SS;
+
+       Str:= ActiveEditor.GetTextRange(SS-MaxLength, SS);
+       CaretPos:= SS-1;
+       for i:= MaxLength downto 1 do begin
+          if Str[i] = '#' then begin
+             CaretPosTag:= CaretPos;
+             break;
+          end
+          else
+          if Str[i] in TagCharsDelimiters then
+             break;
+          dec(CaretPos);
+       end;
+    end;
+
+    { *2
+      If we place the cursor inside or next to an unregistered tag (not visible in the global list of tags)
+      and the AutoDiscoverTags option is not enabled, that is, there may be texts recognizable as tags that we do not
+      want to register (or it is simply seen as unnecessary to have to search for these possible tags when saving
+      each note to the model) we will still activate the selector and the detection of possible new tags, but we will
+      indicate (on "IgnoreTagSubstr") that this tag name is to be ignored.
+      In this way we will allow adding new tags based on the modification of that tag.
+      For example, if "#SecretTag" is not registered and we place ourselves on that tag, we can delete "Secret" and
+      write "Normal" ("#NormalTag") instead and the resulting tag will be registered. Or we can even delete everything
+      except the # character and type anything: we will see that it tries to recognize it as a tag.
+      This seems to be a more intuitive behavior than only recognizing tags if the # character is pressed.
+      On the other hand, this CheckSelectingRegisteredTag method is executed only after a minimum moment of inactivity,
+      seeking not to penalize performance, avoiding doing the checks every time the selection changes, and also seeking
+      not to bother by showing the selector when we simply scroll quickly through a tag.
+      (It is also executed in response to the VB_BACK key press, from TKntRichEdit.KeyDown)
+    }
+    if CaretPosTag >= 0 then begin
+       TagSubstr:= GetTagSubstr(ActiveEditor.GetTextRange(CaretPosTag, CaretPosTag + TAG_MAX_LENGTH) + ' ');
+       if TagSubstr <> '' then begin
+          IgnoreTagSubstr:= '';                                                                           // *2
+          if (not KeyOptions.AutoDiscoverTags) and (SelectingTagsMode <> stHashTyped) and (ActiveFile.GetNTagByName(TagSubstr) = nil) then
+             IgnoreTagSubstr:= TagSubstr;
+
+          inc(CaretPosTag);  // CaretPosTag:                v
+                             //               #TagX --> | # | T | a | ....
+          cTagSelector.ControlUI:= Self;
+          SelectingTagsMode := stWithTagSelector;
+          UpdateTagSelector;
+          exit;
+       end;
+    end;
+
+    IgnoreSelectorForTagSubsr:= ' ';
+end;
+
+
 // Go through the temporarily added tags, removing those that may have been added by mistake.
 // This method does not search for all possible tags present, which may have been added not only
 // with the help of the selector but in other ways, such as copying and pasting.
@@ -5527,7 +5674,7 @@ end;
 //----------------------------------------
 
 const
-   MARGIN_LEFT_TAGSEL_TV = 10;
+   MARGIN_LEFT_TAGSEL_TV = 6;
 
 procedure CreateTagSelector;
 begin
@@ -5542,6 +5689,13 @@ var
   MaxNameWidth, MaxDescWidth: integer;
   Node: PVirtualNode;
 begin
+   if (IgnoreSelectorForTagSubsr <> '') and (TagSubstr = IgnoreSelectorForTagSubsr) then begin
+      cTagSelector.Visible:= False;
+      SelectingTagsMode := stWithoutTagSelector;
+      exit;
+   end;
+
+   IgnoreSelectorForTagSubsr:= '';
    if TagSubstr <> '' then
       ActiveFile.UpdateNTagsMatching(TagSubstr, PotentialNTags);
 
@@ -5575,41 +5729,41 @@ begin
       cTagSelector.ControlUI:= nil;
 end;
 
+function GetTagSubstr(Txt: string): string;
+var
+   i: integer;
+begin
+   Result:= '';
+   for i:= 2 to Length(Txt) do begin
+      if Txt[i] in TagCharsDelimiters then begin
+         Result:= Copy(Txt, 2, i-2);
+         exit;
+      end;
+   end;
+end;
 
-procedure CheckEndTagIntroduction;
+
+procedure CheckEndTagIntroduction(OnTypedHash: boolean= false);
 var
    SS, EndRange: integer;
-   Editor: TRxRichEdit;
+   Editor: TKntRichEdit;
    CEdit: TEdit;
    TxtFromCaretPos: string;
    Txt: string;
    PosTag: integer;     // including initial #
 const
-   MAX_LENGTH = 65;
-
-   function GetTagSubstr: string;
-   var
-      i: integer;
-   begin
-      Result:= '';
-      for i:= 2 to Length(Txt) do begin
-         if Txt[i] in TagCharsDelimiters then begin
-            Result:= Copy(Txt, 2, i-2);
-            exit;
-         end;
-      end;
-   end;
+   MAX_LENGTH_TAG = 65;
 
 
 begin
    Editor:= nil;
    if cTagSelector.ControlUI is TRxRichEdit then begin
-      Editor:= TRxRichEdit(cTagSelector.ControlUI);
+      Editor:= TKntRichEdit(cTagSelector.ControlUI);
       SS:= Editor.SelStart;
       if (SelectingTagsMode = stHashTyped) and (SS = CaretPosTag) or
          (SS = CaretPosTag-1) and (Editor.GetTextRange(SS, SS+1) = '#') then
          exit;
-      TxtFromCaretPos:= Editor.GetTextRange(CaretPosTag-1, CaretPosTag + MAX_LENGTH);
+      TxtFromCaretPos:= Editor.GetTextRange(CaretPosTag-1, CaretPosTag + TAG_MAX_LENGTH);
       PosTag:= CaretPosTag;
    end
    else begin
@@ -5629,30 +5783,32 @@ begin
       exit;
    end;
 
-   if (cTagSelector.Active or cTagSelector.ControlUI.Focused) and (SS >= CaretPosTag) and (SS <= CaretPosTag + MAX_LENGTH) then
+   if (cTagSelector.Active or cTagSelector.ControlUI.Focused) and (SS >= CaretPosTag) and (SS <= CaretPosTag + TAG_MAX_LENGTH) then
       Txt:= Copy(TxtFromCaretPos, 1, SS-PosTag+1)
    else
       Txt:= TxtFromCaretPos;
 
    if (Txt <> '') then begin
-      if (SS < CaretPosTag) then
+      if (SS < CaretPosTag) or OnTypedHash then
          Txt:= Txt + ' ';    // If the label is written right at the end and the cursor is moved to the left of # -> we will add it
-      Txt:= GetTagSubstr;
-      if (Txt <> '') then begin
-         TagSubstr:= Txt;
-         EndTagIntroduction;
-      end
-      else begin
-         Txt:= TxtFromCaretPos + ' ';
-         Txt:= GetTagSubstr;              // GetTagSubstr uses Txt..
-         TagSubstr:= Txt;
-         UpdateTagSelector;
+      Txt:= GetTagSubstr(Txt);
+      if not ( (Txt = '') and (SS < CaretPosTag) ) then begin
+         if (Txt <> '') then begin
+            TagSubstr:= Txt;
+            EndTagIntroduction;
+         end
+         else begin
+            Txt:= TxtFromCaretPos + ' ';
+            Txt:= GetTagSubstr(Txt);
+            TagSubstr:= Txt;
+            UpdateTagSelector;
+         end;
+         exit;
       end;
-   end
-   else begin
-      SelectingTagsMode:= stNoTags;
-      CloseTagSelector;
    end;
+
+   SelectingTagsMode:= stNoTags;
+   CloseTagSelector;
 end;
 
 
@@ -5665,19 +5821,24 @@ begin
    if TagSubstr <> '' then begin
       if TagSubstr[Length(TagSubstr)] = '.' then
          delete(TagSubstr, Length(TagSubstr), 1);
-      NTag:= ActiveFile.AddNTag(TagSubstr, '');
-      if NTag <> nil then
-         ActiveFile.NoteTagsTemporalAdded.Add(NTag)
-      else begin
-         NTag:= ActiveFile.GetTemporalNTagByName(TagSubstr);
-         if NTag <> nil then begin
-            NTag.Name:= TagSubstr;      // If you are adding it temporarily and you change its spelling, we assume that you want to correct it. Eg: "TOdo" and then "ToDO"
-            if App.TagsState = tsVisible then
-               Form_Main.TVTags.Invalidate;
+
+      if ( AnsiCompareText( TagSubstr, IgnoreTagSubstr ) <> 0 ) then begin
+         NTag:= ActiveFile.AddNTag(TagSubstr, '');
+         if NTag <> nil then
+            ActiveFile.NoteTagsTemporalAdded.Add(NTag)
+         else begin
+            NTag:= ActiveFile.GetNTagByName(TagSubstr, ActiveFile.NoteTagsTemporalAdded);
+            if NTag <> nil then begin
+               NTag.Name:= TagSubstr;      // If you are adding it temporarily and you change its spelling, we assume that you want to correct it. Eg: "TOdo" and then "ToDO"
+               if App.TagsState = tsVisible then
+                  Form_Main.TVTags.Invalidate;
+            end;
          end;
       end;
    end;
    TagSubstr:= '';
+   IgnoreTagSubstr:= '';
+   IgnoreSelectorForTagSubsr:= '';
 end;
 
 
@@ -5798,7 +5959,7 @@ begin
 
     OffsetX:= 0;
     if cTagSelector.ControlUI is TEdit then
-       OffsetX:= -7;
+       OffsetX:= -8;
 
     ScrollW:= 0;
     MarginR:= MARGIN_LEFT_TAGSEL_TV;
@@ -5971,28 +6132,38 @@ procedure TTagSelector.TV_KeyPress(Sender: TObject; var Key: Char);
 begin
   if ControlUI = nil then exit;
 
-  if key in [#13, #9, ':'] then begin
+  if (Key in TagCharsDelimiters) or (Key = '.' ) then begin
      TagSubstr:= PotentialNTags[TV.FocusedNode.Index].Name;
      SelectingTagsMode:= stTagSelected;
   end;
-  if (Key >= #32) or (key in [#13, #9]) then
+  if (Key >= #32) or (SelectingTagsMode = stTagSelected) then
      PostMessage(ControlUI.Handle, WM_CHAR, Word(Key), 0);
 end;
 
 procedure TTagSelector.TV_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var
+  ControlUIHandle: HWND;
 begin
   if ControlUI = nil then exit;
 
   if key in [VK_ESCAPE, VK_BACK, VK_DELETE, VK_LEFT, VK_RIGHT, VK_HOME, VK_END] then begin
     if key = VK_ESCAPE then begin
+       IgnoreSelectorForTagSubsr := TagSubstr;
        SelectingTagsMode:= stWithoutTagSelector;
        CloseTagSelector;
-       Key:= 0;
     end
     else begin
        PostKeyEx( ControlUI.Handle, Key, Shift, False );
        Key:= 0;
     end;
+  end
+  else
+  if (key in [VK_UP, VK_DOWN]) and (TV.RootNodeCount = 1) then begin
+     ControlUIHandle:= ControlUI.Handle;
+     SelectingTagsMode:= stNoTags;
+     CloseTagSelector;
+     PostKeyEx( ControlUIHandle, Key, Shift, False );
+     Key:= 0;
   end;
 end;
 

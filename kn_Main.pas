@@ -1442,7 +1442,6 @@ type
   end;
 
 function GetFilePassphrase( const FN : string ) : string;
-function MillisecondsIdle: DWord;
 
 
 
@@ -2329,6 +2328,11 @@ begin
             FRTLShortcutToExecute:= rtNone;
     end;
 
+    if (SelectingTagsMode = stNoTags) and (FRestoreFocusInEditor = 0) and (ActiveControl = ActiveEditor)
+       and (GetAsyncKeyState(VK_LEFT) = 0) and (GetAsyncKeyState(VK_RIGHT) = 0)
+       and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
+       ActiveEditor.CheckSelectingRegisteredTag;
+
   Done := True;
 end;
 
@@ -2495,14 +2499,6 @@ begin
 
 end; // OnTimer
 
-function MillisecondsIdle: DWord;
-var
-   liInfo: TLastInputInfo;
-begin
-   liInfo.cbSize := SizeOf(TLastInputInfo) ;
-   GetLastInputInfo(liInfo) ;
-   Result := (GetTickCount - liInfo.dwTime);
-end;
 
 procedure TForm_Main.AppDeactivate( sender : TObject );
 begin
