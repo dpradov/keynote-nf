@@ -275,6 +275,7 @@ uses
    kn_AlertMng,
    kn_BookmarksMng,
    kn_FindReplaceMng,
+   knt.ui.tagSelector,
    knt.App,
    knt.RS
    ;

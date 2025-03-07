@@ -61,6 +61,7 @@ type
     procedure txtTagsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure txtTagsChange(Sender: TObject);
     procedure txtTagsEnter(Sender: TObject);
+    procedure txtTagsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
   private class var
     FColorTxts: TColor;
@@ -76,6 +77,8 @@ type
     FInfoPanelHidden: boolean;
     FNNodeDeleted: boolean;
     fImagesReferenceCount: TImageIDs;
+
+    fChangingInCode: boolean;
 
     FOnEnterOnEditor: TNotifyEvent;
     FOnMouseUpOnNote: TNotifyEvent;
@@ -166,6 +169,7 @@ uses
   System.DateUtils,
   kn_LinksMng,
   kn_EditorUtils,
+  knt.ui.tagSelector,
   knt.RS;
 
 
@@ -229,6 +233,7 @@ begin
    FCanvasAux.Font := TxtTags.Font;
 
    SetReadOnly(KntFolder.ReadOnly);
+   fChangingInCode:= false;
 
    UpdateEditor (FEditor, KntFolder, true); // do this BEFORE placing RTF text in editor
 
@@ -403,23 +408,13 @@ procedure TKntNoteUI.CheckBeginOfTag;
 begin
   if (SelectingTagsMode = stNoTags) then begin
      CaretPosTag:= GetCaretPosTag;
-     cTagSelector.ControlUI:= txtTags;
+     cTagSelector.EditorCtrlUI:= txtTags;
      SelectingTagsMode := stWithoutTagSelector;
   end;
-  if cTagSelector.ControlUI = txtTags then
-     CheckEndTagIntroduction
-  else
-     SelectingTagsMode := stNoTags;
+  if SelectingTagsMode <> stNoTags then
+     CheckEndTagIntroduction;
 end;
 
-
-procedure TKntNoteUI.txtTagsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-   if Key in [VK_BACK, VK_DELETE] then exit;
-
-   if key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END] then
-      CheckBeginOfTag;
-end;
 
 procedure TKntNoteUI.txtTagsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
@@ -431,7 +426,7 @@ end;
 
 procedure TKntNoteUI.txtTagsChange(Sender: TObject);
 begin
-  if not ActiveFileIsBusy and (SelectingTagsMode <> stTagSelected ) then
+  if not ActiveFileIsBusy and not fChangingInCode then
      CheckBeginOfTag;
 end;
 
@@ -456,8 +451,7 @@ begin
    txtTags.SelStart:= 0;
    CheckBeginOfTag;
 
-   SelectingTagsMode:= stNoTags;
-   CloseTagSelector;
+   cTagSelector.CloseTagSelector(true);
 
    CommitAddedTags;
    UpdateTagsHint;
@@ -507,6 +501,32 @@ begin
 end;
 
 
+procedure TKntNoteUI.txtTagsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (SelectingTagsMode = stWithTagSelector) then
+     if key in [VK_RETURN, VK_TAB] then
+        Key:= 0
+     else
+     if (key in [VK_UP, VK_DOWN]) then begin
+        if (PotentialNTags.Count > 1) then
+           cTagSelector.SelectTag(Key)
+        else
+           cTagSelector.CloseTagSelector(false);
+
+        Key:= 0;
+     end;
+end;
+
+
+procedure TKntNoteUI.txtTagsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+   if key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END, VK_BACK] then begin
+      CheckBeginOfTag;
+      CheckBeginOfTag;
+   end;
+end;
+
+
 procedure TKntNoteUI.txtTagsKeyPress(Sender: TObject; var Key: Char);
 var
  txt: string;
@@ -514,19 +534,23 @@ var
  StartTag: boolean;
  SS: integer;
 begin
+  if Key in [',',':'] then Key:= ' ';
 
   case SelectingTagsMode of
      stNoTags:
          begin
            CaretPosTag:= GetCaretPosTag;
-           cTagSelector.ControlUI:= txtTags;
+           cTagSelector.EditorCtrlUI:= txtTags;
            SelectingTagsMode := stWithoutTagSelector;
          end;
 
-     stTagSelected:
+     stWithTagSelector:
+         if (Key in TagCharsDelimiters) or (Key = '.' ) then
          begin
             if txtTags.ReadOnly then exit;
 
+            TagSubstr:= cTagSelector.SelectedTagName;
+            fChangingInCode:= true;
             if Key = #9   then Key:= #0;
             if Key <> '.' then Key:= ' ';
             SS:= GetEndOfWord;
@@ -535,11 +559,11 @@ begin
             txtTags.SelText:= TagSubstr;
             if Key <> #0 then
                txtTags.SelText:= Key;
+            fChangingInCode:= false;
 
             case key of
-              #9: SelectingTagsMode := stWithTagSelector;
+              #9: ;
               '.': begin
-                 SelectingTagsMode := stWithTagSelector;
                  TagSubstr:= TagSubstr + '.';
                  UpdateTagSelector;
               end;
@@ -597,7 +621,7 @@ var
          NTag:= nil
       else
          NTag:= ActiveFile.GetNTagByName(tagName);  // If return NTag is nil must have been added by pasting, not typing.
-      TagsAssigned[N-1]:= NTag;        // NTag = nil => New tag that will be created
+      TagsAssigned[N-1]:= NTag;                     // NTag = nil => New tag that will be created
    end;
 
 begin

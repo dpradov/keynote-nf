@@ -133,21 +133,22 @@ uses
   tom_TLB in 'various\tom_TLB.pas',
   kn_UpdateVersion in 'general\kn_UpdateVersion.pas' {UpdateVersion},
   kn_Main in 'kn_Main.pas' {Form_Main},
-  knt.App in 'knt.App.pas',
   knt.ui.tree in 'ui\knt.ui.tree.pas' {KntTreeUI: TFrame},
   knt.model.note in 'model\knt.model.note.pas',
   knt.ui.note in 'ui\knt.ui.note.pas' {KntNoteUI: TFrame},
   knt.ui.info in 'ui\knt.ui.info.pas',
   VirtualTrees.Accessibility_MOD in 'ui\VirtualTrees.Accessibility_MOD.pas',
   kn_FoldBlockDef in 'editor\kn_FoldBlockDef.pas' {Form_FoldBlockDef},
+  knt.ui.tagSelector in 'ui\knt.ui.tagSelector.pas',
+  knt.ui.Selector in 'ui\knt.ui.Selector.pas',
 {$IFDEF EMBED_UTILS_DLL}
   dll_Hotkey in 'general\dll_Hotkey.pas',
   dll_KBD in 'general\dll_KBD.pas',
-  dll_Main in 'general\dll_Main.pas';
-{$ELSE}
+  dll_Main in 'general\dll_Main.pas',
   kn_DLLinterface in 'kn_DLLinterface.pas',
-  kn_DLLmng in 'support\kn_DLLmng.pas';
+  kn_DLLmng in 'support\kn_DLLmng.pas',
 {$ENDIF}
+  knt.App in 'knt.App.pas';
 
 {$R *.RES}
 

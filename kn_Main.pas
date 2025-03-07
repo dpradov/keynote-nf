@@ -1483,6 +1483,7 @@ uses
    kn_AlertMng,
    kn_KntFile,
    kn_VCLControlsMng,
+   knt.ui.tagSelector,
    knt.App,
    knt.RS
    {$IFNDEF EXCLUDEEMAIL}
@@ -2502,6 +2503,9 @@ end; // OnTimer
 
 procedure TForm_Main.AppDeactivate( sender : TObject );
 begin
+   if SelectingTagsMode = stWithTagSelector then
+      cTagSelector.CloseTagSelector(false);
+
   if (ActiveFile <> nil) and ActiveFile.ChangedOnDisk then exit;
   if (( not ( AppIsClosing or Initializing or ActiveFileIsBusy )) and
       ( HaveKntFolders( false, false ))) then
@@ -2781,14 +2785,19 @@ begin
              ( activecontrol = TVTags ) or
              ( activecontrol = Combo_Zoom ) or
              ( activecontrol = Combo_Style ) or
-             ( activecontrol.Name = 'txtTags') then
+             ( SelectingTagsMode = stWithTagSelector) then
           begin
             // if these controls are focused,
             // switch focus to editor
             if activecontrol = Combo_Zoom then
                Combo_Zoom.Text := '';        // To ignore the value set
             key := 0;
-            FocusActiveKntFolder
+            if SelectingTagsMode = stWithTagSelector then begin
+               IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
+               cTagSelector.CloseTagSelector(false);
+            end
+            else
+               FocusActiveKntFolder;
           end
           else
           if ( activecontrol = combo_ResFind ) then

@@ -3,12 +3,12 @@
         <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
         <MainSource>keynote.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>20.1</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">keynote</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -332,7 +332,6 @@
         <DCCReference Include="kn_Main.pas">
             <Form>Form_Main</Form>
         </DCCReference>
-        <DCCReference Include="knt.App.pas"/>
         <DCCReference Include="ui\knt.ui.tree.pas">
             <Form>KntTreeUI</Form>
             <DesignClass>TFrame</DesignClass>
@@ -344,9 +343,23 @@
         </DCCReference>
         <DCCReference Include="ui\knt.ui.info.pas"/>
         <DCCReference Include="ui\VirtualTrees.Accessibility_MOD.pas"/>
+        <DCCReference Include="editor\kn_FoldBlockDef.pas">
+            <Form>Form_FoldBlockDef</Form>
+        </DCCReference>
+        <DCCReference Include="ui\knt.ui.tagSelector.pas">
+            <Form>$IFDEF EMBED_UTILS_DLL</Form>
+        </DCCReference>
+        <DCCReference Include="ui\knt.ui.Selector.pas">
+            <Form>$IFDEF EMBED_UTILS_DLL</Form>
+        </DCCReference>
         <DCCReference Include="general\dll_Hotkey.pas"/>
         <DCCReference Include="general\dll_KBD.pas"/>
         <DCCReference Include="general\dll_Main.pas"/>
+        <DCCReference Include="kn_DLLinterface.pas"/>
+        <DCCReference Include="support\kn_DLLmng.pas"/>
+        <DCCReference Include="knt.App.pas">
+            <Form>$R *.RES</Form>
+        </DCCReference>
         <None Include="support\gf_base.inc">
             <ContainerId>File</ContainerId>
         </None>

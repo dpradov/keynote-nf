@@ -80,6 +80,7 @@ object KntNoteUI: TKntNoteUI
       OnChange = txtTagsChange
       OnEnter = txtTagsEnter
       OnExit = txtTagsExit
+      OnKeyDown = txtTagsKeyDown
       OnKeyPress = txtTagsKeyPress
       OnKeyUp = txtTagsKeyUp
       OnMouseDown = txtTagsMouseDown

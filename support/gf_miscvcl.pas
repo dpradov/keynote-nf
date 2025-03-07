@@ -22,6 +22,7 @@ uses
    Winapi.Windows,
    Winapi.ShellAPI,
    Winapi.Messages,
+   Winapi.DWMAPI,  // DWMAPI is required for modern shadows
    System.Classes,
    System.SysUtils,
    System.DateUtils,
@@ -105,6 +106,10 @@ procedure PauseFormUpdates(Form: TForm);
 procedure ResumeFormUpdates(Form: TForm);
 
 procedure AdjustRTLControls(Parent: TWinControl);
+
+function GetEditCaretPos(Edit: TEdit; CharIndex: integer): TPoint;
+procedure EnableShadow(FormHandle: HWND);
+
 
 var
   _TahomaFontInstalled : boolean = false;
@@ -876,6 +881,45 @@ begin
         AdjustRTLControls(TWinControl(Parent.Controls[i]));
 end;
 
+
+function GetEditCaretPos(Edit: TEdit; CharIndex: integer): TPoint;
+var
+  Res: Longint;
+begin
+  FillChar(Result, SizeOf(Result), 0);
+  if CharIndex > 0 then begin
+     if CharIndex > Edit.GetTextLen then
+        dec(CharIndex);
+     Res := SendMessage(Edit.Handle, EM_POSFROMCHAR, WPARAM(CharIndex), 0);
+     if Res >= 0 then begin
+        Result.X := LoWord(Res);
+        Result.Y := HiWord(Res);
+     end;
+  end;
+  Result := Edit.ClientToScreen(Result);
+end;
+
+
+var
+  DWMShadowAvailable: boolean;
+
+procedure EnableShadow(FormHandle: HWND);
+var
+  AttrValue: Integer;
+begin
+  if not DWMShadowAvailable then Exit;
+  try
+    AttrValue := DWMNCRP_ENABLED;    // Enable non-client rendering
+    DwmSetWindowAttribute(FormHandle, DWMWA_NCRENDERING_POLICY, @AttrValue, SizeOf(AttrValue));
+  except
+    DWMShadowAvailable := False;
+  end;
+end;
+
+
+initialization
+
+DWMShadowAvailable:= True;
 
 end.
 
