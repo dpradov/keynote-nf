@@ -55,13 +55,7 @@ type
     procedure txtNameMouseEnter(Sender: TObject);
     procedure txtCreationDateMouseEnter(Sender: TObject);
     procedure txtNameExit(Sender: TObject);
-    procedure txtTagsKeyPress(Sender: TObject; var Key: Char);
-    procedure txtTagsExit(Sender: TObject);
-    procedure txtTagsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure txtTagsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure txtTagsChange(Sender: TObject);
     procedure txtTagsEnter(Sender: TObject);
-    procedure txtTagsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
   private class var
     FColorTxts: TColor;
@@ -114,7 +108,7 @@ type
   protected
     procedure SetInfoPanelHidden(value: boolean);
     procedure EditTags;
-    procedure UpdateTagsHint;
+    procedure OnEndTagsIntroduction(PressedReturn: boolean);
   public
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
 
@@ -150,12 +144,7 @@ type
     procedure NNodeDeleted;
 
   protected
-    procedure CheckBeginOfTag;
-    function GetCaretPosTag: integer;
-    function GetEndOfWord: integer;
-    procedure CommitAddedTags;
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
-
     procedure FrameResize(Sender: TObject);
   end;
 
@@ -169,7 +158,7 @@ uses
   System.DateUtils,
   kn_LinksMng,
   kn_EditorUtils,
-  knt.ui.tagSelector,
+  knt.ui.TagMng,
   knt.RS;
 
 
@@ -303,7 +292,7 @@ end;
 procedure TKntNoteUI.NoteUIEnter(Sender: TObject);
 begin
   App.EditorFocused(Editor);
-  UpdateTagsHint;
+  TagMng.UpdateTxtTagsHint(txtTags);
   if Assigned(FOnEnterOnEditor) then
     FOnEnterOnEditor(Self);
 end;
@@ -403,282 +392,23 @@ end;
 
 {$REGION Tags }
 
-
-procedure TKntNoteUI.CheckBeginOfTag;
-begin
-  if (SelectingTagsMode = stNoTags) then begin
-     CaretPosTag:= GetCaretPosTag;
-     cTagSelector.EditorCtrlUI:= txtTags;
-     SelectingTagsMode := stWithoutTagSelector;
-  end;
-  if SelectingTagsMode <> stNoTags then
-     CheckEndTagIntroduction;
-end;
-
-
-procedure TKntNoteUI.txtTagsMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  // The first CheckBeginOfTag could have caused a tag to be added
-  // The second tries to check if we are located in another tag, to show the selector
-  CheckBeginOfTag;
-  CheckBeginOfTag;
-end;
-
-procedure TKntNoteUI.txtTagsChange(Sender: TObject);
-begin
-  if not ActiveFileIsBusy and not fChangingInCode then
-     CheckBeginOfTag;
-end;
-
 procedure TKntNoteUI.txtTagsEnter(Sender: TObject);
 begin
    if txtTags.ReadOnly then exit;
 
-   ActiveFile.NoteTagsTemporalAdded.Clear;
-   IgnoreTagSubstr:= '';
-   if txtTags.Text = ' #' then
-      txtTags.Text:= '';
-   txtTags.Color:= clWindow;
-   txtTags.Font.Color:= clMaroon;
-   txtTags.Hint:= '';
+   TagMng.StartTxtTagProcessing(txtTags, tmEdit, OnEndTagsIntroduction, Note, Folder);
    AdjustTxtTagsWidth(True);
 end;
 
-procedure TKntNoteUI.txtTagsExit(Sender: TObject);
-var
-  Color: TColor;
+procedure TKntNoteUI.OnEndTagsIntroduction(PressedReturn: boolean);
 begin
-   txtTags.SelStart:= 0;
-   CheckBeginOfTag;
+  if PressedReturn then
+     Editor.SetFocus;
 
-   cTagSelector.CloseTagSelector(true);
-
-   CommitAddedTags;
-   UpdateTagsHint;
-   Color:= clWindowText;
-   if txtTags.Text = '' then begin
-      txtTags.Text := ' #';
-      Color:= clGray;
-   end;
    txtTags.Color:= FColorTxts;
-   txtTags.Font.Color:= Color;
    AdjustTxtTagsWidth;
 
    InfoPanelHidden:= Folder.EditorInfoPanelHidden;
-end;
-
-
-function TKntNoteUI.GetCaretPosTag: integer;
-var
-   i, SS: integer;
-   txt: string;
-begin
-   Result:= 1;
-   if txtTags.GetTextLen = 0 then exit;
-
-   SS:= txtTags.SelStart;
-   txt:= txtTags.Text;
-
-   for i:= SS downto 1 do
-      if Txt[i] in TagCharsDelimiters then
-         break;
-   Result:= i+1;
-end;
-
-
-function TKntNoteUI.GetEndOfWord: integer;
-var
-   i, SS: integer;
-   txt: string;
-begin
-   SS:= txtTags.SelStart;
-   txt:= txtTags.Text;
-
-   for i:= SS to txtTags.GetTextLen do
-      if Txt[i] in TagCharsDelimiters then
-         break;
-   Result:= i;
-end;
-
-
-procedure TKntNoteUI.txtTagsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-  if (SelectingTagsMode = stWithTagSelector) then
-     if key in [VK_RETURN, VK_TAB] then
-        Key:= 0
-     else
-     if (key in [VK_UP, VK_DOWN]) then begin
-        if (PotentialNTags.Count > 1) then
-           cTagSelector.SelectTag(Key)
-        else
-           cTagSelector.CloseTagSelector(false);
-
-        Key:= 0;
-     end;
-end;
-
-
-procedure TKntNoteUI.txtTagsKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-begin
-   if key in [VK_LEFT, VK_RIGHT, VK_HOME, VK_END, VK_BACK] then begin
-      CheckBeginOfTag;
-      CheckBeginOfTag;
-   end;
-end;
-
-
-procedure TKntNoteUI.txtTagsKeyPress(Sender: TObject; var Key: Char);
-var
- txt: string;
- ch: Char;
- StartTag: boolean;
- SS: integer;
-begin
-  if Key in [',',':'] then Key:= ' ';
-
-  case SelectingTagsMode of
-     stNoTags:
-         begin
-           CaretPosTag:= GetCaretPosTag;
-           cTagSelector.EditorCtrlUI:= txtTags;
-           SelectingTagsMode := stWithoutTagSelector;
-         end;
-
-     stWithTagSelector:
-         if (Key in TagCharsDelimiters) or (Key = '.' ) then
-         begin
-            if txtTags.ReadOnly then exit;
-
-            TagSubstr:= cTagSelector.SelectedTagName;
-            fChangingInCode:= true;
-            if Key = #9   then Key:= #0;
-            if Key <> '.' then Key:= ' ';
-            SS:= GetEndOfWord;
-            txtTags.SelStart:= CaretPosTag-1;
-            txtTags.SelLength:= SS - CaretPosTag;
-            txtTags.SelText:= TagSubstr;
-            if Key <> #0 then
-               txtTags.SelText:= Key;
-            fChangingInCode:= false;
-
-            case key of
-              #9: ;
-              '.': begin
-                 TagSubstr:= TagSubstr + '.';
-                 UpdateTagSelector;
-              end;
-              else                           // ' ' #13 ':' ',' '#'
-                EndTagIntroduction;
-            end;
-
-            key:= #0;
-            exit;
-         end;
-  end;
-  if (Key = #13) and (SelectingTagsMode = stWithoutTagSelector) then
-     Editor.SetFocus;
-
-end;
-
-
-procedure TKntNoteUI.CommitAddedTags;
-var
-   i, pI, pF: integer;
-   Txt, tagName: string;
-   NTag: TNoteTag;
-   TagsAssigned: TNoteTagArray;
-   TagsNames: array of string;
-   N: integer;
-   TagsStateBAK: TTagsState;
-   NEntry: TNoteEntry;
-
-   function DuplicateTag(aName: string): boolean;
-   var
-     i: integer;
-   begin
-      Result:= false;
-      for i := 0 to High(TagsNames) do begin
-          if ( AnsiCompareText( TagsNames[i], aName ) = 0 ) then
-               exit(true);
-      end;
-   end;
-
-   procedure CheckTag;
-   begin
-      if pI = pF then exit;
-      tagName:= Copy(txt, pI, pF-pI+1);
-      if Trim(tagName) = '' then exit;
-      if tagName[Length(tagName)] = '.' then
-         delete(tagName, Length(tagName), 1);
-      if DuplicateTag(tagName) then exit;
-
-      inc(N);
-      SetLength(TagsAssigned, N);
-      SetLength(TagsNames, N);
-      TagsNames[N-1]:= tagName;
-      NTag:= ActiveFile.GetNTagByName(tagName, ActiveFile.NoteTagsTemporalAdded);
-      if NTag <> nil then
-         NTag:= nil
-      else
-         NTag:= ActiveFile.GetNTagByName(tagName);  // If return NTag is nil must have been added by pasting, not typing.
-      TagsAssigned[N-1]:= NTag;                     // NTag = nil => New tag that will be created
-   end;
-
-begin
-   N:= 0;
-   txt:= txtTags.Text;
-   if trim(txt) <> '' then begin
-      pI:= 1;
-      for i:= 1 to txt.Length do begin
-         if Txt[i] in TagCharsDelimiters then begin
-            pF:= i-1;
-            CheckTag;
-            pI:= i+1;
-         end;
-      end;
-      pF:= i;
-      CheckTag;
-   end;
-
-  // Delete all temporarily added tags, and then add the ones identified in the text.
-  // This will cause the ones added by mistake to be discarded, while also not unnecessarily increasing the value of the Tag IDs
-
-   for i := 0 to ActiveFile.NoteTagsTemporalAdded.Count-1 do
-      ActiveFile.DeleteNTag(ActiveFile.NoteTagsTemporalAdded[i]);
-   ActiveFile.NoteTagsTemporalAdded.Clear;
-
-   TagsStateBAK:= App.TagsState;
-   App.TagsState := tsHidden;
-
-   for i := 0 to High(TagsAssigned) do begin
-       if TagsAssigned[i] = nil then begin
-          NTag:= ActiveFile.AddNTag(TagsNames[i], '');
-          TagsAssigned[i]:= NTag;
-       end;
-   end;
-   App.TagsState := TagsStateBAK;
-   App.TagsUpdated;                            // Perform the sorting only once
-
-
-  NEntry:= Note.Entries[0];                               // %%%%
-  if not NEntry.HaveSameTags(TagsAssigned) then begin
-     NEntry.Tags:= TagsAssigned;
-     App.NEntryModified(NEntry, Note, Folder);
-  end;
-  txtTags.Text:= NEntry.TagsNames;
-end;
-
-procedure TKntNoteUI.UpdateTagsHint;
-var
-  Hint: string;
-begin
-    Hint:= txtTags.Text;
-    if Hint = ' #' then
-       Hint:= '';
-    txtTags.Hint:= Hint;
-    if (Hint = '') then
-        Hint:= GetRS(sTag7);
-    Form_Main.RTFMTags.Hint:= Hint;
 end;
 
 
@@ -838,7 +568,7 @@ begin
    NEntry:= Note.Entries[0];       // %%%%
    S:= NEntry.TagsNames;
    txtTags.Text:= S;
-   UpdateTagsHint;
+   TagMng.UpdateTxtTagsHint(txtTags);
    if S = '' then begin
       txtTags.Text:= ' #';
       txtTags.Font.Color:= clGray;

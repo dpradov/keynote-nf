@@ -38,23 +38,15 @@ type
   end;
 
 
-function GetTagSubstr(Txt: string): string;
-procedure CreateTagSelector;
-procedure CheckEndTagIntroduction(OnTypedHash: boolean= false);
-procedure EndTagIntroduction;
-procedure GetTagsMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
-procedure UpdateTagSelector;
-function IsValidTagName (var Name: string): boolean;
-
 
 const
    TAG_MAX_LENGTH = 65;
 
 type
-   TIntroducingTagsMode = (stNoTags, stHashTyped, stWithTagSelector, stWithoutTagSelector);
+   TIntroducingTagsState = (itNoTags, itHashTyped, itWithTagSelector, itWithoutTagSelector);
 
 var
-   SelectingTagsMode: TIntroducingTagsMode;
+   IntroducingTagsState: TIntroducingTagsState;
    CaretPosTag: integer;
    TagSubstr: string;
    cTagSelector: TTagSelector;
@@ -72,7 +64,8 @@ implementation
 uses gf_miscvcl,
      knt.ui.editor,
      kn_KntFile,
-     knt.App
+     knt.App,
+     knt.RS
      ;
 
 const
@@ -129,11 +122,11 @@ begin
       PotentialNTags.Clear;
    PotentialNTags:= nil;
    if EndTagEdition then begin
-      SelectingTagsMode := stNoTags;
+      IntroducingTagsState := itNoTags;
       EditorCtrlUI:= nil;
    end
    else
-      SelectingTagsMode := stWithoutTagSelector;
+      IntroducingTagsState := itWithoutTagSelector;
 end;
 
 procedure TTagSelector.SelectTag (Key: integer);
@@ -236,7 +229,7 @@ begin
     if not Visible then
        inherited ShowSelector(Left, Top, OwnerHandle);
 
-    SelectingTagsMode := stWithTagSelector;
+    IntroducingTagsState := itWithTagSelector;
 end;
 
 
@@ -266,203 +259,8 @@ begin
 end;
 
 
-//----------------------------------------
-
-function GetTagSubstr(Txt: string): string;
-var
-   i: integer;
-begin
-   Result:= '';
-   for i:= 2 to Length(Txt) do begin
-      if Txt[i] in TagCharsDelimiters then begin
-         Result:= Copy(Txt, 2, i-2);
-         exit;
-      end;
-   end;
-end;
-
-
-procedure CreateTagSelector;
-begin
-  if cTagSelector <> nil then exit;
-
-  cTagSelector:= TTagSelector.Create(Form_Main);
-end;
-
-
-procedure UpdateTagSelector;
-var
-  MaxNameWidth, MaxDescWidth: integer;
-  Node: PVirtualNode;
-begin
-   if (IgnoreSelectorForTagSubsr <> '') and (AnsiCompareText(TagSubstr, IgnoreSelectorForTagSubsr) = 0) then begin
-      cTagSelector.CloseTagSelector(false);
-      exit;
-   end;
-
-   IgnoreSelectorForTagSubsr:= '';
-   if TagSubstr <> '' then
-      ActiveFile.UpdateNTagsMatching(TagSubstr, PotentialNTags);
-
-   if (TagSubstr <> '') and (PotentialNTags.Count > 0) then begin
-      GetTagsMaxWidth(PotentialNTags, MaxNameWidth, MaxDescWidth);
-      cTagSelector.ShowTagSelector(MaxNameWidth, MaxDescWidth, Form_Main.Handle);
-      with cTagSelector do begin
-         TV.RootNodeCount := PotentialNTags.Count;
-         Node:= TV.GetFirst;
-         TV.FocusedNode:= Node;
-         TV.ClearSelection;
-         TV.Selected[Node] := True;
-         TV.Invalidate;
-      end;
-   end
-   else
-     cTagSelector.CloseTagSelector(false);
-end;
-
-
-procedure CheckEndTagIntroduction(OnTypedHash: boolean= false);
-var
-   SS, EndRange: integer;
-   Editor: TKntRichEdit;
-   CEdit: TEdit;
-   TxtFromCaretPos: string;
-   Txt: string;
-   PosTag: integer;     // including initial #
-
-begin
-   Editor:= nil;
-   if cTagSelector.EditorCtrlUI is TKntRichEdit then begin
-      Editor:= TKntRichEdit(cTagSelector.EditorCtrlUI);
-      SS:= Editor.SelStart;
-      if (SelectingTagsMode = stHashTyped) and (SS = CaretPosTag) or
-         (SS = CaretPosTag-1) and (Editor.GetTextRange(SS, SS+1) = '#') then
-         exit;
-      TxtFromCaretPos:= Editor.GetTextRange(CaretPosTag-1, CaretPosTag + TAG_MAX_LENGTH);
-      PosTag:= CaretPosTag;
-   end
-   else begin
-      CEdit:= TEdit(cTagSelector.EditorCtrlUI);
-      SS:= CEdit.SelStart;
-      TxtFromCaretPos:= Copy(CEdit.Text, CaretPosTag);
-      if (SS = CaretPosTag-1) and (TxtFromCaretPos <> '') then
-         exit;
-      if (TxtFromCaretPos <> '') and not (TxtFromCaretPos[1] in ['#',' ']) then
-         TxtFromCaretPos:= '#' + TxtFromCaretPos;
-      PosTag:= CaretPosTag-1;
-   end;
-
-   if (TxtFromCaretPos = '') or (TxtFromCaretPos[1] <> '#') then begin
-      cTagSelector.CloseTagSelector(true);
-      exit;
-   end;
-
-   if (cTagSelector.Active or cTagSelector.EditorCtrlUI.Focused) and (SS >= CaretPosTag) and (SS <= CaretPosTag + TAG_MAX_LENGTH) then
-      Txt:= Copy(TxtFromCaretPos, 1, SS-PosTag+1)
-   else
-      Txt:= TxtFromCaretPos;
-
-   if (Txt <> '') then begin
-      if (SS < CaretPosTag) or OnTypedHash then
-         Txt:= Txt + ' ';    // If the label is written right at the end and the cursor is moved to the left of # -> we will add it
-      Txt:= GetTagSubstr(Txt);
-      if not ( (Txt = '') and (SS < CaretPosTag) ) then begin
-         if (Txt <> '') then begin
-            TagSubstr:= Txt;
-            EndTagIntroduction;
-         end
-         else begin
-            Txt:= TxtFromCaretPos + ' ';
-            Txt:= GetTagSubstr(Txt);
-            TagSubstr:= Txt;
-            UpdateTagSelector;
-         end;
-         exit;
-      end;
-   end;
-
-   cTagSelector.CloseTagSelector(true);
-end;
-
-
-procedure EndTagIntroduction;
-var
-  NTag: TNoteTag;
-begin
-   cTagSelector.CloseTagSelector (true);
-   if TagSubstr <> '' then begin
-      if TagSubstr[Length(TagSubstr)] = '.' then
-         delete(TagSubstr, Length(TagSubstr), 1);
-
-      if ( AnsiCompareText( TagSubstr, IgnoreTagSubstr ) <> 0 ) then begin
-         NTag:= ActiveFile.AddNTag(TagSubstr, '');
-         if NTag <> nil then
-            ActiveFile.NoteTagsTemporalAdded.Add(NTag)
-         else begin
-            NTag:= ActiveFile.GetNTagByName(TagSubstr, ActiveFile.NoteTagsTemporalAdded);
-            if NTag <> nil then begin
-               NTag.Name:= TagSubstr;      // If you are adding it temporarily and you change its spelling, we assume that you want to correct it. Eg: "TOdo" and then "ToDO"
-               if App.TagsState = tsVisible then
-                  Form_Main.TVTags.Invalidate;
-            end;
-         end;
-      end;
-   end;
-   TagSubstr:= '';
-   IgnoreTagSubstr:= '';
-   IgnoreSelectorForTagSubsr:= '';
-end;
-
-
-function IsValidTagName (var Name: string): boolean;
-var
-   i: integer;
-begin
-   if Name = '' then exit(False);
-
-   Result:= True;
-   for i:= 1 to Length(Name) do begin
-      if Name[i] in TagCharsDelimiters then
-         exit (False);
-   end;
-
-   if Name[Length(Name)] = '.' then
-      delete(Name, Length(Name), 1);
-end;
-
-
-procedure GetTagsMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
-var
-  i: integer;
-  NTag: TNoteTag;
-  W, iName, iDesc: integer;
-begin
-  // -> Approximated widths
-  MaxNameWidth:= 0;             // We will initially store the maximum length of the strings, not the width...
-  MaxDescWidth:= 0;
-  iDesc:= -1;
-  if NTags <> nil then begin
-     for i := 0 to NTags.Count-1 do begin
-        NTag:= NTags[i];
-        W:= Length(NTag.Name);
-        if W > MaxNameWidth then begin
-           MaxNameWidth:= W;
-           iName:= i;
-        end;
-
-        if NTag.Description <> '' then begin
-           W:= Length(NTag.Description);
-           if W > MaxDescWidth then begin
-              MaxDescWidth:= W;
-              iDesc:= i;
-           end;
-        end;
-     end;
-  end;
-  MaxNameWidth:= cTagSelector.TV.Canvas.TextWidth(NTags[iName].Name) + 20;
-  if iDesc >= 0 then
-     MaxDescWidth:= cTagSelector.TV.Canvas.TextWidth(NTags[iDesc].Description) + 20;
-end;
-
+initialization
+   cTagSelector:= nil;
+   PotentialNTags:= nil;
 
 end.

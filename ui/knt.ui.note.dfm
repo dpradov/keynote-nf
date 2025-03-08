@@ -77,13 +77,7 @@ object KntNoteUI: TKntNoteUI
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
-      OnChange = txtTagsChange
       OnEnter = txtTagsEnter
-      OnExit = txtTagsExit
-      OnKeyDown = txtTagsKeyDown
-      OnKeyPress = txtTagsKeyPress
-      OnKeyUp = txtTagsKeyUp
-      OnMouseDown = txtTagsMouseDown
     end
   end
 end

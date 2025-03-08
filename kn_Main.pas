@@ -1484,6 +1484,7 @@ uses
    kn_KntFile,
    kn_VCLControlsMng,
    knt.ui.tagSelector,
+   knt.ui.TagMng,
    knt.App,
    knt.RS
    {$IFNDEF EXCLUDEEMAIL}
@@ -2329,7 +2330,7 @@ begin
             FRTLShortcutToExecute:= rtNone;
     end;
 
-    if (SelectingTagsMode = stNoTags) and (FRestoreFocusInEditor = 0) and (ActiveControl = ActiveEditor)
+    if (IntroducingTagsState = itNoTags) and (FRestoreFocusInEditor = 0) and (ActiveControl = ActiveEditor)
        and (GetAsyncKeyState(VK_LEFT) = 0) and (GetAsyncKeyState(VK_RIGHT) = 0)
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;
@@ -2503,7 +2504,7 @@ end; // OnTimer
 
 procedure TForm_Main.AppDeactivate( sender : TObject );
 begin
-   if SelectingTagsMode = stWithTagSelector then
+   if IntroducingTagsState = itWithTagSelector then
       cTagSelector.CloseTagSelector(false);
 
   if (ActiveFile <> nil) and ActiveFile.ChangedOnDisk then exit;
@@ -2785,14 +2786,14 @@ begin
              ( activecontrol = TVTags ) or
              ( activecontrol = Combo_Zoom ) or
              ( activecontrol = Combo_Style ) or
-             ( SelectingTagsMode = stWithTagSelector) then
+             ( IntroducingTagsState = itWithTagSelector) then
           begin
             // if these controls are focused,
             // switch focus to editor
             if activecontrol = Combo_Zoom then
                Combo_Zoom.Text := '';        // To ignore the value set
             key := 0;
-            if SelectingTagsMode = stWithTagSelector then begin
+            if IntroducingTagsState = itWithTagSelector then begin
                IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
                cTagSelector.CloseTagSelector(false);
             end
@@ -5584,7 +5585,7 @@ var
 begin
    if InputQuery( GetRS(sTag6), GetRS(sTag1), TagName ) then begin
       TagName := trim(TagName);
-      if IsValidTagName(TagName) then begin
+      if TagMng.IsValidTagName(TagName) then begin
          ActiveFile.AddNTag(TagName, '');
          for Node in TVTags.Nodes() do begin
             NTag:= ActiveFile.NoteTagsSorted [Node.Index];
@@ -5733,7 +5734,7 @@ var
 begin
   NTag:= ActiveFile.NoteTagsSorted [Node.Index];
   case Column of
-    -1, 0: if not IsValidTagName(NewText) then begin
+    -1, 0: if not TagMng.IsValidTagName(NewText) then begin
               App.ShowInfoInStatusBar(GetRS(sTag3));
               exit;
            end

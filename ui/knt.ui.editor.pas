@@ -330,6 +330,7 @@ uses
    kn_ExpTermDef,
    kn_FindReplaceMng,
    knt.ui.tagSelector,
+   knt.ui.TagMng,
    knt.App,
    knt.RS
   ;
@@ -488,7 +489,7 @@ begin
   OnStartDrag := RxRTFStartDrag;    // See comment *4 in RxRichEd
   OnEndDrag   := RxRTFEndDrag;        // ,,
 
-  CreateTagSelector;
+  TagMng.CreateTagSelector;
 end; // TKntRichEdit CREATE
 
 
@@ -2557,8 +2558,8 @@ end;
 
 procedure TKntRichEdit.DoExit;
 begin
-  if SelectingTagsMode <> stNoTags then
-     CheckEndTagIntroduction;
+  if IntroducingTagsState <> itNoTags then
+     TagMng.CheckEndTagIntroduction;
 
   CommitAddedTags;
   inherited;
@@ -2584,7 +2585,7 @@ begin
        AddMacroKeyPress( Key, Shift );
   end;
 
-  if (SelectingTagsMode = stWithTagSelector) and (cTagSelector.EditorCtrlUI = Self) then
+  if (IntroducingTagsState = itWithTagSelector) and (cTagSelector.EditorCtrlUI = Self) then
      if key in [VK_RETURN, VK_TAB] then
         Key:= 0
      else
@@ -2725,7 +2726,7 @@ begin
                    Offset:= 0;
                 CheckToSelectLeftImageHiddenMark(Offset);
              end;
-             if (SelectingTagsMode = stNoTags) then
+             if (IntroducingTagsState = itNoTags) then
                 ActiveEditor.CheckSelectingRegisteredTag(True);
           end;
     end;
@@ -2792,7 +2793,7 @@ var
     str: string;
   begin
      if cTagSelector.EditorCtrlUI = Self then
-        CheckEndTagIntroduction(true);
+        TagMng.CheckEndTagIntroduction(true);
 
      // We are calling ProccessKeyHash having already inserted the # character, so SelStart already has the value
      // that we have been saving in CaretPosTag
@@ -2801,15 +2802,15 @@ var
         IgnoreTagSubstr:= '';
         IgnoreSelectorForTagSubsr:= '';
         cTagSelector.EditorCtrlUI:= Self;
-        SelectingTagsMode := stHashTyped;
+        IntroducingTagsState := itHashTyped;
 
         // In case we add a # to an existing word, which forms a registered tag:
         str:= GetTextRange(CaretPosTag, CaretPosTag+1);
         if (str='') or not (str[1] in TagCharsDelimiters) then begin
            str:= GetTextRange(CaretPosTag-1, CaretPosTag + TAG_MAX_LENGTH) + ' ';
-           str:= GetTagSubstr(str);
+           str:= TagMng.GetTagSubstr(str);
            TagSubstr:= str;
-           UpdateTagSelector;
+           TagMng.UpdateTagSelector;
         end;
      end;
   end;
@@ -2846,24 +2847,24 @@ begin
   end;
 
 
-  if (SelectingTagsMode = stNoTags) or (cTagSelector.EditorCtrlUI = Self) then
-     if (Key = '#') and (SelectingTagsMode <> stWithTagSelector) then begin
+  if (IntroducingTagsState = itNoTags) or (cTagSelector.EditorCtrlUI = Self) then
+     if (Key = '#') and (IntroducingTagsState <> itWithTagSelector) then begin
         AddText('#');
         Key:= #0;
         ProccessKeyHash;
      end
      else
-        case SelectingTagsMode of
+        case IntroducingTagsState of
 
-           stHashTyped:
+           itHashTyped:
               if not (key in TagCharsDelimiters) then begin
                  TagSubstr:= Key;
-                 UpdateTagSelector;
+                 TagMng.UpdateTagSelector;
               end
               else
-                 SelectingTagsMode := stNoTags;
+                 IntroducingTagsState := itNoTags;
 
-            stWithTagSelector:
+            itWithTagSelector:
                if (Key in TagCharsDelimiters) or (Key = '.' ) then
                begin
                   TagSubstr:= cTagSelector.SelectedTagName;
@@ -2882,15 +2883,15 @@ begin
                   case key of
                       #9: ;
                      '#': begin
-                       EndTagIntroduction;
+                       TagMng.EndTagIntroduction;
                        ProccessKeyHash;
                      end;
                      '.': begin
                         TagSubstr:= TagSubstr + '.';
-                        UpdateTagSelector;
+                        TagMng.UpdateTagSelector;
                      end
                      else
-                        EndTagIntroduction;
+                        TagMng.EndTagIntroduction;
                   end;
                   Key:= #0;
                   exit;
@@ -3027,11 +3028,11 @@ var
 begin
   if FUpdating > 0 then exit;
   if FIgnoreSelectionChange then exit;
-  if (SelectingTagsMode <> stNoTags) and (cTagSelector.EditorCtrlUI = Self) then begin
+  if (IntroducingTagsState <> itNoTags) and (cTagSelector.EditorCtrlUI = Self) then begin
      if (Self.SelLength > 0) then
         cTagSelector.CloseTagSelector(false)
      else
-        CheckEndTagIntroduction;
+        TagMng.CheckEndTagIntroduction;
   end
   else
   if IgnoreSelectorForTagSubsr = ' ' then
@@ -3153,7 +3154,7 @@ var
    bakS, S: integer;
    MousePos: TPoint;
 begin
-  if (SelectingTagsMode = stWithTagSelector) then begin
+  if (IntroducingTagsState = itWithTagSelector) then begin
      IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
      cTagSelector.CloseTagSelector(false);
   end;
@@ -5528,7 +5529,7 @@ var
   MaxLength: integer;
 
 begin
-    // Note: Only called if SelectingTagsMode = stNoTags
+    // Note: Only called if IntroducingTagsState = itNoTags
 
     if IgnoreSelectorForTagSubsr <> '' then exit;
 
@@ -5577,16 +5578,16 @@ begin
       (It is also executed in response to the VB_BACK key press, from TKntRichEdit.KeyDown)
     }
     if CaretPosTag >= 0 then begin
-       TagSubstr:= GetTagSubstr(ActiveEditor.GetTextRange(CaretPosTag, CaretPosTag + TAG_MAX_LENGTH) + ' ');
+       TagSubstr:= TagMng.GetTagSubstr(ActiveEditor.GetTextRange(CaretPosTag, CaretPosTag + TAG_MAX_LENGTH) + ' ');
        if TagSubstr <> '' then begin
           IgnoreTagSubstr:= '';                                                                           // *2
-          if (not KeyOptions.AutoDiscoverTags) and (SelectingTagsMode <> stHashTyped) and (ActiveFile.GetNTagByName(TagSubstr) = nil) then
+          if (not KeyOptions.AutoDiscoverTags) and (IntroducingTagsState <> itHashTyped) and (ActiveFile.GetNTagByName(TagSubstr) = nil) then
              IgnoreTagSubstr:= TagSubstr;
 
           inc(CaretPosTag);  // CaretPosTag:                v
                              //               #TagX --> | # | T | a | ....
           cTagSelector.EditorCtrlUI:= Self;
-          UpdateTagSelector;
+          TagMng.UpdateTagSelector;
           exit;
        end;
     end;
@@ -5640,18 +5641,8 @@ begin
 end;
 
 
-
-var
-  CursorBeginPosTag: TPoint;
-  FontHeight, SpaceBef: integer;
-
-
-
 Initialization
    ShowingSelectionInformation:= false;
-   cTagSelector:= nil;
-   PotentialNTags:= nil;
-
 
 end.
 
