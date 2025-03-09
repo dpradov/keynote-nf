@@ -66,8 +66,6 @@ type
     FKntFolder: TKntFolder;
     FEditor: TKntRichEdit;
 
-    FCanvasAux: TControlCanvas;
-
     FInfoPanelHidden: boolean;
     FNNodeDeleted: boolean;
     fImagesReferenceCount: TImageIDs;
@@ -108,7 +106,7 @@ type
   protected
     procedure SetInfoPanelHidden(value: boolean);
     procedure EditTags;
-    procedure OnEndTagsIntroduction(PressedReturn: boolean);
+    procedure OnEndEditTagsIntroduction(PressedReturn: boolean);
   public
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
 
@@ -217,10 +215,6 @@ begin
       pnlIdentif.Align:= alTop;
    end;
 
-   FCanvasAux := TControlCanvas.Create;
-   FCanvasAux.Control := txtTags;
-   FCanvasAux.Font := TxtTags.Font;
-
    SetReadOnly(KntFolder.ReadOnly);
    fChangingInCode:= false;
 
@@ -236,9 +230,6 @@ begin
       App.EditorUnavailable(FEditor);
       FreeAndNil(FEditor);
     end;
-
-   if assigned(FCanvasAux) then
-      FCanvasAux.Free;
 
    fImagesReferenceCount:= nil;
 
@@ -396,11 +387,11 @@ procedure TKntNoteUI.txtTagsEnter(Sender: TObject);
 begin
    if txtTags.ReadOnly then exit;
 
-   TagMng.StartTxtTagProcessing(txtTags, tmEdit, OnEndTagsIntroduction, Note, Folder);
+   TagMng.StartTxtEditTagIntrod(txtTags, OnEndEditTagsIntroduction, Note, Folder);
    AdjustTxtTagsWidth(True);
 end;
 
-procedure TKntNoteUI.OnEndTagsIntroduction(PressedReturn: boolean);
+procedure TKntNoteUI.OnEndEditTagsIntroduction(PressedReturn: boolean);
 begin
   if PressedReturn then
      Editor.SetFocus;
@@ -413,20 +404,23 @@ end;
 
 
 procedure TKntNoteUI.AdjustTxtTagsWidth (AllowEdition: boolean = False);
+const
+  MinTagsWidth = 17;
 var
   MinNoteNameWidth, MaxAvailableWidth: integer;
   MaxAvailableForTags, TagsWidth: integer;
 
 begin
-  MinNoteNameWidth:= FCanvasAux.TextWidth(Note.Name) + 10;
-  TagsWidth:= FCanvasAux.TextWidth(txtTags.Text) + 10;
+  MinNoteNameWidth:= TagMng.GetTextWidth(Note.Name, txtName) + 10;
+  TagsWidth:=   MinTagsWidth;
+  if txtTags.Text <> EMPTY_TAGS then
+     TagsWidth:= TagMng.GetTextWidth(txtTags.Text, txtTags) + 10;
 
   MaxAvailableWidth:= pnlIdentif.Width - txtCreationDate.Width -4;
   MaxAvailableForTags:= MaxAvailableWidth;
 
   if not AllowEdition then
      dec(MaxAvailableForTags, MinNoteNameWidth)
-
   else begin
      TagsWidth:= TagsWidth * 2;
      if TagsWidth < 170 then
@@ -570,7 +564,7 @@ begin
    txtTags.Text:= S;
    TagMng.UpdateTxtTagsHint(txtTags);
    if S = '' then begin
-      txtTags.Text:= ' #';
+      txtTags.Text:= EMPTY_TAGS;
       txtTags.Font.Color:= clGray;
    end
    else

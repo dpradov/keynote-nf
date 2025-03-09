@@ -1,4 +1,4 @@
-unit kn_ImageForm;
+﻿unit kn_ImageForm;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -447,7 +447,7 @@ begin
 
    txtID.Text:= GetImageID.ToString;
    lblDetails.Caption:= Image.Details;
-   lblDetails.Hint:= StringReplace(Image.Details, '|', ' -- ', [rfReplaceAll]);
+   lblDetails.Hint:= StringReplace(Image.Details, '|', '│', [rfReplaceAll]);
    txtCaption.Text:= Image.Caption;
    lblLinked.Visible:= not Image.IsOwned;
    cScrollBox.Color:= KeyOptions.ImgViewerBGColor;

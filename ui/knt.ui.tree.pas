@@ -35,7 +35,8 @@ uses
   gf_misc,
   kn_Info,
   kn_Const,
-  knt.model.note
+  knt.model.note,
+  knt.ui.TagMng
   ;
 
 
@@ -77,6 +78,7 @@ type
     TB_FilterTree: TToolbarButton97;
     TB_HideChecked: TToolbarButton97;
     TB_FilterUnflagged: TToolbarButton97;
+    txtTags: TEdit;
 
 
   private class var
@@ -122,6 +124,7 @@ type
     fChangesInFlagged: boolean;
     fNNodesFlagged: boolean;
     fLastTreeSearch: string;
+    fFindTags: TFindTags;
 
     fTimer: TTimer;
     fColsSizeAdjusting: integer;
@@ -330,6 +333,13 @@ type
     procedure ActivateFilter;
     procedure TB_FilterTreeClick(Sender: TObject);
 
+    // Filter nodes: Tags
+  protected
+    procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
+    procedure OnEndFindTagsIntroduction(PressedReturn: boolean; var FindTags: TFindTags);
+    procedure txtTagsEnter(Sender: TObject);
+
+
     // Tree width expansion
   public
     function CheckRestoreTreeWidth: boolean;
@@ -449,7 +459,11 @@ begin
    fFilterOutUnflaggedApplied:= false;
    fChangesInFlagged:= false;
    fColsSizeAdjusting:= 0;
+   fFindTags:= nil;
    fTimer:= nil;
+
+   txtTags.Text:= EMPTY_TAGS;
+   txtTags.Font.Color:= clGray;
 
    fNumberingDepthLimit:= 2;
 
@@ -624,6 +638,7 @@ begin
         PnlInf.Left:= PnlInf.Left - LeftShift;
      end;
    end;
+   AdjustTxtTagsWidth(txtTags.Focused)
 end;
 
 
@@ -938,6 +953,7 @@ end;
 procedure TKntTreeUI.SetupTreeHandlers;
 begin
    txtFilter.OnChange := txtFilterChange;
+   txtTags.OnEnter:= txtTagsEnter;
    TB_HideChecked.OnClick:= TB_HideCheckedClick;
    TB_FilterTree.OnClick:= TB_FilterTreeClick;
    OnResize := FrameResize;
@@ -4222,6 +4238,71 @@ end;
 
 
 {$ENDREGION}
+
+
+// Filter nodes: Tags =================================
+
+{$REGION Filter nodes: Tags }
+
+procedure TKntTreeUI.txtTagsEnter(Sender: TObject);
+begin
+   TagMng.StartTxtFindTagIntrod(txtTags, OnEndFindTagsIntroduction);
+   AdjustTxtTagsWidth(True);
+end;
+
+procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; var FindTags: TFindTags);
+begin
+  if PressedReturn then
+     txtFilter.SetFocus;
+
+   fFindTags:= FindTags;
+   AdjustTxtTagsWidth;
+end;
+
+
+procedure TKntTreeUI.AdjustTxtTagsWidth (AllowEdition: boolean = False);
+const
+  MinFilterWidth = 30;
+  MinTagsWidth = 17;
+var
+  MaxAvailableWidth, MaxAvailableForTags: integer;
+  TagsWidth, FilterWidth: integer;
+
+begin
+  TagsWidth:=   MinTagsWidth;
+  FilterWidth:= MinFilterWidth;
+  if txtTags.Text <> EMPTY_TAGS then
+     TagsWidth:= TagMng.GetTextWidth(txtTags.Text, txtTags) + 10;
+
+  if txtFilter.Text <> '' then
+     FilterWidth := TagMng.GetTextWidth(txtFilter.Text, txtFilter) + 10;
+
+  MaxAvailableWidth:= Self.Width - 3*TB_FilterTree.Width -2;
+
+  if AllowEdition then begin
+     TagsWidth:= TagsWidth * 2;
+     if TagsWidth < 100 then
+        TagsWidth:= 100;
+     FilterWidth:= MaxAvailableWidth - TagsWidth;
+  end
+  else begin
+     FilterWidth:= MaxAvailableWidth - TagsWidth;
+     if FilterWidth < MinFilterWidth then begin
+        FilterWidth := MinFilterWidth;
+        TagsWidth:= MaxAvailableWidth - FilterWidth;
+        if TagsWidth < MinTagsWidth then
+           TagsWidth := MinTagsWidth;
+     end;
+  end;
+
+  txtFilter.Width:= FilterWidth;
+  txtTags.Width:= TagsWidth;
+  txtFilter.Left:= txtTags.Left + TagsWidth + 2;
+end;
+
+
+{$ENDREGION}
+
 
 
 // Tree width expansion ======================

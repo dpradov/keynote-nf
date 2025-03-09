@@ -8,15 +8,19 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Graphics, Vcl.StdCtrls,
 
   knt.ui.tagSelector,
-  knt.model.note,
-  kn_KntFolder
+  knt.model.note
   ;
 
 
 
- type
-    TOnEndTagsIntroduction = procedure(PressedReturn: boolean) of object;
-    TTagsMode = (tmEdit, tmSearch);
+type
+  TTagsMode = (tmEdit, tmSearch);
+  TTagsOR =  TNoteTagArray;
+  TTagsAND = Array of TTagsOR;
+  TFindTags = TTagsAND;           // ( TagsOR.1 AND TagsOR.2 AND .... ) = (Tag1.1 OR Tag1.2 ... Tag.1N) AND (Tag2.1 OR .. Tag2.M) AND ...
+
+  TOnEndEditTagsIntrod = procedure(PressedReturn: boolean) of object;
+  TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; var FindTags: TFindTags) of object;
 
 
   TTagMng = class
@@ -25,11 +29,15 @@ uses
 
     txtTags: TEdit;
     FTagsMode: TTagsMode;
-    FOnEndTagsIntroduction: TOnEndTagsIntroduction;
+    FOnEndEditTagsIntrod: TOnEndEditTagsIntrod;
+    FOnEndFindTagsIntrod: TOnEndFindTagsIntrod;
     FOldTxtTagsWndProc: TWndMethod;
 
     FNote: TNote;
-    FFolder: TKntFolder;
+    FFolder: TObject;
+
+    FCanvasAux : TControlCanvas;
+
 
     constructor Create;
 
@@ -43,16 +51,20 @@ uses
     procedure NewTxtTagsWndProc(var Msg: TMessage);
 
     procedure CheckBeginOfTag;
-    procedure CommitAddedTags;
+    function CommitIntroducedTags: TFindTags;
     function GetCaretPosTag: integer;
     function GetEndOfWord: integer;
+
+  protected
+    procedure StartTxtTagIntrod(TagEdit: TEdit);
+    procedure UpdateTxtFindTagsHint(const ConsideredWords: string; FindTags: TFindTags);
 
   public
     destructor Destroy; override;
 
-    procedure StartTxtTagProcessing(TagEdit: TEdit; TagsMode: TTagsMode; OnEndTagsIntroduction: TOnEndTagsIntroduction;
-                                 Note: TNote = nil; Folder: TKntFolder = nil);
-    procedure EndTxtTagProcessing(PressedReturn: boolean);
+    procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
+    procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod);
+    procedure EndedTxtTagIntrod(PressedReturn: boolean);
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
 
     procedure CreateTagSelector;
@@ -62,8 +74,13 @@ uses
     procedure EndTagIntroduction;
     function IsValidTagName (var Name: string): boolean;
     function GetTagSubstr(Txt: string): string;
+
+    function GetTextWidth(Str: string; txtEdit: TEdit): integer;
   end;
 
+
+const
+  EMPTY_TAGS = '#';
 
 var
   TagMng: TTagMng;
@@ -74,6 +91,7 @@ implementation
 
 uses VirtualTrees,
      gf_miscvcl,
+     kn_KntFolder,
      knt.ui.editor,
      kn_KntFile,
      knt.App,
@@ -85,6 +103,16 @@ uses VirtualTrees,
 // Common methods =========================================
 
 {$REGION Common methods }
+
+function TTagMng.GetTextWidth(Str: string; txtEdit: TEdit): integer;
+begin
+   if txtEdit = nil then exit;
+   if FCanvasAux.Control <> txtEdit then begin
+      FCanvasAux.Control := txtEdit;
+      FCanvasAux.Font := txtEdit.Font;
+   end;
+   Result:= FCanvasAux.TextWidth(Str);
+end;
 
 
 function TTagMng.GetTagSubstr(Txt: string): string;
@@ -152,6 +180,7 @@ var
 begin
    Editor:= nil;
    if cTagSelector.EditorCtrlUI is TKntRichEdit then begin
+      FTagsMode := tmEdit;
       Editor:= TKntRichEdit(cTagSelector.EditorCtrlUI);
       SS:= Editor.SelStart;
       if (IntroducingTagsState = itHashTyped) and (SS = CaretPosTag) or
@@ -209,7 +238,7 @@ var
   NTag: TNoteTag;
 begin
    cTagSelector.CloseTagSelector (true);
-   if TagSubstr <> '' then begin
+   if (TagSubstr <> '') and (FTagsMode = tmEdit) then begin
       if TagSubstr[Length(TagSubstr)] = '.' then
          delete(TagSubstr, Length(TagSubstr), 1);
 
@@ -296,32 +325,30 @@ begin
    inherited Create;
 
    txtTags:= nil;
-   FOnEndTagsIntroduction:= nil;
+   FOnEndEditTagsIntrod:= nil;
+   FOnEndFindTagsIntrod:= nil;
+
+   FCanvasAux := TControlCanvas.Create;
 end;
 
 destructor  TTagMng.Destroy;
 begin
    if txtTags <> nil then
-      EndTxtTagProcessing(false);
+      EndedTxtTagIntrod(false);
 
+   if FCanvasAux <> nil then
+      FCanvasAux.Free;
    inherited Destroy;
 end;
 
 
-procedure TTagMng.StartTxtTagProcessing(TagEdit: TEdit; TagsMode: TTagsMode; OnEndTagsIntroduction: TOnEndTagsIntroduction;
-                                     Note: TNote = nil; Folder: TKntFolder = nil);
+procedure TTagMng.StartTxtTagIntrod(TagEdit: TEdit);
 begin
    txtTags:= TagEdit;
-   FTagsMode:= TagsMode;
-   FOnEndTagsIntroduction:= OnEndTagsIntroduction;
-   if FTagsMode = tmEdit then begin
-      FNote:= Note;
-      FFolder:= Folder;
-      ActiveFile.NoteTagsTemporalAdded.Clear;
-   end;
+   ActiveFile.NoteTagsTemporalAdded.Clear;
 
    IgnoreTagSubstr:= '';
-   if txtTags.Text = ' #' then
+   if txtTags.Text = EMPTY_TAGS then
       txtTags.Text:= '';
    txtTags.Color:= clWindow;
    txtTags.Font.Color:= clMaroon;
@@ -340,10 +367,34 @@ begin
    end;
 end;
 
+procedure TTagMng.StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
+begin
+   if TagEdit = txtTags then exit;
+   StartTxtTagIntrod(TagEdit);
 
-procedure TTagMng.EndTxtTagProcessing(PressedReturn: boolean);
+   FTagsMode:= tmEdit;
+   FOnEndEditTagsIntrod:= OnEndEditTagsIntrod;
+   FNote:= Note;
+   FFolder:= Folder;
+end;
+
+
+procedure TTagMng.StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod);
+begin
+   if TagEdit = txtTags then exit;
+
+   StartTxtTagIntrod(TagEdit);
+
+   FTagsMode:= tmSearch;
+   FOnEndFindTagsIntrod:= OnEndFindTagsIntrod;
+end;
+
+
+
+procedure TTagMng.EndedTxtTagIntrod(PressedReturn: boolean);
 var
   Color: TColor;
+  FindTags: TFindTags;
 
 begin
    if txtTags <> nil then begin
@@ -352,13 +403,14 @@ begin
 
       cTagSelector.CloseTagSelector(true);
 
-      if FTagsMode = tmEdit then begin
-         CommitAddedTags;
+      FindTags:= CommitIntroducedTags;
+
+      if FTagsMode = tmEdit then
          UpdateTxtTagsHint;
-      end;
+
       Color:= clWindowText;
       if txtTags.Text = '' then begin
-         txtTags.Text := ' #';
+         txtTags.Text := EMPTY_TAGS;
          Color:= clGray;
       end;
       txtTags.Font.Color:= Color;
@@ -373,11 +425,18 @@ begin
          txtTags.WindowProc := FOldTxtTagsWndProc;
       end;
 
-      if assigned(FOnEndTagsIntroduction) then
-          FOnEndTagsIntroduction(PressedReturn);
+      if FTagsMode = tmEdit then begin
+         if assigned(FOnEndEditTagsIntrod) then
+             FOnEndEditTagsIntrod(PressedReturn);
+      end
+      else begin
+         if assigned(FOnEndFindTagsIntrod) then
+            FOnEndFindTagsIntrod(PressedReturn, FindTags);
+      end;
 
       txtTags:= nil;
-      FOnEndTagsIntroduction:= nil;
+      FOnEndEditTagsIntrod:= nil;
+      FOnEndFindTagsIntrod:= nil;
       FOldTxtTagsWndProc:= nil;
    end;
 
@@ -464,16 +523,15 @@ end;
 
 procedure TTagMng.txtTagsExit(Sender: TObject);
 begin
-   EndTxtTagProcessing(false);
+   EndedTxtTagIntrod(false);
 end;
-
 
 
 
 procedure TTagMng.txtTagsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if (IntroducingTagsState = itWithTagSelector) then
-       if key in [VK_RETURN, VK_TAB] then
+     if key in [VK_RETURN, VK_TAB] then
         Key:= 0
      else
      if (key in [VK_UP, VK_DOWN]) then begin
@@ -545,13 +603,13 @@ begin
             exit;
          end;
   end;
-  if (Key = #13) and (IntroducingTagsState = itWithoutTagSelector) then
-     EndTxtTagProcessing(true);
+  if (Key in [#13, #9]) and (IntroducingTagsState = itWithoutTagSelector) then
+     EndedTxtTagIntrod(true);
 
 end;
 
 
-procedure TTagMng.CommitAddedTags;
+function TTagMng.CommitIntroducedTags: TFindTags;
 var
    i, pI, pF: integer;
    Txt, tagName: string;
@@ -561,6 +619,9 @@ var
    N: integer;
    TagsStateBAK: TTagsState;
    NEntry: TNoteEntry;
+   FindTags: TFindTags;
+   NTagsOR: TNoteTagList;
+   ConsideredWords: string;
 
    function DuplicateTag(aName: string): boolean;
    var
@@ -574,6 +635,10 @@ var
    end;
 
    procedure CheckTag;
+   var
+      TagsOR: TTagsOR;
+      M, i: integer;
+      tagNameOR: string;
    begin
       if pI = pF then exit;
       tagName:= Copy(txt, pI, pF-pI+1);
@@ -582,60 +647,130 @@ var
          delete(tagName, Length(tagName), 1);
       if DuplicateTag(tagName) then exit;
 
-      inc(N);
-      SetLength(TagsAssigned, N);
-      SetLength(TagsNames, N);
-      TagsNames[N-1]:= tagName;
-      NTag:= ActiveFile.GetNTagByName(tagName, ActiveFile.NoteTagsTemporalAdded);
-      if NTag <> nil then
-         NTag:= nil
-      else
-         NTag:= ActiveFile.GetNTagByName(tagName);  // If return NTag is nil must have been added by pasting, not typing.
-      TagsAssigned[N-1]:= NTag;                     // NTag = nil => New tag that will be created
+
+      if FTagsMode = tmEdit then begin
+         inc(N);
+         SetLength(TagsAssigned, N);
+         SetLength(TagsNames, N);
+         TagsNames[N-1]:= tagName;
+         NTag:= ActiveFile.GetNTagByName(tagName, ActiveFile.NoteTagsTemporalAdded);
+         if NTag <> nil then
+            NTag:= nil
+         else
+            NTag:= ActiveFile.GetNTagByName(tagName);  // If return NTag is nil must have been added by pasting, not typing.
+         TagsAssigned[N-1]:= NTag;                     // NTag = nil => New tag that will be created  (if FTagsMode = tmEdit)
+      end
+      else begin
+                                                      // FTagsMode = tmSearch
+         TagsOR:= nil;
+         NTag:= ActiveFile.GetNTagByName(tagName);
+         if NTag <> nil then begin
+            SetLength(TagsOR, 1);
+            TagsOR[0]:= NTag;
+         end
+         else begin
+            { If it ends in * and has not been identified as a registered tag, it will be assumed that you want to 
+              indicate the search for tags that contain the entered substring (not just the one that ends with it).
+              In this way, if we have for example the tags: "Error", "ErrorHigh", "ErrorLow" and we want to select only
+              the first one, we will write "Error" (or simply select it from the selector, in the many possible ways).
+              If we want to consider the three tags (an error, whatever the severity or if it has not been defined) we
+              will write "Error*". When there is no match with any individual tag it is not necessary to write * to 
+              select several. E.g.: If we have "PryA.ModuleA" and "PryA.ModuleB" we could write "PryA" to select the two
+             }
+            tagNameOR:= tagName;
+            if tagNameOR[Length(tagNameOR)] = '*' then
+               delete(tagNameOR, Length(tagNameOR), 1);
+
+            NTagsOR.Clear;
+            ActiveFile.UpdateNTagsMatching(tagNameOR, NTagsOR);
+            M:= NTagsOR.Count;
+            if M > 0 then begin
+               SetLength(TagsOR, M);
+               for i:= 0 to M - 1 do
+                  TagsOR[i]:= NTagsOR[i];
+            end;
+         end;
+         if TagsOR <> nil then begin
+            ConsideredWords:= ConsideredWords + TagName + ' ';
+            inc(N);
+            SetLength(FindTags, N);
+            SetLength(TagsNames, N);        // To control duplicates
+            TagsNames[N-1]:= tagName;
+            FindTags[N-1]:= TagsOR;
+         end;
+      end;
    end;
 
 begin
-   N:= 0;
-   txt:= txtTags.Text;
-   if trim(txt) <> '' then begin
-      pI:= 1;
-      for i:= 1 to txt.Length do begin
-         if Txt[i] in TagCharsDelimiters then begin
-            pF:= i-1;
-            CheckTag;
-            pI:= i+1;
-         end;
+   Result:= nil;
+   NTagsOR:= nil;
+
+   try
+
+      if FTagsMode = tmSearch then begin
+         NTagsOR:= TNoteTagList.Create;
       end;
-      pF:= i;
-      CheckTag;
+
+      N:= 0;
+      txt:= txtTags.Text;
+      if trim(txt) <> '' then begin
+         pI:= 1;
+         for i:= 1 to txt.Length do begin
+            if Txt[i] in TagCharsDelimiters then begin
+               pF:= i-1;
+               CheckTag;
+               pI:= i+1;
+            end;
+         end;
+         pF:= i;
+         CheckTag;
+      end;
+
+
+      if FTagsMode = tmEdit then begin
+        // Delete all temporarily added tags, and then add the ones identified in the text.
+        // This will cause the ones added by mistake to be discarded, while also not unnecessarily increasing the value of the Tag IDs
+
+        for i := 0 to ActiveFile.NoteTagsTemporalAdded.Count-1 do
+           ActiveFile.DeleteNTag(ActiveFile.NoteTagsTemporalAdded[i]);
+        ActiveFile.NoteTagsTemporalAdded.Clear;
+
+        TagsStateBAK:= App.TagsState;
+        App.TagsState := tsHidden;
+
+        for i := 0 to High(TagsAssigned) do begin
+            if TagsAssigned[i] = nil then begin
+               NTag:= ActiveFile.AddNTag(TagsNames[i], '');
+               TagsAssigned[i]:= NTag;
+            end;
+        end;
+        App.TagsState := TagsStateBAK;
+        App.TagsUpdated;                            // Perform the sorting only once
+
+        NEntry:= FNote.Entries[0];                               // %%%%
+        if not NEntry.HaveSameTags(TagsAssigned) then begin
+           NEntry.Tags:= TagsAssigned;
+           App.NEntryModified(NEntry, FNote, TKntFolder(FFolder));
+        end;
+        txtTags.Text:= NEntry.TagsNames;
+
+      end
+      else begin     // FTagsMode = tmSearch
+         { We allow the introduction of both individual tags and parts of them, which allow the selection of several at a time.
+           In the latter case, they are treated as OR conditions.
+           Example: Suppose that there are tags such as PryA.Module1 PryA.Module2 ... Bug Bug.High Bugh.Low
+           If you enter: "PryA Bug.Low" -> (PryA.Module1 OR PryA.Module2 .. ) AND (Bug.Low) will be considered.
+         }
+         txtTags.Text:=  ConsideredWords;
+         Result:= FindTags;
+         UpdateTxtFindTagsHint(ConsideredWords, FindTags);
+      end;
+
+   finally
+      if NTagsOR <> nil then
+         NTagsOR.Free;
    end;
 
-  // Delete all temporarily added tags, and then add the ones identified in the text.
-  // This will cause the ones added by mistake to be discarded, while also not unnecessarily increasing the value of the Tag IDs
-
-   for i := 0 to ActiveFile.NoteTagsTemporalAdded.Count-1 do
-      ActiveFile.DeleteNTag(ActiveFile.NoteTagsTemporalAdded[i]);
-   ActiveFile.NoteTagsTemporalAdded.Clear;
-
-   TagsStateBAK:= App.TagsState;
-   App.TagsState := tsHidden;
-
-   for i := 0 to High(TagsAssigned) do begin
-       if TagsAssigned[i] = nil then begin
-          NTag:= ActiveFile.AddNTag(TagsNames[i], '');
-          TagsAssigned[i]:= NTag;
-       end;
-   end;
-   App.TagsState := TagsStateBAK;
-   App.TagsUpdated;                            // Perform the sorting only once
-
-
-  NEntry:= FNote.Entries[0];                               // %%%%
-  if not NEntry.HaveSameTags(TagsAssigned) then begin
-     NEntry.Tags:= TagsAssigned;
-     App.NEntryModified(NEntry, FNote, FFolder);
-  end;
-  txtTags.Text:= NEntry.TagsNames;
 end;
 
 
@@ -651,7 +786,7 @@ begin
 
 
     Hint:= txtEdit.Text;
-    if Hint = ' #' then
+    if Hint = EMPTY_TAGS then
        Hint:= '';
     txtEdit.Hint:= Hint;
     if (Hint = '') then
@@ -659,10 +794,49 @@ begin
     Form_Main.RTFMTags.Hint:= Hint;
 end;
 
+
+procedure TTagMng.UpdateTxtFindTagsHint(const ConsideredWords: string; FindTags: TFindTags);
+var
+  Hint: string;
+  txtEdit: TEdit;
+  i, j: integer;
+  TagsOR: TTagsOR;
+  SepOR, SepAND: string;
+  IncludesORs: boolean;
+begin
+    txtEdit:= txtTags;
+    IncludesORs:= false;
+
+    if FindTags <> nil then begin
+      SepAND:= '';
+      for i:= 0 to High(FindTags) do begin
+         TagsOR:= FindTags[i];
+         Hint:= Hint + SepAND;
+         if Length(TagsOR) = 1 then
+            Hint:= Hint + TagsOR[0].Name
+         else begin
+            IncludesORs:= True;
+            Hint:= Hint + ' (';
+            SepOR:= '';
+            for j:= 0 to High(TagsOR) do begin
+               Hint:= Hint + SepOR + TagsOR[j].Name;
+               SepOR:= '│';
+            end;
+            Hint:= Hint + ' )';
+         end;
+         SepAND:= ' & ';
+      end;
+    end;
+    if IncludesORs then
+       Hint:= '"' + ConsideredWords + '": ' + Hint;
+    txtEdit.Hint:= Hint;
+end;
+
 {$ENDREGION}
 
 
 initialization
    TagMng:= TTagMng.Create;
+   TagMng.CreateTagSelector;
 
 end.

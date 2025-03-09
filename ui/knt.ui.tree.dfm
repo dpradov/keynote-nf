@@ -1,13 +1,14 @@
 object KntTreeUI: TKntTreeUI
   Left = 0
   Top = 0
-  Width = 175
+  Width = 130
   Height = 397
+  Constraints.MinWidth = 125
   TabOrder = 0
   object TV: TVirtualStringTree
     Left = 0
     Top = 0
-    Width = 175
+    Width = 130
     Height = 374
     Align = alClient
     AutoExpandDelay = 700
@@ -15,17 +16,11 @@ object KntTreeUI: TKntTreeUI
     DragMode = dmAutomatic
     DragOperations = [doCopy, doMove, doLink]
     EditDelay = 700
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Style = []
     Header.AutoSizeIndex = 0
     Header.MainColumn = -1
     HintMode = hmTooltip
     HotCursor = crHandPoint
     ParentBiDiMode = False
-    ParentFont = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0
@@ -36,16 +31,22 @@ object KntTreeUI: TKntTreeUI
   object PnlInf: TPanel
     Left = 0
     Top = 374
-    Width = 175
+    Width = 130
     Height = 23
     Align = alBottom
     BevelOuter = bvNone
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 1
     DesignSize = (
-      175
+      130
       23)
     object TB_FilterTree: TToolbarButton97
-      Left = 151
+      Left = 106
       Top = 1
       Width = 24
       Height = 22
@@ -69,7 +70,7 @@ object KntTreeUI: TKntTreeUI
       RepeatInterval = 101
     end
     object TB_FilterUnflagged: TToolbarButton97
-      Left = 126
+      Left = 81
       Top = 1
       Width = 24
       Height = 22
@@ -80,12 +81,22 @@ object KntTreeUI: TKntTreeUI
       RepeatInterval = 101
     end
     object txtFilter: TEdit
+      Left = 49
+      Top = 2
+      Width = 30
+      Height = 20
+      Anchors = [akLeft, akTop, akRight]
+      Ctl3D = False
+      ParentCtl3D = False
+      TabOrder = 1
+    end
+    object txtTags: TEdit
       Left = 24
       Top = 2
-      Width = 100
-      Height = 23
-      TabStop = False
-      Anchors = [akLeft, akTop, akRight]
+      Width = 24
+      Height = 20
+      Ctl3D = False
+      ParentCtl3D = False
       TabOrder = 0
     end
   end

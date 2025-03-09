@@ -489,7 +489,6 @@ begin
   OnStartDrag := RxRTFStartDrag;    // See comment *4 in RxRichEd
   OnEndDrag   := RxRTFEndDrag;        // ,,
 
-  TagMng.CreateTagSelector;
 end; // TKntRichEdit CREATE
 
 

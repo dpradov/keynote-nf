@@ -1496,7 +1496,7 @@ begin
 
   with myTabOpts.Font do
   begin
-    FSize := 8;
+    FSize := 9;
     FColor := clWindowText;
     FName := 'Tahoma';
     FCharset := DEFAULT_CHARSET;

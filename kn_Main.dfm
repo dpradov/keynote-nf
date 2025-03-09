@@ -860,7 +860,7 @@ object Form_Main: TForm_Main
     FlatSeperators = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -12
     Font.Name = 'Tahoma'
     Font.Style = []
     HotTrack = False
@@ -877,8 +877,6 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
-    ExplicitWidth = 779
-    ExplicitHeight = 694
   end
   object Dock_Left: TDock97
     Left = 0
@@ -1031,8 +1029,6 @@ object Form_Main: TForm_Main
     RemoveLastTab = True
     TabOrder = 2
     OnChange = Pages_ResChange
-    ExplicitLeft = 791
-    ExplicitHeight = 694
     object ResTab_Find: TTab95Sheet
       HelpType = htKeyword
       HelpKeyword = '479-5'
@@ -1813,11 +1809,17 @@ object Form_Main: TForm_Main
       end
       object txtFilterTags: TEdit
         Left = 0
-        Top = 628
+        Top = 627
         Width = 200
-        Height = 21
+        Height = 22
         TabStop = False
         Anchors = [akLeft, akRight, akBottom]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
         TabOrder = 1
       end
     end

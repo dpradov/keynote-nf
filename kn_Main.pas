@@ -2786,7 +2786,9 @@ begin
              ( activecontrol = TVTags ) or
              ( activecontrol = Combo_Zoom ) or
              ( activecontrol = Combo_Style ) or
-             ( IntroducingTagsState = itWithTagSelector) then
+             ( IntroducingTagsState = itWithTagSelector) or
+             ( activecontrol.Name = 'txtTags') or
+             ( activecontrol.Name = 'txtFilter') then
           begin
             // if these controls are focused,
             // switch focus to editor
@@ -5445,8 +5447,9 @@ begin
    end;
 
    with TVTags.Header do begin
-       Height := 18;
        Options:= [hoAutoResize,hoAutoSpring,hoColumnResize,hoDblClickResize,hoShowHint, hoVisible];
+       if Height < 18 then
+          Height:= 18;
        AutoSizeIndex:= 1;
        with Columns.Add do begin
            Position:= 0;
