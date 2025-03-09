@@ -43,6 +43,7 @@ var
     Form_FindReplace : TForm_FindReplace;  // GLOBAL FORM!
 
     Is_Replacing : boolean;     // Find and Replace functions share some procedures; this is how we tell the difference where necessary
+    FoundClosingTag: boolean;
     SearchInProgress : boolean; // TRUE while searching or replacing
     UserBreak : boolean;
 
@@ -285,15 +286,26 @@ end;
 function FindTag(const Substr: string; const Str: String; SearchOrigin: integer): integer;
 var
    p, pF: integer;
+   Found, IncludeClosingTags: boolean;
 begin
-   p:= Pos(Substr, Str, SearchOrigin);
-   pF:= p + Length(Substr);
-   if not (
-      (p > 0)                                                  and
-      ((p = 1)            or (Str[p-1] in TagCharsDelimiters)) and
-      ((pF > Length(Str)) or (Str[pF]  in TagCharsDelimiters)) ) then begin
-      p:= -1;
-   end;
+   // If a tag is being renamed or removed (replacing it with ""), FindTag must also locate any block closures associated with that tag.
+   // Ex: #Tag --> ##Tag.
+   IncludeClosingTags:= Is_Replacing;
+
+   Found:= False;
+   p:= SearchOrigin -1;
+   repeat
+      p:= Pos(Substr, Str, p + 1);
+      pF:= p + Length(Substr);
+      if (p > 0) and
+          (IncludeClosingTags or  ((p = 1) or (Str[p-1] <> '#')) ) and
+          ((pF > Length(Str)) or (Str[pF]  in TagCharsDelimiters)) then begin
+         Found:= True;
+      end;
+
+   until Found or (p <= 0);
+
+   FoundClosingTag:=  (p > 1) and IncludeClosingTags and (Str[p-1] = '#');
 
    Result:= p;
 end;
@@ -2359,6 +2371,7 @@ var
   procedure SelectPatternFound();
   var
      ContainsRegImages: boolean;       // True: 'Can' contain images
+     incSel: integer;
   begin
       if (myFolder <> ActiveFolder) then
          App.ActivateFolder(myFolder);
@@ -2369,7 +2382,14 @@ var
       end;
 
       ContainsRegImages:= (not Is_ReplacingAll) or ReplacingLastNodeHasRegImg;
-      SearchCaretPos (myFolder.Editor, PatternPos, length( Text_To_Find) + SizeInternalHiddenText, true, Point(-1,-1),
+
+     // If a tag is being removed (replacing it with ""), FindTag can have located a block closures associated
+     // with that tag. Ex: #Tag --> ##Tag. In this case we must expand the text to be selected by 1
+      incSel:= 0;
+      if FindOptions.TagSearch and FoundClosingTag and (FindOptions.ReplaceWith = '') then
+         inc(incSel);
+
+      SearchCaretPos (myFolder.Editor, PatternPos - incSel, length( Text_To_Find) + SizeInternalHiddenText + incSel, true, Point(-1,-1),
                       false, ContainsRegImages, SearchInImLinkTextPlain);
   end;
 
