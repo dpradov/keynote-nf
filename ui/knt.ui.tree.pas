@@ -121,13 +121,14 @@ type
     fFindFilterApplied: boolean;
     fTreeFilterApplied: boolean;
     fFilterOutUnflaggedApplied: boolean;
+    fFindTags: TFindTags;
     fChangesInFlagged: boolean;
     fNNodesFlagged: boolean;
     fLastTreeSearch: string;
-    fFindTags: TFindTags;
 
     fTimer: TTimer;
     fColsSizeAdjusting: integer;
+    fShownFlaggedColumnForTagFilter: boolean;
 
   protected
     // Create. Destroy
@@ -187,6 +188,7 @@ type
     procedure UpdateTreeChrome;
     procedure UpdateTreeColumns (ResizeCols: boolean = True);
     procedure ShowAdditionalColumns (Show: boolean);
+    procedure ShowFlaggedColumnForTagFilter (Show: boolean);
     function AdditionalColumnsAreVisible: boolean;
     function GetSizeOfColDate: integer;
 
@@ -317,8 +319,10 @@ type
     procedure SetFilteredNodes;
     procedure ReapplyFilter;
     procedure ApplyFilters (Apply: boolean);
+    function GetTagFilterApplied: boolean;
     property FindFilterApplied: boolean read fFindFilterApplied write fFindFilterApplied;
     property TreeFilterApplied: boolean read fTreeFilterApplied write fTreeFilterApplied;
+    property TagFilterApplied:  boolean read GetTagFilterApplied;
     property FilterOutUnflaggedApplied: boolean read fFilterOutUnflaggedApplied;
     function NoFindFilterMatch: boolean;
     property NNodesFlagged: boolean read fNNodesFlagged;
@@ -326,6 +330,7 @@ type
     procedure FilterApplied (Applied: boolean);   // [dpv]
     procedure ApplyFilterOnFolder;   // [dpv]
     procedure ClearFindFilter;
+    procedure CheckFilterOff;
     procedure CheckFocusedNode;
     procedure ExecuteTreeFiltering(ForceReapplying: boolean= True);
     procedure txtFilterChange(Sender: TObject);
@@ -460,6 +465,7 @@ begin
    fChangesInFlagged:= false;
    fColsSizeAdjusting:= 0;
    fFindTags:= nil;
+   fShownFlaggedColumnForTagFilter:= false;
    fTimer:= nil;
 
    txtTags.Text:= EMPTY_TAGS;
@@ -1107,6 +1113,36 @@ begin
 end;
 
 
+procedure TKntTreeUI.ShowFlaggedColumnForTagFilter (Show: boolean);
+var
+  FlaggedColumn: TVirtualTreeColumn;
+  IncWidth: integer;
+begin
+  FlaggedColumn:= TV.Header.Columns[2];
+  if Show = (coVisible in FlaggedColumn.Options) then exit;
+
+  IncWidth:= 0;
+  if Show then begin
+     fShownFlaggedColumnForTagFilter:= True;
+     FlaggedColumn.Position:= 0;
+     FlaggedColumn.Options:= FlaggedColumn.Options + [coVisible];
+     IncWidth:= FlaggedColumn.Width;
+  end
+  else
+  if fShownFlaggedColumnForTagFilter then begin
+     fShownFlaggedColumnForTagFilter:= false;
+     FlaggedColumn.Options:= FlaggedColumn.Options - [coVisible];
+     IncWidth:= - FlaggedColumn.Width;
+  end;
+
+  if AdditionalColumnsAreVisible then
+     TV.Header.Options:= TV.Header.Options + [hoVisible]
+  else
+     TV.Header.Options:= TV.Header.Options - [hoVisible];
+
+  Self.Width:= Self.Width + IncWidth;
+end;
+
 
 // This action will not be saved. To configure if any of the additional columns must be shown by default
 // -> Folder properties..
@@ -1399,6 +1435,10 @@ begin
   NNode := Sender.GetNodeData(Node);
 
   if (Column = 2) then begin
+     if TagFilterApplied and NNode.MatchesTags(fFindTags) then begin
+        TargetCanvas.Brush.Color :=  clWebLightCyan;
+        TargetCanvas.FillRect(CellRect);
+     end;
      if NNode.Flagged then begin
         T:= (CellRect.Height - Form_Main.IMG_TV.Height) div 2;         // Center vertically
         Form_Main.IMG_TV.Draw(TargetCanvas, CellRect.Left, T, 10);
@@ -1824,6 +1864,8 @@ begin
       if Flagged then begin
          fTreeFilterApplied:= false;
          txtFilter.Text:= '';
+         txtTags.Text:= '';
+         fFindTags:= nil;
       end;
       FilterOutUnflagged(Flagged);
    end;
@@ -3920,6 +3962,7 @@ begin
    else
       TV.TreeOptions.PaintOptions := TV.TreeOptions.PaintOptions + [TVTPaintOption.toShowFilteredNodes];
 
+   ShowFlaggedColumnForTagFilter(Apply and TagFilterApplied);
    FrameResize(nil);
 end;
 
@@ -3950,7 +3993,8 @@ var
   begin
      Result:= (fFindFilterApplied and NNode.FindFilterMatch) or
               (fTreeFilterApplied and NNode.TreeFilterMatch ) or
-              (fFilterOutUnflaggedApplied and NNode.Flagged );
+              (fFilterOutUnflaggedApplied and NNode.Flagged ) or
+              (TagFilterApplied and NNode.MatchesTags(fFindTags));
   end;
 
   procedure CheckShowChildsOfNode (Node: PVirtualNode);
@@ -3985,12 +4029,28 @@ var
      end;
   end;
 
+  function AnyParentMatchesTags (Node: PVirtualNode): boolean;
+  var
+    ParentNode: PVirtualNode;
+  begin
+     Result:= false;
+     ParentNode:= Node.Parent;
+
+     if ParentNode <> TV.RootNode then begin
+        if GetNNode(ParentNode).MatchesTags(fFindTags) then
+           Result:= true
+        else
+           Result:= AnyParentMatchesTags(ParentNode);
+     end;
+  end;
+
+
 begin
    if TV.TotalCount = 0 then exit;
 
    TV.BeginUpdate;
 
-   InitialFiltered:= fTreeFilterApplied or fFindFilterApplied or fFilterOutUnflaggedApplied;
+   InitialFiltered:= fTreeFilterApplied or fFindFilterApplied or fFilterOutUnflaggedApplied or TagFilterApplied;
 
    for Node in TV.Nodes() do
       TV.IsFiltered [Node]:= InitialFiltered;
@@ -4002,13 +4062,14 @@ begin
             MakePathNonFiltered(Node);
       end;
 
-   if fTreeFilterApplied or fFilterOutUnflaggedApplied then
+   if fTreeFilterApplied or fFilterOutUnflaggedApplied or TagFilterApplied then
       Node:= TV.GetFirst();
       repeat
          if not (fFindFilterApplied and TV.IsFiltered[Node]) then begin
             NNode:= GetNNode(Node);
-            if not ( (NNode.TreeFilterMatch or not fTreeFilterApplied) and
-                     (not fFilterOutUnflaggedApplied or (NNode.Flagged or (FindOptions.ShowChildren and AnyParentIsFlagged(Node) ) ))
+            if not ( (not fTreeFilterApplied or NNode.TreeFilterMatch ) and
+                     (not fFilterOutUnflaggedApplied or (NNode.Flagged or (FindOptions.ShowChildren and AnyParentIsFlagged(Node) ) )) and
+                     (not TagFilterApplied or (NNode.MatchesTags(fFindTags) or (FindOptions.ShowChildren and AnyParentMatchesTags(Node) ) ))
                     ) then
                TV.IsFiltered[Node]:= true
 
@@ -4040,13 +4101,14 @@ begin
       until Node = nil;
    end;
 
+   ShowFlaggedColumnForTagFilter(TagFilterApplied);
 
    TV.EndUpdate;
    FrameResize(nil);
 
    fChangesInFlagged:= false;
 
-   TB_FilterTree.Enabled := fFindFilterApplied or fTreeFilterApplied or fFilterOutUnflaggedApplied;
+   TB_FilterTree.Enabled := fFindFilterApplied or fTreeFilterApplied or fFilterOutUnflaggedApplied or TagFilterApplied;
    Form_Main.MMViewFilterTree.Enabled:= TB_FilterTree.Enabled;
 end;
 
@@ -4059,6 +4121,17 @@ begin
 end;
 
 
+procedure TKntTreeUI.CheckFilterOff;
+begin
+   if not (FindFilterApplied or TreeFilterApplied or FilterOutUnflaggedApplied or TagFilterApplied) then begin
+      TKntFolder(Folder).Filtered:= False;
+      ApplyFilterOnFolder;
+   end;
+
+   CheckFocusedNode;
+   TV.Invalidate;
+end;
+
 procedure TKntTreeUI.ClearFindFilter;
 begin
    if not FindFilterApplied then exit;
@@ -4067,14 +4140,7 @@ begin
    ClearAllFindMatch;
    SetFilteredNodes;
 
-   if not (TreeFilterApplied or FilterOutUnflaggedApplied) then begin
-      TKntFolder(Folder).Filtered:= False;
-      ApplyFilterOnFolder;
-   end;
-
-   CheckFocusedNode;
-
-   TV.Invalidate;
+   CheckFilterOff;
 end;
 
 
@@ -4099,13 +4165,7 @@ begin
         SetFilteredNodes;
         txtFilter.Hint:= '';
 
-        if not (FindFilterApplied or FilterOutUnflaggedApplied) then begin
-           TKntFolder(Folder).Filtered:= False;
-           ApplyFilterOnFolder;
-        end;
-
-        CheckFocusedNode;
-        TV.Invalidate;
+        CheckFilterOff;
         FrameResize(nil);
      end;
   end
@@ -4151,14 +4211,7 @@ begin
 
    else begin
       SetFilteredNodes;
-
-      if not (TreeFilterApplied or FindFilterApplied) then begin
-         TKntFolder(Folder).Filtered:= False;
-         ApplyFilterOnFolder;
-      end;
-
-      CheckFocusedNode;
-      TV.Invalidate;
+      CheckFilterOff;
    end;
 end;
 
@@ -4244,6 +4297,11 @@ end;
 
 {$REGION Filter nodes: Tags }
 
+function TKntTreeUI.GetTagFilterApplied: boolean;
+begin
+   Result:= fFindTags <> nil;
+end;
+
 procedure TKntTreeUI.txtTagsEnter(Sender: TObject);
 begin
    TagMng.StartTxtFindTagIntrod(txtTags, OnEndFindTagsIntroduction);
@@ -4257,6 +4315,15 @@ begin
 
    fFindTags:= FindTags;
    AdjustTxtTagsWidth;
+
+   if fFindTags <> nil then
+      ActivateFilter
+
+   else begin
+      SetFilteredNodes;
+      CheckFilterOff;
+   end;
+
 end;
 
 

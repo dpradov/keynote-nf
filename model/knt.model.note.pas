@@ -47,6 +47,10 @@ type
  TNoteEntryArray = TArray<TNoteEntry>;
  TAliasArray = TArray<string>;          // Consider also TStringList and System.IniFiles.THashedStringList (already used in TMemIniFIle...)
 
+ TTagsOR =  TNoteTagArray;
+ TTagsAND = Array of TTagsOR;
+ TFindTags = TTagsAND;           // ( TagsOR.1 AND TagsOR.2 AND .... ) = (Tag1.1 OR Tag1.2 ... Tag.1N) AND (Tag2.1 OR .. Tag2.M) AND ...
+
 
  TNoteState = (
   // TODO ------------ : 
@@ -342,6 +346,7 @@ type
     procedure RemoveTag(TagID: Cardinal);
     function TagsNames: string;
     function HaveSameTags(SomeTags: TNoteTagArray): boolean;
+    function MatchesTags(var FindTags: TFindTags): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
   end;
@@ -458,6 +463,8 @@ type
     property WordWrap: TNodeWordWrap read GetWordWrap write SetWordWrap;
     property ImageIndex : integer read fImageIndex write fImageIndex;
     procedure ResetChrome;
+
+    function MatchesTags(var FindTags: TFindTags): boolean;
 
     procedure UpdateStates(TV: TBaseVirtualTree);
     function StatesToString (IgnoreFilterMatch: boolean): string;
@@ -1194,6 +1201,24 @@ begin
 
 end;
 
+function TNoteEntry.MatchesTags(var FindTags: TFindTags): boolean;
+var
+ i, j: integer;
+begin
+ Result:= False;
+ if Tags = nil then exit;
+
+ for i:= 0 to High(FindTags) do begin
+    Result:= False;                            // By default, assume that no match is found for each OR operand
+    for j:= 0 to High(FindTags[i]) do begin    // FindTags[i] : TagsOR
+      if HasTag(FindTags[i][j].ID) then
+         Result:= true;
+    end;
+    if not Result then exit;
+ end;
+end;
+
+
 {$ENDREGION }
 
 
@@ -1435,6 +1460,11 @@ begin
 
   if not TV.IsVisible[TVNode] then
      Include(States, nnsSaved_Hidden);
+end;
+
+function TNoteNode.MatchesTags(var FindTags: TFindTags): boolean;
+begin
+  Result:= Note.Entries[0].MatchesTags(FindTags);        // %%%
 end;
 
 

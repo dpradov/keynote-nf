@@ -15,9 +15,6 @@ uses
 
 type
   TTagsMode = (tmEdit, tmSearch);
-  TTagsOR =  TNoteTagArray;
-  TTagsAND = Array of TTagsOR;
-  TFindTags = TTagsAND;           // ( TagsOR.1 AND TagsOR.2 AND .... ) = (Tag1.1 OR Tag1.2 ... Tag.1N) AND (Tag2.1 OR .. Tag2.M) AND ...
 
   TOnEndEditTagsIntrod = procedure(PressedReturn: boolean) of object;
   TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; var FindTags: TFindTags) of object;
