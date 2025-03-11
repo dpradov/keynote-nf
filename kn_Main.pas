@@ -901,6 +901,9 @@ type
     RTFMTags: TMenuItem;
     TagsMAdd: TMenuItem;
     TagsMRemove: TMenuItem;
+    N93: TMenuItem;
+    TagsMFilter: TMenuItem;
+    TagsMClrFilter: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1313,6 +1316,8 @@ type
     procedure RTFMTagsClick(Sender: TObject);
     procedure TagsMAddClick(Sender: TObject);
     procedure TagsMRemoveClick(Sender: TObject);
+    procedure TagsMFilterClick(Sender: TObject);
+    procedure TagsMClrFilterClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5554,6 +5559,7 @@ begin
    else
       TVTags.TreeOptions.PaintOptions := TVTags.TreeOptions.PaintOptions + [TVTPaintOption.toShowFilteredNodes];
 
+   TVTagsSelectAlone(TVTags.GetFirstVisible());
    TVTags.EndUpdate;
 end;
 
@@ -5781,6 +5787,55 @@ end;
 procedure TForm_Main.TagsMRemoveClick(Sender: TObject);
 begin
   TagsMAddOrRemove(False);
+end;
+
+
+procedure TForm_Main.TagsMFilterClick(Sender: TObject);
+var
+  SelectedTags: TNoteTagArray;
+  i: integer;
+  FindTags: TFindTags;
+  TagsOR: TTagsOR;
+  ModeOR: boolean;
+
+  TagsStr: string;
+begin
+  if (ActiveTreeUI = nil) then exit;
+  ModeOr:= CtrlDown;
+
+  SelectedTags:= GetTagsSelected;
+
+  if not ModeOR then begin
+     SetLength(FindTags, Length(SelectedTags));
+     for i:= 0 to High(SelectedTags) do begin
+         TagsStr:= TagsStr + SelectedTags[i].Name + ' ';
+         SetLength(TagsOR, 1);
+         TagsOR[0]:= SelectedTags[i];
+         FindTags[i]:= TagsOR;
+     end;
+  end
+  else begin
+     SetLength(FindTags, 1);
+     SetLength(TagsOR, Length(SelectedTags));
+     for i:= 0 to High(SelectedTags) do begin
+         TagsStr:= TagsStr + SelectedTags[i].Name + ' ';
+         TagsOR[i]:= SelectedTags[i];
+     end;
+     FindTags[0]:= TagsOR;
+     TagsStr:= 'OR: '+ TagsStr;
+  end;
+
+  ActiveTreeUI.txtTags.Text:= TagsStr;
+  ActiveTreeUI.txtTags.Font.Color:= clWindowText;
+  ActiveTreeUI.OnEndFindTagsIntroduction(true, FindTags);
+end;
+
+procedure TForm_Main.TagsMClrFilterClick(Sender: TObject);
+begin
+  if (ActiveTreeUI = nil) then exit;
+  ActiveTreeUI.txtTags.Text:= '#';
+  ActiveTreeUI.txtTags.Font.Color:= clGray;
+  ActiveTreeUI.OnEndFindTagsIntroduction(true, nil);
 end;
 
 

@@ -341,8 +341,9 @@ type
     // Filter nodes: Tags
   protected
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
-    procedure OnEndFindTagsIntroduction(PressedReturn: boolean; var FindTags: TFindTags);
     procedure txtTagsEnter(Sender: TObject);
+  public
+    procedure OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags);
 
 
     // Tree width expansion
@@ -4308,7 +4309,7 @@ begin
    AdjustTxtTagsWidth(True);
 end;
 
-procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; var FindTags: TFindTags);
+procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags);
 begin
   if PressedReturn then
      txtFilter.SetFocus;

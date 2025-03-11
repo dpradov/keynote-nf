@@ -5316,5 +5316,16 @@ object Form_Main: TForm_Main
       Caption = '&Remove Tags from selected Notes'
       OnClick = TagsMRemoveClick
     end
+    object N93: TMenuItem
+      Caption = '-'
+    end
+    object TagsMFilter: TMenuItem
+      Caption = '&Filter Notes with selected Tags (Ctrl: OR)'
+      OnClick = TagsMFilterClick
+    end
+    object TagsMClrFilter: TMenuItem
+      Caption = 'Clear Tag filter on notes'
+      OnClick = TagsMClrFilterClick
+    end
   end
 end

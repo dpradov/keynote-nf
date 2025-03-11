@@ -17,7 +17,7 @@ type
   TTagsMode = (tmEdit, tmSearch);
 
   TOnEndEditTagsIntrod = procedure(PressedReturn: boolean) of object;
-  TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; var FindTags: TFindTags) of object;
+  TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; FindTags: TFindTags) of object;
 
 
   TTagMng = class
