@@ -1033,13 +1033,18 @@ const
    sTag1  = 55107;   // Name
    sTag2  = 55108;   // Description / alias
    sTag3  = 55109;   // The tag name cannot be blank or include #, : or spaces
-   sTag4  = 55110;   // OK to delete Tag "%s"%s?
-   sTag5  = 55111;   // OK to delete ALL SELECTED tags%s?
+   sTag4  = 55110;   // OK to DELETE Tag "%s"%s?
+   sTag5  = 55111;   // OK to DELETE ALL SELECTED tags%s?
    sTag6  = 55112;   // Creating new Tag
    sTag7  = 55113;   // Edit tags applied to the note
    sTag8  = 55114;   // OK to ALSO replace "#%s" with "#%s" within the EXISTING NOTES text?
    sTag9  = 55115;   //  (with ALL REFERENCES)
    sTag10 = 55116;   // OK to ALSO delete ALL REFERENCES within the EXISTING NOTES text?
+   sTag11 = 55117;   // No tags selected!
+   sTag12 = 55118;   // OK to APPLY / ADD the %d selected Tags to the %d %s NOTES?
+   sTag13 = 55119;   // OK to REMOVE the %d selected Tags from the %d %s NOTES?
+   sTag14 = 55120;   // visible
+   sTag15 = 55121;   // selected
 
 
 implementation

@@ -343,10 +343,11 @@ type
 
     function HasTag(TagID: Cardinal): boolean; overload;
     function HasTag(TagName: string): boolean; overload;
-    procedure RemoveTag(TagID: Cardinal);
+    procedure AddTags(SelectedTags: TNoteTagArray);
+    procedure RemoveTags(SelectedTags: TNoteTagArray);
     function TagsNames: string;
     function HaveSameTags(SomeTags: TNoteTagArray): boolean;
-    function MatchesTags(var FindTags: TFindTags): boolean;
+    function MatchesTags(FindTags: TFindTags): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
   end;
@@ -1112,24 +1113,74 @@ begin
 end;
 
 
-procedure TNoteEntry.RemoveTag(TagID: Cardinal);
+procedure TNoteEntry.RemoveTags(SelectedTags: TNoteTagArray);
 var
    i, j: integer;
    NewTags: TNoteTagArray;
+   TagID: Cardinal;
+   NRemoved: integer;
 begin
    if Tags <> nil then begin
-      SetLength(NewTags, Length(Tags));
-      j:= 0;
-      for i:= 0 to High(Tags) do
-         if Tags[i].ID <> TagID then begin
-            NewTags[j]:= Tags[i];
-            inc(j);
+      NRemoved:= 0;
+
+      for i:= 0 to High(Tags) do begin
+         TagID:= Tags[i].ID;
+         for j:= 0 to High(SelectedTags) do
+            if TagID = SelectedTags[j].ID then begin
+               inc(NRemoved);
+               Tags[i].ID:= 0;
+               break;
+            end;
+      end;
+
+      if NRemoved > 0 then begin
+         SetLength(NewTags, Length(Tags)-NRemoved);
+         j:= 0;
+         for i:= 0 to High(Tags) do begin
+            if Tags[i].ID <> 0 then begin
+               NewTags[j]:= Tags[i];
+               inc(j);
+            end;
          end;
-      if j < i then begin
-         SetLength(NewTags, j);
          Tags:= NewTags;
       end;
    end;
+end;
+
+
+procedure TNoteEntry.AddTags(SelectedTags: TNoteTagArray);
+var
+   i, j: integer;
+   N: integer;
+   TagID: Cardinal;
+   Added: integer;
+   Found: boolean;
+begin
+   if Tags = nil then
+      Tags:= SelectedTags
+
+   else begin
+      N:= Length(Tags);
+      SetLength(fTags, N + Length(SelectedTags));
+
+      Added:= 0;
+      for i:= 0 to High(SelectedTags) do begin
+         TagID:= SelectedTags[i].ID;
+         Found:= false;
+         for j:= 0 to N-1 do
+            if TagID = Tags[j].ID then begin
+               Found:= true;
+               break;
+            end;
+
+         if not Found then begin
+            Tags[N + Added]:= SelectedTags[i];
+            inc(Added);
+         end;
+      end;
+      SetLength(fTags, N + Added);
+   end;
+
 end;
 
 
@@ -1201,7 +1252,7 @@ begin
 
 end;
 
-function TNoteEntry.MatchesTags(var FindTags: TFindTags): boolean;
+function TNoteEntry.MatchesTags(FindTags: TFindTags): boolean;
 var
  i, j: integer;
 begin

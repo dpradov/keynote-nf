@@ -2710,12 +2710,18 @@ Button_OK.Caption=&Close
 55107_knt_RS_sTag1=Name
 55108_knt_RS_sTag2=Description / alias
 55109_knt_RS_sTag3=Tag name cannot be blank, nor include #,: or spaces
-55110_knt_RS_sTag4=OK to delete Tag "%s"%s?
-55111_knt_RS_sTag5=OK to delete ALL SELECTED tags%?
+55110_knt_RS_sTag4=OK to DELETE Tag "%s"%s?
+55111_knt_RS_sTag5=OK to DELETE ALL SELECTED tags%?
 55115_knt_RS_sTag9=  (with ALL REFERENCES)
 55112_knt_RS_sTag6=Creating new Tag
 55113_knt_RS_sTag7=Edit tags applied to the note
 55114_knt_RS_sTag8=OK to ALSO replace "#%s" with "#%s" within the EXISTING NOTES text?
 55116_knt_RS_sTag10=OK to ALSO delete ALL REFERENCES within the EXISTING NOTES text?
+55117_knt_RS_sTag11=No tags selected!
+55118_knt_RS_sTag12=OK to APPLY / ADD the %d selected Tags to the %d %s NOTES?
+55119_knt_RS_sTag13=OK to REMOVE the %d selected Tags from the %d %s NOTES?
+55120_knt_RS_sTag14=visible
+55121_knt_RS_sTag15=selected
+
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

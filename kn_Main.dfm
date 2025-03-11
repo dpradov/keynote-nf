@@ -5288,10 +5288,10 @@ object Form_Main: TForm_Main
     HelpContext = 307
     Left = 472
     Top = 344
-    object TagsMAdd: TMenuItem
+    object TagsMCreate: TMenuItem
       Caption = '&Create new Tag'
       ShortCut = 45
-      OnClick = TagsMAddClick
+      OnClick = TagsMCreateClick
     end
     object TagsMEdit: TMenuItem
       Caption = '&Edit Tag'
@@ -5307,6 +5307,14 @@ object Form_Main: TForm_Main
     end
     object MenuItem2: TMenuItem
       Caption = '-'
+    end
+    object TagsMAdd: TMenuItem
+      Caption = '&Add Tags to selected Notes'
+      OnClick = TagsMAddClick
+    end
+    object TagsMRemove: TMenuItem
+      Caption = '&Remove Tags from selected Notes'
+      OnClick = TagsMRemoveClick
     end
   end
 end

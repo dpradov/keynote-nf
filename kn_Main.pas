@@ -894,11 +894,13 @@ type
     txtFilterTags: TEdit;
     ResMTagsTab: TMenuItem;
     Menu_Tags: TPopupMenu;
-    TagsMAdd: TMenuItem;
+    TagsMCreate: TMenuItem;
     MenuItem2: TMenuItem;
     TagsMEdit: TMenuItem;
     TagsMDel: TMenuItem;
     RTFMTags: TMenuItem;
+    TagsMAdd: TMenuItem;
+    TagsMRemove: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1305,10 +1307,12 @@ type
     procedure MMFilePrintClick(Sender: TObject);
     procedure RTFMFoldClick(Sender: TObject);
     procedure RTFMUnfoldClick(Sender: TObject);
-    procedure TagsMAddClick(Sender: TObject);
+    procedure TagsMCreateClick(Sender: TObject);
     procedure TagsMEditClick(Sender: TObject);
     procedure TagsMDelClick(Sender: TObject);
     procedure RTFMTagsClick(Sender: TObject);
+    procedure TagsMAddClick(Sender: TObject);
+    procedure TagsMRemoveClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1439,6 +1443,9 @@ type
 
     procedure UpdateAlarmStatus;
     procedure SetAlarm (ConsiderNoteAlarm: Boolean);
+
+    procedure TagsMAddOrRemove(Add: boolean);
+    function GetTagsSelected: TNoteTagArray;
   end;
 
 function GetFilePassphrase( const FN : string ) : string;
@@ -5580,7 +5587,8 @@ begin
    TVTags.Selected[Node] := True;
 end;
 
-procedure TForm_Main.TagsMAddClick(Sender: TObject);
+
+procedure TForm_Main.TagsMCreateClick(Sender: TObject);
 var
    TagName: string;
    Node: PVirtualNode;
@@ -5606,15 +5614,16 @@ end;
 procedure TForm_Main.TagsMDelClick(Sender: TObject);
 var
   Node: PVirtualNode;
-  TVSelectedNodes: TNodeArray;
+  SelectedTags: TNoteTagArray;
   NTag: TNoteTag;
   i: integer;
   MsgRemovingRef: string;
-  RemoveRefInNotesText: boolean;
+  RemoveRefInNotesText: integer;
 
-  function CheckRemovingReferencesInNotesText: boolean;
+  function CheckRemovingReferencesInNotesText: integer;
   begin
-     Result:= RemoveRefInNotesText or (App.DoMessageBox(GetRS(sTag10), mtConfirmation, [mbYes,mbNo]) = mrYes);
+     if RemoveRefInNotesText = mrNo then
+        Result:= App.DoMessageBox(GetRS(sTag10), mtConfirmation, [mbYes,mbNo,mbCancel]);
   end;
 
 begin
@@ -5633,10 +5642,10 @@ begin
    text, tagged with a tag not included in the visible list of tags.
   }
   MsgRemovingRef:= '';
-  RemoveRefInNotesText:= False;
+  RemoveRefInNotesText:= mrNo;
   if KeyOptions.AutoDiscoverTags then begin
      MsgRemovingRef:= GetRS(sTag9);
-     RemoveRefInNotesText:= True;
+     RemoveRefInNotesText:= mrYes;
   end;
 
   if TVTags.SelectedCount <= 1 then begin
@@ -5644,30 +5653,28 @@ begin
      if Node = nil then exit;
      NTag:= ActiveFile.NoteTagsSorted[Node.Index];
      if (App.DoMessageBox(Format(GetRS(sTag4), [NTag.Name, MsgRemovingRef]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
-     RemoveRefInNotesText:= CheckRemovingReferencesInNotesText();
-     ActiveFile.DeleteNTagReferences(NTag, RemoveRefInNotesText);
-     ActiveFile.DeleteNTag(NTag);
   end
-  else begin
-     if (App.DoMessageBox(Format(GetRS(sTag5), [MsgRemovingRef]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
-     RemoveRefInNotesText:= CheckRemovingReferencesInNotesText();
+  else
+  if (App.DoMessageBox(Format(GetRS(sTag5), [MsgRemovingRef]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
 
-     TVSelectedNodes:= TVTags.GetSortedSelection(True);
-     App.TagsState := tsHidden;
-     TVTags.BeginUpdate;
-     try
-        for i := High(TVSelectedNodes) downto 0 do begin
-           NTag:= ActiveFile.NoteTagsSorted[TVSelectedNodes[i].Index];
-           ActiveFile.DeleteNTagReferences(NTag, RemoveRefInNotesText);
-           ActiveFile.DeleteNTag(NTag);
-        end;
-     finally
-        App.TagsState := tsVisible;
-        App.TagsUpdated;
-        TVTags.ClearSelection;
-        TVTags.EndUpdate;
-     end;
+  RemoveRefInNotesText:= CheckRemovingReferencesInNotesText();
+  if RemoveRefInNotesText = mrCancel then exit;
+
+  SelectedTags:= GetTagsSelected;
+  App.TagsState := tsHidden;
+  TVTags.BeginUpdate;
+  try
+     ActiveFile.DeleteNTagsReferences(SelectedTags, (RemoveRefInNotesText=mrYes));
+     for i := High(SelectedTags) downto 0 do
+        ActiveFile.DeleteNTag(SelectedTags[i]);
+
+  finally
+     App.TagsState := tsVisible;
+     App.TagsUpdated;
+     TVTags.ClearSelection;
+     TVTags.EndUpdate;
   end;
+
 
   for i:= 0 to ActiveFile.Folders.Count-1 do
      ActiveFile.Folders[i].NoteUI.RefreshTags;
@@ -5680,6 +5687,102 @@ procedure TForm_Main.TagsMEditClick(Sender: TObject);
 begin
    RenameTag;
 end;
+
+
+function CheckConfirmationAddOrRemoveTags(Add: boolean): boolean;
+var
+ NumTags, NumNotes: integer;
+ SelOrVis: string;
+ Msg: string;
+begin
+  Result:= False;
+  if (ActiveTreeUI = nil) or ActiveTreeUI.CheckReadOnly then exit;
+
+  NumTags:= Form_Main.TVTags.SelectedCount;
+
+  if NumTags = 0 then
+     App.InfoPopup(GetRS(sTag11))
+
+  else begin
+     NumNotes:= ActiveTreeUI.TV.SelectedCount;
+     if NumNotes = 0 then begin
+        NumNotes := ActiveTreeUI.TV.VisibleCount;
+        SelOrVis:= GetRS(sTag14);  // visible
+     end
+     else
+        SelOrVis:= GetRS(sTag15);  // selected
+
+     if Add then
+        Msg:= GetRS(sTag12)   // OK to APPLY/ADD the %n selected Tags to the %n %s NOTES?
+     else
+        Msg:= GetRS(sTag13);  // OK to REMOVE the %n selected Tags from the %n %s NOTES?
+
+     if (App.DoMessageBox(Format(Msg, [NumTags, NumNotes, SelOrVis]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) = mrYes) then
+        Result:= true;
+
+  end;
+end;
+
+function TForm_Main.GetTagsSelected: TNoteTagArray;
+var
+   SelectedTagsInTV: TNodeArray;
+   i: integer;
+begin
+  SetLength(Result, TVTags.SelectedCount);
+  SelectedTagsInTV:= TVTags.GetSortedSelection(False);
+  for i:= 0 to High(SelectedTagsInTV) do
+     Result[i]:= ActiveFile.NoteTagsSorted[SelectedTagsInTV[i].Index];
+
+end;
+
+procedure TForm_Main.TagsMAddOrRemove(Add: boolean);
+var
+  SelectedTagsInTV, SelectedNodes: TNodeArray;
+  SelectedTags: TNoteTagArray;
+  Node: PVirtualNode;
+  i: integer;
+
+ procedure processNode (Node: PVirtualNode);
+ var
+   NNode: TNoteNode;
+   NEntry: TNoteEntry;
+ begin
+    NNode:= ActiveTreeUI.GetNNode(Node);
+    NEntry:= NNode.Note.Entries[0];                          //%%%
+    if Add then
+       NEntry.AddTags(SelectedTags)
+    else
+       NEntry.RemoveTags(SelectedTags);
+end;
+
+begin
+  if not CheckConfirmationAddOrRemoveTags(Add) then exit;
+
+  SelectedTags:= GetTagsSelected;
+
+  if ActiveTreeUI.TV.SelectedCount > 0 then begin
+     SelectedNodes:= ActiveTreeUI.TV.GetSortedSelection(False);
+     for i:= 0 to High(SelectedNodes) do
+        ProcessNode(SelectedNodes[i]);
+  end
+  else begin
+     for Node in ActiveTreeUI.TV.VisibleNodes() do
+        ProcessNode(Node);
+  end;
+
+  ActiveFolder.NoteUI.RefreshTags;
+end;
+
+procedure TForm_Main.TagsMAddClick(Sender: TObject);
+begin
+  TagsMAddOrRemove(True);
+end;
+
+procedure TForm_Main.TagsMRemoveClick(Sender: TObject);
+begin
+  TagsMAddOrRemove(False);
+end;
+
 
 procedure TForm_Main.RenameTag;
 var

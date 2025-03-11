@@ -218,7 +218,7 @@ type
     function GetNTagByName( const aName : string; const NTags: TNoteTagList) : TNoteTag; overload;
     function AddNTag(const Name, Description : string) : TNoteTag;
     procedure DeleteNTag( NTag : TNoteTag );
-    procedure DeleteNTagReferences( NTag : TNoteTag; RemoveRefInNotesText: boolean);
+    procedure DeleteNTagsReferences( SelectedTags: TNoteTagArray; RemoveRefInNotesText: boolean);
     function GetNTagsCount : integer;
     function CheckNTagsSorted: boolean;
     procedure UpdateNTagsMatching(const Str : string; var NTags: TNoteTagList);
@@ -1751,28 +1751,20 @@ begin
 end;
 
 
-procedure TKntFile.DeleteNTagReferences( NTag : TNoteTag; RemoveRefInNotesText: boolean);
+procedure TKntFile.DeleteNTagsReferences(SelectedTags : TNoteTagArray; RemoveRefInNotesText: boolean);
 var
   i, j: integer;
   Note: TNote;
-  NEntry: TNoteEntry;
-  TagID: Cardinal;
-  TagName: string;
 begin
-  TagID:= NTag.ID;
-  TagName:= NTag.Name;
-
   for i := 0 to Notes.Count-1 do begin
      Note:= Notes[i];
-     for j := 0 to High(Note.Entries) do begin
-         NEntry:= Note.Entries[j];
-         if NEntry.HasTag(TagID) then
-            NEntry.RemoveTag(TagID);
-     end;
+     for j := 0 to High(Note.Entries) do
+         Note.Entries[j].RemoveTags(SelectedTags);
   end;
 
   if RemoveRefInNotesText then
-     ReplaceInNotes(TagName, '', True, False, False);
+     for i := 0 to High(SelectedTags) do
+        ReplaceInNotes(SelectedTags[i].Name, '', True, False, False);
 end;
 
 
