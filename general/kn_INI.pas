@@ -795,6 +795,7 @@ type
     ResetNextAftN,
     SearchPathInNodeNames,
     ShowChildren,
+    InheritedTags,
     FoldedMode: string;
   end;
 
@@ -830,6 +831,7 @@ const
     ResetNextAftN: 'ResetNextAftN';
     SearchPathInNodeNames: 'SearchPathInNodeNames';
     ShowChildren: 'ShowChildren';
+    InheritedTags: 'InheritedTags';
     FoldedMode: 'FoldedMode';
   );
 
@@ -1251,6 +1253,7 @@ begin
     SearchScope := ssContentsAndNodeName;
     SearchPathInNodeNames := false;
     ShowChildren:= false;
+    InheritedTags:= false;
     CheckMode := scAll;    // [dpv]
     WholeWordsOnly := false;
     ResetNextAftN := 0;
@@ -1618,6 +1621,7 @@ begin
       writeinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN);
       writebool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       writebool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
+      writebool( section, FindOptionsIniStr.InheritedTags, FindOptions.InheritedTags );
 
       section := ResPanelOptionsIniStr.section;
       //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
@@ -2019,6 +2023,7 @@ begin
       FindOptions.ResetNextAftN := readinteger( section, FindOptionsIniStr.ResetNextAftN, FindOptions.ResetNextAftN );
       FindOptions.SearchPathInNodeNames := readbool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       FindOptions.ShowChildren := readbool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
+      FindOptions.InheritedTags := readbool( section, FindOptionsIniStr.InheritedTags, FindOptions.InheritedTags );
 
       section := ResPanelOptionsIniStr.section;
       {

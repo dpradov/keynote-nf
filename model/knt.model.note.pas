@@ -261,6 +261,13 @@ type
   end;
 
 
+   TNoteTagArrayUtils = class
+   public
+     class function HasTag(Tags: TNoteTagArray; TagName: string): boolean; overload;
+     class function HasTag(Tags: TNoteTagArray; Tag: TNoteTag): boolean; overload;
+     class procedure AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
+   end;
+  
   {
    TODO nesEntryAndNote
    An entry can also end up being a note: GID1, Entry7: GID8
@@ -341,13 +348,13 @@ type
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
 
-    function HasTag(TagID: Cardinal): boolean; overload;
+    function HasTag(Tag: TNoteTag): boolean; overload;
     function HasTag(TagName: string): boolean; overload;
     procedure AddTags(SelectedTags: TNoteTagArray);
     procedure RemoveTags(SelectedTags: TNoteTagArray);
     function TagsNames: string;
     function HaveSameTags(SomeTags: TNoteTagArray): boolean;
-    function MatchesTags(FindTags: TFindTags): boolean;
+    function MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
   end;
@@ -465,7 +472,7 @@ type
     property ImageIndex : integer read fImageIndex write fImageIndex;
     procedure ResetChrome;
 
-    function MatchesTags(var FindTags: TFindTags): boolean;
+    function MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
 
     procedure UpdateStates(TV: TBaseVirtualTree);
     function StatesToString (IgnoreFilterMatch: boolean): string;
@@ -958,6 +965,72 @@ end;
 {$ENDREGION }
 
 
+// ------------------------------------------------------------------
+//     TNoteTagArrayUtils
+// ------------------------------------------------------------------
+
+class function TNoteTagArrayUtils.HasTag(Tags: TNoteTagArray; TagName: string): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         if (AnsiCompareText( Tags[i].Name, TagName ) = 0 ) then
+            exit(True);
+   end;
+end;
+
+
+class function TNoteTagArrayUtils.HasTag(Tags: TNoteTagArray; Tag: TNoteTag): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         if Tags[i] = Tag then
+            exit(True);
+   end;
+end;
+
+
+class procedure TNoteTagArrayUtils.AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
+var
+   i, j: integer;
+   N: integer;
+   NTag: TNoteTag;
+   Added: integer;
+   Found: boolean;
+begin
+   if Tags = nil then begin
+      Tags:= Copy(TagsToAdd);
+      exit;
+   end;
+
+   N:= Length(Tags);
+   SetLength(Tags, N + Length(TagsToAdd));
+
+   Added:= 0;
+   for i:= 0 to High(TagsToAdd) do begin
+      NTag:= TagsToAdd[i];
+      Found:= false;
+      for j:= 0 to N-1 do
+         if NTag = Tags[j] then begin
+            Found:= true;
+            break;
+         end;
+
+      if not Found then begin
+         Tags[N + Added]:= TagsToAdd[i];
+         inc(Added);
+      end;
+   end;
+   SetLength(Tags, N + Added);
+
+end;
+
+
 // =========================================================================================================
 //     TNoteEntry
 // =========================================================================================================
@@ -1003,7 +1076,7 @@ begin
   fStream.Position := 0;
   fTextPlain:= Source.TextPlain;
 
-  fTags:= Source.fTags;
+  fTags:= Copy(Source.fTags);
   fStates:= Source.States;          // TODO: nesEntryAndNote ....
 
   SetModified;
@@ -1087,29 +1160,15 @@ begin
 end;
 
 
-function TNoteEntry.HasTag(TagID: Cardinal): boolean;
-var
-   i: integer;
+function TNoteEntry.HasTag(Tag: TNoteTag): boolean;
 begin
-   Result:= False;
-   if Tags <> nil then begin
-      for i:= 0 to High(Tags) do
-         if Tags[i].ID = TagID then
-            exit(True);
-   end;
+   Result:= TNoteTagArrayUtils.HasTag(fTags, Tag);
 end;
 
 
 function TNoteEntry.HasTag(TagName: string): boolean;
-var
-   i: integer;
 begin
-   Result:= False;
-   if Tags <> nil then begin
-      for i:= 0 to High(Tags) do
-         if (AnsiCompareText( Tags[i].Name, TagName ) = 0 ) then
-            exit(True);
-   end;
+   Result:= TNoteTagArrayUtils.HasTag(fTags, TagName);
 end;
 
 
@@ -1149,38 +1208,8 @@ end;
 
 
 procedure TNoteEntry.AddTags(SelectedTags: TNoteTagArray);
-var
-   i, j: integer;
-   N: integer;
-   TagID: Cardinal;
-   Added: integer;
-   Found: boolean;
 begin
-   if Tags = nil then
-      Tags:= SelectedTags
-
-   else begin
-      N:= Length(Tags);
-      SetLength(fTags, N + Length(SelectedTags));
-
-      Added:= 0;
-      for i:= 0 to High(SelectedTags) do begin
-         TagID:= SelectedTags[i].ID;
-         Found:= false;
-         for j:= 0 to N-1 do
-            if TagID = Tags[j].ID then begin
-               Found:= true;
-               break;
-            end;
-
-         if not Found then begin
-            Tags[N + Added]:= SelectedTags[i];
-            inc(Added);
-         end;
-      end;
-      SetLength(fTags, N + Added);
-   end;
-
+   TNoteTagArrayUtils.AddTags(fTags, SelectedTags);
 end;
 
 
@@ -1252,20 +1281,34 @@ begin
 
 end;
 
-function TNoteEntry.MatchesTags(FindTags: TFindTags): boolean;
+
+function TNoteEntry.MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
 var
  i, j: integer;
 begin
+ if FindTags = nil then exit(True);
+ 
  Result:= False;
- if Tags = nil then exit;
+ if (Tags = nil) and (InheritedTags = nil) then exit;
 
  for i:= 0 to High(FindTags) do begin
     Result:= False;                            // By default, assume that no match is found for each OR operand
     for j:= 0 to High(FindTags[i]) do begin    // FindTags[i] : TagsOR
-      if HasTag(FindTags[i][j].ID) then
+      if HasTag(FindTags[i][j]) then begin
          Result:= true;
+         break;
+      end;
     end;
-    if not Result then exit;
+    if not Result and (InheritedTags <> nil) then
+       for j:= 0 to High(FindTags[i]) do begin    // FindTags[i] : TagsOR
+         if TNoteTagArrayUtils.HasTag(InheritedTags, FindTags[i][j]) then begin
+            Result:= true;
+            break;
+         end;
+       end;
+     
+    if not Result then
+       exit;
  end;
 end;
 
@@ -1513,9 +1556,9 @@ begin
      Include(States, nnsSaved_Hidden);
 end;
 
-function TNoteNode.MatchesTags(var FindTags: TFindTags): boolean;
+function TNoteNode.MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
 begin
-  Result:= Note.Entries[0].MatchesTags(FindTags);        // %%%
+  Result:= Note.Entries[0].MatchesTags(FindTags, InheritedTags);        // %%%
 end;
 
 

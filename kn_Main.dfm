@@ -1188,7 +1188,6 @@ object Form_Main: TForm_Main
         PageIndex = 1
         ParentFont = False
         TabOrder = 1
-        ExplicitHeight = 558
         object PAGE_RES_FIND: TPage
           Left = 0
           Top = 0
@@ -1221,7 +1220,8 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
-          ExplicitHeight = 558
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object Pnl: TPanel
             Left = 0
             Top = 0
@@ -1235,7 +1235,6 @@ object Form_Main: TForm_Main
             Font.Style = []
             ParentFont = False
             TabOrder = 0
-            ExplicitHeight = 558
             DesignSize = (
               202
               559)
@@ -1746,13 +1745,11 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 196
-          Height = 47
+          Width = 12
+          Height = 14
           Align = alClient
           Caption = '...'
           WordWrap = True
-          ExplicitWidth = 12
-          ExplicitHeight = 14
         end
       end
     end
@@ -1796,15 +1793,36 @@ object Form_Main: TForm_Main
       DesignSize = (
         202
         649)
+      object lblTg: TLabel
+        Left = 5
+        Top = 53
+        Width = 90
+        Height = 13
+        AutoSize = False
+        Caption = 'Filter notes with'
+        Enabled = False
+        FocusControl = CbFindFoldedMode
+      end
+      object lblTg2: TLabel
+        Left = 178
+        Top = 53
+        Width = 21
+        Height = 13
+        Anchors = [akTop, akRight]
+        Caption = 'tags'
+        Enabled = False
+        FocusControl = CbFindFoldedMode
+      end
       object TVTags: TVirtualStringTree
         Left = 0
-        Top = 2
+        Top = 78
         Width = 200
-        Height = 622
+        Height = 546
         Anchors = [akLeft, akTop, akRight, akBottom]
+        CustomCheckImages = CheckImages
         Header.AutoSizeIndex = 0
         Header.MainColumn = -1
-        TabOrder = 0
+        TabOrder = 3
         Columns = <>
       end
       object txtFilterTags: TEdit
@@ -1820,7 +1838,47 @@ object Form_Main: TForm_Main
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+        TabOrder = 4
+      end
+      object chkFilterOnTags: TCheckBox
+        Left = 3
+        Top = 27
+        Width = 195
+        Height = 17
+        Hint = 
+          'Show use of tags in tree, filtering notes with ALL (or ANY of) t' +
+          'he selected tags'
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Show use of tags in tree'
         TabOrder = 1
+        OnClick = chkFilterOnTagsClick
+      end
+      object cbTagFilterMode: TComboBox
+        Left = 101
+        Top = 49
+        Width = 71
+        Height = 21
+        Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
+        Enabled = False
+        ItemIndex = 0
+        TabOrder = 2
+        Text = 'ALL'
+        OnChange = cbTagFilterModeChange
+        Items.Strings = (
+          'ALL'
+          'ANY')
+      end
+      object chkInhTags: TCheckBox
+        Left = 3
+        Top = 6
+        Width = 198
+        Height = 17
+        Hint = 'Consider for each node the tags of the ancestors'
+        Anchors = [akLeft, akTop, akRight]
+        Caption = 'Inherited tags'
+        TabOrder = 0
+        OnClick = chkInhTagsClick
       end
     end
   end
@@ -5208,6 +5266,10 @@ object Form_Main: TForm_Main
       object TVFilterOutUnflagged: TMenuItem
         Action = actTVFilterOutUnflagged
       end
+      object TVFilterInhTags: TMenuItem
+        Caption = 'Inherited tags'
+        OnClick = TVFilterInhTagsClick
+      end
     end
     object N40: TMenuItem
       Caption = '-'
@@ -5316,16 +5378,9 @@ object Form_Main: TForm_Main
       Caption = '&Remove Tags from selected Notes'
       OnClick = TagsMRemoveClick
     end
-    object N93: TMenuItem
-      Caption = '-'
-    end
-    object TagsMFilter: TMenuItem
-      Caption = '&Filter Notes with selected Tags (Ctrl: OR)'
-      OnClick = TagsMFilterClick
-    end
-    object TagsMClrFilter: TMenuItem
-      Caption = 'Clear Tag filter on notes'
-      OnClick = TagsMClrFilterClick
-    end
+  end
+  object CheckImages: TImageList
+    Left = 528
+    Top = 360
   end
 end

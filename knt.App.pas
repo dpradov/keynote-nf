@@ -444,6 +444,9 @@ begin
 
           if not FocusedOk or (ActiveFolder <> Folder) then      // (ActiveFolder <> Folder) Puede ocurrir si se ha ejecutado Editor.BeginUpdate ...
              EditorSelected(Folder.Editor, false);
+
+          if not initializing then
+             CheckFilterOnTags(True);
        end;
     end;
 end;

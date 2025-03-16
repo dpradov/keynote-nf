@@ -901,9 +901,13 @@ type
     RTFMTags: TMenuItem;
     TagsMAdd: TMenuItem;
     TagsMRemove: TMenuItem;
-    N93: TMenuItem;
-    TagsMFilter: TMenuItem;
-    TagsMClrFilter: TMenuItem;
+    chkFilterOnTags: TCheckBox;
+    cbTagFilterMode: TComboBox;
+    CheckImages: TImageList;
+    chkInhTags: TCheckBox;
+    lblTg: TLabel;
+    lblTg2: TLabel;
+    TVFilterInhTags: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1316,8 +1320,10 @@ type
     procedure RTFMTagsClick(Sender: TObject);
     procedure TagsMAddClick(Sender: TObject);
     procedure TagsMRemoveClick(Sender: TObject);
-    procedure TagsMFilterClick(Sender: TObject);
-    procedure TagsMClrFilterClick(Sender: TObject);
+    procedure chkFilterOnTagsClick(Sender: TObject);
+    procedure chkInhTagsClick(Sender: TObject);
+    procedure cbTagFilterModeChange(Sender: TObject);
+    procedure TVFilterInhTagsClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1325,6 +1331,8 @@ type
     FRestoreFocusInEditor: integer;              // See *1 in ApplicationEventsIdle and AppRestore
     FRTLShortcutToExecute: TRTLCommandToExecute;
     FRTLShortcutDetectedAt: TDateTime;
+
+    fChangingInCode: boolean;
 
     { Private declarations }
     procedure AppMessage( var Msg : TMsg; var Handled : boolean );
@@ -1351,12 +1359,13 @@ type
     procedure CreateWnd; override;
     procedure DestroyWnd; override;
 
-    procedure txtFilterTagsChange(Sender: TObject);
     procedure SetupTagsTab;
     procedure TVTags_GetHint(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var LineBreakStyle: TVTTooltipLineBreakStyle; var HintText: string);
-    procedure TVTags_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+    procedure TVTags_GetCellText(Sender: TCustomVirtualStringTree; var E: TVSTGetCellTextEventArgs);
     procedure TVTags_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
     procedure TVTags_KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure TVTags_Change(Sender: TBaseVirtualTree; Node: PVirtualNode);
+
     procedure RenameTag;
     function CheckRenameTagInNotes(const OldName, NewName: string): boolean;
     procedure TVTags_CreateEditor(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; out EditLink: IVTEditLink);
@@ -1364,6 +1373,8 @@ type
     procedure TVTags_Edited(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
     procedure TVTags_NewText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; NewText: string);
     procedure TVTagsSelectAlone(Node: PVirtualNode);
+    procedure txtFilterTagsChange(Sender: TObject);
+    procedure FilterNotesOnTagsSelection;
   public
     procedure CheckFilterTags;
 
@@ -1451,6 +1462,8 @@ type
 
     procedure TagsMAddOrRemove(Add: boolean);
     function GetTagsSelected: TNoteTagArray;
+    procedure CheckFilterOnTags(RecoveringTagsSituation: boolean);
+    procedure RefreshFilterOnTags;
   end;
 
 function GetFilePassphrase( const FN : string ) : string;
@@ -1607,6 +1620,7 @@ begin
   LoadGifFromResource(IMG_Toolbar, 'TOOLBAR_MAIN');   //,  clFuchsia);
   LoadGifFromResource(IMG_Format, 'TOOLBAR_FORMAT');  //    ,,
   LoadGifFromResource(IMG_TV, 'TV_IMAGES');           //    ,,
+  LoadGifFromResource(CheckImages, 'VTCHECKIMGS');
 
   { The name associated with the secondary icon as a resource must be after (alphabetically) the main one
     (MAINICON) or else the secondary one will appear first in the resource file, and will be the one displayed
@@ -1621,6 +1635,7 @@ begin
 
   RegisterDropTarget(Form_Main.Pages);
 
+  fChangingInCode:= False;
   FRestoreFocusInEditor:= 0;
   FRTLShortcutDetectedAt:= 0;
   FRTLShortcutToExecute:= rtNone;
@@ -1710,6 +1725,13 @@ begin
   if KeyOptions.TipOfTheDay then
     ShowTipOfTheDay;
   }
+  TVFilterUsePath.Checked:= FindOptions.SearchPathInNodeNames;
+  CB_ResFind_PathInNames.Checked:= FindOptions.SearchPathInNodeNames;
+  TVFilterShowChildren.Checked:= FindOptions.ShowChildren;
+  TVFilterInhTags.Checked:= FindOptions.InheritedTags;
+  TVFilterInhTags.Hint:= chkInhTags.Hint;
+  chkInhTags.Checked:= FindOptions.InheritedTags;
+
   Initializing := false;
 
   App.ActivateFolder(nil);            // Activate (and focus) current active folder       View comment in KntFileOpen
@@ -5438,8 +5460,9 @@ begin
    txtFilterTags.OnChange:= txtFilterTagsChange;
 
    with TVTags do begin
-     OnGetText:= TVTags_GetText;
+     OnGetCellText:= TVTags_GetCellText;
      OnPaintText:= TVTags_PaintText;
+     OnChange:= TVTags_Change;
 
      OnKeyDown:= TVTags_KeyDown;
      OnEditing := TVTags_Editing;
@@ -5450,9 +5473,10 @@ begin
      TreeOptions.PaintOptions := [];
 
      TreeOptions.MiscOptions := [toFullRepaintOnResize, toInitOnSave, toWheelPanning, toEditOnClick, toEditable, toGridExtensions];
-     TreeOptions.SelectionOptions := [toMultiSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval, toExtendedFocus];
-     TreeOptions.StringOptions := [toAutoAcceptEditChange];
+     TreeOptions.SelectionOptions := [toMultiSelect, toRightClickSelect, toAlwaysSelectNode, toSelectNextNodeOnRemoval, toExtendedFocus, toSyncCheckboxesWithSelection];
+     TreeOptions.StringOptions := [toAutoAcceptEditChange, toShowStaticText];
 
+     CheckImageKind:= ckCustom;
      HintMode:= hmTooltip;
      IncrementalSearch:= isVisibleOnly;
      PopupMenu:= Menu_Tags;
@@ -5492,27 +5516,42 @@ begin
 end;
 
 
-procedure TForm_Main.TVTags_GetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+procedure TForm_Main.TVTags_GetCellText(Sender: TCustomVirtualStringTree; var E: TVSTGetCellTextEventArgs);
 var
   NTag: TNoteTag;
+  iTag: integer;
 begin
    if (ActiveFile = nil) or (ActiveFile.NoteTags=nil) then exit;
 
-   NTag:= ActiveFile.NoteTagsSorted[Node.Index];
-   case Column of
-     -1, 0: CellText:= NTag.Name;
-         1: CellText:= NTag.Description;
+   NTag:= ActiveFile.NoteTagsSorted[E.Node.Index];
+   case E.Column of
+     -1, 0: begin
+              E.CellText:= NTag.Name;
+              if (ActiveTreeUI <> nil) and (ActiveTreeUI.TagsInUse.Count > 0) then begin
+                 iTag:= ActiveTreeUI.TagsInUse.IndexOf(NTag);
+                 if iTag >= 0 then
+                    E.StaticText := Format('(%d)', [ActiveTreeUI.TagsNumberOfUses[iTag]]);
+              end;
+            end;
+         1: E.CellText:= NTag.Description;
     end;
 end;
+
 
 procedure TForm_Main.TVTags_PaintText(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType);
 var
   Color: TColor;
   NTag: TNoteTag;
   txt: string;
+  iTag: integer;
+  ShowTagsUse: boolean;
 begin
+   ShowTagsUse:= (ActiveTreeUI <> nil) and (ActiveTreeUI.TagsInUse.Count > 0);
    if (TVTPaintOption.toShowFilteredNodes in TVTags.TreeOptions.PaintOptions) and
-      (ActiveFile.NoteTagsTemporalAdded.Count = 0) then exit;
+      (ActiveFile.NoteTagsTemporalAdded.Count = 0) and
+      (not ShowTagsUse) then exit;
+
+   if (TextType = ttStatic) and not ShowTagsUse then exit;
 
    if (ActiveFile = nil) or (ActiveFile.NoteTagsSorted = nil) then exit;
    if Sender.Selected[Node] and (Column <= 0) then exit;
@@ -5521,11 +5560,21 @@ begin
 
    NTag:= ActiveFile.NoteTagsSorted[Node.Index];
 
-   if (ActiveFile.NoteTagsTemporalAdded.Count > 0) and (ActiveFile.NoteTagsTemporalAdded.IndexOf(NTag) >= 0) then
-       TargetCanvas.Font.Color := clGreen
-   else
-   if not AnsiStartsText(txt, NTag.Name) then
-      TargetCanvas.Font.Color := $FF4D4D;
+   case TextType of
+      ttStatic:
+         if ShowTagsUse then begin
+            TargetCanvas.Font.Color := clGray;
+            TargetCanvas.Font.Size := 8;
+         end;
+
+      ttNormal:
+         if (ActiveFile.NoteTagsTemporalAdded.Count > 0) and (ActiveFile.NoteTagsTemporalAdded.IndexOf(NTag) >= 0) then
+             TargetCanvas.Font.Color := clGreen
+         else
+         if not AnsiStartsText(txt, NTag.Name) then
+            TargetCanvas.Font.Color := $FF4D4D;
+   end;
+
 end;
 
 
@@ -5540,18 +5589,39 @@ var
   NTag: TNoteTag;
   txt: String;
   Filtered: boolean;
+  ShowUseOfTags, ModeOR: boolean;
+  iTag: integer;
 begin
    if TVTags.TotalCount = 0 then exit;
 
    txt:= txtFilterTags.Text;
 
+   ShowUseOfTags:= (App.TagsState = tsVisible) and (ActiveTreeUI <> nil) and ActiveTreeUI.ShowUseOfTags;
+   ModeOR:= (ActiveTreeUI <> nil) and ActiveTreeUI.TagsFilterModeOR;
+
+
    TVTags.BeginUpdate;
 
-   if txt <> '' then begin
+   if (txt <> '') or ShowUseOfTags then begin
       for Node in TVTags.Nodes() do begin
          NTag:= ActiveFile.NoteTagsSorted [Node.Index];
-         Filtered:= not ( ((Length(txt) >= 1) and AnsiStartsText(txt, NTag.Name)) or
-                          ((Length(txt) >= 3) and (AnsiContainsText(NTag.Name, txt) or AnsiContainsText(NTag.Description, txt) ))  );
+         Filtered:= false;
+         if txt <> '' then
+            Filtered:= not ( ((Length(txt) >= 1) and AnsiStartsText(txt, NTag.Name)) or
+                             ((Length(txt) >= 3) and (AnsiContainsText(NTag.Name, txt) or AnsiContainsText(NTag.Description, txt) ))  );
+
+         if not Filtered and ShowUseOfTags then begin
+            if ModeOR then begin
+               iTag:= ActiveTreeUI.TagsNonUsed.IndexOf(NTag);
+               if (iTag >= 0) then
+                  Filtered:= True;
+            end
+            else begin
+               iTag:= ActiveTreeUI.TagsInUse.IndexOf(NTag);
+               if (iTag < 0) then
+                  Filtered:= True;
+            end;
+         end;
          TVTags.IsFiltered[Node]:= Filtered;
       end;
       TVTags.TreeOptions.PaintOptions := TVTags.TreeOptions.PaintOptions - [TVTPaintOption.toShowFilteredNodes]
@@ -5559,7 +5629,8 @@ begin
    else
       TVTags.TreeOptions.PaintOptions := TVTags.TreeOptions.PaintOptions + [TVTPaintOption.toShowFilteredNodes];
 
-   TVTagsSelectAlone(TVTags.GetFirstVisible());
+   if not chkFilterOnTags.Checked then
+       TVTagsSelectAlone(TVTags.GetFirstVisible());
    TVTags.EndUpdate;
 end;
 
@@ -5583,6 +5654,14 @@ begin
     end;
   end;
 
+end;
+
+procedure TForm_Main.TVTags_Change(Sender: TBaseVirtualTree; Node: PVirtualNode);
+begin
+   if fChangingInCode or not chkFilterOnTags.Checked then exit;
+   if ActiveTreeUI = nil then exit;
+
+   RefreshFilterOnTags;
 end;
 
 
@@ -5634,6 +5713,7 @@ var
 
 begin
   if (ActiveFile = nil) or ActiveFile.ReadOnly then exit;
+  if TVTags.SelectedCount = 0 then exit;
 
   {
    Depending on a new option (to be implemented), AutoDiscoverTags, you may be asked whether to also remove,
@@ -5654,7 +5734,7 @@ begin
      RemoveRefInNotesText:= mrYes;
   end;
 
-  if TVTags.SelectedCount <= 1 then begin
+  if TVTags.SelectedCount = 1 then begin
      Node:= TVTags.FocusedNode;
      if Node = nil then exit;
      NTag:= ActiveFile.NoteTagsSorted[Node.Index];
@@ -5748,18 +5828,18 @@ var
   Node: PVirtualNode;
   i: integer;
 
- procedure processNode (Node: PVirtualNode);
- var
-   NNode: TNoteNode;
-   NEntry: TNoteEntry;
- begin
-    NNode:= ActiveTreeUI.GetNNode(Node);
-    NEntry:= NNode.Note.Entries[0];                          //%%%
-    if Add then
-       NEntry.AddTags(SelectedTags)
-    else
-       NEntry.RemoveTags(SelectedTags);
-end;
+  procedure processNode (Node: PVirtualNode);
+  var
+    NNode: TNoteNode;
+    NEntry: TNoteEntry;
+  begin
+     NNode:= ActiveTreeUI.GetNNode(Node);
+     NEntry:= NNode.Note.Entries[0];                          //%%%
+     if Add then
+        NEntry.AddTags(SelectedTags)
+     else
+        NEntry.RemoveTags(SelectedTags);
+  end;
 
 begin
   if not CheckConfirmationAddOrRemoveTags(Add) then exit;
@@ -5779,6 +5859,171 @@ begin
   ActiveFolder.NoteUI.RefreshTags;
 end;
 
+
+procedure TForm_Main.CheckFilterOnTags(RecoveringTagsSituation: boolean);
+var
+  FilterOnTags: boolean;
+  ModeOR: boolean;
+
+  procedure ShowCheckboxes(show: boolean);
+  var
+    Node: PVirtualNode;
+  begin
+     Node:= TVTags.GetFirst;
+     while Node <> nil do begin
+        if Show then begin
+           Node.CheckType:= ctCheckBox;
+           Node.CheckState:= csUncheckedNormal;
+        end
+        else
+           Node.CheckType:= ctNone;
+
+        Node:= TVTags.GetNext(Node);
+     end;
+  end;
+
+  procedure RecoverTagsSelection;
+  var
+     i, iTag: integer;
+     FindTags: TFindTags;
+     NTag: TNoteTag;
+     Node: PVirtualNode;
+
+     procedure SelectTag;
+     begin
+        Node:= TVTags.GetFirst;
+        while (Node <> nil) and (Node.Index <> iTag) do
+           Node:= TVTags.GetNext(Node);
+
+        if Node <> nil then
+           TVTags.Selected[Node]:= True;
+     end;
+
+   begin
+     FindTags:= ActiveTreeUI.FindTags;
+     if FindTags <> nil then
+        if ModeOR then begin
+           for i:= 0 to High(FindTags[0]) do begin
+              NTag := FindTags[0][i];
+              iTag:= ActiveFile.NoteTagsSorted.IndexOf(NTag);
+              if iTag >= 0 then
+                 SelectTag;
+           end;
+        end
+        else begin
+           for i:= 0 to High(FindTags) do begin
+              NTag := FindTags[i][0];
+              iTag:= ActiveFile.NoteTagsSorted.IndexOf(NTag);
+              if iTag >= 0 then
+                 SelectTag;
+           end;
+        end;
+
+   end;
+
+begin
+   if (ActiveTreeUI = nil) or fChangingInCode then exit;
+
+   fChangingInCode:= True;
+
+   TVTags.BeginUpdate;
+
+   if RecoveringTagsSituation then begin
+     chkFilterOnTags.Checked:= ActiveTreeUI.ShowUseOfTags;
+     ModeOR:= ActiveTreeUI.TagsFilterModeOR;
+     if ModeOR then
+        cbTagFilterMode.ItemIndex:= 1
+     else
+        cbTagFilterMode.ItemIndex:= 0;
+   end;
+
+   FilterOnTags:= chkFilterOnTags.Checked;
+   ActiveTreeUI.ShowUseOfTags:= FilterOnTags;
+
+
+   if FilterOnTags then begin
+      TVTags.TreeOptions.MiscOptions := TVTags.TreeOptions.MiscOptions - [toEditOnClick] + [toCheckSupport];
+      TVTags.TreeOptions.SelectionOptions := TVTags.TreeOptions.SelectionOptions - [toAlwaysSelectNode];
+      TVTags.ClearSelection;
+      ShowCheckboxes (True);
+      if RecoveringTagsSituation then
+         RecoverTagsSelection;
+
+      if not RecoveringTagsSituation or (ActiveTreeUI.UseOfTagsCalcWithInheritedTags <> FindOptions.InheritedTags) then
+         FilterNotesOnTagsSelection;
+   end
+   else begin
+      with ActiveTreeUI do begin
+         TagsInUse.Clear;
+         TagsNumberOfUses.Clear;
+         if Trim(txtTags.Text) = '' then begin
+            txtTags.Text := EMPTY_TAGS;
+            txtTags.Font.Color:= clGray;
+         end;
+         ActiveTreeUI.AdjustTxtTagsWidth;
+      end;
+      TVTags.TreeOptions.MiscOptions := TVTags.TreeOptions.MiscOptions + [toEditOnClick] - [toCheckSupport];
+      TVTags.TreeOptions.SelectionOptions := TVTags.TreeOptions.SelectionOptions + [toAlwaysSelectNode];
+      ShowCheckboxes (False);
+   end;
+
+   cbTagFilterMode.Enabled:= FilterOnTags;
+   lblTg.Enabled:= FilterOnTags;
+   lblTg2.Enabled:= FilterOnTags;
+
+   CheckFilterTags;
+
+   TVTags.EndUpdate;
+   fChangingInCode:= False;
+end;
+
+
+procedure TForm_Main.RefreshFilterOnTags;
+begin
+   fChangingInCode:= True;
+   try
+      FilterNotesOnTagsSelection;
+      CheckFilterTags;
+   finally
+      fChangingInCode:= False;
+   end;
+
+end;
+
+
+procedure TForm_Main.chkFilterOnTagsClick(Sender: TObject);
+begin
+   CheckFilterOnTags(False);
+end;
+
+
+procedure TForm_Main.cbTagFilterModeChange(Sender: TObject);
+begin
+   if (ActiveTreeUI = nil) or fChangingInCode then exit;
+
+   ActiveTreeUI.TagsFilterModeOR:= (cbTagFilterMode.ItemIndex=1);
+
+   RefreshFilterOnTags;
+end;
+
+
+procedure TForm_Main.chkInhTagsClick(Sender: TObject);
+begin
+  if Initializing then exit;
+  FindOptions.InheritedTags:= not FindOptions.InheritedTags;
+  TVFilterInhTags.Checked:= FindOptions.InheritedTags;
+
+  if ActiveTreeUI = nil then exit;
+
+  if ActiveTreeUI.ShowUseOfTags then begin
+     FilterNotesOnTagsSelection;
+     if (App.TagsState = tsVisible) then
+        TVTags.Invalidate;
+  end
+  else
+     ActiveTreeUI.ReapplyFilter;
+end;
+
 procedure TForm_Main.TagsMAddClick(Sender: TObject);
 begin
   TagsMAddOrRemove(True);
@@ -5790,7 +6035,7 @@ begin
 end;
 
 
-procedure TForm_Main.TagsMFilterClick(Sender: TObject);
+procedure TForm_Main.FilterNotesOnTagsSelection;
 var
   SelectedTags: TNoteTagArray;
   i: integer;
@@ -5801,41 +6046,38 @@ var
   TagsStr: string;
 begin
   if (ActiveTreeUI = nil) then exit;
-  ModeOr:= CtrlDown;
+  ModeOr:= (cbTagFilterMode.ItemIndex = 1);
 
+  ActiveTreeUI.UseOfTagsCalcWithInheritedTags:= FindOptions.InheritedTags;
   SelectedTags:= GetTagsSelected;
+  TagsStr:= '';
 
-  if not ModeOR then begin
-     SetLength(FindTags, Length(SelectedTags));
-     for i:= 0 to High(SelectedTags) do begin
-         TagsStr:= TagsStr + SelectedTags[i].Name + ' ';
-         SetLength(TagsOR, 1);
-         TagsOR[0]:= SelectedTags[i];
-         FindTags[i]:= TagsOR;
+  if SelectedTags <> nil then
+     if not ModeOR then begin
+        SetLength(FindTags, Length(SelectedTags));
+        for i:= 0 to High(SelectedTags) do begin
+            TagsStr:= TagsStr + SelectedTags[i].Name + ' ';
+            SetLength(TagsOR, 1);
+            TagsOR[0]:= SelectedTags[i];
+            FindTags[i]:= TagsOR;
+        end;
+        TagsStr:= TagsStr;
+     end
+     else begin
+        SetLength(FindTags, 1);
+        SetLength(TagsOR, Length(SelectedTags));
+        for i:= 0 to High(SelectedTags) do begin
+            TagsStr:= TagsStr + SelectedTags[i].Name + ' ';
+            TagsOR[i]:= SelectedTags[i];
+        end;
+        FindTags[0]:= TagsOR;
+        TagsStr:= 'ANY: '+ TagsStr;
      end;
-  end
-  else begin
-     SetLength(FindTags, 1);
-     SetLength(TagsOR, Length(SelectedTags));
-     for i:= 0 to High(SelectedTags) do begin
-         TagsStr:= TagsStr + SelectedTags[i].Name + ' ';
-         TagsOR[i]:= SelectedTags[i];
-     end;
-     FindTags[0]:= TagsOR;
-     TagsStr:= 'OR: '+ TagsStr;
-  end;
 
   ActiveTreeUI.txtTags.Text:= TagsStr;
+  ActiveTreeUI.txtTags.Hint:= TagsStr;
   ActiveTreeUI.txtTags.Font.Color:= clWindowText;
   ActiveTreeUI.OnEndFindTagsIntroduction(true, FindTags);
-end;
-
-procedure TForm_Main.TagsMClrFilterClick(Sender: TObject);
-begin
-  if (ActiveTreeUI = nil) then exit;
-  ActiveTreeUI.txtTags.Text:= '#';
-  ActiveTreeUI.txtTags.Font.Color:= clGray;
-  ActiveTreeUI.OnEndFindTagsIntroduction(true, nil);
 end;
 
 
@@ -5844,6 +6086,7 @@ var
   Node: PVirtualNode;
 begin
   if (ActiveFile = nil) or ActiveFile.ReadOnly then exit;
+  if (TVTags.SelectedCount <> 1) or not TVTags.Selected[TVTags.FocusedNode] then exit;
 
   Node:= TVTags.FocusedNode;
   if Node = nil then exit;
@@ -7620,6 +7863,13 @@ begin
   TVFilterShowChildren.Checked:= FindOptions.ShowChildren;
   ActiveTreeUI.ReapplyFilter;
 end;
+
+
+procedure TForm_Main.TVFilterInhTagsClick(Sender: TObject);
+begin
+  chkInhTags.Checked:= not chkInhTags.Checked;
+end;
+
 
 
 {$ENDREGION}   //  'Tree commands' ==================================

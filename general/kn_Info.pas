@@ -769,6 +769,7 @@ type
     CreatedUntil: TDate;      // ,,
     SearchPathInNodeNames: boolean;      // ,,
     ShowChildren: boolean;      // show children of matching nodes
+    InheritedTags: boolean;     // Each node will be considered as having its own tags and the tags of its ancestors
     EmphasizedSearch: TEmphasizedSerch;  // for "Find all" (resource panel) ONLY
     TagSearch: boolean;   // Search for a tag (#MyTag). It must meet certain other criteria.
   end;

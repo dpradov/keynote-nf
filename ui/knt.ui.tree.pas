@@ -100,6 +100,8 @@ type
     fTreeWidthNodeTouched: boolean;
     fSplitterNoteMoving: boolean;
 
+    fTempFilterTagApplying: boolean;
+
   public
     class constructor Create;
     class destructor Destroy;
@@ -126,9 +128,19 @@ type
     fNNodesFlagged: boolean;
     fLastTreeSearch: string;
 
+    fParentNodesWithInheritedTags: TNodeList;
+    fInheritedTags: Array of TNoteTagArray;
+    fTagsNonUsed: TNoteTagList;
+    fTagsInUse: TNoteTagList;                   // Depends on filtering
+    fTagsNumberOfUses: TIntegerList;
+    fShownFlaggedColumnForTagFilter: boolean;
+    fShowUseOfTags: boolean;
+    fTagsFilterModeOR: boolean;
+    fUseOfTagsCalcWithInheritedTags: boolean;
+
     fTimer: TTimer;
     fColsSizeAdjusting: integer;
-    fShownFlaggedColumnForTagFilter: boolean;
+
 
   protected
     // Create. Destroy
@@ -340,10 +352,22 @@ type
 
     // Filter nodes: Tags
   protected
-    procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure txtTagsEnter(Sender: TObject);
+    procedure PopulateInheritedTags;
+    procedure AddUseOfTags (NNode: TNoteNode; InheritedParentTags: TNoteTagArray);
+    procedure PopulateNonUsedTags;
   public
+    property FindTags: TFindTags read fFindTags;
+    procedure OnChangeFindTagsIntrod(FindTags: TFindTags);
     procedure OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags);
+    procedure CheckFilterNotesOnTags (Temp: boolean = True);
+    procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
+    property TagsInUse: TNoteTagList read FTagsInUse;                     // Depends on filtering
+    property TagsNumberOfUses: TIntegerList read FTagsNumberOfUses;
+    property TagsNonUsed: TNoteTagList read fTagsNonUsed;
+    property ShowUseOfTags: boolean read fShowUseOfTags write fShowUseOfTags;
+    property UseOfTagsCalcWithInheritedTags: boolean read fUseOfTagsCalcWithInheritedTags write fUseOfTagsCalcWithInheritedTags;
+    property TagsFilterModeOR: boolean read fTagsFilterModeOR write fTagsFilterModeOR;
 
 
     // Tree width expansion
@@ -440,6 +464,8 @@ begin
 
   fDropTargetNode:= nil;
   fDropTargetNodeInsMode:= tnAddLast;
+
+  fTempFilterTagApplying:= false;
 end;
 
 
@@ -465,8 +491,16 @@ begin
    fFilterOutUnflaggedApplied:= false;
    fChangesInFlagged:= false;
    fColsSizeAdjusting:= 0;
+
    fFindTags:= nil;
    fShownFlaggedColumnForTagFilter:= false;
+   fParentNodesWithInheritedTags:= TNodeList.Create;
+   fTagsNonUsed:= TNoteTagList.Create;
+   fTagsInUse:= TNoteTagList.Create;
+   fTagsNumberOfUses:= TIntegerList.Create;
+   fTagsFilterModeOR:= false;
+   fShowUseOfTags:= false;
+
    fTimer:= nil;
 
    txtTags.Text:= EMPTY_TAGS;
@@ -520,6 +554,10 @@ begin
    // When removing a folder or closing the file, don't free each node and note guided by Virtual TreeView
    TV.OnFreeNode:= nil;
    TV.Free;
+   fParentNodesWithInheritedTags.Free;
+   fTagsNonUsed.Free;
+   fTagsInUse.Free;
+   fTagsNumberOfUses.Free;
 
    inherited;
 end;
@@ -625,7 +663,7 @@ var
    LeftShift: integer;
    VerticalScrollBarWidth: integer;
 begin
-   if Folder = nil then exit;
+   if (Folder = nil) or fTempFilterTagApplying then exit;
 
    Folder:= TKntFolder(Self.Folder);
    if Folder.VerticalLayout then begin
@@ -1432,13 +1470,23 @@ var
   NNode: PNoteNode;
   CellR: TRect;
   T: integer;
+  InheritedParentTags: TNoteTagArray;
+  iNode: integer;
 begin
   NNode := Sender.GetNodeData(Node);
 
   if (Column = 2) then begin
-     if TagFilterApplied and NNode.MatchesTags(fFindTags) then begin
-        TargetCanvas.Brush.Color :=  clWebLightCyan;
-        TargetCanvas.FillRect(CellRect);
+     if TagFilterApplied then begin
+        InheritedParentTags:= nil;
+        if FindOptions.InheritedTags then begin
+           iNode:= fParentNodesWithInheritedTags.IndexOf(Node.Parent);
+           if iNode >= 0 then
+              InheritedParentTags:= fInheritedTags[iNode];
+        end;
+        if NNode.MatchesTags(fFindTags, InheritedParentTags) then begin
+           TargetCanvas.Brush.Color :=  clWebLightCyan;
+           TargetCanvas.FillRect(CellRect);
+        end;
      end;
      if NNode.Flagged then begin
         T:= (CellRect.Height - Form_Main.IMG_TV.Height) div 2;         // Center vertically
@@ -3984,11 +4032,109 @@ begin
 end;
 
 
+procedure TKntTreeUI.PopulateInheritedTags;
+var
+  I: integer;
+
+  procedure PopulateInheritedTags(ParentNode : PVirtualNode; ParentInheritedTags: TNoteTagArray);
+  var
+     Node : PVirtualNode;
+     NNode: TNoteNode;
+     NEntry: TNoteEntry;
+     InheritedTagsForChildren: ^TNoteTagArray;
+  begin
+    for Node in TV.ChildNodes(ParentNode) do begin
+       if vsHasChildren in Node.States then begin
+          NNode:= GetNNode(Node);
+          NEntry:= NNode.Note.Entries[0];                          //%%%
+          if (NEntry.Tags <> nil) then begin
+             fParentNodesWithInheritedTags.Add(Node);
+             InheritedTagsForChildren:= @fInheritedTags[I];
+             if ParentInheritedTags <> nil then
+                TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, ParentInheritedTags);
+             TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, NEntry.Tags);
+             inc(I);
+
+             PopulateInheritedTags(Node, InheritedTagsForChildren^);
+          end;
+       end;
+    end;
+  end;
+
+begin
+  I:= 0;
+  fParentNodesWithInheritedTags.Clear;
+  fInheritedTags:= nil;
+  SetLength(fInheritedTags, TV.TotalCount);
+  PopulateInheritedTags(TV.RootNode, nil);
+  SetLength(fInheritedTags, I);
+end;
+
+
+procedure TKntTreeUI.AddUseOfTags (NNode: TNoteNode; InheritedParentTags: TNoteTagArray);
+var
+   i: integer;
+   NodeTags: TNoteTagArray;
+
+   procedure AddUseOfTag (NTag: TNoteTag);
+   var
+     iTag: integer;
+   begin
+      iTag:= TagsInUse.IndexOf(NTag);
+      if iTag >= 0 then
+         TagsNumberOfUses[iTag]:= TagsNumberOfUses[iTag] + 1
+      else begin
+         TagsInUse.Add(NTag);
+         TagsNumberOfUses.Add(1);
+      end;
+   end;
+
+begin
+  NodeTags:= NNode.Note.Entries[0].Tags;                  //%%%
+
+  for i:= 0 to High(NodeTags) do
+     AddUseOfTag(NodeTags[i]);
+
+  if InheritedParentTags <> nil then
+     for i:= 0 to High(InheritedParentTags) do begin
+        if not TNoteTagArrayUtils.HasTag(NodeTags, InheritedParentTags[i]) then
+           AddUseOfTag(InheritedParentTags[i]);
+     end;
+end;
+
+
+procedure TKntTreeUI.PopulateNonUsedTags;
+var
+   i, j: integer;
+   NNodes: TNoteNodeList;
+   NTag: TNoteTag;
+   Used: boolean;
+begin
+   NNodes:= TKntFolder(Folder).NNodes;
+   for i:= 0 to ActiveFile.NoteTags.Count-1 do begin
+       NTag:= ActiveFile.NoteTags[i];
+       Used:= false;
+       for j := 0 to NNodes.Count-1 do begin
+           if NNodes[j].Note.Entries[0].HasTag(NTag) then begin
+              Used:= True;
+              break;
+           end;
+       end;
+       if not Used then
+          fTagsNonUsed.Add(NTag);
+   end;
+
+end;
+
+
 procedure TKntTreeUI.SetFilteredNodes;
 var
   Node, NodeParent: PVirtualNode;
   NNode: TNoteNode;
   InitialFiltered: boolean;
+  ConsiderInheritedTags, ShowTagsUse: boolean;
+  InheritedParentTags: TNoteTagArray;
+  iNode: integer;
 
   function IsFilterMatch(NNode: TNoteNode): boolean;
   begin
@@ -4030,21 +4176,6 @@ var
      end;
   end;
 
-  function AnyParentMatchesTags (Node: PVirtualNode): boolean;
-  var
-    ParentNode: PVirtualNode;
-  begin
-     Result:= false;
-     ParentNode:= Node.Parent;
-
-     if ParentNode <> TV.RootNode then begin
-        if GetNNode(ParentNode).MatchesTags(fFindTags) then
-           Result:= true
-        else
-           Result:= AnyParentMatchesTags(ParentNode);
-     end;
-  end;
-
 
 begin
    if TV.TotalCount = 0 then exit;
@@ -4052,6 +4183,13 @@ begin
    TV.BeginUpdate;
 
    InitialFiltered:= fTreeFilterApplied or fFindFilterApplied or fFilterOutUnflaggedApplied or TagFilterApplied;
+   ShowTagsUse:= Self.ShowUseOfTags and (App.TagsState = tsVisible);
+   if ShowTagsUse then begin
+      TagsInUse.Clear;
+      TagsNumberOfUses.Clear;
+      TagsNonUsed.Clear;
+      PopulateNonUsedTags;
+   end;
 
    for Node in TV.Nodes() do
       TV.IsFiltered [Node]:= InitialFiltered;
@@ -4063,19 +4201,35 @@ begin
             MakePathNonFiltered(Node);
       end;
 
-   if fTreeFilterApplied or fFilterOutUnflaggedApplied or TagFilterApplied then
+   if fTreeFilterApplied or fFilterOutUnflaggedApplied or TagFilterApplied or ShowTagsUse then
+
+      ConsiderInheritedTags:= FindOptions.InheritedTags and (TagFilterApplied or ShowTagsUse);
+      if ConsiderInheritedTags then
+         PopulateInheritedTags;
+
+
       Node:= TV.GetFirst();
       repeat
          if not (fFindFilterApplied and TV.IsFiltered[Node]) then begin
             NNode:= GetNNode(Node);
+
+            InheritedParentTags:= nil;
+            if ConsiderInheritedTags then begin
+                iNode:= fParentNodesWithInheritedTags.IndexOf(Node.Parent);
+                if iNode >= 0 then
+                   InheritedParentTags:= fInheritedTags[iNode];
+            end;
+
             if not ( (not fTreeFilterApplied or NNode.TreeFilterMatch ) and
                      (not fFilterOutUnflaggedApplied or (NNode.Flagged or (FindOptions.ShowChildren and AnyParentIsFlagged(Node) ) )) and
-                     (not TagFilterApplied or (NNode.MatchesTags(fFindTags) or (FindOptions.ShowChildren and AnyParentMatchesTags(Node) ) ))
+                     (not TagFilterApplied or (NNode.MatchesTags(fFindTags, InheritedParentTags) ))
                     ) then
                TV.IsFiltered[Node]:= true
 
             else begin
                MakePathNonFiltered(Node);
+               if ShowTagsUse then
+                  AddUseOfTags(NNode, InheritedParentTags);
 
                if fFindFilterApplied then begin
                   NodeParent:= Node.Parent;
@@ -4168,6 +4322,8 @@ begin
 
         CheckFilterOff;
         FrameResize(nil);
+        if Self.ShowUseOfTags then
+           Form_Main.CheckFilterTags;
      end;
   end
   else
@@ -4192,6 +4348,9 @@ begin
         txtFilter.Hint:= '';
 
      RunFindAllEx (myFindOptions, true, true);
+
+     if Self.ShowUseOfTags then
+        Form_Main.CheckFilterTags;
 
      //CheckFocusedNode;      // RunFindAllEx (from here, and from normal Find All -with Apply Filter) will call ActivateFilter ( -> CheckFocusedNode)
   end;
@@ -4249,7 +4408,6 @@ begin
   SetFilteredNodes;
   TKntFolder(Self.Folder).Filtered:= True;
   ApplyFilterOnFolder;
-  ApplyFilters(true);
 
   CheckFocusedNode;
 end;
@@ -4305,18 +4463,39 @@ end;
 
 procedure TKntTreeUI.txtTagsEnter(Sender: TObject);
 begin
-   TagMng.StartTxtFindTagIntrod(txtTags, OnEndFindTagsIntroduction);
+   if Self.ShowUseOfTags then
+      Form_Main.chkFilterOnTags.Checked:= False;
+
+   if Self.ShowUseOfTags or CtrlDown then begin
+       txtTags.Text:= '';
+       fFindTags:= nil;
+       SetFilteredNodes;
+   end;
+
+   TagMng.StartTxtFindTagIntrod(txtTags, OnEndFindTagsIntroduction, OnChangeFindTagsIntrod);
    AdjustTxtTagsWidth(True);
+end;
+
+procedure TKntTreeUI.OnChangeFindTagsIntrod(FindTags: TFindTags);
+begin
+   fFindTags:= FindTags;
+   CheckFilterNotesOnTags(True);
 end;
 
 procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags);
 begin
-  if PressedReturn then
+  if PressedReturn and not Self.ShowUseOfTags then
      txtFilter.SetFocus;
 
    fFindTags:= FindTags;
    AdjustTxtTagsWidth;
+   CheckFilterNotesOnTags(false);
+end;
 
+procedure TKntTreeUI.CheckFilterNotesOnTags(Temp: boolean = True);
+begin
+   if Temp then
+      fTempFilterTagApplying:= True;
    if fFindTags <> nil then
       ActivateFilter
 
@@ -4324,7 +4503,7 @@ begin
       SetFilteredNodes;
       CheckFilterOff;
    end;
-
+   fTempFilterTagApplying:= False;
 end;
 
 

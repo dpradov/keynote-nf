@@ -895,7 +895,7 @@ begin
         if ( Pages_Res.ActivePage = ResTab_Tags ) then begin
            var TS: TTagsState:= App.TagsState;
            App.TagsState := tsVisible;
-           if TS = tsPendingUpdate then
+           if (TS = tsPendingUpdate) or chkFilteronTags.Checked then
               App.TagsUpdated;
         end;
 

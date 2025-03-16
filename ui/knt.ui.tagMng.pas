@@ -18,16 +18,16 @@ type
 
   TOnEndEditTagsIntrod = procedure(PressedReturn: boolean) of object;
   TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; FindTags: TFindTags) of object;
+  TOnChangeFindTagsIntrod = procedure(FindTags: TFindTags) of object;
 
 
   TTagMng = class
   private
-    fChangingInCode: boolean;
-
     txtTags: TEdit;
     FTagsMode: TTagsMode;
     FOnEndEditTagsIntrod: TOnEndEditTagsIntrod;
     FOnEndFindTagsIntrod: TOnEndFindTagsIntrod;
+    FOnChangeFindTagsIntrod: TOnChangeFindTagsIntrod;
     FOldTxtTagsWndProc: TWndMethod;
 
     FNote: TNote;
@@ -35,6 +35,8 @@ type
 
     FCanvasAux : TControlCanvas;
 
+    fChangingInCode: boolean;
+    fFindTagsInformed: string;
 
     constructor Create;
 
@@ -48,7 +50,7 @@ type
     procedure NewTxtTagsWndProc(var Msg: TMessage);
 
     procedure CheckBeginOfTag;
-    function CommitIntroducedTags: TFindTags;
+    function CommitIntroducedTags(Ending: boolean): TFindTags;
     function GetCaretPosTag: integer;
     function GetEndOfWord: integer;
 
@@ -60,7 +62,7 @@ type
     destructor Destroy; override;
 
     procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
-    procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod);
+    procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod);
     procedure EndedTxtTagIntrod(PressedReturn: boolean);
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
 
@@ -252,6 +254,12 @@ begin
             end;
          end;
       end;
+   end
+   else begin
+      if (FTagsMode = tmSearch) and assigned(FOnChangeFindTagsIntrod) then begin
+         fFindTagsInformed:= txtTags.Text;
+         FOnChangeFindTagsIntrod(CommitIntroducedTags(false));
+      end;
    end;
    TagSubstr:= '';
    IgnoreTagSubstr:= '';
@@ -324,6 +332,7 @@ begin
    txtTags:= nil;
    FOnEndEditTagsIntrod:= nil;
    FOnEndFindTagsIntrod:= nil;
+   FOnChangeFindTagsIntrod:= nil;
 
    FCanvasAux := TControlCanvas.Create;
 end;
@@ -376,7 +385,7 @@ begin
 end;
 
 
-procedure TTagMng.StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod);
+procedure TTagMng.StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod);
 begin
    if TagEdit = txtTags then exit;
 
@@ -384,6 +393,7 @@ begin
 
    FTagsMode:= tmSearch;
    FOnEndFindTagsIntrod:= OnEndFindTagsIntrod;
+   FOnChangeFindTagsIntrod:= OnChangeFindTagsIntrod;
 end;
 
 
@@ -400,7 +410,7 @@ begin
 
       cTagSelector.CloseTagSelector(true);
 
-      FindTags:= CommitIntroducedTags;
+      FindTags:= CommitIntroducedTags(true);
 
       if FTagsMode = tmEdit then
          UpdateTxtTagsHint;
@@ -434,7 +444,9 @@ begin
       txtTags:= nil;
       FOnEndEditTagsIntrod:= nil;
       FOnEndFindTagsIntrod:= nil;
+      FOnChangeFindTagsIntrod:= nil;
       FOldTxtTagsWndProc:= nil;
+      fFindTagsInformed:= '';
    end;
 
 end;
@@ -493,6 +505,11 @@ end;
 procedure TTagMng.CheckBeginOfTag;
 begin
   if (IntroducingTagsState = itNoTags) then begin
+     if (FTagsMode = tmSearch) and assigned(FOnChangeFindTagsIntrod) and (Trim(txtTags.Text) <> Trim(fFindTagsInformed)) then begin
+         fFindTagsInformed:= txtTags.Text;
+         FOnChangeFindTagsIntrod(CommitIntroducedTags(false));
+     end;
+
      CaretPosTag:= GetCaretPosTag;
      cTagSelector.EditorCtrlUI:= txtTags;
      IntroducingTagsState := itWithoutTagSelector;
@@ -606,7 +623,7 @@ begin
 end;
 
 
-function TTagMng.CommitIntroducedTags: TFindTags;
+function TTagMng.CommitIntroducedTags(Ending: boolean): TFindTags;
 var
    i, pI, pF: integer;
    Txt, tagName: string;
@@ -748,6 +765,8 @@ begin
         if not NEntry.HaveSameTags(TagsAssigned) then begin
            NEntry.Tags:= TagsAssigned;
            App.NEntryModified(NEntry, FNote, TKntFolder(FFolder));
+           if TKntFolder(FFolder).TreeUI.ShowUseOfTags then
+              Form_Main.RefreshFilterOnTags;
         end;
         txtTags.Text:= NEntry.TagsNames;
 
@@ -758,9 +777,11 @@ begin
            Example: Suppose that there are tags such as PryA.Module1 PryA.Module2 ... Bug Bug.High Bugh.Low
            If you enter: "PryA Bug.Low" -> (PryA.Module1 OR PryA.Module2 .. ) AND (Bug.Low) will be considered.
          }
-         txtTags.Text:=  ConsideredWords;
          Result:= FindTags;
-         UpdateTxtFindTagsHint(ConsideredWords, FindTags);
+         if Ending then begin
+            txtTags.Text:=  ConsideredWords;
+            UpdateTxtFindTagsHint(ConsideredWords, FindTags);
+         end;
       end;
 
    finally
