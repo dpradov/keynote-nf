@@ -56,7 +56,6 @@ type
 
   protected
     procedure StartTxtTagIntrod(TagEdit: TEdit);
-    procedure UpdateTxtFindTagsHint(const ConsideredWords: string; FindTags: TFindTags);
 
   public
     destructor Destroy; override;
@@ -65,6 +64,7 @@ type
     procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod);
     procedure EndedTxtTagIntrod(PressedReturn: boolean);
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
+    procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags);
 
     procedure CreateTagSelector;
     procedure UpdateTagSelector;
@@ -780,7 +780,7 @@ begin
          Result:= FindTags;
          if Ending then begin
             txtTags.Text:=  ConsideredWords;
-            UpdateTxtFindTagsHint(ConsideredWords, FindTags);
+            UpdateTxtFindTagsHint(txtTags, ConsideredWords, FindTags);
          end;
       end;
 
@@ -813,16 +813,14 @@ begin
 end;
 
 
-procedure TTagMng.UpdateTxtFindTagsHint(const ConsideredWords: string; FindTags: TFindTags);
+procedure TTagMng.UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags);
 var
   Hint: string;
-  txtEdit: TEdit;
   i, j: integer;
   TagsOR: TTagsOR;
   SepOR, SepAND: string;
   IncludesORs: boolean;
 begin
-    txtEdit:= txtTags;
     IncludesORs:= false;
 
     if FindTags <> nil then begin
@@ -845,8 +843,8 @@ begin
          SepAND:= ' & ';
       end;
     end;
-    if IncludesORs then
-       Hint:= '"' + ConsideredWords + '": ' + Hint;
+    if IncludesORs and (ConsideredWords <> '') then
+       Hint:= '"' + ConsideredWords + '": ' + #13 + Hint;
     txtEdit.Hint:= Hint;
 end;
 

@@ -30,6 +30,7 @@ uses
    SynGdiPlus,
    gf_misc,
    kn_Const,
+   knt.model.note,
    knt.RS
    ;
 
@@ -210,10 +211,6 @@ const
   DBLCLK_FOLDERPROP = 4; // open Folder Properties dialog box
   DBLCLK_NEWFOLDER  = 5; // create a new folder
   DBLCLK_RESPANEL = 6; // show or hide resource panel
-
-
-type
-  TNodeWordWrap = ( wwAsFolder, wwYes, wwNo );
 
 
 type
@@ -772,6 +769,11 @@ type
     InheritedTags: boolean;     // Each node will be considered as having its own tags and the tags of its ancestors
     EmphasizedSearch: TEmphasizedSerch;  // for "Find all" (resource panel) ONLY
     TagSearch: boolean;   // Search for a tag (#MyTag). It must meet certain other criteria.
+    FindTagsIncl: TFindTags;   // Include text/notes with ALL or ANY of the selected tags
+    FindTagsExcl: TFindTags;   // Exclude text/notes with ANY of the selected tags
+    TagsModeOR: boolean;       // Tags include, ¿mode OR? (vs ALL)
+    TagsMetadata: boolean;     // Tags will be searched for in the notes' metadata
+    TagsText: boolean;         // Tags will be searched for in the notes' text
   end;
 
 const

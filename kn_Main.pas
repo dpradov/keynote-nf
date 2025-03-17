@@ -577,8 +577,8 @@ type
     StdEMSelectAll: TMenuItem;
     N87: TMenuItem;
     MMTreeMasterNode: TMenuItem;
-    RG_ResFind_Type: TRadioGroup;
-    RG_ResFind_Scope: TRadioGroup;
+    RG_ResFind_Type: TComboBox;
+    RG_ResFind_Scope: TComboBox;
     Menu_FindAll: TPopupMenu;
     FAMCopytoEditor: TMenuItem;
     FAMCopyAlltoEditor: TMenuItem;
@@ -763,7 +763,7 @@ type
     TB_Images: TToolbarButton97;
     N118: TMenuItem;
     RTFMRestoreProportions: TMenuItem;
-    RG_ResFind_ChkMode: TRadioGroup;
+    RG_ResFind_ChkMode: TComboBox;
     N120: TMenuItem;
     MMAlarms: TMenuItem;
     MMSetAlarm: TMenuItem;
@@ -908,6 +908,19 @@ type
     lblTg: TLabel;
     lblTg2: TLabel;
     TVFilterInhTags: TMenuItem;
+    lbl1: TLabel;
+    lbl2: TLabel;
+    lbl3: TLabel;
+    txtTagsIncl: TEdit;
+    lbl8: TLabel;
+    cbTagFindMode: TComboBox;
+    txtTagsExcl: TEdit;
+    lbl9: TLabel;
+    chkTagsMetad: TCheckBox;
+    chkTagsText: TCheckBox;
+    lbl4: TLabel;
+    chkInhTagsFind: TCheckBox;
+    lbl7: TLabel;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1160,7 +1173,6 @@ type
     procedure MMTreeMasterNodeClick(Sender: TObject);
     procedure FAMCopytoEditorClick(Sender: TObject);
     procedure FAMCopyAlltoEditorClick(Sender: TObject);
-    procedure RG_ResFind_TypeClick(Sender: TObject);
     procedure MMTreeNodeFromSelClick(Sender: TObject);
     procedure FavMJumpClick(Sender: TObject);
     procedure FavMAddClick(Sender: TObject);
@@ -1302,7 +1314,6 @@ type
     procedure chk_LastModifFromClick(Sender: TObject);
     procedure chk_CreatedFromClick(Sender: TObject);
     procedure chk_CreatedUntilClick(Sender: TObject);
-    procedure CheckFindAllEnabled;
     procedure RG_ResFind_ScopeClick(Sender: TObject);
     procedure CB_ResFind_PathInNamesClick(Sender: TObject);
     procedure TVFilterUsePathClick(Sender: TObject);
@@ -1324,6 +1335,12 @@ type
     procedure chkInhTagsClick(Sender: TObject);
     procedure cbTagFilterModeChange(Sender: TObject);
     procedure TVFilterInhTagsClick(Sender: TObject);
+    procedure txtTagsInclEnter(Sender: TObject);
+    procedure txtTagsExclEnter(Sender: TObject);
+    procedure chkInhTagsFindClick(Sender: TObject);
+    procedure chkTagsMetadClick(Sender: TObject);
+    procedure chkTagsTextClick(Sender: TObject);
+    procedure cbTagFindModeChange(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1375,6 +1392,10 @@ type
     procedure TVTagsSelectAlone(Node: PVirtualNode);
     procedure txtFilterTagsChange(Sender: TObject);
     procedure FilterNotesOnTagsSelection;
+
+    procedure CheckFindAllEnabled;
+    procedure CheckTxtTagsEnabled;
+
   public
     procedure CheckFilterTags;
 
@@ -1385,6 +1406,8 @@ type
     PrintDlg: TPrintDialog;
     PageSetupDlg : TPageSetupDialog;
 
+    fFindTagsIncl: TFindTags;
+    fFindTagsExcl: TFindTags;
 
     procedure UpdateOpenFile;
     procedure UpdateFileModifiedState;
@@ -1464,6 +1487,13 @@ type
     function GetTagsSelected: TNoteTagArray;
     procedure CheckFilterOnTags(RecoveringTagsSituation: boolean);
     procedure RefreshFilterOnTags;
+
+    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags);
+    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags);
+    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags);
+    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags);
+    procedure ChangeFindInclToModeOR;
+
   end;
 
 function GetFilePassphrase( const FN : string ) : string;
@@ -1731,6 +1761,10 @@ begin
   TVFilterInhTags.Checked:= FindOptions.InheritedTags;
   TVFilterInhTags.Hint:= chkInhTags.Hint;
   chkInhTags.Checked:= FindOptions.InheritedTags;
+  chkInhTagsFind.Checked:= FindOptions.InheritedTags;
+  chkInhTagsFind.Hint:= chkInhTags.Hint;
+  cbTagFindMode.ItemIndex:= 0;
+  cbTagFilterMode.ItemIndex:= 0;
 
   Initializing := false;
 
@@ -6009,9 +6043,10 @@ end;
 
 procedure TForm_Main.chkInhTagsClick(Sender: TObject);
 begin
-  if Initializing then exit;
+  if Initializing or fChangingInCode then exit;
   FindOptions.InheritedTags:= not FindOptions.InheritedTags;
   TVFilterInhTags.Checked:= FindOptions.InheritedTags;
+  chkInhTagsFind.Checked:= FindOptions.InheritedTags;
 
   if ActiveTreeUI = nil then exit;
 
@@ -6403,6 +6438,12 @@ begin
   myFindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;
   myFindOptions.SearchPathInNodeNames:= CB_ResFind_PathInNames.Checked;
   myFindOptions.Pattern := Combo_ResFind.Text;
+  myFindOptions.FindTagsIncl:= fFindTagsIncl;
+  myFindOptions.FindTagsExcl:= fFindTagsExcl;
+  myFindOptions.TagsMetadata:= chkTagsMetad.Checked;
+  myFindOptions.TagsText:= chkTagsText.Checked;
+  myFindOptions.InheritedTags:= FindOptions.InheritedTags;
+  myFindOptions.TagsModeOR:= (cbTagFindMode.ItemIndex = 1);
 
   myFindOptions.LastModifFrom := 0;
   myFindOptions.LastModifUntil := 0;
@@ -6464,11 +6505,22 @@ end;
 
 procedure TForm_Main.CheckFindAllEnabled;
 begin
-   if CB_LastModifFrom.Enabled or CB_LastModifUntil.Enabled or CB_CreatedFrom.Enabled or CB_CreatedUntil.Enabled then
+   if CB_LastModifFrom.Enabled or CB_LastModifUntil.Enabled or CB_CreatedFrom.Enabled or CB_CreatedUntil.Enabled or
+      (chkTagsMetad.Checked and ((fFindTagsIncl <> nil) or (fFindTagsExcl <> nil))) then
       Btn_ResFind.Enabled := true
    else
       Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
 end;
+
+procedure TForm_Main.CheckTxtTagsEnabled;
+var
+  Enable: boolean;
+begin
+  Enable:= chkTagsMetad.Checked or chkTagsText.Checked;
+  txtTagsIncl.Enabled:= Enable;
+  txtTagsExcl.Enabled:= Enable;
+end;
+
 
 procedure TForm_Main.chk_CreatedFromClick(Sender: TObject);
 begin
@@ -6723,9 +6775,103 @@ begin
   CB_ResFind_PathInNames.Enabled:= ( TSearchScope( RG_ResFind_Scope.ItemIndex ) <> ssOnlyContent );
 end;
 
-procedure TForm_Main.RG_ResFind_TypeClick(Sender: TObject);
+procedure TForm_Main.ChangeFindInclToModeOR;
 begin
-//  CB_ResFind_NodeNames.Enabled := ( TSearchMode( RG_ResFind_Type.ItemIndex ) = smPhrase );
+   fFindTagsIncl:= FindTagsGetModeOR(fFindTagsIncl);
+   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, fFindTagsIncl);
+end;
+
+procedure TForm_Main.cbTagFindModeChange(Sender: TObject);
+begin
+   if fFindTagsIncl = nil then exit;
+   if (cbTagFindMode.ItemIndex = 1) then
+      ChangeFindInclToModeOR
+   else begin
+      // Ensure that the tags are interpreted according to ALL mode:
+      txtTagsIncl.SetFocus;
+      cbTagFindMode.SetFocus;
+   end;
+end;
+
+
+procedure TForm_Main.txtTagsInclEnter(Sender: TObject);
+begin
+   if CtrlDown then begin
+       txtTagsIncl.Text:= '';
+       fFindTagsIncl:= nil;
+   end;
+
+   TagMng.StartTxtFindTagIntrod(txtTagsIncl, OnEndFindTagsInclIntrod, OnChangeFindTagsInclIntrod);
+end;
+
+procedure TForm_Main.OnChangeFindTagsInclIntrod(FindTags: TFindTags);
+begin
+   if cbTagFindMode.ItemIndex = 1 then
+      ChangeFindInclToModeOR
+   else
+      fFindTagsIncl:= FindTags;
+
+   CheckFindAllEnabled;
+end;
+
+procedure TForm_Main.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags);
+begin
+   OnChangeFindTagsInclIntrod(FindTags);
+   Combo_ResFind.SetFocus;
+end;
+
+
+procedure TForm_Main.txtTagsExclEnter(Sender: TObject);
+begin
+   if CtrlDown then begin
+       txtTagsExcl.Text:= '';
+       fFindTagsExcl:= nil;
+   end;
+
+   TagMng.StartTxtFindTagIntrod(txtTagsExcl, OnEndFindTagsExclIntrod, OnChangeFindTagsExclIntrod);
+end;
+
+
+procedure TForm_Main.OnChangeFindTagsExclIntrod(FindTags: TFindTags);
+begin
+   fFindTagsExcl:= FindTagsGetModeOR(FindTags);
+   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, fFindTagsExcl);
+   CheckFindAllEnabled;
+end;
+
+
+
+procedure TForm_Main.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags);
+begin
+   OnChangeFindTagsExclIntrod(FindTags);
+   Combo_ResFind.SetFocus;
+end;
+
+
+procedure TForm_Main.chkInhTagsFindClick(Sender: TObject);
+begin
+  if Initializing or fChangingInCode then exit;
+
+  fChangingInCode:= True;
+
+  FindOptions.InheritedTags:= not FindOptions.InheritedTags;
+  TVFilterInhTags.Checked:= FindOptions.InheritedTags;
+  chkInhTags.Checked:= chkInhTagsFind.Checked;
+
+  fChangingInCode:= False;
+end;
+
+
+procedure TForm_Main.chkTagsMetadClick(Sender: TObject);
+begin
+   CheckFindAllEnabled;
+   CheckTxtTagsEnabled;
+end;
+
+
+procedure TForm_Main.chkTagsTextClick(Sender: TObject);
+begin
+   CheckTxtTagsEnabled;
 end;
 
 procedure TForm_Main.MMTreeNodeFromSelClick(Sender: TObject);

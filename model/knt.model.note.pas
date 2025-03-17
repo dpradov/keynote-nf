@@ -26,8 +26,7 @@ uses
    VirtualTrees,
    VirtualTrees.Types,
    gf_misc,
-   kn_Const,
-   kn_Info
+   kn_Const
    ;
 
 
@@ -267,7 +266,8 @@ type
      class function HasTag(Tags: TNoteTagArray; Tag: TNoteTag): boolean; overload;
      class procedure AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
    end;
-  
+
+
   {
    TODO nesEntryAndNote
    An entry can also end up being a note: GID1, Entry7: GID8
@@ -363,6 +363,8 @@ type
   // Nodes in the tree only show notes, not entries
 
   TNumberingMethod = (NumberAndName, OnlyNumber, NoNumbering);
+
+  TNodeWordWrap = ( wwAsFolder, wwYes, wwNo );
 
 
   { Certain information about each TNoteNode is enough to have within the VirtualTree node itself
@@ -482,6 +484,9 @@ type
   PNoteNode = ^TNoteNode;
 
 
+  function FindTagsGetModeOR(FindTags: TFindTags): TFindTags;
+
+
 implementation
 uses
    gf_files,
@@ -490,7 +495,8 @@ uses
    kn_LinksMng,
    knt.ui.tree,
    kn_KntFolder,
-   knt.App
+   knt.App,
+   kn_Info
    ;
 
 
@@ -1028,6 +1034,26 @@ begin
    end;
    SetLength(Tags, N + Added);
 
+end;
+
+
+function FindTagsGetModeOR(FindTags: TFindTags): TFindTags;
+var
+  i, j, N: integer;
+  FindOR: TNoteTagArray;
+begin
+   SetLength(Result, 1);           // All tags be OR operands
+   SetLength(FindOR, 15);          // Nobody will type more than 15 tags...
+
+   N:= 0;
+   for i:= 0 to High(FindTags) do begin
+      for j:= 0 to High(FindTags[i]) do begin
+          FindOR[N]:= FindTags[i][j];
+          inc(N);
+      end;
+   end;
+   SetLength(FindOR, N);
+   Result[0]:= FindOR;
 end;
 
 

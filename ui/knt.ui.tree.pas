@@ -54,6 +54,8 @@ type
    end;
 
 
+  TNoteTagArray_Array = Array of TNoteTagArray;
+
   TTreeTransferAction = (ttCopy, ttCut, ttPaste, ttClear);
 
   TVTree = TVirtualStringTree;
@@ -129,7 +131,7 @@ type
     fLastTreeSearch: string;
 
     fParentNodesWithInheritedTags: TNodeList;
-    fInheritedTags: Array of TNoteTagArray;
+    fInheritedTags: TNoteTagArray_Array;
     fTagsNonUsed: TNoteTagList;
     fTagsInUse: TNoteTagList;                   // Depends on filtering
     fTagsNumberOfUses: TIntegerList;
@@ -353,7 +355,6 @@ type
     // Filter nodes: Tags
   protected
     procedure txtTagsEnter(Sender: TObject);
-    procedure PopulateInheritedTags;
     procedure AddUseOfTags (NNode: TNoteNode; InheritedParentTags: TNoteTagArray);
     procedure PopulateNonUsedTags;
   public
@@ -362,12 +363,15 @@ type
     procedure OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags);
     procedure CheckFilterNotesOnTags (Temp: boolean = True);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
+    procedure PopulateInheritedTags;
     property TagsInUse: TNoteTagList read FTagsInUse;                     // Depends on filtering
     property TagsNumberOfUses: TIntegerList read FTagsNumberOfUses;
     property TagsNonUsed: TNoteTagList read fTagsNonUsed;
     property ShowUseOfTags: boolean read fShowUseOfTags write fShowUseOfTags;
     property UseOfTagsCalcWithInheritedTags: boolean read fUseOfTagsCalcWithInheritedTags write fUseOfTagsCalcWithInheritedTags;
     property TagsFilterModeOR: boolean read fTagsFilterModeOR write fTagsFilterModeOR;
+    property ParentNodesWithInheritedTags: TNodeList read fParentNodesWithInheritedTags;
+    property InheritedParentTags: TNoteTagArray_Array read fInheritedTags;
 
 
     // Tree width expansion

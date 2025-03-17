@@ -1033,6 +1033,10 @@ var
   Paragraph: string;
   PositionsLastLocationAdded: array of integer;
 
+  SearchTagsInMetadata, UseInheritedTags, ConsiderNode: boolean;
+  InheritedTags: TNoteTagArray;
+  iNode: integer;
+
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
 
@@ -1176,6 +1180,8 @@ type
              TreeNodeToSearchIn_AncestorPathLen:= Length(path) + Length(myFolder.Name) + 1 - Length(TreeUI.GetNNode(TreeNodeToSearchIn).NoteName);
           end;
 
+          if UseInheritedTags then
+             TreeUI.PopulateInheritedTags;
        end;
 
        function EnsureCheckMode (myTreeNode: PVirtualNode): PVirtualNode;
@@ -1200,6 +1206,9 @@ type
 
              myTreeNode:= EnsureCheckMode(myTreeNode);
           end;
+
+          if assigned(myTreeNode) and UseInheritedTags then
+             TreeUI.PopulateInheritedTags;
        end;
 
        procedure GetNextNode;
@@ -1686,10 +1695,15 @@ begin
   myFindOptions.Pattern := trim( myFindOptions.Pattern ); // leading and trailing blanks need to be stripped
   PreprocessTextPattern(myFindOptions);
 
-  with myFindOptions do
-     SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
 
-  if (myFindOptions.Pattern = '') and not SearchingByDates then exit;
+  with myFindOptions do begin
+     SearchTagsInMetadata:= TagsMetadata and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil));
+     UseInheritedTags:=  InheritedTags and SearchTagsInMetadata;
+
+     SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
+  end;
+
+  if (myFindOptions.Pattern = '') and not SearchingByDates and not SearchTagsInMetadata then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
@@ -1708,6 +1722,8 @@ begin
      FindOptions.FoldedMode:= myFindOptions.FoldedMode;
      FindOptions.HiddenNodes:= myFindOptions.HiddenNodes;
      FindOptions.SearchPathInNodeNames:= myFindOptions.SearchPathInNodeNames;
+     FindOptions.TagsMetadata:= myFindOptions.TagsMetadata;
+     FindOptions.TagsText:= myFindOptions.TagsText;
 
      FindOptions.FindAllMatches := false;
      FindOptions.FindNew := true;
@@ -1776,7 +1792,7 @@ begin
          TextToFind:= wordList[0].word;           // '"Windows 10"' --> 'Windows 10'
       end;
 
-      if (wordcnt = 0) and not SearchingByDates then begin
+      if (wordcnt = 0) and not SearchingByDates and not SearchTagsInMetadata then begin
          Form_Main.Combo_ResFind.Text:= '';
          Form_Main.Btn_ResFind.Enabled:= False;
          exit;
@@ -1833,46 +1849,66 @@ begin
                    ((myFindOptions.CreatedUntil = 0) or (myNNode.Note.DateCreated.GetDate <= myFindOptions.CreatedUntil))
                 then begin
 
-                   if TextToFind = '' then
-                      AddLocation(true, lsNormal, TextToFind, 0)      // => nodeToFilter = False
-
-                   else begin
-
-                      if (myFindOptions.SearchScope <> ssOnlyContent) then begin
-                        if myFindOptions.SearchPathInNodeNames then
-                           TextPlain:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, true )
-                        else
-                           TextPlain:= myNNode.NoteName;
-
-                        NodeNameInSearch:= TextPlain;
-                        if not myFindOptions.MatchCase then
-                           TextPlain:= AnsiUpperCase( TextPlain);
-
-                        FindPatternInText(true, true);
+                   // Check Tags in metadata
+                   ConsiderNode:= True;
+                   if SearchTagsInMetadata then begin
+                      InheritedTags:= nil;
+                      if UseInheritedTags then begin
+                         iNode:= TreeUI.ParentNodesWithInheritedTags.IndexOf(myTreeNode.Parent);
+                         if iNode >= 0 then
+                            InheritedTags:= TreeUI.InheritedParentTags[iNode];
                       end;
 
-                      if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
-                         TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, ClearRTFAux);
-                         TextPlain:= TextPlainBAK;
-                         if not myFindOptions.MatchCase then
-                            TextPlain:=  AnsiUpperCase(TextPlain);
+                      if myFindOptions.FindTagsIncl <> nil then
+                         ConsiderNode:= myNNode.MatchesTags(myFindOptions.FindTagsIncl, InheritedTags);
 
-                         SearchOrigin := 0;
-                         SearchingInNonRTFText:= myNNode.Note.Entries[0].IsPlainTXT;   // ### Entries[0]
-                         FindPatternInText(false, SearchingInNonRTFText);
+                      if ConsiderNode and (myFindOptions.FindTagsExcl <> nil) then
+                         ConsiderNode:= not myNNode.MatchesTags(myFindOptions.FindTagsExcl, InheritedTags);
+                   end;
+
+
+                   if ConsiderNode then begin
+
+                      if TextToFind = '' then
+                         AddLocation(true, lsNormal, TextToFind, 0)      // => nodeToFilter = False
+
+                      else begin
+
+                         if (myFindOptions.SearchScope <> ssOnlyContent) then begin
+                           if myFindOptions.SearchPathInNodeNames then
+                              TextPlain:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, true )
+                           else
+                              TextPlain:= myNNode.NoteName;
+
+                           NodeNameInSearch:= TextPlain;
+                           if not myFindOptions.MatchCase then
+                              TextPlain:= AnsiUpperCase( TextPlain);
+
+                           FindPatternInText(true, true);
+                         end;
+
+                         if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
+                            TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, ClearRTFAux);
+                            TextPlain:= TextPlainBAK;
+                            if not myFindOptions.MatchCase then
+                               TextPlain:=  AnsiUpperCase(TextPlain);
+
+                            SearchOrigin := 0;
+                            SearchingInNonRTFText:= myNNode.Note.Entries[0].IsPlainTXT;   // ### Entries[0]
+                            FindPatternInText(false, SearchingInNonRTFText);
+                         end;
+                      end;
+
+                      if ApplyFilter and (not nodeToFilter) then begin
+                         if TreeFilter then
+                            myNNode.TreeFilterMatch := True
+                         else
+                            myNNode.FindFilterMatch := True;
+
+                         if not myFolder.ReadOnly then
+                            myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
                       end;
                    end;
-
-                   if ApplyFilter and (not nodeToFilter) then begin
-                      if TreeFilter then
-                         myNNode.TreeFilterMatch := True
-                      else
-                         myNNode.FindFilterMatch := True;
-
-                      if not myFolder.ReadOnly then
-                         myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
-                   end;
-
                 end;
 
                 GetNextNode;
