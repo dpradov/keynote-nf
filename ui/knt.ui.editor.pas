@@ -260,7 +260,7 @@ type
 
   function GetHumanizedKNTHiddenCharacters (const s: string): string;
 
-  function IsWordDelimiter(i: integer; const Str: string; const SpaceAsWDelim: boolean): boolean; inline;
+  function IsWordDelimiter(i: integer; const Str: string; const OnlySpaceAsWDelim: boolean): boolean; inline;
   function GetWordAtCursorFromRichEd(
                            RichEdit: TRxRichEdit;
                            const LeaveSelected : boolean;
@@ -1868,7 +1868,7 @@ end;
     ##         (And/or ##BUG, and ## => close all previous Tags?)
   ....
   ...
-  ##           (And/or ##ToDO ?)
+  ##           (And/or ##ToDO)
 }
 
 // PosSS, pBeginBlock, pEndBlock: Begin at zero
@@ -1897,7 +1897,10 @@ var
   begin
      Result:= True;
      L:= Length(Word);
-     if (CheckWholeWords and ((p+L <= Length(TxtPlain)) and not IsWordDelimiter(p+L, TxtPlain, False)) ) then
+     if CheckWholeWords and
+         ( ((p+L <= Length(TxtPlain)) and not IsWordDelimiter(p+L, TxtPlain, False) ) or
+           ((p > 1) and not IsWordDelimiter(p-1, TxtPlain, False) )
+                                                                     ) then
         Result:= False;
 
      if Result and (IgnoreFoldedBlocks and PositionInFoldedBlock(TxtPlain, p, Editor, pfI, pfF) ) then begin
@@ -2001,8 +2004,20 @@ begin
            pF:= 0
         else begin
            pF:= Pos(WordClosing, TxtPlain, pF + Lc);
-           if (pF > 0) and not FoldedBlock and not WordIsValid(WordClosing, pF) then
-               IsValid:= False;
+           if (pF > 0) and not FoldedBlock then
+               if IsTag then begin                                               // => WordClosing = '##'
+                  if ((pF = 1) or (TxtPlain[pF-1] <> '#')) and
+                     ((pF + 2 > Length(TxtPlain)) or ((TxtPlain[pF+2] <> '#') and (TxtPlain[pF+2] in TagCharsDelimiters))) then
+                      // IsValid
+                  else
+                  if ((Copy(TxtPlain, pF + 1, Lo) = WordOpening)) then       // Ex: Opening: #ToDO --> ##ToDO
+                     Lc:= Lo + 1
+                  else
+                     IsValid:= False;
+               end
+               else
+               if not WordIsValid(WordClosing, pF) then
+                  IsValid:= False;
         end;
 
         if (pF > 0) and IsValid then begin
@@ -4467,11 +4482,11 @@ begin
 end;
 
 
-function IsWordDelimiter(i: integer; const Str: string; const SpaceAsWDelim: boolean): boolean; inline;
+function IsWordDelimiter(i: integer; const Str: string; const OnlySpaceAsWDelim: boolean): boolean; inline;
 begin
  Result:= (Str[i]<>KNT_RTF_HIDDEN_MARK_L_CHAR) and (Str[i]<>KNT_RTF_HIDDEN_MARK_R_CHAR)
-            and (   (SpaceAsWDelim and (Str[i] in [#32,#9,#13,#10]))
-                 or (not SpaceAsWDelim and not IsCharAlphaNumeric(Str[i])) );
+            and (   (OnlySpaceAsWDelim and (Str[i] in [#32,#9,#13,#10]))
+                 or (not OnlySpaceAsWDelim and not IsCharAlphaNumeric(Str[i])) );
 end;
 
 function GetWordAtCursorFromRichEd(
