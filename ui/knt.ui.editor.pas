@@ -1931,7 +1931,7 @@ var
       end;
   end;
 
-  function OnlySpacesOrOpenTagsInRestOfLine: boolean;
+  function OpenTagsConcatenated: boolean;
   var
      i: integer;
      pF, pF2: integer;
@@ -1945,24 +1945,33 @@ var
       Something ... #Tag1#Tag2#Tag3: bla, bla, bla
       ....
 
-      Something ... #Tag1#Tag2#Tag3
-      ....
-
       #Tag1 #Tag2 #Tag3
       ....
 
       #Tag1,#Tag2, #Tag3:
       ....
+
+
+      The following will not considered as "open" tags, but normal tags applying to a paragraph, concatenated
+      (note the absence of ":")
+      Something ... #Tag1#Tag2#Tag3
+
+      Something ... #Tag1 #Tag2, #Tag3
+
+
      }
     // PosSS: Initial position of a tag
     // Lo: Length of the tag, including the # character
 
      pF  := Pos(':', TxtPlain, PosSS + Lo);
      pF2 := Pos(#13, TxtPlain, PosSS + Lo);
-     if pF2 < pF then
+     if pF2 < pF then begin
         pF:= pF2;
+        i:= NFromLastCharPos(TxtPlain, #13, 1, PosSS);
+     end
+     else
+        i:= PosSS + Lo;
 
-     i:= PosSS + Lo;
      while i < pF do begin
         while (i < pF) and (TxtPlain[i] in TagCharsDelimWithoutHash) do
            inc(i);
@@ -2013,7 +2022,7 @@ begin
    // ensuring, if necessary, that complete words are located, that the found word is not really
    // a closing word that includes an opening word, and ignoring folded blocks if so indicated.
    if IsTag then begin
-      if (TxtPlain[PosSS+Lo] in [':', #13]) or OnlySpacesOrOpenTagsInRestOfLine() then begin
+      if OpenTagsConcatenated() then begin
          //IsOpenTag:= True;
          pBeginBlock:= PosSS;
          WordClosing:= KNT_RTF_END_TAG;     // '##'
