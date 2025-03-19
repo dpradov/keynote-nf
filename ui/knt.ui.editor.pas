@@ -2048,12 +2048,11 @@ begin
       if (WordClosing = '') or (WordClosing = KNT_RTF_END_GENERIC_BLOCK) or (WordClosing = KNT_RTF_END_TAG)  then begin
           if (WordClosing <> KNT_RTF_END_TAG) then
              pF:= Pos(#13, TxtPlain, pBeginBlock + 1);
-          if pF = 0 then begin
-             pF:= Length(TxtPlain);
-             pEndBlock:= pF;
-          end
+          if pF = 0 then
+             pF:= Length(TxtPlain)
           else
-             pEndBlock:= pF-1;         // Excluding #13
+             dec(pF);         // Excluding #13
+          pEndBlock:= pF;
 
           if (pF - pBeginBlock) < 50 then begin
              p:= Pos(' ', TxtPlain, pBeginBlock);
@@ -2138,24 +2137,37 @@ begin
       SS:= SelStart;
       SL:= SelLength;
 
+      AddEndGenericBlock:= False;
+      TxtPlain:= Self.TextPlain;
+
+      if SelectedText or (SL = 0) then begin
+         if (SL > 0) and (TxtPlain[SS+SL] = #13) then begin
+            SelLength:= SL-1;
+            dec(SL);
+         end;
+         GetTextScope(TxtPlain, dsParagraph, SS+1, pI, pF, 0);
+         dec(pI);
+         dec(pF);
+
+         if (SL > 0) then
+            AddEndGenericBlock:= not ((SS = pI) and (SL = pF - pI) )         // -> KNT_RTF_END_GENERIC_BLOCK
+         else begin
+            SS:= pI;
+            SL:= pF - pI;
+         end;
+      end;
+
       // Do not allow folding inside a folded block or partially selecting it
       SelLength:= 0;
       if SelAttributes.Protected then exit;
       SelStart:= SS + SL;
       if SelAttributes.Protected then exit;
 
-      AddEndGenericBlock:= False;
       MinLenExtract:= 0;
 
       SelStart:= SS;
       SelLength:= SL;
-      if SelectedText then begin
-         AddEndGenericBlock:= True;                  // -> KNT_RTF_END_GENERIC_BLOCK
-         if GetTextRange(SS+SL-1, SS+SL) = #13 then
-            SelLength:= SL-1;
-      end
-      else begin
-         TxtPlain:= Self.TextPlain;
+      if not SelectedText then begin
          //WordAtCursor:= GetWordAtCursor(True,true);
          WordAtPos:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
          SS:= SelStart;
@@ -2218,7 +2230,7 @@ begin
       FUnfolding:= True;
       RtfSelText:= RTFOut;
       FUnfolding:= False;
-      SelStart:= pI-1;
+      SelStart:= pI;
       EndUpdate;
    end;
 end;
