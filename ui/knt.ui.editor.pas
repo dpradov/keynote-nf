@@ -2230,7 +2230,7 @@ begin
          //WordAtCursor:= GetWordAtCursor(True,true);
          WordAtPos:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
          SS:= SelStart;
-         if (SS >= 1) and (TxtPlain[SS] = '#') then begin
+         if (SS >= 1) and (TxtPlain[SS] = '#') and ((SS <= 1) or (TxtPlain[SS-1] <> '#'))  then begin
             WordAtPos:= '#' + WordAtPos;
             dec(SS);
             SelStart:= SS;
