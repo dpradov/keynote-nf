@@ -297,6 +297,7 @@ procedure SaveFoldingBlockInfo(LV: TListView);
 
 const
    TagCharsDelimiters = [' ', ':', ',', #13, #9, '#'];
+   TagCharsDelimWithoutHash = TagCharsDelimiters - ['#'];
 
 var
   _LoadedRichEditVersion : Single;
@@ -1935,8 +1936,6 @@ var
   var
      i: integer;
      pF, pF2: integer;
-  const
-     TagCharsDelimWithoutHash = TagCharsDelimiters - ['#'];
 
   begin
      { In situations like the following one, each these tags will be treated as tag in "open" mode, where
@@ -2197,6 +2196,32 @@ var
   AddEndGenericBlock: Boolean;
   MinLenExtract: integer;
 
+  function InsidePossibleTag: boolean;
+  var
+     pI, pF, L: integer;
+  begin
+     // To allow folding text by Ctrl+Clicking on tags like #[x]
+     // SS: Caret position
+     // SL: Selection length
+
+     pI:= SS - 1;
+     Result:= False;
+     while (pI > 1) and (TxtPlain[pI] in TagCharsDelimWithoutHash) do
+        dec(pI);
+
+     if (TxtPlain[pI] = '#') and ((pI <= 1) or (TxtPlain[pI-1] <> '#')) then begin
+        Result:= True;
+
+        L:= Length(TxtPlain);
+        pF:= SS + SL + 1;
+        while (pF < L) and not (TxtPlain[pF] in TagCharsDelimiters) do
+           inc(pF);
+        WordAtPos:= Copy(TxtPlain, pI, pF-pI);
+        SS:= pI;
+     end;
+  end;
+
+
 begin
    if CheckReadOnly or PlainText then exit;
 
@@ -2243,7 +2268,11 @@ begin
             WordAtPos:= '#' + WordAtPos;
             dec(SS);
             SelStart:= SS;
-         end;
+         end
+         else
+         if InsidePossibleTag() then        // -> it will update WordAtPos and SS
+            SelStart:= SS;
+
 
          if not GetClosingToken(WordAtPos, ClosingWord, CaseSens, IsTag) then begin
            // It is not a defined block opening word, nor a tag.
