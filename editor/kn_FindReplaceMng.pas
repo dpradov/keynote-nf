@@ -52,6 +52,9 @@ var
     StartNode: PVirtualNode;
 
 type
+   TDistanceScope = (dsAll, dsSentence, dsParagraph);
+
+type
    TResultSearch = class
       BeginOfParagraph: integer;
       WordsPos: array of integer;
@@ -88,6 +91,7 @@ procedure FindAllResults_SelectMatch (Prev: boolean);
 procedure FindAllResults_OnSelectionChange(Editor: TRxRichEdit);
 procedure FindAllResults_RightClick (CharIndex: integer);
 
+function GetTextScope(const Text: string; Scope: TDistanceScope; PosInsideScope: integer; var pL_Scope, pR_Scope: integer; pLmin: integer): string;
 
 implementation
 uses
@@ -127,9 +131,6 @@ var
 
 type
   CharacterSet = set of char;
-
-type
-   TDistanceScope = (dsAll, dsSentence, dsParagraph);
 
 type
    TSearchWord = class
@@ -901,7 +902,7 @@ begin
      pR_Scope:= Text.Length;
 
   if Scope = dsSentence then begin
-     for p := PosInsideScope + 1 to pR_Scope-1 do
+     for p := PosInsideScope to pR_Scope-1 do
        if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
           break;
      if p < pR_Scope then
@@ -913,10 +914,13 @@ begin
   if pL_Scope <= 0 then
      pL_Scope:= 1;
   if pL_Scope < pLmin then
-     pL_Scope:= pLmin;
+     pL_Scope:= pLmin
+  else
+  if Text[pL_Scope] = #13 then
+     inc(pL_Scope);                // do not include left #13
 
   if Scope = dsSentence then begin
-     for p := PosInsideScope-1 downto pL_Scope do
+     for p := PosInsideScope downto pL_Scope do
        if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
           break;
      if (p > pL_Scope) then
