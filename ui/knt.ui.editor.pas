@@ -1889,7 +1889,7 @@ var
   IsValid: boolean;
   CheckWholeWords: boolean;
   ConsiderNestedBlocks: boolean;
-  IsOpenTag: boolean;                 // A tag like #ToDO: (with ":" or inmediateliby before $13), closed with ## or the end of the note
+  //IsOpenTag: boolean;           // A tag like #ToDO: (with ":" or inmediateliby before $13), closed with ## (or ##ToDO) or the end of the note
 
   function WordIsValid (const Word: string; var p: integer): boolean;
   var
@@ -1959,18 +1959,31 @@ begin
    Lo:= Length(WordOpening);
 
    pBeginBlock:= 0;
+   pF:= 0;
 
 
    // Locate the start (as internal as possible in relation to the position) of the block,
    // ensuring, if necessary, that complete words are located, that the found word is not really
    // a closing word that includes an opening word, and ignoring folded blocks if so indicated.
-   if (WordOpening = '') or (Copy(TxtPlain, PosSS, Lo) = WordOpening) then begin
-      pBeginBlock:= PosSS;
-      if IsTag and (Copy(TxtPlain, PosSS+Lo, 1)[1] in [':', #13] ) then begin
-         IsOpenTag:= True;
+
+   if IsTag then begin
+      if TxtPlain[PosSS+Lo] in [':', #13] then begin
+         //IsOpenTag:= True;
+         pBeginBlock:= PosSS;
          WordClosing:= KNT_RTF_END_TAG;     // '##'
+      end
+      else begin
+         //IsOpenTag:= False;
+         GetTextScope(TxtPlain, dsParagraph, PosSS, pI, pF, 0);
+         pBeginBlock:= pI;
+         pEndBlock:= pF - 1;
+         Result:= True;
       end;
    end
+   else
+   if (WordOpening = '') or (Copy(TxtPlain, PosSS, Lo) = WordOpening) then
+      pBeginBlock:= PosSS
+
    else begin
       pI:= 0;
       repeat
@@ -1993,7 +2006,7 @@ begin
    // Locate the end of the block, taking into account, if necessary, the presence of nested blocks
    // If we have found a folded block when searching for the opening, we will have skipped the entire block. But we can
    // find another one while searching for the end.
-   if pBeginBlock > 0 then begin
+   if (pBeginBlock > 0) and (pF <= 0) then begin
       pI:= pBeginBlock;
       pF:= pI;
 
@@ -2197,7 +2210,7 @@ begin
          end;
          if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True) then exit;
 
-         SetSelection(SS, pF+1, false);
+         SetSelection(pI, pF + 1, false);
       end;
 
       RTFIn:= EnsureGetRtfSelText;
@@ -2205,7 +2218,7 @@ begin
       RtfSelText:= RTFOut;
 
       sleep(100);         // If we don't do this, the initial word will remain selected.
-      SelStart:= SS;
+      SelStart:= pI;
       SelLength:= 0;
 
    finally
