@@ -1931,6 +1931,53 @@ var
       end;
   end;
 
+  function OnlySpacesOrOpenTagsInRestOfLine: boolean;
+  var
+     i: integer;
+     pF, pF2: integer;
+  const
+     TagCharsDelimWithoutHash = TagCharsDelimiters - ['#'];
+
+  begin
+     { In situations like the following one, each these tags will be treated as tag in "open" mode, where
+       its scope begin in the tag (suppose "#Tag1") and end at the position of ##Tag1 or ## or the end of the note
+
+      Something ... #Tag1#Tag2#Tag3: bla, bla, bla
+      ....
+
+      Something ... #Tag1#Tag2#Tag3
+      ....
+
+      #Tag1 #Tag2 #Tag3
+      ....
+
+      #Tag1,#Tag2, #Tag3:
+      ....
+     }
+    // PosSS: Initial position of a tag
+    // Lo: Length of the tag, including the # character
+
+     pF  := Pos(':', TxtPlain, PosSS + Lo);
+     pF2 := Pos(#13, TxtPlain, PosSS + Lo);
+     if pF2 < pF then
+        pF:= pF2;
+
+     i:= PosSS + Lo;
+     while i < pF do begin
+        while (i < pF) and (TxtPlain[i] in TagCharsDelimWithoutHash) do
+           inc(i);
+
+        if (i < pF) and (TxtPlain[i] <> '#') then
+           exit(false);
+        inc(i);
+        while (i < pF) and not (TxtPlain[i] in TagCharsDelimiters) do
+           inc(i);
+     end;
+
+     Result:= True;
+  end;
+
+
 begin
    Result:= False;
 
@@ -1965,9 +2012,8 @@ begin
    // Locate the start (as internal as possible in relation to the position) of the block,
    // ensuring, if necessary, that complete words are located, that the found word is not really
    // a closing word that includes an opening word, and ignoring folded blocks if so indicated.
-
    if IsTag then begin
-      if TxtPlain[PosSS+Lo] in [':', #13] then begin
+      if (TxtPlain[PosSS+Lo] in [':', #13]) or OnlySpacesOrOpenTagsInRestOfLine() then begin
          //IsOpenTag:= True;
          pBeginBlock:= PosSS;
          WordClosing:= KNT_RTF_END_TAG;     // '##'
