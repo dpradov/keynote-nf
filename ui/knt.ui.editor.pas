@@ -1964,7 +1964,7 @@ var
 
      pF  := Pos(':', TxtPlain, PosSS + Lo);
      pF2 := Pos(#13, TxtPlain, PosSS + Lo);
-     if pF2 < pF then begin
+     if (pF2 < pF) or (pF = 0) then begin
         pF:= pF2;
         i:= NFromLastCharPos(TxtPlain, #13, 1, PosSS);
      end
