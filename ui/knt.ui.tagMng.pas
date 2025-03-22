@@ -417,7 +417,9 @@ begin
 
       Color:= clWindowText;
       if txtTags.Text = '' then begin
+         fChangingInCode:= True;
          txtTags.Text := EMPTY_TAGS;
+         fChangingInCode:= False;
          Color:= clGray;
       end;
       txtTags.Font.Color:= Color;

@@ -6817,7 +6817,6 @@ end;
 procedure TForm_Main.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags);
 begin
    OnChangeFindTagsInclIntrod(FindTags);
-   Combo_ResFind.SetFocus;
 end;
 
 
@@ -6844,7 +6843,6 @@ end;
 procedure TForm_Main.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags);
 begin
    OnChangeFindTagsExclIntrod(FindTags);
-   Combo_ResFind.SetFocus;
 end;
 
 
