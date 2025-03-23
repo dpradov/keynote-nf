@@ -1042,8 +1042,8 @@ var
   i, j, N: integer;
   FindOR: TNoteTagArray;
 begin
-   SetLength(Result, 1);           // All tags be OR operands
-   SetLength(FindOR, 15);          // Nobody will type more than 15 tags...
+   SetLength(Result, 1);                      // All tags be OR operands
+   SetLength(FindOR, MAX_SEARCHED_TAGS);
 
    N:= 0;
    for i:= 0 to High(FindTags) do begin

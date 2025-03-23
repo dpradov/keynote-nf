@@ -1406,8 +1406,8 @@ type
     PrintDlg: TPrintDialog;
     PageSetupDlg : TPageSetupDialog;
 
-    fFindTagsIncl: TFindTags;
-    fFindTagsExcl: TFindTags;
+    FindTagsIncl: TFindTags;
+    FindTagsExcl: TFindTags;
 
     procedure UpdateOpenFile;
     procedure UpdateFileModifiedState;
@@ -6438,8 +6438,8 @@ begin
   myFindOptions.HiddenNodes:= CB_ResFind_HiddenNodes.Checked;
   myFindOptions.SearchPathInNodeNames:= CB_ResFind_PathInNames.Checked;
   myFindOptions.Pattern := Combo_ResFind.Text;
-  myFindOptions.FindTagsIncl:= fFindTagsIncl;
-  myFindOptions.FindTagsExcl:= fFindTagsExcl;
+  myFindOptions.FindTagsIncl:= FindTagsIncl;
+  myFindOptions.FindTagsExcl:= FindTagsExcl;
   myFindOptions.TagsMetadata:= chkTagsMetad.Checked;
   myFindOptions.TagsText:= chkTagsText.Checked;
   myFindOptions.InheritedTags:= FindOptions.InheritedTags;
@@ -6506,7 +6506,7 @@ end;
 procedure TForm_Main.CheckFindAllEnabled;
 begin
    if CB_LastModifFrom.Enabled or CB_LastModifUntil.Enabled or CB_CreatedFrom.Enabled or CB_CreatedUntil.Enabled or
-      (chkTagsMetad.Checked and ((fFindTagsIncl <> nil) or (fFindTagsExcl <> nil))) then
+      (chkTagsMetad.Checked and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil))) then
       Btn_ResFind.Enabled := true
    else
       Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
@@ -6777,13 +6777,13 @@ end;
 
 procedure TForm_Main.ChangeFindInclToModeOR;
 begin
-   fFindTagsIncl:= FindTagsGetModeOR(fFindTagsIncl);
-   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, fFindTagsIncl);
+   FindTagsIncl:= FindTagsGetModeOR(FindTagsIncl);
+   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, FindTagsIncl);
 end;
 
 procedure TForm_Main.cbTagFindModeChange(Sender: TObject);
 begin
-   if fFindTagsIncl = nil then exit;
+   if FindTagsIncl = nil then exit;
    if (cbTagFindMode.ItemIndex = 1) then
       ChangeFindInclToModeOR
    else begin
@@ -6798,7 +6798,7 @@ procedure TForm_Main.txtTagsInclEnter(Sender: TObject);
 begin
    if CtrlDown then begin
        txtTagsIncl.Text:= '';
-       fFindTagsIncl:= nil;
+       FindTagsIncl:= nil;
    end;
 
    TagMng.StartTxtFindTagIntrod(txtTagsIncl, OnEndFindTagsInclIntrod, OnChangeFindTagsInclIntrod);
@@ -6809,7 +6809,7 @@ begin
    if cbTagFindMode.ItemIndex = 1 then
       ChangeFindInclToModeOR
    else
-      fFindTagsIncl:= FindTags;
+      FindTagsIncl:= FindTags;
 
    CheckFindAllEnabled;
 end;
@@ -6824,7 +6824,7 @@ procedure TForm_Main.txtTagsExclEnter(Sender: TObject);
 begin
    if CtrlDown then begin
        txtTagsExcl.Text:= '';
-       fFindTagsExcl:= nil;
+       FindTagsExcl:= nil;
    end;
 
    TagMng.StartTxtFindTagIntrod(txtTagsExcl, OnEndFindTagsExclIntrod, OnChangeFindTagsExclIntrod);
@@ -6833,8 +6833,8 @@ end;
 
 procedure TForm_Main.OnChangeFindTagsExclIntrod(FindTags: TFindTags);
 begin
-   fFindTagsExcl:= FindTagsGetModeOR(FindTags);
-   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, fFindTagsExcl);
+   FindTagsExcl:= FindTagsGetModeOR(FindTags);
+   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, FindTagsExcl);
    CheckFindAllEnabled;
 end;
 

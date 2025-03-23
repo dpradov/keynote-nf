@@ -800,6 +800,12 @@ begin
                else
                   UpdateEnabledActionsAndRTFState(TKntRichEdit(nil));
          end;
+
+         Form_Main.FindTagsIncl:= nil;
+         Form_Main.FindTagsExcl:= nil;
+         if Form_Main.Ntbk_ResFind.PageIndex = 0 then
+            Form_Main.Btn_ResFlipClick(nil);              // Display the search options panel
+
       except
       end;
    end;
@@ -828,6 +834,13 @@ begin
    ActiveFile:= aFile;
    ActiveFileIsBusy := false;
    AFileIsLoading:= false;
+
+   with Form_Main do
+      if KeyOptions.ResPanelShow and (Pages_Res.ActivePage = ResTab_Find) then begin
+         // Make sure the labels are interpreted according to this file
+         CheckTagsField(txtTagsIncl, FindTagsIncl);
+         CheckTagsField(txtTagsExcl, FindTagsExcl);
+      end;
 end;
 
 procedure TKntApp.TagsUpdated;

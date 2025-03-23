@@ -273,12 +273,14 @@ type
                                   AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
   function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
+  function OpenTagsConcatenated(PosTag, Lo: integer; const TxtPlain: string): boolean;
   function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit;
                               var pBeginBlock, pEndBlock: integer; FoldedBlock: boolean;
                               const WordOpening: string; WordClosing: string;
                               WordOpening_Nested: string = '';
                               IsTag: boolean = false;
-                              IgnoreFoldedBlocks: boolean = True): boolean;
+                              IgnoreFoldedBlocks: boolean = True;
+                              ForFolding: boolean = False): boolean;
 
 
   procedure AddGlossaryTerm;
@@ -1860,6 +1862,63 @@ begin
 end;
 
 
+function OpenTagsConcatenated(PosTag, Lo: integer; const TxtPlain: string): boolean;
+var
+  i: integer;
+  pF, pF2: integer;
+
+begin
+  { In situations like the following one, each these tags will be treated as tag in "open" mode, where
+    its scope begin in the tag (suppose "#Tag1") and end at the position of ##Tag1 or ## or the end of the note
+
+   Something ... #Tag1#Tag2#Tag3: bla, bla, bla
+   ....
+
+   #Tag1 #Tag2 #Tag3
+   ....
+
+   #Tag1,#Tag2, #Tag3:
+   ....
+
+
+   The following will not be considered as "open" tags, but normal tags applying to a paragraph, concatenated
+   (note the absence of ":")
+   Something ... #Tag1#Tag2#Tag3
+
+   Something ... #Tag1 #Tag2, #Tag3
+
+
+  }
+ // PosSS: Initial position of a tag
+ // Lo: Length of the tag, including the # character
+
+  pF  := Pos(':', TxtPlain, PosTag + Lo);
+  pF2 := Pos(#13, TxtPlain, PosTag + Lo);
+  if (pF2 < pF) or (pF = 0) then begin
+     pF:= pF2;
+     i:= NFromLastCharPos(TxtPlain, #13, 1, PosTag);
+     if i <= 0 then
+        i:= 1;
+  end
+  else
+     i:= PosTag + Lo;
+
+  while i < pF do begin
+     while (i < pF) and (TxtPlain[i] in TagCharsDelimWithoutHash) do
+        inc(i);
+
+     if (i < pF) and (TxtPlain[i] <> '#') then
+        exit(false);
+     inc(i);
+     while (i < pF) and not (TxtPlain[i] in TagCharsDelimiters) do
+        inc(i);
+  end;
+
+  Result:= True;
+end;
+
+
+
 { ToDO: Nested open tag blocks
   #ToDO: ....
     ....
@@ -1879,7 +1938,8 @@ function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxR
                             const WordOpening: string; WordClosing: string;
                             WordOpening_Nested: string = '';
                             IsTag: boolean = false;
-                            IgnoreFoldedBlocks: boolean = True): boolean;
+                            IgnoreFoldedBlocks: boolean = True;
+                            ForFolding: boolean = False): boolean;
 var
   p, pI, pF: integer;
   Lo, Lc: integer;
@@ -1890,7 +1950,7 @@ var
   IsValid: boolean;
   CheckWholeWords: boolean;
   ConsiderNestedBlocks: boolean;
-  //IsOpenTag: boolean;           // A tag like #ToDO: (with ":" or inmediateliby before $13), closed with ## (or ##ToDO) or the end of the note
+  //IsOpenTag: boolean;           // A tag like #ToDO: (with ":" or immediately before $13), closed with ## (or ##ToDO) or the end of the note
 
   function WordIsValid (const Word: string; var p: integer): boolean;
   var
@@ -1914,8 +1974,9 @@ var
   var
     SS, SL: integer;
   begin
-      Result:= True;                                    // By default we will assume yes, and check if Editor is provided
+      Result:= False;
       if Editor <> nil then begin
+         Result:= True;
          Editor.BeginUpdate;
          SS:= Editor.SelStart;
          SL:= Editor.SelLength;
@@ -1932,60 +1993,6 @@ var
       end;
   end;
 
-  function OpenTagsConcatenated: boolean;
-  var
-     i: integer;
-     pF, pF2: integer;
-
-  begin
-     { In situations like the following one, each these tags will be treated as tag in "open" mode, where
-       its scope begin in the tag (suppose "#Tag1") and end at the position of ##Tag1 or ## or the end of the note
-
-      Something ... #Tag1#Tag2#Tag3: bla, bla, bla
-      ....
-
-      #Tag1 #Tag2 #Tag3
-      ....
-
-      #Tag1,#Tag2, #Tag3:
-      ....
-
-
-      The following will not considered as "open" tags, but normal tags applying to a paragraph, concatenated
-      (note the absence of ":")
-      Something ... #Tag1#Tag2#Tag3
-
-      Something ... #Tag1 #Tag2, #Tag3
-
-
-     }
-    // PosSS: Initial position of a tag
-    // Lo: Length of the tag, including the # character
-
-     pF  := Pos(':', TxtPlain, PosSS + Lo);
-     pF2 := Pos(#13, TxtPlain, PosSS + Lo);
-     if (pF2 < pF) or (pF = 0) then begin
-        pF:= pF2;
-        i:= NFromLastCharPos(TxtPlain, #13, 1, PosSS);
-     end
-     else
-        i:= PosSS + Lo;
-
-     while i < pF do begin
-        while (i < pF) and (TxtPlain[i] in TagCharsDelimWithoutHash) do
-           inc(i);
-
-        if (i < pF) and (TxtPlain[i] <> '#') then
-           exit(false);
-        inc(i);
-        while (i < pF) and not (TxtPlain[i] in TagCharsDelimiters) do
-           inc(i);
-     end;
-
-     Result:= True;
-  end;
-
-
 begin
    Result:= False;
 
@@ -1993,23 +2000,29 @@ begin
 
    inc(PosSS);   // We are going to work using Pos(...), and strings whose characters start at 1..
 
-   // If WordOpening = '' or is searching for a FoldedBlock -> CheckWholeWords=ConsiderNestedBlocks= False
-   ConsiderNestedBlocks:= True;
-   CheckWholeWords:= not FoldedBlock and (WordOpening <> '');
-
-   if WordClosing = '' then begin
+   if IsTag then begin
       ConsiderNestedBlocks:= False;
-      if WordOpening = '' then
-         WordClosing:= KNT_RTF_END_GENERIC_BLOCK;
+      CheckWholeWords:= False;
+   end
+   else begin
+      // If WordOpening = '' or is searching for a FoldedBlock -> CheckWholeWords=ConsiderNestedBlocks= False
+      ConsiderNestedBlocks:= True;
+      CheckWholeWords:= not FoldedBlock and (WordOpening <> '');
+
+      if WordClosing = '' then begin
+         ConsiderNestedBlocks:= False;
+         if WordOpening = '' then
+            WordClosing:= KNT_RTF_END_GENERIC_BLOCK;
+      end;
+
+      if ConsiderNestedBlocks and (WordOpening_Nested = '') then
+         WordOpening_Nested:= WordOpening;
+
+      // Is the opening token included in the closing token? Ex: "IF" / "END IF". Determine in which position
+      OffsetOpInCl:= 0;
+      if CheckWholeWords then
+         OffsetOpInCl:= Pos(WordOpening, WordClosing, 1);
    end;
-
-   if ConsiderNestedBlocks and (WordOpening_Nested = '') then
-      WordOpening_Nested:= WordOpening;
-
-   // Is the opening token included in the closing token? Ex: "IF" / "END IF". Determine in which position
-   OffsetOpInCl:= 0;
-   if CheckWholeWords then
-      OffsetOpInCl:= Pos(WordOpening, WordClosing, 1);
 
    Lo:= Length(WordOpening);
 
@@ -2021,7 +2034,7 @@ begin
    // ensuring, if necessary, that complete words are located, that the found word is not really
    // a closing word that includes an opening word, and ignoring folded blocks if so indicated.
    if IsTag then begin
-      if OpenTagsConcatenated() then begin
+      if OpenTagsConcatenated(PosSS, Lo, TxtPlain) then begin
          //IsOpenTag:= True;
          pBeginBlock:= PosSS;
          WordClosing:= KNT_RTF_END_TAG;     // '##'
@@ -2121,7 +2134,7 @@ begin
              dec(pF);         // Excluding #13
           pEndBlock:= pF;
 
-          if (pF - pBeginBlock) < 50 then begin
+          if ForFolding and ( (pF - pBeginBlock) < 50) then begin
              p:= Pos(' ', TxtPlain, pBeginBlock);
              if (p >= pF) or ((pF - p) < 10) then
                 pF:= 0;
@@ -2204,10 +2217,13 @@ var
      // SS: Caret position
      // SL: Selection length
 
-     pI:= SS - 1;
      Result:= False;
-     while (pI > 1) and (TxtPlain[pI] in TagCharsDelimWithoutHash) do
+     if SS < 2 then exit;
+
+     pI:= SS;
+     repeat
         dec(pI);
+     until (pI < 1) or (TxtPlain[pI] in TagCharsDelimiters);
 
      if (TxtPlain[pI] = '#') and ((pI <= 1) or (TxtPlain[pI-1] <> '#')) then begin
         Result:= True;
@@ -2217,7 +2233,7 @@ var
         while (pF < L) and not (TxtPlain[pF] in TagCharsDelimiters) do
            inc(pF);
         WordAtPos:= Copy(TxtPlain, pI, pF-pI);
-        SS:= pI;
+        SS:= pI-1;
      end;
   end;
 
@@ -2292,7 +2308,7 @@ begin
             WordAtPos:= WordAtPos.ToUpper;
             ClosingWord:= ClosingWord.ToUpper;
          end;
-         if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True) then exit;
+         if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True, True) then exit;
 
          SetSelection(pI, pF + 1, false);
       end;

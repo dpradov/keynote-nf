@@ -40,7 +40,8 @@ uses
    ComCtrls95,
    TB97Ctls,
 
-   kn_KntFolder
+   kn_KntFolder,
+   knt.model.note
 ;
 
 
@@ -67,6 +68,7 @@ uses
     function CheckResourcePanelVisible( const DoWarn : boolean ) : boolean;
     procedure RecreateResourcePanel;
     procedure FocusResourcePanel;
+    procedure CheckTagsField(Edit: TEdit; FindTags: TFindTags);
 
     procedure SelectStatusbarGlyph( const HaveKntFile : boolean );
     procedure SetFilenameInStatusbar(const FN : string );
@@ -116,7 +118,6 @@ uses
    kn_Main,
    kn_Info,
    kn_Const,
-   knt.model.note,
    kn_Macro,
    kn_Chest,
    kn_EditorUtils,
@@ -807,7 +808,20 @@ begin
 end; // UpdateResPanelState
 
 
+procedure CheckTagsField(Edit: TEdit; FindTags: TFindTags);
+var
+   txt: string;
+begin
+   txt:= Trim(Edit.Text);
+   if (txt <> '') and (txt <> EMPTY_TAGS) and (FindTags = nil) then begin
+      Edit.SetFocus;
+      Form_Main.cbTagFindMode.SetFocus;
+   end;
+end;
+
+
 procedure UpdateResPanelContents (ChangedVisibility: boolean);
+
 begin
   // General idea: do not load all resource panel information
   // when KeyNote starts. Instead, load data only when
@@ -835,7 +849,9 @@ begin
         MMToolsMacroRun.Enabled := ResTab_Macro.TabVisible;
 
         if ( Pages_Res.ActivePage = ResTab_Find ) then begin
-          // nothing to do
+          // Make sure the labels are interpreted according to this file
+           CheckTagsField(txtTagsIncl, FindTagsIncl);
+           CheckTagsField(txtTagsExcl, FindTagsExcl);
         end
         else
         if ( Pages_Res.ActivePage = ResTab_RTF ) then begin

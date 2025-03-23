@@ -595,6 +595,8 @@ const
   KNT_RTF_END_GENERIC_BLOCK = '[.]';
   KNT_RTF_END_TAG = '##';
 
+  EMPTY_TAGS = '#';
+  MAX_SEARCHED_TAGS = 15;                         // Nobody will type more than 15 tags...
 
 type
   TKNTURL = (

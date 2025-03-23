@@ -80,7 +80,7 @@ procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
 procedure RunReplace;
 procedure RunReplaceNext;
 
-function FindTag(const Substr: string; const Str: String; SearchOrigin: integer): integer;
+function FindTag(const Substr: string; const Str: String; SearchOrigin: integer; LenStr: integer = -1): integer;
 procedure ReplaceInNotes(const ToReplace, ReplaceWith: string; TagSearch: boolean; MatchCase: boolean; WholeWordsOnly: boolean);
 
 procedure ClearFindAllResults;
@@ -150,9 +150,44 @@ type
       iWord: integer;
   end;
 
+
+  TSearchTagInclInfo = record
+     TagsOR:     TNoteTagArray;
+     TagsNameOR:  Array of String;
+     InMetadata: boolean;         // Can we ignore it in the in-text search since it is located in the note's metadata?
+     PosI:    integer;
+     PosF:    integer;
+  end;
+
+  TSearchTagExclInfo = record
+     TagName: String;
+     Open:  boolean;
+     Pos:   integer;
+     sI:    integer;           // scope - Initial position
+     sF:    integer;           // scope - Final position
+     sFtag: integer;           // original scope - Final position
+  end;
+
+  TTextInterval = record
+     PosI:    integer;
+     PosF:    integer;
+  end;
+
+  TSearchTagsInclInfo = Array of TSearchTagInclInfo;
+  TSearchTagsExclInfo = Array of TSearchTagExclInfo;
+
 var
   LastWordFollowed: TLastWordFollowed;
   WordInResultSearch: TWordInResultSearch;
+
+  SearchTagsInclInfo: TSearchTagsInclInfo;
+  SearchTagsExclInfo: TSearchTagsExclInfo;
+  NextExcludingTextInterval: TTextInterval;
+  SecondNextExclTextInterval: TTextInterval;
+  NoMoreExclIntervals: boolean;
+
+  NextTextIntervalToConsider: TTextInterval;
+  SecondNextTextIntervalToConsider: TTextInterval;
 
 
 
@@ -284,23 +319,28 @@ end;
 
 // IMPORTANT: Substr is assumed to be in upper case and starts with #. Str is also is assumed to be in upper case
 
-function FindTag(const Substr: string; const Str: String; SearchOrigin: integer): integer;
+function FindTag(const Substr: string; const Str: String; SearchOrigin: integer; LenStr: integer = -1): integer;
 var
    p, pF: integer;
    Found, IncludeClosingTags: boolean;
+   LenPattern: integer;
 begin
    // If a tag is being renamed or removed (replacing it with ""), FindTag must also locate any block closures associated with that tag.
    // Ex: #Tag --> ##Tag.
    IncludeClosingTags:= Is_Replacing;
 
+   LenPattern:= Length(Substr);
+   if LenStr < 0 then
+      LenStr:= Length(Str);
+
    Found:= False;
    p:= SearchOrigin -1;
    repeat
-      p:= Pos(Substr, Str, p + 1);
-      pF:= p + Length(Substr);
+      p:= PosPChar(Substr, Str, p + 1);
+      pF:= p + LenPattern;
       if (p > 0) and
           (IncludeClosingTags or  ((p = 1) or (Str[p-1] <> '#')) ) and
-          ((pF > Length(Str)) or (Str[pF]  in TagCharsDelimiters)) then begin
+          ((pF > LenStr) or (Str[pF]  in TagCharsDelimiters)) then begin
          Found:= True;
       end;
 
@@ -312,7 +352,8 @@ begin
 end;
 
 
-function FindPattern (const Substr: string; const Str: String; SearchOrigin: integer; var SizeInternalHiddenText: integer; IgnoreKNTHiddenMarks: boolean = true): integer;
+function FindPattern (const Substr: string; const Str: String; SearchOrigin: integer; var SizeInternalHiddenText: integer;
+                      IgnoreKNTHiddenMarks: boolean;  ConsiderAllTextInStr: boolean): integer;
 var
 { The search string could contain hidden text corresponding to a used marker (for now only this type of hidden marker)
   as internal KNT link target. This would make it impossible to locate the searched string (currently done with RxRichEdit.FindText)
@@ -366,24 +407,32 @@ var
 begin
     SizeInternalHiddenText:= 0;
 
-    if (Substr = '') or (Str='') then Exit(0);
+    LenPattern:= Length(Substr);
+    if ConsiderAllTextInStr then
+       LenStr := Length(Str)
+    else begin
+       if NextTextIntervalToConsider.PosI > 0 then
+          LenStr := NextTextIntervalToConsider.PosF
+       else
+          LenStr := Length(PChar(Str));
+    end;
+
+    if (Substr = '') or (LenStr=0) then Exit(0);
 
     if FindOptions.TagSearch then begin
-       Result:= FindTag(Substr, Str, SearchOrigin);
+       Result:= FindTag(Substr, Str, SearchOrigin, LenStr);
        exit;
     end;
 
 
-    LenPattern:= Length(Substr);
-    LenStr := Length(Str);
     pH:= 0;
     if IgnoreKNTHiddenMarks then begin
-       pH:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, SearchOrigin);
+       pH:= PosPChar(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, SearchOrigin);
        PPattern:=  @Substr[1];
     end;
 
     repeat
-      p:= Pos(Substr, Str, SearchOrigin);
+      p:= PosPChar(Substr, Str, SearchOrigin);
       
       if FindOptions.WholeWordsOnly and (p > 0) then begin
           if ((p+LenPattern) <= LenStr) and  IsCharAlphaNumeric(Str[p+LenPattern])   then begin
@@ -488,7 +537,7 @@ begin
            if not Dif then
               Exit(posIT)
            else
-              pH:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, posIT +1);
+              pH:= PosPChar(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, posIT +1);
 
         end;
 
@@ -1008,6 +1057,7 @@ var
   TreeNodeToSearchIn : PVirtualNode;
   TreeNodeToSearchIn_AncestorPathLen: integer;
   TextPlain, TextPlainBAK: string;               // TextPlain = TextPlainBAK, in uppercase if not MatchCase
+  TextPlainInUpperCase: string;                  // TextPlain in upper case, to be used if looking for Tags
   TextToFind, PatternInPos1, PatternInPosN: string;
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
   str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize, strBgColor: string;
@@ -1037,7 +1087,10 @@ var
   Paragraph: string;
   PositionsLastLocationAdded: array of integer;
 
-  SearchTagsInMetadata, UseInheritedTags, ConsiderNode: boolean;
+  SearchTagsInText, SearchTagsInMetadata, UseInheritedTags: boolean;
+  ConsiderNode, ConsiderAllTextInNode: boolean;
+  IgnoreWithTagsInText: boolean;
+  IgnoreWithoutTagsInText: boolean;
   InheritedTags: TNoteTagArray;
   iNode: integer;
 
@@ -1424,6 +1477,407 @@ type
              PositionsLastLocationAdded[i]:= -1;
        end;
 
+
+       {
+        Identify the start and end of a new text fragment in the note that meets the Tag criteria (With and/or Without)
+        By default, the FindPatternInText method searches the entire TextToFind, advancing through SearchOrigin.
+        We can replace the TextPlain search with the fragment to search for. Depending on the size of the fragment and the note,
+        it may be convenient to directly use a copy of that fragment, but in general, it seems more convenient to use SearchOrigin,
+        as well as checking that the possible pattern located is within the fragment.
+        In SearchTagsInclInfo, we will have already marked with InMetadata = True those tags in the "With tags" section that have
+        been satisfied by the note's metadata. The remaining missing tags must be searched for in the text. We must keep in mind that
+        there may be tags that respond to an OR condition.
+
+        If tags must be excluded ("Without tags"), then we must ensure that they are not present in the fragments.
+        These tags and their progress will be recorded in SearchTagsExclInfo.
+
+
+        When checking whether a text fragment satisfies the tag conditions, it is important to keep in mind that each tag defines a scope
+        (an interval, with a lower bound and an upper bound for the text it affects) and that this will also depend on whether the tag has been
+        defined "openly" (e.g., #Critical: ) or not, affecting in this last case only the paragraph in which it is located.
+        We will need to look for the "intersection" of these scopes in the case of the "With tags" condition. The specific scopes of each
+        located tag will only need to be identified if there is a possibility of meeting the condition.
+        For example, if the text must meet the tags Tag1 and Tag2, and we locate Tag1, we will not need to identify its scope until we
+        locate at least one instance of Tag2.
+
+        When looking at the intersection between the scopes, those defined by OR tags (in TagsOR) will be added together beforehand,
+        before carrying out the analysis.
+
+
+
+        It seems reasonable that when we decide to exclude text with a certain tag while requiring the presence of other tags, we should
+        most likely be indicating tags to be excluded that are primarily used in open mode. That is, we will want to discard chunks of
+        text marked in this way.
+        If we only ask to exclude certain tags but don't require identifying tags to be considered, then it is more likely that the tag to
+        be excluded will also appear in non-open mode.
+
+        If we only ask to exclude but not to include tags, it is clear that we must directly locate all possible occurrences of those tags
+        to be excluded, processing all the previous intervals we identify that are free of them.
+
+        If we need to consider both tags to be included and those to be excluded, based on the initial assumption, it seems more convenient
+        to start by searching for the possible presence of the tags to be excluded, as they can cancel out large fragments.
+
+
+
+        0->  Get the next closest contiguous range to exclude:
+             Loop through each exclusion tag, acting where no instance has been located.
+             - Find the next instance, noting its location, as well as whether it is used in "open" mode or not.
+
+             Determine the ranges for each instance that are not yet available.
+              - Is it not "open" and do we have a scope already identified, of a non-open type, whose range includes the position of this instance?
+               Yes -> this will have the same scope range -> we can ignore it.
+               No -> Identify the scope by searching for it in the text.
+
+             "Add" (overlap) the identified intervals, obtaining the closest one.
+              - The "addition" can be reflected over any of the participating labels, deleting the other intervals.
+              - Intervals that do not overlap will remain independent, linked to one of their labels.
+
+              In principle, the next exclusive interval to consider will be the interval resulting from the "addition" with the closest lower endpoint.
+              Before using it to "cut" the possible intervals to include (according to "With tags"), we must look for the next exclusive interval.
+              If we don't find it, or it's not contiguous, we will use the one we already have and keep the new one for another iteration.
+              If we find it and it's contiguous, we will "add" it to the previous one and proceed as before, looking for another possible new interval
+              until we don't find it or it's not contiguous.
+
+
+              => Siguiente intervalo contiguo a excluir (NextExcludingTextInterval)
+              => Otro posible intervalo posterior, no contiguo (SecondNextExclTextInterval)
+
+
+        1-> Search for the next instance of each required tag (for which we don't have a pre-calculated range available)
+            noting its location, as well as whether it is used in "open" mode or not.
+              In the case of OR tags with an AND operand (included in SearchTagsInclInfo.TagsOR), the next instance will be searched for individually,
+              but they will be treated together as if they were all the same tag, adding their possible ranges.
+
+        2-> After each located instance, check: Is there already an instance of the other AND tags available?
+           No => Search for an instance of another tag for which one is not yet available.
+                 Is an instance found?
+                 No -> We can give up; no new fragments can be found.
+                 Yes -> Iterate in 2.
+
+           Yes => Identify the range of all those for which we haven't yet determined it.
+               -> Subtract from each interval the possible intersection with the closest adjacent interval to exclude (identified as 0.)
+                     This subtraction can yield up to two intervals for each tag:
+                     TagIncl        TagExcl     =>
+                     [.                             [.]
+                      .              [.                 <----------- 'a'
+                      .               .
+                      .               .]                <----------- 'b'
+                      .                             [.
+                      .]                             .] <----------- 'c'
+
+                   If this happens, we must treat each set of intervals separately, starting with those above 'a'.
+                   Before treating those below 'b', we must ensure that there is no excludable interval before 'c'. At 0, we will have identified
+                   a next contiguous interval to exclude (NextExcludingTextInterval) as well as possibly another non-contiguous interval (SecondNextExclTextInterval).
+
+              -> Intersect the intervals within their respective scopes
+              -> Thus, obtain a possible valid text fragment ([I, F], which will satisfy the "With and/or Without" condition.
+              -> For each AND tag, there may be a remaining interval to continue considering in further iterations. This remainder will be the part
+                 of its interval that extends beyond F.
+
+               *1 For each identified tag, we must always remember the original start of its scope, in addition to the possible
+                  start and end of the interval resulting from the intersection.
+                  This will make it possible to optimize the intersection of tags that are not in "open" mode:
+                   If we have identified the scope of a *non* open tag (let it be [i, f]), any other *non* open tag located at position P will be
+                   known not to intersect if P < i, since P must necessarily be located within the scope of its tag, or in other words, the scope
+                   will not extend beyond P.
+
+
+              Have we obtained a valid text fragment? [I, F], or on the contrary, there was no intersection between all the available
+              intervals for each AND tag.
+
+               Yes -> Have we already identified a valid previous fragment?
+                      No -> We annotate this fragment and search for a possible next fragment --> 1.
+                      Yes -> Are these two fragments contiguous?
+                           Yes -> Merge into one and search for a possible next fragment --> 1.
+                           No  -> Process the previous fragment (perform the necessary text searches on it)
+                               -> Keep only the new fragment and search for a possible next fragment --> 1.
+
+                No -> Have we reached the end of the text?
+                      Yes -> Process the possible previous fragment we have ((perform the necessary text searches on it)). Exit.
+                       No -> - We will keep the most advanced interval, and any other intervals that intersect with it.
+                             - From each interval we keep, we will remove the initial chunks that do not intersect.
+                             - We will iterate over 1 again to look for new instances of those tags for which we have not kept any intervals.
+
+                            Eg:
+                                 Tag1       Tag2     Tag3     Tag4
+                                 [.
+                                  *]                          [*
+                                                               .]
+
+                                                     [.
+                                             [*       *]             - - - - - - - - - - -  "x"
+                                              .
+                                              .]
+
+                            In this example, the most advanced interval is the one corresponding to Tag2, which we keep.
+                            That interval intersects Tag3, which we also keep. But neither Tag1 nor Tag4 intersect Tag2, 
+                            so we discard their available instances and intervals.
+
+                            We'll calculate "x" as the most advanced lower bound. We'll cut all the intervals we keep with this value.
+                            From Tag2, we'll keep its entire interval.
+                            From Tag3, we'll keep only "x" and above.
+
+
+           We should try to optimize some of the following specific cases:
+            - There may be tags to exclude, and these may be open-ended. For example, if, starting from a position, we find something
+              like Tag5: (and Tag5 is to be excluded), it could be that all or a large portion of the rest of the text is being excluded.
+
+            - We can try to search for the presence of two or more tags to be included, and what we find are many occurrences of one of them,
+              but not of the others. If they are not "open" tags, we should be able to cancel some of the instances found.
+
+            Trying to avoid copying fragments to limit searches, instead, although it's not in principle a "recommended" practice, I'll follow 
+            the same principle I used with RemoveKNTHiddenCharactersInRTF, inserting #0 in those positions where I want to "cut" the search,
+            then restoring the correct character.
+            This will require replacing the use of Pos(...) with a method similar to PosPAnsiChar(...) but for PChar (wideChar) -> PosPChar(...)
+            This null-terminator convention is consistent throughout the Windows API, regardless of whether we use ANSI functions ('A' suffix)
+            or Unicode functions ('W' suffix). Delphi itself adds a null character to the end of string content, and indicates in the help
+            regarding the internal format of "Long String Types":
+            "The NULL character at the end of a string memory block is automatically maintained by the compiler and the built-in
+            string handling routines. This makes it possible to typecast a string directly to a null-terminated string""
+                This mechanism, where I modify (insert #0) the string indirectly using pointers, prevents Delphi's shared string protection
+            mechanism from being triggered when attempting to modify a string, since it isn't done through the language's standard operators
+            and methods (such as assignment or string manipulation). Therefore, it prevents Delphi from making a copy of the string, which
+            improves performance. But it also forces us to take responsibility for ensuring that we don't corrupt a string that could be shared by other variables.
+       }
+
+
+
+       procedure IdentifyNextExcludingTextFrag;
+       var
+          i, j: integer;
+          FindTags: TFindTags;
+          p: integer;
+          pI, pF: integer;
+          SelectedInterval: integer;
+          NewTextInterval: TTextInterval;
+
+          procedure IdentifyNotOpenTagsInTheSameParag(FromI: Integer);
+          var
+             j: integer;
+          begin
+             for j:= FromI + 1 to High(SearchTagsExclInfo) do begin
+                 if SearchTagsExclInfo[j].Open then continue;
+                 if (SearchTagsExclInfo[j].sI < 0) and (SearchTagsExclInfo[j].Pos >= SearchTagsExclInfo[FromI].sI) and
+                                                       (SearchTagsExclInfo[j].Pos <= SearchTagsExclInfo[FromI].sF)      then begin
+                     SearchTagsExclInfo[j].sI:= 0;    // => Interval already processed or to be ignored
+                     SearchTagsExclInfo[j].sFtag:= SearchTagsExclInfo[FromI].sFtag;
+                 end;
+             end
+          end;
+
+       begin
+
+           if IgnoreWithoutTagsInText then exit;
+
+         { Although SearchTagsExclInfo[i].sF will initially capture the end of the scope of a found tag, we can modify that value
+           during the interval "sum" operation. Therefore, we will also save the initial scope in .sFtag, which we will not modify there.
+           This will allow us to use it to perform subsequent searches for occurrences of that tag, instead of having to search from the
+           last position found (.Pos). In principle, we could find a tag within the previous scope, but we could ignore it.
+           Eg:   #ToDO:
+                 ...
+                 ... #ToDo
+
+                ##ToDO
+
+          And even, theoretically, something like this would be possible:
+                #ToDO:
+                 ...
+                 ... #ToDO .. ##ToDO ....
+
+           In this case, the first tag, in "open" mode, would end before the second, which would end at the end of the paragraph.
+           But this situation doesn't make any sense. It's better to ignore it and be able to speed up searches, starting from more advanced positions. }
+
+
+          NextExcludingTextInterval.PosI:= 0;
+
+          if SecondNextExclTextInterval.PosI > 0 then begin
+             NextExcludingTextInterval:= SecondNextExclTextInterval;
+             SecondNextExclTextInterval.PosI:= 0;
+          end;
+
+          NewTextInterval.PosI:= 0;
+          repeat
+
+             // Loop through each exclusionary tag, acting where no instance is located
+
+             for i:= 0 to High(SearchTagsExclInfo) do begin
+                if (SearchTagsExclInfo[i].Pos = -1) or (SearchTagsExclInfo[i].sI >= 1) then continue;
+
+                p:= -1;
+                if SearchTagsExclInfo[i].sFtag < Length(TextPlainInUpperCase) then
+                   p:= FindTag(SearchTagsExclInfo[i].TagName, TextPlainInUpperCase, SearchTagsExclInfo[i].sFtag + 1);
+                if p >= 1 then begin
+                   SearchTagsExclInfo[i].Open:= OpenTagsConcatenated(p, Length(SearchTagsExclInfo[i].TagName), TextPlainInUpperCase);
+                   SearchTagsExclInfo[i].Pos:= p;
+                   SearchTagsExclInfo[i].sI := -1;        // -1 => Pending to identify the interval
+                end
+                else begin
+                   SearchTagsExclInfo[i].Pos:= -1;        // -1 => Don't look for this tag in this note anymore.
+                   SearchTagsExclInfo[i].sI := 0;         //  0 => Interval already processed or to be ignored
+                end;
+             end;
+
+             { We will follow the following agreement:
+                  SearchTagsExclInfo[x].sI = < 0 => Pending to identify the interval
+                  SearchTagsExclInfo[x].sI = 0   => Interval already processed or to be ignored
+
+               GetBlockAtPosition(TextPlainInUpperCase, SearchTagsExclInfo[i].Pos-1, ...);  Pos -1 because that method expects positions starting at 0, as is the case with Editor.SelStart
+             }
+
+
+             // Determine the intervals for each instance that are not yet available
+
+             NoMoreExclIntervals:= True;
+
+             for i:= 0 to High(SearchTagsExclInfo) do begin
+                if SearchTagsExclInfo[i].Pos = -1 then continue;
+
+                NoMoreExclIntervals:= False;
+                if (not SearchTagsExclInfo[i].Open) and (SearchTagsExclInfo[i].sI >= 1) then
+                   IdentifyNotOpenTagsInTheSameParag(i);
+             end;
+
+
+             if not NoMoreExclIntervals then begin
+
+                for i:= 0 to High(SearchTagsExclInfo) do begin
+                   if SearchTagsExclInfo[i].sI < 0 then
+                      if GetBlockAtPosition(TextPlainInUpperCase, SearchTagsExclInfo[i].Pos-1, nil, pI, pF, False, SearchTagsExclInfo[i].TagName, '', '', True, False) then begin
+                         SearchTagsExclInfo[i].sI:= pI + 1;
+                         SearchTagsExclInfo[i].sF:= pF + 1;
+                         SearchTagsExclInfo[i].sFtag:= pF + 1;
+
+                         if not SearchTagsExclInfo[i].Open then
+                            IdentifyNotOpenTagsInTheSameParag(i);
+                      end
+                      else
+                         SearchTagsExclInfo[i].Pos:= -1;      // Don't look for this tag in this note anymore.
+                end;
+
+
+                // "Add" (overlap) the identified intervals, obtaining the closest one.
+
+                for i:= 0 to High(SearchTagsExclInfo) do begin
+                   if SearchTagsExclInfo[i].sI <= 0 then continue;
+
+                   for j:= i + 1 to High(SearchTagsExclInfo) do begin
+                      if SearchTagsExclInfo[j].sI <= 0 then continue;
+                      if not ( (SearchTagsExclInfo[i].sF < SearchTagsExclInfo[j].sI) or (SearchTagsExclInfo[i].sI > SearchTagsExclInfo[j].sF) ) then begin
+                         if SearchTagsExclInfo[j].sI < SearchTagsExclInfo[i].sI then
+                            SearchTagsExclInfo[i].sI := SearchTagsExclInfo[j].sI;
+                         if SearchTagsExclInfo[j].sF > SearchTagsExclInfo[i].sF then
+                            SearchTagsExclInfo[i].sF := SearchTagsExclInfo[j].sF;
+
+                         SearchTagsExclInfo[j].sI:= 0;       // Already processed
+                      end;
+
+                   end;
+                end;
+
+                NewTextInterval.PosI:= Integer.MaxValue;
+                SelectedInterval:= -1;
+                for i:= 0 to High(SearchTagsExclInfo) do begin
+                   if SearchTagsExclInfo[i].sI <= 0 then continue;
+
+                   if SearchTagsExclInfo[i].sI < NewTextInterval.PosI then begin
+                      NewTextInterval.PosI:= SearchTagsExclInfo[i].sI;
+                      NewTextInterval.PosF:= SearchTagsExclInfo[i].sF;
+                      SelectedInterval:= i;
+                   end;
+                end;
+
+
+                if SelectedInterval >= 0 then begin
+                   SearchTagsExclInfo[SelectedInterval].sI:= 0;
+
+                   if (NextExcludingTextInterval.PosI = 0) then
+                      NextExcludingTextInterval:= NewTextInterval
+
+                   else
+                   if not ( (NextExcludingTextInterval.PosF < NewTextInterval.PosI) or (NextExcludingTextInterval.PosI > NewTextInterval.PosF) ) then begin
+                      if NewTextInterval.PosI < NextExcludingTextInterval.PosI then
+                         NextExcludingTextInterval.PosI := NewTextInterval.PosI;
+                      if NewTextInterval.PosF > NextExcludingTextInterval.PosF then
+                         NextExcludingTextInterval.PosF := NewTextInterval.PosF;
+                   end
+                   else begin
+                      SecondNextExclTextInterval:= NewTextInterval;
+                      break;
+                   end;
+                end;
+
+             end;
+
+          until NoMoreExclIntervals;
+
+
+       end;
+
+
+
+       procedure IdentifyNextTextFragment;
+       var
+          TextExcludedToTheEnd: boolean;
+       begin
+            if NextTextIntervalToConsider.PosI = 0 then begin
+               NextTextIntervalToConsider.PosI:= 1;
+               NextTextIntervalToConsider.PosF:= Length(TextPlainInUpperCase);
+            end
+            else
+            if (NextTextIntervalToConsider.PosF >= Length(TextPlainInUpperCase)) or
+               (SecondNextTextIntervalToConsider.PosI = 0) then begin
+               NextTextIntervalToConsider.PosI:= 0;
+               exit;
+            end;
+
+            repeat
+               IdentifyNextExcludingTextFrag;
+
+               if SecondNextTextIntervalToConsider.PosI > 0 then begin
+                  NextTextIntervalToConsider:= SecondNextTextIntervalToConsider;
+                  SecondNextTextIntervalToConsider.PosI:= 0;
+               end;
+
+               if NextExcludingTextInterval.PosI > 0 then begin
+                  TextExcludedToTheEnd:= (NextExcludingTextInterval.PosF + 1) >= Length(TextPlainInUpperCase);
+                  NextTextIntervalToConsider.PosF:= NextExcludingTextInterval.PosI -1;
+
+                  if NextTextIntervalToConsider.PosF <= NextTextIntervalToConsider.PosI then begin
+                     // There is no available interval ahead of the excluded interval considered
+                     if not TextExcludedToTheEnd then begin
+                        { But there is something behind it.
+                          We will reflect in NextTextIntervalToConsider the interval after the excluded interval,
+                          and we will iterate to check if it is necessary to cut with any other interval to be excluded.}
+                        NextTextIntervalToConsider.PosI:= NextExcludingTextInterval.PosF + 1;
+                        NextTextIntervalToConsider.PosF:= Length(TextPlainInUpperCase);
+                     end
+                     else begin
+                        // There is also no interval available behind the excluded interval considered
+                        // We will break out without any interval to search (-> PosI := 0)
+                        NextExcludingTextInterval.PosI := 0;
+                        break;
+                     end;
+                  end
+                  else begin
+                     { In NextTextIntervalToConsider, we have prepared a text to use, before the excluded interval,
+                       which we can use to search (=> break;)
+                       Additionally, we will reflect in SecondNextTextIntervalToConsider the interval after the excluded interval, 
+                       which we may need to cut later.}
+                     if not TextExcludedToTheEnd then begin
+                        SecondNextTextIntervalToConsider.PosI:= NextExcludingTextInterval.PosF + 1;
+                        SecondNextTextIntervalToConsider.PosF:= Length(TextPlainInUpperCase);
+                     end;
+                     break;
+                  end;
+               end
+               else
+                  break;
+
+            until false;
+
+       end;
+
+
        procedure FindPatternInText (SearchingInNodeName: boolean; SearchingInNonRTFText: boolean);
        var
           wordidx : integer;
@@ -1435,7 +1889,7 @@ type
               smPhrase :
                   begin
                       repeat
-                         PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1, IgnoreKNTHiddenMarks) -1;
+                         PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1, IgnoreKNTHiddenMarks, ConsiderAllTextInNode) -1;
                          { PatternPos := EditControl.FindText(myFindOptions.Pattern, SearchOrigin, -1, SearchOpts ); }
                          if ( PatternPos >= 0 ) then begin
                              SearchOrigin := PatternPos + PatternLen; // move forward in text
@@ -1512,7 +1966,7 @@ type
                              ReusedWordPos:= true;
                           end
                           else
-                             PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText, IgnoreKNTHiddenMarks) -1;
+                             PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText, IgnoreKNTHiddenMarks, ConsiderAllTextInNode) -1;
                           { PatternPos := EditControl.FindText(thisWord, 0, -1, SearchOpts); }
 
                           if (CurrentDScope <> dsAll) then begin
@@ -1690,6 +2144,133 @@ type
 
        end;
 
+
+       procedure FindPatternInTextFragments (SearchingInNonRTFText: boolean);
+       var
+          CharBAK: Char;
+          P: PChar;
+       begin
+          if TextPlain = '' then exit;
+
+          P:= PChar(@TextPlain[1]);
+
+          repeat
+             IdentifyNextTextFragment;
+             if NextTextIntervalToConsider.PosI = 0 then break;
+
+             CharBAK:= P[NextTextIntervalToConsider.PosF];
+             P[NextTextIntervalToConsider.PosF] := #0;                 // Limit search to the end of the fragment
+
+             SearchOrigin := NextTextIntervalToConsider.PosI - 1;      // Start search from the beginning of the fragment
+             FindPatternInText(False, SearchingInNonRTFText);
+
+             P[NextTextIntervalToConsider.PosF] := CharBAK;
+
+          until false;
+
+       end;
+
+
+  {
+   It's important to keep the necessary information in SearchTagsInclInfo and SearchTagsExclInfo to determine whether or
+   not to consider a certain fragment of text from a note (when, based on the note's metadata, we haven't been able to
+   conclude that we can use the full text).
+   We must differentiate between tags whose presence will exclude the text (FindTagsExcl) and those that must be present
+   for it to be considered (FindTagsIncl) ("With tags").
+
+   We must keep the latter in mind at all times if we need to search for tags in the note's text.
+
+
+   However, we can ignore the former if they are satisfied with the note's metadata (if it is indicated that these must also
+   be considered). For example, if it is indicated that the Critical and Urgent tags are required and these are located in the
+   metadata, we can consider the "With tags" section fulfilled (-> IgnoreWithTagsInText = True).
+   This "With tags" section may have been defined as ANY or ALL. If it is defined as ALL, it is possible that one or more of
+   the required tags have already been found in the note's metadata, but not all of them; in that case, we can completely ignore
+   those already found and focus, when searching for tags within the text, on those not available in the metadata.
+   Even in ALL mode, it has been possible to establish criteria that, as operands, constitute OR expressions.
+
+     Eg: Err* Critical -> ej: (Error|Error.High) & Critical
+
+    If we have found "Error" in the metadata, we would only need to find Critical in the text.
+    If we have NOT found either "Error" or "Error.High" in the metadata, we can manage the detection of both in a single place, 
+    treating either one (Error or Error.High) interchangeably.
+  }
+       procedure PrepareTagsTextFoundInfo;
+       var
+          i, j: integer;
+          FindTags: TFindTags;
+       begin
+          SearchTagsInclInfo:= nil;
+          SearchTagsExclInfo:= nil;
+
+          if not SearchTagsInText then exit;
+
+          FindTags:= myFindOptions.FindTagsIncl;
+          if FindTags <> nil then begin
+             SetLength(SearchTagsInclInfo, Length(FindTags));
+             for i:= 0 to High(FindTags) do begin
+                SetLength(SearchTagsInclInfo[i].TagsNameOR, Length(FindTags[i]));
+                SearchTagsInclInfo[i].TagsOR:= FindTags[i];
+                for j:= 0 to High(FindTags[i]) do
+                    SearchTagsInclInfo[i].TagsNameOR[j]:= '#' + FindTags[i][j].Name.ToUpper;
+             end;
+          end;
+
+          FindTags:= myFindOptions.FindTagsExcl;
+          if FindTags <> nil then begin
+             IgnoreWithoutTagsInText:= False;
+             SetLength(SearchTagsExclInfo, Length(FindTags[0]));
+             for i:= 0 to High(FindTags[0]) do
+                SearchTagsExclInfo[i].TagName:= '#' + FindTags[0][i].Name.ToUpper;
+          end;
+       end;
+
+       procedure CleanTagsTextFoundInfo;
+       var
+         i, j: integer;
+         NEntry: TNoteEntry;
+         NTag: TNoteTag;
+       begin
+         // myNNode: TNoteNode where we are searching, whose tags (metadata) we have verified
+         // InheritedTags: It will have, if applicable, the labels inherited by the node
+
+         // Takes into account IgnoreWithTagsInText.
+         // Tags that we can ignore because they may have been located in the metadata will also be flagged (if AND mode)
+
+          NextTextIntervalToConsider.PosI:= 0;
+          SecondNextTextIntervalToConsider.PosI:= 0;
+          NextExcludingTextInterval.PosI:= 0;
+          SecondNextExclTextInterval.PosI:= 0;
+          NoMoreExclIntervals:= False;
+
+
+          if not IgnoreWithTagsInText then begin
+             NEntry:= myNNode.Note.Entries[0];               //%%%
+
+             for i:= 0 to High(SearchTagsInclInfo) do begin
+                SearchTagsInclInfo[i].PosI:= 0;
+                SearchTagsInclInfo[i].PosF:= 0;
+                for j:= 0 to High(SearchTagsInclInfo[i].TagsOR) do begin
+                   NTag:= SearchTagsInclInfo[i].TagsOR[j];
+                   if NEntry.HasTag(NTag) or TNoteTagArrayUtils.HasTag(InheritedTags, NTag) then begin
+                      SearchTagsInclInfo[i].InMetadata:= True;
+                      break;
+                   end;
+                end;
+             end;
+          end;
+
+
+          for i:= 0 to High(SearchTagsExclInfo) do begin
+             SearchTagsExclInfo[i].Open:= False;
+             SearchTagsExclInfo[i].Pos:= 0;
+             SearchTagsExclInfo[i].sI:= -1;
+             SearchTagsExclInfo[i].sFtag:= 0;
+          end;
+
+       end;
+
+
 begin
   Result:= false;
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
@@ -1701,9 +2282,11 @@ begin
 
 
   with myFindOptions do begin
+     SearchTagsInText:=     TagsText and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil));
      SearchTagsInMetadata:= TagsMetadata and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil));
      UseInheritedTags:=  InheritedTags and SearchTagsInMetadata;
-
+     if SearchTagsInText then
+        PrepareTagsTextFoundInfo;       // -> TagsTextFoundInfo
      SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
   end;
 
@@ -1738,7 +2321,7 @@ begin
   myNNode := nil;
   TreeNodeToSearchIn:= nil;
   TreeNodeToSearchIn_AncestorPathLen:= 0;
-
+  NextTextIntervalToConsider.PosI:= 0;
 
   if myFindOptions.WholeWordsOnly then
     SearchOpts := [stWholeWord]
@@ -1854,8 +2437,26 @@ begin
                 then begin
 
                    // Check Tags in metadata
+
+                  { If the text must also be searched, we can only initially exclude a node based on the presence of a tag
+                    included in FindTagsExcl in its metadata.
+                    The tags that the node has among those required (FindTagsIncl) may be sufficient to consider its entire
+                    text, or they may complement those found in the text. For example, text tagged as Priority and Urgent
+                    may be searched for. The node may be tagged only as Priority, but within it may contain text tagged
+                    as Urgent. It is this text tagged in this way that must be considered.
+                    Therefore, a process is required to identify text fragments that meet the tag criteria.
+
+                    It is from FindPatternInText that all possible instances of the pattern to be searched for are located.
+                    Currently, this method works at all times, considering the entire text of the note
+                    (in TextPlain). If the node does not meet the tagging criteria based on the metadata and text fragments
+                     need to be worked with, this must be done from that method (orchestrated by the new FindPatternInTextFragments method).
+                   }
+
                    ConsiderNode:= True;
+
                    if SearchTagsInMetadata then begin
+                      ConsiderAllTextInNode:= True;
+
                       InheritedTags:= nil;
                       if UseInheritedTags then begin
                          iNode:= TreeUI.ParentNodesWithInheritedTags.IndexOf(myTreeNode.Parent);
@@ -1863,22 +2464,38 @@ begin
                             InheritedTags:= TreeUI.InheritedParentTags[iNode];
                       end;
 
-                      if myFindOptions.FindTagsIncl <> nil then
-                         ConsiderNode:= myNNode.MatchesTags(myFindOptions.FindTagsIncl, InheritedTags);
-
-                      if ConsiderNode and (myFindOptions.FindTagsExcl <> nil) then
+                      if (myFindOptions.FindTagsExcl <> nil) then begin
                          ConsiderNode:= not myNNode.MatchesTags(myFindOptions.FindTagsExcl, InheritedTags);
-                   end;
+                         if SearchTagsInText then
+                            ConsiderAllTextInNode:= False;    // Fragments that may have the tags to be excluded should be ignored.
+                      end;
+
+                      IgnoreWithTagsInText:= True;
+                      if ConsiderNode and (myFindOptions.FindTagsIncl <> nil) then begin
+                         ConsiderNode:= myNNode.MatchesTags(myFindOptions.FindTagsIncl, InheritedTags);
+                         if ConsiderNode then
+                            IgnoreWithTagsInText:= True       // The condition is met with the metadata. It is sufficient.
+                         else
+                         if SearchTagsInText then begin
+                            ConsiderNode:= True;
+                            ConsiderAllTextInNode:= False;
+                            IgnoreWithTagsInText:= False;     // We will have to try to meet the condition by looking at the metadata
+                         end;
+                      end;
+
+                   end
+                   else
+                      ConsiderAllTextInNode:= not SearchTagsInText;
 
 
                    if ConsiderNode then begin
 
-                      if TextToFind = '' then
+                      if (TextToFind = '') and ConsiderAllTextInNode then
                          AddLocation(true, lsNormal, TextToFind, 0)      // => nodeToFilter = False
 
                       else begin
 
-                         if (myFindOptions.SearchScope <> ssOnlyContent) then begin
+                         if (myFindOptions.SearchScope <> ssOnlyContent) and (TextToFind <> '') then begin
                            if myFindOptions.SearchPathInNodeNames then
                               TextPlain:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, true )
                            else
@@ -1899,7 +2516,20 @@ begin
 
                             SearchOrigin := 0;
                             SearchingInNonRTFText:= myNNode.Note.Entries[0].IsPlainTXT;   // ### Entries[0]
-                            FindPatternInText(false, SearchingInNonRTFText);
+
+                            if ConsiderAllTextInNode then
+                                FindPatternInText(false, SearchingInNonRTFText)
+
+                            else begin
+                                if not myFindOptions.MatchCase then
+                                   TextPlainInUpperCase:= TextPlain                    // In upper case, to be used if looking for Tags
+                                else
+                                   TextPlainInUpperCase:=  AnsiUpperCase(TextPlain);
+
+                                CleanTagsTextFoundInfo;
+                                FindPatternInTextFragments(SearchingInNonRTFText);
+                            end;
+
                          end;
                       end;
 
@@ -2016,6 +2646,7 @@ begin
     RTFAux.Free;
     Form_Main.FindAllResults.EndUpdate;
     Form_Main.FindAllResults.ReadOnly:= True;
+    NextTextIntervalToConsider.PosI:= 0;
   end;
 
 end;
@@ -2560,9 +3191,9 @@ begin
             IgnoreKNTHiddenMarks:= NNode.Note.Entries[0].IsRTF;   // ### Entries[0]
 
             if FindOptions.MatchCase then
-               PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks) -1
+               PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks, True) -1
             else
-               PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks) -1;
+               PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks, True) -1;
 
             {
             PatternPos := EditControl.FindText(
@@ -2712,9 +3343,9 @@ begin
 
       repeat
          if FindOptions.MatchCase then
-            PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, True) -1
+            PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, True, True) -1
          else
-            PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, True) -1;
+            PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, True, True) -1;
 
          if PatternPos < 0 then begin
             var Wrap: boolean := FindOptions.Wrap and not Is_ReplacingAll;
@@ -3050,5 +3681,6 @@ Initialization
     ResultsSearch:= TSimpleObjList<TResultSearch>.Create;
     WordInResultSearch:= TWordInResultSearch.Create;
     LastWordFollowed.iResults:= -1;
+    NextTextIntervalToConsider.PosI:= 0;
 
 end.

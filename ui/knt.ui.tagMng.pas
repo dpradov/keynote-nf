@@ -78,9 +78,6 @@ type
   end;
 
 
-const
-  EMPTY_TAGS = '#';
-
 var
   TagMng: TTagMng;
 
@@ -93,6 +90,7 @@ uses VirtualTrees,
      kn_KntFolder,
      knt.ui.editor,
      kn_KntFile,
+     kn_const,
      knt.App,
      knt.RS
      ;
