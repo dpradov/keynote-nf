@@ -151,15 +151,7 @@ type
   end;
 
 
-  TSearchTagInclInfo = record
-     TagsOR:     TNoteTagArray;
-     TagsNameOR:  Array of String;
-     InMetadata: boolean;         // Can we ignore it in the in-text search since it is located in the note's metadata?
-     PosI:    integer;
-     PosF:    integer;
-  end;
-
-  TSearchTagExclInfo = record
+  TSearchTagInfo = record
      TagName: String;
      Open:  boolean;
      Pos:   integer;
@@ -168,23 +160,34 @@ type
      sFtag: integer;           // original scope - Final position
   end;
 
+  TSearchTagsInfo =  Array of TSearchTagInfo;
+
   TTextInterval = record
      PosI:    integer;
      PosF:    integer;
   end;
 
+
+  TTagsORinfo = record
+     TagsInfo:   TSearchTagsInfo;
+     Next:       TTextInterval;   // Considering the "sum" of all OR tags
+     SecondNext: TTextInterval;   //      ,,
+  end;
+
+  TSearchTagInclInfo = record
+     TagsOR:     TNoteTagArray;
+     InMetadata: boolean;         // Can we ignore it in the in-text search since it is located in the note's metadata?
+     TagsORinfo: TTagsORinfo;
+  end;
+
   TSearchTagsInclInfo = Array of TSearchTagInclInfo;
-  TSearchTagsExclInfo = Array of TSearchTagExclInfo;
 
 var
   LastWordFollowed: TLastWordFollowed;
   WordInResultSearch: TWordInResultSearch;
 
   SearchTagsInclInfo: TSearchTagsInclInfo;
-  SearchTagsExclInfo: TSearchTagsExclInfo;
-  NextExcludingTextInterval: TTextInterval;
-  SecondNextExclTextInterval: TTextInterval;
-  NoMoreExclIntervals: boolean;
+  SearchTagsExclInfo: TTagsORinfo;
 
   NextTextIntervalToConsider: TTextInterval;
   SecondNextTextIntervalToConsider: TTextInterval;
@@ -1518,6 +1521,8 @@ type
         to start by searching for the possible presence of the tags to be excluded, as they can cancel out large fragments.
 
 
+        The following is only an approximation of the necessary steps:
+
 
         0->  Get the next closest contiguous range to exclude:
              Loop through each exclusion tag, acting where no instance has been located.
@@ -1539,8 +1544,8 @@ type
               until we don't find it or it's not contiguous.
 
 
-              => Siguiente intervalo contiguo a excluir (NextExcludingTextInterval)
-              => Otro posible intervalo posterior, no contiguo (SecondNextExclTextInterval)
+              => Next contiguous interval to exclude (NextExcludingTextInterval)
+              => Another possible subsequent, non-contiguous interval (SecondNextExclTextInterval)
 
 
         1-> Search for the next instance of each required tag (for which we don't have a pre-calculated range available)
@@ -1641,35 +1646,38 @@ type
        }
 
 
-
-       procedure IdentifyNextExcludingTextFrag;
+       procedure IdentifyNextORTextFrag (var TagsORInfo: TTagsORinfo);
        var
           i, j: integer;
-          FindTags: TFindTags;
           p: integer;
           pI, pF: integer;
           SelectedInterval: integer;
+          NoMoreIntervals: boolean;
           NewTextInterval: TTextInterval;
+          TagsInfo: TSearchTagsInfo;
+
 
           procedure IdentifyNotOpenTagsInTheSameParag(FromI: Integer);
           var
              j: integer;
           begin
-             for j:= FromI + 1 to High(SearchTagsExclInfo) do begin
-                 if SearchTagsExclInfo[j].Open then continue;
-                 if (SearchTagsExclInfo[j].sI < 0) and (SearchTagsExclInfo[j].Pos >= SearchTagsExclInfo[FromI].sI) and
-                                                       (SearchTagsExclInfo[j].Pos <= SearchTagsExclInfo[FromI].sF)      then begin
-                     SearchTagsExclInfo[j].sI:= 0;    // => Interval already processed or to be ignored
-                     SearchTagsExclInfo[j].sFtag:= SearchTagsExclInfo[FromI].sFtag;
+             for j:= FromI + 1 to High(TagsInfo) do begin
+                 if TagsInfo[j].Open then continue;
+                 if (TagsInfo[j].sI < 0) and (TagsInfo[j].Pos >= TagsInfo[FromI].sI) and
+                                             (TagsInfo[j].Pos <= TagsInfo[FromI].sF)      then begin
+                     TagsInfo[j].sI:= 0;    // => Interval already processed or to be ignored
+                     TagsInfo[j].sFtag:= TagsInfo[FromI].sFtag;
                  end;
              end
           end;
 
        begin
 
+           TagsInfo:= TagsORInfo.TagsInfo;
+
            if IgnoreWithoutTagsInText then exit;
 
-         { Although SearchTagsExclInfo[i].sF will initially capture the end of the scope of a found tag, we can modify that value
+         { Although .sF will initially capture the end of the scope of a found tag, we can modify that value
            during the interval "sum" operation. Therefore, we will also save the initial scope in .sFtag, which we will not modify there.
            This will allow us to use it to perform subsequent searches for occurrences of that tag, instead of having to search from the
            last position found (.Pos). In principle, we could find a tag within the previous scope, but we could ignore it.
@@ -1687,88 +1695,87 @@ type
            In this case, the first tag, in "open" mode, would end before the second, which would end at the end of the paragraph.
            But this situation doesn't make any sense. It's better to ignore it and be able to speed up searches, starting from more advanced positions. }
 
+          TagsORInfo.Next.PosI:= 0;
 
-          NextExcludingTextInterval.PosI:= 0;
-
-          if SecondNextExclTextInterval.PosI > 0 then begin
-             NextExcludingTextInterval:= SecondNextExclTextInterval;
-             SecondNextExclTextInterval.PosI:= 0;
+          if TagsORInfo.SecondNext.PosI > 0 then begin
+             TagsORInfo.Next:= TagsORInfo.SecondNext;
+             TagsORInfo.SecondNext.PosI:= 0;
           end;
 
           NewTextInterval.PosI:= 0;
           repeat
 
-             // Loop through each exclusionary tag, acting where no instance is located
+             // Loop through each tag, acting where no instance is located
 
-             for i:= 0 to High(SearchTagsExclInfo) do begin
-                if (SearchTagsExclInfo[i].Pos = -1) or (SearchTagsExclInfo[i].sI >= 1) then continue;
+             for i:= 0 to High(TagsInfo) do begin
+                if (TagsInfo[i].Pos = -1) or (TagsInfo[i].sI >= 1) then continue;
 
                 p:= -1;
-                if SearchTagsExclInfo[i].sFtag < Length(TextPlainInUpperCase) then
-                   p:= FindTag(SearchTagsExclInfo[i].TagName, TextPlainInUpperCase, SearchTagsExclInfo[i].sFtag + 1);
+                if TagsInfo[i].sFtag < Length(TextPlainInUpperCase) then
+                   p:= FindTag(TagsInfo[i].TagName, TextPlainInUpperCase, TagsInfo[i].sFtag + 1);
                 if p >= 1 then begin
-                   SearchTagsExclInfo[i].Open:= OpenTagsConcatenated(p, Length(SearchTagsExclInfo[i].TagName), TextPlainInUpperCase);
-                   SearchTagsExclInfo[i].Pos:= p;
-                   SearchTagsExclInfo[i].sI := -1;        // -1 => Pending to identify the interval
+                   TagsInfo[i].Open:= OpenTagsConcatenated(p, Length(TagsInfo[i].TagName), TextPlainInUpperCase);
+                   TagsInfo[i].Pos:= p;
+                   TagsInfo[i].sI := -1;        // -1 => Pending to identify the interval
                 end
                 else begin
-                   SearchTagsExclInfo[i].Pos:= -1;        // -1 => Don't look for this tag in this note anymore.
-                   SearchTagsExclInfo[i].sI := 0;         //  0 => Interval already processed or to be ignored
+                   TagsInfo[i].Pos:= -1;        // -1 => Don't look for this tag in this note anymore.
+                   TagsInfo[i].sI := 0;         //  0 => Interval already processed or to be ignored
                 end;
              end;
 
              { We will follow the following agreement:
-                  SearchTagsExclInfo[x].sI = < 0 => Pending to identify the interval
-                  SearchTagsExclInfo[x].sI = 0   => Interval already processed or to be ignored
+                  TagsInfo[x].sI = < 0 => Pending to identify the interval
+                  TagsInfo[x].sI = 0   => Interval already processed or to be ignored
 
-               GetBlockAtPosition(TextPlainInUpperCase, SearchTagsExclInfo[i].Pos-1, ...);  Pos -1 because that method expects positions starting at 0, as is the case with Editor.SelStart
+               GetBlockAtPosition(TextPlainInUpperCase, TagsInfo[i].Pos-1, ...);  Pos -1 because that method expects positions starting at 0, as is the case with Editor.SelStart
              }
 
 
              // Determine the intervals for each instance that are not yet available
 
-             NoMoreExclIntervals:= True;
+             NoMoreIntervals:= True;
 
-             for i:= 0 to High(SearchTagsExclInfo) do begin
-                if SearchTagsExclInfo[i].Pos = -1 then continue;
+             for i:= 0 to High(TagsInfo) do begin
+                if TagsInfo[i].Pos = -1 then continue;
 
-                NoMoreExclIntervals:= False;
-                if (not SearchTagsExclInfo[i].Open) and (SearchTagsExclInfo[i].sI >= 1) then
+                NoMoreIntervals:= False;
+                if (not TagsInfo[i].Open) and (TagsInfo[i].sI >= 1) then
                    IdentifyNotOpenTagsInTheSameParag(i);
              end;
 
 
-             if not NoMoreExclIntervals then begin
+             if not NoMoreIntervals then begin
 
-                for i:= 0 to High(SearchTagsExclInfo) do begin
-                   if SearchTagsExclInfo[i].sI < 0 then
-                      if GetBlockAtPosition(TextPlainInUpperCase, SearchTagsExclInfo[i].Pos-1, nil, pI, pF, False, SearchTagsExclInfo[i].TagName, '', '', True, False) then begin
-                         SearchTagsExclInfo[i].sI:= pI + 1;
-                         SearchTagsExclInfo[i].sF:= pF + 1;
-                         SearchTagsExclInfo[i].sFtag:= pF + 1;
+                for i:= 0 to High(TagsInfo) do begin
+                   if TagsInfo[i].sI < 0 then
+                      if GetBlockAtPosition(TextPlainInUpperCase, TagsInfo[i].Pos-1, nil, pI, pF, False, TagsInfo[i].TagName, '', '', True, False) then begin
+                         TagsInfo[i].sI:= pI + 1;
+                         TagsInfo[i].sF:= pF + 1;
+                         TagsInfo[i].sFtag:= pF + 1;
 
-                         if not SearchTagsExclInfo[i].Open then
+                         if not TagsInfo[i].Open then
                             IdentifyNotOpenTagsInTheSameParag(i);
                       end
                       else
-                         SearchTagsExclInfo[i].Pos:= -1;      // Don't look for this tag in this note anymore.
+                         TagsInfo[i].Pos:= -1;      // Don't look for this tag in this note anymore.
                 end;
 
 
                 // "Add" (overlap) the identified intervals, obtaining the closest one.
 
-                for i:= 0 to High(SearchTagsExclInfo) do begin
-                   if SearchTagsExclInfo[i].sI <= 0 then continue;
+                for i:= 0 to High(TagsInfo) do begin
+                   if TagsInfo[i].sI <= 0 then continue;
 
-                   for j:= i + 1 to High(SearchTagsExclInfo) do begin
-                      if SearchTagsExclInfo[j].sI <= 0 then continue;
-                      if not ( (SearchTagsExclInfo[i].sF < SearchTagsExclInfo[j].sI) or (SearchTagsExclInfo[i].sI > SearchTagsExclInfo[j].sF) ) then begin
-                         if SearchTagsExclInfo[j].sI < SearchTagsExclInfo[i].sI then
-                            SearchTagsExclInfo[i].sI := SearchTagsExclInfo[j].sI;
-                         if SearchTagsExclInfo[j].sF > SearchTagsExclInfo[i].sF then
-                            SearchTagsExclInfo[i].sF := SearchTagsExclInfo[j].sF;
+                   for j:= i + 1 to High(TagsInfo) do begin
+                      if TagsInfo[j].sI <= 0 then continue;
+                      if not ( (TagsInfo[i].sF < TagsInfo[j].sI) or (TagsInfo[i].sI > TagsInfo[j].sF) ) then begin
+                         if TagsInfo[j].sI < TagsInfo[i].sI then
+                            TagsInfo[i].sI := TagsInfo[j].sI;
+                         if TagsInfo[j].sF > TagsInfo[i].sF then
+                            TagsInfo[i].sF := TagsInfo[j].sF;
 
-                         SearchTagsExclInfo[j].sI:= 0;       // Already processed
+                         TagsInfo[j].sI:= 0;       // Already processed
                       end;
 
                    end;
@@ -1776,40 +1783,133 @@ type
 
                 NewTextInterval.PosI:= Integer.MaxValue;
                 SelectedInterval:= -1;
-                for i:= 0 to High(SearchTagsExclInfo) do begin
-                   if SearchTagsExclInfo[i].sI <= 0 then continue;
+                for i:= 0 to High(TagsInfo) do begin
+                   if TagsInfo[i].sI <= 0 then continue;
 
-                   if SearchTagsExclInfo[i].sI < NewTextInterval.PosI then begin
-                      NewTextInterval.PosI:= SearchTagsExclInfo[i].sI;
-                      NewTextInterval.PosF:= SearchTagsExclInfo[i].sF;
+                   if TagsInfo[i].sI < NewTextInterval.PosI then begin
+                      NewTextInterval.PosI:= TagsInfo[i].sI;
+                      NewTextInterval.PosF:= TagsInfo[i].sF;
                       SelectedInterval:= i;
                    end;
                 end;
 
 
                 if SelectedInterval >= 0 then begin
-                   SearchTagsExclInfo[SelectedInterval].sI:= 0;
+                   TagsInfo[SelectedInterval].sI:= 0;
 
-                   if (NextExcludingTextInterval.PosI = 0) then
-                      NextExcludingTextInterval:= NewTextInterval
+                   if (TagsORInfo.Next.PosI = 0) then
+                      TagsORInfo.Next:= NewTextInterval
 
                    else
-                   if not ( (NextExcludingTextInterval.PosF < NewTextInterval.PosI) or (NextExcludingTextInterval.PosI > NewTextInterval.PosF) ) then begin
-                      if NewTextInterval.PosI < NextExcludingTextInterval.PosI then
-                         NextExcludingTextInterval.PosI := NewTextInterval.PosI;
-                      if NewTextInterval.PosF > NextExcludingTextInterval.PosF then
-                         NextExcludingTextInterval.PosF := NewTextInterval.PosF;
+                   if not ( (TagsORInfo.Next.PosF < NewTextInterval.PosI) or (TagsORInfo.Next.PosI > NewTextInterval.PosF) ) then begin
+                      if NewTextInterval.PosI < TagsORInfo.Next.PosI then
+                         TagsORInfo.Next.PosI := NewTextInterval.PosI;
+                      if NewTextInterval.PosF > TagsORInfo.Next.PosF then
+                         TagsORInfo.Next.PosF := NewTextInterval.PosF;
                    end
                    else begin
-                      SecondNextExclTextInterval:= NewTextInterval;
+                      TagsORInfo.SecondNext:= NewTextInterval;
                       break;
                    end;
                 end;
 
              end;
 
-          until NoMoreExclIntervals;
+          until NoMoreIntervals;
 
+
+       end;
+
+
+
+       procedure IdentifyNextExcludingTextFrag;
+       begin
+          IdentifyNextORTextFrag(SearchTagsExclInfo);
+       end;
+
+
+
+       procedure IdentifyNextTextFragWithRequiredTags;
+       var
+          i, j: integer;
+          p: integer;
+          NewTextInterval, AndInterval: TTextInterval;
+          NoMoreIntervals: boolean;
+          TagsInfo: TSearchTagsInfo;
+
+       begin
+          NextTextIntervalToConsider.PosI:= 0;
+
+          repeat
+
+             // Process the OR intervals included in each AND operand, obtaining a new one where necessary
+             NewTextInterval.PosI:= 0;
+             NoMoreIntervals:= False;
+             for i:= 0 to High(SearchTagsInclInfo) do begin
+                if (SearchTagsInclInfo[i].InMetadata) then continue;
+                if (SearchTagsInclInfo[i].TagsORinfo.Next.PosI = 0) or
+                   (SearchTagsInclInfo[i].TagsORinfo.Next.PosF < NextTextIntervalToConsider.PosF) then
+                  IdentifyNextORTextFrag(SearchTagsInclInfo[i].TagsORinfo);
+
+                if SearchTagsInclInfo[i].TagsORinfo.Next.PosI = 0 then begin
+                   NoMoreIntervals:= True;
+                   break;   // We can give up; no new fragments can be found for this required tag (or set of tags -OR)
+                end;
+             end;
+
+             if (not NoMoreIntervals) then begin
+                // Calculate the intersection between the AND components
+                // We'll discard everything before the intersection. We'll keep everything after it and process it in further iterations.
+
+                NewTextInterval.PosI:= 1;
+                NewTextInterval.PosF:= Integer.MaxValue;
+
+                for i:= 0 to High(SearchTagsInclInfo) do begin
+                   if (SearchTagsInclInfo[i].InMetadata) then continue;
+                   AndInterval:= SearchTagsInclInfo[i].TagsORinfo.Next;
+                   if AndInterval.PosI > NewTextInterval.PosI then
+                      NewTextInterval.PosI:= AndInterval.PosI;
+
+                   if AndInterval.PosF < NewTextInterval.PosF then
+                      NewTextInterval.PosF:= AndInterval.PosF;
+                end;
+
+                // Keep, in each AND operand (and in each internal OR operand), only the chunks that may lie beyond
+                // the end of the intersection. (or the lowest posF, if there is no intersection between the intervals)
+                for i:= 0 to High(SearchTagsInclInfo) do begin
+                   if (SearchTagsInclInfo[i].InMetadata) then continue;
+                   AndInterval:= SearchTagsInclInfo[i].TagsORinfo.Next;
+                   AndInterval.PosI:= NewTextInterval.PosF;
+                   if AndInterval.PosF <= AndInterval.PosI then begin
+                      SearchTagsInclInfo[i].TagsORinfo.Next:= SearchTagsInclInfo[i].TagsORinfo.SecondNext;
+                      SearchTagsInclInfo[i].TagsORinfo.SecondNext.PosI:= 0;
+                   end;
+
+                   TagsInfo:= SearchTagsInclInfo[i].TagsORinfo.TagsInfo;
+                   for j:= 0 to High(TagsInfo) do begin
+                      if TagsInfo[j].sI = 0 then continue;
+                      TagsInfo[j].sI:= NewTextInterval.PosF;
+                      if TagsInfo[j].sF <= TagsInfo[j].sI then
+                         TagsInfo[j].sI:= 0;
+                   end;
+                end;
+
+
+                if NewTextInterval.PosF > NewTextInterval.PosI then begin
+                   // We have a valid interval
+                   NextTextIntervalToConsider:= NewTextInterval;
+                   break;
+                end
+                else
+                   NextTextIntervalToConsider.PosF:= NewTextInterval.PosF;
+                 { We need to keep iterating, looking for an interval where the condition is met
+                   We don't have a valid interval, but the NextTextIntervalToConsider.PosF value will help us continue searching
+                   from that point on. 
+                   That is, we should only get new fragments for those operands where we don't have intervals beyond that point. }
+
+             end;
+
+          until NoMoreIntervals;
 
        end;
 
@@ -1817,61 +1917,64 @@ type
 
        procedure IdentifyNextTextFragment;
        var
-          TextExcludedToTheEnd: boolean;
+          GetNewNextReqInterv: boolean;
+
        begin
-            if NextTextIntervalToConsider.PosI = 0 then begin
-               NextTextIntervalToConsider.PosI:= 1;
-               NextTextIntervalToConsider.PosF:= Length(TextPlainInUpperCase);
-            end
-            else
-            if (NextTextIntervalToConsider.PosF >= Length(TextPlainInUpperCase)) or
-               (SecondNextTextIntervalToConsider.PosI = 0) then begin
-               NextTextIntervalToConsider.PosI:= 0;
-               exit;
-            end;
 
             repeat
-               IdentifyNextExcludingTextFrag;
-
-               if SecondNextTextIntervalToConsider.PosI > 0 then begin
-                  NextTextIntervalToConsider:= SecondNextTextIntervalToConsider;
-                  SecondNextTextIntervalToConsider.PosI:= 0;
+               if (NextTextIntervalToConsider.PosF >= Length(TextPlainInUpperCase)) or (NextTextIntervalToConsider.PosI = -1) then begin
+                  NextTextIntervalToConsider.PosI:= -1;
+                  exit;
                end;
 
-               if NextExcludingTextInterval.PosI > 0 then begin
-                  TextExcludedToTheEnd:= (NextExcludingTextInterval.PosF + 1) >= Length(TextPlainInUpperCase);
-                  NextTextIntervalToConsider.PosF:= NextExcludingTextInterval.PosI -1;
+               GetNewNextReqInterv:= True;
+               if (SecondNextTextIntervalToConsider.PosI > 0) then begin
+                  NextTextIntervalToConsider:= SecondNextTextIntervalToConsider;
+                  SecondNextTextIntervalToConsider.PosI:= 0;
+                  GetNewNextReqInterv:= False;
+               end;
 
-                  if NextTextIntervalToConsider.PosF <= NextTextIntervalToConsider.PosI then begin
-                     // There is no available interval ahead of the excluded interval considered
-                     if not TextExcludedToTheEnd then begin
-                        { But there is something behind it.
-                          We will reflect in NextTextIntervalToConsider the interval after the excluded interval,
-                          and we will iterate to check if it is necessary to cut with any other interval to be excluded.}
-                        NextTextIntervalToConsider.PosI:= NextExcludingTextInterval.PosF + 1;
-                        NextTextIntervalToConsider.PosF:= Length(TextPlainInUpperCase);
-                     end
-                     else begin
-                        // There is also no interval available behind the excluded interval considered
-                        // We will break out without any interval to search (-> PosI := 0)
-                        NextExcludingTextInterval.PosI := 0;
-                        break;
-                     end;
+               if (SearchTagsExclInfo.Next.PosI = 0) or (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosF) then begin
+                  IdentifyNextExcludingTextFrag;
+                  if SearchTagsExclInfo.Next.PosI = 0 then
+                     SearchTagsExclInfo.Next.PosI:= -1;
+               end;
+
+               if GetNewNextReqInterv then begin
+                  if IgnoreWithTagsInText then begin
+                     NextTextIntervalToConsider.PosI:= NextTextIntervalToConsider.PosF + 1;
+                     NextTextIntervalToConsider.PosF:= Length(TextPlainInUpperCase);
                   end
-                  else begin
-                     { In NextTextIntervalToConsider, we have prepared a text to use, before the excluded interval,
-                       which we can use to search (=> break;)
-                       Additionally, we will reflect in SecondNextTextIntervalToConsider the interval after the excluded interval, 
-                       which we may need to cut later.}
-                     if not TextExcludedToTheEnd then begin
-                        SecondNextTextIntervalToConsider.PosI:= NextExcludingTextInterval.PosF + 1;
-                        SecondNextTextIntervalToConsider.PosF:= Length(TextPlainInUpperCase);
-                     end;
-                     break;
+                  else
+                     IdentifyNextTextFragWithRequiredTags;
+
+                  if NextTextIntervalToConsider.PosI = 0 then begin
+                     NextTextIntervalToConsider.PosI:= -1;
+                     exit;
                   end;
+               end;
+
+
+               if (SearchTagsExclInfo.Next.PosI > 0) and not ( (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosI) or (SearchTagsExclInfo.Next.PosI > NextTextIntervalToConsider.PosF) ) then begin
+
+                  SecondNextTextIntervalToConsider:= NextTextIntervalToConsider;
+                  NextTextIntervalToConsider.PosF:= SearchTagsExclInfo.Next.PosI -1;
+                  SecondNextTextIntervalToConsider.PosI:= SearchTagsExclInfo.Next.PosF +1;
+                  if SecondNextTextIntervalToConsider.PosF <= SecondNextTextIntervalToConsider.PosI then
+                     SecondNextTextIntervalToConsider.PosI:= 0;
+                  if NextTextIntervalToConsider.PosF <= NextTextIntervalToConsider.PosI then begin
+                     if IgnoreWithTagsInText then begin
+                        NextTextIntervalToConsider.PosI:= -1;
+                        exit;
+                     end;
+                     NextTextIntervalToConsider.PosI:= 0;
+                     continue;
+                  end
+                  else
+                     exit;
                end
                else
-                  break;
+                  exit;
 
             until false;
 
@@ -2156,7 +2259,7 @@ type
 
           repeat
              IdentifyNextTextFragment;
-             if NextTextIntervalToConsider.PosI = 0 then break;
+             if NextTextIntervalToConsider.PosI <= 0 then break;
 
              CharBAK:= P[NextTextIntervalToConsider.PosF];
              P[NextTextIntervalToConsider.PosF] := #0;                 // Limit search to the end of the fragment
@@ -2201,7 +2304,7 @@ type
           FindTags: TFindTags;
        begin
           SearchTagsInclInfo:= nil;
-          SearchTagsExclInfo:= nil;
+          SearchTagsExclInfo.TagsInfo:= nil;
 
           if not SearchTagsInText then exit;
 
@@ -2209,19 +2312,19 @@ type
           if FindTags <> nil then begin
              SetLength(SearchTagsInclInfo, Length(FindTags));
              for i:= 0 to High(FindTags) do begin
-                SetLength(SearchTagsInclInfo[i].TagsNameOR, Length(FindTags[i]));
+                SetLength(SearchTagsInclInfo[i].TagsORinfo.TagsInfo, Length(FindTags[i]));
                 SearchTagsInclInfo[i].TagsOR:= FindTags[i];
                 for j:= 0 to High(FindTags[i]) do
-                    SearchTagsInclInfo[i].TagsNameOR[j]:= '#' + FindTags[i][j].Name.ToUpper;
+                    SearchTagsInclInfo[i].TagsORinfo.TagsInfo[j].TagName:= '#' + FindTags[i][j].Name.ToUpper;
              end;
           end;
 
           FindTags:= myFindOptions.FindTagsExcl;
           if FindTags <> nil then begin
              IgnoreWithoutTagsInText:= False;
-             SetLength(SearchTagsExclInfo, Length(FindTags[0]));
+             SetLength(SearchTagsExclInfo.TagsInfo, Length(FindTags[0]));
              for i:= 0 to High(FindTags[0]) do
-                SearchTagsExclInfo[i].TagName:= '#' + FindTags[0][i].Name.ToUpper;
+                SearchTagsExclInfo.TagsInfo[i].TagName:= '#' + FindTags[0][i].Name.ToUpper;
           end;
        end;
 
@@ -2238,21 +2341,26 @@ type
          // Tags that we can ignore because they may have been located in the metadata will also be flagged (if AND mode)
 
           NextTextIntervalToConsider.PosI:= 0;
+          NextTextIntervalToConsider.PosF:= 0;
           SecondNextTextIntervalToConsider.PosI:= 0;
-          NextExcludingTextInterval.PosI:= 0;
-          SecondNextExclTextInterval.PosI:= 0;
-          NoMoreExclIntervals:= False;
+
+          SearchTagsExclInfo.Next.PosI:= 0;
+          SearchTagsExclInfo.SecondNext.PosI:= 0;
 
 
           if not IgnoreWithTagsInText then begin
              NEntry:= myNNode.Note.Entries[0];               //%%%
 
              for i:= 0 to High(SearchTagsInclInfo) do begin
-                SearchTagsInclInfo[i].PosI:= 0;
-                SearchTagsInclInfo[i].PosF:= 0;
                 for j:= 0 to High(SearchTagsInclInfo[i].TagsOR) do begin
                    NTag:= SearchTagsInclInfo[i].TagsOR[j];
-                   if NEntry.HasTag(NTag) or TNoteTagArrayUtils.HasTag(InheritedTags, NTag) then begin
+                   with SearchTagsInclInfo[i].TagsORinfo.TagsInfo[j] do begin
+                      Open:= False;
+                      Pos:= 0;
+                      sI:= -1;
+                      sFtag:= 0;
+                   end;
+                   if SearchTagsInMetadata and (NEntry.HasTag(NTag) or TNoteTagArrayUtils.HasTag(InheritedTags, NTag)) then begin
                       SearchTagsInclInfo[i].InMetadata:= True;
                       break;
                    end;
@@ -2261,11 +2369,13 @@ type
           end;
 
 
-          for i:= 0 to High(SearchTagsExclInfo) do begin
-             SearchTagsExclInfo[i].Open:= False;
-             SearchTagsExclInfo[i].Pos:= 0;
-             SearchTagsExclInfo[i].sI:= -1;
-             SearchTagsExclInfo[i].sFtag:= 0;
+          for i:= 0 to High(SearchTagsExclInfo.TagsInfo) do begin
+             with SearchTagsExclInfo.TagsInfo[i] do begin
+                Open:= False;
+                Pos:= 0;
+                sI:= -1;
+                sFtag:= 0;
+             end;
           end;
 
        end;
@@ -2484,8 +2594,10 @@ begin
                       end;
 
                    end
-                   else
+                   else begin
                       ConsiderAllTextInNode:= not SearchTagsInText;
+                      IgnoreWithTagsInText:= (myFindOptions.FindTagsIncl = nil);
+                   end;
 
 
                    if ConsiderNode then begin
