@@ -192,6 +192,7 @@ var
   NextTextIntervalToConsider: TTextInterval;
   SecondNextTextIntervalToConsider: TTextInterval;
 
+  ExcludedUntilTheEnd: boolean;
 
 
 function RunFindNextInNotes (Is_ReplacingAll: Boolean= False): boolean; forward;
@@ -1655,6 +1656,8 @@ type
           NoMoreIntervals: boolean;
           NewTextInterval: TTextInterval;
           TagsInfo: TSearchTagsInfo;
+          Pointer: PChar;
+          CharBAK: Char;
 
 
           procedure IdentifyNotOpenTagsInTheSameParag(FromI: Integer);
@@ -1702,6 +1705,12 @@ type
              TagsORInfo.SecondNext.PosI:= 0;
           end;
 
+          if ExcludedUntilTheEnd then begin
+             Pointer:= PChar(@TextPlainInUpperCase[1]);
+             CharBAK:= Pointer[SearchTagsExclInfo.Next.PosI - 1];
+             Pointer[SearchTagsExclInfo.Next.PosI -1] := #0;                 // Limit search of Tags to the begin of the excluded fragment
+          end;
+
           NewTextInterval.PosI:= 0;
           repeat
 
@@ -1711,9 +1720,9 @@ type
                 if (TagsInfo[i].Pos = -1) or (TagsInfo[i].sI >= 1) then continue;
 
                 p:= -1;
-                if TagsInfo[i].sFtag < Length(TextPlainInUpperCase) then
+                if (TagsInfo[i].sFtag < Length(TextPlainInUpperCase)) and (not ExcludedUntilTheEnd or (TagsInfo[i].sFtag + 1 < SearchTagsExclInfo.Next.PosI) ) then
                    p:= FindTag(TagsInfo[i].TagName, TextPlainInUpperCase, TagsInfo[i].sFtag + 1);
-                if p >= 1 then begin
+                if (p >= 1) and (not ExcludedUntilTheEnd or (p < SearchTagsExclInfo.Next.PosI)) then begin
                    TagsInfo[i].Open:= OpenTagsConcatenated(p, Length(TagsInfo[i].TagName), TextPlainInUpperCase);
                    TagsInfo[i].Pos:= p;
                    TagsInfo[i].sI := -1;        // -1 => Pending to identify the interval
@@ -1818,6 +1827,9 @@ type
           until NoMoreIntervals;
 
 
+          if ExcludedUntilTheEnd then
+             Pointer[SearchTagsExclInfo.Next.PosI -1] := CharBAK;
+
        end;
 
 
@@ -1918,7 +1930,6 @@ type
        procedure IdentifyNextTextFragment;
        var
           GetNewNextReqInterv: boolean;
-
        begin
 
             repeat
@@ -1937,7 +1948,10 @@ type
                if (SearchTagsExclInfo.Next.PosI = 0) or (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosF) then begin
                   IdentifyNextExcludingTextFrag;
                   if SearchTagsExclInfo.Next.PosI = 0 then
-                     SearchTagsExclInfo.Next.PosI:= -1;
+                     SearchTagsExclInfo.Next.PosI:= -1
+                  else
+                  if SearchTagsExclInfo.Next.PosF + 2 >= Length(TextPlainInUpperCase) then  // + 2: In anticipation of a closing ##Tag with up to one space and line break
+                     ExcludedUntilTheEnd:= True;
                end;
 
                if GetNewNextReqInterv then begin
@@ -2346,6 +2360,7 @@ type
 
           SearchTagsExclInfo.Next.PosI:= 0;
           SearchTagsExclInfo.SecondNext.PosI:= 0;
+          ExcludedUntilTheEnd:= False;
 
 
           if not IgnoreWithTagsInText then begin
