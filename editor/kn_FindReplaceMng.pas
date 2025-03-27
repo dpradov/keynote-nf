@@ -1064,7 +1064,7 @@ var
   TextPlainInUpperCase: string;                  // TextPlain in upper case, to be used if looking for Tags
   TextToFind, PatternInPos1, PatternInPosN: string;
   SizeInternalHiddenText, SizeInternalHiddenTextInPos1: integer;
-  str, s, path, strLocationMatch, strNodeFontSize, strNumberingFontSize, strBgColor: string;
+  str, s, s2, path, strLocationMatch, strNodeFontSize, strNumberingFontSize, strBgColor: string;
   NodeNameInSearch: string;
   widthTwips: integer;
   RTFAux : TAuxRichEdit;
@@ -2617,9 +2617,10 @@ begin
 
                    if ConsiderNode then begin
 
-                      if (TextToFind = '') and ConsiderAllTextInNode then
-                         AddLocation(true, lsNormal, TextToFind, 0)      // => nodeToFilter = False
-
+                      if (TextToFind = '') and ConsiderAllTextInNode then begin
+                         NodeNameInSearch:= myNNode.NoteName;
+                         AddLocation(true, lsNormal, TextToFind, 0);      // => nodeToFilter = False
+                      end
                       else begin
 
                          if (myFindOptions.SearchScope <> ssOnlyContent) and (TextToFind <> '') then begin
@@ -2737,16 +2738,20 @@ begin
                   end;
                   s:= '160';
                   if i = 1 then s:= '60';
-                  str:= str + Format('\pard\li80\sa60\sb%s \trowd\trgaph0%s \intbl {\cf1\b %s{\cf3\fs%s%s }}\cell\row \pard\li120\sb60\sa60 ',
-                                    [s, LastResultCellWidth, Path, strNodeFontSize, strLocationMatch])
+                  s2:= Path;
+                  if (myFindOptions.SearchScope <> ssOnlyNodeName) and not ((TextToFind = '') and not SearchTagsInText) then begin
+                     str:= str + Format('\pard\li80\sa60\sb%s \trowd\trgaph0%s \intbl {\cf1\b %s{\cf3\fs%s%s }}\cell\row \pard\li120\sb60\sa60 ',
+                                     [s, LastResultCellWidth, Path, strNodeFontSize, strLocationMatch]);
+                     s2:= '';
+                  end;
               end;
               s:= i.ToString;
               strBgColor:= '';
               if Location.CaretPos < 0 then   // text found in node name
                  strBgColor:= '\clcbpat4';
 
-              str:= str + Format('\trowd\trgaph0%s%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s\cell\row ',
-                    [strBgColor, LastResultCellWidth, s, strNumberingFontSize, s, Location_List[pred(i)].Params]);
+              str:= str + Format('\trowd\trgaph0%s%s \intbl{\v\''11%s }{\b\fs%s %s.  }%s%s\cell\row ',
+                    [strBgColor, LastResultCellWidth, s, strNumberingFontSize, s, s2, Location_List[pred(i)].Params]);
             end;
 
             str:= str + '}';
