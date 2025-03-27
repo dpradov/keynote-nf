@@ -1922,11 +1922,12 @@ object Form_Main: TForm_Main
         FocusControl = CbFindFoldedMode
       end
       object lblTg2: TLabel
-        Left = 178
+        Left = 175
         Top = 53
-        Width = 21
+        Width = 26
         Height = 13
         Anchors = [akTop, akRight]
+        AutoSize = False
         Caption = 'tags'
         Enabled = False
         FocusControl = CbFindFoldedMode
@@ -1972,7 +1973,7 @@ object Form_Main: TForm_Main
         OnClick = chkFilterOnTagsClick
       end
       object cbTagFilterMode: TComboBox
-        Left = 101
+        Left = 99
         Top = 49
         Width = 71
         Height = 21
