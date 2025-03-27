@@ -6516,9 +6516,12 @@ procedure TForm_Main.CheckTxtTagsEnabled;
 var
   Enable: boolean;
 begin
-  Enable:= chkTagsMetad.Checked or chkTagsText.Checked;
+  Enable:= (chkTagsMetad.Checked or chkTagsText.Checked);
   txtTagsIncl.Enabled:= Enable;
   txtTagsExcl.Enabled:= Enable;
+  lbl8.Enabled:= Enable;
+  lbl9.Enabled:= Enable;
+  cbTagFindMode.Enabled:= Enable;
 end;
 
 
@@ -6771,8 +6774,17 @@ begin
 end;
 
 procedure TForm_Main.RG_ResFind_ScopeClick(Sender: TObject);
+var
+  SS: TSearchScope;
 begin
-  CB_ResFind_PathInNames.Enabled:= ( TSearchScope( RG_ResFind_Scope.ItemIndex ) <> ssOnlyContent );
+  SS:= TSearchScope( RG_ResFind_Scope.ItemIndex );
+  CB_ResFind_PathInNames.Enabled:= ( SS <> ssOnlyContent );
+  if SS = ssOnlyNodeName then begin
+     chkTagsText.Checked:= False;
+     chkTagsText.Enabled:= False;
+  end
+  else
+     chkTagsText.Enabled:= True;
 end;
 
 procedure TForm_Main.ChangeFindInclToModeOR;
