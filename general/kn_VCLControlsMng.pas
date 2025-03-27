@@ -1001,7 +1001,10 @@ begin
             ListBox_ResPlugins.SetFocus
           else
           if ( Pages_Res.ActivePage = ResTab_Favorites ) then
-            ListBox_ResFav.SetFocus;
+            ListBox_ResFav.SetFocus
+          else
+          if ( Pages_Res.ActivePage = ResTab_Tags ) then
+            TVTags.SetFocus;
 
         except
           // nothing
