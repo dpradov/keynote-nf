@@ -1960,7 +1960,7 @@ type
                   GetNewNextReqInterv:= False;
                end;
 
-               if (SearchTagsExclInfo.Next.PosI = 0) or (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosF) then begin
+               if not ExcludedUntilTheEnd and ((SearchTagsExclInfo.Next.PosI = 0) or (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosF)) then begin
                   IdentifyNextExcludingTextFrag;
                   if SearchTagsExclInfo.Next.PosI = 0 then
                      SearchTagsExclInfo.Next.PosI:= -1
@@ -1984,28 +1984,50 @@ type
                end;
 
 
-               if (SearchTagsExclInfo.Next.PosI > 0) and not ( (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosI) or (SearchTagsExclInfo.Next.PosI > NextTextIntervalToConsider.PosF) ) then begin
-
-                  SecondNextTextIntervalToConsider:= NextTextIntervalToConsider;
-                  NextTextIntervalToConsider.PosF:= SearchTagsExclInfo.Next.PosI -1;
-                  SecondNextTextIntervalToConsider.PosI:= SearchTagsExclInfo.Next.PosF +1;
-                  if TextPlainInUpperCase[SecondNextTextIntervalToConsider.PosI] in TagCharsDelimiters then
-                     inc(SecondNextTextIntervalToConsider.PosI);
-                  if SecondNextTextIntervalToConsider.PosF <= SecondNextTextIntervalToConsider.PosI then
-                     SecondNextTextIntervalToConsider.PosI:= 0;
-                  if NextTextIntervalToConsider.PosF <= NextTextIntervalToConsider.PosI then begin
-                     if IgnoreWithTagsInText then begin
-                        NextTextIntervalToConsider.PosI:= -1;
-                        exit;
-                     end;
-                     NextTextIntervalToConsider.PosI:= 0;
-                     continue;
+               if (SearchTagsExclInfo.Next.PosI > 0) then begin
+                  if not ( (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosI) or (SearchTagsExclInfo.Next.PosI > NextTextIntervalToConsider.PosF) ) then begin
+                     { There is an intersection between the exclusion interval and the interval to be considered.
+                       Leave the usable remainder, if any, beyond the interval to be excluded in SecondNextTextIntervalToConsider, 
+                       and the interval preceding the interval to be excluded, if any, in NextTextIntervalToConsider. }
+                     SecondNextTextIntervalToConsider:= NextTextIntervalToConsider;
+                     NextTextIntervalToConsider.PosF:= SearchTagsExclInfo.Next.PosI -1;
+                     SecondNextTextIntervalToConsider.PosI:= SearchTagsExclInfo.Next.PosF +1;
+                     if (SecondNextTextIntervalToConsider.PosI < Length(TextPlainInUpperCase)) and
+                        (TextPlainInUpperCase[SecondNextTextIntervalToConsider.PosI] in TagCharsDelimiters) then
+                        inc(SecondNextTextIntervalToConsider.PosI);
+                     if SecondNextTextIntervalToConsider.PosF <= SecondNextTextIntervalToConsider.PosI then  // There is no usable remainder afterwards
+                        SecondNextTextIntervalToConsider.PosI:= 0;
+                     if NextTextIntervalToConsider.PosF <= NextTextIntervalToConsider.PosI then begin        // There is no usable remainder before
+                        if IgnoreWithTagsInText then begin
+                           NextTextIntervalToConsider.PosI:= -1;        // If there is no With tags condition we will be using the maximum possible interval
+                           exit;                                        // We can exit. The interval to be excluded must necessarily reach the end.
+                        end
+                        else begin
+                           NextTextIntervalToConsider.PosI:= 0;         // We'll look for another possible interval. If we've loaded a later usable
+                           continue;                                    // remainder on SecondNextTextIntervalToConsider, that's the one we'll use.
+                        end;
+                     end
+                     else
+                        exit;                // There is a usable remainder from before -> consume it
                   end
                   else
-                     exit;
+                  if (NextTextIntervalToConsider.PosI > SearchTagsExclInfo.Next.PosF) then begin
+                    { The interval that meets the With conditions is before the last interval to be excluded.
+                      We can't just use it; we have to make sure there are no other exclusionary intervals or that this one is later.
+                      We can't simply iterate from here to the beginning, because we haven't used this interval to be considered yet.
+                      We need to load it first via SecondNextTextIntervalToConsider to reconsider it. }
+                      SecondNextTextIntervalToConsider:= NextTextIntervalToConsider;
+                      NextTextIntervalToConsider.PosI:= 0;
+                      NextTextIntervalToConsider.PosF:= 0;
+                      continue;
+                  end
+                  else
+                      exit;        // The interval to be considered is completely ahead of the interval to be excluded -> consume it
+
+
                end
                else
-                  exit;
+                  exit;       // If there are no more exclusive intervals we can directly use the interval to consider that we have located
 
             until false;
 
@@ -2283,6 +2305,7 @@ type
        var
           CharBAK: Char;
           P: PChar;
+          LenFrag, LenTTF, LenTrimFrag: integer;
        begin
           if TextPlain = '' then exit;
 
@@ -2292,16 +2315,27 @@ type
              IdentifyNextTextFragment;
              if NextTextIntervalToConsider.PosI <= 0 then break;
 
-             CharBAK:= P[NextTextIntervalToConsider.PosF];
-             P[NextTextIntervalToConsider.PosF] := #0;                 // Limit search to the end of the fragment
-
              SearchOrigin := NextTextIntervalToConsider.PosI - 1;      // Start search from the beginning of the fragment
-             if TextToFind <> '' then
-                FindPatternInText(False, SearchingInNonRTFText)
+
+             LenFrag:= NextTextIntervalToConsider.PosF - NextTextIntervalToConsider.PosI + 1;
+             LenTTF:= Length(TextToFind);
+             LenTrimFrag:= LenFrag;
+             if (LenFrag < LenTTF) then
+                continue;
+             if LenFrag < 20 then
+                LenTrimFrag:= Length(Trim(Copy(TextPlain,SearchOrigin,LenFrag)));
+             if (LenTrimFrag < LenTTF) or ((TextToFind = '') and (LenTrimFrag = 0)) then continue;
+
+             if TextToFind <> '' then begin
+                CharBAK:= P[NextTextIntervalToConsider.PosF];
+                P[NextTextIntervalToConsider.PosF] := #0;                 // Limit search to the end of the fragment
+
+                FindPatternInText(False, SearchingInNonRTFText);
+
+                P[NextTextIntervalToConsider.PosF] := CharBAK;
+             end
              else
                 AddLocation(False, lsNormal, TextToFind, NextTextIntervalToConsider.PosI -1, nil, -1, NextTextIntervalToConsider.PosF);
-
-             P[NextTextIntervalToConsider.PosF] := CharBAK;
 
           until false;
 

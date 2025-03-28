@@ -352,6 +352,7 @@ begin
    ActiveFile.NoteTagsTemporalAdded.Clear;
 
    IgnoreTagSubstr:= '';
+   IntroducingTagsState := itNoTags;
    if txtTags.Text = EMPTY_TAGS then
       txtTags.Text:= '';
    txtTags.Color:= clWindow;

@@ -2855,6 +2855,8 @@ begin
              ( activecontrol = Combo_Zoom ) or
              ( activecontrol = Combo_Style ) or
              ( IntroducingTagsState = itWithTagSelector) or
+             ( activecontrol = txtTagsIncl) or
+             ( activecontrol = txtTagsExcl) or
              ( activecontrol.Name = 'txtTags') or
              ( activecontrol.Name = 'txtFilter') then
           begin
