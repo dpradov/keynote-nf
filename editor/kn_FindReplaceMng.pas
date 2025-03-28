@@ -569,6 +569,21 @@ var
 begin
     if (Str='') then Exit('');
 
+    if Pattern = '' then begin
+       if pPos >= 0 then begin
+          len:= 75;
+          if (pR_Extract > 0) and (pPos + len > pR_Extract) then
+              len:= pR_Extract - pPos;
+          Result:= Trim(Copy(Str, pPos+1, len));
+          Result:= StringReplace(Result, #13, '|', []);
+          pR:= Pos(#13, Result, 1);
+          if pR > 0 then
+             Result:= Copy(Result, 1, pR-1);
+       end;
+       exit;
+    end;
+
+
     // pL_Extract, pR_Extract: If they are > 0, they indicate the extremes to try to consider, as far as possible, of the extract to be used.
 
     p2Pos:= integer.MaxValue;
@@ -1974,6 +1989,8 @@ type
                   SecondNextTextIntervalToConsider:= NextTextIntervalToConsider;
                   NextTextIntervalToConsider.PosF:= SearchTagsExclInfo.Next.PosI -1;
                   SecondNextTextIntervalToConsider.PosI:= SearchTagsExclInfo.Next.PosF +1;
+                  if TextPlainInUpperCase[SecondNextTextIntervalToConsider.PosI] in TagCharsDelimiters then
+                     inc(SecondNextTextIntervalToConsider.PosI);
                   if SecondNextTextIntervalToConsider.PosF <= SecondNextTextIntervalToConsider.PosI then
                      SecondNextTextIntervalToConsider.PosI:= 0;
                   if NextTextIntervalToConsider.PosF <= NextTextIntervalToConsider.PosI then begin
@@ -2279,7 +2296,10 @@ type
              P[NextTextIntervalToConsider.PosF] := #0;                 // Limit search to the end of the fragment
 
              SearchOrigin := NextTextIntervalToConsider.PosI - 1;      // Start search from the beginning of the fragment
-             FindPatternInText(False, SearchingInNonRTFText);
+             if TextToFind <> '' then
+                FindPatternInText(False, SearchingInNonRTFText)
+             else
+                AddLocation(False, lsNormal, TextToFind, NextTextIntervalToConsider.PosI -1, nil, -1, NextTextIntervalToConsider.PosF);
 
              P[NextTextIntervalToConsider.PosF] := CharBAK;
 
@@ -2415,7 +2435,7 @@ begin
      SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
   end;
 
-  if (myFindOptions.Pattern = '') and not SearchingByDates and not SearchTagsInMetadata then exit;
+  if (myFindOptions.Pattern = '') and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText) then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
@@ -2504,7 +2524,7 @@ begin
          TextToFind:= wordList[0].word;           // '"Windows 10"' --> 'Windows 10'
       end;
 
-      if (wordcnt = 0) and not SearchingByDates and not SearchTagsInMetadata then begin
+      if (wordcnt = 0) and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText) then begin
          Form_Main.Combo_ResFind.Text:= '';
          Form_Main.Btn_ResFind.Enabled:= False;
          exit;

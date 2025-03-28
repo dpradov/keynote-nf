@@ -6506,7 +6506,7 @@ end;
 procedure TForm_Main.CheckFindAllEnabled;
 begin
    if CB_LastModifFrom.Enabled or CB_LastModifUntil.Enabled or CB_CreatedFrom.Enabled or CB_CreatedUntil.Enabled or
-      (chkTagsMetad.Checked and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil))) then
+      ( (chkTagsMetad.Checked or chkTagsText.Checked) and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil))) then
       Btn_ResFind.Enabled := true
    else
       Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
