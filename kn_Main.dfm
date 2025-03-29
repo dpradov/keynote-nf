@@ -5484,7 +5484,7 @@ object Form_Main: TForm_Main
       ShortCut = 46
       OnClick = TagsMDelClick
     end
-    object MenuItem2: TMenuItem
+    object mi2: TMenuItem
       Caption = '-'
     end
     object TagsMAdd: TMenuItem
@@ -5494,6 +5494,17 @@ object Form_Main: TForm_Main
     object TagsMRemove: TMenuItem
       Caption = '&Remove Tags from selected Notes'
       OnClick = TagsMRemoveClick
+    end
+    object mi3: TMenuItem
+      Caption = '-'
+    end
+    object TagsMExport: TMenuItem
+      Caption = 'Export Tags to file  (Ctrl: selected)'
+      OnClick = TagsMExportClick
+    end
+    object TagsMImport: TMenuItem
+      Caption = 'Import Tags from file'
+      OnClick = TagsMImportClick
     end
   end
   object CheckImages: TImageList

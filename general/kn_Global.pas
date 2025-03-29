@@ -109,6 +109,7 @@ var
 {$ENDIF}
     Glossary_FN : string;
     FoldingBlock_FN : string;
+    Tags_FN : string;              // Common tags file
     NoteHeadingTpl_FN: string;     // Template for note heading, when exporting (notehead.rtf)
     NodeHeadingTpl_FN: string;     // Template for node heading, when exporting (nodehead.rtf)
 
@@ -833,6 +834,7 @@ begin
       Help_FN := ExeFilePath + _KNT_HELP_FILE;
       HelpINI_FN := ExeFilePath + _HELP_PROFILE_FOLDER + 'keynote.ini';
       Launcher_FN := ExeFilePath + _KNT_LAUNCHER;
+      Tags_FN := ExeFilePath + 'Tags.txt';
 
     {$IFDEF KNT_DEBUG}
       // This is always located in .exe directory

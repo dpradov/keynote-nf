@@ -75,6 +75,9 @@ type
     function GetTagSubstr(Txt: string): string;
 
     function GetTextWidth(Str: string; txtEdit: TEdit): integer;
+
+    procedure ExportTagsSelected(SelectedTags: TNoteTagArray);
+    procedure ImportTagsFromFile(FN: string; DisplayErrors: boolean = false);
   end;
 
 
@@ -87,10 +90,13 @@ implementation
 
 uses VirtualTrees,
      gf_miscvcl,
+     gf_misc,
      kn_KntFolder,
      knt.ui.editor,
      kn_KntFile,
      kn_const,
+     kn_info,
+     kn_Global,
      knt.App,
      knt.RS
      ;
@@ -848,6 +854,126 @@ begin
        Hint:= '"' + ConsideredWords + '": ' + #13 + Hint;
     txtEdit.Hint:= Hint;
 end;
+
+{$ENDREGION}
+
+
+// Import - export
+
+{$REGION Import - export }
+
+
+procedure TTagMng.ExportTagsSelected(SelectedTags: TNoteTagArray);
+var
+  i : integer;
+  SL : TStringList;
+  ExportFN : string;
+  ExportALL: boolean;
+  NTag: TNoteTag;
+
+  procedure ExportTag;
+  begin
+     SL.Add(NTag.Name + ' ' + NTag.Description);
+  end;
+
+begin
+   ExportALL:= not CtrlDown;
+   try
+     with Form_Main.SaveDlg do begin
+       Title:= '';
+       Filter := FILTER_TEXTFILES;
+       InitialDir := ExtractFilePath( Application.ExeName );
+       FileName := 'Tags.txt';
+       if ( not Execute ) then exit;
+       ExportFN := FileName;
+     end;
+
+     SL := TStringList.Create;
+     try
+        if ExportALL then
+           for i := 0 to ActiveFile.NoteTagsSorted.Count-1 do begin
+              NTag:= ActiveFile.NoteTagsSorted[i];
+              ExportTag;
+           end
+        else
+           for i := 0 to High(SelectedTags) do begin
+              NTag:= SelectedTags[i];
+              ExportTag;
+           end;
+
+       SL.SaveToFile( ExportFN, TEncoding.UTF8);
+
+     finally
+       SL.Free;
+     end;
+
+ except
+   on E : Exception do
+      App.ErrorPopup(E, GetRS(sTag16));
+ end;
+
+end;
+
+
+
+procedure TTagMng.ImportTagsFromFile(FN: string; DisplayErrors: boolean = false);
+var
+   i, p: integer;
+   str: string;
+   SL: TStringList;
+   TagName, Description: String;
+   NTag: TNoteTag;
+
+begin
+    try
+
+       if FN = '' then begin
+          with Form_Main.OpenDlg do begin
+            Filter := FILTER_TEXTFILES;
+            Title:= GetRS(sTag18);
+            InitialDir := ExtractFilePath( Application.ExeName );
+            FileName := 'Tags.txt';
+            if ( not Execute ) then exit;
+
+            FN:= Filename;
+          end;
+       end;
+
+       if FileExists( FN) then begin
+          SL := TStringList.Create;
+          SL.LoadFromFile (Tags_FN);
+          for i := 0 to SL.Count -1 do begin
+             Str:= SL[i];
+             p:= Pos(' ', Str, 1);
+             if (p > 0) then begin
+                TagName:= Trim(Copy(Str,1,p-1));
+                Description:= Trim(Copy(Str,p+1));
+             end
+             else
+                p:= 9999;
+             TagName:= Trim(Copy(Str,1,p-1));
+
+             NTag:= ActiveFile.GetNTagByName(TagName);
+             if NTag <> nil then begin
+                if NTag.Description <> Description then begin
+                   NTag.Description:= Description;
+                   ActiveFile.Modified := true;
+                end
+             end
+             else
+                NTag:= ActiveFile.AddNTag(TagName, Description);
+
+          end;
+          SL.Free;
+       end;
+
+    except
+      on E : Exception do
+         if DisplayErrors then
+            App.ErrorPopup(E, GetRS(sTag17));
+    end;
+end;
+
 
 {$ENDREGION}
 

@@ -1045,6 +1045,9 @@ const
    sTag13 = 55119;   // OK to REMOVE the %d selected Tags from the %d %s NOTES?
    sTag14 = 55120;   // visible
    sTag15 = 55121;   // selected
+   sTag16 = 55122;   // Error exporting selected Tags:
+   sTag17 = 55123;   // Error importing Tags:
+   sTag18 = 55124;   // Importing Tags from file
 
 
 implementation

@@ -2722,6 +2722,8 @@ Button_OK.Caption=&Close
 55119_knt_RS_sTag13=OK to REMOVE the %d selected Tags from the %d %s NOTES?
 55120_knt_RS_sTag14=visible
 55121_knt_RS_sTag15=selected
-
+55122_knt_RS_sTag16=Error exporting selected Tags:
+55123_knt_RS_sTag17=Error importing Tags:
+55124_knt_RS_sTag18=Importing Tags from file
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

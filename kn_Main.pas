@@ -895,7 +895,7 @@ type
     ResMTagsTab: TMenuItem;
     Menu_Tags: TPopupMenu;
     TagsMCreate: TMenuItem;
-    MenuItem2: TMenuItem;
+    mi2: TMenuItem;
     TagsMEdit: TMenuItem;
     TagsMDel: TMenuItem;
     RTFMTags: TMenuItem;
@@ -921,6 +921,9 @@ type
     lbl4: TLabel;
     chkInhTagsFind: TCheckBox;
     lbl7: TLabel;
+    mi3: TMenuItem;
+    TagsMExport: TMenuItem;
+    TagsMImport: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1341,6 +1344,8 @@ type
     procedure chkTagsMetadClick(Sender: TObject);
     procedure chkTagsTextClick(Sender: TObject);
     procedure cbTagFindModeChange(Sender: TObject);
+    procedure TagsMExportClick(Sender: TObject);
+    procedure TagsMImportClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5774,10 +5779,10 @@ begin
      Node:= TVTags.FocusedNode;
      if Node = nil then exit;
      NTag:= ActiveFile.NoteTagsSorted[Node.Index];
-     if (App.DoMessageBox(Format(GetRS(sTag4), [NTag.Name, MsgRemovingRef]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+     if (App.DoMessageBox(Format(GetRS(sTag4), [NTag.Name, MsgRemovingRef]), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
   end
   else
-  if (App.DoMessageBox(Format(GetRS(sTag5), [MsgRemovingRef]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
+  if (App.DoMessageBox(Format(GetRS(sTag5), [MsgRemovingRef]), mtWarning, [mbYes,mbNo]) <> mrYes) then exit;
 
   RemoveRefInNotesText:= CheckRemovingReferencesInNotesText();
   if RemoveRefInNotesText = mrCancel then exit;
@@ -5811,6 +5816,19 @@ begin
 end;
 
 
+procedure TForm_Main.TagsMExportClick(Sender: TObject);
+begin
+   if (ActiveFile <> nil) and (ActiveFile.NoteTags.Count > 0) then
+      TagMng.ExportTagsSelected(GetTagsSelected);
+end;
+
+
+procedure TForm_Main.TagsMImportClick(Sender: TObject);
+begin
+   if (ActiveFile <> nil) then
+      TagMng.ImportTagsFromFile('', True);
+end;
+
 function CheckConfirmationAddOrRemoveTags(Add: boolean): boolean;
 var
  NumTags, NumNotes: integer;
@@ -5839,7 +5857,7 @@ begin
      else
         Msg:= GetRS(sTag13);  // OK to REMOVE the %n selected Tags from the %n %s NOTES?
 
-     if (App.DoMessageBox(Format(Msg, [NumTags, NumNotes, SelOrVis]) + GetRS(sTree08), mtWarning, [mbYes,mbNo]) = mrYes) then
+     if (App.DoMessageBox(Format(Msg, [NumTags, NumNotes, SelOrVis]), mtWarning, [mbYes,mbNo]) = mrYes) then
         Result:= true;
 
   end;

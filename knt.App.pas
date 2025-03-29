@@ -252,6 +252,7 @@ uses
    kn_LinksMng,
    kn_FindReplaceMng,
    kn_NoteFileMng,
+   knt.ui.TagMng,
    knt.RS;
 
 
@@ -834,6 +835,8 @@ begin
    ActiveFile:= aFile;
    ActiveFileIsBusy := false;
    AFileIsLoading:= false;
+
+   TagMng.ImportTagsFromFile(Tags_FN, True);   // Import common tags (new or modified tags)
 
    with Form_Main do
       if KeyOptions.ResPanelShow and (Pages_Res.ActivePage = ResTab_Find) then begin
