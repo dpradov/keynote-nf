@@ -1442,7 +1442,7 @@ type
                   if (FirstWord <> '') and (FirstWord[Length(FirstWord)] = ':') then
                      delete(FirstWord, Length(FirstWord), 1);
 
-                  if (FirstWord <> '') and IsATag(FirstWord) then
+                  if (FirstWord <> '') and IsAPossibleTag(FirstWord) then
                      exit;
                end;
             end;

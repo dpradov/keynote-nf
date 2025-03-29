@@ -269,6 +269,7 @@ type
                            const SpacesAsWordDelim: boolean= False) : string;
 
   function IsATag(const Word: string): boolean;
+  function IsAPossibleTag(const Word: string): boolean;
   function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString;
                                   AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
@@ -2170,6 +2171,14 @@ begin
 end;
 
 
+function IsAPossibleTag(const Word: string): boolean;
+begin
+  Result:= False;
+  if (Length(Word) >= 2) and (Word[1] = '#') and not (Word[2] in TagCharsDelimiters) then
+     Result:= True;
+end;
+
+
 function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
 var
    i: integer;
@@ -2189,7 +2198,7 @@ begin
      end;
    end;
 
-   if IsATag(OpeningToken) then begin
+   if IsAPossibleTag(OpeningToken) then begin
       Result:= True;
       IsTag:= True;
       CaseSens:= False;
