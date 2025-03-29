@@ -1107,6 +1107,7 @@ var
   PositionsLastLocationAdded: array of integer;
 
   SearchTagsInText, SearchTagsInMetadata, UseInheritedTags: boolean;
+  UsingTags: boolean;
   ConsiderNode, ConsiderAllTextInNode: boolean;
   IgnoreWithTagsInText: boolean;
   IgnoreWithoutTagsInText: boolean;
@@ -2370,11 +2371,17 @@ type
        var
           i, j: integer;
           FindTags: TFindTags;
+          Strs: TStringList;
        begin
           SearchTagsInclInfo:= nil;
           SearchTagsExclInfo.TagsInfo:= nil;
 
           if not SearchTagsInText then exit;
+
+          Strs:= nil;
+          if (myFindOptions.FindTagsInclNotReg <> '') or (myFindOptions.FindTagsExclNotReg <> '') then
+             Strs:= TStringList.Create;
+
 
           FindTags:= myFindOptions.FindTagsIncl;
           if FindTags <> nil then begin
@@ -2386,6 +2393,16 @@ type
                     SearchTagsInclInfo[i].TagsORinfo.TagsInfo[j].TagName:= '#' + FindTags[i][j].Name.ToUpper;
              end;
           end;
+          if (myFindOptions.FindTagsInclNotReg <> '') then begin
+             SplitString(Strs, myFindOptions.FindTagsInclNotReg, ' ', False);
+             j:= Length(FindTags);
+             SetLength(SearchTagsInclInfo, j + Strs.Count);
+             for i:= 0 to Strs.Count - 1 do begin
+                SetLength(SearchTagsInclInfo[i+j].TagsORinfo.TagsInfo, 1);
+                SearchTagsInclInfo[i+j].TagsOR:= nil;
+                SearchTagsInclInfo[i+j].TagsORinfo.TagsInfo[0].TagName:= '#' + Strs[i].ToUpper;
+             end;
+          end;
 
           FindTags:= myFindOptions.FindTagsExcl;
           if FindTags <> nil then begin
@@ -2394,6 +2411,18 @@ type
              for i:= 0 to High(FindTags[0]) do
                 SearchTagsExclInfo.TagsInfo[i].TagName:= '#' + FindTags[0][i].Name.ToUpper;
           end;
+          if (myFindOptions.FindTagsExclNotReg <> '') then begin
+             IgnoreWithoutTagsInText:= False;
+             SplitString(Strs, myFindOptions.FindTagsExclNotReg, ' ', False);
+             j:= Length(SearchTagsExclInfo.TagsInfo);
+             SetLength(SearchTagsExclInfo.TagsInfo, j + Strs.Count);
+             for i:= 0 to Strs.Count - 1 do
+                SearchTagsExclInfo.TagsInfo[i+j].TagName:= '#' + Strs[i].ToUpper;
+          end;
+
+
+          if Strs <> nil then
+             Strs.Free;
        end;
 
        procedure CleanTagsTextFoundInfo;
@@ -2421,15 +2450,17 @@ type
              NEntry:= myNNode.Note.Entries[0];               //%%%
 
              for i:= 0 to High(SearchTagsInclInfo) do begin
-                for j:= 0 to High(SearchTagsInclInfo[i].TagsOR) do begin
-                   NTag:= SearchTagsInclInfo[i].TagsOR[j];
+                NTag:= nil;
+                for j:= 0 to High(SearchTagsInclInfo[i].TagsORinfo.TagsInfo) do begin
+                   if SearchTagsInclInfo[i].TagsOR <> nil then
+                      NTag:= SearchTagsInclInfo[i].TagsOR[j];
                    with SearchTagsInclInfo[i].TagsORinfo.TagsInfo[j] do begin
                       Open:= False;
                       Pos:= 0;
                       sI:= -1;
                       sFtag:= 0;
                    end;
-                   if SearchTagsInMetadata and (NEntry.HasTag(NTag) or TNoteTagArrayUtils.HasTag(InheritedTags, NTag)) then begin
+                   if SearchTagsInMetadata and (NTag <> nil) and (NEntry.HasTag(NTag) or TNoteTagArrayUtils.HasTag(InheritedTags, NTag)) then begin
                       SearchTagsInclInfo[i].InMetadata:= True;
                       break;
                    end;
@@ -2461,8 +2492,9 @@ begin
 
 
   with myFindOptions do begin
-     SearchTagsInText:=     TagsText and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil));
-     SearchTagsInMetadata:= TagsMetadata and ((FindTagsIncl <> nil) or (FindTagsExcl <> nil));
+     UsingTags:= ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsInclNotReg <> '') or (FindTagsExclNotReg <> ''));
+     SearchTagsInText:=     TagsText and UsingTags;
+     SearchTagsInMetadata:= TagsMetadata and UsingTags;
      UseInheritedTags:=  InheritedTags and SearchTagsInMetadata;
      if SearchTagsInText then
         PrepareTagsTextFoundInfo;       // -> TagsTextFoundInfo
@@ -2649,10 +2681,10 @@ begin
                             ConsiderAllTextInNode:= False;    // Fragments that may have the tags to be excluded should be ignored.
                       end;
 
-                      IgnoreWithTagsInText:= True;
+                      IgnoreWithTagsInText:= (myFindOptions.FindTagsInclNotReg = '');
                       if ConsiderNode and (myFindOptions.FindTagsIncl <> nil) then begin
                          ConsiderNode:= myNNode.MatchesTags(myFindOptions.FindTagsIncl, InheritedTags);
-                         if ConsiderNode then
+                         if ConsiderNode and (myFindOptions.FindTagsInclNotReg = '') then
                             IgnoreWithTagsInText:= True       // The condition is met with the metadata. It is sufficient.
                          else
                          if SearchTagsInText then begin
@@ -2665,7 +2697,7 @@ begin
                    end
                    else begin
                       ConsiderAllTextInNode:= not SearchTagsInText;
-                      IgnoreWithTagsInText:= (myFindOptions.FindTagsIncl = nil);
+                      IgnoreWithTagsInText:= (myFindOptions.FindTagsIncl = nil) and (myFindOptions.FindTagsInclNotReg = '');
                    end;
 
 

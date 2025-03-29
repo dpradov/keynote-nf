@@ -771,6 +771,8 @@ type
     TagSearch: boolean;   // Search for a tag (#MyTag). It must meet certain other criteria.
     FindTagsIncl: TFindTags;   // Include text/notes with ALL or ANY of the selected tags
     FindTagsExcl: TFindTags;   // Exclude text/notes with ANY of the selected tags
+    FindTagsInclNotReg: string;
+    FindTagsExclNotReg: string;
     TagsModeOR: boolean;       // Tags include, ¿mode OR? (vs ALL)
     TagsMetadata: boolean;     // Tags will be searched for in the notes' metadata
     TagsText: boolean;         // Tags will be searched for in the notes' text

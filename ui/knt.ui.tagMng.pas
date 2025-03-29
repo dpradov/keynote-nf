@@ -17,8 +17,8 @@ type
   TTagsMode = (tmEdit, tmSearch);
 
   TOnEndEditTagsIntrod = procedure(PressedReturn: boolean) of object;
-  TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; FindTags: TFindTags) of object;
-  TOnChangeFindTagsIntrod = procedure(FindTags: TFindTags) of object;
+  TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string) of object;
+  TOnChangeFindTagsIntrod = procedure(FindTags: TFindTags; FindTagsNotRegistered: string) of object;
 
 
   TTagMng = class
@@ -29,6 +29,7 @@ type
     FOnEndFindTagsIntrod: TOnEndFindTagsIntrod;
     FOnChangeFindTagsIntrod: TOnChangeFindTagsIntrod;
     FOldTxtTagsWndProc: TWndMethod;
+    FAllowNotRegTags: boolean;
 
     FNote: TNote;
     FFolder: TObject;
@@ -50,7 +51,7 @@ type
     procedure NewTxtTagsWndProc(var Msg: TMessage);
 
     procedure CheckBeginOfTag;
-    function CommitIntroducedTags(Ending: boolean): TFindTags;
+    function CommitIntroducedTags(Ending: boolean; var FindTagsNotReg: string): TFindTags;
     function GetCaretPosTag: integer;
     function GetEndOfWord: integer;
 
@@ -61,10 +62,10 @@ type
     destructor Destroy; override;
 
     procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
-    procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod);
+    procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod; AllowNotRegTags:boolean);
     procedure EndedTxtTagIntrod(PressedReturn: boolean);
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
-    procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags);
+    procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string);
 
     procedure CreateTagSelector;
     procedure UpdateTagSelector;
@@ -239,6 +240,8 @@ end;
 procedure TTagMng.EndTagIntroduction;
 var
   NTag: TNoteTag;
+  FindTags: TFindTags;
+  FindTagsNotReg: string;
 begin
    cTagSelector.CloseTagSelector (true);
    if (TagSubstr <> '') and (FTagsMode = tmEdit) then begin
@@ -262,7 +265,8 @@ begin
    else begin
       if (FTagsMode = tmSearch) and assigned(FOnChangeFindTagsIntrod) then begin
          fFindTagsInformed:= txtTags.Text;
-         FOnChangeFindTagsIntrod(CommitIntroducedTags(false));
+         FindTags:= CommitIntroducedTags(false, FindTagsNotReg);
+         FOnChangeFindTagsIntrod(FindTags, FindTagsNotReg);
       end;
    end;
    TagSubstr:= '';
@@ -390,7 +394,7 @@ begin
 end;
 
 
-procedure TTagMng.StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod);
+procedure TTagMng.StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod; AllowNotRegTags:boolean);
 begin
    if TagEdit = txtTags then exit;
 
@@ -399,6 +403,7 @@ begin
    FTagsMode:= tmSearch;
    FOnEndFindTagsIntrod:= OnEndFindTagsIntrod;
    FOnChangeFindTagsIntrod:= OnChangeFindTagsIntrod;
+   FAllowNotRegTags:= AllowNotRegTags;
 end;
 
 
@@ -407,6 +412,10 @@ procedure TTagMng.EndedTxtTagIntrod(PressedReturn: boolean);
 var
   Color: TColor;
   FindTags: TFindTags;
+  FindTagsNotReg: string;
+
+  FOnEndEditTagsIntrodBAK: TOnEndEditTagsIntrod;
+  FOnEndFindTagsIntrodBAK: TOnEndFindTagsIntrod;
 
 begin
    if txtTags <> nil then begin
@@ -415,7 +424,7 @@ begin
 
       cTagSelector.CloseTagSelector(true);
 
-      FindTags:= CommitIntroducedTags(true);
+      FindTags:= CommitIntroducedTags(true, FindTagsNotReg);
 
       if FTagsMode = tmEdit then
          UpdateTxtTagsHint;
@@ -439,14 +448,8 @@ begin
          txtTags.WindowProc := FOldTxtTagsWndProc;
       end;
 
-      if FTagsMode = tmEdit then begin
-         if assigned(FOnEndEditTagsIntrod) then
-             FOnEndEditTagsIntrod(PressedReturn);
-      end
-      else begin
-         if assigned(FOnEndFindTagsIntrod) then
-            FOnEndFindTagsIntrod(PressedReturn, FindTags);
-      end;
+      FOnEndEditTagsIntrodBAK:= FOnEndEditTagsIntrod;
+      FOnEndFindTagsIntrodBAK:= FOnEndFindTagsIntrod;
 
       txtTags:= nil;
       FOnEndEditTagsIntrod:= nil;
@@ -454,6 +457,16 @@ begin
       FOnChangeFindTagsIntrod:= nil;
       FOldTxtTagsWndProc:= nil;
       fFindTagsInformed:= '';
+
+      if FTagsMode = tmEdit then begin
+         if assigned(FOnEndEditTagsIntrodBAK) then
+             FOnEndEditTagsIntrodBAK(PressedReturn);
+      end
+      else begin
+         if assigned(FOnEndFindTagsIntrodBAK) then
+            FOnEndFindTagsIntrodBAK(PressedReturn, FindTags, FindTagsNotReg);
+      end;
+
    end;
 
 end;
@@ -510,11 +523,15 @@ end;
 
 
 procedure TTagMng.CheckBeginOfTag;
+var
+  FindTags: TFindTags;
+  FindTagsNotReg: string;
 begin
   if (IntroducingTagsState = itNoTags) then begin
      if (FTagsMode = tmSearch) and assigned(FOnChangeFindTagsIntrod) and (Trim(txtTags.Text) <> Trim(fFindTagsInformed)) then begin
          fFindTagsInformed:= txtTags.Text;
-         FOnChangeFindTagsIntrod(CommitIntroducedTags(false));
+         FindTags:= CommitIntroducedTags(false, FindTagsNotReg);
+         FOnChangeFindTagsIntrod(FindTags, FindTagsNotReg);
      end;
 
      CaretPosTag:= GetCaretPosTag;
@@ -630,7 +647,7 @@ begin
 end;
 
 
-function TTagMng.CommitIntroducedTags(Ending: boolean): TFindTags;
+function TTagMng.CommitIntroducedTags(Ending: boolean; var FindTagsNotReg: string): TFindTags;
 var
    i, pI, pF: integer;
    Txt, tagName: string;
@@ -709,8 +726,14 @@ var
                SetLength(TagsOR, M);
                for i:= 0 to M - 1 do
                   TagsOR[i]:= NTagsOR[i];
-            end;
+            end
+            else
+               if FAllowNotRegTags then begin
+                  FindTagsNotReg:= FindTagsNotReg + tagName + ' ';
+                  ConsideredWords:= ConsideredWords + TagName + ' ';
+               end;
          end;
+
          if TagsOR <> nil then begin
             ConsideredWords:= ConsideredWords + TagName + ' ';
             inc(N);
@@ -725,6 +748,7 @@ var
 begin
    Result:= nil;
    NTagsOR:= nil;
+   FindTagsNotReg:= '';
 
    try
 
@@ -787,7 +811,7 @@ begin
          Result:= FindTags;
          if Ending then begin
             txtTags.Text:=  ConsideredWords;
-            UpdateTxtFindTagsHint(txtTags, ConsideredWords, FindTags);
+            UpdateTxtFindTagsHint(txtTags, ConsideredWords, FindTags, FindTagsNotReg);
          end;
       end;
 
@@ -820,7 +844,7 @@ begin
 end;
 
 
-procedure TTagMng.UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags);
+procedure TTagMng.UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string);
 var
   Hint: string;
   i, j: integer;
@@ -850,8 +874,10 @@ begin
          SepAND:= ' & ';
       end;
     end;
-    if IncludesORs and (ConsideredWords <> '') then
-       Hint:= '"' + ConsideredWords + '": ' + #13 + Hint;
+    if FindTagsNotReg <> '' then
+       FindTagsNotReg:= ' +¿' +  Trim(FindTagsNotReg) + '?';
+    if (IncludesORs or (FindTagsNotReg <> '')) and (ConsideredWords <> '') then
+       Hint:= '"' + ConsideredWords + '": ' + #13 + Hint + FindTagsNotReg;
     txtEdit.Hint:= Hint;
 end;
 
