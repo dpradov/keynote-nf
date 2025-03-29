@@ -1181,7 +1181,7 @@ begin
     ModifiedOnTreeResized:= False;
     HintsAccesible:= False;
     EditorInfoPanelTop:= False;
-    AutoDiscoverTags:= False;
+    //AutoDiscoverTags:= False;
 
     ImgDefaultStorageMode := smEmbKNT;
     ImgDefaultExternalStorage := issFolder;
@@ -1494,7 +1494,7 @@ begin
       writebool( section, KeyOptionsIniStr.AltMargins, KeyOptions.AltMargins );
       writebool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
       writebool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
-      writebool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
+      //writebool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
 
       writeinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode ));
       writeinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage ));
@@ -1864,7 +1864,7 @@ begin
       KeyOptions.ModifiedOnTreeResized := readbool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
       KeyOptions.HintsAccesible := readbool( section, KeyOptionsIniStr.HintsAccesible, KeyOptions.HintsAccesible );
       KeyOptions.EditorInfoPanelTop := readbool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
-      KeyOptions.AutoDiscoverTags := readbool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
+      //KeyOptions.AutoDiscoverTags := readbool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
 
       KeyOptions.ImgDefaultStorageMode := TImagesStorageMode( readinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode )));
       KeyOptions.ImgDefaultExternalStorage := TImagesExternalStorage( readinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage )));

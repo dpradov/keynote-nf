@@ -5701,6 +5701,7 @@ begin
     end;
 
     { *2
+      ** AutoDiscoverTags: Currently not implemented. It will be assumed as AutoDiscoverTags = False
       If we place the cursor inside or next to an unregistered tag (not visible in the global list of tags)
       and the AutoDiscoverTags option is not enabled, that is, there may be texts recognizable as tags that we do not
       want to register (or it is simply seen as unnecessary to have to search for these possible tags when saving
@@ -5720,7 +5721,8 @@ begin
        TagSubstr:= TagMng.GetTagSubstr(ActiveEditor.GetTextRange(CaretPosTag, CaretPosTag + TAG_MAX_LENGTH) + ' ');
        if TagSubstr <> '' then begin
           IgnoreTagSubstr:= '';                                                                           // *2
-          if (not KeyOptions.AutoDiscoverTags) and (IntroducingTagsState <> itHashTyped) and (ActiveFile.GetNTagByName(TagSubstr) = nil) then
+          if {(not KeyOptions.AutoDiscoverTags) and}
+             (IntroducingTagsState <> itHashTyped) and (ActiveFile.GetNTagByName(TagSubstr) = nil) then
              IgnoreTagSubstr:= TagSubstr;
 
           inc(CaretPosTag);  // CaretPosTag:                v

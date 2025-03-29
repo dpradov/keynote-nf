@@ -5770,10 +5770,12 @@ begin
   }
   MsgRemovingRef:= '';
   RemoveRefInNotesText:= mrNo;
+  {
   if KeyOptions.AutoDiscoverTags then begin
      MsgRemovingRef:= GetRS(sTag9);
      RemoveRefInNotesText:= mrYes;
   end;
+  }
 
   if TVTags.SelectedCount = 1 then begin
      Node:= TVTags.FocusedNode;
