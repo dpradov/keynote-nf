@@ -30,6 +30,7 @@ uses
    Vcl.Forms,
    Vcl.Menus,
    Vcl.Controls,
+   Vcl.StdCtrls,
    Vcl.Dialogs,
 
    VirtualTrees,
@@ -66,7 +67,7 @@ const
    procedure AddSearchModes;
    procedure AddSearchScopes;
    procedure AddSearchChkModes;
-   procedure AddSearchFoldedModes;
+   procedure AddSearchFoldedModes(ComboBox: TComboBox);
 
    function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
@@ -287,17 +288,16 @@ begin
   end;
 end;
 
-procedure AddSearchFoldedModes;
+procedure AddSearchFoldedModes (ComboBox: TComboBox);
 var
    sf : TSearchFoldedMode;
 begin
-  if not assigned(Form_Main) then exit;
-  with Form_Main do begin
-      CbFindFoldedMode.Items.Clear;
-      for sf := low( TSearchFoldedMode ) to high( TSearchFoldedMode ) do
-        CbFindFoldedMode.Items.Add( SEARCH_FOLDEDMODES[sf] );
-      CbFindFoldedMode.ItemIndex := 0;
-  end;
+  if ComboBox = nil then exit;
+
+  ComboBox.Items.Clear;
+  for sf := low( TSearchFoldedMode ) to high( TSearchFoldedMode ) do
+     ComboBox.Items.Add( SEARCH_FOLDEDMODES[sf] );
+  ComboBox.ItemIndex := 0;
 end;
 
 
@@ -489,7 +489,7 @@ begin
       AddSearchModes;
       AddSearchScopes;
       AddSearchChkModes;
-      AddSearchFoldedModes;
+      AddSearchFoldedModes(CbFindFoldedMode);
 
       Form_Chars := nil;
       {                                    // Unncessary with TForm_CharsNew

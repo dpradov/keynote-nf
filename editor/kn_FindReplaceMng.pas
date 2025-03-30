@@ -72,10 +72,32 @@ var
    ResultsSearch: TResultsSearch;
 
 
+type
+  TTextInterval = record
+     PosI:    integer;
+     PosF:    integer;
+  end;
+
+  TNoteFragments = class
+     NumFrag: integer;
+     Fragments: Array of TTextInterval;
+  end;
+  TNoteFragmentsList = TSimpleObjList<TNoteFragments>;
+
+var
+  FoundNodes: TNodeList;
+  FragmentsInNodes: TNoteFragmentsList;
+  Fragments_LastNodeProcessed: PVirtualNode;
+  Fragments_iLastNodeProcessed: integer;
+
+
+
 procedure DoFindNext;
 procedure RunFinder;
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
-function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean): boolean;
+function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean;
+                       OnlyGetlFragmentsInfo: boolean = False;
+                       OnlyCurrentNode: boolean = False): boolean;
 procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
 procedure RunReplace;
 procedure RunReplaceNext;
@@ -162,11 +184,6 @@ type
 
   TSearchTagsInfo =  Array of TSearchTagInfo;
 
-  TTextInterval = record
-     PosI:    integer;
-     PosF:    integer;
-  end;
-
 
   TTagsORinfo = record
      TagsInfo:   TSearchTagsInfo;
@@ -193,6 +210,7 @@ var
   SecondNextTextIntervalToConsider: TTextInterval;
 
   ExcludedUntilTheEnd: boolean;
+
 
 
 function RunFindNextInNotes (Is_ReplacingAll: Boolean= False): boolean; forward;
@@ -1054,7 +1072,9 @@ end;
     See more detailed description in the comment at the beginning of the SearchPatternToSearchWords procedure
 }
 
-function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean): boolean;
+function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean;
+                       OnlyGetlFragmentsInfo: boolean = False;
+                       OnlyCurrentNode: boolean = False): boolean;
 var
   FindDone : boolean;
   Location : TLocation;
@@ -1113,6 +1133,8 @@ var
   IgnoreWithoutTagsInText: boolean;
   InheritedTags: TNoteTagArray;
   iNode: integer;
+
+  FindAllSearch: boolean;          // Excecuted with Find All - Search (in contrast with TreeFilter or OnlyGetIntervalFragments)
 
 type
    TLocationType= (lsNormal, lsNodeName, lsMultimatch);
@@ -1189,8 +1211,34 @@ type
        var
          str, strExtract : string;
          iLast: integer;
+         NoteFrags: TNoteFragments;
 
        begin
+
+          if OnlyGetlFragmentsInfo then begin
+             if not assigned(myTreeNode) then exit;
+             if Fragments_LastNodeProcessed <> myTreeNode then begin
+                if Fragments_LastNodeProcessed <> nil then begin
+                   NoteFrags:= FragmentsInNodes[Fragments_iLastNodeProcessed];
+                   SetLength(NoteFrags.Fragments, NoteFrags.NumFrag);
+                end;
+                Fragments_iLastNodeProcessed:= FoundNodes.Add(myTreeNode);
+                Fragments_LastNodeProcessed := myTreeNode;
+                NoteFrags:= TNoteFragments.Create;
+                NoteFrags.NumFrag:= 0;
+                SetLength(NoteFrags.Fragments, 10);
+                FragmentsInNodes.Add(NoteFrags);
+             end;
+             NoteFrags:= FragmentsInNodes[Fragments_iLastNodeProcessed];
+             inc(NoteFrags.NumFrag);
+             if NoteFrags.NumFrag > Length(NoteFrags.Fragments) then
+                SetLength(NoteFrags.Fragments, Length(NoteFrags.Fragments) + 10);
+
+             NoteFrags.Fragments[NoteFrags.NumFrag-1].PosI:= PatternPos;
+             NoteFrags.Fragments[NoteFrags.NumFrag-1].PosF:= pR_Extract;
+             exit;
+          end;
+
           Location := TLocation.Create;
           Location.FolderID := myFolder.ID;
           Location.Folder:= myFolder;
@@ -1279,7 +1327,7 @@ type
 
           if assigned( myTreeNode ) then begin
              if not TV.IsVisible[myTreeNode] and (not myFindOptions.HiddenNodes) then
-               myTreeNode := TV.GetNextNotHidden(myTreeNode, TreeFilter);
+               myTreeNode := TV.GetNextNotHidden(myTreeNode, not FindAllSearch);
 
              myTreeNode:= EnsureCheckMode(myTreeNode);
           end;
@@ -1295,7 +1343,7 @@ type
           if myFindOptions.HiddenNodes then     // [dpv]
              myTreeNode := TV.GetNext(myTreeNode)
           else
-             myTreeNode := TV.GetNextNotHidden(myTreeNode, TreeFilter);
+             myTreeNode := TV.GetNextNotHidden(myTreeNode, not FindAllSearch);
 
           myTreeNode:= EnsureCheckMode(myTreeNode);
 
@@ -1305,18 +1353,24 @@ type
               myTreeNode := nil;
               exit;
           end;
-
        end;
 
        procedure GetNextFolder;
        begin
           if myFindOptions.AllTabs then begin
-             inc( noteidx );
+             repeat
+                inc( noteidx );
+                if ( noteidx >= ActiveFile.FolderCount ) then
+                   FindDone := true;
 
-             if ( noteidx >= ActiveFile.FolderCount ) then
-                FindDone := true
-             else begin
-                myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);
+                if not FindDone then begin
+                   myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);
+                   if not OnlyGetlFragmentsInfo or (myFolder.Info = 1) then break;
+                end;
+             until FindDone;
+
+             if not FindDone then begin
+                //myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);
                 TreeUI:= myFolder.TreeUI;
                 TV:= TreeUI.TV;
 
@@ -2336,7 +2390,7 @@ type
                 P[NextTextIntervalToConsider.PosF] := CharBAK;
              end
              else
-                AddLocation(False, lsNormal, TextToFind, NextTextIntervalToConsider.PosI -1, nil, -1, NextTextIntervalToConsider.PosF);
+                AddLocation(False, lsNormal, TextToFind, NextTextIntervalToConsider.PosI -1, nil, -1, NextTextIntervalToConsider.PosF -1);
 
           until false;
 
@@ -2485,11 +2539,12 @@ begin
   Result:= false;
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveFolder )) then exit;
-  if ( ActiveFileIsBusy or SearchInProgress ) then exit;
+  if ( (ActiveFileIsBusy and not OnlyGetlFragmentsInfo) or SearchInProgress ) then exit;
 
   myFindOptions.Pattern := trim( myFindOptions.Pattern ); // leading and trailing blanks need to be stripped
   PreprocessTextPattern(myFindOptions);
 
+  FindAllSearch:= not (TreeFilter or OnlyGetlFragmentsInfo);
 
   with myFindOptions do begin
      UsingTags:= ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsInclNotReg <> '') or (FindTagsExclNotReg <> ''));
@@ -2501,7 +2556,7 @@ begin
      SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
   end;
 
-  if (myFindOptions.Pattern = '') and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText) then exit;
+  if (myFindOptions.Pattern = '') and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText ) then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
@@ -2555,7 +2610,7 @@ begin
   LastResultCellWidth:= '';
   SearchInProgress := true;
   screen.Cursor := crHourGlass;
-  if not TreeFilter  then begin
+  if FindAllSearch  then begin
      Form_Main.FindAllResults.ReadOnly:= False;
      Form_Main.FindAllResults.Clear;
   end;
@@ -2570,7 +2625,7 @@ begin
 
   try
     try
-      if not TreeFilter  then begin
+      if FindAllSearch  then begin
          ClearLocationList( Location_List );
          ClearResultsSearch;
          Form_Main.LblFindAllNumResults.Caption:= '';
@@ -2579,7 +2634,7 @@ begin
       SearchPatternToSearchWords (wordList, TextToFind, myFindOptions);
       SetLength(PositionsLastLocationAdded, wordList.Count);
 
-      if TreeFilter then
+      if not FindAllSearch then
          myFindOptions.EmphasizedSearch:= esNone;
 
 
@@ -2596,6 +2651,19 @@ begin
          exit;
       end;
       SearchModeToApply := myFindOptions.SearchMode;
+
+
+      if OnlyGetlFragmentsInfo then begin
+         if FoundNodes <> nil then
+            FoundNodes.Clear;
+         if FragmentsInNodes <> nil then
+            FragmentsInNodes.Clear;
+         FoundNodes:= TNodeList.Create;
+         FragmentsInNodes:= TNoteFragmentsList.Create;
+         Fragments_LastNodeProcessed:= nil;
+         Fragments_iLastNodeProcessed:= -1;
+      end;
+
 
       if myFindOptions.AllTabs then
          myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject) // initially 0
@@ -2759,6 +2827,9 @@ begin
                    end;
                 end;
 
+                if OnlyCurrentNode then
+                   break;
+
                 GetNextNode;
 
             until UserBreak or not assigned(myTreeNode);
@@ -2776,13 +2847,16 @@ begin
                myTreeNode:= nil;
             end;
 
+            if OnlyCurrentNode then
+               break;
+
             while (not UserBreak) and ((not FindDone) and (not assigned(myTreeNode))) do
                GetNextFolder();
 
       until FindDone or UserBreak;
 
 
-      if not TreeFilter  then begin
+      if FindAllSearch  then begin
          MatchCount := Location_List.Count;
          Form_Main.LblFindAllNumResults.Caption:= '  ' + MatchCount.ToString + GetRS(sFnd13);
          str:=
@@ -3900,5 +3974,6 @@ Initialization
     WordInResultSearch:= TWordInResultSearch.Create;
     LastWordFollowed.iResults:= -1;
     NextTextIntervalToConsider.PosI:= 0;
-
+    FoundNodes:= nil;
+    FragmentsInNodes:= nil;
 end.

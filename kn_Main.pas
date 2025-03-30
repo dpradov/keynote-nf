@@ -1828,6 +1828,8 @@ begin
   Application.OnDeactivate := AppDeactivate;
   // FolderMon.onChange := FolderMonChange;
 
+  TagMng.CreateTagSelector;
+
   Log_StoreTick( 'FormActivate - End', 1, -1 );
 
 end; // ACTIVATE

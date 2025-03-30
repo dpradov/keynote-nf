@@ -83,7 +83,7 @@ begin
    Font.Name := 'Tahoma';
    Font.Size:= 10;
 
-   TV:= TVirtualStringTree.Create(Form_Main);
+   TV:= TVirtualStringTree.Create(AOwner);
    with TV do begin
      Parent:= Self;
      BorderStyle:= bsNone;

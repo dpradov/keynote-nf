@@ -46,7 +46,8 @@ uses
    kn_Info,
    kn_KntFile,
    kn_KntFolder,
-   kn_LinksMng
+   kn_LinksMng,
+   knt.model.note
    ;
 
 
@@ -117,6 +118,15 @@ type
     btnPageSetup: TButton;
     CB_NoteNewPg: TCheckBox;
     CB_FolderNewFile: TCheckBox;
+    lbl8: TLabel;
+    lbl9: TLabel;
+    lbl4: TLabel;
+    txtTagsIncl: TEdit;
+    cbTagFindMode: TComboBox;
+    txtTagsExcl: TEdit;
+    chkTagsMetad: TCheckBox;
+    chkTagsText: TCheckBox;
+    chkInhTagsFind: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -137,6 +147,11 @@ type
     procedure btnPageSetupClick(Sender: TObject);
 
     procedure CtrlUI_Changed(Sender: TObject);
+    procedure chkTagsMetadClick(Sender: TObject);
+    procedure chkTagsTextClick(Sender: TObject);
+    procedure txtTagsInclEnter(Sender: TObject);
+    procedure txtTagsExclEnter(Sender: TObject);
+    procedure cbTagFindModeChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -150,7 +165,7 @@ type
     PrinterSelected: boolean;
     ChangingFromCode: boolean;
 
-  public
+  protected
     { Public declarations }
     myKntFolder : TKntFolder;
     myKntFile : TKntFile;
@@ -160,6 +175,15 @@ type
 
     IsBusy : boolean;
     DoAbort : boolean;
+
+
+    UsingTags: boolean;
+    ExportTextFragments: boolean;
+    FilterNodesByTag: boolean;
+    FindTagsIncl: TFindTags;
+    FindTagsExcl: TFindTags;
+    FindTagsIncl_NotRegistered: string;
+    FindTagsExcl_NotRegistered: string;
 
     procedure WriteConfig;
     procedure PerformExport;
@@ -178,6 +202,15 @@ type
     function ExpandExpTokenString( const tpl, filename, folderName, nodename : string; const nodelevel, nodeindex : integer; TabSize: integer ) : string;
 
     procedure UpdateSampleFont;
+
+    function GetFilterInfUsingFindAll: boolean;
+    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure ChangeFindInclToModeOR;
+    procedure CheckTxtTagsEnabled;
+    procedure EnableDefaultButton (Enable: boolean);
   end;
 
 
@@ -190,7 +223,7 @@ procedure ExportTreeNode;
 procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string; PrinterMode: boolean);
 
 var
-  Form_ExportNew: TForm_ExportNew;
+  Form_Export: TForm_ExportNew;
   FontInfo: TFontInfo;
 
 implementation
@@ -203,7 +236,6 @@ uses
    kn_Const,
    kn_Ini,
    kn_Global,
-   knt.model.note,
    knt.ui.tree,
    kn_ExportImport,
    kn_TabSelect,
@@ -211,6 +243,8 @@ uses
    kn_NoteFileMng,
    kn_EditorUtils,
    kn_LocationObj,
+   kn_FindReplaceMng,
+   knt.ui.TagMng,
    knt.App,
    knt.RS
    ;
@@ -497,6 +531,8 @@ begin
 
   Combo_Format.OnClick := CtrlUI_Changed;
 
+  cbTagFindMode.ItemIndex:= 0;
+
 end; // ACTIVATE
 
 
@@ -512,6 +548,9 @@ procedure TForm_ExportNew.FormCloseQuery(Sender: TObject;
 begin
   if IsBusy then
      CanClose := ConfirmAbort;
+
+  if CanClose then
+     Button_Cancel.SetFocus;
 end; // CloseQuery
 
 
@@ -1060,6 +1099,15 @@ var
   FormatCommnd: string;
   PageHeader: string;
 
+  iNode: integer;
+  NoteFragments: TNoteFragments;
+  RTFAuxFrag : TAuxRichEdit;
+  RTFFrag: AnsiString;
+  ExportWholeNoteText: boolean;
+  FoldedMode: TSearchFoldedMode;
+  L: integer;
+
+
   procedure LoadNodeLevelTemplates;
   var
     i: integer;
@@ -1157,6 +1205,8 @@ var
 
 
   function NodeToBeExported(Node, StartTreeNode: PVirtualNode; TreeUI: TKntTreeUI): boolean;
+  var
+     iNode: integer;
   begin
      Result:= False;
      with ExportOptions do begin
@@ -1166,7 +1216,13 @@ var
            (( TreeSelection = tsCheckedNodes ) and (Node.CheckState = csCheckedNormal)) or
            (( TreeSelection = tsSubtree ) and ( TreeUI.TV.HasAsParent(Node, StartTreeNode) or ( StartTreeNode = Node )))) then
 
-         Result:= True;
+         if FilterNodesByTag or ExportTextFragments then begin
+             iNode:= FoundNodes.IndexOf(Node);
+             if iNode >= 0 then
+                Result:= True;
+         end
+         else
+            Result:= True;
      end;
   end;
 
@@ -1315,6 +1371,12 @@ begin
   if ( not ValidatePath ) then exit;
   WriteConfig;
 
+  UsingTags:= ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsIncl_NotRegistered <> '') or (FindTagsExcl_NotRegistered <> ''));
+  ExportTextFragments:= UsingTags and chkTagsText.Checked;
+  FilterNodesByTag:=    UsingTags and chkTagsMetad.Checked;
+
+  RTFAuxFrag:= nil;
+
   if ((ExportOptions.TargetFormat= xfPrinter) and not IgnorePrinterOffset) then begin
      if not PreviewMode or not PrinterSelected then
         if not Form_Main.PrintDlg.Execute then exit;
@@ -1383,6 +1445,14 @@ begin
      IndexOfExportedFile:= 1;
 
   RTFAux:= CreateAuxRichEdit;
+  RTFAux.BeginUpdate;
+
+  if ExportTextFragments or FilterNodesByTag then begin
+     if not GetFilterInfUsingFindAll then
+        exit;
+     RTFAuxFrag:= CreateAuxRichEdit;
+     RTFAuxFrag.BeginUpdate;
+  end;
 
 
   if ExportOptions.ConfirmOverwrite then
@@ -1598,19 +1668,59 @@ begin
                   end;
 
                   if NodeTextSize > 0 then begin
-                    RTFwithImages:= '';
-                    SSNodeContent:= RTFAux.SelStart;
-                    if NodeStreamIsRTF then
-                       RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
+                    ExportWholeNoteText:= True;
 
-                    if RTFwithImages <> '' then
-                       NodeText:= RTFwithImages;
+                    if ExportTextFragments then begin
+                       ExportWholeNoteText:= False;
+                       iNode:= FoundNodes.IndexOf(myTreeNode);
+                       NoteFragments:= FragmentsInNodes[iNode];
+                       if (NoteFragments.NumFrag = 1) and (NoteFragments.Fragments[0].PosF < 0) then
+                          ExportWholeNoteText:= True
 
-                    if ExportOptions.TargetFormat = xfRTF then
-                       GetInfoKNTLinksWithoutMarker(NodeText, InfoExportedNotes);
+                       else begin
+                          RTFAuxFrag.Clear;
+                          RTFAuxFrag.PutRtfText(NodeText, false);
+                          SSNodeContent:= RTFAux.SelStart;
 
-                    RTFAux.PutRtfText(NodeText, false);          // All hidden KNT characters are now removed from FlushExportFile
-                                                                 // Append to end of existing data
+                          for i:= 0 to NoteFragments.NumFrag - 1 do begin
+                             RTFAuxFrag.SelStart:=  NoteFragments.Fragments[i].PosI;
+                             RTFAuxFrag.SelLength:= NoteFragments.Fragments[i].PosF - NoteFragments.Fragments[i].PosI + 2;
+                             RTFFrag:= RTFAuxFrag.RtfSelText;
+
+                             RTFwithImages:= '';
+                             if NodeStreamIsRTF then
+                                RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
+
+                             if RTFwithImages <> '' then
+                                RTFFrag:= RTFwithImages;
+
+                             if ExportOptions.TargetFormat = xfRTF then
+                                GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
+
+                             RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
+                          end;
+                          L:= RTFAux.TextLength;
+                          if RTFAux.GetTextRange(L-1, L) <> #13 then
+                             RTFAux.AddText(#13);
+                       end;
+                    end;
+
+                    if ExportWholeNoteText then begin
+                       RTFwithImages:= '';
+                       SSNodeContent:= RTFAux.SelStart;
+                       if NodeStreamIsRTF then
+                          RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
+
+                       if RTFwithImages <> '' then
+                          NodeText:= RTFwithImages;
+
+                       if ExportOptions.TargetFormat = xfRTF then
+                          GetInfoKNTLinksWithoutMarker(NodeText, InfoExportedNotes);
+
+                       RTFAux.PutRtfText(NodeText, false);          // All hidden KNT characters are now removed from FlushExportFile
+                                                                    // Append to end of existing data
+                    end;
+
                     ChangeFont;
                   end;
 
@@ -1800,6 +1910,8 @@ begin
     IsBusy := false;
     Screen.Cursor := crDefault;
     RTFAux.Free;
+    if RTFAuxFrag <> nil then
+       RTFAuxFrag.Free;
     FreeInfoExportedNotes;
 
     ExitMessage := Format(GetRS(sExpFrm12), [ExportedFolders, ExportedNotes] );
@@ -2409,12 +2521,12 @@ end; // ExportTreeNode
 
 
 procedure ExportNotesEx (PrinterMode: boolean = false);
-var
-  Form_Export : TForm_ExportNew;
 begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   Form_Export := TForm_ExportNew.Create( Form_Main );
   try
+    TagMng.OfferTagSelectorInExport(True);
+
     with Form_Export do begin
       ShowHint := KeyOptions.ShowTooltips;
       myKntFolder := ActiveFolder;
@@ -2428,12 +2540,186 @@ begin
     end;
 
   finally
+    if FoundNodes <> nil then
+       FreeAndNil(FoundNodes);
+    if FragmentsInNodes <> nil then
+       FreeAndNil(FragmentsInNodes);
+
     Form_Export.Free;
+    Form_Export:= nil;
+
+    TagMng.OfferTagSelectorInExport(False);
   end;
 end; // ExportNotesEx
 
 
+function TForm_ExportNew.GetFilterInfUsingFindAll: boolean;
+var
+   myFindOptions: TFindOptions;
+   OnlyCurrenNode: boolean;
+
+begin
+  myFindOptions.MatchCase := False;
+  myFindOptions.WholeWordsOnly := False;
+  myFindOptions.AllTabs := (ExportOptions.ExportSource <> expCurrentFolder);   // From RunFindAllEx Folder.Info will be taken into account, in case expSelectedFolders has been chosen,
+  myFindOptions.CurrentNodeAndSubtree := (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection in [tsSubtree, tsNode]);
+  OnlyCurrenNode:= (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection = tsNode);
+
+  myFindOptions.SearchScope := ssContentsAndNodeName;
+  myFindOptions.SearchMode := smAll;
+  myFindOptions.CheckMode := scAll;
+  if (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection = tsCheckedNodes) then
+     myFindOptions.CheckMode := scOnlyChecked;
+
+  myFindOptions.HiddenNodes:= not ExportOptions.ExcludeHiddenNodes;
+  myFindOptions.Pattern := '';
+  myFindOptions.FindTagsIncl:= FindTagsIncl;
+  myFindOptions.FindTagsExcl:= FindTagsExcl;
+  myFindOptions.FindTagsInclNotReg:= FindTagsIncl_NotRegistered;
+  myFindOptions.FindTagsExclNotReg:= FindTagsExcl_NotRegistered;
+  myFindOptions.TagsMetadata:= chkTagsMetad.Checked;
+  myFindOptions.TagsText:= chkTagsText.Checked;
+  myFindOptions.InheritedTags:= chkInhTagsFind.Checked;
+  myFindOptions.TagsModeOR:= (cbTagFindMode.ItemIndex = 1);
+
+  myFindOptions.LastModifFrom := 0;
+  myFindOptions.LastModifUntil := 0;
+
+  myFindOptions.CreatedFrom := 0;
+  myFindOptions.CreatedUntil := 0;
+  myFindOptions.EmphasizedSearch:= esNone;
+  myFindOptions.FoldedMode:= sfAll;
+
+  Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyCurrenNode);
+end;
+
+
+procedure TForm_ExportNew.ChangeFindInclToModeOR;
+begin
+   FindTagsIncl:= FindTagsGetModeOR(FindTagsIncl);
+   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, FindTagsIncl, FindTagsIncl_NotRegistered);
+end;
+
+procedure TForm_ExportNew.cbTagFindModeChange(Sender: TObject);
+begin
+   if FindTagsIncl = nil then exit;
+   if (cbTagFindMode.ItemIndex = 1) then
+      ChangeFindInclToModeOR
+   else begin
+      // Ensure that the tags are interpreted according to ALL mode:
+      txtTagsIncl.SetFocus;
+      cbTagFindMode.SetFocus;
+   end;
+end;
+
+procedure TForm_ExportNew.EnableDefaultButton (Enable: boolean);
+var
+  format: TExportFmt;
+  PrinterFmt: boolean;
+begin
+  if not Enable then begin
+     Button_Ok.Default:= False;
+     btnPreview.Default:= False;
+  end
+  else begin
+    format:= TExportFmt( Combo_Format.ItemIndex );
+    PrinterFmt:=  (format = xfPrinter);
+    Button_Ok.Default:= not PrinterFmt;
+    btnPreview.Default:= PrinterFmt;
+  end;
+end;
+
+
+procedure TForm_ExportNew.txtTagsInclEnter(Sender: TObject);
+begin
+   if CtrlDown then begin
+       txtTagsIncl.Text:= '';
+       FindTagsIncl:= nil;
+   end;
+
+   EnableDefaultButton(False);
+   TagMng.StartTxtFindTagIntrod(txtTagsIncl, OnEndFindTagsInclIntrod, OnChangeFindTagsInclIntrod, true);
+end;
+
+procedure TForm_ExportNew.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+begin
+   if cbTagFindMode.ItemIndex = 1 then
+      ChangeFindInclToModeOR
+   else
+      FindTagsIncl:= FindTags;
+
+   FindTagsIncl_NotRegistered:= Trim(FindTagsNotRegistered);
+end;
+
+procedure TForm_ExportNew.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+begin
+   OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+   if txtTagsIncl.Focused then
+      txtTagsInclEnter(nil)
+   else
+      EnableDefaultButton(True);
+end;
+
+
+procedure TForm_ExportNew.txtTagsExclEnter(Sender: TObject);
+begin
+   if CtrlDown then begin
+       txtTagsExcl.Text:= '';
+       FindTagsExcl:= nil;
+   end;
+
+   EnableDefaultButton(False);
+   TagMng.StartTxtFindTagIntrod(txtTagsExcl, OnEndFindTagsExclIntrod, OnChangeFindTagsExclIntrod, True);
+end;
+
+
+procedure TForm_ExportNew.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+begin
+   FindTagsExcl:= FindTagsGetModeOR(FindTags);
+   FindTagsExcl_NotRegistered:= Trim(FindTagsNotRegistered);
+   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, FindTagsExcl, FindTagsExcl_NotRegistered);
+end;
+
+
+
+procedure TForm_ExportNew.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+begin
+   OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+   if txtTagsExcl.Focused then
+      txtTagsExclEnter(nil)
+   else
+      EnableDefaultButton(True);
+end;
+
+
+procedure TForm_ExportNew.chkTagsMetadClick(Sender: TObject);
+begin
+   CheckTxtTagsEnabled;
+end;
+
+
+procedure TForm_ExportNew.chkTagsTextClick(Sender: TObject);
+begin
+   CheckTxtTagsEnabled;
+end;
+
+
+procedure TForm_ExportNew.CheckTxtTagsEnabled;
+var
+  Enable: boolean;
+begin
+  Enable:= (chkTagsMetad.Checked or chkTagsText.Checked);
+  txtTagsIncl.Enabled:= Enable;
+  txtTagsExcl.Enabled:= Enable;
+  lbl8.Enabled:= Enable;
+  lbl9.Enabled:= Enable;
+  cbTagFindMode.Enabled:= Enable;
+end;
+
+
+
 initialization
+  Form_Export:= nil;
   FontInfo.Name:= '';
 
 end.

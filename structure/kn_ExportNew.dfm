@@ -4,7 +4,7 @@ object Form_ExportNew: TForm_ExportNew
   HelpContext = 313
   BorderStyle = bsDialog
   Caption = 'Export note Folders'
-  ClientHeight = 433
+  ClientHeight = 463
   ClientWidth = 667
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object Form_ExportNew: TForm_ExportNew
   TextHeight = 13
   object Button_OK: TButton
     Left = 230
-    Top = 399
+    Top = 431
     Width = 86
     Height = 25
     Hint = 'Begin exporting note folders'
@@ -34,7 +34,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Cancel: TButton
     Left = 342
-    Top = 399
+    Top = 431
     Width = 86
     Height = 25
     Hint = 'Cancel and close this dialog box'
@@ -45,7 +45,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Help: TButton
     Left = 562
-    Top = 399
+    Top = 431
     Width = 86
     Height = 25
     Caption = 'Help'
@@ -56,7 +56,7 @@ object Form_ExportNew: TForm_ExportNew
     Left = 5
     Top = 5
     Width = 654
-    Height = 380
+    Height = 417
     ActivePage = Tab_Main
     HotTrack = False
     TabInactiveColor = clBtnFace
@@ -74,17 +74,43 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 352
       object GroupBox_Source: TGroupBox
         Left = 5
         Top = 11
         Width = 310
-        Height = 333
+        Height = 371
         Caption = ' Source: What to export? '
         TabOrder = 0
+        DesignSize = (
+          310
+          371)
+        object lbl8: TLabel
+          Left = 31
+          Top = 178
+          Width = 45
+          Height = 13
+          Hint = 'Include text/notes with ALL or ANY of the selected tags'
+          AutoSize = False
+          Caption = 'With:'
+        end
+        object lbl9: TLabel
+          Left = 31
+          Top = 202
+          Width = 45
+          Height = 13
+          Hint = 'Exclude text/notes with ANY of the selected tags'
+          AutoSize = False
+          Caption = 'Without:'
+        end
+        object lbl4: TLabel
+          Left = 15
+          Top = 158
+          Width = 45
+          Height = 13
+          AutoSize = False
+          Caption = 'TAGs'
+        end
         object RB_CurrentNote: TRadioButton
           Left = 15
           Top = 26
@@ -135,7 +161,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CheckBox_ExcludeHiddenNodes: TCheckBox
           Left = 15
-          Top = 132
+          Top = 120
           Width = 173
           Height = 17
           Hint = 'Don'#39't export nodes hidden'
@@ -144,7 +170,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_ShowHiddenMarkers: TCheckBox
           Left = 15
-          Top = 304
+          Top = 346
           Width = 253
           Height = 17
           Hint = 
@@ -153,11 +179,11 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '313-11'
           Caption = 'Show hidden marks and IDs'
-          TabOrder = 8
+          TabOrder = 14
         end
         object Spin_TblMaxDepth: TSpinEdit
           Left = 252
-          Top = 174
+          Top = 323
           Width = 40
           Height = 22
           HelpType = htKeyword
@@ -166,25 +192,95 @@ object Form_ExportNew: TForm_ExportNew
           MaxLength = 2
           MaxValue = 99
           MinValue = 1
-          TabOrder = 7
+          TabOrder = 13
           Value = 3
         end
         object CB_TableCont: TCheckBox
           Left = 15
-          Top = 176
+          Top = 325
           Width = 231
           Height = 17
           HelpType = htKeyword
           HelpKeyword = '313-14'
           Caption = 'Top N levels on a Table of Contents'
+          TabOrder = 12
+        end
+        object txtTagsIncl: TEdit
+          Left = 77
+          Top = 176
+          Width = 137
+          Height = 19
+          Anchors = [akLeft, akTop, akRight]
+          Ctl3D = False
+          ParentCtl3D = False
           TabOrder = 6
+          OnEnter = txtTagsInclEnter
+        end
+        object cbTagFindMode: TComboBox
+          Left = 221
+          Top = 175
+          Width = 71
+          Height = 21
+          Style = csDropDownList
+          Anchors = [akTop, akRight]
+          TabOrder = 7
+          OnChange = cbTagFindModeChange
+          Items.Strings = (
+            'ALL'
+            'ANY')
+        end
+        object txtTagsExcl: TEdit
+          Left = 77
+          Top = 200
+          Width = 137
+          Height = 19
+          Anchors = [akLeft, akTop, akRight]
+          Ctl3D = False
+          ParentCtl3D = False
+          TabOrder = 8
+          OnEnter = txtTagsExclEnter
+        end
+        object chkTagsMetad: TCheckBox
+          Left = 31
+          Top = 224
+          Width = 194
+          Height = 17
+          Hint = 'Notes'#39' metadata will be used to verify the tag criteria'
+          Anchors = [akLeft, akTop, akRight]
+          Caption = 'Consider metadata of notes'
+          Checked = True
+          State = cbChecked
+          TabOrder = 9
+          OnClick = chkTagsMetadClick
+        end
+        object chkTagsText: TCheckBox
+          Left = 31
+          Top = 245
+          Width = 194
+          Height = 17
+          Hint = 
+            'Export will only include text fragments that meet the tag criter' +
+            'ia'
+          Anchors = [akLeft, akTop, akRight]
+          Caption = 'Consider extracts from notes'
+          TabOrder = 10
+          OnClick = chkTagsTextClick
+        end
+        object chkInhTagsFind: TCheckBox
+          Left = 31
+          Top = 268
+          Width = 194
+          Height = 17
+          Anchors = [akLeft, akTop, akRight]
+          Caption = 'Inherited tags (metadata)'
+          TabOrder = 11
         end
       end
       object GroupBox_Target: TGroupBox
         Left = 327
         Top = 11
         Width = 310
-        Height = 333
+        Height = 371
         Caption = ' Target: Where and how to export?  '
         TabOrder = 1
         object Label1: TLabel
@@ -263,7 +359,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_Section: TCheckBox
           Left = 15
-          Top = 176
+          Top = 189
           Width = 236
           Height = 17
           HelpType = htKeyword
@@ -273,7 +369,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Spin_SectDepth: TSpinEdit
           Left = 256
-          Top = 174
+          Top = 187
           Width = 40
           Height = 22
           HelpType = htKeyword
@@ -287,7 +383,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SaveImgDefWP: TCheckBox
           Left = 15
-          Top = 304
+          Top = 346
           Width = 282
           Height = 17
           Hint = 
@@ -300,7 +396,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SectionToFile: TCheckBox
           Left = 30
-          Top = 199
+          Top = 212
           Width = 221
           Height = 17
           HelpType = htKeyword
@@ -311,7 +407,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SectionNewPg: TCheckBox
           Left = 30
-          Top = 222
+          Top = 235
           Width = 221
           Height = 17
           HelpType = htKeyword
@@ -322,7 +418,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_NoteNewPg: TCheckBox
           Left = 15
-          Top = 248
+          Top = 272
           Width = 236
           Height = 17
           HelpType = htKeyword
@@ -333,7 +429,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_FolderNewFile: TCheckBox
           Left = 15
-          Top = 280
+          Top = 299
           Width = 236
           Height = 17
           HelpType = htKeyword
@@ -352,20 +448,17 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 352
       object gbHeadings: TGroupBox
-        Left = 3
+        Left = 6
         Top = 9
         Width = 312
-        Height = 170
+        Height = 200
         Caption = ' Optional headings '
         TabOrder = 0
         object lblSymbols: TLabel
           Left = 200
-          Top = 139
+          Top = 149
           Width = 39
           Height = 13
           Alignment = taRightJustify
@@ -374,7 +467,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object lblLength: TLabel
           Left = 30
-          Top = 139
+          Top = 149
           Width = 74
           Height = 13
           Caption = 'Length heading'
@@ -445,7 +538,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_FontSizes: TCheckBox
           Left = 12
-          Top = 109
+          Top = 119
           Width = 113
           Height = 17
           Hint = 
@@ -458,7 +551,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Edit_FontSizes: TEdit
           Left = 129
-          Top = 107
+          Top = 117
           Width = 55
           Height = 21
           HelpType = htKeyword
@@ -474,7 +567,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Edit_LengthHeading: TEdit
           Left = 129
-          Top = 136
+          Top = 146
           Width = 55
           Height = 21
           Hint = 
@@ -493,7 +586,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Edit_Symbols: TEdit
           Left = 247
-          Top = 136
+          Top = 146
           Width = 55
           Height = 21
           Hint = 'Symbols to use with %< or %>:  Level1, Level2, ...'
@@ -521,7 +614,7 @@ object Form_ExportNew: TForm_ExportNew
       end
       object gbOther: TGroupBox
         Left = 6
-        Top = 186
+        Top = 223
         Width = 312
         Height = 158
         Caption = 'Other formatting options'
@@ -647,7 +740,7 @@ object Form_ExportNew: TForm_ExportNew
       end
       object gbHTML: TGroupBox
         Left = 324
-        Top = 186
+        Top = 223
         Width = 312
         Height = 158
         Caption = 'HTML Options'
@@ -679,10 +772,7 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
+      ExplicitHeight = 352
       object RG_TreePadVersion: TRadioGroup
         Left = 13
         Top = 23
@@ -711,7 +801,7 @@ object Form_ExportNew: TForm_ExportNew
         Left = 13
         Top = 205
         Width = 340
-        Height = 64
+        Height = 68
         Caption = ' &Compatibility top-level node '
         ItemIndex = 0
         Items.Strings = (
@@ -723,7 +813,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object btnPreview: TButton
     Left = 113
-    Top = 399
+    Top = 431
     Width = 86
     Height = 25
     Caption = 'Pre&view'
@@ -735,7 +825,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object btnPageSetup: TButton
     Left = 15
-    Top = 399
+    Top = 431
     Width = 86
     Height = 25
     Caption = 'Page &Setup...'

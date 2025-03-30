@@ -39,6 +39,8 @@ type
     fChangingInCode: boolean;
     fFindTagsInformed: string;
 
+    fTagSelectorOwnerHWND: HWND;
+
     constructor Create;
 
   protected
@@ -67,7 +69,8 @@ type
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
     procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string);
 
-    procedure CreateTagSelector;
+    procedure OfferTagSelectorInExport(InExport: boolean);
+    procedure CreateTagSelector(Owner: TComponent = nil);
     procedure UpdateTagSelector;
     procedure GetTagsMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
     procedure CheckEndTagIntroduction(OnTypedHash: boolean= false);
@@ -98,6 +101,7 @@ uses VirtualTrees,
      kn_const,
      kn_info,
      kn_Global,
+     kn_ExportNew,
      knt.App,
      knt.RS
      ;
@@ -133,10 +137,20 @@ begin
 end;
 
 
+procedure TTagMng.OfferTagSelectorInExport(InExport: boolean);
+begin
+  if InExport then
+     fTagSelectorOwnerHWND:= Form_Export.Handle
+  else
+     fTagSelectorOwnerHWND:= Form_Main.Handle;
+end;
+
+
 procedure TTagMng.CreateTagSelector;
 begin
   if cTagSelector <> nil then exit;
 
+  fTagSelectorOwnerHWND:= Form_Main.Handle;
   cTagSelector:= TTagSelector.Create(Form_Main);
 end;
 
@@ -157,7 +171,7 @@ begin
 
    if (TagSubstr <> '') and (PotentialNTags.Count > 0) then begin
       GetTagsMaxWidth(PotentialNTags, MaxNameWidth, MaxDescWidth);
-      cTagSelector.ShowTagSelector(MaxNameWidth, MaxDescWidth, Form_Main.Handle);
+      cTagSelector.ShowTagSelector(MaxNameWidth, MaxDescWidth, fTagSelectorOwnerHWND);
       with cTagSelector do begin
          TV.RootNodeCount := PotentialNTags.Count;
          Node:= TV.GetFirst;
@@ -1006,6 +1020,5 @@ end;
 
 initialization
    TagMng:= TTagMng.Create;
-   TagMng.CreateTagSelector;
 
 end.
