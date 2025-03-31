@@ -836,14 +836,16 @@ begin
    ActiveFileIsBusy := false;
    AFileIsLoading:= false;
 
-   TagMng.ImportTagsFromFile(Tags_FN, True);   // Import common tags (new or modified tags)
+   if aFile <> nil then begin
+      TagMng.ImportTagsFromFile(Tags_FN, True);   // Import common tags (new or modified tags)
 
-   with Form_Main do
-      if KeyOptions.ResPanelShow and (Pages_Res.ActivePage = ResTab_Find) then begin
-         // Make sure the labels are interpreted according to this file
-         CheckTagsField(txtTagsIncl, FindTagsIncl);
-         CheckTagsField(txtTagsExcl, FindTagsExcl);
-      end;
+      with Form_Main do
+         if KeyOptions.ResPanelShow and (Pages_Res.ActivePage = ResTab_Find) then begin
+            // Make sure the labels are interpreted according to this file
+            CheckTagsField(txtTagsIncl, FindTagsIncl);
+            CheckTagsField(txtTagsExcl, FindTagsExcl);
+         end;
+   end;
 end;
 
 procedure TKntApp.TagsUpdated;
