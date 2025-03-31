@@ -127,6 +127,9 @@ type
     chkTagsMetad: TCheckBox;
     chkTagsText: TCheckBox;
     chkInhTagsFind: TCheckBox;
+    cbFoldedText: TComboBox;
+    lbl3: TLabel;
+    chkRemoveTags: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -211,6 +214,10 @@ type
     procedure ChangeFindInclToModeOR;
     procedure CheckTxtTagsEnabled;
     procedure EnableDefaultButton (Enable: boolean);
+
+    procedure RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
+    procedure ExpandFoldedText(RTF : TAuxRichEdit);
+    procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean);
   end;
 
 
@@ -532,6 +539,7 @@ begin
   Combo_Format.OnClick := CtrlUI_Changed;
 
   cbTagFindMode.ItemIndex:= 0;
+  cbFoldedText.ItemIndex:= 0;        // 0:  Keep folded text unchanged
 
 end; // ACTIVATE
 
@@ -1446,6 +1454,7 @@ begin
 
   RTFAux:= CreateAuxRichEdit;
   RTFAux.BeginUpdate;
+  RTFAux.OnProtectChangeEx:= RxRTFProtectChangeEx;
 
   if ExportTextFragments or FilterNodesByTag then begin
      if not GetFilterInfUsingFindAll then
@@ -2078,6 +2087,17 @@ var
   NodeText: AnsiString;
 
 begin
+
+  case cbFoldedText.ItemIndex of
+     1: ExpandFoldedText(RTF);            // Unfold
+     2: RemoveFoldedText(RTF, true);      // Remove "tagged"
+     3: RemoveFoldedText(RTF, false);     // Remove all
+  end;
+
+  if chkRemoveTags.Checked then
+     RemoveTags(RTF);
+
+
   result := false;
   Encoding:= TEncoding.Default;
   if ExportOptions.SectionToFile then
@@ -2714,6 +2734,41 @@ begin
   lbl8.Enabled:= Enable;
   lbl9.Enabled:= Enable;
   cbTagFindMode.Enabled:= Enable;
+end;
+
+
+procedure TForm_ExportNew.ExpandFoldedText(RTF : TAuxRichEdit);
+var
+  TxtPlain: AnsiString;
+  SS: integer;
+begin
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then
+        Unfold(RTF, TxtPlain, SS + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR));
+  until SS = 0;
+end;
+
+
+procedure TForm_ExportNew.RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean);
+var
+  TxtPlain: AnsiString;
+  SS: integer;
+begin
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then
+        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR), OnlyIfTaggedFolded);
+  until SS = 0;
+end;
+
+procedure TForm_ExportNew.RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
+begin
+   AllowChange:= True
 end;
 
 

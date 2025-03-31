@@ -74,7 +74,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 352
       object GroupBox_Source: TGroupBox
         Left = 5
         Top = 11
@@ -105,11 +104,19 @@ object Form_ExportNew: TForm_ExportNew
         end
         object lbl4: TLabel
           Left = 15
-          Top = 158
+          Top = 156
           Width = 45
           Height = 13
           AutoSize = False
           Caption = 'TAGs'
+        end
+        object lbl3: TLabel
+          Left = 17
+          Top = 300
+          Width = 89
+          Height = 13
+          AutoSize = False
+          Caption = 'Folded text:'
         end
         object RB_CurrentNote: TRadioButton
           Left = 15
@@ -179,7 +186,7 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '313-11'
           Caption = 'Show hidden marks and IDs'
-          TabOrder = 14
+          TabOrder = 16
         end
         object Spin_TblMaxDepth: TSpinEdit
           Left = 252
@@ -192,7 +199,7 @@ object Form_ExportNew: TForm_ExportNew
           MaxLength = 2
           MaxValue = 99
           MinValue = 1
-          TabOrder = 13
+          TabOrder = 15
           Value = 3
         end
         object CB_TableCont: TCheckBox
@@ -203,7 +210,7 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '313-14'
           Caption = 'Top N levels on a Table of Contents'
-          TabOrder = 12
+          TabOrder = 14
         end
         object txtTagsIncl: TEdit
           Left = 77
@@ -213,7 +220,7 @@ object Form_ExportNew: TForm_ExportNew
           Anchors = [akLeft, akTop, akRight]
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 6
+          TabOrder = 7
           OnEnter = txtTagsInclEnter
         end
         object cbTagFindMode: TComboBox
@@ -223,7 +230,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 21
           Style = csDropDownList
           Anchors = [akTop, akRight]
-          TabOrder = 7
+          TabOrder = 8
           OnChange = cbTagFindModeChange
           Items.Strings = (
             'ALL'
@@ -237,7 +244,7 @@ object Form_ExportNew: TForm_ExportNew
           Anchors = [akLeft, akTop, akRight]
           Ctl3D = False
           ParentCtl3D = False
-          TabOrder = 8
+          TabOrder = 9
           OnEnter = txtTagsExclEnter
         end
         object chkTagsMetad: TCheckBox
@@ -250,7 +257,7 @@ object Form_ExportNew: TForm_ExportNew
           Caption = 'Consider metadata of notes'
           Checked = True
           State = cbChecked
-          TabOrder = 9
+          TabOrder = 10
           OnClick = chkTagsMetadClick
         end
         object chkTagsText: TCheckBox
@@ -263,7 +270,7 @@ object Form_ExportNew: TForm_ExportNew
             'ia'
           Anchors = [akLeft, akTop, akRight]
           Caption = 'Consider extracts from notes'
-          TabOrder = 10
+          TabOrder = 11
           OnClick = chkTagsTextClick
         end
         object chkInhTagsFind: TCheckBox
@@ -273,7 +280,32 @@ object Form_ExportNew: TForm_ExportNew
           Height = 17
           Anchors = [akLeft, akTop, akRight]
           Caption = 'Inherited tags (metadata)'
-          TabOrder = 11
+          TabOrder = 12
+        end
+        object cbFoldedText: TComboBox
+          Left = 112
+          Top = 297
+          Width = 180
+          Height = 21
+          Style = csDropDownList
+          Anchors = [akTop, akRight]
+          TabOrder = 13
+          OnChange = cbTagFindModeChange
+          Items.Strings = (
+            'Keep unchanged'
+            'Unfold'
+            'Remove "tagged"'
+            'Remove All')
+        end
+        object chkRemoveTags: TCheckBox
+          Left = 77
+          Top = 155
+          Width = 138
+          Height = 17
+          Hint = 'Remove tags from the final text (after processing)'
+          Anchors = [akLeft, akTop, akRight]
+          Caption = 'Remove'
+          TabOrder = 6
         end
       end
       object GroupBox_Target: TGroupBox
@@ -448,7 +480,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 352
       object gbHeadings: TGroupBox
         Left = 6
         Top = 9
@@ -772,7 +803,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitHeight = 352
       object RG_TreePadVersion: TRadioGroup
         Left = 13
         Top = 23

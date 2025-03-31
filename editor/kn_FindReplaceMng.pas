@@ -1458,11 +1458,9 @@ type
 
          function CheckPosition(Position: integer): boolean;
          var
-            InTaggedFolded: boolean;
             p,p1,p2: integer;
          begin
             Result:= False;
-            InTaggedFolded:= False;
 
             // Position starts at zero
 
@@ -1480,25 +1478,8 @@ type
                exit;
 
             if (InFolded and (myFindOptions.FoldedMode = sfExcludeTaggedFolded)) then begin
-               // "Tagged" folded: a folded block that begins with a tag
-
-               pIcontent:= pI + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR);
-               p:= Integer.MaxValue;
-               p1:= Pos(#13, TextPlain, pIcontent);
-               if (p1 > 0) and (p1 < pF) then
-                  p:= p1;
-               p2:= Pos(' ', TextPlain, pIcontent);
-               if (p2 > 0) and (p2 < pF) and (p2 < p) then
-                  p:= p2;
-
-               if p < Integer.MaxValue then begin
-                  FirstWord:= Copy(TextPlain, pIcontent, p-pIcontent);
-                  if (FirstWord <> '') and (FirstWord[Length(FirstWord)] = ':') then
-                     delete(FirstWord, Length(FirstWord), 1);
-
-                  if (FirstWord <> '') and IsAPossibleTag(FirstWord) then
-                     exit;
-               end;
+               if IsTaggedFolded(pI, pF, TextPlain) then          // "Tagged" folded: a folded block that begins with a tag
+                  exit;
             end;
 
             Result:= True;

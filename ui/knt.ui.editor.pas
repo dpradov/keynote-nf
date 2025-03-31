@@ -283,6 +283,10 @@ type
                               IgnoreFoldedBlocks: boolean = True;
                               ForFolding: boolean = False): boolean;
 
+  procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
+  function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false): integer;
+  function IsTaggedFolded(pI, pF: integer; TextPlain: string): boolean;
+  procedure RemoveTags(Editor: TRxRichEdit);
 
   procedure AddGlossaryTerm;
   procedure EditGlossaryTerms;
@@ -2335,6 +2339,120 @@ begin
    end;
 
 end;
+
+procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
+var
+  RTFIn, RTFOut: AnsiString;
+  pI, pF: integer;
+begin
+   with Editor do
+      if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
+         SetSelection(pI, pF+1, false);
+         RTFIn:= RtfSelText;
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut);
+         RtfSelText:= RTFOut;
+         SelStart:= pI;
+      end;
+end;
+
+function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false): integer;
+var
+  pI, pF: integer;
+  i, L: integer;
+begin
+   with Editor do
+      if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
+         if OnlyIfTaggedFolded and not IsTaggedFolded(pI+1, pF, TxtPlain) then
+            exit(pF);
+
+         L:= Length(TxtPlain);
+         inc(pF);                 // #$13  HIDDEN_MARK_EndLink
+         while (pF < L) and (TxtPlain[pF + 1] in [#9, #32, #13]) do
+            inc(pF);
+
+         SetSelection(pI, pF, false);
+         SelText:= '';
+         exit(SS);
+      end
+      else
+         exit(SS + 1);
+end;
+
+
+// "Tagged" folded: a folded block that begins with a tag
+function IsTaggedFolded(pI, pF: integer; TextPlain: string): boolean;
+var
+   p,p1,p2: integer;
+   pIcontent: integer;
+   FirstWord: string;
+begin
+   Result:= False;
+
+   pIcontent:= pI + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR);
+   p:= Integer.MaxValue;
+   p1:= Pos(#13, TextPlain, pIcontent);
+   if (p1 > 0) and (p1 < pF) then
+      p:= p1;
+   p2:= Pos(' ', TextPlain, pIcontent);
+   if (p2 > 0) and (p2 < pF) and (p2 < p) then
+      p:= p2;
+
+   if p < Integer.MaxValue then begin
+      FirstWord:= Copy(TextPlain, pIcontent, p-pIcontent);
+      if (FirstWord <> '') and (FirstWord[Length(FirstWord)] = ':') then
+         delete(FirstWord, Length(FirstWord), 1);
+
+      if (FirstWord <> '') and IsAPossibleTag(FirstWord) then
+         Result:= True;
+   end;
+
+end;
+
+procedure RemoveTags(Editor: TRxRichEdit);
+var
+  TxtPlain: AnsiString;
+  SS: integer;
+  pF, L: integer;
+begin
+  Editor.BeginUpdate;
+  SS:= 1;
+  repeat
+     TxtPlain:= Editor.TextPlain;
+     L:= Length(TxtPlain);
+     SS:= Pos('#', TxtPlain, SS);
+     if (SS = 0) or (SS = L) then break;
+
+     if (SS + 2 <= L) and (TxtPlain[SS + 1]='#') and (TxtPlain[SS + 2]='#') then begin
+         inc(SS, 3);
+         while (TxtPlain[SS] = '#') do
+            inc(SS);
+         continue;
+     end
+     else begin
+        pF:= SS+1;
+        if (TxtPlain[SS + 1]='#') then
+           inc(pF);
+        while (pF < L) and not (TxtPlain[pF] in TagCharsDelimiters) do
+           inc(pF);
+
+        if TxtPlain[pF] <> ':' then
+           dec(pF);
+        if ((pF < L) and (TxtPlain[pF+1] in [#13, ' '])) and ((SS = 1) or (TxtPlain[SS-1] = #13) ) then
+           inc(pF);
+
+        Editor.SetSelection(SS-1, pF, false);
+        if Editor.SelLength = pF - (SS-1) then
+           Editor.SelText:= ''
+        else
+           SS:= pF + 1;
+     end;
+
+  until false;
+
+  Editor.EndUpdate;
+end;
+
+
 
 procedure TKntRichEdit.Unfold;
 var
