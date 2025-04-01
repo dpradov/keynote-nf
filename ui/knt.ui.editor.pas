@@ -2271,7 +2271,8 @@ begin
          dec(pF);
 
          if (SL > 0) then
-            AddEndGenericBlock:= not ((SS = pI) and (SL = pF - pI) )         // -> KNT_RTF_END_GENERIC_BLOCK
+         // Commented: Don't add automatically an EndGenericBlock "[.]" when the user folds a selected text
+         // AddEndGenericBlock:= not ((SS = pI) and (SL = pF - pI) )         // -> KNT_RTF_END_GENERIC_BLOCK
          else begin
             SS:= pI;
             SL:= pF - pI;
