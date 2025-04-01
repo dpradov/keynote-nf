@@ -1979,9 +1979,8 @@ var
   var
     SS, SL: integer;
   begin
-      Result:= False;
+      Result:= True;                                    // By default we will assume yes, and check if Editor is provided
       if Editor <> nil then begin
-         Result:= True;
          Editor.BeginUpdate;
          SS:= Editor.SelStart;
          SL:= Editor.SelLength;
@@ -2145,7 +2144,7 @@ begin
                 pF:= 0;
           end;
 
-          if (pF > 0) and not CheckProtectedAtPos(pF) then
+          if (pF > 0) then
              Result:= True;
       end;
 
@@ -2263,7 +2262,7 @@ begin
       TxtPlain:= Self.TextPlain;
 
       if SelectedText or (SL = 0) then begin
-         if (SL > 0) and (TxtPlain[SS+SL] = #13) then begin
+         if (SL > 0) and ((SS+SL <= Length(TxtPlain)) and (TxtPlain[SS+SL] = #13)) then begin
             SelLength:= SL-1;
             dec(SL);
          end;

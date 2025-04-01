@@ -1996,7 +1996,8 @@ type
                   GetNewNextReqInterv:= False;
                end;
 
-               if not ExcludedUntilTheEnd and ((SearchTagsExclInfo.Next.PosI = 0) or (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosF)) then begin
+               if not (ExcludedUntilTheEnd or (SearchTagsExclInfo.Next.PosI = -1)) and
+                  ((SearchTagsExclInfo.Next.PosI = 0) or (SearchTagsExclInfo.Next.PosF < NextTextIntervalToConsider.PosF)) then begin
                   IdentifyNextExcludingTextFrag;
                   if SearchTagsExclInfo.Next.PosI = 0 then
                      SearchTagsExclInfo.Next.PosI:= -1
@@ -2758,7 +2759,7 @@ begin
                       end
                       else begin
 
-                         if (myFindOptions.SearchScope <> ssOnlyContent) and (TextToFind <> '') then begin
+                         if (myFindOptions.SearchScope <> ssOnlyContent) and (TextToFind <> '') and (myFindOptions.FoldedMode <> sfOnlyFolded) then begin
                            if myFindOptions.SearchPathInNodeNames then
                               TextPlain:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, true )
                            else
