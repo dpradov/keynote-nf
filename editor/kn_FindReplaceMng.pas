@@ -1490,6 +1490,7 @@ type
 
            Result:= False;
            pI:= -99;
+           pF:= integer.MaxValue;
            if not CheckPosition(PatternPos1) then
               exit;
            if (PatternPosN >= 0) and not CheckPosition(PatternPosN) then

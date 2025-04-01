@@ -1434,6 +1434,7 @@ var
   Pos_ImLinkTextPlain: integer;
   myFolder : TKntFolder;
   NNode: TNoteNode;
+  InFoldedBlock: boolean;
 begin
   // ContainsRegImages = True => We have not verified that there are no registered images
   // ConsiderOffset = True    => What we receive in CaretPosition is a position in imLinkTextPlain
@@ -1448,13 +1449,24 @@ begin
   end;
 
   if PlaceCaret then
+     InFoldedBlock:= False;
      with Editor do begin
        BeginUpdate;
        try
           if CaretPosition >= 0 then
              SelStart := CaretPosition - Offset;
-          if SelectionLength >= 0 then
+
+          if SelAttributes.Protected then begin
+             var pI, pF: integer;
+             if PositionInFoldedBlock(TextPlain, SelStart, Editor, pI, pF) then begin
+                InFoldedBlock:= True;
+                SelStart:= pI;
+                SelLength:= 1;
+             end;
+          end;
+          if not InFoldedBlock and (SelectionLength >= 0) then
              SelLength := SelectionLength;
+
           if AdjustVisiblePosition then begin
              ScrollLinesBy(80);
              Perform( EM_SCROLLCARET, 0, 0 );
@@ -1594,6 +1606,7 @@ begin
       p, selLen: integer;
       TargetMark: string;
       KeyBookmark: char;
+      InFoldedBlock: boolean;
    begin
        if SearchBookmark09 then
          KeyBookmark:= KNT_RTF_HIDDEN_Bookmark09
@@ -1610,7 +1623,16 @@ begin
             try
                SelStart := p;
                selLen:= 0;
-               if Location.SelLength > 0 then
+
+               if SelAttributes.Protected then begin
+                  var pI, pF: integer;
+                  if PositionInFoldedBlock(TextPlain, SelStart, myFolder.Editor, pI, pF) then begin
+                     InFoldedBlock:= True;
+                     SelStart:= pI;
+                     selLen:= 1;
+                  end;
+               end;
+               if not InFoldedBlock and (Location.SelLength > 0) then
                   selLen:= Location.SelLength + Length(TargetMark);
                SelLength := selLen;
 
