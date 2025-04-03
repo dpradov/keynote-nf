@@ -1630,6 +1630,9 @@ begin
        {$IFDEF KNT_DEBUG}
         Log.Add( 'CheckModified: KntFile modified? ' + BOOLARRAY[ActiveFile.Modified], 1 );
        {$ENDIF}
+        if (ActiveFolder <> nil) and (ActiveFolder.Editor.FloatingEditor <> nil) then
+           ActiveFolder.Editor.HideNestedFloatingEditor;
+
         if ( not ActiveFile.Modified ) then exit;
         if Warn then begin
           case messagedlg( GetRS(sFileM54), mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of

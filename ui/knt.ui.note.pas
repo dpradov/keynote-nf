@@ -703,6 +703,9 @@ begin
   Encoding:= nil;
 
   if assigned(NNode) then begin
+     if FEditor.FloatingEditor <> nil then
+        FEditor.HideNestedFloatingEditor;
+
      NEntry:= Note.Entries[0];
 
      Note.ScrollPosInEditor:= FEditor.GetScrollPosInEditor;

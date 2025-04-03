@@ -135,7 +135,7 @@ type
       property OnNNodeSelected: TNNodeSelectedEvent read FNNodeSelected write FNNodeSelected;
       property OnFolderSelected: TFolderSelectedEvent read FFolderSelected write FFolderSelected;
 
-      procedure ScratchpadFocused(Sender: TObject);
+      procedure AuxEditorFocused(Sender: TObject);
 
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
@@ -495,7 +495,7 @@ begin
 end;
 
 
-procedure TKntApp.ScratchpadFocused(Sender: TObject);
+procedure TKntApp.AuxEditorFocused(Sender: TObject);
 begin
   EditorFocused(TKntRichEdit(Sender));
 end;

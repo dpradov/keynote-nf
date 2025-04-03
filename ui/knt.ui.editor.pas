@@ -8,7 +8,7 @@
 
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2025 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
@@ -41,7 +41,8 @@ uses
    VirtualTrees, VirtualTrees.Types, VirtualTrees.BaseTree, VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
    kn_Info,
    kn_Const,
-   knt.model.note
+   knt.model.note,
+   knt.ui.Selector
 ;
 
 type
@@ -128,6 +129,8 @@ type
     procedure CleanWordCount;
 
   public
+    FloatingEditor: TObject;
+
     class constructor Create;
     constructor Create( AOwner : TComponent ); override;
     destructor Destroy; override;
@@ -199,6 +202,8 @@ type
     function EnsureGetRtfSelText: AnsiString;
     procedure Fold (SelectedText: boolean);
     procedure Unfold;
+    procedure PreviewFoldedBlock;
+    procedure HideNestedFloatingEditor;
 
     function GetZoom: integer;
     procedure SetZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );
@@ -243,7 +248,7 @@ type
   end; // TKntRichEdit
 
 
-//======================================
+//=======================================
 
   function CreateAuxRichEdit: TAuxRichEdit;
 
@@ -339,6 +344,7 @@ uses
    kn_FindReplaceMng,
    knt.ui.tagSelector,
    knt.ui.TagMng,
+   knt.ui.floatingEditor,
    knt.App,
    knt.RS
   ;
@@ -496,6 +502,8 @@ begin
   }
   OnStartDrag := RxRTFStartDrag;    // See comment *4 in RxRichEd
   OnEndDrag   := RxRTFEndDrag;        // ,,
+
+  FloatingEditor:= nil;
 
 end; // TKntRichEdit CREATE
 
@@ -2486,6 +2494,49 @@ begin
 end;
 
 
+procedure TKntRichEdit.PreviewFoldedBlock;
+var
+  RTFIn, RTFOut: AnsiString;
+  SS: integer;
+  pI, pF: integer;
+  RTFAux : TRxRichEdit;
+  CursorPos: TPoint;
+  FontHeight: integer;
+  FE: TFloatingEditor;
+begin
+   if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
+      BeginUpdate;
+      SetSelection(pI, pF+1, false);
+      FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
+      RTFIn:= EnsureGetRtfSelText;
+      PrepareRTFtoBeExpanded(RTFIn, RTFOut);
+      SelStart:= pI;
+      EndUpdate;
+
+      CursorPos:= ActiveEditor.ClientToScreen(ActiveEditor.GetCharPos(pI));
+
+      if FloatingEditor = nil then
+         FloatingEditor:= TFloatingEditor.Create(Form_Main);
+
+      FE:= TFloatingEditor(FloatingEditor);
+      FE.Editor.RtfText:= RTFOut;
+      FE.Editor.Modified:= False;
+      FE.Editor.ReadOnly:= Self.ReadOnly;
+      Form_Main.ActiveControl:= nil;
+      FE.ShowEditor(CursorPos.X, CursorPos.Y, FontHeight);
+   end;
+end;
+
+procedure TKntRichEdit.HideNestedFloatingEditor;
+begin
+  if FloatingEditor <> nil then begin
+     TFloatingEditor(FloatingEditor).HideEditor;
+     TFloatingEditor(FloatingEditor).Free;
+     FloatingEditor:= nil;
+  end;
+end;
+
+
 //----------------------
 
 procedure TKntRichEdit.HideKNTHiddenMarks(Selection: boolean = true);
@@ -2814,6 +2865,7 @@ end;
 
 procedure TKntRichEdit.DoEnter;
 begin
+  HideNestedFloatingEditor;
   if FUpdating > 0 then exit;
 
   ImageMng.DoNotRegisterNewImages:= (NNodeObj = nil);

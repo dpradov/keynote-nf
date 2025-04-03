@@ -2109,7 +2109,10 @@ begin
   end
   else
   if (URLType = urlKNTFold) then begin
-     Editor.Unfold;
+     if CtrlDown then
+        Editor.Unfold
+     else
+        Editor.PreviewFoldedBlock;
      exit;
   end;
 

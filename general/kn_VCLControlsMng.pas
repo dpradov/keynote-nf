@@ -200,7 +200,7 @@ begin
      WantTabs := True;
      OnChangedSelection:= Form_Main.RxChangedSelection;
      OnFileDropped := Form_Main.OnFileDropped;
-     OnEnter:= App.ScratchpadFocused;
+     OnEnter:= App.AuxEditorFocused;
      OnKeyPress:= Form_Main.RxResTabRTFKeyPress;
      OnKeyDown:= Form_Main.RxResTabRTFKeyDown;
 

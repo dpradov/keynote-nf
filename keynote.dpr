@@ -142,6 +142,7 @@ uses
   knt.ui.tagSelector in 'ui\knt.ui.tagSelector.pas',
   knt.ui.Selector in 'ui\knt.ui.Selector.pas',
   knt.ui.TagMng in 'ui\knt.ui.TagMng.pas',
+  knt.ui.floatingEditor in 'ui\knt.ui.floatingEditor.pas',
 {$IFDEF EMBED_UTILS_DLL}
   dll_Hotkey in 'general\dll_Hotkey.pas',
   dll_KBD in 'general\dll_KBD.pas',

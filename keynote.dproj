@@ -353,6 +353,7 @@
             <Form>$IFDEF EMBED_UTILS_DLL</Form>
         </DCCReference>
         <DCCReference Include="ui\knt.ui.TagMng.pas"/>
+        <DCCReference Include="ui\knt.ui.floatingEditor.pas"/>
         <DCCReference Include="general\dll_Hotkey.pas"/>
         <DCCReference Include="general\dll_KBD.pas"/>
         <DCCReference Include="general\dll_Main.pas"/>
