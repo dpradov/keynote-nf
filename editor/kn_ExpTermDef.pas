@@ -79,6 +79,7 @@ end;
 procedure TForm_TermDef.FormActivate(Sender: TObject);
 begin
   try
+    App.SetTopMost(Handle, True);
     App.ApplyBiDiModeOnForm(Self);
     if ( Edit_Term.Text = '' ) then
       Edit_Term.SetFocus

@@ -109,6 +109,7 @@ procedure AdjustRTLControls(Parent: TWinControl);
 
 function GetEditCaretPos(Edit: TEdit; CharIndex: integer): TPoint;
 procedure EnableShadow(FormHandle: HWND);
+procedure EnableTopMost(hWND: HWND; Enable: boolean);
 
 
 var
@@ -915,6 +916,15 @@ begin
     DWMShadowAvailable := False;
   end;
 end;
+
+procedure EnableTopMost(hWND: HWND; Enable: boolean);
+begin
+   if Enable then
+      SetWindowPos(hWND, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE)
+   else
+      SetWindowPos(hWND, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
+end;
+
 
 
 initialization

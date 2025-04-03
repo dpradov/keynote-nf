@@ -367,6 +367,7 @@ end;
 procedure TForm_KntFileMgr.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
+  App.SetTopMost(Handle, True);
   Initializing := false;
   CheckBox_FullPaths.Checked := ShowFullPaths;
 

@@ -244,6 +244,7 @@ var
 begin
   if assigned( myKntFile ) then
   begin
+    App.SetTopMost(Handle, True);
     // TAB_MAIN
     Caption := GetRS(sFInf02) + ExtractFilename( myKntFile.FileName );
     Edit_FileName.Text := myKntFile.FileName;

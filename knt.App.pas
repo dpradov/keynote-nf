@@ -136,6 +136,8 @@ type
       property OnFolderSelected: TFolderSelectedEvent read FFolderSelected write FFolderSelected;
 
       procedure AuxEditorFocused(Sender: TObject);
+      procedure SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
+      procedure HideNestedFloatingEditors;
 
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
@@ -492,6 +494,20 @@ begin
   Form_Main.RxChangedSelection(Editor, true);
   Form_Main.UpdateWordWrap;
   ClipCapMng.ShowState;
+end;
+
+
+procedure TKntApp.SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
+begin
+   if OnlyWithFloatingEditor and ((ActiveFolder = nil) or (ActiveFolder.Editor.FloatingEditor = nil)) then exit;
+
+   SetWindowPos(hWND, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE)
+end;
+
+procedure TKntApp.HideNestedFloatingEditors;
+begin
+  if (ActiveFolder <> nil) and (ActiveFolder.Editor.FloatingEditor <> nil) then
+      ActiveFolder.Editor.HideNestedFloatingEditor;
 end;
 
 

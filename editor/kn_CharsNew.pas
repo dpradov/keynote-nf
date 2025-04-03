@@ -178,6 +178,7 @@ end;
 procedure TForm_CharsNew.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
+  App.SetTopMost(Handle, True);
   Spin_Count.Value := CharsLastCount;
   chkAutoAddNew.Checked:= AutoAddNew;
   try

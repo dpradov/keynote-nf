@@ -237,6 +237,7 @@ end;
 
 procedure TForm_URLAction.FormShow(Sender: TObject);
 begin
+     App.SetTopMost(Handle, True);
 
    // Look to the default, initial action
      if URLAction = urlCreateOrModify then begin

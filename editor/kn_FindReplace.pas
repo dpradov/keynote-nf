@@ -152,6 +152,7 @@ begin
   if assigned( myNotifyProc ) then
     myNotifyProc( false );
 
+  App.SetTopMost(Handle, True);
   App.ApplyBiDiModeOnForm(Self);
 
   Editor:= ActiveEditor;

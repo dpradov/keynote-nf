@@ -74,6 +74,7 @@ end;
 
 procedure TForm_NodeNum.FormActivate(Sender: TObject);
 begin
+  App.SetTopMost(Handle, True);
   App.ApplyBiDiModeOnForm(Self);
 end; // activate
 

@@ -1022,6 +1022,8 @@ begin
   end;
 
   try
+    App.SetTopMost(Form_Alarm.Handle, True);
+
     Form_Alarm.ShowDetails (modeEdit <> TShowAll);
     Form_Alarm.modeEdit:= modeEdit;
 

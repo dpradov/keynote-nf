@@ -89,6 +89,7 @@ end;
 
 procedure TForm_Template.FormActivate(Sender: TObject);
 begin
+  App.SetTopMost(Handle, True);
   App.ApplyBiDiModeOnForm(Self);
   Edit_NameChange( Edit_Name );
   Edit_Name.SelectAll;

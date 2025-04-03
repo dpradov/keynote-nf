@@ -305,6 +305,7 @@ var
 begin
   if ( not Initializing ) then exit;
   Initializing := false;
+  App.SetTopMost(Handle, True);
 
   fOriginalAction:= Action;
 

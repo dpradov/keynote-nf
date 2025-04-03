@@ -81,6 +81,7 @@ type
     procedure lblDonationsClick(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
+    procedure FormActivate(Sender: TObject);
   private
     { Private declarations }
   public
@@ -97,6 +98,7 @@ uses
    kn_Info,
    kn_Global,
    kn_KntFolder,
+   knt.App,
    knt.RS;
 
 
@@ -109,6 +111,11 @@ var
 procedure TAboutBox.Button1Click(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TAboutBox.FormActivate(Sender: TObject);
+begin
+  App.SetTopMost(Handle, True);
 end;
 
 procedure TAboutBox.FormCreate(Sender: TObject);

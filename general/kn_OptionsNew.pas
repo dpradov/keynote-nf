@@ -685,6 +685,9 @@ end;
 procedure TForm_OptionsNew.FormActivate(Sender: TObject);
 begin
   if ( not Initializing ) then exit;
+
+  App.SetTopMost(Handle, True);
+
   Initializing := false;
   OptionsToForm;
 

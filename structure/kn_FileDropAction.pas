@@ -104,6 +104,7 @@ var
   s : string;
 begin
   OnActivate := nil;
+  App.SetTopMost(Handle, True);
   if ( NumberOfFiles < 2 ) then
     s := GetRS(sFDrp01)
   else

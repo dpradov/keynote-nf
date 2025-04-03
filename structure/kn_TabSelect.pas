@@ -73,7 +73,8 @@ uses
    kn_Const,
    kn_Global,
    kn_Chest,
-   kn_KntFolder
+   kn_KntFolder,
+   knt.App
    ;
 
 
@@ -110,6 +111,7 @@ procedure TForm_SelectTab.FormActivate(Sender: TObject);
 begin
   TabsToForm;
   OnActivate := nil;
+  App.HideNestedFloatingEditors;
 end; // ACTIVATE
 
 procedure TForm_SelectTab.FormKeyDown(Sender: TObject; var Key: Word;

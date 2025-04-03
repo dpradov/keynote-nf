@@ -517,6 +517,7 @@ end;
 procedure TForm_ExportNew.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
+  App.HideNestedFloatingEditors;
 
   ReadConfig (ExportOptions, myINIFN, PrinterMode);
   OptionsToForm;

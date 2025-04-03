@@ -139,6 +139,7 @@ end;
 procedure TForm_Para.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
+  App.SetTopMost(Handle, True);
   ParaToForm;
 end; // ACTIVATE
 

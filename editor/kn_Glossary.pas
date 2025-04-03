@@ -364,6 +364,7 @@ end;
 procedure TForm_Glossary.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
+  App.SetTopMost(Handle, True);
   try
     if ( LV.Items.Count > 0 ) then begin
       LV.Selected := LV.Items[0];

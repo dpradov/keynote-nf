@@ -76,6 +76,7 @@ end;
 procedure TForm_FoldBlockDef.FormActivate(Sender: TObject);
 begin
   try
+    App.SetTopMost(Handle, True);
     App.ApplyBiDiModeOnForm(Self);
     if ( Edit_Opening.Text = '' ) then
       Edit_Opening.SetFocus
