@@ -200,10 +200,12 @@ type
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode; ReconsiderDimensionsGoal: boolean); overload;
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode); overload;
     function EnsureGetRtfSelText: AnsiString;
+
     procedure Fold (SelectedText: boolean);
     procedure Unfold;
     procedure PreviewFoldedBlock;
     procedure HideNestedFloatingEditor;
+    procedure HidingFloatingEditor;
 
     function GetZoom: integer;
     procedure SetZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );
@@ -2499,7 +2501,6 @@ var
   RTFIn, RTFOut: AnsiString;
   SS: integer;
   pI, pF: integer;
-  RTFAux : TRxRichEdit;
   CursorPos: TPoint;
   FontHeight: integer;
   FE: TFloatingEditor;
@@ -2516,7 +2517,7 @@ begin
       CursorPos:= ActiveEditor.ClientToScreen(ActiveEditor.GetCharPos(pI));
 
       if FloatingEditor = nil then
-         FloatingEditor:= TFloatingEditor.Create(Form_Main);
+         FloatingEditor:= TFloatingEditor.Create(Form_Main, Self);
 
       FE:= TFloatingEditor(FloatingEditor);
       FE.Editor.RtfText:= RTFOut;
@@ -2535,6 +2536,34 @@ begin
      FloatingEditor:= nil;
   end;
 end;
+
+procedure TKntRichEdit.HidingFloatingEditor;
+var
+  FE: TFloatingEditor;
+  pI, pF: integer;
+  RTFIn, RTFOut: AnsiString;
+
+begin
+  if FloatingEditor <> nil then begin
+     FE:= TFloatingEditor(FloatingEditor);
+     if not FE.Editor.Modified then exit;
+
+     if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
+        RTFIn:= FE.Editor.RtfText;
+
+        BeginUpdate;
+        SetSelection(pI, pF+1, false);
+        PrepareRTFtoBeFolded(RTFIn, RTFOut);
+        RtfSelText:= RTFOut;
+        SelStart:= pI;
+        SelLength:= 0;
+        EndUpdate;
+     end;
+
+  end;
+end;
+
+
 
 
 //----------------------

@@ -37,6 +37,8 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
 
   protected
+    FParentEditor: TKntRichEdit;
+
     procedure FormActivate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 
@@ -47,7 +49,7 @@ type
   public
     Editor: TKntRichEdit;
 
-    constructor Create(AOwner: TComponent); override;
+    constructor Create(AOwner: TComponent; ParentEditor: TKntRichEdit);
     destructor Destroy; override;
 
     procedure AdjustToContent();
@@ -73,7 +75,7 @@ begin
   Params.WndParent := GetDesktopWindow();
 end;
 
-constructor TFloatingEditor.Create(AOwner: TComponent);
+constructor TFloatingEditor.Create(AOwner: TComponent; ParentEditor: TKntRichEdit);
 var
   Pnl: TPanel;
   TopPanel: TPanel;
@@ -81,6 +83,8 @@ var
 
 begin
   inherited CreateNew(AOwner, 0);
+
+  FParentEditor:= ParentEditor;
 
   BorderStyle := bsSingle;
   BorderWidth := 1;
@@ -164,6 +168,7 @@ procedure TFloatingEditor.HideEditor;
 begin
   HideNestedFloatingEditor;
 
+  fParentEditor.HidingFloatingEditor;
   Hide();
 end;
 
