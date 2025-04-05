@@ -4354,6 +4354,8 @@ end;
 procedure TForm_Main.TB_ClipCapClick(Sender: TObject);
 begin
   ClipCapMng.Toggle (TB_ClipCap.Down, ActiveEditor);
+  if not ClipCapMng.ClipCapActive then
+     TB_ClipCap.Down:= False;
 end;
 
 procedure TForm_Main.MMViewAlphaTabsClick(Sender: TObject);

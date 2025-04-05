@@ -190,6 +190,9 @@ var
 begin
   with Form_Main do begin
       if not assigned(Editor) then exit;
+      Folder:= TKntFolder(Editor.FolderObj);
+      if (Folder = nil) and Editor.DoRegisterNewImages then exit;
+
 
       ClipCapCRC32 := 0; // reset test value
       FLastURLPasted:= '';
@@ -197,8 +200,6 @@ begin
       try
         try
             // turn ON clipboard capture for active folder
-
-            Folder:= TKntFolder(Editor.FolderObj);
 
             if Editor.ReadOnly then begin
                TB_ClipCap.Down := false;
