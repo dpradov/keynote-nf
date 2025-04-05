@@ -3152,7 +3152,12 @@ begin
                end;
                WidthGoal:= Width;
                HeightGoal:= Height;
-               CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
+               if TKntRichEdit.FoldingInScrapbook then begin
+                  WidthGoal:= 2;
+                  HeightGoal:= 2;
+               end
+               else
+                  CheckDimensionGoals (WidthGoal, HeightGoal);
             end;
 
             if (fStorageMode <> smEmbRTF) then begin

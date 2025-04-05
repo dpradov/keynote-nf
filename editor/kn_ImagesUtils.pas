@@ -93,7 +93,7 @@ uses
                                     ConsiderGoalOnlyIfSmaller: boolean = false
                                     ): AnsiString;
 
-  procedure CheckDimensionGoals(Width, Heigh: integer; var WidthGoal, HeightGoal: integer);
+  procedure CheckDimensionGoals(var WidthGoal, HeightGoal: integer);
 
   // ----------------
   function RTFPictToImage (Buffer: Pointer;
@@ -686,7 +686,7 @@ begin
 end;
 
 
-procedure  CheckDimensionGoals(Width, Heigh: integer; var WidthGoal, HeightGoal: integer);
+procedure  CheckDimensionGoals(var WidthGoal, HeightGoal: integer);
 var
    MaxWidth, AuxW: integer;
    Ratio: Single;
@@ -767,7 +767,7 @@ begin
          // and take into account the KeyOptions.ImgMaxAutoWidthGoal option
          WidthGoal:= Width;
          HeightGoal:= Height;
-         CheckDimensionGoals (Width, Height, WidthGoal, HeightGoal);
+         CheckDimensionGoals (WidthGoal, HeightGoal);
       end;
 
    finally

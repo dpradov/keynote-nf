@@ -79,6 +79,7 @@ type
     DraggingImage_PosImage: integer;
     DraggingImage_PosFirstHiddenChar: integer;
     FPopupMenuBAK: TPopupMenu;
+    FFoldingInScrapbook: boolean;
     FUnfolding: boolean;
     FCopying: boolean;
 
@@ -145,6 +146,7 @@ type
     property NEntryObj: TObject read fNEntryObj;
 
     class property Copying: boolean read FCopying write FCopying;
+    class property FoldingInScrapbook: boolean read FFoldingInScrapbook write FFoldingInScrapbook;
 
     property PlainText: boolean read FPlainText write FPlainText;
     property SupportsRegisteredImages: boolean read FSupportsRegisteredImages write FSupportsRegisteredImages;
@@ -285,9 +287,9 @@ type
 
   function IsATag(const Word: string): boolean;
   function IsAPossibleTag(const Word: string): boolean;
-  function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString;
+  function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit;
                                   AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
-  function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+  function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit): boolean;
   function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
   function OpenTagsConcatenated(PosTag, Lo: integer; const TxtPlain: string): boolean;
   function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit;
@@ -472,6 +474,7 @@ end;
 class constructor TKntRichEdit.Create;
 begin
    FUnfolding:= False;
+   FFoldingInScrapbook:= False;
    FCopying:= False;
 end;
 
@@ -1233,13 +1236,15 @@ begin
 end;
 
 
-function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
+function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
 var
    pI, pF, len, p, PosRTFLinkEnd: integer;
    pIn, pOut, NBytes: integer;
    RTFInWithImagesHidden: AnsiString;
    ReplaceWith: AnsiString;
    RTFAux : TAuxRichEdit;
+   ImagesMode: TImagesMode;
+   ReconsiderImageDimensionsGoalBAK: boolean;
 
 
    procedure CheckCreateResult (N: Integer);
@@ -1355,11 +1360,27 @@ begin
   if RTFIn='' then Exit;
 
 
-  RTFInWithImagesHidden:= ImageMng.ProcessImagesInRTF(RTFIn, '', imLink, '', 0, false);
-  if RTFInWithImagesHidden <> '' then begin
-     RTFIn:= RTFInWithImagesHidden;
-     RTFInWithImagesHidden:= '';
+  ReconsiderImageDimensionsGoalBAK:= ImageMng.ReconsiderImageDimensionsGoal;
+  try
+     ImagesMode:= imLink;
+     if (Editor <> nil) and not Editor.DoRegisterNewImages then begin
+        ImageMng.ReconsiderImageDimensionsGoal:= True;               // To treat the Scrapbook editor as a special case
+        ImagesMode:= imImage;
+        TKntRichEdit.FoldingInScrapbook := True;
+     end;
+
+     RTFInWithImagesHidden:= ImageMng.ProcessImagesInRTF(RTFIn, '', ImagesMode, '', 0, false);
+     if RTFInWithImagesHidden <> '' then begin
+        RTFIn:= RTFInWithImagesHidden;
+        RTFInWithImagesHidden:= '';
+     end;
+
+  finally
+     TKntRichEdit.FoldingInScrapbook:= False;
+     ImageMng.ReconsiderImageDimensionsGoal:= ReconsiderImageDimensionsGoalBAK;
   end;
+
+
 
   RTFAux:= CreateAuxRichEdit;
   try
@@ -1445,7 +1466,7 @@ end;
 
 // --------------------------------------
 
-function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString): boolean;
+function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit): boolean;
 
 type
    TFoldedLink = record
@@ -1468,6 +1489,8 @@ var
    TextPlain: String;
    FoldedLinks: array of TFoldedLink;
    RTFOutWithProcessedImages: AnsiString;
+   ImagesMode: TImagesMode;
+   ReconsiderImageDimensionsGoalBAK: boolean;
 
 
    procedure CheckCreateResult (N: Integer);
@@ -1885,9 +1908,22 @@ begin
   SetLength(RTFOut, pOut - Length('\par'+#$D#$A+'}'+#$D#$A));
 
 
-  RTFOutWithProcessedImages:= ImageMng.ProcessImagesInRTF(RTFOut, '', ActiveFolder.ImagesMode, '', 0, false);
-  if RTFOutWithProcessedImages <> '' then
-     RTFOut:= RTFOutWithProcessedImages;
+  ReconsiderImageDimensionsGoalBAK:= ImageMng.ReconsiderImageDimensionsGoal;
+  try
+     ImagesMode:= ActiveFolder.ImagesMode;
+     if (Editor <> nil) and not Editor.DoRegisterNewImages then begin
+        ImageMng.ReconsiderImageDimensionsGoal:= True;               // To treat the Scrapbook editor as a special case
+        ImagesMode:= imImage;
+     end;
+
+     RTFOutWithProcessedImages:= ImageMng.ProcessImagesInRTF(RTFOut, '', ImagesMode, '', 0, false);
+     if RTFOutWithProcessedImages <> '' then
+        RTFOut:= RTFOutWithProcessedImages;
+
+  finally
+     ImageMng.ReconsiderImageDimensionsGoal:= ReconsiderImageDimensionsGoalBAK;
+  end;
+
 end;
 
 
@@ -2351,7 +2387,7 @@ begin
       end;
 
       RTFIn:= EnsureGetRtfSelText;
-      PrepareRTFtoBeFolded(RTFIn, RTFOut, AddEndGenericBlock, MinLenExtract);
+      PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, AddEndGenericBlock, MinLenExtract);
       RtfSelText:= RTFOut;
 
       sleep(100);         // If we don't do this, the initial word will remain selected.
@@ -2373,7 +2409,7 @@ begin
       if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
          SetSelection(pI, pF+1, false);
          RTFIn:= RtfSelText;
-         PrepareRTFtoBeExpanded(RTFIn, RTFOut);
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, nil);
          RtfSelText:= RTFOut;
          SelStart:= pI;
       end;
@@ -2490,7 +2526,7 @@ begin
       BeginUpdate;
       SetSelection(pI, pF+1, false);
       RTFIn:= EnsureGetRtfSelText;
-      PrepareRTFtoBeExpanded(RTFIn, RTFOut);
+      PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
       FUnfolding:= True;
       RtfSelText:= RTFOut;
       FUnfolding:= False;
@@ -2524,7 +2560,7 @@ begin
       SetSelection(pI, pF+1, false);
       FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
       RTFIn:= EnsureGetRtfSelText;
-      PrepareRTFtoBeExpanded(RTFIn, RTFOut);
+      PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
       SelStart:= pI;
       EndUpdate;
 
@@ -2576,10 +2612,9 @@ begin
 
      if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
         RTFIn:= FE.Editor.RtfText;
-
         BeginUpdate;
         SetSelection(pI, pF+1, false);
-        PrepareRTFtoBeFolded(RTFIn, RTFOut);
+        PrepareRTFtoBeFolded(RTFIn, RTFOut, Self);
         RtfSelText:= RTFOut;
         SelStart:= pI;
         SelLength:= 0;
