@@ -80,6 +80,7 @@ type
     DraggingImage_PosFirstHiddenChar: integer;
     FPopupMenuBAK: TPopupMenu;
     FUnfolding: boolean;
+    FCopying: boolean;
 
   private
     fFileObj:   TObject;
@@ -142,6 +143,8 @@ type
     property FolderObj: TObject read fFolderObj;
     property NNodeObj: TObject read fNNodeObj;
     property NEntryObj: TObject read fNEntryObj;
+
+    class property Copying: boolean read FCopying write FCopying;
 
     property PlainText: boolean read FPlainText write FPlainText;
     property SupportsRegisteredImages: boolean read FSupportsRegisteredImages write FSupportsRegisteredImages;
@@ -469,6 +472,7 @@ end;
 class constructor TKntRichEdit.Create;
 begin
    FUnfolding:= False;
+   FCopying:= False;
 end;
 
 
@@ -3367,7 +3371,7 @@ procedure TKntRichEdit.RxRTFProtectChangeEx(Sender: TObject; const Message: TMes
 var
   pI, pF, SS: integer;
 begin
-  if FUnfolding then
+  if FUnfolding or FCopying then
      AllowChange:= True
 
   else begin

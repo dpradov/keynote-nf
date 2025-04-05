@@ -1518,6 +1518,7 @@ begin
             end;
 
             RTFAux:= Editor.GetRichEditorWithNoKNTHiddenCharacters (hmOnlyBookmarks, true);  // Remove only hidden characters vinculated to bookmarks
+            TKntRichEdit.Copying:= True;
             try
                kn_ClipUtils.CopyToClipboard (RTFAux);
                LogRTFHandleInClipboard();
@@ -1527,6 +1528,7 @@ begin
                  TestCRCForDuplicates(Clipboard.TryAsText);
                }
             finally
+               TKntRichEdit.Copying:= False;
                if RTFAux <> Editor then
                   RTFAux.Free;
 
