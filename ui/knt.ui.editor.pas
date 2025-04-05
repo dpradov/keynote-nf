@@ -2339,7 +2339,7 @@ begin
          end;
       end;
 
-      // Do not allow folding inside a folded block or partially selecting it
+      // Do not allow folding inside a folded block or partially selected
       SelLength:= 0;
       if SelAttributes.Protected then exit;
       SelStart:= SS + SL;

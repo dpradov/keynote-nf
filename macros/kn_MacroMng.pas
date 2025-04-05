@@ -1690,6 +1690,33 @@ var
        end;
     End;
 
+   function PartiallySelectedProtectedBlock: boolean;
+   var
+      IsProtected: boolean;
+      SS, SL: integer;
+
+   begin
+      with Editor do begin
+         SS:= SelStart;
+         SL:= SelLength;
+
+         IsProtected:= False;
+         BeginUpdate;
+         SelLength:= 0;
+         IsProtected:= SelAttributes.Protected;
+         if not IsProtected then begin
+            SelStart:= SS + SL;
+            IsProtected:= SelAttributes.Protected
+         end;
+         SelStart:= SS;
+         SelLength:= SL;
+         EndUpdate;
+      end;
+
+      Result:= IsProtected;
+   end;
+
+
 begin
   // Perform command on ActiveEditor
   // The command MODIFIES the folder if the ActiveEditor is vinculated to a folder,
@@ -1726,6 +1753,8 @@ begin
                SetStrikeOut(not (fsStrikeout in Style));
 
           ecCut: begin
+              if PartiallySelectedProtectedBlock then exit;       // Do not allow cutting inside a folded block, or cut a partially selected folded block
+
               if Editor.SupportsRegisteredImages then begin
                  p:= -1;
                  if SelLength = 1 then begin
@@ -1761,6 +1790,8 @@ begin
 
           ecPaste :
             begin
+              if PartiallySelectedProtectedBlock then exit;       // Do not allow pasting inside a folded block, or on a partially selected folded block
+
               if Editor.SupportsRegisteredImages then begin
                  // If we have an image selected (and maybe more elements), we need to make sure we also select the possible
                  // hidden mark with the ID, to replace it along with the image with the pasted text
