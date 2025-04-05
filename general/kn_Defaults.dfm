@@ -4,7 +4,7 @@ object Form_Defaults: TForm_Defaults
   HelpContext = 292
   BorderStyle = bsDialog
   Caption = 'Defaults'
-  ClientHeight = 496
+  ClientHeight = 500
   ClientWidth = 383
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object Form_Defaults: TForm_Defaults
   TextHeight = 13
   object LB_Scope: TLabel
     Left = 14
-    Top = 8
+    Top = 7
     Width = 348
     Height = 18
     Alignment = taRightJustify
@@ -39,7 +39,7 @@ object Form_Defaults: TForm_Defaults
   end
   object Label1: TLabel
     Left = 14
-    Top = 33
+    Top = 32
     Width = 246
     Height = 13
     AutoSize = False
@@ -53,8 +53,8 @@ object Form_Defaults: TForm_Defaults
     ParentFont = False
   end
   object Label4: TLabel
-    Left = 290
-    Top = 33
+    Left = 297
+    Top = 32
     Width = 76
     Height = 13
     AutoSize = False
@@ -69,7 +69,7 @@ object Form_Defaults: TForm_Defaults
   end
   object Button_OK: TButton
     Left = 15
-    Top = 465
+    Top = 471
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -80,7 +80,7 @@ object Form_Defaults: TForm_Defaults
   end
   object Button_Cancel: TButton
     Left = 103
-    Top = 465
+    Top = 471
     Width = 75
     Height = 25
     Hint = 'Discard changes and close dialog box'
@@ -91,7 +91,7 @@ object Form_Defaults: TForm_Defaults
   end
   object Pages: TPage95Control
     Left = 8
-    Top = 84
+    Top = 90
     Width = 369
     Height = 320
     ActivePage = Tab_Tree
@@ -146,7 +146,7 @@ object Form_Defaults: TForm_Defaults
         object Label2: TLabel
           Left = 19
           Top = 158
-          Width = 125
+          Width = 95
           Height = 13
           Caption = 'I&mage icons in tree:'
           FocusControl = Combo_TreeImages
@@ -653,7 +653,7 @@ object Form_Defaults: TForm_Defaults
   end
   object Button_Help: TButton
     Left = 298
-    Top = 465
+    Top = 471
     Width = 75
     Height = 25
     Caption = 'Help'
@@ -662,7 +662,7 @@ object Form_Defaults: TForm_Defaults
   end
   object GB_Defaults: TGroupBox
     Left = 5
-    Top = 406
+    Top = 412
     Width = 370
     Height = 53
     TabOrder = 6
@@ -705,7 +705,7 @@ object Form_Defaults: TForm_Defaults
   end
   object Edit_FolderName: TComboBox
     Left = 12
-    Top = 51
+    Top = 49
     Width = 248
     Height = 22
     Hint = 'Enter name for new folder'
@@ -719,8 +719,8 @@ object Form_Defaults: TForm_Defaults
     OnKeyPress = Edit_FolderNameKeyPress
   end
   object Combo_Icons: TGFXComboBox
-    Left = 289
-    Top = 51
+    Left = 294
+    Top = 49
     Width = 79
     Height = 22
     Hint = 'Click to select icon for folder'
@@ -735,8 +735,8 @@ object Form_Defaults: TForm_Defaults
     TabOrder = 10
   end
   object CB_RTL: TCheckBox
-    Left = 203
-    Top = 81
+    Left = 207
+    Top = 75
     Width = 167
     Height = 17
     Hint = 
@@ -756,7 +756,7 @@ object Form_Defaults: TForm_Defaults
   object ColorDlg: TColorDialog
     Options = [cdFullOpen, cdSolidColor, cdAnyColor]
     Left = 221
-    Top = 464
+    Top = 470
   end
   object FontDlg: TFontDialog
     Font.Charset = DEFAULT_CHARSET
@@ -766,13 +766,13 @@ object Form_Defaults: TForm_Defaults
     Font.Style = []
     Options = [fdEffects, fdForceFontExist]
     Left = 194
-    Top = 467
+    Top = 473
   end
   object FormPlacement: TFormPlacement
     IniSection = 'PropDlg'
     Options = [fpPosition]
     UseRegistry = True
     Left = 245
-    Top = 463
+    Top = 469
   end
 end
