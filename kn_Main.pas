@@ -2972,7 +2972,7 @@ var
   ShortCut: TShortCut;
   ShortCutItem: TMenuItem;
 begin
-   if not Active then exit;         // => ImgViewerInstance.Active = True
+   if not Active and not ((ActiveEditor <> nil) and ActiveEditor.Focused) then exit;         // => ImgViewerInstance.Active = True
 
    ShortCut := ShortCutFromMessage(Msg);
    if ShortCut = MMViewResPanel.ShortCut then begin

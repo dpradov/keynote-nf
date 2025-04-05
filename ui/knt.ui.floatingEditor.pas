@@ -63,6 +63,7 @@ implementation
 
 uses
   gf_miscvcl,
+  kn_MacroMng,
   knt.ui.TagMng,
   knt.ui.tagSelector,
   knt.App;
@@ -101,6 +102,9 @@ begin
   KeyPreview:= True;
   OnActivate:= FormActivate;
   OnKeyDown := FormKeyDown;
+  OnKeyUp := Form_Main.FormKeyUp;
+  OnShortCut:= Form_Main.FormShortCut;
+  OnHelp:= Form_Main.FormHelp;
 
   TopPanel := TPanel.Create(AOwner);
   with TopPanel do begin
@@ -291,7 +295,37 @@ begin
                HideEditor;
      end;
 
+    VK_INSERT:
+       if ( shift = [ssShift] ) then begin
+         if CmdPaste(false, false) then key:= 0;
+       end
+       else if shift = [ssCtrl] then begin
+         if CmdCopy then key:= 0;
+       end;
+
+    VK_DELETE:
+       if ( shift = [ssShift] ) then begin
+         if CmdCut then key:= 0;
+       end;
+
+// We'll manage CTR-V,CTR-C,CTR-X from FormShortCut. From this only CTR-V can be intercepted
+//    ELSE BEGIN
+//        ShortCutToKey(16470, myKey, myShift);
+//        if (myKey=key) and (myShift=Shift) then begin
+//            if CmdPaste(false) then key:= 0;
+//        end
+//    END;
+
   end;
+
+  if not (key in [0, 17, 18]) and
+           ( (ssCtrl in Shift) or (ssAlt in Shift) ) or
+           ( (Shift = [ssShift]) and (key in [VK_F1..VK_F4]) ) then begin
+     if PerformOtherCommandShortcut( Key, Shift ) then
+         Key := 0;
+  end;
+
+
 end;
 
 

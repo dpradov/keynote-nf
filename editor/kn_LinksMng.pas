@@ -1806,6 +1806,8 @@ var
   Location : TLocation;
 begin
   try
+    App.HideNestedFloatingEditors;
+
     Location:= BuildLocationFromKntURL(LocationStr);
     try
        JumpToLocation(Location, false, true, myURLAction, OpenInCurrentFile);
@@ -2757,6 +2759,8 @@ var
 
 begin
   if not assigned(ActiveFolder) then exit;
+
+  App.HideNestedFloatingEditors;
 
 {$IFDEF DEBUG_HISTORY}
   if KntFile <> nil then begin
