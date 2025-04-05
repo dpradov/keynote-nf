@@ -1680,8 +1680,8 @@ begin
   ShortcutAltDownMenuItem:= nil;
 
   PrintDlg:= TPrintDialog.Create(Self);
-  PageSetupDlg := TPageSetupDialog.Create(Self);
   PrintDlg.Options:= [poPrintToFile];
+  PageSetupDlg := nil;
 end;
 // CREATE
 
@@ -4112,6 +4112,9 @@ end;
 
 procedure TForm_Main.MMFilePageSetupClick(Sender: TObject);
 begin
+  if PageSetupDlg = nil then
+     PageSetupDlg := TPageSetupDialog.Create(Self);
+
   try
      PageSetupDlg.Options:= [psoMargins];
      PageSetupDlg.Execute;
