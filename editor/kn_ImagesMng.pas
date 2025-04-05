@@ -421,7 +421,7 @@ type
                                  ExitIfAllImagesInSameModeDest: boolean = false
                                  ): AnsiString; overload;
 
-    function ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0): boolean;
+    function ProcessImagesInClipboard(Editor: TKntRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0): boolean;
     function TryRTFPictToImage (Buffer: Pointer; BufSize: integer; var Img: TKntImage): boolean;
 
     procedure ResetAllImagesCountReferences;
@@ -2648,7 +2648,7 @@ end;
  hidden marks that have been precise
  * There are situations where it is also called when copied from KeyNote. See comments in TKntRichEdit.PasteBestAvailableFormat
 }
-function TImageMng.ProcessImagesInClipboard(Editor: TRxRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0): boolean;
+function TImageMng.ProcessImagesInClipboard(Editor: TKntRichEdit; const FolderName: string; SelStartBeforePaste: integer; FirstImageID: integer= 0): boolean;
 var
   SelStartBak: integer;
   p1, p2: integer;
@@ -2667,7 +2667,11 @@ begin
     Editor.SetSelection(p1, p2, true);
     RTFText:= Editor.RtfSelText;
 
-    ImagesMode:= FImagesMode;
+    if Editor.DoRegisterNewImages then
+       ImagesMode:= FImagesMode              // Editor or floating editor in folder
+    else
+       ImagesMode:= imImage;                 // Scrapbook or floating editor in scrapbook
+
     RTFTextOut:= ProcessImagesInRTF(RTFText, FolderName, ImagesMode, 'Clipboard', FirstImageID);
 
     if RTFTextOut <> '' then begin
