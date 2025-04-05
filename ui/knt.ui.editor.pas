@@ -128,8 +128,11 @@ type
     procedure CheckWordCountWaiting;
     procedure CleanWordCount;
 
+    function GetDoRegisterNewImages: boolean;
+
   public
     FloatingEditor: TObject;
+    FParentEditor: TKntRichEdit;
 
     class constructor Create;
     constructor Create( AOwner : TComponent ); override;
@@ -143,6 +146,7 @@ type
     property PlainText: boolean read FPlainText write FPlainText;
     property SupportsRegisteredImages: boolean read FSupportsRegisteredImages write FSupportsRegisteredImages;
     property SupportsImages: boolean read FSupportsImages write FSupportsImages;
+    property DoRegisterNewImages: boolean read GetDoRegisterNewImages;
     property Chrome: TChrome read FChrome write FChrome;
     property ZoomGoal: integer read FZoomGoal;
     property ZoomCurrent: integer read FZoomCurrent;
@@ -206,6 +210,7 @@ type
     procedure PreviewFoldedBlock;
     procedure HideNestedFloatingEditor;
     procedure HidingFloatingEditor;
+    function Focused: boolean; override;
 
     function GetZoom: integer;
     procedure SetZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );
@@ -506,6 +511,7 @@ begin
   OnEndDrag   := RxRTFEndDrag;        // ,,
 
   FloatingEditor:= nil;
+  FParentEditor:= nil;
 
 end; // TKntRichEdit CREATE
 
@@ -533,6 +539,10 @@ begin
 end;
 
 
+function TKntRichEdit.GetDoRegisterNewImages: boolean;
+begin
+   Result:= (NNodeObj <> nil) or ((FParentEditor <> nil) and FParentEditor.DoRegisterNewImages);
+end;
 
 {
  NOTE:
@@ -2523,6 +2533,10 @@ begin
       FE.Editor.RtfText:= RTFOut;
       FE.Editor.Modified:= False;
       FE.Editor.ReadOnly:= Self.ReadOnly;
+      FE.Editor.FZoomGoal:= FZoomGoal;
+      FE.Editor.FZoomCurrent:= FZoomCurrent;
+      TagMng.CreateTagSelector(TForm(FloatingEditor));
+
       Form_Main.ActiveControl:= nil;
       FE.ShowEditor(CursorPos.X, CursorPos.Y, FontHeight);
    end;
@@ -2542,9 +2556,17 @@ var
   FE: TFloatingEditor;
   pI, pF: integer;
   RTFIn, RTFOut: AnsiString;
+  FormParent: TForm;
 
 begin
   if FloatingEditor <> nil then begin
+     FormParent:= Form_Main;
+     if FParentEditor = nil then
+        FormParent:= Form_Main
+     else
+        FormParent:= TForm(Self.Parent);
+     TagMng.CreateTagSelector(FormParent);
+
      FE:= TFloatingEditor(FloatingEditor);
      if not FE.Editor.Modified then exit;
 
@@ -2564,6 +2586,10 @@ begin
 end;
 
 
+function TKntRichEdit.Focused: boolean;
+begin
+   Result:= inherited Focused or ((FParentEditor <> nil) and (ActiveFolder.FocusMemory = focRTF));
+end;
 
 
 //----------------------
@@ -2858,7 +2884,7 @@ begin
    if ReadOnly then exit;
 
    GetAndRememberCurrentZoom;
-   ImageMng.DoNotRegisterNewImages:= (NNodeObj = nil);
+   ImageMng.DoNotRegisterNewImages:= not DoRegisterNewImages;
    if ReconsiderDimensionsGoal then
       ImageMng.ReconsiderImageDimensionsGoal:= true;
    try
@@ -2884,7 +2910,7 @@ begin
 
    finally
       ImageMng.ReconsiderImageDimensionsGoal:= false;
-      ImageMng.DoNotRegisterNewImages:= (ActiveEditor.NNodeObj = nil);
+      ImageMng.DoNotRegisterNewImages:= not ActiveEditor.DoRegisterNewImages;
       RestoreZoomCurrent;
    end;
 end;
@@ -2897,7 +2923,7 @@ begin
   HideNestedFloatingEditor;
   if FUpdating > 0 then exit;
 
-  ImageMng.DoNotRegisterNewImages:= (NNodeObj = nil);
+  ImageMng.DoNotRegisterNewImages:= not DoRegisterNewImages;
 
   inherited;
 end;
@@ -5959,7 +5985,7 @@ var
    TagsStateBAK: TTagsState;
 
 begin
-   if ActiveFile.NoteTagsTemporalAdded.Count = 0 then exit;
+   if (ActiveFile = nil) or (ActiveFile.NoteTagsTemporalAdded.Count = 0) then exit;
 
    Txt:= Self.TextPlain;
    Txt:= Txt.ToUpper;

@@ -63,6 +63,8 @@ implementation
 
 uses
   gf_miscvcl,
+  knt.ui.TagMng,
+  knt.ui.tagSelector,
   knt.App;
 
 
@@ -142,9 +144,10 @@ begin
 
      HelpContext:= 282;  // KeyNote Editor [282]
 
+     FParentEditor:= ParentEditor;
      SetVinculatedObjs(nil, nil, nil, nil);
 
-     PlainText:= False;
+     PlainText:= ParentEditor.PlainText;
      Chrome:= Knt.App.DefaultEditorChrome;
      SupportsRegisteredImages:= True;
      SupportsImages:= True;
@@ -166,6 +169,7 @@ end;
 
 procedure TFloatingEditor.HideEditor;
 begin
+  TagMng.FreeTagSelector;
   HideNestedFloatingEditor;
 
   fParentEditor.HidingFloatingEditor;
@@ -277,7 +281,16 @@ end;
 procedure TFloatingEditor.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   case key of
-     VK_ESCAPE: HideEditor;
+     VK_ESCAPE: begin
+            key := 0;
+            if IntroducingTagsState = itWithTagSelector then begin
+               IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
+               cTagSelector.CloseTagSelector(false);
+            end
+            else
+               HideEditor;
+     end;
+
   end;
 end;
 

@@ -1828,7 +1828,7 @@ begin
   Application.OnDeactivate := AppDeactivate;
   // FolderMon.onChange := FolderMonChange;
 
-  TagMng.CreateTagSelector;
+  TagMng.CreateTagSelector(Form_Main);
 
   Log_StoreTick( 'FormActivate - End', 1, -1 );
 
@@ -2407,7 +2407,7 @@ begin
             FRTLShortcutToExecute:= rtNone;
     end;
 
-    if (IntroducingTagsState = itNoTags) and (FRestoreFocusInEditor = 0) and (ActiveControl = ActiveEditor)
+    if (IntroducingTagsState = itNoTags) and (FRestoreFocusInEditor = 0) and ((ActiveControl = ActiveEditor) or ((ActiveEditor <> nil) and ActiveEditor.Focused ))
        and (GetAsyncKeyState(VK_LEFT) = 0) and (GetAsyncKeyState(VK_RIGHT) = 0)
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;

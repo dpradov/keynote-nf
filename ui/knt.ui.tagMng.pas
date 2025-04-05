@@ -70,7 +70,8 @@ type
     procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string);
 
     procedure OfferTagSelectorInExport(InExport: boolean);
-    procedure CreateTagSelector(Owner: TComponent = nil);
+    procedure CreateTagSelector(Form: TForm);
+    procedure FreeTagSelector;
     procedure UpdateTagSelector;
     procedure GetTagsMaxWidth(NTags: TNoteTagList; var MaxNameWidth: integer; var MaxDescWidth: integer);
     procedure CheckEndTagIntroduction(OnTypedHash: boolean= false);
@@ -146,13 +147,28 @@ begin
 end;
 
 
-procedure TTagMng.CreateTagSelector;
+procedure TTagMng.CreateTagSelector(Form: TForm);
 begin
-  if cTagSelector <> nil then exit;
+  if (cTagSelector <> nil) and (cTagSelector.Owner <> Form) then
+      FreeAndNil(cTagSelector);
 
-  fTagSelectorOwnerHWND:= Form_Main.Handle;
-  cTagSelector:= TTagSelector.Create(Form_Main);
+  if (cTagSelector = nil) then begin
+     fTagSelectorOwnerHWND:= Form.Handle;
+     cTagSelector:= TTagSelector.Create(Form);
+  end;
 end;
+
+procedure TTagMng.FreeTagSelector;
+begin
+  if txtTags <> nil then
+     EndedTxtTagIntrod(False);
+
+  if cTagSelector <> nil then
+     FreeAndNil(cTagSelector);
+
+  IntroducingTagsState:= itNoTags;
+end;
+
 
 
 procedure TTagMng.UpdateTagSelector;
