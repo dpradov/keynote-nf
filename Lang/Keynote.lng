@@ -2255,7 +2255,6 @@ Button_OK.Caption=&Close
 54637_knt_RS_sAlrt06=Pending Reminders (%d)
 54638_knt_RS_sAlrt07=Discarded Events (%d)
 54639_knt_RS_sAlrt08=ALARM [%s] :  %s
-54640_knt_RS_sFnd12=Information
 54641_knt_RS_sFnd13= matches
 54642_knt_RS_sGlss00=No item selected.
 54643_knt_RS_sGlss01=Shortcut term and its expanded definition cannot be blank.
@@ -2725,5 +2724,6 @@ Button_OK.Caption=&Close
 55122_knt_RS_sTag16=Error exporting selected Tags:
 55123_knt_RS_sTag17=Error importing Tags:
 55124_knt_RS_sTag18=Importing Tags from file
+55125_knt_RS_sFnd14=Ignored occurrences in %d folded blocks
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

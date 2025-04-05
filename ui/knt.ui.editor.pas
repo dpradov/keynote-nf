@@ -134,7 +134,7 @@ type
 
   public
     FloatingEditor: TObject;
-    FParentEditor: TKntRichEdit;
+    ParentEditor: TKntRichEdit;
 
     class constructor Create;
     constructor Create( AOwner : TComponent ); override;
@@ -299,6 +299,7 @@ type
                               IsTag: boolean = false;
                               IgnoreFoldedBlocks: boolean = True;
                               ForFolding: boolean = False): boolean;
+  function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit): boolean;
 
   procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
   function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false): integer;
@@ -518,7 +519,7 @@ begin
   OnEndDrag   := RxRTFEndDrag;        // ,,
 
   FloatingEditor:= nil;
-  FParentEditor:= nil;
+  ParentEditor:= nil;
 
 end; // TKntRichEdit CREATE
 
@@ -548,7 +549,7 @@ end;
 
 function TKntRichEdit.GetDoRegisterNewImages: boolean;
 begin
-   Result:= (NNodeObj <> nil) or ((FParentEditor <> nil) and FParentEditor.DoRegisterNewImages);
+   Result:= (NNodeObj <> nil) or ((ParentEditor <> nil) and ParentEditor.DoRegisterNewImages);
 end;
 
 {
@@ -2601,7 +2602,7 @@ var
 begin
   if FloatingEditor <> nil then begin
      FormParent:= Form_Main;
-     if FParentEditor = nil then
+     if ParentEditor = nil then
         FormParent:= Form_Main
      else
         FormParent:= TForm(Self.Parent);
@@ -2627,8 +2628,36 @@ end;
 
 function TKntRichEdit.Focused: boolean;
 begin
-   Result:= inherited Focused or ((FParentEditor <> nil) and (ActiveFolder.FocusMemory = focRTF));
+   Result:= inherited Focused or ((ParentEditor <> nil) and (ActiveFolder.FocusMemory = focRTF));
 end;
+
+
+function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit): boolean;
+var
+   IsProtected: boolean;
+   SS, SL: integer;
+
+begin
+   with Editor do begin
+      SS:= SelStart;
+      SL:= SelLength;
+
+      IsProtected:= False;
+      BeginUpdate;
+      SelLength:= 0;
+      IsProtected:= SelAttributes.Protected;
+      if not IsProtected then begin
+         SelStart:= SS + SL;
+         IsProtected:= SelAttributes.Protected
+      end;
+      SelStart:= SS;
+      SelLength:= SL;
+      EndUpdate;
+   end;
+
+   Result:= IsProtected;
+end;
+
 
 
 //----------------------

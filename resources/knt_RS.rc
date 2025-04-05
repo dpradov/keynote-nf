@@ -450,7 +450,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 54637,  "Pending Reminders (%d)"
 54638,  "Discarded Events (%d)"
 54639,  "ALARM [%s] :  %s"
-54640,  "Information"
 54641,  " matches"
 54642,  "No item selected."
 54643,  "Shortcut term and its expanded definition cannot be blank."
@@ -925,4 +924,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55122,  "Error exporting selected Tags:"
 55123,  "Error importing Tags:"
 55124,  "Importing Tags from file"
+55125,  "Ignored occurrences in %d folded blocks"
 }

@@ -3222,6 +3222,7 @@ var
   NNode: TNoteNode;
   SearchInImLinkTextPlain: boolean;  // True: PatternPos is a position in imLinkTextPlain
   IgnoreKNTHiddenMarks: boolean;
+  pI, pF: integer;
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -3458,6 +3459,9 @@ begin
             else
                TextPlain:= GetTextPlainFromNode(NNode, RTFAux);
 
+            if PositionInFoldedBlock(TextPlain, Editor.SelStart, Editor, pI, pF) then
+               SearchOrigin:= pF + 1;
+
             if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then begin
                ReplacingLastNode:= myTreeNode;
                ReplacingLastNodeHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same node will be optimized if this node has no images
@@ -3541,6 +3545,7 @@ var
   l1, l2: integer;
   SizeInternalHiddenText: integer;
   TextPlain: string;
+  pI, pF: integer;
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -3617,6 +3622,9 @@ begin
       end;
 
       repeat
+         if PositionInFoldedBlock(TextPlain, Editor.SelStart, Editor, pI, pF) then
+            SearchOrigin:= pF + 1;
+
          if FindOptions.MatchCase then
             PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, True, True) -1
          else
@@ -3657,7 +3665,7 @@ begin
       else begin
           App.ShowInfoInStatusBar(GetRS(sFnd10));
           if not Is_Replacing then
-             DoMessageBox(Format( GetRS(sFnd02), [Text_To_Find] ), GetRS(sFnd12), 0, handle);
+             App.InfoPopup(Format( GetRS(sFnd02), [Text_To_Find] ));
       end;
 
       result := Found;
@@ -3699,7 +3707,7 @@ end; // FindEventProc
 
 procedure ReplaceEventProc( ReplaceAll : boolean );
 var
-  ReplaceCnt : integer;
+  ReplaceCnt, IgnoreCnt : integer;
   Original_Confirm : boolean;
   Original_EntireScope : boolean;
   SelectedTextToReplace: boolean;
@@ -3709,6 +3717,7 @@ var
   handle: HWND;
   AppliedBeginUpdate: Boolean;
   Editor: TKntRichEdit;
+  pI, pF: integer;
 
 
   procedure BeginUpdateOnFolders;
@@ -3795,7 +3804,6 @@ var
          end;
   end;
 
-
 begin
   if assigned( Form_FindReplace ) then begin
      FindOptions := Form_FindReplace.MyFindOptions;
@@ -3809,6 +3817,7 @@ begin
   Editor:= SearchingInEditor;
 
   ReplaceCnt := 0;
+  IgnoreCnt := 0;
   Text_To_Find := FindOptions.Pattern;
   ReplaceWith:= FindOptions.ReplaceWith;
   if FindOptions.TagSearch then begin
@@ -3871,10 +3880,17 @@ begin
                        break;
 
                 if GetReplacementConfirmation then begin
-                   inc(ReplaceCnt);
-                   Editor.AddText(ReplaceWith);
-                   if Editor.NNodeObj <> nil then
-                      App.ChangeInEditor(Editor);
+                   if not InsideOrPartiallySelectedProtectedBlock(Editor) then begin
+                      inc(ReplaceCnt);
+                      Editor.AddText(ReplaceWith);
+                      if Editor.NNodeObj <> nil then
+                         App.ChangeInEditor(Editor);
+                   end
+                   else begin
+                      PositionInFoldedBlock(Editor.TextPlain, Editor.SelStart, Editor, pI, pF);
+                      Editor.SelStart:= pF + 1;
+                      inc(IgnoreCnt);
+                   end;
                 end;
 
                 Application.ProcessMessages;
@@ -3910,14 +3926,20 @@ begin
      if ReplaceAll then begin
         Editor.SelLength:= 0;
         if not FindOptions.TagSearch then
-           DoMessageBox(txtMessage, GetRS(sFnd12), 0, handle);
+           App.InfoPopup(txtMessage);
      end;
-     App.ActivateFolder(ActiveFolder);
+     if Editor.ParentEditor <> nil then
+        Editor.Parent.SetFocus
+     else
+        App.ActivateFolder(ActiveFolder);
   end
   else
-      if not SelectedTextToReplace and not FindOptions.TagSearch then begin
-         DoMessageBox(Format( GetRS(sFnd02), [Text_To_Find] ), GetRS(sFnd12), 0, handle);
+      if not SelectedTextToReplace and not FindOptions.TagSearch and (IgnoreCnt = 0) then begin
+         App.InfoPopup(Format( GetRS(sFnd02), [Text_To_Find]));
       end;
+
+  if (IgnoreCnt > 0) then
+      App.WarningPopup(Format( GetRS(sFnd14), [IgnoreCnt]));
 
 end;
 

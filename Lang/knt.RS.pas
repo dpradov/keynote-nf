@@ -488,8 +488,8 @@ const
    sFnd09 = 54669;   //  Pattern found at pos %d (%d occurrence(s))
    sFnd10 = 54670;   //  Pattern not found.
    sFnd11 = 54671;   //  Replaced %d occurrence(s)
-   sFnd12 = 54640;   // Information
    sFnd13 = 54641;   //  matches
+   sFnd14 = 55125;   // Ignored occurrences in %d folded blocks
 
    sGlss00 = 54642;   // No item selected.
    sGlss01 = 54643;   // Shortcut term and its expanded definition cannot be blank.

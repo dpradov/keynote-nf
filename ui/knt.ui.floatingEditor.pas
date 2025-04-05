@@ -49,7 +49,7 @@ type
   public
     Editor: TKntRichEdit;
 
-    constructor Create(AOwner: TComponent; ParentEditor: TKntRichEdit);
+    constructor Create(AOwner: TComponent; ParentEdit: TKntRichEdit);
     destructor Destroy; override;
 
     procedure AdjustToContent();
@@ -78,7 +78,7 @@ begin
   Params.WndParent := GetDesktopWindow();
 end;
 
-constructor TFloatingEditor.Create(AOwner: TComponent; ParentEditor: TKntRichEdit);
+constructor TFloatingEditor.Create(AOwner: TComponent; ParentEdit: TKntRichEdit);
 var
   Pnl: TPanel;
   TopPanel: TPanel;
@@ -87,7 +87,7 @@ var
 begin
   inherited CreateNew(AOwner, 0);
 
-  FParentEditor:= ParentEditor;
+  FParentEditor:= ParentEdit;
 
   BorderStyle := bsSingle;
   BorderWidth := 1;
@@ -148,7 +148,7 @@ begin
 
      HelpContext:= 282;  // KeyNote Editor [282]
 
-     FParentEditor:= ParentEditor;
+     ParentEditor:= ParentEdit;
      SetVinculatedObjs(nil, nil, nil, nil);
 
      PlainText:= ParentEditor.PlainText;
