@@ -627,6 +627,8 @@ type
     HintsAccesible: boolean;  // [*] 1 => When hints are shown in status bar, other text panels will be shown blank
     EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom
     //AutoDiscoverTags: boolean;
+    RTLkeyShct: boolean;           // [*] 0 => Don't use keyboard shortcut for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)
+
 
     ImgDefaultStorageMode:     TImagesStorageMode;
     ImgDefaultExternalStorage: TImagesExternalStorage;

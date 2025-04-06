@@ -2391,7 +2391,7 @@ begin
        Sleep(25);                       // *2
     end;
 
-    if (FRTLShortcutToExecute <> rtNone) then begin          // See comment *1 and *2 in AppRestore
+    if KeyOptions.RTLkeyShct and (FRTLShortcutToExecute <> rtNone) then begin          // See comment *1 and *2 in AppRestore
          if (ActiveEditor <> nil) and (not ActiveEditor.ReadOnly) then begin
             if MilliSecondsBetween(FRTLShortcutDetectedAt, now) > 50  then begin
               if (GetKeyState(VK_CONTROL) >= 0) or (GetKeyState(VK_SHIFT) >= 0) then begin
@@ -2985,8 +2985,8 @@ begin
 
 
       // CharCode = 16 -> Shift | CharCode = 17 -> Ctrl
-      if ShiftPressed then
-         if Msg.CharCode in [16..17] then begin                      // See comment *1 and *2 in AppRestore
+      if ShiftPressed then                                     // If we do not mark it Handled (by KeyOptions.RTLkeyShct = False), it will be managed internally by the RichText control
+         if (Msg.CharCode in [16..17]) then begin
             FRTLShortcutToExecute:= rtNone;
             if (GetKeyState(VK_RCONTROL) < 0) and (GetKeyState(VK_RSHIFT) < 0) then
                FRTLShortcutToExecute:= rtRTL

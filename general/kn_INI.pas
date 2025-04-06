@@ -439,7 +439,8 @@ type
     ModifiedOnTreeResized,
     HintsAccesible,
     EditorInfoPanelTop,
-    AutoDiscoverTags,
+    //AutoDiscoverTags,
+    RTLkeyShct,
     ImgDefaultStorageMode,
     ImgDefaultExternalStorage,
     ImgDefaultCompression,
@@ -619,7 +620,8 @@ const
     ModifiedOnTreeResized : 'ModifiedOnTreeResized';
     HintsAccesible : 'HintsAccesible';
     EditorInfoPanelTop: 'EditorInfoPanelTop';
-    AutoDiscoverTags: 'AutoDiscoverTags';
+    //AutoDiscoverTags: 'AutoDiscoverTags';
+    RTLkeyShct: 'RTLkeyShct';
     ImgDefaultStorageMode: 'ImgDefaultStorageMode';
     ImgDefaultExternalStorage: 'ImgDefaultExternalStorage';
     ImgDefaultCompression: 'ImgDefaultCompression';
@@ -1182,6 +1184,7 @@ begin
     HintsAccesible:= False;
     EditorInfoPanelTop:= False;
     //AutoDiscoverTags:= False;
+    RTLkeyShct:= True;
 
     ImgDefaultStorageMode := smEmbKNT;
     ImgDefaultExternalStorage := issFolder;
@@ -1495,6 +1498,7 @@ begin
       writebool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
       writebool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
       //writebool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
+      writebool( section, KeyOptionsIniStr.RTLkeyShct, KeyOptions.RTLkeyShct );
 
       writeinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode ));
       writeinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage ));
@@ -1865,6 +1869,7 @@ begin
       KeyOptions.HintsAccesible := readbool( section, KeyOptionsIniStr.HintsAccesible, KeyOptions.HintsAccesible );
       KeyOptions.EditorInfoPanelTop := readbool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
       //KeyOptions.AutoDiscoverTags := readbool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
+      KeyOptions.RTLkeyShct := readbool( section, KeyOptionsIniStr.RTLkeyShct, KeyOptions.RTLkeyShct );
 
       KeyOptions.ImgDefaultStorageMode := TImagesStorageMode( readinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode )));
       KeyOptions.ImgDefaultExternalStorage := TImagesExternalStorage( readinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage )));
