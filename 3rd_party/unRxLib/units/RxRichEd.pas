@@ -1040,6 +1040,23 @@ const
   IMF_IMECANCELCOMPLETE       = $0004;  { high completes the comp string when aborting, low cancels. }
   IMF_IMEALWAYSSENDNOTIFY     = $0008;
 
+  { https://learn.microsoft.com/en-us/windows/win32/controls/em-getlangoptions
+    IMF_AUTOFONT
+       If this flag is set, the control automatically changes fonts when the user explicitly changes to a different keyboard layout.
+       It is useful to turn off IMF_AUTOFONT for universal Unicode fonts. This option is turned on by default (1).
+
+    IMF_AUTOFONTSIZEADJUST
+       If this flag is set, the control scales font-bound font sizes from insertion point size according to script. For example,
+       Asian fonts are slightly larger than Western ones. This option is turned on by default (1).
+
+    IMF_AUTOKEYBOARD
+      If this flag is set, the control automatically changes the keyboard layout when the user explicitly changes to a different font,
+      or when the user explicitly changes the insertion point to a new location in the text.
+      ** Will be turned on automatically for bidirectional controls. For all other controls, it is turned off by default.
+      This option is turned off by default (0).
+  }
+
+
 { New notifications }
 
   EN_OLEOPFAILED                      = $0709;

@@ -627,8 +627,76 @@ type
     HintsAccesible: boolean;  // [*] 1 => When hints are shown in status bar, other text panels will be shown blank
     EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom
     //AutoDiscoverTags: boolean;
-    RTLkeyShct: boolean;           // [*] 0 => Don't use keyboard shortcut for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)
+    RTLkeyShct: boolean;          // [*] 0 => Don't use keyboard shortcut for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)  (Default: 0)
+    IMEAutoKeyboard: boolean;     // [*] 1 => Will keep IMF_AUTOKEYBOARD on when turned on automatically for bidirectional controls  (Default: 1)
+                                  //     0 => IMF_AUTOKEYBOARD will be turned off just after setting RTL mode
+    IMEAutoFont: boolean;         // [*] 1 => IMF_AUTOFONT will always be turned on.     (Default: 1)
+                                  //     0 => IMF_AUTOFONT will be turned off
+                                  // See https://learn.microsoft.com/en-us/windows/win32/controls/em-getlangoptions for info about
+                                  // IMF_AUTOKEYBOARD and IMF_AUTOFONT, and how it affects the RichText behaviour.
 
+                          { https://learn.microsoft.com/en-us/windows/win32/controls/em-getlangoptions
+                            IMF_AUTOFONT
+                               If this flag is set, the control automatically changes fonts when the user explicitly changes to a different keyboard layout.
+                               It is useful to turn off IMF_AUTOFONT for universal Unicode fonts. This option is turned on by default (1).
+
+                            IMF_AUTOFONTSIZEADJUST
+                               If this flag is set, the control scales font-bound font sizes from insertion point size according to script. For example,
+                               Asian fonts are slightly larger than Western ones. This option is turned on by default (1).
+
+                            IMF_AUTOKEYBOARD
+                              If this flag is set, the control automatically changes the keyboard layout when the user explicitly changes to a different font,
+                              or when the user explicitly changes the insertion point to a new location in the text.
+                              Will be turned on automatically for bidirectional controls. For all other controls, it is turned off by default.
+                              This option is turned off by default (0).
+
+
+
+                            If IMEAutoKeyboard = 1, then when setting a paragraph to RTL and navigating through the text, the keyboard layout will change
+                            depending on whether the paragraph is configured as RTL or LTR. Even within a single paragraph, if parts of it are written in
+                            a certain language, the keyboard may also switch automatically.
+
+                            Even with IMEAutoKeyboard = 0, immediately after setting a paragraph to RTL, the RichEdit control will automatically activate
+                            the IMF_AUTOKEYBOARD flag, which causes the keyboard layout to switch to what it identifies as the most suitable for RTL or LTR
+                            content. (*)
+
+                            So, what does IMEAutoKeyboard = 0 actually imply?
+                            Despite that initial keyboard switch right after changing to RTL, if IMEAutoKeyboard = 0, the keyboard layout will no longer
+                            change just by moving around the text. A key implication is that inserting certain special characters like EmDash (—) will not
+                            trigger automatic font changes.
+                            For example, if IMEAutoKeyboard = 1 (IMF_AUTOKEYBOARD = 1), the RichEdit control associates certain special characters
+                            (like \emdash, \endash, \bullet) with the RTL language script—even if you type or paste those characters inside non-RTL text.
+                            Additionally, RichEdit may automatically change the font if it deems the current one unsuitable for the detected script. For
+                            instance, after inserting an EmDash, it might switch the font to Calibri, assuming that font offers better RTL support.
+                            Note however that even the control will propose to use Calibri after that EmDash (for example), if you insert that character
+                            using Insert|Character... or with the help of AutoHotkey (in this last case having RTLkeyShct=0), you will continue writing
+                            with your font and keyboard. Only if you place the caret just after the special character and continue typing will next
+                            characters change to Calibri and other language. If the special character is inserted pasting from clipboard then the change
+                            of font and keyboard will be assured...
+
+
+                            (*) It would have been possible to make KeyNote restore the previous keyboard layout immediately after setting a paragraph to RTL.
+                                However, I found that behavior more uncomfortable than the default one. I believe that for users who genuinely need RTL
+                                configuration, automatically switching the keyboard layout upon setting RTL is actually helpful. In fact, this is the
+                                default behavior of Windows in RTL-aware controls.
+
+                            IMEAutoKeyboard will default to 1, but could be interesting to change to 0 if needed to avoid the behaviour described related
+                            the insertion of some special characters.
+
+
+                            I’ve also observed that regardless of the IMF_AUTOKEYBOARD setting, whenever the End key is pressed from within a given paragraph,
+                            the keyboard layout automatically adjusts depending on whether the paragraph is RTL or LTR.
+                            So, with IMEAutoKeyboard = 0 (=> IMF_AUTOKEYBOARD = 0), simply moving the cursor between paragraphs won’t cause the keyboard to
+                            switch, but pressing End will, adjusting it to the expected layout according to the paragraph’s direction—without needing to
+                            manually switch keyboards from the taskbar.
+
+                            (See GitHub issue #816 for a description of the font-switching issue when inserting certain special characters.)
+
+                            The default value for RTLkeyShct has been set to 0 to avoid the complications that RTL handling entails for the RichEdit control,
+                            which could cause problems for users who might activate it by mistake (as originally reported in issue #816, due to the use of
+                            AutoHotKey).
+
+                          }
 
     ImgDefaultStorageMode:     TImagesStorageMode;
     ImgDefaultExternalStorage: TImagesExternalStorage;

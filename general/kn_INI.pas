@@ -441,6 +441,8 @@ type
     EditorInfoPanelTop,
     //AutoDiscoverTags,
     RTLkeyShct,
+    IMEAutoKeyboard,
+    IMEAutoFont,
     ImgDefaultStorageMode,
     ImgDefaultExternalStorage,
     ImgDefaultCompression,
@@ -622,6 +624,8 @@ const
     EditorInfoPanelTop: 'EditorInfoPanelTop';
     //AutoDiscoverTags: 'AutoDiscoverTags';
     RTLkeyShct: 'RTLkeyShct';
+    IMEAutoKeyboard: 'IMEAutoKeyboard';
+    IMEAutoFont: 'IMEAutoFont';
     ImgDefaultStorageMode: 'ImgDefaultStorageMode';
     ImgDefaultExternalStorage: 'ImgDefaultExternalStorage';
     ImgDefaultCompression: 'ImgDefaultCompression';
@@ -1184,7 +1188,9 @@ begin
     HintsAccesible:= False;
     EditorInfoPanelTop:= False;
     //AutoDiscoverTags:= False;
-    RTLkeyShct:= True;
+    RTLkeyShct:= False;
+    IMEAutoKeyboard:= True;
+    IMEAutoFont:= True;
 
     ImgDefaultStorageMode := smEmbKNT;
     ImgDefaultExternalStorage := issFolder;
@@ -1499,6 +1505,9 @@ begin
       writebool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
       //writebool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
       writebool( section, KeyOptionsIniStr.RTLkeyShct, KeyOptions.RTLkeyShct );
+      writebool( section, KeyOptionsIniStr.IMEAutoKeyboard, KeyOptions.IMEAutoKeyboard );
+      writebool( section, KeyOptionsIniStr.IMEAutoFont, KeyOptions.IMEAutoFont );
+
 
       writeinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode ));
       writeinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage ));
@@ -1870,6 +1879,8 @@ begin
       KeyOptions.EditorInfoPanelTop := readbool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
       //KeyOptions.AutoDiscoverTags := readbool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
       KeyOptions.RTLkeyShct := readbool( section, KeyOptionsIniStr.RTLkeyShct, KeyOptions.RTLkeyShct );
+      KeyOptions.IMEAutoKeyboard := readbool( section, KeyOptionsIniStr.IMEAutoKeyboard, KeyOptions.IMEAutoKeyboard );
+      KeyOptions.IMEAutoFont := readbool( section, KeyOptionsIniStr.IMEAutoFont, KeyOptions.IMEAutoFont );
 
       KeyOptions.ImgDefaultStorageMode := TImagesStorageMode( readinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode )));
       KeyOptions.ImgDefaultExternalStorage := TImagesExternalStorage( readinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage )));

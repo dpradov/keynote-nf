@@ -2371,10 +2371,14 @@ end; // AppMinimize;
 
 
 procedure TForm_Main.ApplicationEventsIdle(Sender: TObject; var Done: Boolean);           // *1
+var
+  CurrentLayout: HKL;
+  LangOpt: TRichLangOptions;
 begin
   // *2 In the tests it doesn't seem necessary with the Host (W11) but it does with W10 (from virtual machine).
   //    I keep it for safety and because nothing is noticeable, because of its short duration and because at that point
   //    the window is already visible and the editor doesn't show changes (BeginUpdate)
+
 
     if (FRestoreFocusInEditor = 2) then begin
        FRestoreFocusInEditor:= 0;
@@ -2395,10 +2399,19 @@ begin
          if (ActiveEditor <> nil) and (not ActiveEditor.ReadOnly) then begin
             if MilliSecondsBetween(FRTLShortcutDetectedAt, now) > 50  then begin
               if (GetKeyState(VK_CONTROL) >= 0) or (GetKeyState(VK_SHIFT) >= 0) then begin
+                {LangOpt:= ActiveEditor.LangOptions;
+                if not KeyOptions.IMEAutoKeyboard then
+                   CurrentLayout := GetKeyboardLayout(0);}
+
                 case FRTLShortcutToExecute of
                    rtRTL: ActiveEditor.Paragraph.RTL:= true;
                    rtLTR: ActiveEditor.Paragraph.RTL:= false;
                 end;
+                ActiveEditor.SetLangOptionsAfterChangeRTL;
+
+                {if not KeyOptions.IMEAutoKeyboard then
+                   ActivateKeyboardLayout(CurrentLayout, 0);}
+
                 FRTLShortcutToExecute:= rtNone;
               end;
             end;
@@ -4540,12 +4553,23 @@ end;
 
 
 procedure TForm_Main.RTFM_RTLClick(Sender: TObject);
+var
+  CurrentLayout: HKL;
+
 begin
    if ActiveEditor.ReadOnly then begin
       App.WarnEditorIsReadOnly;
       exit;
    end;
+
+   {if not KeyOptions.IMEAutoKeyboard then
+      CurrentLayout := GetKeyboardLayout(0);}
+
    ActiveEditor.Paragraph.RTL:= not ActiveEditor.Paragraph.RTL;
+   ActiveEditor.SetLangOptionsAfterChangeRTL;
+
+   {if not KeyOptions.IMEAutoKeyboard then
+      ActivateKeyboardLayout(CurrentLayout, 0);}
 end;
 
 

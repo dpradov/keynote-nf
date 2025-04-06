@@ -159,6 +159,8 @@ type
     procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject);
     function ContainsRegisteredImages: boolean;
 
+    procedure SetLangOptionsAfterChangeRTL;
+
     property AutoIndent : boolean read FAutoIndent write FAutoIndent;
     property UseTabChar : boolean read FUseTabChar write FUseTabChar;
     property TabSize : byte read FTabSize write FTabSize;
@@ -535,6 +537,20 @@ begin
    fFolderObj:= FolderObj;
    fNNodeObj:= NNodeObj;
    fNEntryObj:= NEntryObj;
+end;
+
+
+procedure TKntRichEdit.SetLangOptionsAfterChangeRTL;
+var
+  LangOpt: TRichLangOptions;
+begin
+   LangOpt:= [];
+   if KeyOptions.IMEAutoFont then
+      LangOpt:= [rlAutoFont];
+   if KeyOptions.IMEAutoKeyboard then
+      LangOpt:= LangOpt + [rlAutoKeyboard];
+
+   LangOptions:= LangOpt;
 end;
 
 
