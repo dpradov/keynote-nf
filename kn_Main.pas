@@ -2407,7 +2407,7 @@ begin
                    rtRTL: ActiveEditor.Paragraph.RTL:= true;
                    rtLTR: ActiveEditor.Paragraph.RTL:= false;
                 end;
-                ActiveEditor.SetLangOptionsAfterChangeRTL;
+                ActiveEditor.SetLangOptions(True);
 
                 {if not KeyOptions.IMEAutoKeyboard then
                    ActivateKeyboardLayout(CurrentLayout, 0);}
@@ -4566,7 +4566,7 @@ begin
       CurrentLayout := GetKeyboardLayout(0);}
 
    ActiveEditor.Paragraph.RTL:= not ActiveEditor.Paragraph.RTL;
-   ActiveEditor.SetLangOptionsAfterChangeRTL;
+   ActiveEditor.SetLangOptions(True);
 
    {if not KeyOptions.IMEAutoKeyboard then
       ActivateKeyboardLayout(CurrentLayout, 0);}

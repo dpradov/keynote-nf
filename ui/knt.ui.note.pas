@@ -661,6 +661,7 @@ begin
      if assigned(NNode) and (NNode.Note.ScrollPosInEditor.Y > 0) then
         Editor.SetScrollPosInEditor(NNode.Note.ScrollPosInEditor);
 
+     FEditor.SetLangOptions(False);
      FEditor.EndUpdate;
 
      if not ContainsImgIDsRemoved then

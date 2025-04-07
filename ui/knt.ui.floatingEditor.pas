@@ -155,6 +155,7 @@ begin
      Chrome:= Knt.App.DefaultEditorChrome;
      SupportsRegisteredImages:= True;
      SupportsImages:= True;
+     SetLangOptions(False);
    end;
 end;
 
