@@ -3003,7 +3003,7 @@ var
     if ExportingMode then begin
        NotesToSave:= TNoteList.Create;
        for i := 0 to FFolders.Count -1 do
-          if myFolder.Info > 0 then          // Folders to be exported are marked with Info=1
+          if FFolders[i].Info > 0 then          // Folders to be exported are marked with Info=1
              FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
 
        // Save Notes (TNote) with its Entries (TNoteEntry)
