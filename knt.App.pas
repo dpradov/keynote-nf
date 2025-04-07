@@ -559,8 +559,13 @@ begin
        if ActiveFolder <> nil then
           ActiveTreeUI:= ActiveFolder.TreeUI;
 
-       if Focused then
+       if Focused then begin
           ActiveFolder.FocusMemory:= focRTF;
+          if (ActiveTreeUI.TV.SelectedCount <> 1) and (ActiveTreeUI.TV.FocusedNode <> nil) then begin
+             ActiveTreeUI.TV.ClearSelection;
+             ActiveTreeUI.TV.Selected[ActiveTreeUI.TV.FocusedNode] := True;
+          end;
+       end;
 
        if OldFolder <> ActiveFolder then
           FolderSelected(ActiveFolder, OldFolder);
