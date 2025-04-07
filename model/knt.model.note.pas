@@ -1423,7 +1423,7 @@ begin
    if Folder = nil then
       Result:= fNote.Name
    else
-      Result:= TKntTreeUI(TKntFolder(Folder).TreeUI).OutlineNumber(TVNode);
+      Result:= TKntTreeUI(TKntFolder(Folder).TreeUI).GetNodeCaption(TVNode);
 end;
 
 
