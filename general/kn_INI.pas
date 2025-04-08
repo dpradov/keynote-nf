@@ -774,6 +774,7 @@ type
     Section,
     AllNodes,
     AllTabs,
+    AllTabs_FindReplace,
     CurrentNodeAndSubtree,
     AutoClose,
     EntireScope,
@@ -810,6 +811,7 @@ const
     Section : 'FindOptions';
     AllNodes : 'AllNodes';
     AllTabs : 'AllTabs';
+    AllTabs_FindReplace: 'AllTabs_FR';
     CurrentNodeAndSubtree : 'CurrentNodeAndSubtree';
     AutoClose : 'AutoClose';
     EntireScope : 'EntireScope';
@@ -1247,7 +1249,7 @@ begin
     AllNodes := false;
     AllTabs := false;
     CurrentNodeAndSubtree := false;
-    AllTabs_FindReplace:= false;    // This option will not be saved in the .ini file. It will be initially false
+    AllTabs_FindReplace:= false;
     AutoClose := false;
     EntireScope := false;
     FindAllHistory := '';
@@ -1617,6 +1619,7 @@ begin
       section := FindOptionsIniStr.section;
       writebool( section, FindOptionsIniStr.AllNodes, FindOptions.AllNodes );
       writebool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
+      writebool( section, FindOptionsIniStr.AllTabs_FindReplace, FindOptions.AllTabs_FindReplace );
       writebool( section, FindOptionsIniStr.CurrentNodeAndSubtree, FindOptions.CurrentNodeAndSubtree );
       writebool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       writebool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
@@ -2022,6 +2025,7 @@ begin
       section := FindOptionsIniStr.section;
       FindOptions.AllNodes := readbool( section, FindOptionsIniStr.AllNodes, FindOptions.AllNodes );
       FindOptions.AllTabs := readbool( section, FindOptionsIniStr.AllTabs, FindOptions.AllTabs );
+      FindOptions.AllTabs_FindReplace := readbool( section, FindOptionsIniStr.AllTabs_FindReplace, FindOptions.AllTabs_FindReplace );
       FindOptions.CurrentNodeAndSubtree := readbool( section, FindOptionsIniStr.CurrentNodeAndSubtree, FindOptions.CurrentNodeAndSubtree );
       FindOptions.AutoClose := readbool( section, FindOptionsIniStr.AutoClose, FindOptions.AutoClose );
       FindOptions.EntireScope := readbool( section, FindOptionsIniStr.EntireScope, FindOptions.EntireScope );
