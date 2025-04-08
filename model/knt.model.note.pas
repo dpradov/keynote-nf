@@ -1139,7 +1139,7 @@ end;
 
 function TNoteEntry.GetIsHTML: boolean;
 begin
-  Result:= not (nesHTML in fStates);
+  Result:= (nesHTML in fStates);
 end;
 
 procedure TNoteEntry.SetIsRTF(value: boolean);
