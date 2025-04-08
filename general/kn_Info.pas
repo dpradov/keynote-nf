@@ -695,6 +695,8 @@ type
 
                           }
 
+    ScratchBGColor:            TColor;
+
     ImgDefaultStorageMode:     TImagesStorageMode;
     ImgDefaultExternalStorage: TImagesExternalStorage;
     ImgDefaultCompression:     TZipCompression;

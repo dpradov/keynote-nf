@@ -104,6 +104,7 @@ procedure RegisterDropTarget(AControl: TWinControl); forward;
 
 var
   SBGlyph: TPicture;
+  SavedChromeScratchFile: boolean;
 
 
 implementation
@@ -112,6 +113,7 @@ uses
    RxRichEd,
    gf_misc,
    gf_files,
+   gf_streams,
    gf_strings,
    gf_miscvcl,
    kn_Global,
@@ -178,6 +180,39 @@ end; // SetUpVCLControls
 // CreateVCLControls
 //=================================================================
 
+procedure ScratchEditorApplyFontChrome;
+begin
+   with Form_Main.Res_RTF do begin
+     Font.Charset := Chrome.Font.Charset;  // ANSI_CHARSET;
+     Font.Color   := Chrome.Font.Color;    //clWindowText;
+     Font.Size    := Chrome.Font.Size;     //-12;
+     Font.Name    := Chrome.Font.Name;     //'Tahoma';
+   end;
+end;
+
+procedure ScratchEditorSaveFontChrome;
+var
+  tempChrome: TChrome;
+  SS, SL: integer;
+begin
+   with Form_Main.Res_RTF do begin
+     SS:= SelStart;
+     SL:= SelLength;
+     SelStart:= Form_Main.Res_RTF.TextLength;
+     SelLength:= 0;
+     tempChrome.Font.Charset := SelAttributes.Charset;
+     tempChrome.Font.Color   := SelAttributes.Color;
+     tempChrome.Font.Size    := SelAttributes.Size;
+     tempChrome.Font.Name    := SelAttributes.Name;
+     Chrome:= tempChrome;
+     SavedChromeScratchFile:= True;
+
+     SelStart:= SS;
+     SelLength:= SL;
+   end;
+end;
+
+
 procedure CreateScratchEditor;
 begin
   Form_Main.Res_RTF := TKntRichEdit.Create( Form_Main.ResTab_RTF );
@@ -187,10 +222,9 @@ begin
      DrawEndPage := False;
      Align := alClient;
      AllowInPlace := False;
-     Font.Charset := ANSI_CHARSET;
-     Font.Color := clWindowText;
-     Font.Height := -12;
-     Font.Name := 'Tahoma';
+     Chrome:= Knt.App.DefaultEditorChrome;
+     ScratchEditorApplyFontChrome;
+     Color:= KeyOptions.ScratchBGColor;
      //Font.Style := [];
      HideSelection := False;
      ParentFont := False;
@@ -207,7 +241,6 @@ begin
      SetVinculatedObjs(nil, nil, nil, nil);
 
      PlainText:= False;
-     Chrome:= Knt.App.DefaultEditorChrome;
      SupportsRegisteredImages:= True;
      SupportsImages:= True;
    end;
@@ -821,7 +854,8 @@ end;
 
 
 procedure UpdateResPanelContents (ChangedVisibility: boolean);
-
+var
+   SS, SL: integer;
 begin
   // General idea: do not load all resource panel information
   // when KeyNote starts. Instead, load data only when
@@ -856,18 +890,23 @@ begin
         else
         if ( Pages_Res.ActivePage = ResTab_RTF ) then begin
           Res_RTF.BeginUpdate;
+          SS:= Res_RTF.SelStart;
+          SL:= Res_RTF.SelLength;
           if not Initializing and KeyOptions.ResPanelActiveUpdate and ChangedVisibility then begin
-             if assigned(Res_RTF) then begin
-                if Res_RTF.Modified then
-                   StoreResScratchFile;
-                Res_RTF.GetAndRememberCurrentZoom;
-                Res_RTF.Clear;
-             end;
+             if Res_RTF.Modified then
+                StoreResScratchFile;
+             Res_RTF.GetAndRememberCurrentZoom;
           end;
-          if ( Res_RTF.Lines.Count = 0 ) then
+
+          if (ChangedVisibility and not Initializing) or (not SavedChromeScratchFile) then begin
             LoadResScratchFile;
-            if (Res_RTF.ZoomCurrent < 0) and (ImageMng.StorageMode <> smEmbRTF) then
-               Res_RTF.ReconsiderImages(false, imImage);
+            Res_RTF.SelStart:= SS;
+            Res_RTF.SelLength:= SL;
+          end;
+
+          if (Res_RTF.ZoomCurrent < 0) and (ImageMng.StorageMode <> smEmbRTF) then
+             Res_RTF.ReconsiderImages(false, imImage);
+
           Res_RTF.EndUpdate;
         end
         else
@@ -1031,13 +1070,26 @@ end; // CheckResourcePanelVisible
 
 
 procedure LoadResScratchFile;
+var
+   WasSavedChromeScratchFile: boolean;
 begin
+
   with Form_Main do begin
       if fileexists( Scratch_FN ) then begin
         Res_RTF.BeginUpdate;
         try
           try
+            WasSavedChromeScratchFile:= SavedChromeScratchFile;
+            ScratchEditorApplyFontChrome;
             Res_RTF.Lines.LoadFromFile( Scratch_FN );
+            ScratchEditorSaveFontChrome;                 // Considering the last position in editor
+            if not WasSavedChromeScratchFile then begin
+               // We make sure that if the Scratchpad is visible at startup and all content is deleted, the font used in it is respected.
+               Res_RTF.Clear;
+               ScratchEditorApplyFontChrome;
+               Res_RTF.Lines.LoadFromFile( Scratch_FN );
+            end;
+
           except
           end;
 
@@ -1046,7 +1098,14 @@ begin
           Res_RTF.EndUpdate;
           Res_RTF.Modified:= false;
         end;
-      end;
+      end
+      else
+         if ActiveFolder <> nil then begin
+            Res_RTF.Chrome:= ActiveFolder.EditorChrome;
+            ScratchEditorApplyFontChrome;
+            SavedChromeScratchFile:= True;
+            Res_RTF.Modified:= False;
+         end;
   end;
 end; // LoadResScratchFile
 
@@ -1055,6 +1114,9 @@ procedure StoreResScratchFile;
 begin
   try
     Form_Main.Res_RTF.Lines.SaveToFile( Scratch_FN );
+    ScratchEditorSaveFontChrome;                          // Considering the last position in editor
+    Form_Main.Res_RTF.Modified:= False;
+
   except
     // may throw exception e.g. if file is locked by another app,
     // we don't worry about scratchpad errors
@@ -1435,5 +1497,7 @@ begin
    end;
 end;
 
+initialization
+  SavedChromeScratchFile:= False;
 
 end.

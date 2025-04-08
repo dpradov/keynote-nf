@@ -321,6 +321,8 @@ begin
   if App.opt_NoSaveOpt then exit;
 
   try
+    KeyOptions.ScratchBGColor:= Form_Main.Res_RTF.Color;
+
     SaveKeyNoteOptions( INI_FN,
       KeyOptions,
       TabOptions,

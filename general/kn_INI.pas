@@ -443,6 +443,7 @@ type
     RTLkeyShct,
     IMEAutoKeyboard,
     IMEAutoFont,
+    ScratchBGColor,
     ImgDefaultStorageMode,
     ImgDefaultExternalStorage,
     ImgDefaultCompression,
@@ -626,6 +627,7 @@ const
     RTLkeyShct: 'RTLkeyShct';
     IMEAutoKeyboard: 'IMEAutoKeyboard';
     IMEAutoFont: 'IMEAutoFont';
+    ScratchBGColor: 'ScratchBGColor';
     ImgDefaultStorageMode: 'ImgDefaultStorageMode';
     ImgDefaultExternalStorage: 'ImgDefaultExternalStorage';
     ImgDefaultCompression: 'ImgDefaultCompression';
@@ -1196,6 +1198,8 @@ begin
     IMEAutoKeyboard:= True;
     IMEAutoFont:= True;
 
+    ScratchBGColor:= clWhite;
+
     ImgDefaultStorageMode := smEmbKNT;
     ImgDefaultExternalStorage := issFolder;
     ImgDefaultCompression := zcDeflate;
@@ -1512,6 +1516,7 @@ begin
       writebool( section, KeyOptionsIniStr.IMEAutoKeyboard, KeyOptions.IMEAutoKeyboard );
       writebool( section, KeyOptionsIniStr.IMEAutoFont, KeyOptions.IMEAutoFont );
 
+      writestring ( section, KeyOptionsIniStr.ScratchBGColor, ColorToString( KeyOptions.ScratchBGColor ));
 
       writeinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode ));
       writeinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage ));
@@ -1886,7 +1891,7 @@ begin
       KeyOptions.RTLkeyShct := readbool( section, KeyOptionsIniStr.RTLkeyShct, KeyOptions.RTLkeyShct );
       KeyOptions.IMEAutoKeyboard := readbool( section, KeyOptionsIniStr.IMEAutoKeyboard, KeyOptions.IMEAutoKeyboard );
       KeyOptions.IMEAutoFont := readbool( section, KeyOptionsIniStr.IMEAutoFont, KeyOptions.IMEAutoFont );
-
+      KeyOptions.ScratchBGColor := StringToColor( readstring( section, KeyOptionsIniStr.ScratchBGColor, 'clWhite' ));
       KeyOptions.ImgDefaultStorageMode := TImagesStorageMode( readinteger( section, KeyOptionsIniStr.ImgDefaultStorageMode, ord( KeyOptions.ImgDefaultStorageMode )));
       KeyOptions.ImgDefaultExternalStorage := TImagesExternalStorage( readinteger( section, KeyOptionsIniStr.ImgDefaultExternalStorage, ord( KeyOptions.ImgDefaultExternalStorage )));
       KeyOptions.ImgDefaultCompression := TZipCompression( readinteger( section, KeyOptionsIniStr.ImgDefaultCompression, ord( KeyOptions.ImgDefaultCompression )));
