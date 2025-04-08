@@ -1015,6 +1015,9 @@ begin
     // If the user is entering values in millimeters, MarginBottom expresses the margin in hundredths of a millimeter.
 
     // Converting margins from millimeters (or inches) to pixels
+   if Form_Main.PageSetupDlg = nil then
+      Form_Main.PageSetupDlg := TPageSetupDialog.Create(Form_Main);
+
     with Form_Main.PageSetupDlg do begin
        if (Units = pmMillimeters ) or ((Units = pmDefault) and IsMetricSystem) then begin
           mLeft   := Round(MarginLeft  /100 / 25.4 * DPIx);

@@ -431,6 +431,8 @@ type
     ShowPageNumber: boolean;
     TopLvlAsPgHeader: integer;    // Use the top N levels as page header. If > 0 and SectionOnDepth > 0 -> Show page header with the detail indicated
     TableContMaxDepth : integer;  // Maximum depth in table of contents hierarchy
+    SimpleFileName: boolean;      // 1: Use only the name of the node for file names, like:  "Node.rtf"
+                                  // 0: Use files names like: "01 - Folder - Node.rtf"                    (Default: 0)
   end;
 
 type
@@ -659,7 +661,6 @@ type
                             Even with IMEAutoKeyboard = 0, immediately after setting a paragraph to RTL, the RichEdit control will automatically activate
                             the IMF_AUTOKEYBOARD flag, which causes the keyboard layout to switch to what it identifies as the most suitable for RTL or LTR
                             content. (*)
-
                             So, what does IMEAutoKeyboard = 0 actually imply?
                             Despite that initial keyboard switch right after changing to RTL, if IMEAutoKeyboard = 0, the keyboard layout will no longer
                             change just by moving around the text. A key implication is that inserting certain special characters like EmDash (—) will not
@@ -674,22 +675,18 @@ type
                             characters change to Calibri and other language. If the special character is inserted pasting from clipboard then the change
                             of font and keyboard will be assured...
 
-
                             (*) It would have been possible to make KeyNote restore the previous keyboard layout immediately after setting a paragraph to RTL.
                                 However, I found that behavior more uncomfortable than the default one. I believe that for users who genuinely need RTL
                                 configuration, automatically switching the keyboard layout upon setting RTL is actually helpful. In fact, this is the
                                 default behavior of Windows in RTL-aware controls.
-
                             IMEAutoKeyboard will default to 1, but could be interesting to change to 0 if needed to avoid the behaviour described related
                             the insertion of some special characters.
-
 
                             I’ve also observed that regardless of the IMF_AUTOKEYBOARD setting, whenever the End key is pressed from within a given paragraph,
                             the keyboard layout automatically adjusts depending on whether the paragraph is RTL or LTR.
                             So, with IMEAutoKeyboard = 0 (=> IMF_AUTOKEYBOARD = 0), simply moving the cursor between paragraphs won’t cause the keyboard to
                             switch, but pressing End will, adjusting it to the expected layout according to the paragraph’s direction—without needing to
                             manually switch keyboards from the taskbar.
-
                             (See GitHub issue #816 for a description of the font-switching issue when inserting certain special characters.)
 
                             The default value for RTLkeyShct has been set to 0 to avoid the complications that RTL handling entails for the RichEdit control,

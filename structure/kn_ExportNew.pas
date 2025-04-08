@@ -769,6 +769,7 @@ begin
       ExportOptions.ShowPageNumber := readbool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
       ExportOptions.TopLvlAsPgHeader := readinteger( section, ExportOptionsIniStr.TopLvlAsPgHeader, ExportOptions.TopLvlAsPgHeader );
       ExportOptions.TableContMaxDepth := readinteger( section, ExportOptionsIniStr.TableContMaxDepth, ExportOptions.TableContMaxDepth );
+      ExportOptions.SimpleFileName := readbool( section, ExportOptionsIniStr.SimpleFileName, ExportOptions.SimpleFileName );
 
       if PrinterMode then
          ExportOptions.TargetFormat:= xfPrinter;
@@ -847,6 +848,7 @@ begin
       writebool( section, ExportOptionsIniStr.ShowPageNumber, ExportOptions.ShowPageNumber );
       writeinteger( section, ExportOptionsIniStr.TopLvlAsPgHeader, ExportOptions.TopLvlAsPgHeader );
       writeinteger( section, ExportOptionsIniStr.TableContMaxDepth, ord( ExportOptions.TableContMaxDepth ));
+      writebool( section, ExportOptionsIniStr.SimpleFileName, ExportOptions.SimpleFileName );
     end;
 
     IniFile.UpdateFile;
@@ -1632,7 +1634,10 @@ begin
                      FN:= RemoveAccelChar(myFolder.Name);
                      if ExportOptions.SectionToFile and (ExportOptions.SectionOnDepth > 0) or
                         ( (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection <> tsFullTree)) then
-                           FN:= FN + ' - ' +  NNode.NodeName(TreeUI);
+                           if ExportOptions.SimpleFileName then
+                              FN:= NNode.NodeName(TreeUI)
+                           else
+                              FN:= FN + ' - ' +  NNode.NodeName(TreeUI);
                      FolderNameExported:= myFolder.Name;
                   end;
 
@@ -2101,7 +2106,7 @@ begin
 
   result := false;
   Encoding:= TEncoding.Default;
-  if ExportOptions.SectionToFile then
+  if ExportOptions.SectionToFile and not ExportOptions.SimpleFileName then
      FN := Format('%.2d - %s', [IndexOfExportedFile, FN]);
 
   if ExportOptions.TargetFormat <> xfPrinter then begin

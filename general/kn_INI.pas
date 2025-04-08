@@ -911,7 +911,8 @@ type
     FilePerFolder,
     ShowPageNumber,
     TopLvlAsPgHeader,
-    TableContMaxDepth: string;
+    TableContMaxDepth,
+    SimpleFileName: string;
   end;
 
 const
@@ -948,6 +949,7 @@ const
     ShowPageNumber: 'ShowPageNumber';
     TopLvlAsPgHeader: 'TopLvlAsPgHeader';
     TableContMaxDepth: 'TableContMaxDepth';
+    SimpleFileName: 'SimpleFileName';
   );
 
 
@@ -2343,6 +2345,7 @@ begin
     ShowPageNumber:= true;
     TopLvlAsPgHeader:= 1;
     TableContMaxDepth:= 0;
+    SimpleFileName:= False;
   end;
   ShowHiddenMarkers:= false;         // Global
 
