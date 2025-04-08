@@ -473,7 +473,7 @@ end;
 
 procedure TKntApp.UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 var
-  Edit_PlainText, Edit_SupportsImages, Edit_SupportsRegImages, Edit_NoteObj: boolean;
+  Edit_PlainText, Edit_SupportsImages, Edit_SupportsRegImages, Edit_NoteObj, Edit_Enabled: boolean;
 
 begin
   if (Editor = nil) or not Editor.Enabled then begin
@@ -481,15 +481,17 @@ begin
       Edit_SupportsImages:= false;
       Edit_SupportsRegImages:= false;
       Edit_NoteObj:= false;
+      Edit_Enabled:= false;
   end
   else begin
-      Edit_PlainText:= Editor.PlainText or Editor.ReadOnly;
+      Edit_PlainText:= Editor.PlainText;
       Edit_SupportsImages:= Editor.SupportsImages;
       Edit_SupportsRegImages:= Editor.SupportsRegisteredImages;
       Edit_NoteObj:= (Editor.NNodeObj <> nil);
+      Edit_Enabled:= not Editor.ReadOnly;
   end;
 
-  Form_Main.EnableActionsForEditor(not Edit_PlainText);
+  Form_Main.EnableActionsForEditor(not Edit_PlainText, Edit_Enabled);
   Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages);
   Form_Main.RxChangedSelection(Editor, true);
   Form_Main.UpdateWordWrap;

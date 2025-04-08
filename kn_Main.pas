@@ -1420,7 +1420,7 @@ type
     procedure UpdateFileModifiedState;
     procedure UpdateFolderDisplay (OnlyActionsState: boolean = false);
     procedure UpdateWordWrap;
-    procedure EnableActionsForEditor(SupportsRTF: boolean); overload;
+    procedure EnableActionsForEditor(SupportsRTF: boolean; EditEnabled: boolean); overload;
     procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean); overload;
     procedure EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
     procedure ShowNodeChromeState(TreeUI: TKntTreeUI);
@@ -8206,38 +8206,43 @@ begin
 end; // RxChangedSelection
 
 
-procedure TForm_Main.EnableActionsForEditor(SupportsRTF: boolean);
+procedure TForm_Main.EnableActionsForEditor(SupportsRTF: boolean; EditEnabled: boolean);
 var
   i: integer;
+  RTFandEnabled: boolean;
 
 begin
+    RTFandEnabled:= SupportsRTF and EditEnabled;
+
     for i := 0 to Toolbar_Format.ControlCount - 1 do
        if ((Copy(Toolbar_Format.Controls[i].Name,1,5) <> 'TB_Go'))  then
-           Toolbar_Format.Controls[i].Enabled:= SupportsRTF;
+           Toolbar_Format.Controls[i].Enabled:= RTFandEnabled;
 
     //TB_GoForward.Enabled:= True;
     //TB_GoBack.Enabled:= True;
     TB_WordWrap.Enabled:= True;
 
     for i := 0 to Toolbar_Style.ControlCount - 1 do
-       Toolbar_Style.Controls[i].Enabled:= SupportsRTF;
+       Toolbar_Style.Controls[i].Enabled:= RTFandEnabled;
 
-    RTFMFont.Enabled:= SupportsRTF;
-    RTFMPara.Enabled:= SupportsRTF;
+    RTFMFont.Enabled:= RTFandEnabled;
+    RTFMPara.Enabled:= RTFandEnabled;
 
     for i := 0 to MMFormat_.Count - 1 do
-       MMFormat_.Items[i].Enabled:= SupportsRTF;
+       MMFormat_.Items[i].Enabled:= RTFandEnabled;
 
     MMFormatLanguage.Enabled:= True;
     MMFormatWordWrap.Enabled:= True;
     MMFormatBGColor.Enabled:= True;
 
-    MMInsertPicture.Enabled:= SupportsRTF;
-    MMInsertObject.Enabled:= SupportsRTF;
+    MMInsertPicture.Enabled:= RTFandEnabled;
+    MMInsertObject.Enabled:= RTFandEnabled;
 
     RTFMPlainText.Checked:= not SupportsRTF;
-    RTFMFold.Enabled:= SupportsRTF;
-    RTFMUnfold.Enabled:= SupportsRTF;
+    RTFMPlainText.Enabled:= EditEnabled;
+    RTFMFold.Enabled:= RTFandEnabled;
+    RTFMUnfold.Enabled:= RTFandEnabled;
+    RTFM_RTL.Enabled:= EditEnabled;
 end;
 
 procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean);
@@ -8249,7 +8254,6 @@ begin
     MMShowImages.Enabled:= SupportsRegImages and VinculatedToNote;
     TB_Images.Enabled:=  SupportsRegImages and VinculatedToNote;
 
-    RTFMPlainText.Enabled:= VinculatedToNote;
     RTFMTags.Enabled:= VinculatedToNote;
     if (not VinculatedToNote) then
        RTFMTags.Hint:= '';
