@@ -1681,6 +1681,9 @@ begin
         if IgnoreOtherFiles then
            exit;
 
+        if Copy(Location.FileName,1,Length(LINK_RELATIVE_SETUP)) = LINK_RELATIVE_SETUP then     // KNT Links are interpreted by default relative to the installation folder (see #838)
+           delete(Location.FileName,1,Length(LINK_RELATIVE_SETUP));
+
         FN:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Location.FileName);
 
         if FN.ToUpper <> ActiveFile.FileName.ToUpper then begin
