@@ -1791,7 +1791,7 @@ var
   exresult: integer;
 begin
    //-ignSI Ignore single instance option for this call (-> Ensure the file will open in another instance and not finally in this one..)
-   Args:= Format('-ignSI -jmp"%s "', [BuildKNTURL(aLocation)]);
+   Args:= Format('-ignSI -jmp"%s"', [BuildKNTURL(aLocation)]);
    exresult := ShellExecute( 0, 'open', PChar( Application.ExeName ), PChar( Args ), nil, SW_NORMAL );
    if ( exresult <= 32 ) then
       messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
