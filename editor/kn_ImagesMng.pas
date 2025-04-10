@@ -3029,6 +3029,7 @@ begin
             else begin
                ImageMode:= imImage;
                pImgIni:= pPict;
+               LinkImgFolded:= False;
             end;
             NBytes:= pImgIni - pRTFImageEnd-1;                // Previous bytes to copy
 
