@@ -2136,8 +2136,15 @@ begin
            TFile.WriteAllText(FN, Txt, Encoding);
         end
         else begin
-           RTF.StreamFormat := sfPlainText;
-           RTF.Lines.SaveToFile( FN, Encoding );
+           if Pos(KNT_RTF_HIDDEN_MARK_EndLink_CHAR, Txt) = 0 then begin
+              RTF.StreamFormat := sfPlainText;
+              RTF.Lines.SaveToFile( FN, Encoding );
+           end
+           else begin
+              Txt:= RemoveKNTHiddenCharactersInText(Txt);
+              Txt:= StringReplace(Txt, KNT_RTF_HIDDEN_MARK_EndLink_CHAR, '[]', [rfReplaceAll]);
+              TFile.WriteAllText(FN, Txt, Encoding);
+           end;
         end;
 
         result := true;

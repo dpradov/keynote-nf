@@ -1094,7 +1094,15 @@ begin
   Result:= StringReplace(s,      KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_BOOKMARK,   '[BMK:', [rfReplaceAll]);
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_Bookmark09, '[TmpBMK:', [rfReplaceAll]);
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_IMAGE,      '[IMG:', [rfReplaceAll]);
+
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_FORMAT,     '[FmtExp:', [rfReplaceAll]);
+
+  Result:= StringReplace(Result, KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR,  '[FOLD:', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_FOLDED_LINK_BLOCK_CHAR,    '[Fold:', [rfReplaceAll]);   // Nested fold
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK,               '[HiddLnk:', [rfReplaceAll]);
+
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_R_CHAR,                             ']', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_EndLink_CHAR,                       ']', [rfReplaceAll]);
 end;
 
 
