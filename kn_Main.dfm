@@ -1304,7 +1304,6 @@ object Form_Main: TForm_Main
               Top = 130
               Width = 45
               Height = 13
-              Anchors = [akLeft, akTop, akRight]
               AutoSize = False
               Caption = 'Type:'
             end
@@ -1313,7 +1312,6 @@ object Form_Main: TForm_Main
               Top = 157
               Width = 45
               Height = 13
-              Anchors = [akLeft, akTop, akRight]
               AutoSize = False
               Caption = 'Scope:'
               FocusControl = CbFindFoldedMode
@@ -1323,7 +1321,6 @@ object Form_Main: TForm_Main
               Top = 184
               Width = 45
               Height = 13
-              Anchors = [akLeft, akTop, akRight]
               AutoSize = False
               Caption = 'Check:'
               FocusControl = CbFindFoldedMode
