@@ -1,7 +1,7 @@
 object Form_TermDef: TForm_TermDef
   Left = 337
   Top = 311
-  HelpContext = 306
+  HelpContext = 24
   ActiveControl = Edit_Term
   BorderStyle = bsDialog
   Caption = 'Edit Glossary Term'

@@ -514,7 +514,7 @@ begin
 
    with TV do begin
      DefaultText := DEFAULT_NEW_NOTE_NAME;
-     HelpContext:= 284;  // Tree-type Notes [284]
+     HelpContext:= 27;  // Tree-type Notes
    end;
 
    TB_HideChecked.Hint := Form_Main.MMViewHideCheckedNodes.Hint;    // [dpv]

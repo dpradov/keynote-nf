@@ -1,7 +1,7 @@
 object UpdateVersion: TUpdateVersion
   Left = 348
   Top = 228
-  HelpContext = 547
+  HelpContext = 4
   Caption = 'Check for Updates - KeyNote NF'
   ClientHeight = 443
   ClientWidth = 840

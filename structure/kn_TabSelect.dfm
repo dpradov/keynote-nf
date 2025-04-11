@@ -1,7 +1,7 @@
 object Form_SelectTab: TForm_SelectTab
   Left = 424
   Top = 295
-  HelpContext = 13
+  HelpContext = 10
   BorderStyle = bsDialog
   Caption = 'Select Folders'
   ClientHeight = 243

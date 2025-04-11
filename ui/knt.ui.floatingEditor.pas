@@ -146,7 +146,7 @@ begin
      OnKeyPress:= Form_Main.RxResTabRTFKeyPress;
      OnKeyDown:= Form_Main.RxResTabRTFKeyDown;
 
-     HelpContext:= 282;  // KeyNote Editor [282]
+     HelpContext:= 20;  // KeyNote Editor
 
      ParentEditor:= ParentEdit;
      SetVinculatedObjs(nil, nil, nil, nil);

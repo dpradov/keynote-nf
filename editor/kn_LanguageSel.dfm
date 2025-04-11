@@ -2,7 +2,7 @@ object Form_Lang: TForm_Lang
   Left = 410
   Top = 312
   HelpType = htKeyword
-  HelpKeyword = '254-1'
+  HelpKeyword = '31-1'
   ActiveControl = Combo_Lang
   BorderStyle = bsDialog
   Caption = 'Select language'

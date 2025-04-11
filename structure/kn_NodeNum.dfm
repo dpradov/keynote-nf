@@ -2,7 +2,7 @@ object Form_NodeNum: TForm_NodeNum
   Left = 308
   Top = 230
   HelpType = htKeyword
-  HelpKeyword = '189-33'
+  HelpKeyword = '27-13'
   BorderStyle = bsDialog
   Caption = 'Outline node numbering'
   ClientHeight = 269

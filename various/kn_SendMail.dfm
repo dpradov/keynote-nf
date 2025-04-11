@@ -1,7 +1,6 @@
 object Form_Mail: TForm_Mail
   Left = 394
   Top = 262
-  HelpContext = 510
   BorderStyle = bsDialog
   Caption = 'Send note via E-mail'
   ClientHeight = 316

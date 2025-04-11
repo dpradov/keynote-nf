@@ -1,7 +1,7 @@
 object Form_FavExt: TForm_FavExt
   Left = 270
   Top = 298
-  HelpContext = 601
+  HelpContext = 70
   BorderStyle = bsDialog
   Caption = 'Add Favorite document or program'
   ClientHeight = 184

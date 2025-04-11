@@ -160,7 +160,7 @@ begin
 
           // AllowObjects := true;                      // Should be assigned when creating the control, to not lead to recreate its window
           // AllowInPlace := false;
-          HelpContext:= 282;  // KeyNote Editor [282]
+          HelpContext:= 20;  // KeyNote Editor
         end;
       end;
 

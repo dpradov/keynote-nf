@@ -1,7 +1,7 @@
 object Form_ExportNew: TForm_ExportNew
   Left = 330
   Top = 208
-  HelpContext = 313
+  HelpContext = 57
   BorderStyle = bsDialog
   Caption = 'Export note Folders'
   ClientHeight = 463
@@ -68,7 +68,7 @@ object Form_ExportNew: TForm_ExportNew
     TabOrder = 3
     object Tab_Main: TTab95Sheet
       HelpType = htKeyword
-      HelpKeyword = '313-1'
+      HelpKeyword = '57-1'
       Caption = 'Source and target'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -184,7 +184,7 @@ object Form_ExportNew: TForm_ExportNew
             'Makes hidden marks (KNT Links, bmk and img) visible'#13#10'Also shows ' +
             'Folder and Note IDs'
           HelpType = htKeyword
-          HelpKeyword = '313-11'
+          HelpKeyword = '57-11'
           Caption = 'Show hidden marks and IDs'
           TabOrder = 16
         end
@@ -194,7 +194,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 40
           Height = 22
           HelpType = htKeyword
-          HelpKeyword = '313-14'
+          HelpKeyword = '57-14'
           Enabled = False
           MaxLength = 2
           MaxValue = 99
@@ -208,7 +208,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 231
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-14'
+          HelpKeyword = '57-14'
           Caption = 'Top N levels on a Table of Contents'
           TabOrder = 14
         end
@@ -395,7 +395,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 236
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-15'
+          HelpKeyword = '57-15'
           Caption = 'Section for each of the top N levels:'
           TabOrder = 4
         end
@@ -405,7 +405,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 40
           Height = 22
           HelpType = htKeyword
-          HelpKeyword = '313-15'
+          HelpKeyword = '57-15'
           Enabled = False
           MaxLength = 2
           MaxValue = 99
@@ -422,7 +422,7 @@ object Form_ExportNew: TForm_ExportNew
             'If *not* checked, use optimized formats; WordPad will prompt you' +
             ' to unblock to display images. Word will not'#13#10'(More in Help, F1)'
           HelpType = htKeyword
-          HelpKeyword = '576-4'
+          HelpKeyword = '44-4'
           Caption = 'Save images in default WordPad format'
           TabOrder = 10
         end
@@ -432,7 +432,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 221
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-15'
+          HelpKeyword = '57-15'
           Caption = 'Save each Section to a new File'
           TabOrder = 6
           OnClick = CB_SectionToFileClick
@@ -443,7 +443,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 221
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-15'
+          HelpKeyword = '57-15'
           Caption = 'Start each Section on a new Page'
           TabOrder = 7
           OnClick = CB_SectionNewPgClick
@@ -454,7 +454,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 236
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-16'
+          HelpKeyword = '57-16'
           Caption = 'Start each Note on a new Page'
           TabOrder = 9
           OnClick = CB_SectionNewPgClick
@@ -465,7 +465,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 236
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-15'
+          HelpKeyword = '57-15'
           Caption = 'Save each Folder to a new File'
           TabOrder = 8
           OnClick = CB_SectionNewPgClick
@@ -474,7 +474,7 @@ object Form_ExportNew: TForm_ExportNew
     end
     object Tab_Options: TTab95Sheet
       HelpType = htKeyword
-      HelpKeyword = '313-4'
+      HelpKeyword = '57-4'
       Caption = 'Options'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -511,7 +511,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 17
           Hint = 'Include folder headings'
           HelpType = htKeyword
-          HelpKeyword = '313-6'
+          HelpKeyword = '57-6'
           Caption = '&Folder headings'
           TabOrder = 0
         end
@@ -522,7 +522,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 17
           Hint = 'Include node headings'
           HelpType = htKeyword
-          HelpKeyword = '313-6'
+          HelpKeyword = '57-6'
           Caption = 'No&de headings'
           TabOrder = 2
         end
@@ -532,7 +532,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 143
           Height = 21
           HelpType = htKeyword
-          HelpKeyword = '313-9'
+          HelpKeyword = '57-9'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -547,7 +547,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 143
           Height = 21
           HelpType = htKeyword
-          HelpKeyword = '313-9'
+          HelpKeyword = '57-9'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -563,7 +563,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 17
           Hint = 'Try to use files "nodehead_1.rtf", "nodehead_2.rtf", ...'
           HelpType = htKeyword
-          HelpKeyword = '313-10'
+          HelpKeyword = '57-10'
           Caption = 'Level templates'
           TabOrder = 4
         end
@@ -576,7 +576,7 @@ object Form_ExportNew: TForm_ExportNew
             'Set font size of headings based on level (including folder): Max' +
             ', Dec, Min'
           HelpType = htKeyword
-          HelpKeyword = '313-10'
+          HelpKeyword = '57-10'
           Caption = 'Font sizes'
           TabOrder = 5
         end
@@ -586,7 +586,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 55
           Height = 21
           HelpType = htKeyword
-          HelpKeyword = '313-10'
+          HelpKeyword = '57-10'
           Alignment = taCenter
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -605,7 +605,7 @@ object Form_ExportNew: TForm_ExportNew
             'Length of heading to be reached with %> token, based on node lev' +
             'el: Max, Dec, Min'
           HelpType = htKeyword
-          HelpKeyword = '313-9'
+          HelpKeyword = '57-9'
           Alignment = taCenter
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -622,7 +622,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 21
           Hint = 'Symbols to use with %< or %>:  Level1, Level2, ...'
           HelpType = htKeyword
-          HelpKeyword = '313-9'
+          HelpKeyword = '57-9'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -666,7 +666,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 157
           Height = 21
           HelpType = htKeyword
-          HelpKeyword = '313-16'
+          HelpKeyword = '57-16'
           TabStop = False
           Enabled = False
           MaxLength = 127
@@ -680,7 +680,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 17
           Hint = 'Indent nested nodes (heading and content)'
           HelpType = htKeyword
-          HelpKeyword = '313-7'
+          HelpKeyword = '57-7'
           Caption = 'Indent nodes'
           TabOrder = 0
         end
@@ -690,7 +690,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 40
           Height = 22
           HelpType = htKeyword
-          HelpKeyword = '313-7'
+          HelpKeyword = '57-7'
           MaxLength = 3
           MaxValue = 50
           MinValue = 2
@@ -704,7 +704,7 @@ object Form_ExportNew: TForm_ExportNew
           Height = 17
           Hint = 'Set an unified font for all content'
           HelpType = htKeyword
-          HelpKeyword = '313-16'
+          HelpKeyword = '57-16'
           Caption = 'Body Font'
           TabOrder = 3
           OnClick = CB_FontClick
@@ -730,7 +730,7 @@ object Form_ExportNew: TForm_ExportNew
             'Indent using TAB characters'#13#10'(False: use n'#186' spaces defined in No' +
             'te'#39's Tab size)'
           HelpType = htKeyword
-          HelpKeyword = '313-7'
+          HelpKeyword = '57-7'
           Caption = 'Tab'
           TabOrder = 1
         end
@@ -740,7 +740,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 242
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-15'
+          HelpKeyword = '57-15'
           Caption = 'Top N levels as Page Header (in sections)'
           TabOrder = 6
         end
@@ -750,7 +750,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 40
           Height = 22
           HelpType = htKeyword
-          HelpKeyword = '313-15'
+          HelpKeyword = '57-15'
           Enabled = False
           MaxLength = 1
           MaxValue = 5
@@ -764,7 +764,7 @@ object Form_ExportNew: TForm_ExportNew
           Width = 242
           Height = 17
           HelpType = htKeyword
-          HelpKeyword = '313-16'
+          HelpKeyword = '57-16'
           Caption = 'Insert Page Number as Footer'
           TabOrder = 8
         end
@@ -797,7 +797,7 @@ object Form_ExportNew: TForm_ExportNew
     end
     object Tab_TreePad: TTab95Sheet
       HelpType = htKeyword
-      HelpKeyword = '313-5'
+      HelpKeyword = '57-5'
       Caption = 'TreePad options'
       GripAlign = gaLeft
       ImageIndex = -1

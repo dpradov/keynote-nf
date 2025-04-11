@@ -1,7 +1,6 @@
 object Form_FoldBlockDef: TForm_FoldBlockDef
   Left = 337
   Top = 311
-  HelpContext = 306
   ActiveControl = Edit_Opening
   BorderStyle = bsDialog
   Caption = 'Folding block'

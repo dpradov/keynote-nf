@@ -1,7 +1,7 @@
 object Form_NewKntFolder: TForm_NewKntFolder
   Left = 382
   Top = 333
-  HelpContext = 317
+  HelpContext = 13
   ActiveControl = Combo_TabName
   BorderStyle = bsDialog
   Caption = 'New folder'

@@ -2,7 +2,7 @@ object Form_KntFileMgr: TForm_KntFileMgr
   Left = 386
   Top = 310
   HelpType = htKeyword
-  HelpKeyword = '539-1'
+  HelpKeyword = '50-1'
   BorderIcons = [biSystemMenu]
   Caption = 'File manager'
   ClientHeight = 270

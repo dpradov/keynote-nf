@@ -69,9 +69,14 @@ const
    procedure AddSearchChkModes;
    procedure AddSearchFoldedModes(ComboBox: TComboBox);
 
+   function ActiveKeyNoteHelp(Node, Marker: integer): Boolean; overload;
+   function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
+   function ActiveKeyNoteHelp(Node_Marker: PChar): Boolean; overload;
+   {
    function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node: integer): Boolean; overload;
    function ActiveKeyNoteHelp(Node_Marker: PChar): Boolean; overload;
+   }
    function ActiveKeyNoteHelp_FormHelp(Command: Word; Data: NativeInt): Boolean;
 
    function ExtIsRTF( const aExt : string ) : boolean;
@@ -755,7 +760,7 @@ begin
             KntFileToLoad := '';
           }
           // Show the help file:
-          ActiveKeyNoteHelp(2);  // Welcome to KeyNote NF [2]
+          ActiveKeyNoteHelp(1);  // Welcome to KeyNote NF
         end;
       end
       else
@@ -926,6 +931,51 @@ begin
 end;
 
 
+function ActiveKeyNoteHelp(Node, Marker: integer): Boolean;
+var
+  Args: string;
+  sMarker: string;
+begin
+   try
+      //  file:///<NodeGID|CursorPosition|SelectionLength|MarkID  -> Ex: file:///<16|5|0|1
+
+	  sMarker:= '';
+      if Marker > 0 then
+         sMarker:= '|0|0|' + Marker.ToString;
+
+      Args:= Format('"%s" "%s" -jmp"file:///<%d%s" -title"%s"', [Help_FN, HelpINI_FN, Node, sMarker, _KNT_HELP_TITLE]);
+      ShellExecute( 0, 'open', PChar(Launcher_FN), PChar(Args), nil, SW_HIDE );
+
+   except
+   end;
+end;
+
+
+function ActiveKeyNoteHelp(Node: integer): Boolean;
+begin
+   ActiveKeyNoteHelp(Node, 0);
+end;
+
+
+function ActiveKeyNoteHelp(Node_Marker: PChar): Boolean;
+var
+  Node, Marker: integer;
+  p: integer;
+begin
+   // Node_Marker: "<Node>-<Marker>".
+   // Ex: "40-5"  ->  Using Find and Find All [40] / Find All: Marker:5
+   p:= Pos('-', Node_Marker);
+   if p = 0 then exit;
+
+   Node:=   StrToIntDef(Copy(Node_Marker, 1, p-1), _KNT_HELP_FILE_DEFAULT_NODE_ID);
+   Marker:= StrToIntDef(Copy(Node_Marker, p+1), 0);
+
+   ActiveKeyNoteHelp(Node, Marker);
+end;
+
+{
+_KNT_HELP_FILE_DEFAULT_NODE_ID: 2
+
 function ActiveKeyNoteHelp(Folder, Node, Marker: integer): Boolean;
 var
   Args: string;
@@ -967,7 +1017,7 @@ begin
 
    ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, Node, Marker);
 end;
-
+}
 
 function ActiveKeyNoteHelp_FormHelp(Command: Word; Data: NativeInt): Boolean;
 begin

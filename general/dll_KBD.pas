@@ -630,7 +630,7 @@ begin
     end
     else if (Key = VK_F1) and (Shift = []) then begin
        Key:= 0;
-       ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, 316, 0);
+       ActiveKeyNoteHelp(105, 0);
     end;
 end;
 
@@ -665,7 +665,7 @@ end;
 
 procedure TForm_KBD.Btn_HelpClick(Sender: TObject);
 begin
-   ActiveKeyNoteHelp(_KNT_HELP_FILE_NOTE_ID, 316, 0);
+   ActiveKeyNoteHelp(105, 0);
   //Application.HelpCommand( HELP_CONTEXT, 610 );
 end;
 

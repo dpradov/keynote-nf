@@ -2,7 +2,7 @@ object Form_Image: TForm_Image
   Left = 306
   Top = 299
   HelpType = htKeyword
-  HelpKeyword = '536-2'
+  HelpKeyword = '41-2'
   ActiveControl = txtCaption
   Anchors = [akLeft, akTop, akRight, akBottom]
   Caption = 'Image properties'

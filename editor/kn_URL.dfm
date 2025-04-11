@@ -1,7 +1,7 @@
 object Form_URLAction: TForm_URLAction
   Left = 306
   Top = 299
-  HelpContext = 303
+  HelpContext = 38
   ActiveControl = Edit_TextURL
   BorderStyle = bsDialog
   Caption = 'Choose action for URL'

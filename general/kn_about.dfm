@@ -1,7 +1,7 @@
 object AboutBox: TAboutBox
   Left = 302
   Top = 289
-  HelpContext = 2
+  HelpContext = 1
   BorderIcons = []
   BorderStyle = bsToolWindow
   ClientHeight = 367

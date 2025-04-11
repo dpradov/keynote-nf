@@ -1,7 +1,7 @@
 object Form_OptionsNew: TForm_OptionsNew
   Left = 310
   Top = 273
-  HelpContext = 293
+  HelpContext = 85
   BorderStyle = bsDialog
   Caption = 'Keynote OPTIONS'
   ClientHeight = 421
@@ -54,7 +54,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Interface: TPage
       Left = 0
       Top = 0
-      HelpContext = 238
+      HelpContext = 88
       Caption = 'PG_Interface'
       object GroupBox_General1: TGroupBox
         Left = 5
@@ -290,7 +290,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Editor: TPage
       Left = 0
       Top = 0
-      HelpContext = 239
+      HelpContext = 89
       Caption = 'PG_Editor'
       object GroupBox_RTFEdit1: TGroupBox
         Left = 5
@@ -525,7 +525,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Images: TPage
       Left = 0
       Top = 0
-      HelpContext = 573
+      HelpContext = 90
       Caption = 'PG_Images'
       object GroupBox_Images: TGroupBox
         Left = 5
@@ -1037,7 +1037,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Tree: TPage
       Left = 0
       Top = 0
-      HelpContext = 240
+      HelpContext = 91
       Caption = 'PG_Tree'
       object GBox_TreeGlobal: TGroupBox
         Left = 5
@@ -1236,7 +1236,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_KNTFiles: TPage
       Left = 0
       Top = 0
-      HelpContext = 241
+      HelpContext = 92
       Caption = 'PG_KNTFiles'
       object GroupBox_Files1: TGroupBox
         Left = 5
@@ -1438,7 +1438,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_FileOptions: TPage
       Left = 0
       Top = 0
-      HelpContext = 242
+      HelpContext = 93
       Caption = 'PG_FileOptions'
       object GroupBox_FileOpt1: TGroupBox
         Left = 5
@@ -1639,7 +1639,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_BackupOptions: TPage
       Left = 0
       Top = 0
-      HelpContext = 243
+      HelpContext = 94
       Caption = 'PG_BackupOptions'
       object GroupBox_Back: TGroupBox
         Left = 5
@@ -1865,7 +1865,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Actions: TPage
       Left = 0
       Top = 0
-      HelpContext = 244
+      HelpContext = 95
       Caption = 'PG_Actions'
       object GroupBox_Actions1: TGroupBox
         Left = 5
@@ -2149,7 +2149,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Confirmations: TPage
       Left = 0
       Top = 0
-      HelpContext = 245
+      HelpContext = 96
       Caption = 'PG_Confirmations'
       object GroupBox_Conf: TGroupBox
         Left = 5
@@ -2323,7 +2323,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Chrome: TPage
       Left = 0
       Top = 0
-      HelpContext = 246
+      HelpContext = 97
       Caption = 'PG_Chrome'
       object GroupBox_Chrome2: TGroupBox
         Left = 5
@@ -2544,7 +2544,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Icons: TPage
       Left = 0
       Top = 0
-      HelpContext = 247
+      HelpContext = 98
       Caption = 'PG_Icons'
       object GroupBox_TabIcons: TGroupBox
         Left = 5
@@ -2656,7 +2656,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Advanced: TPage
       Left = 0
       Top = 0
-      HelpContext = 248
+      HelpContext = 99
       Caption = 'PG_Advanced'
       object GroupBox_Adv: TGroupBox
         Left = 5
@@ -2849,7 +2849,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Formats: TPage
       Left = 0
       Top = 0
-      HelpContext = 249
+      HelpContext = 100
       Caption = 'PG_Formats'
       object GroupBox_Formats1: TGroupBox
         Left = 5
@@ -2997,7 +2997,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_ClipCap: TPage
       Left = 0
       Top = 0
-      HelpContext = 250
+      HelpContext = 101
       Caption = 'PG_ClipCap'
       object Label_PlainTextMode: TLabel
         Left = 8
@@ -3375,7 +3375,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_FileTypes: TPage
       Left = 0
       Top = 0
-      HelpContext = 251
+      HelpContext = 102
       Caption = 'PG_FileTypes'
       object GroupBox_FileTypes: TGroupBox
         Left = 5
@@ -3568,7 +3568,7 @@ object Form_OptionsNew: TForm_OptionsNew
     object PG_Language: TPage
       Left = 0
       Top = 0
-      HelpContext = 252
+      HelpContext = 103
       Caption = 'PG_Language'
       object GroupBox_Other1: TGroupBox
         Left = 5

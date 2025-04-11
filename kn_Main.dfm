@@ -1,7 +1,7 @@
 object Form_Main: TForm_Main
   Left = 188
   Top = 178
-  HelpContext = 2
+  HelpContext = 1
   Caption = 'KeyNote'
   ClientHeight = 849
   ClientWidth = 1005
@@ -84,7 +84,7 @@ object Form_Main: TForm_Main
       Tag = 1
       Left = 0
       Top = 0
-      HelpContext = 305
+      HelpContext = 72
       ActivateParent = False
       Caption = 'Main Toolbar'
       DefaultDock = Dock_Top
@@ -117,7 +117,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 37
         Height = 22
-        HelpContext = 539
+        HelpContext = 50
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = MRUMenu
@@ -165,7 +165,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 37
         Height = 22
-        HelpContext = 582
+        HelpContext = 33
         DropdownAlways = True
         DropdownArrowWidth = 12
         DropdownCombo = True
@@ -333,7 +333,7 @@ object Form_Main: TForm_Main
         Width = 38
         Height = 22
         HelpType = htKeyword
-        HelpKeyword = '11-1'
+        HelpKeyword = '12-1'
         AllowAllUp = True
         GroupIndex = 4
         DropdownArrowWidth = 12
@@ -431,7 +431,7 @@ object Form_Main: TForm_Main
         Height = 21
         Hint = 'Zoom text in editor (Ctrl: apply only to active folder)'
         HelpType = htKeyword
-        HelpKeyword = '282-5'
+        HelpKeyword = '20-5'
         AutoComplete = False
         TabOrder = 0
         OnClick = Combo_FontSizeClick
@@ -467,7 +467,7 @@ object Form_Main: TForm_Main
       Tag = 2
       Left = 0
       Top = 26
-      HelpContext = 128
+      HelpContext = 113
       Caption = 'Formatting Toolbar'
       DefaultDock = Dock_Top
       DockableTo = [dpTop, dpBottom]
@@ -739,7 +739,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        HelpContext = 511
+        HelpContext = 39
         Enabled = False
         ImageIndex = 39
         Images = IMG_Toolbar
@@ -750,7 +750,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 23
         Height = 22
-        HelpContext = 511
+        HelpContext = 39
         Enabled = False
         ImageIndex = 53
         Images = IMG_Toolbar
@@ -780,8 +780,7 @@ object Form_Main: TForm_Main
         Width = 34
         Height = 22
         Hint = 'Click to change text color'
-        HelpKeyword = '282-14'
-        HelpContext = 115
+        HelpKeyword = '20-14'
         ActiveColor = clBlack
         TargetColor = clBlack
         Flat = True
@@ -801,7 +800,7 @@ object Form_Main: TForm_Main
         Height = 22
         Hint = 'Click to add or remove highlight'
         HelpType = htKeyword
-        HelpKeyword = '282-14'
+        HelpKeyword = '20-14'
         ActiveColor = clInfoBk
         TargetColor = clBlack
         Flat = True
@@ -854,7 +853,7 @@ object Form_Main: TForm_Main
     Top = 54
     Width = 783
     Height = 750
-    HelpContext = 282
+    HelpContext = 20
     AllowTabShifting = True
     Align = alClient
     FlatSeperators = False
@@ -916,7 +915,7 @@ object Form_Main: TForm_Main
         Width = 38
         Height = 22
         Hint = 'Apply style to selection (click arrow for menu commands)'
-        HelpContext = 301
+        HelpContext = 22
         DropdownArrowWidth = 12
         DropdownCombo = True
         DropdownMenu = Menu_Style
@@ -933,7 +932,7 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 161
         Height = 22
-        HelpContext = 301
+        HelpContext = 22
         Style = csOwnerDrawFixed
         DropDownCount = 16
         Font.Charset = DEFAULT_CHARSET
@@ -967,7 +966,7 @@ object Form_Main: TForm_Main
         Width = 37
         Height = 22
         Hint = 'Insert symbol (click arrow for menu)'
-        HelpContext = 309
+        HelpContext = 23
         DropdownAlways = True
         DropdownArrowWidth = 12
         DropdownCombo = True
@@ -983,7 +982,7 @@ object Form_Main: TForm_Main
         Height = 22
         Hint = 'Insert date (click arrow for menu)'
         HelpType = htKeyword
-        HelpKeyword = '282-12'
+        HelpKeyword = '20-12'
         DropdownAlways = True
         DropdownArrowWidth = 12
         DropdownCombo = True
@@ -999,7 +998,7 @@ object Form_Main: TForm_Main
         Height = 22
         Hint = 'Insert time (click arrow for menu)'
         HelpType = htKeyword
-        HelpKeyword = '282-12'
+        HelpKeyword = '20-12'
         DropdownAlways = True
         DropdownArrowWidth = 12
         DropdownCombo = True
@@ -1033,7 +1032,7 @@ object Form_Main: TForm_Main
     OnChange = Pages_ResChange
     object ResTab_Find: TTab95Sheet
       HelpType = htKeyword
-      HelpKeyword = '479-5'
+      HelpKeyword = '40-5'
       Caption = 'Find'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -1624,7 +1623,7 @@ object Form_Main: TForm_Main
     end
     object ResTab_RTF: TTab95Sheet
       HelpType = htKeyword
-      HelpKeyword = '11-1'
+      HelpKeyword = '12-1'
       Caption = 'Scratch'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -1632,7 +1631,7 @@ object Form_Main: TForm_Main
       TabVisible = True
     end
     object ResTab_Macro: TTab95Sheet
-      HelpContext = 304
+      HelpContext = 71
       Caption = 'Macros'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -1723,7 +1722,7 @@ object Form_Main: TForm_Main
       end
     end
     object ResTab_Template: TTab95Sheet
-      HelpContext = 307
+      HelpContext = 69
       Caption = 'Templates'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -1753,7 +1752,7 @@ object Form_Main: TForm_Main
       end
     end
     object ResTab_Plugins: TTab95Sheet
-      HelpContext = 305
+      HelpContext = 72
       Caption = 'Plugins'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -1861,8 +1860,8 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 196
-          Height = 47
+          Width = 12
+          Height = 14
           Align = alClient
           Caption = '...'
           WordWrap = True
@@ -1870,7 +1869,7 @@ object Form_Main: TForm_Main
       end
     end
     object ResTab_Favorites: TTab95Sheet
-      HelpContext = 601
+      HelpContext = 70
       Caption = 'Favorites'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -2002,7 +2001,7 @@ object Form_Main: TForm_Main
     Top = 464
     object actTVAlarmNode: TAction
       Caption = 'Set alarm on node...'
-      HelpContext = 567
+      HelpContext = 76
       Hint = 'Set or remove alarm on node'
       OnExecute = actTVAlarmNodeExecute
     end
@@ -2063,7 +2062,7 @@ object Form_Main: TForm_Main
     end
     object actTVInsertLinkedNode: TAction
       Caption = 'Insert &Linked node'
-      HelpContext = 383
+      HelpContext = 29
       Hint = 
         'Insert new node as linked node (share same note -content and nam' +
         'e)'
@@ -2123,7 +2122,7 @@ object Form_Main: TForm_Main
     end
     object actTVExport: TAction
       Caption = 'E&xport...'
-      HelpContext = 313
+      HelpContext = 57
       Hint = 'Export node contents (or selection) to file'
       OnExecute = actTVExportExecute
     end
@@ -2219,7 +2218,7 @@ object Form_Main: TForm_Main
     end
     object actTVNavigateNextLinkedNNode: TAction
       Caption = 'Navigate to &Next Linked'
-      HelpContext = 383
+      HelpContext = 29
       Hint = 'Navigate to the next node linked to the same note'
       OnExecute = actTVNavigateNextLinkedNNodeExecute
     end
@@ -2377,7 +2376,7 @@ object Form_Main: TForm_Main
     object MMEdit_: TMenuItem
       Caption = '&Edit'
       SubMenuImages = IMG_Toolbar
-      HelpContext = 46
+      HelpContext = 110
       Hint = 'Text editing commands'
       object MMEditUndo: TMenuItem
         Caption = '&Undo'
@@ -2645,7 +2644,7 @@ object Form_Main: TForm_Main
     object MMView_: TMenuItem
       Caption = '&View'
       SubMenuImages = IMG_Toolbar
-      HelpContext = 85
+      HelpContext = 111
       Hint = 'Show or hide interface elements'
       object MMViewOnTop: TMenuItem
         Caption = '&Always on Top'
@@ -2889,7 +2888,7 @@ object Form_Main: TForm_Main
     object MMInsert_: TMenuItem
       Caption = '&Insert'
       SubMenuImages = IMG_Toolbar
-      HelpContext = 115
+      HelpContext = 112
       Hint = 'Insert commands'
       object MMInsertDate: TMenuItem
         Caption = 'Insert &Date'
@@ -2983,7 +2982,7 @@ object Form_Main: TForm_Main
     object MMFormat_: TMenuItem
       Caption = 'F&ormat'
       SubMenuImages = IMG_Format
-      HelpContext = 128
+      HelpContext = 113
       Hint = 'Text formatting commands'
       object MMFormatFont: TMenuItem
         Caption = '&Font...'
@@ -3096,7 +3095,7 @@ object Form_Main: TForm_Main
         object MMFormatAlignLeft: TMenuItem
           Caption = 'Align &Left'
           GroupIndex = 1
-          HelpContext = 5
+          HelpContext = 20
           Hint = 'Align lines to the left'
           ImageIndex = 4
           RadioItem = True
@@ -3106,7 +3105,7 @@ object Form_Main: TForm_Main
         object MMFormatAlignCenter: TMenuItem
           Caption = 'Align &Center'
           GroupIndex = 1
-          HelpContext = 10
+          HelpContext = 20
           Hint = 'Center lines'
           ImageIndex = 5
           RadioItem = True
@@ -3116,7 +3115,7 @@ object Form_Main: TForm_Main
         object MMFormatAlignRight: TMenuItem
           Caption = 'Align &Right'
           GroupIndex = 1
-          HelpContext = 15
+          HelpContext = 20
           Hint = 'Align lines to the right'
           ImageIndex = 6
           RadioItem = True
@@ -3365,7 +3364,7 @@ object Form_Main: TForm_Main
     object MMNote_: TMenuItem
       Caption = '&Folder'
       SubMenuImages = IMG_Toolbar
-      HelpContext = 179
+      HelpContext = 114
       Hint = 'Folder (Tab) related commands'
       object MMFolderNew: TMenuItem
         Caption = '&New Folder (Tab) ...'
@@ -3446,7 +3445,7 @@ object Form_Main: TForm_Main
     end
     object MMTree_: TMenuItem
       Caption = 'T&ree'
-      HelpContext = 189
+      HelpContext = 115
       Hint = 'Tree-related commands'
       object MMAddTreeNode_: TMenuItem
         Caption = '&Add Tree Node'
@@ -3623,7 +3622,7 @@ object Form_Main: TForm_Main
     object MMSearch_: TMenuItem
       Caption = '&Search'
       SubMenuImages = IMG_Toolbar
-      HelpContext = 225
+      HelpContext = 116
       Hint = 'Search commands'
       object MMFind: TMenuItem
         Caption = '&Find...'
@@ -3833,7 +3832,7 @@ object Form_Main: TForm_Main
     object MMTools_: TMenuItem
       Caption = '&Tools'
       SubMenuImages = IMG_Toolbar
-      HelpContext = 236
+      HelpContext = 117
       Hint = 'Configuration and miscellaneous tools'
       object MMToolsOptions: TMenuItem
         Caption = '&Configuration Options...'
@@ -3978,7 +3977,7 @@ object Form_Main: TForm_Main
     object MMHelp_: TMenuItem
       Caption = '&Help'
       SubMenuImages = IMG_Toolbar
-      HelpContext = 272
+      HelpContext = 118
       Hint = 'Information about the program'
       object MMHelpMain: TMenuItem
         Caption = '&General Help'
@@ -4080,7 +4079,7 @@ object Form_Main: TForm_Main
     Top = 379
   end
   object Menu_Tray: TPopupMenu
-    HelpContext = 238
+    HelpContext = 88
     Left = 584
     Top = 379
     object TMRestore: TMenuItem
@@ -4089,7 +4088,7 @@ object Form_Main: TForm_Main
     end
     object TMClipCap: TMenuItem
       Caption = '&Clipboard capture'
-      HelpContext = 310
+      HelpContext = 35
       OnClick = MMNoteClipCaptureClick
     end
     object N8: TMenuItem
@@ -4101,7 +4100,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_RTF: TPopupMenu
-    HelpContext = 282
+    HelpContext = 20
     Images = IMG_Format
     ParentBiDiMode = False
     Left = 361
@@ -4162,7 +4161,7 @@ object Form_Main: TForm_Main
     end
     object RTFMWordWeb: TMenuItem
       Caption = '&Look Up in WordWeb'
-      HelpContext = 302
+      HelpContext = 26
       Hint = 'Look up word in WordWeb thesaurus'
       OnClick = RTFMWordWebClick
     end
@@ -4228,7 +4227,7 @@ object Form_Main: TForm_Main
   end
   object Menu_TAB: TPopupMenu
     AutoPopup = False
-    HelpContext = 317
+    HelpContext = 13
     Images = IMG_Toolbar
     Left = 359
     Top = 83
@@ -4311,7 +4310,7 @@ object Form_Main: TForm_Main
     Top = 117
   end
   object MRUMenu: TPopupMenu
-    HelpContext = 539
+    HelpContext = 50
     Left = 509
     Top = 74
     object N33: TMenuItem
@@ -4327,7 +4326,7 @@ object Form_Main: TForm_Main
     Top = 141
   end
   object Menu_Style: TPopupMenu
-    HelpContext = 301
+    HelpContext = 22
     Images = IMG_Toolbar
     Left = 41
     Top = 340
@@ -4402,7 +4401,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Macro: TPopupMenu
-    HelpContext = 304
+    HelpContext = 71
     Images = IMG_Toolbar
     Left = 387
     Top = 345
@@ -4446,7 +4445,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Template: TPopupMenu
-    HelpContext = 307
+    HelpContext = 69
     Left = 352
     Top = 344
     object TPLMTplInsert: TMenuItem
@@ -4472,7 +4471,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Plugins: TPopupMenu
-    HelpContext = 305
+    HelpContext = 72
     Images = IMG_Toolbar
     Left = 317
     Top = 343
@@ -4612,14 +4611,14 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_StdEdit: TPopupMenu
-    HelpContext = 282
+    HelpContext = 20
     Images = IMG_Toolbar
     OnPopup = Menu_StdEditPopup
     Left = 441
     Top = 71
     object StdEMUndo: TMenuItem
       Caption = '&Undo'
-      HelpContext = 282
+      HelpContext = 20
       Hint = 'Undo last editing operation'
       ImageIndex = 6
       ShortCut = 16474
@@ -4695,7 +4694,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Fav: TPopupMenu
-    HelpContext = 601
+    HelpContext = 70
     Left = 421
     Top = 345
     object FavMJump: TMenuItem
@@ -4838,7 +4837,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Paste: TPopupMenu
-    HelpContext = 582
+    HelpContext = 33
     Left = 475
     Top = 73
     object MMP_Paste: TMenuItem
@@ -4887,7 +4886,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Date: TPopupMenu
-    HelpContext = 249
+    HelpContext = 100
     OnPopup = Menu_DatePopup
     Left = 40
     Top = 295
@@ -5054,7 +5053,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Time: TPopupMenu
-    HelpContext = 249
+    HelpContext = 100
     OnPopup = Menu_TimePopup
     Left = 74
     Top = 295
@@ -5124,7 +5123,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Symbols: TPopupMenu
-    HelpContext = 309
+    HelpContext = 23
     OnPopup = Menu_SymbolsPopup
     Left = 108
     Top = 295
@@ -5177,7 +5176,7 @@ object Form_Main: TForm_Main
     Top = 176
   end
   object Menu_TV: TPopupMenu
-    HelpContext = 284
+    HelpContext = 27
     Images = IMG_TV
     ParentBiDiMode = False
     Left = 266
@@ -5264,7 +5263,7 @@ object Form_Main: TForm_Main
     end
     object TVVirtualNode_: TMenuItem
       Caption = '&Virtual Node'
-      HelpContext = 285
+      HelpContext = 28
       object TVVirtualNode: TMenuItem
         Action = actTVVirtualNode
         ImageName = '6'
@@ -5345,7 +5344,7 @@ object Form_Main: TForm_Main
     end
     object TVSortNodes_: TMenuItem
       Caption = '&Sort'
-      HelpContext = 313
+      HelpContext = 115
       Hint = 'Sort nodes'
       object TVSortSubtree: TMenuItem
         Action = actTVSortSubtree

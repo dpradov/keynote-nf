@@ -1948,23 +1948,23 @@ begin
          Other [252]
    }
     case Pages.PageIndex of
-      0: HC:= 238;
-      1: HC:= 239;
-      2: HC:= 573;
-      3: HC:= 240;
-      4: HC:= 241;
-      5: HC:= 242;
-      6: HC:= 243;
-      7: HC:= 244;
-      8: HC:= 245;
-      9: HC:= 246;
-      10: HC:= 247;
-      11: HC:= 248;
-      12: HC:= 249;
-      13: HC:= 250;
-      14: HC:= 251;
-      15: HC:= 253;
-      16: HC:= 252;
+      0: HC:= 88;
+      1: HC:= 89;
+      2: HC:= 90;
+      3: HC:= 91;
+      4: HC:= 92;
+      5: HC:= 93;
+      6: HC:= 94;
+      7: HC:= 95;
+      8: HC:= 96;
+      9: HC:= 97;
+      10: HC:= 98;
+      11: HC:= 99;
+      12: HC:= 100;
+      13: HC:= 101;
+      14: HC:= 102;
+      15: HC:= 99;
+      16: HC:= 103;
     end;
     //self.HelpContext := Pages.HelpContext;
     self.HelpContext := HC;
@@ -2035,7 +2035,7 @@ end;
 
 procedure TForm_OptionsNew.Button_HelpClick(Sender: TObject);
 begin
-  ActiveKeyNoteHelp(293);  // Configuring KeyNote [293]
+  ActiveKeyNoteHelp(85);  // Configuring KeyNote [293]
 end;
 
 

@@ -611,13 +611,13 @@ end;
 procedure TForm_KntFileInfo.Button_HelpClick(Sender: TObject);
 begin
 {
-	File Properties [287]
-		Information [288]
-		Settings [289]
-		File Icons [290]
-		Security [291]
+	File Properties [45]
+		Information [46]
+		Settings [47]
+		File Icons [48]
+		Security [49]
 }
-  ActiveKeyNoteHelp(287);  // Node
+  ActiveKeyNoteHelp(45);  // Node
 end;
 
 

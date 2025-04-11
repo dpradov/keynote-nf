@@ -177,7 +177,7 @@ begin
       Parent := pnlEntries;
 
       Align := alClient;
-      HelpContext := 10;
+      HelpContext := 11;
       MaxLength := 0; // unlimited text size
       ParentFont := false;
       WantTabs := true;

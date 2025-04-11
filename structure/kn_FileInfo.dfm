@@ -1,7 +1,7 @@
 object Form_KntFileInfo: TForm_KntFileInfo
   Left = 298
   Top = 325
-  HelpContext = 287
+  HelpContext = 45
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'File properties'
@@ -64,11 +64,11 @@ object Form_KntFileInfo: TForm_KntFileInfo
     Top = 5
     Width = 522
     Height = 246
-    HelpContext = 287
+    HelpContext = 45
     ActivePage = Tab_Main
     TabOrder = 0
     object Tab_Main: TTabSheet
-      HelpContext = 288
+      HelpContext = 46
       Caption = 'Information'
       object GroupBox1: TGroupBox
         Left = 5
@@ -210,7 +210,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Top = 15
           Width = 380
           Height = 17
-          HelpContext = 520
           TabStop = False
           BorderStyle = bsNone
           Color = clBtnFace
@@ -271,7 +270,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
       end
     end
     object Tab_Settings: TTabSheet
-      HelpContext = 289
+      HelpContext = 47
       Caption = 'Settings'
       object GroupBox3: TGroupBox
         Left = 5
@@ -520,7 +519,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
       end
     end
     object Tab_Icons: TTabSheet
-      HelpContext = 290
+      HelpContext = 48
       Caption = 'File Icons'
       object GroupBox4: TGroupBox
         Left = 5
@@ -640,7 +639,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
       end
     end
     object Tab_Pass: TTabSheet
-      HelpContext = 291
+      HelpContext = 49
       Caption = 'Security'
       object GroupBox2: TGroupBox
         Left = 5

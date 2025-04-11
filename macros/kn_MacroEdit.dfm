@@ -2,7 +2,7 @@ object Form_Macro: TForm_Macro
   Left = 496
   Top = 290
   HelpType = htKeyword
-  HelpKeyword = '304-7'
+  HelpKeyword = '71-7'
   ActiveControl = Edit_Name
   BorderStyle = bsDialog
   Caption = 'Edit macro'

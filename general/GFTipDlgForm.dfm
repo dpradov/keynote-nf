@@ -1,7 +1,7 @@
 object GFTipForm: TGFTipForm
   Left = 348
   Top = 228
-  HelpContext = 13
+  HelpContext = 10
   BorderStyle = bsDialog
   Caption = 'Tip of the Day'
   ClientHeight = 247

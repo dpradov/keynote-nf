@@ -2,7 +2,7 @@ object Form_DropFile: TForm_DropFile
   Left = 364
   Top = 312
   HelpType = htKeyword
-  HelpKeyword = '312-7'
+  HelpKeyword = '56-7'
   BorderStyle = bsDialog
   Caption = 'Select import method'
   ClientHeight = 212
@@ -97,7 +97,7 @@ object Form_DropFile: TForm_DropFile
         Width = 332
         Height = 125
         HelpType = htKeyword
-        HelpKeyword = '312-5'
+        HelpKeyword = '56-5'
         TabOrder = 0
       end
     end

@@ -1,118 +1,118 @@
-﻿Welcome to KeyNote NF [2]
-	How to use this help [571]
-	What's New [5]
-	Download and install new versions [547]
-	Verifying Releases [442]
-	Open Source project. EULA [6]
-		Acknowledgements [7]
-		EULA of Marek's KeyNote [546]
-	Mozilla Public License 2.0 [542]
-Features [13]
-	Getting Started [10]
-		KeyNote Screen [11]
-		Definitions [317]
-		Examples of Use [321]
-		KeyNote Files [17]
-	Command Line Reference [23]
-	Info for DaRT Note Users [24]
-	Auxillary Files [26]
-Using KeyNote NF [281]
-	KeyNote Editor [282]
-		About initial Fonts & Colors in KeyNote [314]
-		Styles [301]
-		Insert Character Dialog Box [309]
-		Word Expansion Glossary [306]
-		Expression Evaluation [311]
-		Integration with WordWeb Thesaurus [302]
-	Tree-type Notes [284]
-		Virtual Nodes [285]
-		Mirror nodes [383]
-	Note Properties and Defaults [292]
-		Note Settings [254]
-		Tree Settings [255]
-	Clipboard. Paste. Capture [582]
-		Web clip [569]
-		Clipboard Capture [310]
-			Using Dividers in Clipboard Capture and Web Clip [580]
-			Dividers. Examples [581]
-	Hyperlinks in KeyNote [303]
-	Navigation history mechanism [511]
-	Using Find and Find All [479]
-	Image management in KeyNote [536]
-		Images. Formats and sizes [574]
-		Extended KNT file format [575]
-		Images. Implementation in RTF [576]
-	File Properties [287]
-		Information [288]
-		Settings [289]
-		File Icons [290]
-		Security [291]
-	Opening and Saving KeyNote files [539]
-		Encrypting KeyNote Files [299]
-		Recommendations [430]
-		Backup at regular intervals [330]
-		File formats. Comments [441]
-		fileformat.txt [588]
-	Importing Files in KeyNote [312]
-	Exporting Notes to Disk Files [313]
-		Options in Exporting. Examples [590]
-			RTF [591]
-				Ex. RTF 1 [592]
-				Ex. RTF 2 [593]
-				Ex. RTF 3 - Indent. [594]
-			TXT [595]
-				Ex. Txt 1 [596]
-				Ex. Txt 2 [597]
-				Ex. Txt 3 - Indent. [598]
-				Ex. Txt 4 - Indent. [599]
-				Ex. Txt 5 - Indent. [600]
-	Templates [307]
-	Favorites [601]
-	Macros in KeyNote [304]
-	Plugins [305]
-		KntConverter [453]
-			KntConvert.txt [455]
-			KntConvert.hlp [604]
-	Alarms Management [567]
-	.KNT as Help file from other apps [570]
-	Keyboard Reference [18]
-		General Shortcut Keys [19]
-		Editor shortcut keys [20]
-		Tree Shortcut Keys [21]
-		Other Shortcut Keys [22]
-	KeyNote on a Multi-User System [286]
-	Sending KeyNote Files by EMail [300]
-Configuring KeyNote [293]
-	Profiles [540]
-	Configuration Options [295]
-		General Settings [238]
-			Rich Text Editor [239]
-			Images [573]
-			Tree Panel [240]
-		KeyNote Files [241]
-			File Options [242]
-			Backup Options [243]
-		Actions [244]
-			Confirmations [245]
-		Chrome [246]
-			Tab Icons [247]
-		Advanced [248]
-			Formats [249]
-			Clipboard [250]
-			File Types [251]
-			Other [252]
-	KeyNote.ini Settings [296]
-	Customizing Keyboard Shortcuts [316]
-	Customizing the Toolbars [315]
-	Configuring user interface Language [392]
-Menu Commands [27]
-	File Menu [29]
-	Edit Menu [46]
-	View Menu [85]
-	Insert Menu [115]
-	Format Menu [128]
-	Note Menu [179]
-	Tree Menu [189]
-	Search Menu [225]
-	Tools Menu [236]
-	Help Menu [272]
+﻿Welcome to KeyNote NF [1](id:2)
+	How to use this help [2](id:571)
+	What's New [3](id:5)
+	Download and install new versions [4](id:547)
+	Verifying Releases [5](id:442)
+	Open Source project. EULA [6](id:6)
+		Acknowledgements [7](id:7)
+		EULA of Marek's KeyNote [8](id:546)
+	Mozilla Public License 2.0 [9](id:542)
+Features [10](id:13)
+	Getting Started [11](id:10)
+		KeyNote Screen [12](id:11)
+		Definitions [13](id:317)
+		Examples of Use [14](id:321)
+		KeyNote Files [15](id:17)
+	Command Line Reference [16](id:23)
+	Info for DaRT Note Users [17](id:24)
+	Auxillary Files [18](id:26)
+Using KeyNote NF [19](id:281)
+	KeyNote Editor [20](id:282)
+		About initial Fonts & Colors in KeyNote [21](id:314)
+		Styles [22](id:301)
+		Insert Character Dialog Box [23](id:309)
+		Word Expansion Glossary [24](id:306)
+		Expression Evaluation [25](id:311)
+		Integration with WordWeb Thesaurus [26](id:302)
+	Folders as note trees [27](id:284)
+		Virtual Nodes [28](id:285)
+		Linked nodes [29](id:383)
+	Folder Properties and Defaults [30](id:292)
+		Tree Settings [32](id:255)
+		Editor Settings [31](id:254)
+	Clipboard. Paste. Capture [33](id:582)
+		Web clip [34](id:569)
+		Clipboard Capture [35](id:310)
+			Using Dividers in Clipboard Capture and Web Clip [36](id:580)
+			Dividers. Examples [37](id:581)
+	Hyperlinks in KeyNote [38](id:303)
+	Navigation history mechanism [39](id:511)
+	Using Find and Find All [40](id:479)
+	Image management in KeyNote [41](id:536)
+		Images. Formats and sizes [42](id:574)
+		Extended KNT file format [43](id:575)
+		Images. Implementation in RTF [44](id:576)
+	File Properties [45](id:287)
+		Information [46](id:288)
+		Settings [47](id:289)
+		File Icons [48](id:290)
+		Security [49](id:291)
+	Opening and Saving KeyNote files [50](id:539)
+		Encrypting KeyNote Files [51](id:299)
+		Recommendations [52](id:430)
+		Backup at regular intervals [53](id:330)
+		File formats. Comments [54](id:441)
+		fileformat.txt [55](id:588)
+	Importing Files in KeyNote [56](id:312)
+	Exporting or Printing Notes [57](id:313)
+		Options in Exporting. Examples [58](id:590)
+			RTF [59](id:591)
+				Ex. RTF 1 [60](id:592)
+				Ex. RTF 2 [61](id:593)
+				Ex. RTF 3 - Indent. [62](id:594)
+			TXT [63](id:595)
+				Ex. Txt 1 [64](id:596)
+				Ex. Txt 2 [65](id:597)
+				Ex. Txt 3 - Indent. [66](id:598)
+				Ex. Txt 4 - Indent. [67](id:599)
+				Ex. Txt 5 - Indent. [68](id:600)
+	Templates [69](id:307)
+	Favorites [70](id:601)
+	Macros in KeyNote [71](id:304)
+	Plugins [72](id:305)
+		KntConverter [73](id:453)
+			KntConvert.txt [74](id:455)
+			KntConvert.hlp [75](id:604)
+	Alarms Management [76](id:567)
+	.KNT as Help file from other apps [77](id:570)
+	Keyboard Reference [78](id:18)
+		General Shortcut Keys [79](id:19)
+		Editor shortcut keys [80](id:20)
+		Tree Shortcut Keys [81](id:21)
+		Other Shortcut Keys [82](id:22)
+	KeyNote on a Multi-User System [83](id:286)
+	Sending KeyNote Files by EMail [84](id:300)
+Configuring KeyNote [85](id:293)
+	Profiles [86](id:540)
+	Configuration Options [87](id:295)
+		General Settings [88](id:238)
+			Rich Text Editor [89](id:239)
+			Images [90](id:573)
+			Tree Panel [91](id:240)
+		KeyNote Files [92](id:241)
+			File Options [93](id:242)
+			Backup Options [94](id:243)
+		Actions [95](id:244)
+			Confirmations [96](id:245)
+		Chrome [97](id:246)
+			Tab Icons [98](id:247)
+		Advanced [99](id:248)
+			Formats [100](id:249)
+			Clipboard [101](id:250)
+			File Types [102](id:251)
+			Other [103](id:252)
+	KeyNote.ini Settings [104](id:296)
+	Customizing Keyboard Shortcuts [105](id:316)
+	Customizing the Toolbars [106](id:315)
+	Configuring user interface Language [107](id:392)
+Menu Commands [108](id:27)
+	File Menu [109](id:29)
+	Edit Menu [110](id:46)
+	View Menu [111](id:85)
+	Insert Menu [112](id:115)
+	Format Menu [113](id:128)
+	Folder Menu [114](id:179)
+	Tree Menu [115](id:189)
+	Search Menu [116](id:225)
+	Tools Menu [117](id:236)
+	Help Menu [118](id:272)

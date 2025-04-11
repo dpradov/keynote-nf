@@ -1,7 +1,7 @@
 object Form_Defaults: TForm_Defaults
   Left = 379
   Top = 248
-  HelpContext = 292
+  HelpContext = 30
   BorderStyle = bsDialog
   Caption = 'Defaults'
   ClientHeight = 500
@@ -110,7 +110,7 @@ object Form_Defaults: TForm_Defaults
     ParentFont = False
     TabOrder = 2
     object Tab_Tree: TTab95Sheet
-      HelpContext = 255
+      HelpContext = 32
       Caption = 'Tree settings'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -343,7 +343,7 @@ object Form_Defaults: TForm_Defaults
       end
     end
     object Tab_Main: TTab95Sheet
-      HelpContext = 254
+      HelpContext = 31
       Caption = 'Editor settings'
       GripAlign = gaLeft
       ImageIndex = -1

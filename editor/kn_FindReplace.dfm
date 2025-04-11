@@ -1,7 +1,7 @@
 object Form_FindReplace: TForm_FindReplace
   Left = 390
   Top = 196
-  HelpContext = 479
+  HelpContext = 40
   ActiveControl = Combo_Text
   BorderStyle = bsDialog
   Caption = 'Find'
@@ -48,7 +48,7 @@ object Form_FindReplace: TForm_FindReplace
     TabWidth = 80
     OnChange = PagesChange
     object Tab_Find: TTab95Sheet
-      HelpContext = 479
+      HelpContext = 40
       Caption = 'Find'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -73,7 +73,7 @@ object Form_FindReplace: TForm_FindReplace
     end
     object Tab_Replace: TTab95Sheet
       HelpType = htKeyword
-      HelpKeyword = '479-4'
+      HelpKeyword = '40-4'
       Caption = ' Replace'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText

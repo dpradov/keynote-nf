@@ -1,7 +1,7 @@
 object Form_Template: TForm_Template
   Left = 382
   Top = 304
-  HelpContext = 307
+  HelpContext = 69
   ActiveControl = Edit_Name
   BorderStyle = bsDialog
   Caption = 'Create template'

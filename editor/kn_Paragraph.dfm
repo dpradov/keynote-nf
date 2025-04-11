@@ -2,7 +2,7 @@ object Form_Para: TForm_Para
   Left = 254
   Top = 310
   HelpType = htKeyword
-  HelpKeyword = '282-8'
+  HelpKeyword = '20-8'
   ActiveControl = RB_Align
   BorderStyle = bsDialog
   Caption = 'Paragraph properties'

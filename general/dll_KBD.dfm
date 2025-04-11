@@ -212,8 +212,6 @@ object Form_KBD: TForm_KBD
       PopupMenu = Menu_Items
       TabOrder = 1
       OnClick = List_CommandsClick
-      ExplicitWidth = 302
-      ExplicitHeight = 156
     end
     object Btn_Assign: TButton
       Left = 245
@@ -327,7 +325,7 @@ object Form_KBD: TForm_KBD
       Left = 18
       Top = 303
       Width = 212
-      Height = 22
+      Height = 19
       TabStop = False
       Anchors = [akLeft, akBottom]
       Ctl3D = False

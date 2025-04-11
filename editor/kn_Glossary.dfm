@@ -1,7 +1,7 @@
 object Form_Glossary: TForm_Glossary
   Left = 405
   Top = 291
-  HelpContext = 306
+  HelpContext = 24
   Caption = 'Glossary terms'
   ClientHeight = 271
   ClientWidth = 445

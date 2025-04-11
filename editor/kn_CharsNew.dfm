@@ -1,7 +1,7 @@
 object Form_CharsNew: TForm_CharsNew
   Left = 315
   Top = 236
-  HelpContext = 309
+  HelpContext = 23
   BorderStyle = bsDialog
   Caption = 'Insert character'
   ClientHeight = 402

@@ -1,7 +1,7 @@
 object Form_MacroCmd: TForm_MacroCmd
   Left = 386
   Top = 320
-  HelpContext = 304
+  HelpContext = 71
   ActiveControl = Combo_Cmd
   BorderStyle = bsDialog
   Caption = 'Insert special macro command'

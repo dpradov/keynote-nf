@@ -1,7 +1,7 @@
 object Form_Alarm: TForm_Alarm
   Left = 330
   Top = 208
-  HelpContext = 567
+  HelpContext = 76
   Margins.Left = 0
   ClientHeight = 540
   ClientWidth = 954
@@ -532,7 +532,6 @@ object Form_Alarm: TForm_Alarm
         Top = 170
         Width = 62
         Height = 21
-        HelpContext = 535
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -610,7 +609,6 @@ object Form_Alarm: TForm_Alarm
         Top = 243
         Width = 95
         Height = 21
-        HelpContext = 535
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -828,7 +826,6 @@ object Form_Alarm: TForm_Alarm
         Top = 5
         Width = 188
         Height = 21
-        HelpContext = 535
         Style = csDropDownList
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -1054,7 +1051,6 @@ object Form_Alarm: TForm_Alarm
     Top = 6
     Width = 146
     Height = 21
-    HelpContext = 535
     Style = csDropDownList
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

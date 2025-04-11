@@ -1,7 +1,7 @@
 object Form_ImgPick: TForm_ImgPick
   Left = 318
   Top = 222
-  HelpContext = 247
+  HelpContext = 98
   BorderIcons = [biSystemMenu]
   Caption = 'Select node icon'
   ClientHeight = 293
