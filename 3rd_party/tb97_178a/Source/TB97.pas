@@ -739,6 +739,7 @@ type
 
 function DoFindWindow (Wnd: HWND; Param: Longint): Bool; stdcall;
 begin
+ try
   with PFindWindowData(Param)^ do
     if (Wnd <> TaskActiveWindow) and (Wnd <> Application.Handle) and
        IsWindowVisible(Wnd) and IsWindowEnabled(Wnd) then begin
@@ -749,6 +750,9 @@ begin
         if TaskFirstTopMost = 0 then TaskFirstTopMost := Wnd;
       end;
     end;
+ except
+ end;
+
   Result := True;
 end;
 
