@@ -107,6 +107,7 @@ type
 
     FIgnoreSelectionChange: boolean;
     FChangedSelection: TChangedSelectionEvent;
+    FLinkHover: TCharRange;
 
     procedure CMDialogKey( var Message: TCMDialogKey ); message CM_DIALOGKEY;
 
@@ -124,6 +125,7 @@ type
 
     procedure RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
     procedure RxRTFURLClick(Sender: TObject; const URLText: string; Button: TMouseButton);
+    procedure RxRTFURLMouseMove(Sender: TObject; WParam: WPARAM);
     procedure RxRTFStartDrag(Sender: TObject; var DragObject: TDragObject);
     procedure RxRTFEndDrag(Sender, Target: TObject; X, Y: Integer);
 
@@ -510,6 +512,7 @@ begin
 
   OnProtectChangeEx:= RxRTFProtectChangeEx;
   OnURLClick:= RxRTFURLClick;
+  OnURLMouseMove:= RxRTFURLMouseMove;
 
   {
    By default DragMode=dmManual, and the mechanism in TRxRichEdit is controlled through the IRichEditOleCallback interface.
@@ -522,6 +525,7 @@ begin
 
   FloatingEditor:= nil;
   ParentEditor:= nil;
+  FLinkHover.cpMin:= -1;
 
 end; // TKntRichEdit CREATE
 
@@ -3503,6 +3507,11 @@ begin
   if IgnoreSelectorForTagSubsr = ' ' then
      IgnoreSelectorForTagSubsr := '';
 
+  if FLinkHover.cpMin <> -1 then begin
+     App.ShowInfoInStatusBar('');
+     FLinkHover.cpMin:= -1;
+  end;
+
   App.Kbd.RTFUpdating := true;
   try
     { Ensure that the hidden mark accompanies its image in the event that it moves by dragging
@@ -3741,6 +3750,13 @@ begin
   ClickOnURL (URLText, chrg, myURLAction, EnsureAsk);
 end;
 
+
+procedure TKntRichEdit.RxRTFURLMouseMove(Sender: TObject; WParam: WPARAM);
+begin
+  if (FLinkHover.cpMin = LinkClickRange.cpMin) then exit;
+  App.ShowInfoInStatusBar(GetTextRange(LinkClickRange.cpMin, LinkClickRange.cpMax));
+  FLinkHover:= LinkClickRange;
+end;
 
 
 {  See comment in SetUpVCLControls (kn_VCLControlsMng.pas)

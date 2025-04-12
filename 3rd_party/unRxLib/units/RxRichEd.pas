@@ -371,6 +371,8 @@ type
   TRichStreamModes = set of TRichStreamMode;
   TRichEditURLClickEvent = procedure(Sender: TObject; const URLText: string;
     Button: TMouseButton) of object;
+  TRichEditURLMouseMoveEvent = procedure(Sender: TObject; WParam: WPARAM) of object;   // [dpv]
+
   TRichEditProtectChangeEx = procedure(Sender: TObject; const Message: TMessage;
     StartPos, EndPos: Integer; var AllowChange: Boolean) of object;
   TRichEditFindErrorEvent = procedure(Sender: TObject; const FindText: string) of object;
@@ -435,6 +437,7 @@ type
     FOnProtectChangeEx: TRichEditProtectChangeEx;
     FOnSaveClipboard: TRichEditSaveClipboard;
     FOnURLClick: TRichEditURLClickEvent;
+    FOnURLMouseMove: TRichEditURLMouseMoveEvent;
     FOnFileDropped: TRichEditFileDroppedEvent;      // [dpv]
     FOnTextNotFound: TRichEditFindErrorEvent;
 {$IFDEF RX_D3}
@@ -527,6 +530,7 @@ type
       EndPos: Integer): Boolean; dynamic;
     function SaveClipboard(NumObj, NumChars: Integer): Boolean; dynamic;
     procedure URLClick(const URLText: string; Button: TMouseButton); dynamic;
+    procedure URLMouseMove(WParam: WPARAM); dynamic;                                     // [dpv]
     {procedure FileDropped(EndDropFiles: TEndDropFiles); dynamic;                        // [dpv]  See comment *3 }
     procedure SetPlainText(Value: Boolean); virtual;
 {$IFDEF RX_D3}
@@ -568,6 +572,7 @@ type
     property OnResizeRequest: TRichEditResizeEvent read FOnResizeRequest
       write FOnResizeRequest;
     property OnURLClick: TRichEditURLClickEvent read FOnURLClick write FOnURLClick;
+    property OnURLMouseMove: TRichEditURLMouseMoveEvent read FOnURLMouseMove write FOnURLMouseMove;                      // [dpv]
     property OnFileDropped: TRichEditFileDroppedEvent read FOnFileDropped write SetOnFileDropped;        // [dpv]  See comment *3
     property OnTextNotFound: TRichEditFindErrorEvent read FOnTextNotFound write FOnTextNotFound;
 {$IFDEF RX_D3}
@@ -6893,6 +6898,11 @@ begin
                   cpMax := -1;
                 end;
               end;
+            WM_SETCURSOR:
+              begin
+                FClickRange := chrg;
+                URLMouseMove(WParam);
+              end;
           end;
         end;
       EN_STOPNOUNDO:
@@ -6938,6 +6948,11 @@ end;
 procedure TRxCustomRichEdit.URLClick(const URLText: string; Button: TMouseButton);
 begin
   if Assigned(OnURLClick) then OnURLClick(Self, URLText, Button);
+end;
+
+procedure TRxCustomRichEdit.URLMouseMove(WParam: WPARAM);           // [dpv]
+begin
+  if Assigned(OnURLMouseMove) then OnURLMouseMove(Self, WParam);
 end;
 
 
