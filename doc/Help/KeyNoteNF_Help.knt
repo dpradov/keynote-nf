@@ -1,21 +1,22 @@
-#!GFKNT 3.0
+#!GFKNT 3.1
 # This is an automatically generated file. Do not edit.
 #/
 #?
 #$8
 #C20-04-2003 22:44:55
 #^010000000000000000000000
-N:=121
+N:=124
 %*
 GI=1
 ND=Welcome to KeyNote NF
+LM=1304252206
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red64\green64\blue64;\red128\green0\blue128;\red255\green0\blue0;\red0\green128\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
-\cf1\b\f1\fs36\lang1045 Welcome to KeyNote\f0\lang3082  NF  \v\'11I102\'12\cf0\b0\v0\fs20\lang1033{\field{\*\fldinst{HYPERLINK "img:102,32,32"}}{\fldrslt {102_keynote.ico}}}\cf2\b\fs36\par
+\cf1\b\f1\fs36\lang1045 Welcome to KeyNote\f0\lang3082  NF  \v\'11I102\'12\cf0\b0\v0\fs20{\field{\*\fldinst{HYPERLINK "img:102,32,32"}}{\fldrslt {102_keynote.ico}}}\cf2\b\fs36\lang1033\par
 \cf0\b0\fs20\par
 
 \pard\qj Keynote NF is a flexible, \b multi-featured tabbed notebook,\b0  based on Windows standard Richedit control and so in \b Rich Text Format (RTF)\b0 . \par
@@ -24,7 +25,7 @@ ND=Welcome to KeyNote NF
 
 \pard\sa160\qr\super\b 1\nosupersub\b0  Since versi\'f3n 1.9.2 tabs are renamed as \cf3\ul\b folders\cf0\ulnone\b0 , containing one or more notes. {{\field{\*\fldinst{HYPERLINK "file:///<13|2425|0|1"}}{\fldrslt{\ul\cf2\cf2\ul More info}}}}\f0\fs20\par
 
-\pard\qj KeyNote NF is as \b simple to use\b0  as any \b text editor\b0 , with a large number of text formatting functions that allows you to create very readable, clear, and well-organized notes. It is very versatile and always accessible with a single keypress, even if you work in another application. It offer many \b advanced features\b0 , such as \b images,\b0  \b glossary, hyperlinks, macros, styles, plugins, virtual nodes, \b0 and much more. Additionally, KeyNote NF's interface and behavior are extremely configurable.\par
+\pard\qj KeyNote NF is as \b simple to use\b0  as any \b text editor\b0 , with a large number of text formatting functions that allows you to create very readable, clear, and well-organized notes. It is very versatile and always accessible with a single keypress, even if you work in another application. It offer many \b advanced features\b0 , such as \b images,\b0  \b glossary, hyperlinks, tags, folding, macros, styles, plugins, virtual nodes, \b0 and much more. Additionally, KeyNote NF's interface and behavior are extremely configurable.\par
 
 \pard\sb160\sa120 Optionally, KeyNote NF \b can encrypt your data securely \b0 using the {{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Blowfish or Idea}}}}\b\f0\fs20  \b0 algorithms.\par
 
@@ -639,7 +640,7 @@ You may add additional accurate notices of copyright ownership.\par
 %*
 GI=10
 ND=Features
-LM=0601251251
+LM=1304252212
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -669,6 +670,7 @@ LM=0601251251
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa100\b\fs20 Store many separate folders (tabs) within one file\b0 ; each folder is displayed on its own, easily accessible tab. This is a much more convenient solution than opening several files on disk. Each folder (tab) has independent font, color and editor settings.\par
 {\pntext\f3\'B7\tab}Use of \b tree-type folders, multi-level hierarchy of "branches\b0 ", each with its own independent note. See {{\field{\*\fldinst{HYPERLINK "file:///<27|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folders as note trees}}}}\f0\fs20 .\par
 {\pntext\f3\'B7\tab}\b Unlimited number of notes\b0  that can be stored in a single folder\par
+{\pntext\f3\'B7\tab}\b Tags\b0  can be applied to notes and within the text itself, allowing paragraphs or text fragments to be metadata-tagged ({{\field{\*\fldinst{HYPERLINK "file:///<122|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Ability to create "\b virtual nodes\b0 " in the tree (nodes which are dynamically linked to external text or RTF files) ({{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}\f2\lang3082 "\b Linked nodes\b0 ": nodes that share the note they point to ({{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f2\fs20 )\f0\lang1033\par
 {\pntext\f3\'B7\tab}\f2\lang3082 All the notes can be \b searched and filtered\b0  based on multiple criteria (See {\f0\lang1033{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Tree filtering}}}}\f2\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Find All filtering}}}}\f2\fs20 )\f0\lang1033\par
@@ -686,6 +688,7 @@ LM=0601251251
 {\pntext\f3\'B7\tab}\b Clickable hyperlinks \b0 to Internet addresses, local files and internal locations in KeyNote notes ({{\field{\*\fldinst{HYPERLINK "file:///<38|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}"\b Clipboard capture\b0 " feature, enabling you to automatically capture and store any text and images that was copied to Clipboard from any other application, or even from KeyNote ({{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}"\b Web clip\b0 " feature, that allows to paste text and images from external programs (included web browsers) in a configurable way ({{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+{\pntext\f3\'B7\tab}\b Folding and unfolding\b0 : it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. Nesting of folded blocks is possible, and these can contain images, links, etc ({{\field{\*\fldinst{HYPERLINK "file:///<123|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Simple \b bookmarks\b0  ({{\field{\*\fldinst{HYPERLINK "file:///<20|23704|0|13"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Basic RTF \b Tables\b0  support ({{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}\b Glossary \b0 function to automatically replace a piece of text with another ({{\field{\*\fldinst{HYPERLINK "file:///<24|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Expand text}}}}\f0\fs20 )\par
@@ -1570,6 +1573,7 @@ ND=Using KeyNote NF
 %*
 GI=20
 ND=KeyNote Editor
+LM=1304251924
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
@@ -1672,12 +1676,12 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<21|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Abo
 \b\v\fs24\'11B10\'12\v0 Applying formatting in KeyNote\b0\par
 \fs20\par
 KeyNote allows you to easily apply format to text, setting it directly with font specific commands, like Bold, text color, or font name; or paragraph specific commands like Increase first indent, bullets or Increase space before.\par
-There are also more generic commands to modify several font attributes (Format|Font... \cf3\b Ctr+T\cf0\b0 , \cf3\b  \v\'11I73\'12\cf0\b0\v0{\field{\*\fldinst{HYPERLINK "img:73,16,16"}}{\fldrslt {73_Format_12.png}}}) or paragraph attributes at once (Format|Paragraph... \cf3\b Ctr+P\cf0\b0 , \v\'11I28\'12\v0{\field{\*\fldinst{HYPERLINK "img:28,17,17"}}{\fldrslt {28_Main_28.png}}}).\par
+There are also more generic commands to modify several font attributes (Format|Font... \cf3\b Ctr+T\cf0\b0 , \cf3\b  \v\'11I73\'12\cf0\b0\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:73,16,16"}}{\fldrslt {73_Format_12.png}}}\lang1033 ) or paragraph attributes at once (Format|Paragraph... \cf3\b Ctr+P\cf0\b0 , \v\'11I28\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:28,17,17"}}{\fldrslt {28_Main_28.png}}}\lang1033 ).\par
 \par
 A third type of command allows you to copy formatting from one existing text to another. You can copy and paste only font attributes, paragraph attributes, or all:\par
 \par
 
-\pard\li360 Format | Copy Format | \ul Copy Formatting\ulnone\tab\tab\tab\cf3\b Ctr+F7  \cf0\b0 or \v\'11I84\'12\v0{\field{\*\fldinst{HYPERLINK "img:84,18,18"}}{\fldrslt {84_Format_23.png}}} button\par
+\pard\li360 Format | Copy Format | \ul Copy Formatting\ulnone\tab\tab\tab\cf3\b Ctr+F7  \cf0\b0 or \v\'11I84\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:84,18,18"}}{\fldrslt {84_Format_23.png}}}\lang1033  button\par
 Format | Copy Format | \ul Copy Font Attributes\ulnone\tab\tab\tab\cf3\b Ctr+F8\cf0\b0\par
 Format | Copy Format | \ul Copy Paragraph Attributes\ulnone\tab\tab\cf3\b Ctr+F9\cf0\b0\par
 \par
@@ -1685,7 +1689,7 @@ Format | Paste Format | \ul Paste Font Attributes\ulnone\tab\tab\cf3\b Shift+F8\
 Format | Paste Format | \ul Paste Paragraph Attributes\ulnone\tab\tab\cf3\b Shift+F9\cf0\b0\par
 
 \pard\par
-The latter can be done with the \b Copy Format\b0  button (\v\'11I84\'12\v0{\field{\*\fldinst{HYPERLINK "img:84,18,18"}}{\fldrslt {84_Format_23.png}}}  \v\'11I95\'12\v0{\field{\*\fldinst{HYPERLINK "img:95,24,21"}}{\fldrslt {95_PasteFormat.png}}}). This command behaves like the equivalent command of MS Word, using internally the functions Copy/Paste Font Attributes and Copy/Paste Paragraph Attributes. \par
+The latter can be done with the \b Copy Format\b0  button (\v\'11I84\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:84,18,18"}}{\fldrslt {84_Format_23.png}}}\lang1033   \v\'11I95\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:95,24,21"}}{\fldrslt {95_PasteFormat.png}}}\lang1033 ). This command behaves like the equivalent command of MS Word, using internally the functions Copy/Paste Font Attributes and Copy/Paste Paragraph Attributes. \par
 
 \pard\li360\b Tip\b0 : Formatting can be applied several times with \cf3\b Ctrl+click\cf0\b0 .\par
 
@@ -1712,7 +1716,7 @@ You can use the \ul Format\ulnone  main menu, with many \b shortcuts\b0  that yo
 \b\v\fs24\'11B8\'12\v0 Left indentation vs First indentation\b0\par
 \fs20\par
 
-\pard\li360\v\'11I161\'12\v0{\field{\*\fldinst{HYPERLINK "img:161,417,301"}}{\fldrslt {161_Clipb_23ene.png}}}\par
+\pard\li360\v\'11I161\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:161,417,301"}}{\fldrslt {161_Clipb_23ene.png}}}\lang1033\par
 
 \pard\par
 In Rich Edit control (and in older versions of KeyNote), the meaning of "first indentation" and "left indentation" is:\par
@@ -1732,16 +1736,16 @@ Since version 1.7.5, \b KeyNote NF uses MS Word behavior and terminology\b0 .\pa
 Values shown in 'Paragraph...' dialog follow that criterion. First indent can have a negative value and it is relative to Left indent.\par
 \par
 
-\pard\fi200\li600\ri2000\f2 This paragraph, for example has a \b first line with a positive indentation\b0 . The second and following lines will start more to the left...  You can check it with \cf3\b Ctrl+P\cf0\b0  or \ul Format | Paragraph...\ulnone  ( \v\'11I28\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:28,17,17"}}{\fldrslt {28_Main_28.png}}}\f2  )\f0\par
+\pard\fi200\li600\ri2000\f2 This paragraph, for example has a \b first line with a positive indentation\b0 . The second and following lines will start more to the left...  You can check it with \cf3\b Ctrl+P\cf0\b0  or \ul Format | Paragraph...\ulnone  ( \v\'11I28\'12\v0\f0\lang3082{\field{\*\fldinst{HYPERLINK "img:28,17,17"}}{\fldrslt {28_Main_28.png}}}\f2\lang1033  )\f0\par
 
 \pard\par
 
-\pard\fi-200\li600\ri2000\f2 And this other paragraph has a \b first line with a negative indentation\b0 . The second and following lines will start more to the right...  You can check it \cf3\b Ctrl+P\cf0\b0  or \ul Format | Paragraph...\ulnone   ( \v\'11I28\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:28,17,17"}}{\fldrslt {28_Main_28.png}}}\f2  ) \f0\par
+\pard\fi-200\li600\ri2000\f2 And this other paragraph has a \b first line with a negative indentation\b0 . The second and following lines will start more to the right...  You can check it \cf3\b Ctrl+P\cf0\b0  or \ul Format | Paragraph...\ulnone   ( \v\'11I28\'12\v0\f0\lang3082{\field{\*\fldinst{HYPERLINK "img:28,17,17"}}{\fldrslt {28_Main_28.png}}}\f2\lang1033  ) \f0\par
 
 \pard\par
 \par
 
-\pard\fi-460\li460\b Tip\b0 : You can change the increment value (in points) that is applied each time you execute the Format|Paragraph Style|\ul Increase Left Indent\ulnone , \v\'11I70\'12\v0{\field{\*\fldinst{HYPERLINK "img:70,18,18"}}{\fldrslt {70_Format_09.png}}}, (o Decrease Left Ident,  \v\'11I71\'12\v0{\field{\*\fldinst{HYPERLINK "img:71,18,18"}}{\fldrslt {71_Format_10.png}}}) with the option \b Increment indents by\b0  ({{\field{\*\fldinst{HYPERLINK "file:///<89|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Rich Text editor}}}}\f0\fs20 )\par
+\pard\fi-460\li460\b Tip\b0 : You can change the increment value (in points) that is applied each time you execute the Format|Paragraph Style|\ul Increase Left Indent\ulnone , \v\'11I70\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:70,18,18"}}{\fldrslt {70_Format_09.png}}}\lang1033 , (o Decrease Left Ident,  \v\'11I71\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:71,18,18"}}{\fldrslt {71_Format_10.png}}}\lang1033 ) with the option \b Increment indents by\b0  ({{\field{\*\fldinst{HYPERLINK "file:///<89|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Rich Text editor}}}}\f0\fs20 )\par
 
 \pard   \par
 \par
@@ -1756,7 +1760,7 @@ Values shown in 'Paragraph...' dialog follow that criterion. First indent can ha
 \pard\par
 \par
 \par
-\b\v\fs24\'11B9\'12\v0 Using bullets and numbered lists  \b0 ( \v\'11I69\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:69,18,18"}}{\fldrslt {69_Format_08.png}}}\fs24    \v\'11I76\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:76,17,17"}}{\fldrslt {76_Format_15.png}}}\fs24  )\par
+\b\v\fs24\'11B9\'12\v0 Using bullets and numbered lists  \b0 ( \v\'11I69\'12\v0\fs20\lang3082{\field{\*\fldinst{HYPERLINK "img:69,18,18"}}{\fldrslt {69_Format_08.png}}}\fs24\lang1033    \v\'11I76\'12\v0\fs20\lang3082{\field{\*\fldinst{HYPERLINK "img:76,17,17"}}{\fldrslt {76_Format_15.png}}}\fs24\lang1033  )\par
 \fs20\par
 
 \pard\sb80 The RichEdit control in what is based KeyNote is limited, and it is not comparable to MS Word. However, although in a much less comfortable and intuitive way than in MS Word, we can create bullets and nested lists of different styles with KeyNote.\par
@@ -1768,7 +1772,7 @@ This way you can select the numbering style, and assuming arabic numbers you can
 1)    (1)   1.    1\par
 2)    (2)   2.    2\par
 \par
-The are two options you can use to create more complicated lists. They are available in the same drop-down list of the \v\'11I76\'12\v0{\field{\*\fldinst{HYPERLINK "img:76,17,17"}}{\fldrslt {76_Format_15.png}}} button:\par
+The are two options you can use to create more complicated lists. They are available in the same drop-down list of the \v\'11I76\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:76,17,17"}}{\fldrslt {76_Format_15.png}}}\lang1033  button:\par
 \par
 
 \pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\b No Next number or bullet\b0  - Continues a numbered list without applying the next number or bullet\par
@@ -1946,7 +1950,7 @@ You can use "" to completely remove the bullets. You can even replace it by the 
 KeyNote includes one button to set or change the text color and other to add or remove highlight color.\par
  \par
 
-\pard\li360  \v\'11I194\'12\v0{\field{\*\fldinst{HYPERLINK "img:194,198,233"}}{\fldrslt {194_Clipb_24nov.png}}}\par
+\pard\li360  \v\'11I194\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:194,198,233"}}{\fldrslt {194_Clipb_24nov.png}}}\lang1033\par
 
 \pard\par
 \par
@@ -2080,7 +2084,7 @@ You can also embedd a new or existing file object (like .docx Word or .xlsx, for
 
 \pard\li360\sa120 Note that it is not possible to resize the image being inside a cell. But you can resize it outside and copy or dragged into the cell\cf9\f6\fs24\lang3082\par
 
-\pard\li720\v\'11I162\'12\cf0\v0\f0\fs20\lang1033{\field{\*\fldinst{HYPERLINK "img:162,16,16"}}{\fldrslt {162_Image_23ene.png}}}\cf9\fs24\lang3082  \v\f6\'11I162\'12\cf0\v0\f0\fs20\lang1033{\field{\*\fldinst{HYPERLINK "img:162,24,24"}}{\fldrslt {162_Image_23ene.png}}}\cf9\f6\fs24\lang3082\par
+\pard\li720\v\'11I162\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:162,16,16"}}{\fldrslt {162_Image_23ene.png}}}\cf9\fs24  \v\f6\'11I162\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:162,24,24"}}{\fldrslt {162_Image_23ene.png}}}\cf9\f6\fs24\par
 
 \pard\li360\par
 \trowd\trgaph30\trleft410\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
@@ -2095,14 +2099,14 @@ You can also embedd a new or existing file object (like .docx Word or .xlsx, for
 \cellx1122\cellx2274\cellx3381\nestrow}{\nonesttables\par}
 
 \pard\intbl\itap2\qr\f7\lang3082 X2\f5\lang1033\nestcell 
-\pard\intbl\itap2\qc\v\'11I53\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:53,16,16"}}{\fldrslt {53_Main_53.png}}}\cf8\f7\fs18\lang3082  \f5\lang1033\nestcell 
+\pard\intbl\itap2\qc\v\'11I53\'12\cf0\v0\f0\fs20\lang3082{\field{\*\fldinst{HYPERLINK "img:53,16,16"}}{\fldrslt {53_Main_53.png}}}\cf8\f7\fs18  \f5\lang1033\nestcell 
 \pard\intbl\itap2\qr\nestcell{\*\nesttableprops\trowd\trgaph30\trleft-30\trqc\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx1122\cellx2274\cellx3381\nestrow}{\nonesttables\par}
 
 \pard\intbl\qr\cell 
 \pard\intbl\qc\par
 \par
-\cf0\v\f0\fs20\'11I86\'12\v0{\field{\*\fldinst{HYPERLINK "img:86,24,24"}}{\fldrslt {86_TV_02.png}}}\cf8\f5\fs18\cell\f7\lang3082 This cell is centered\f5\lang1033\cell\trowd\trgaph30\trleft410\trrh1200\cellx4262\cellx4807\cellx5959\row 
+\cf0\v\f0\fs20\'11I86\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:86,24,24"}}{\fldrslt {86_TV_02.png}}}\cf8\f5\fs18\lang1033\cell\f7\lang3082 This cell is centered\f5\lang1033\cell\trowd\trgaph30\trleft410\trrh1200\cellx4262\cellx4807\cellx5959\row 
 \pard\cf0\f0\fs20\par
 
 \pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You cannot change the color of a cell from inside KeyNote, but you can prepare the table with colors outside and then paste:\par
@@ -2131,9 +2135,9 @@ You can also embedd a new or existing file object (like .docx Word or .xlsx, for
 
 \pard\sa160 You can insert current date and time values, using many configurable formats.\par
 
-\pard The Insert | \ul Insert Date\ulnone  (\cf3\b Ctrl+Shift+D\cf0\b0 ) and \ul Insert Time\ulnone  (\cf3\b Ctrl+Shift+T\cf0\b0 ) (or buttons \v\'11I47\'12\v0{\field{\*\fldinst{HYPERLINK "img:47,16,16"}}{\fldrslt {47_Main_47.png}}} and \v\'11I48\'12\v0{\field{\*\fldinst{HYPERLINK "img:48,16,16"}}{\fldrslt {48_Main_48.png}}} ) will insert current instant with a selected format that depends on your KeyNote general configuration (See {{\field{\*\fldinst{HYPERLINK "file:///<100|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Formats}}}}\f0\fs20 ), that allows you to define the formats to use, but also let you to \b Use \b0 the \b last format selected in drop-down menu\b0 .\par
+\pard The Insert | \ul Insert Date\ulnone  (\cf3\b Ctrl+Shift+D\cf0\b0 ) and \ul Insert Time\ulnone  (\cf3\b Ctrl+Shift+T\cf0\b0 ) (or buttons \v\'11I47\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:47,16,16"}}{\fldrslt {47_Main_47.png}}}\lang1033  and \v\'11I48\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:48,16,16"}}{\fldrslt {48_Main_48.png}}}\lang1033  ) will insert current instant with a selected format that depends on your KeyNote general configuration (See {{\field{\*\fldinst{HYPERLINK "file:///<100|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Formats}}}}\f0\fs20 ), that allows you to define the formats to use, but also let you to \b Use \b0 the \b last format selected in drop-down menu\b0 .\par
 \par
-As you can see, the , \v\'11I47\'12\v0{\field{\*\fldinst{HYPERLINK "img:47,16,16"}}{\fldrslt {47_Main_47.png}}} and \v\'11I48\'12\v0{\field{\*\fldinst{HYPERLINK "img:48,16,16"}}{\fldrslt {48_Main_48.png}}} buttons in "Insert" toolbar include a drop-down menu attached, which allow you to quickly select one of several date/time formats. \par
+As you can see, the , \v\'11I47\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:47,16,16"}}{\fldrslt {47_Main_47.png}}}\lang1033  and \v\'11I48\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:48,16,16"}}{\fldrslt {48_Main_48.png}}}\lang1033  buttons in "Insert" toolbar include a drop-down menu attached, which allow you to quickly select one of several date/time formats. \par
 \par
 Please note that the date and time formats available under those drop-down menus are configurable by editing the files "\cf6\b dateformats.txt\cf0\b0 " and "\cf6\b timeformats.txt\cf0\b0 ". Note also that it is possible to specify that the date should be inserted using English names of months or weekdays (by default, KeyNote uses localized names, according to the Windows language version). See the indications in both files.\par
 \ul Tip\ulnone : \cf3\b Shift\cf0\b0 -clicking the Insert Date and Insert Time buttons will reload the appropriate configuration file.\par
@@ -2148,7 +2152,7 @@ Note:    \par
 \b\v\fs24\'11B5\'12\v0 Adjusting the Zoom in the folders  \b0\par
 \fs20\par
 
-\pard\li360\v\'11I173\'12\v0{\field{\*\fldinst{HYPERLINK "img:173,88,31"}}{\fldrslt {173_Clipb_24feb.png}}}\par
+\pard\li360\v\'11I173\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:173,88,31"}}{\fldrslt {173_Clipb_24feb.png}}}\lang1033\par
 
 \pard\par
 Usually new zoom value is set by selecting one of the items of the \b combo\b0  (that default to 100%). \par
@@ -2322,7 +2326,14 @@ The scratch tab, in {{\field{\*\fldinst{HYPERLINK "file:///<12|448|0|1"}}{\fldrs
 
 \pard\par
   (*) Images are currently managed as EmbeddedRTF (as it is done with RTF virtual nodes)\par
-  \par
+\par
+\ul Note\ulnone :\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Background color of Scratchpad is saved in .INI file. This way is remembered between sessions\par
+{\pntext\f9\'B7\tab}If there is no "scratch.rtf" file, the active editor default font will be applied as default in Scratchpad\par
+{\pntext\f9\'B7\tab}The font used at the final position in the editor is remembered when saving the file   (each time the resource panel is hidden) to allow recover it after deleting all content.  This way the font doesn't revert to default Tahoma 9pt\par
+
+\pard   \par
     \par
 Scratchpad (Sp) also allows \b managing registered images\b0 , that is, with assigned IDs (through hidden tags):\par
 \par
@@ -2674,11 +2685,11 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 %*
 GI=27
 ND=Folders as note trees
-LM=0712241154
+LM=1304252133
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;\red128\green128\blue0;}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;\red128\green128\blue0;\red193\green255\blue255;}
 {\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont2\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Folders as note trees\cf2\lang1033\par
@@ -2702,6 +2713,7 @@ LM=0712241154
       {{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by last modification date}}}}\f0\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<27|26525|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by name}}}}\f0\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<27|28655|0|19"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by flagged status}}}}\f0\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<27|31948|0|22"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by Tags}}}}\f0\fs20\par
 
 \pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{\ul\cf2\cf2\ul Deduce missing date information}}}}\f0\fs20\par
 
@@ -3126,7 +3138,7 @@ The flagged status and creation date can be used as criteria in "Find All" searc
 
 \pard\sa80 At the bottom of the tree there is a panel that includes a text box and several buttons that let you filter the tree based of the names of the nodes (notes), the checked status, the creation/modification date of the notes, and the flagged status of the nodes.\par
 
-\pard Tree panel filtering can be temporarily disabled, while highlighted the results, with "Filter nodes" button  (\v\'11I50\'12\v0{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}).\par
+\pard Tree panel filtering can be temporarily disabled, while highlighted the results, with "Filter nodes" button  (\v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033 ).\par
 
 \pard\sb120\b Important\b0 : This 'Tree panel' filter will be combined with 'Find All' filter. See clarifications in {{\field{\*\fldinst{HYPERLINK "file:///<40|16050|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Find and Find All}}}}\f0\fs20\par
 
@@ -3271,6 +3283,60 @@ If "Project_B" is also flagged, and 'Show children' is enabled then the first st
 {\pntext\f4\'B7\tab}On file loading, with not readonly folders: if filtering was applied, matches (and node highlighting) will be remembered, but filter will be disabled by default\par
 
 \pard\par
+\par
+\b\v\fs22\'11B22\'12\v0 Filtering by Tags\par
+
+\pard\sb120\b0\fs20 A new control in the tree panel allows the selection of multiple tags to filter nodes with. It is allowed the introduction of both individual tags and parts of them, which allow the selection of several at a time. In the latter case, they are treated as OR conditions. The control shows a "#" character by default, to reminder its function\par
+
+\pard\par
+The tag filter text control allows a mix of 'AND' and 'OR' operands but only if any of the words doesn't identify an unique tag, like "\cf6 Err\cf0 " to select "\cf6 (Error OR Error.High)\cf0 ", for example. But it doesn't allow something like '\cf6 Bug' OR 'Error\cf0 '. Currently even "OR" could be a tag (#OR).\par
+Something like "\cf6 Err ToDO\cf0 " will be interpreted as "\cf6 (Error OR Error.High) AND ToDO\cf0 "\par
+\par
+Other example. \par
+
+\pard\li360 Suppose that there are defined tags such as \cf6 #PryA.Module1 #PryA.Module2 ... #Bug #Bug.High #Bugh.Low\cf0\par
+
+\pard\li360\sb80 If you enter: "\cf6 PryA Bug.Low\cf0 " then \cf6 (PryA.Module1 OR PryA.Module2 .. ) AND (Bug.Low)\cf0  will be considered.\par
+
+\pard\par
+\par
+\b Notes\b0 :\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 The View | Show Children option is also applicable to this new criterion.\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Those nodes that match the indicated tags will be highlighted with a \highlight7 light cyan color\highlight0  in the "flagged" column. If this column was not visible, it will be temporarily displayed while the filter is applied.\par
+{\pntext\f4\'B7\tab}If a term ends in '\b *\b0 ' and it is not identified as a {{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{\ul\cf2\cf2\ul registered tag}}}}\f0\fs20 , it will be assumed that we want to indicate the search for tags that contain the entered substring (not just the one that ends with it).\par
+
+\pard\li360 In this way, if we have for example the tags: "\cf6 Error\cf0 ", "\cf6 ErrorHigh\cf0 ", "\cf6 ErrorLow\cf0 " and we want to select only the first one, we will write "\cf6 Error\cf0 " (or simply select it from the selector, in the many possible ways).\par
+
+\pard\li360\sb80 If we want to consider the three tags (an error, whatever the severity or if it has not been defined) we will write "\cf6 Error*\cf0 ".\par
+
+\pard\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 When there is no match with any individual tag it is not necessary to add * to select several.\par
+
+\pard\li360 E.g.: If we have "\cf6 PryA.ModuleA\cf0 " and "\cf6 PryA.ModuleB\cf0 " we could write "\cf6 PryA\cf0 " to select the two (in an OR condition)\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The option "\b Inherited tags\b0 " will affect how nodes are filtered based on the selected tags. When checked, each node will be considered as having its own tags and the tags of its ancestors.\par
+
+\pard\li360 This option can be changed form View / Filter | Inherited tags and also from Tags or Find tabs in the resource panel.\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The tree will be filtered as we add new tags\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Also: \cf3\b  Ctrl+Click\cf0\b0  on this control will clear it\par
+
+\pard\par
+\par
+
+\pard\li360\v\'11I224\'12\v0{\field{\*\fldinst{HYPERLINK "img:224,722,205"}}{\fldrslt {224_Clipb_13abr.png}}}\par
+
+\pard\par
+
+\pard\li360 See {{\field{\*\fldinst{HYPERLINK "file:///<122|18636|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tags Tab of the Resources Panel}}}}\f0\fs20  for a explanation of this example, and the general use of Tags.\par
+
+\pard\par
+ \par
+\par
 \par
 \b\v\fs26\'11B20\'12\v0 Deduce missing date information\b0\fs20\par
 \par
@@ -3619,120 +3685,6 @@ The dialog box contains two tab sheets:\par
 \par
 }
 %*
-GI=32
-ND=Tree Settings
-LM=0801252208
-%.
-%:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green255\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
-\pard\f0\fs20\lang1033\par
-\cf1\b\fs34 Folder Properties\fs36 : Tree settings\par
-\cf0\b0\fs20\par
-\v\'11I212\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:212,387,530"}}{\fldrslt {212_Clipb_08ene.png}}}\lang1033\par
-\par
-\par
-On this tab you can specify \ul tree related settings\ulnone  for either the \b active folder\b0  (\cf2\b F4\cf0\b0 ), or for \b all folders you later create\b0  (\cf2\b F6\cf0\b0 ).\par
-\par
-\lang3082 All the properties described can be changed in active folder, or set as default value \lang1033 for newly created folders.\par
-\par
-\b Note\b0 : the screenshot shown corresponds to Folder | Properties (\cf2 F4\cf0 ). It is identical to the one used in Tools | Default settings...\b  \b0 (\cf2 F6\cf0 ), except for the same differences highlighted in blue on {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Folder Properties: Editor settings}}}}\f0\fs20 ). Note that those options are not specific to either of those tabs, but common to both. You can find in that link the meaning of "\b Save as default for <filename>\b0 " and "\b Save as Defaults (and apply to "<Folder>" folder)\b0 "\par
-\par
-\par
-\cf1\b\fs22 Folder name\cf0\b0\fs20\par
-\lang3082 E\f1\lang1033 nter a new name to rename the active \f0\lang3082 folder, or enter the name \lang1033 that will be used as default for newly created folders\par
-\par
-\cf1\b\fs22 Folder icon\cf0\b0\fs20\par
-Choose the icon that you want to be shown on the tab, next to the folder name.\par
-\par
-\par
-\cf1\b\fs22 RTL (Right to Left)\cf0\b0\fs20\par
-Folder level option that defines default bidirectional mode for tree and editor in folder. If set to True then the tree will be displayed as RTL, the editor will be set to RightToLeftNoAlign, and also new notes will start an RTL paragraph by default.\par
-
-\pard\sb80 The entire interface will be adapted to RTL if the configured UI language (according a translated .LNG file) is defined as RTL. See {{\field{\*\fldinst{HYPERLINK "file:///<107|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Configuring user interface Language}}}}\f0\fs20\par
-
-\pard\par
-\par
-\par
-\cf1\b\fs22 Default name for new tree nodes\cf0\b0\fs20\par
-
-\pard\fi-240\li240 Specifies the default name for all new tree nodes (notes) you will add to the tree\par
-
-\pard\fi-480\li480\sb80\b Tip: \b0 The string can contain special "tokens" which KeyNote will automatically replace with values. This allows you to partly automate the naming of nodes. For instance, current date or time can be automatically added as part of the node name when creating the node. Click the \v\'11I61\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:61,16,16"}}{\fldrslt {61_Main_61.png}}}\lang1033  button to display a dialog box listing available tokens and their meanings.\par
-
-\pard\par
-\par
-\cf1\b\fs22 Vertical layout (tree on top)\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
-Specifies the layout of tree panel vs editor. \par
-If the option is enabled, the tree will be shown above the editor. \par
-If the option is disabled, the tree will be shown to the left of the editor (horizontal layout)\par
-\par
-Note:\par
-
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb20 If you add (or possibly move) some nodes in the tree, and then change the tree layout (from horizontal to vertical, or the other way around), then the new nodes lose their original position. This does not affect the nodes that were created earlier. The problem does not occur if the file was saved and closed/reopened.\par
-{\pntext\f2\'B7\tab}Workaround: When you want to change the layout, save the file first *and reload it*. Just close the file and reopen it, or simply select the file from the \ldblquote Recent files\rdblquote  menu. After you have reloaded the file, change the tree layout. This way, all nodes should stay where they were. You should probably save the file at this point and reload it again, at least if you intend to make any further changes to the tree.\par
-
-\pard\par
-\par
-\cf1\b\fs22 Show checkboxes in all nodes\tab\tab\cf0\fs20\tab\tab\b0 Default: Disabled\par
-
-\pard\fi-240\li240 If the option is enabled, a checkbox appears next to every node in the tree. \par
-If the option is disabled, no checkboxes appear\par
-
-\pard\par
-\cf1\b\fs22 Hide checked nodes\tab\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
-
-\pard\fi-240\li240 If the option is enabled, nodes are automatically hidden when checked. (See also {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf3\cf3\ul Using Hidden nodes}}}}\f0\fs20 )\par
-
-\pard\par
-\cf1\b\fs22 Image icons in tree\cf0\b0\fs20\par
-You can display or hide (\ul None\ulnone ) icons in the tree. And in the first case you can use custom icons you explicitily assign to each node (\ul Custom icons\ulnone ), or let KeyNote associate the icons depending on the state of the node and its kind (\ul Standard icons\ulnone ).\par
-\par
-
-\pard\sa120 If you use "Standard icons" you will see:\par
-
-\pard\li120\v\'11I86\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:86,16,16"}}{\fldrslt {86_TV_02.png}}}\lang1033  \v\'11I85\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:85,16,16"}}{\fldrslt {85_TV_01.png}}}\lang1033     Top nodes (first level nodes) with child nodes, selected or unselected\par
-\v\'11I88\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:88,16,16"}}{\fldrslt {88_TV_04.png}}}\lang1033  \v\'11I87\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:87,16,16"}}{\fldrslt {87_TV_03.png}}}\lang1033     Lower level nodes, with child nodes, selected or not\par
-\v\'11I90\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:90,16,16"}}{\fldrslt {90_TV_06.png}}}\lang1033   \v\'11I89\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:89,16,16"}}{\fldrslt {89_TV_05.png}}}\lang1033    Nodes without childs (leaf nodes), selected or not\par
-\v\'11I92\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:92,16,16"}}{\fldrslt {92_TV_08.png}}}\lang1033   \v\'11I91\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:91,16,16"}}{\fldrslt {91_TV_07.png}}}\lang1033    Virtual node, selected or not.  \par
-\v\'11I94\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:94,16,16"}}{\fldrslt {94_TV_10.png}}}\lang1033   \v\'11I93\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:93,16,16"}}{\fldrslt {93_TV_09.png}}}\lang1033    Linked node, selected or not.\par
-
-\pard\par
-
-\pard\fi-480\li480\sb40\b Tip: \b0 You can quickly toggle between standad and custom icons with \ul View | Standard Tree Icons\ulnone  or \ul View | Custom Tree Icons\ulnone  commands.\par
-
-\pard\par
-\cf1\b\fs22 Additional Columns\cf0\b0\fs20\par
-There are two columns that can be made visible: "Flagged", "Date". Once visible, it is possible to reorder them; the resulting position will also be saved in the .knt file.\par
-
-\pard\sb120\b Tip\b0 : You can also toggle display of optional columns with the tree panel context menu (View / Filter | Show columns). These changes to the display of the tree panel are not persisted when saving.\par
-
-\pard More info in {{\field{\*\fldinst{HYPERLINK "file:///<27|22219|0|14"}}{\fldrslt{\ul\cf3\cf3\ul Optional columns: Flagged, Date}}}}\f0\fs20\par
-\par
-\par
-\cf1\b\fs22 Font button\cf0\b0\fs20\par
-Selects default font style for the nodes in the tree panel (*)\par
-\par
-\cf1\b\fs22 BG Color button\par
-\cf0\b0\fs20 Selects background color for the tree (*)\par
-\par
-\ul (*) Notes\ulnone :\par
-
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree panel (tab), while allowing each individual node to overwrite it.\par
-{\pntext\f2\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
-
-\pard\par
-\par
-\cf1\b\fs22 Reset button\cf0\b0\fs20\par
-Resets font style and background color for the tree\par
-\par
-\cf1\b\fs22 Apply to ALL folders\cf0\b0\fs20\par
-If you check this option, then font and background colors defined in this window will be applied for ALL tree panels at once. \par
-You have this option available from active folder and from default settings. This way you can apply one of those settings to all the tree panels at once.\par
-\highlight4\par
-}
-%*
 GI=31
 ND=Editor Settings
 LM=0801252203
@@ -3826,6 +3778,121 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<21|0|0"}}{\fldrslt{\ul\cf3\cf3\
 \cf1\b\fs22 Reset button\par
 \cf0\b0\fs20 Resets initial font style and background color for the active folder. Does not affect already existing text!\par
 \par
+}
+%*
+GI=32
+ND=Tree Settings
+LM=1304251954
+%.
+%:
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green255\blue0;}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\f0\fs20\lang1033\par
+\cf1\b\fs34 Folder Properties\fs36 : Tree settings\par
+\cf0\b0\fs20\par
+\v\'11I212\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:212,387,530"}}{\fldrslt {212_Clipb_08ene.png}}}\lang1033\par
+\par
+\par
+On this tab you can specify \ul tree related settings\ulnone  for either the \b active folder\b0  (\cf2\b F4\cf0\b0 ), or for \b all folders you later create\b0  (\cf2\b F6\cf0\b0 ).\par
+\par
+\lang3082 All the properties described can be changed in active folder, or set as default value \lang1033 for newly created folders.\par
+\par
+\b Note\b0 : the screenshot shown corresponds to Folder | Properties (\cf2 F4\cf0 ). It is identical to the one used in Tools | Default settings...\b  \b0 (\cf2 F6\cf0 ), except for the same differences highlighted in blue on {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Folder Properties: Editor settings}}}}\f0\fs20 ). Note that those options are not specific to either of those tabs, but common to both. You can find in that link the meaning of "\b Save as default for <filename>\b0 " and "\b Save as Defaults (and apply to "<Folder>" folder)\b0 "\par
+\par
+\par
+\cf1\b\fs22 Folder name\cf0\b0\fs20\par
+\lang3082 E\f1\lang1033 nter a new name to rename the active \f0\lang3082 folder, or enter the name \lang1033 that will be used as default for newly created folders\par
+\par
+\cf1\b\fs22 Folder icon\cf0\b0\fs20\par
+Choose the icon that you want to be shown on the tab, next to the folder name.\par
+\par
+\par
+\cf1\b\fs22 RTL (Right to Left)\cf0\b0\fs20\par
+Folder level option that defines default bidirectional mode for tree and editor in folder. If set to True then the tree will be displayed as RTL, the editor will be set to RightToLeftNoAlign, and also new notes will start an RTL paragraph by default.\par
+
+\pard\sb80 The entire interface will be adapted to RTL if the configured UI language (according a translated .LNG file) is defined as RTL. See {{\field{\*\fldinst{HYPERLINK "file:///<107|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Configuring user interface Language}}}}\f0\fs20\par
+
+\pard\par
+\b Note\b0 : Consider also modifying some of the following three {{\field{\*\fldinst{HYPERLINK "file:///<104|14289|0|13"}}{\fldrslt{\ul\cf3\cf3\ul RTL-related INI options}}}}\f0\fs20 : RTLkeyShct, IMEAutoKeyboard, IMEAutoFont\par
+\par
+\par
+\cf1\b\fs22 Default name for new tree nodes\cf0\b0\fs20\par
+
+\pard\fi-240\li240 Specifies the default name for all new tree nodes (notes) you will add to the tree\par
+
+\pard\fi-480\li480\sb80\b Tip: \b0 The string can contain special "tokens" which KeyNote will automatically replace with values. This allows you to partly automate the naming of nodes. For instance, current date or time can be automatically added as part of the node name when creating the node. Click the \v\'11I61\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:61,16,16"}}{\fldrslt {61_Main_61.png}}}\lang1033  button to display a dialog box listing available tokens and their meanings.\par
+
+\pard\par
+\par
+\cf1\b\fs22 Vertical layout (tree on top)\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
+Specifies the layout of tree panel vs editor. \par
+If the option is enabled, the tree will be shown above the editor. \par
+If the option is disabled, the tree will be shown to the left of the editor (horizontal layout)\par
+\par
+Note:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb20 If you add (or possibly move) some nodes in the tree, and then change the tree layout (from horizontal to vertical, or the other way around), then the new nodes lose their original position. This does not affect the nodes that were created earlier. The problem does not occur if the file was saved and closed/reopened.\par
+{\pntext\f2\'B7\tab}Workaround: When you want to change the layout, save the file first *and reload it*. Just close the file and reopen it, or simply select the file from the \ldblquote Recent files\rdblquote  menu. After you have reloaded the file, change the tree layout. This way, all nodes should stay where they were. You should probably save the file at this point and reload it again, at least if you intend to make any further changes to the tree.\par
+
+\pard\par
+\par
+\cf1\b\fs22 Show checkboxes in all nodes\tab\tab\cf0\fs20\tab\tab\b0 Default: Disabled\par
+
+\pard\fi-240\li240 If the option is enabled, a checkbox appears next to every node in the tree. \par
+If the option is disabled, no checkboxes appear\par
+
+\pard\par
+\cf1\b\fs22 Hide checked nodes\tab\tab\cf0\fs20\tab\tab\tab\b0 Default: Disabled\par
+
+\pard\fi-240\li240 If the option is enabled, nodes are automatically hidden when checked. (See also {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf3\cf3\ul Using Hidden nodes}}}}\f0\fs20 )\par
+
+\pard\par
+\cf1\b\fs22 Image icons in tree\cf0\b0\fs20\par
+You can display or hide (\ul None\ulnone ) icons in the tree. And in the first case you can use custom icons you explicitily assign to each node (\ul Custom icons\ulnone ), or let KeyNote associate the icons depending on the state of the node and its kind (\ul Standard icons\ulnone ).\par
+\par
+
+\pard\sa120 If you use "Standard icons" you will see:\par
+
+\pard\li120\v\'11I86\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:86,16,16"}}{\fldrslt {86_TV_02.png}}}\lang1033  \v\'11I85\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:85,16,16"}}{\fldrslt {85_TV_01.png}}}\lang1033     Top nodes (first level nodes) with child nodes, selected or unselected\par
+\v\'11I88\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:88,16,16"}}{\fldrslt {88_TV_04.png}}}\lang1033  \v\'11I87\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:87,16,16"}}{\fldrslt {87_TV_03.png}}}\lang1033     Lower level nodes, with child nodes, selected or not\par
+\v\'11I90\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:90,16,16"}}{\fldrslt {90_TV_06.png}}}\lang1033   \v\'11I89\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:89,16,16"}}{\fldrslt {89_TV_05.png}}}\lang1033    Nodes without childs (leaf nodes), selected or not\par
+\v\'11I92\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:92,16,16"}}{\fldrslt {92_TV_08.png}}}\lang1033   \v\'11I91\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:91,16,16"}}{\fldrslt {91_TV_07.png}}}\lang1033    Virtual node, selected or not.  \par
+\v\'11I94\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:94,16,16"}}{\fldrslt {94_TV_10.png}}}\lang1033   \v\'11I93\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:93,16,16"}}{\fldrslt {93_TV_09.png}}}\lang1033    Linked node, selected or not.\par
+
+\pard\par
+
+\pard\fi-480\li480\sb40\b Tip: \b0 You can quickly toggle between standad and custom icons with \ul View | Standard Tree Icons\ulnone  or \ul View | Custom Tree Icons\ulnone  commands.\par
+
+\pard\par
+\cf1\b\fs22 Additional Columns\cf0\b0\fs20\par
+There are two columns that can be made visible: "Flagged", "Date". Once visible, it is possible to reorder them; the resulting position will also be saved in the .knt file.\par
+
+\pard\sb120\b Tip\b0 : You can also toggle display of optional columns with the tree panel context menu (View / Filter | Show columns). These changes to the display of the tree panel are not persisted when saving.\par
+
+\pard More info in {{\field{\*\fldinst{HYPERLINK "file:///<27|22219|0|14"}}{\fldrslt{\ul\cf3\cf3\ul Optional columns: Flagged, Date}}}}\f0\fs20\par
+\par
+\par
+\cf1\b\fs22 Font button\cf0\b0\fs20\par
+Selects default font style for the nodes in the tree panel (*)\par
+\par
+\cf1\b\fs22 BG Color button\par
+\cf0\b0\fs20 Selects background color for the tree (*)\par
+\par
+\ul (*) Notes\ulnone :\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree panel (tab), while allowing each individual node to overwrite it.\par
+{\pntext\f2\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
+
+\pard\par
+\par
+\cf1\b\fs22 Reset button\cf0\b0\fs20\par
+Resets font style and background color for the tree\par
+\par
+\cf1\b\fs22 Apply to ALL folders\cf0\b0\fs20\par
+If you check this option, then font and background colors defined in this window will be applied for ALL tree panels at once. \par
+You have this option available from active folder and from default settings. This way you can apply one of those settings to all the tree panels at once.\par
+\highlight4\par
 }
 %*
 GI=33
@@ -4644,7 +4711,7 @@ There is no such "one architecture fits all" nor "one framework fits all" soluti
 %*
 GI=38
 ND=Hyperlinks in KeyNote
-LM=0801252139
+LM=1204251158
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
@@ -5356,11 +5423,11 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=2001252022
+LM=1304252150
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;\red128\green128\blue0;}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;\red128\green128\blue0;\red255\green255\blue179;\red179\green255\blue255;}
 {\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Using Find and Find All\cf2\lang1033\par
@@ -5371,7 +5438,9 @@ LM=2001252022
 \pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<40|2226|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Replace}}}}\f1\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Find All}}}}\f1\fs20\par
 
-\pard    {{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Syntax for additional/advanced search}}}}\f1\fs20\par
+\pard    {{\field{\*\fldinst{HYPERLINK "file:///<40|10113|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Folded blocks}}}}\f1\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<40|10051|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags with Find All}}}}\f1\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Syntax for additional/advanced search}}}}\f1\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<40|9385|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Search by last modification date}}}}\f1\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<40|9852|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Words in the same paragraph or sentence}}}}\f1\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<40|11754|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Emphasized words}}}}\f1\fs20\par
@@ -5443,11 +5512,12 @@ Besides using the buttons in the dialog above, you can use Search|\b Replace Nex
 \pard\b0\fs20 You can find and display all matches for a given text in all folders or all nodes in the current folder. You can also narrow down where to search with other options.\par
 In all cases, \b\f0\lang1033 excerpts\b0  from the note of the \b matches\b0  found are displayed, where the \b searched words\b0  are \b highlighted\b0 .\par
 \par
-Matches in Results panel are grouped by the note (node) where they are found. You can display the node name or its full path in the search results panel depending on the \b Show full node path in search results \b0 global option (in {{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Tree panel}}}}\f0\fs20 ). The name of the node is highlighted in the path.\par
+Matches in Results panel are grouped (^) by the note (node) where they are found. You can display the node name or its full path in the search results panel depending on the \b Show full node path in search results \b0 global option (in {{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Tree panel}}}}\f0\fs20 ). The name of the node is highlighted in the path.\par
 
-\pard\li360\sb80\f1\lang3082 The global option \b Reverse order\b0  (in {{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Tree panel}}}}\f1\fs20 ) it is used only with the the option \ul Show full node path in status bar\ulnone . Node path in search results is always shown top to bottom.\f0\lang1033\par
+\pard\li360\sb80\f1\lang3082 The global option \b Reverse order\b0  (in {{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Tree panel}}}}\f1\fs20 ) it is used only with the the option \ul Show full node path in status bar\ulnone . Node path in search results is always shown top to bottom.\par
+\f0\lang1033 (^) When searching note content is not required and results will only include node names/paths, it will display only one row per result (node), without any other grouping rows.\par
 
-\pard\sb160 It is also possible to change the size the font used in Results tab, with the global option: \b Font size in Find All results \b0 (in {{\field{\*\fldinst{HYPERLINK "file:///<103|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Advanced | Other}}}}\f0\fs20  tab )\par
+\pard\sb200 It is also possible to change the size the font used in Results tab, with the global option: \b Font size in Find All results \b0 (in {{\field{\*\fldinst{HYPERLINK "file:///<103|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Advanced | Other}}}}\f0\fs20  tab )\par
 
 \pard\par
 With this Find tab panel you will be able to {\f1\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|5597|0|1"}}{\fldrslt{\ul\cf2\cf2\ul filter tree nodes}}}}\f1\fs20\lang3082  based of the result of the search, hiding or showing nodes.\par
@@ -5463,7 +5533,7 @@ Tip\b0 : \f0\lang1033 After you have used the "Find All" command, right-click th
 \f1\lang3082\par
 \par
 
-\pard\li360\v\'11I215\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:215,209,638"}}{\fldrslt {215_Clipb_20ene.png}}}\lang1033      \v\'11I216\'12\v0\f1\lang3082{\field{\*\fldinst{HYPERLINK "img:216,312,600"}}{\fldrslt {216_Clipb_20ene.png}}}\par
+\pard\li360\v\'11I217\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:217,203,734"}}{\fldrslt {217_Clipb_13abr.png}}}\lang1033      \v\'11I216\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:216,312,600"}}{\fldrslt {216_Clipb_20ene.png}}}\f1\par
 
 \pard\f0\lang1033\par
 \par
@@ -5579,18 +5649,239 @@ There is an explanation and an example of its possible use in Folders as note tr
 
 \pard\par
 \par
+\cf4\b\v\f1\fs24\'11B13\'12\v0 Folded blocks\par
+\cf0\b0\f0\fs20\par
+If you include folded text in your notes, you can use the "\b Folded mode\b0 " dropdown with one of these options:\par
+\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 All\par
+{\pntext\f4\'B7\tab}Exclude folded\par
+{\pntext\f4\'B7\tab}Exclude tagged folded\par
+{\pntext\f4\'B7\tab}Only folded\par
+
+\pard\par
+The first option, selected by default, does not distinguish based on text status and allows you to locate words regardless of whether they are in folded (hidden) blocks or not.\par
+
+\pard\sb40 The last option will restrict searches exclusively to folded blocks. When combined with Tag criteria, it's possible to further restrict which blocks to consider.\par
+
+\pard\par
+The two middle options allow you to ignore folded text, with the third being more restrictive, excluding only those folded blocks that begin with a tag. \par
+
+\pard\sb40 This option ({{\field{\*\fldinst{HYPERLINK "file:///<122|23127|0|11"}}{\fldrslt{\ul\cf2\cf2\ul "tagged" folded block}}}}\f0\fs20 ) is provided considering the possibility of combined use of tags and folding that you might use to easily mark text to ignore in searches, such as archived information, auxiliary content, completed tasks that you don't want to consider, etc. Conversely, other folded blocks might contain text that you simply want to keep hidden for readability or clarity, as these are details you prefer to make visible only when needed.\par
+
+\pard\sb80 Of course, each user may use folded blocks differently.\par
+
+\pard\par
+\b Note\b0 :\par
+When clicking on a search result located inside a folded text block, it will jump to that block and select the "+" corresponding to the beginning of the block.\par
+\par
+\par
+\cf4\b\v\f1\fs24\'11B12\'12\v0 Using Tags with Find All\par
+\cf0\b0\f0\fs20\par
+Using search criteria based on tags, it's also possible to determine which nodes to consider.\par
+
+\pard\sb40 But it's also possible to leverage tagging included within the text itself to restrict search results to those paragraphs or text fragments that meet specific tagging criteria.\par
+
+\pard\par
+The \ul nodes considered\ulnone  can be restricted based on the selection of tags:\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\b With\b0  [ALL or ANY] the tags indicated \par
+
+\pard\li360 (can be use individual tags or multiple --ex. Err*)\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Without\b0  ANY of the tags indicated\par
+
+\pard\par
+Checks related:\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Consider metadata of notes\b0\par
+{\pntext\f4\'B7\tab}\b Consider text of notes\b0\par
+{\pntext\f4\'B7\tab}\b Inherited tags (metadata)\b0\par
+
+\pard\par
+The introduction of tags to use in the With and Without fields will be done with the help of a tag selector (See {{\field{\*\fldinst{HYPERLINK "file:///<122|7939|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tag Selector}}}}\f0\fs20 ) \par
+\par
+\par
+\b Note\b0 : Tags entered in With and/or Without controls will be ignored if both "Consider metadata of notes" and "Consider text of notes" are unchecked\par
+\par
+We can \ul restrict the search to text fragments\ulnone  that do not include any of certain selected tags:\par
+
+\pard\sb80 The option "Consider text of notes" must be checked.\par
+
+\pard The option "Consider metadata of notes" can be checked. If checked, then the tags applied to the whole note as metada will be considered in conjuntion with the tags introduced inside the text\par
+
+\pard\li360 If we indicate tags in the With clause and have "Consider metadata of notes" checked, then Keynote will ignore, in the in-text search, those tags located in the note's metadata.\par
+
+\pard\par
+\b Notes\b0 :\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 When checking whether a text fragment satisfies the tag conditions, it is important to keep in mind that each tag defines a scope (an interval, with a lower bound and an upper bound for the text it affects) and that this will also depend on whether the tag has been defined "openly" (e.g., #Critical: ) or not, affecting in this last case only the paragraph in which it is located (See {{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Scope or range of application of Tags}}}}\f0\fs20 )\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 It is possible to restrict the search using {{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{\ul\cf2\cf2\ul unregistered tags}}}}\f0\fs20\par
+{\pntext\f4\'B7\tab}If searching for content using tags and text to find is "", a match is returned for each piece of text that meets the criteria\par
+
+\pard\par
+{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul +}}}}\protect\f0\fs20\lang3082 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text \ul With\ulnone  any of the selected tags: "[x]"\v\par
+\par
+
+\protect0\pard\protect\li360\sb40\cf9 #[x]\par
+Task 1 ...\par
+Task 2 ....\par
+Task 3 ...\par
+
+\protect0\pard\protect   -----------------  -> 0 matches\par
+
+\protect0\pard\protect\li360\sb80 Task 1 ...\par
+#[x]:\par
+Task 2 ....\par
+Task 3 ...\par
+
+\protect0\pard\protect   -----------------  -> 1 match: Task 1\par
+
+\protect0\pard\protect\li360\sb40 Task 1 ...\par
+
+\protect0\pard\protect\li360 #[x]:\par
+Task 2 ....\par
+Task 3 ...\par
+##[x]\par
+Task 4 ...\par
+
+\protect0\pard\protect   -----------------  -> 2 matches: Task 1 & Task 4\par
+
+\protect0\pard\protect\li360\sb80 Task 1 ... #E0\par
+#[x] Task 2 ....\par
+#[x],#E0: Task 3 ...\par
+Task 4 ...\par
+
+\protect0\pard\protect   -----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\lang1033\par
+\par
+{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul +}}}}\protect\f0\fs20\lang3082 Now \ul excluding\ulnone  text \ul With any\ulnone  of the selected tags: "[x]" "E0"\v\par
+
+\protect0\pard\protect\li360\sb160\cf9 Task 1 ...\par
+
+\protect0\pard\protect\li360\sb40 Task 2 .... #[x]\par
+Task 3 ... #E0\par
+#[x]\par
+Task 4 ...\par
+
+\protect0\pard\protect ----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\lang1033\par
+\par
+
+\pard\sa80 We can restrict the search to text fragments WITH certain tags and/or WITHOUT other tags\par
+
+\pard\sb80 {\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul +}}}}\protect\f0\fs20\lang3082 Some other examples to understand the possibilities; Searching for "task"; \ul With\ulnone  tags: "[x]" and "E0" and \ul Without\ulnone  tags:  \v "BB"\par
+
+\protect0\pard\protect\par
+
+\protect0\pard\protect\li360\sb40\cf9 Task 1 ...\par
+#[x] Task 2 ....\par
+#[x],#E0 Task 3 ...\par
+#E0\par
+Task 4 ...\par
+#[x]:\par
+Task 5 ...\par
+#BB\par
+ Task 6 ...\par
+##BB\par
+Task 7 ...\par
+
+\protect0\pard\protect   -----------------  -> 3 matches: Task 3, Task 5, Task 7\par
+\par
+
+\protect0\pard\protect\li360\sb40 Task 1 ...\par
+#[x] Task 2 ....\par
+#[x]#E0 Task 3 ...\par
+#E0:\par
+Task 4 ...\par
+#[x]:\par
+Task 5 ...\par
+
+\protect0\pard\protect   -----------------  -> 2 matches: Task 3, Task 5\par
+\cf0     \cf9 * If "E0" is in the metadata of the note, and "Consider metadata of notes" is checked:\par
+\cf0                         \cf9 -> 3 matches: Task 2, Task 3, Task 5\par
+\cf0\par
+  \cf9 ---------\par
+
+\protect0\pard\protect\li360\sb40 #BB:\par
+Task 1 ...\par
+#[x] Task 2 ....\par
+#[x],#E0 Task 3 ...\par
+#E0\par
+Task 4 ...\par
+#[x]:\par
+Task 5 ...\par
+#BB Task 6 ...\par
+Task 7 ...\par
+
+\protect0\pard\protect   -----------------  -> 0 matches\par
+
+\protect0\pard\protect\li360\sb120 #BB:\par
+
+\protect0\pard\protect\li360\sb40 Task 1 ...\par
+#[x] Task 2 ....\par
+#[x],#E0 Task 3 ...\par
+#E0\par
+Task 4 ...\par
+#[x]:\par
+Task 5 ...\par
+##BB\par
+#BB Task 6 ...\par
+Task 7 ...\par
+
+\protect0\pard\protect   -----------------  -> 1 matches: Task 7\par
+
+\protect0\pard\protect\li360\sb120 Task 1 ...\par
+
+\protect0\pard\protect\li360\sb40 #[x]#E0:\par
+\tab Task 2 ....\par
+\tab Task 3 ....\par
+##\par
+#[x]:\par
+\tab Task 4 ...\par
+\tab Task 5 ...\par
+#E0:\par
+\tab Task 6 ...\par
+\tab Task 7 ... (#BB)\par
+\tab Task 8 ...\par
+##\par
+\tab Task 9 ...\par
+
+\protect0\pard\protect   -----------------  -> 5 matches: Task 2, 3, 6, 7, 8\par
+\cf0\par
+
+\protect0\pard\protect{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Important: Writing "(#BB)" is not the same as writing "(#BB )"\par
+
+\protect0\pard\protect\li360   In "(#BB)", "BB" tag is not recognized, because ")" can be used inside a tag's name.\par
+  With "(#BB )"      -> 4 matches: Task 2, 3, 6, 8\par
+
+\protect0\pard\protect\par
+\par
+Other example. Searching for "task", with tags: "[x]" and "E*" => [X] & (E0|E1|E2)\par
+\par
+
+\protect0\pard\protect\li360\sb40\cf9 Task 1 ...\par
+#[x] Task 2 ....\par
+#[x],#E0 Task 3 ...\par
+#E1:\par
+Task 4 ...\par
+#[x]:\par
+Task 5 ...\par
+
+\protect0\pard\protect   -----------------  -> 2 matches: Task 3, 5\v0 ...\'13\cf0\protect0\lang1033\par
+\par
+\par
 \cf4\b\v\f1\fs24\'11B6\'12\v0 Syntax for additional/advanced search\par
 \cf0\b0\f0\fs20\par
 In addition to the search criteria listed above, you can use a simple syntax to specify some other criteria:\par
 \par
-\cf4\b\v\f1\'11B7\'12\v0 Search by last modification date\par
+\cf4\b\v\f1\fs22\'11B7\'12\v0 Search by last modification date\fs20\par
 
 \pard\sb80\cf0\b0\f0 You can consider only the nodes that were modified (or created) during the current day or since the last X days. This can be done very easily by specifying in the first characters of the search string an expression of the form "-<number days back>"\par
 More information: {{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by last modification date}}}}\f0\fs20 , in Tree filtering.\par
 
 \pard\par
 \par
-\cf4\b\v\f1\'11B8\'12\v0 Words in the same paragraph or sentence\par
+\cf4\b\v\f1\fs22\'11B8\'12\v0 Words in the same paragraph or sentence\fs20\par
 
 \pard\sb80\cf0\b0\f0 You can indicate whether some of the words to be searched for must be in the same paragraph or sentence.\par
 
@@ -5620,7 +5911,7 @@ Example. Looking for:   \cf9 w1...w2..w3 w4..w5 w6\cf0\par
 
 \pard\par
 \par
-\cf4\b\v\f1\'11B9\'12\v0 Emphasized words\par
+\cf4\b\v\f1\fs22\'11B9\'12\v0 Emphasized words\fs20\par
 \cf0\b0\f0\par
 You can indicate if the words to search for must be emphasized, or also inside a same paragraph.\par
 \par
@@ -5681,8 +5972,11 @@ KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b 
 
 \pard\par
 
-\pard\li360 In the screenshot above, you can see a filter applied with the criteria 'Tree panel' ("file key") \b and\b0  'Find All' ("HTML"). Please note that the name of the nodes that match the 'Find All' criteria are highlighted in blue, while the nodes that match the 'Tree filtering' criteria are displayed with the background in light yellow.\par
-\par
+\pard\li360 In the screenshot above, you can see a filter applied with the criteria 'Tree panel' ("file key") \b and\b0  'Find All' ("HTML"). Please note that the name of the nodes that match the 'Find All' criteria are highlighted in blue, while the nodes that match the 'Tree filtering' criteria are displayed with the background in \highlight10 light yellow\highlight0 .\par
+
+\pard\li720 (Since version 2.1.0 Tree filtering can also consider Tag criteria, highlighting matches by tag with \highlight11 light cyan\highlight0  in the "flagged" column)\par
+
+\pard\li360\par
 Both types of filters ('Tree panel' filtering \emdash with text and/or flag and/or check status\emdash  and 'Find All' filtering) are considered/applied together, and both can be disabled or enabled with the 'filter' button. \par
 \par
 The filter button (\v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033 ) indicates whether the tree is filtered (pressed), due to Tree panel filtering, Find All filtering, or both, as well as if it is not filtered out but there is an existing filter that can be re-enabled (unpressed but enabled, colored). Also note that the tooltip associated with the filter button highlights whether or not filtering based on Find All is included. In this example, "(Ctrl: Clear Find filter)" is displayed, reminding us that a 'Find All' filter has been defined, and how to remove it.\par
@@ -6347,6 +6641,7 @@ EI=<IDImage>|<FileName>|<size>\par
 %*
 GI=44
 ND=Images. Implementation in RTF
+LM=1304251704
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -6408,7 +6703,7 @@ The application allows you to change the visibility of all the images in the fil
 The application monitors all actions that could result in image insertions or deletions. To do this, it processes the content pasted from the clipboard looking for the presence of images and analyzes RTF content in search of RTF tags associated with the existence of images. It makes use of its own, hidden labels, analogous to those already used to maintain the reference to the destination in recent bookmarks. These labels contain only the ID of the image and are placed to the left of them, whether they are in their visible (imImage) or 'hidden' (imLink) mode. This processing is optimized and does not affect the normal operation of the application at all.\par
 The use of these tags (e.g. "\cf3\\v\\'11I3\\'12\\v0\cf0 ") simplifies the identification of already registered images. But since they cannot be added 'inside' the image tags themselves, it is the application's responsibility to ensure that they are always kept next to the image they accompany.\par
 \par
-To do this, for example, when content is inserted on the editor, it is ensured that, if it acts on an image, it is also done on its associated hidden tag, extending the selection to include it. When an image is deleted (with DELETE/DELETE or BACKPSPACE, or by cutting to the clipboard) it is controlled whether to also delete its label, etc.\par
+To do this, for example, when content is inserted on the editor, it is ensured that, if it acts on an image, it is also done on its associated hidden tag, extending the selection to include it. When an image is deleted (with DELETE/Supr or BACKSPACE, or by cutting to the clipboard) it is controlled whether to also delete its label, etc.\par
 \par
 Copying an individual image to the clipboard does not also send the tag, to ensure that the content is served as an image and not just RTF content. But the copied ID is registered, in case it is detected that this copied content is then pasted into the KNT itself.\par
 \par
@@ -7500,7 +7795,7 @@ Note:\par
 %*
 GI=57
 ND=Exporting or Printing Notes
-LM=0701251721
+LM=1304252019
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Arial;}{\f4\fnil Arial;}{\f5\fnil Tahoma;}{\f6\fnil\fcharset0 Courier New;}{\f7\fnil\fcharset2 Symbol;}}
@@ -7510,9 +7805,11 @@ LM=0701251721
 \cf1\b\f1\fs36\lang1045 Exporting\f0\lang3082  or Printing\f1\lang1045  Notes\f0\lang3082  and Folders\cf2\lang1033\par
 \cf0\b0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<57|788|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Source: What to export?}}}}\f0\fs20\par
-{{\field{\*\fldinst{HYPERLINK "file:///<57|2096|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Target: Where and how to export?}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<57|3225|0|17"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Using Folded text}}}}\f0\fs20\par
 
-\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<57|3327|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Exporting notes to KNT (KeyNote NF)}}}}\f0\fs20\par
+\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<57|2096|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Target: Where and how to export?}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<57|3327|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Exporting notes to KNT (KeyNote NF)}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<57|4839|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Printing notes (Exporting to Printer)}}}}\f0\fs20\par
 
 \pard\sb40 {{\field{\*\fldinst{HYPERLINK "file:///<57|4011|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Exporting notes to Plain text, RTF and HTML files}}}}\f0\fs20\par
@@ -7557,7 +7854,7 @@ The most important export settings are listed in the \cf4\b Source and target\cf
 \par
 \par
 
-\pard\li360\v\lang3082\'11I207\'12\v0{\field{\*\fldinst{HYPERLINK "img:207,669,467"}}{\fldrslt {207_Clipb_06ene.png}}}\par
+\pard\li360\v\lang3082\'11I218\'12\v0{\field{\*\fldinst{HYPERLINK "img:218,670,497"}}{\fldrslt {218_Clipb_13abr.png}}}\par
 \par
 
 \pard\lang1033\par
@@ -7592,6 +7889,64 @@ If you select the \cf4\b Selected folders\cf0\b0  option, you can click the \cf4
 From here you can insert an optional {{\field{\*\fldinst{HYPERLINK "file:///<57|6092|0|14"}}{\fldrslt{\ul\cf2\cf2\ul Table of contents}}}}\f0\fs20 , and have access to {{\field{\*\fldinst{HYPERLINK "file:///<57|15769|0|11"}}{\fldrslt{\ul\cf2\cf2\ul additional settings when exporting to Plain text}}}}\f0\fs20 .\par
 \par
 \par
+\ul\b\v\fs22\'11B17\'12\v0 Using Tags\ulnone\fs20\par
+
+\pard\sb120\b0 You can further restrict the nodes to be considered or even the text fragments exported using Tag criteria.\par
+
+\pard The same controls and features available in Find All have been added to the Export form to allow you to exclude nodes that don't meet the tag criteria. These new controls allow you to export only the fragments of notes that do meet the criteria.\par
+For example, we could exclude fragments tagged with #private from the export.\par
+\par
+See {\f2\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|10051|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags with Find All}}}}\f0\fs20  for information on how to used With an Without [tag] controls, and {{\field{\*\fldinst{HYPERLINK "file:///<122|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Tags in KeyNote}}}}\f0\fs20  for a more general information about tags.\par
+\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b With\b0 :      Include text/notes with ALL or ANY of the selected tags\par
+{\pntext\f7\'B7\tab}\b Without\b0 : Exclude text/notes with ANY of the selected tags\par
+
+\pard\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Consider metadata of notes\b0  \par
+
+\pard\li360 Notes' metadatata will be used to verify the tag criteria\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Consider extracts from notes\b0\par
+
+\pard\li360 Export will only include the text fragments that meet the tag criteria\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Inherited tags\b0  (metadata)\par
+
+\pard\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Remove\b0\par
+
+\pard\li360 Remove tags from the final text (after processing)\par
+The actual words used to tag the text can thus be removed from the exported text.\par
+
+\pard\li360\sb40 If checked, all words that can be interpreted as tags or as closing tag characters (such as ## or ##Tag) will be removed, regardless of whether they are recognized as registered tags.\par
+
+\pard\par
+\b Note\b0 : Currently TAGs criteria is only considered exporting to Plain text or Rich Text (RTF) or Printer (PDF). Can also be reviewed with Preview (if selected RTF or Printer)\par
+\par
+\par
+\ul\b\v\fs22\'11B18\'12\v0 Using Folded text\ulnone\fs20\par
+
+\pard\sb120\b0 If the text you want to export contains folded text blocks, consider using the "Folded text" drop-down menu, with the following options:\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 Keep unchanged\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 Unfold\par
+{\pntext\f7\'B7\tab}Remove "untagged"\par
+{\pntext\f7\'B7\tab}Remove All\par
+
+\pard\par
+All the options are pretty obvious. If you need further information, please consult XX for a brief explanation of the differences between {{\field{\*\fldinst{HYPERLINK "file:///<122|23127|0|11"}}{\fldrslt{\ul\cf2\cf2\ul "tagged" folded text}}}}\f0\fs20  and untagged folded text.\par
+\par
+\b Note\b0 :\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 In the current version, this option will not be considered if you use "KeyNote File (knt)" as the destination format\par
+
+\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 If the export is made using Rich Text Format (RTF) as the destination format and you have selected the "Keep unchanged" option, please note that even if the hidden text content is not visible and can be viewed in editors such as WordPad or MS Word, it will still be present in the generated file. In fact, if you later paste that content into KeyNote, you will be able to access it. (Of course, someone with minimal knowledge of RTF will be able to access it.)\par
+
+\pard\par
 \par
 
 \pard\sb100\sa180\cf5\b\v\f2\fs26\'11B2\'12\v0 Target: Where and how to export?\par
@@ -8154,6 +8509,13 @@ The hyperlinks are visible in the following way (eg. KNT link):\par
 \pard\sb120\cf9 HYPERLINK "{\cf0{\field{\*\fldinst{HYPERLINK "file:///<20|806|0|11"}}{\fldrslt{\ul\cf2\cf2\ul file:///*8|282|806|0|11}}}}\f0\fs20 "Text of hyperlink\par
 
 \pard\cf0\par
+\par
+If the text contains \b folded blocks\b0 , this option will also identify the beginning and end of those blocks, including nested blocks; it will also flag the presence of links or images within those folded blocks. Something like:\par
+\par
+\cf9\b [FOLD:\b0 External folded block  [IMG:99]\b [HiddLnk:\b0 "img:99,32,32"@99_keynote.ico]\par
+blah..\par
+\b [Fold\b0 :Nested block, blah, blah. \b ...]\b0  final of the external folded block \b ...]\cf0\b0\par
+\par
 \par
 
 \pard\sb100\sa100\cf5\b\v\f2\fs24\'11B8\'12\v0 Additional settings when exporting to HTML\par
@@ -11315,18 +11677,19 @@ You can use keynote.exe instead of kntLauncher.exe, and only the .ini file param
 %*
 GI=87
 ND=Configuration Options
+LM=1304252023
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green128\blue128;\red128\green0\blue0;\red0\green0\blue255;\red255\green0\blue255;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Configuration options\f0\lang1033\par
 \cf0\b0\fs26\par
 \fs20 Configuration Options are global settings for the whole program. For example, they allow you to choose whether KeyNote should automatically save your files, whether backup files should be created, what should happen when you press the \cf2\b Esc\cf0\b0  key, etc. You can also specify here several global options pertaining to the editor and tree panels. To change these configuration options, press \cf2\b F5 \cf0\b0 or select Tools | {{\field{\*\fldinst{HYPERLINK "file:///<117|1894|0|1"}}{\fldrslt{\ul\cf3\cf3\ul Configuration options...}}}}\f0\fs20  in main menu.\par
 \par
 
-\pard\li360\v\'11I108\'12\v0{\field{\*\fldinst{HYPERLINK "img:108,274,231"}}{\fldrslt {108_Clipboard_03ene.png}}}\par
+\pard\li360\v\'11I219\'12\v0{\field{\*\fldinst{HYPERLINK "img:219,290,242"}}{\fldrslt {219_Clipb_13abr.png}}}\par
 
 \pard\par
 The Options dialog box contains a tree panel to the left, and several tabs to the right. Each tab contains a group of related configuration settings. To navigate from one tab to another, click one of the nodes in the tree panel.\par
@@ -11374,6 +11737,7 @@ Note that there some configuration settings not editable in the existing Options
 %*
 GI=88
 ND=General Settings
+LM=1304252023
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -11383,7 +11747,7 @@ ND=General Settings
 \cf1\b\fs36 Options: General settings\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I108\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:108,539,456"}}{\fldrslt {108_Clipboard_03ene.png}}}\fs26\par
+\pard\li360\v\'11I219\'12\v0{\field{\*\fldinst{HYPERLINK "img:219,528,455"}}{\fldrslt {219_Clipb_13abr.png}}}\par
 
 \pard\par
 
@@ -12928,6 +13292,7 @@ Use the following web browser\par
 %*
 GI=104
 ND=KeyNote.ini Settings
+LM=1304251953
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset204 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -13197,6 +13562,34 @@ MarginAltRight\b0 =80\b\par
 
 \pard\par
 \par
+\b\v\'11B13\'12\v0 RTLkeyShct\b0 =0\par
+Option that allows to disable keyboard shortcuts to change the default bidirectional keyboard mode (RTL or LTR) \par
+
+\pard\li360 If set to 0 (default): don't use keyboard shortcuts for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)\par
+\par
+This default value for option has been set to 0 to avoid the complications that RTL handling entails for the RichEdit control, which could cause problems for users who might activate it by mistake (as originally reported in {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/816"}}{\fldrslt{\ul\cf2\cf2\ul issue #816}}}}\f0\fs20 , due to the use of AutoHotKey).\par
+
+\pard\par
+\b IMEAutoKeyboard\b0 =1\par
+Option that determines whether automatic keyboard switching is allowed when setting the editor to bidirectional mode (RTL)\par
+If automatic keyboard switching is on, the control automatically changes the keyboard layout when the user explicitly changes to a different font, or when the user explicitly changes the insertion point to a new location in the text. \par
+
+\pard\li360\sb80 If set to 1 (default) it will keep IMF_AUTOKEYBOARD on when turned on automatically for bidirectional controls  (Default: 1)\par
+
+\pard       If set to 0, IMF_AUTOKEYBOARD will be turned off just after setting RTL mode \par
+\par
+\b IMEAutoFont\b0 =1\par
+Option that allows the RichEdit control to automatically change fonts when the user explicitly changes to a different keyboard layout \par
+
+\pard\li360 If set to 1 (default), IMF_AUTOFONT will always be turned on.\par
+
+\pard       If set to 0, IMF_AUTOFONT will be turned off\par
+\par
+\par
+See this {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/816#issuecomment-2781550615"}}{\fldrslt{\ul\cf2\cf2\ul comment in issue #816}}}}\f0\fs20  for a more detailed description of RTLkeyShct\b , \b0  IMEAutoKeyboard, and IMEAutoFont options.\par
+\par
+\par
+\par
 \cf3\b\v\fs26\'11B2\'12\v0 [ClipOptions]\par
 \cf0\b0\fs20\par
 \b SleepTime\b0 =1\par
@@ -13284,6 +13677,16 @@ In the first case you could see something like "Note1/Node1 -34" and in the seco
 \par
 \cf3\b\v\fs26\'11B7\'12\v0 [ExportOptions]\par
 \cf0\b0\fs20\par
+\b SimpleFileName\b0 =0\par
+
+\pard\li100\sb60 Determines how exported files are named:\par
+0 - Use files names like: "01 - Folder - Node.rtf"\par
+
+\pard\li460 "01" is the index of the generated file, with "00" being used for the table of contents (if included), "01" for the first file, "02" for the second, etc.\par
+
+\pard\li100\sb60 1 - Use only the name of the node for file names, like:  "Node.rtf"\par
+
+\pard\par
 \par
 \cf3\b\v\fs26\'11B6\'12\v0 [ResPanelOptions]\par
 \cf0\b0\fs20\par
@@ -13292,6 +13695,7 @@ In the first case you could see something like "Note1/Node1 -34" and in the seco
 %*
 GI=105
 ND=Customizing Keyboard Shortcuts
+LM=1304251705
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
@@ -13313,7 +13717,7 @@ See also:\par
   {\cf0{\field{\*\fldinst{HYPERLINK "file:///<105|4485|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Using shortcuts Ctrl-C, CTRL-V, Ctrl-X}}}}\cf0\f0\fs20\par
 \par
 
-\pard\li360\v\'11I169\'12\v0{\field{\*\fldinst{HYPERLINK "img:169,488,533"}}{\fldrslt {169_Clipb_21feb.png}}}\par
+\pard\li360\v\'11I169\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:169,488,533"}}{\fldrslt {169_Clipb_21feb.png}}}\lang1033\par
 
 \pard\par
 \par
@@ -13395,9 +13799,9 @@ The following shortcuts, present in early versions of KeyNote, were removed from
   TVVirtualNode    \tab ("Virtual Node / Make Virtual..") Ctrl+V\par
   TVExport         \tab ("Export..") Ctrl+X\par
 \par
-\b Alternative keys\b0 , \cf5\b Ctrl+Ins\cf0\b0 , \cf5\b Shift+Ins\cf0\b0 , \cf5\b Shift+Supr\cf0\b0 , are also interpreted as Copy, Paste y Cut, but unlike the previous ones, are not reserved. So if you assign it to a menu option may prevent its interpretation as Copy, Cut and Paste on certain occasions. What has been done is remove the following shortcuts currently set by default (if you have not customized the keyboard generating the file Keyboard.ini):\par
+\b Alternative keys\b0 , \cf5\b Ctrl+Ins\cf0\b0 , \cf5\b Shift+Ins\cf0\b0 , \cf5\b Shift+Delete\cf0\b0 , are also interpreted as Copy, Paste y Cut, but unlike the previous ones, are not reserved. So if you assign it to a menu option may prevent its interpretation as Copy, Cut and Paste on certain occasions. What has been done is remove the following shortcuts currently set by default (if you have not customized the keyboard generating the file Keyboard.ini):\par
   Paste Name:       Shift+Insert\par
-  Delete Children:  Shift+Supr   \par
+  Delete Children:  Shift+Delete\par
 \par
 Using Copy, Cut and Paste (from keyboard) is more general this way: it can also be used to edit the name of a node, or on the resource panel, for example within Scratch panel or in the search combo.\par
 \par
@@ -16398,7 +16802,7 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=2001252013
+LM=1304252215
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -16422,6 +16826,15 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.1.0\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Added two new functionalities:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\b Tags\b0  can be applied to notes and within the text itself, allowing paragraphs or text fragments to be metadata-tagged ({{\field{\*\fldinst{HYPERLINK "file:///<122|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80\b Folding and unfolding\b0 : it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. Nesting of folded blocks is possible, and these can contain images, links, etc ({{\field{\*\fldinst{HYPERLINK "file:///<123|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.0.4\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 KeyNote NF is offered in two versions, 32-bit and 64-bit.\par
@@ -16648,6 +17061,643 @@ VF=D:\Dani\PROYECTOS\TESELA KN\_Auxiliar\doc\history.txt
 RV=..\doc\history.txt
 %.
 NS=0002
+%*
+GI=122
+ND=Tags in KeyNote
+LM=1304252144
+%.
+DC=1204251150
+%:
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green128\blue0;\red128\green0\blue0;\red0\green128\blue64;}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\f0\fs20\lang1033\par
+\cf1\b\fs36\lang3082 Tags\f1\lang1045  in KeyNote\cf2\f0\lang1033\par
+\cf0\b0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<122|59|0|1"}}{\fldrslt{\ul\cf2\cf2\ul General information about Tags}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<122|3490|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Tag Names and Aliases}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Scope or range of application of Tags}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Registered and Unregistered Tags}}}}\f0\fs20\par
+
+\pard\sb120 {{\field{\*\fldinst{HYPERLINK "file:///<122|7939|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tag Selector}}}}\f0\fs20\par
+
+\pard {{\field{\*\fldinst{HYPERLINK "file:///<122|10833|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Inserting, editing and removing Tags}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<122|18636|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tags Tab of the Resources Panel}}}}\f0\fs20\par
+
+\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<122|21484|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags to filter the Tree}}}}\f0\fs20\par
+
+\pard {{\field{\*\fldinst{HYPERLINK "file:///<122|21851|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags with Find All}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<122|22585|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags with Export}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<122|23127|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags in combination with Folding}}}}\f0\fs20\par
+\par
+\par
+\par
+\cf3\b\v\fs24\'11B1\'12\v0 General information about Tags\par
+\cf0\b0\fs20\par
+Since version 1.2.1, KeyNote offers a tag management system. Below is a brief introduction to the common use of tags, as well as how KeyNote implements tags and other less common features it offers.\par
+\par
+
+\pard\sa80\b What are Tags and what are they normally used for?\b0\par
+
+\pard Tags are typically keywords or short phrases assigned to a note or document to describe its content, topic, or purpose. Their main function is to help you organize and find information quickly, without needing to know its exact location in a hierarchy or folder structure.\par
+\par
+We can think of tags as virtual "stickers" that we can place on our notes. Unlike folders, which imply that a note must be in a single place, a tag allows the same note to be related to several topics at once.\par
+\par
+For example:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 A note about a project meeting could have the tags meeting, projectX, and pending.\par
+{\pntext\f3\'B7\tab}A recipe might have tags such as cooking, vegetarian, and quick.\par
+
+\pard\par
+Thanks to tags, we can:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 Search and filter notes by common themes.\par
+{\pntext\f3\'B7\tab}Group scattered information that belongs to different parts of our hierarchy.\par
+{\pntext\f3\'B7\tab}Create customized views according to our way of working or our interests.\par
+
+\pard\par
+\par
+
+\pard\sa80\b Introduction to using Tags in KeyNote NF\b0\par
+
+\pard In KeyNote, tags are words that begin with the # character and can be linked to notes, paragraphs, or broader extensions of text. Later you can see what you can include within a tag name. I'll mention now that it cannot contain spaces, but in exchange, a tag can have associated text as an alias and/or description, which can be used as help when searching for a tag.\par
+So, an example of a tag could be \cf4 #ToDO\cf0\par
+\par
+Although tags in texts must begin with the # character, in fields prepared for entering tags with which to search or filter, it will not be necessary to enter that character. It is implied.\par
+\par
+
+\pard\li360\v\'11I223\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:223,389,97"}}{\fldrslt {223_Clipb_13abr.png}}}\lang1033\par
+
+\pard\par
+As I indicated, tags can be applied to notes, which allows filtering the visible nodes of a folder tree based on them, or restricting certain searches to those nodes that contain (or do not contain) certain tags. In these searches and filterings, it is possible to determine at any time whether the tags defined in a node are considered inherited by child nodes.\par
+
+\pard\li360 ( Note: These tags are actually assigned to note entries, but for now KeyNote is working with a single note entry per note )\par
+
+\pard\par
+Additionally, in KeyNote it is possible to add tags within the text itself, allowing paragraphs or text fragments to be metadata-tagged in this way. These tags define scopes, which can overlap. Each tag inserted in the text can affect only the paragraph where it is located, or all the text from that point (until the end of the note or a specific closing token). This use of tags within the text of notes additionally allows:\par
+
+\pard\sb80 - Restricting search results to those paragraphs or text fragments that meet the indicated tagging criteria.\par
+- Offering from Find All the beginnings of all fragments that meet the tagging criteria, when starting the search without adding any search pattern.\par
+- Exporting only those fragments tagged in a certain way and/or excluding those other fragments affected by other tags.\par
+\par
+In these last indicated uses, tags applied at the note level can be used at the same time, being treated as tags that affect the complete text of the note.\par
+\par
+Tags are independent for each .knt file, being saved in the file itself. But at the same time, the possible use of a file for common tags is offered.\par
+  \par
+
+\pard\cf3\par
+\cf0\b\v\fs22\'11B2\'12\v0 Tag Names and Aliases\par
+\b0\fs20\par
+Tag names can contain any characters except:   , : # (and " ",TAB, INTRO)\par
+ Examples of possible names:\par
+   \cf4 #ToDO  #Bug.High   #[]   #[x]     #?   #(1)\cf0\par
+\par
+Each tag can have a description, which can also be used to contain aliases, so that these same aliases can be used to locate and insert the tag.\par
+\par
+The names of the tags used can be edited, making it easy, for example, to change the tagging of a text from \cf4 #[]\cf0  to \cf4 #[x]\cf0 , simply by inserting the "x".\par
+\par
+Note:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 Sometimes, we may use parentheses, brackets, or other symmetrical characters to improve visibility, for aesthetic reasons, as in:\par
+
+\pard\li720\sb120\cf4 This paragraph... blah, blah... (#Critical )\par
+
+\pard\li360\sb120\cf0 Note the space before the closing parenthesis. Without it, KeyNote will attempt to create a new tag named "\cf4 Critical)\cf0 ".\par
+
+\pard\li360 This is because any character is valid within a tag, except:  , : # (and " ",TAB, INTRO)\par
+
+\pard\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 It is possible to insert several tags in a concatenated manner: \cf4 #?#ToDO\cf0\par
+
+\pard\par
+\par
+\par
+\b\v\fs22\'11B3\'12\v0 Scope or range of application of Tags\par
+\b0\fs20\par
+Any tag added to a node affects the node as a whole, including all the contained text, as well as optionally all its child nodes (depending on the current value of the "Inherited tags" option)\par
+
+\pard\sb120 The scope of tags added within the text can be different depending on the syntax and/or location of the tag in the text.\par
+
+\pard\li720\par
+
+\pard A tag will affect by default the entire paragraph where it is inserted, regardless of whether it is at the beginning, middle, or end. Therefore, all text in a paragraph such as:\par
+\par
+  \cf4 Blah, blah, blah, ...\par
+  blah, blah ... #ToDo\par
+\cf0\par
+will be tagged with #ToDo.\par
+\par
+In an "open" tag, the scope begins at the point where it is inserted and extends to the first of the following tokens found: "##" or "##Tag" where Tag is the name of the tag. If none is found, it extends to the end of the note.\par
+\par
+"Open" tags are written lonely in a paragraph or ending with ":"\par
+For example, all the following paragraphs are tagged as critical ('!'). The third and fourth, in addition to being critical, are tagged as documentation ('Doc')\par
+\par
+
+\pard\li720\cf4 #!\par
+This is the first paragraph ...\par
+This is the second paragraph ...\par
+\par
+Doc: This is the third paragraph ...\par
+This is the fourth paragraph ... ##Doc\par
+\par
+Fifth paragraph ...##\par
+
+\pard\cf0\par
+Some other examples:\par
+
+\pard\li360   \cf4 #Important\par
+  Bla bla ....\par
+\par
+  Other paragraph ....\par
+  ...\par
+  .... ##Important\par
+\par
+  This is not important, but from here it is: #Important: Bla Bla ...\par
+  Bla bla ....\par
+  Other paragraph ....\par
+  .... ##\par
+\par
+  #Done:\par
+  ...\par
+  ...\par
+  <End of note>\par
+
+\pard\cf0\par
+\par
+Open tags can also be inserted in a concatenated manner, just by adding the ":" character only to the last one. Example:\par
+
+\pard\li360\sb80\cf4 #ToDO#Doc:   \par
+#Tag1 #Tag2 #Tag3\par
+
+\pard       ....\par
+
+\pard\li360\sb80 #Tag1,#Tag2, #Tag3:\par
+
+\pard\li360  ....\par
+
+\pard\cf0\par
+The following won't be considered as "open" tags, but normal tags applying to a paragraph, concatenated (note the absence of ":")\par
+\par
+\cf4       Something ... #Tag1#Tag2#Tag3\par
+
+\pard\sb80       Something ... #Tag1 #Tag2, #Tag3\par
+
+\pard\cf0\par
+\par
+\b\v\fs22\'11B4\'12\v0 Registered and Unregistered Tags\par
+\b0\fs20\par
+To facilitate the insertion and use of tags, each time a new tag is inserted as metadata for a note, or in the text of a note, by typing a tag beginning with the # character or editing an existing one, that tag is registered in the document.\par
+All registered tags can be consulted from the "Tags" tab of the resources panel.\par
+\par
+When going to insert a tag, KeyNote will display a selector with registered options, which will adjust to what we type.\par
+\par
+However, those words that begin with # that have been inserted in the text by pasting from the clipboard (or were already in the text) will not be automatically registered as tags.\par
+This allows both not treating as tags those words that don't interest us (at least not offering them in the selector), or not giving publicity to certain tags that we want to keep somewhat more private.\par
+\par
+In the first case, we could have, for example, words like #816, like those used in GitHub to reference Issues. We may want to have them in our notes but not have them offered in the general list of tags or in the selector.\par
+In the second case, we could have some words that we may want to use as tags, for example from Find All, to locate passwords or any text that we want to keep less accessible. We can have, for example, in the text (maybe inside a Folded block) a paragraph tagged with #pw and use it to locate certain tokens.\par
+\par
+\par
+\cf3\b\v\fs26\'11B5\'12\v0 Using the Tag Selector\cf0\fs22\par
+\b0\fs20\par
+When you start typing the name of a tag, KeyNote will offer a selector that will display those tags that begin with the typed characters, as well as those others that contain those characters within the optional Alias field (the Alias field will only begin to be checked when 3 or more characters are entered)\par
+\par
+
+\pard\li360\v\'11I222\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:222,216,73"}}{\fldrslt {222_Clipb_13abr.png}}}\lang1033\par
+
+\pard\par
+
+\pard\li360\b Tip\b0 : The use of aliases allows us to have compact tags in the text. This does not prevent us from associating a more complete alias with them and being able to select them through it. If we want, for example, to use #? to tag something as "Question to resolve", we can add those words in the Alias field, keeping "?" as the name. When inserting, we can type "que" and it will offer us the #? tag.\par
+
+\pard\par
+\par
+In this way, if we have, for example, two tags called "Error" and "Example", if we type #e, a selector with those two options will appear. As we type, we will reduce the possible options.\par
+We can select one of several options using the cursors and pressing \cf5\b Enter\cf0\b0  (or any of the following other characters not allowed in the name of a tag: space, colon, or #). This will insert the tag (using the name as the tag is registered) and the pressed character. If \cf5 Enter\cf0  is pressed, a space will be added afterwards, not a line break.\par
+\par
+We can also select an option and press \cf5\b Tab\cf0\b0 . This will introduce the complete name of that option but will not close the selector or add any space. This will facilitate the selection of tags that share a common prefix, or the incorporation of a new tag by adding additional characters to that prefix, or modifying from the end of the previous one.\par
+
+\pard\sb80 For example, if we have the tags "Eg", "Error", "Error.Low", "Error.High" and we start typing "#e", the selector will offer us the four options. If we then press the down cursor and \cf5 Tab\cf0  or an "r" and \cf5 Tab\cf0 , only the last three options will be shown and "Error" will be written in the editor (or in the control where we are entering the tag). At this point, we could write "3" (and a space, for example) and we would create a new tag called "Error3". We could also write "." and limit the options to the last two. We can also create, write ".Med" (and \cf5 Enter\cf0 , for example) and thus write a new tag: "Error.Med"\par
+
+\pard\par
+\b Note\b0 :\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 While the selector is visible, we can press \cf5\b Esc\cf0\b0  at any time to hide it. If it offers a single option, it will also be hidden if we press the up or down cursors.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 The use of the selector, with the help of \cf5\b Esc\cf0\b0  (or by adding the "*" character) allows us to \b partially introduce a tag\b0  to facilitate filtering or searching considering all the tags in which the name matches. Thus, we can search with "Err" or "Err" for both "Error" and "Error.Low" and "Error.High". But if we enter only "Err", press \cf5 Esc\cf0  and leave the editor or the metadata field, we will be adding a new tag called "Err". See clarification below.\par
+
+\pard\par
+\par
+\par
+\cf3\b\v\fs26\'11B6\'12\v0 Inserting, editing and removing Tags\b0\par
+\cf0\fs20\par
+\b\fs22 Creating New Tags\par
+
+\pard\sb120\b0\fs20 We can register new tags in several ways:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 From the Tags tab of the resources panel\par
+
+\pard\li360 By pressing Ins or selecting the "Create new Tag" option from the context menu. If a tag with the same name already exists (ignoring case), it will simply ignore it.\par
+
+\pard\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 By adding the # character to the beginning of an existing word.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 By entering a non-existing name from the text field reserved tags in the note information panel (View | Editor info)\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li720 It can be introduced at the beginning #, but it is not necessary. In fact, if we add it, it will be removed when showing it\par
+{\pntext\f3\'B7\tab}You can use the "Tags..." entry from the editor's context menu to view or edit the tags of a note, in case the information panel is not visible: when selecting the entry, the tags will be shown in the status bar; if you click on the entry, the information panel will be shown with the focus on the tags field. When pressing \cf5\b Enter\cf0\b0  in that control, the focus will return to the editor and the panel will be hidden again.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Typing a new tag beginning with the # character\par
+{\pntext\f3\'B7\tab}Editing an existing tag\par
+
+\pard\par
+
+\pard\li360\b Tip\b0 : A simple way to register a word that until now is not, that was not registered or that we have pasted, is simply to delete it and then add the # character\par
+
+\pard\par
+\par
+In the last three cases, we will see that the tag selector may become visible.\par
+
+\pard\li360\b Tip\b0 : In fact, a way to know if a word that starts with # is registered is simply to place the cursor next to or inside it. If the selector does not become visible, it is because it is not registered tag.\par
+
+\pard\par
+At the moment we start writing a new tag, which no longer matches any of the existing ones, the selector will be hidden and we will continue writing directly in the editor (or in the corresponding control). But only when we press a character not allowed in the name of a tag (space, colon, TAB, ENTER or #) or move the cursor beyond the written tag, at the beginning or at the end, will it be registered as a new tag.\par
+
+\pard\sb80 We can also delete characters from the new tag; if we happen to maintain some prefix common to some existing tag, the selector will become visible again.\par
+
+\pard\par
+Just as we can create tags that share a prefix, we can create one that contains only a prefix of some existing one. We can have a tag #Error and want to define another called #E\par
+To do this we must press \cf5\b Esc\cf0\b0  when we have entered the necessary characters and then press spaces (or colons, TAB, ...)\par
+\par
+\par
+\b\fs22 How to Add Aliases\b0\par
+
+\pard\sb40\fs20 In all these cases, we will be adding a new tag and defining its name. How can we establish or modify the alias field?\par
+
+\pard This can be done from the Tags tab of the resources panel: select the cell corresponding to the Description field of the tag you want to modify and press \cf5\b space\cf0\b0  or  \cf5\b F2\cf0\b0 .\par
+\par
+\b\fs22 Temporary Registration of Tags.\fs20\par
+
+\pard\sb80\b0 Automatic renaming of newly created tags and automatic deletion of tags created by mistake\par
+
+\pard\par
+The approach followed seeks to make it very simple and quick to add new tags or change from one to another (e.g., change from #[] to #[x]). But this could also lead to making mistakes and registering incorrect or misspelled tags.\par
+As I have already indicated, once a tag is registered, each time it is inserted, it will do so as it was registered. For example, if we type "#ERROR" it will end up inserting "#Error" if that is how it was registered.\par
+\par
+While entering new tags in the text editor, it is possible to add incorrect ones by mistake. For example, it is possible to enter "#Eror" for the first time instead of "#Error". It is very likely that the tag "Eror" was added before we realized it. By removing the text and typing ok the name, we will add the correct tag (Error), but the first one (Eror) will be kept.\par
+We may also have written "#E" and pressed \cf5\b Esc\cf0\b0  and then space by mistake, which would give rise to the tag "E".\par
+\par
+
+\pard\sb80 To avoid having to be aware of whether a tag has been registered by mistake when maybe we have pressed space without wanting to or pressed \cf5 Esc\cf0  and space and a tag may have been added with just a prefix of what we really wanted to add, the concept of temporary tag registration is offered.\par
+
+\pard\par
+All new tags created through the editor, by typing the "#" character and then the name of a tag, will initially do so temporarily (and will be \cf6 highlighted in green\cf0  in the selector and in the list of tags in the Tags tab). When the focus moves from the editor to another control, the added tags that are still in the text will be automatically confirmed, and the rest will be deleted.\par
+In the same way, if while creating new tags in this way we write a tag in a different way, it will be understood that it is being corrected, and it will be automatically renamed. Once the creation of the tag has been confirmed, its name can only be modified from the list of tags, in the Tags tab.\par
+
+\pard\sb40 Eg. If you are adding it temporarily and you change its spelling, we assume that you want to correct it. Eg: "TOdo" and then "ToDO"\par
+
+\pard\par
+Exactly the same thing happens with adding tags from the text control available in the note identification panel.\par
+\par
+\par
+\b\fs22 Renaming Tags\par
+\b0\fs20\par
+If you want to modify the name of a tag, you can do it from the Tags tab of the resources panel.\par
+Select the cell corresponding to the Name field of the tag you want to modify and press \cf5\b space\cf0\b0  or \cf5\b F2\cf0\b0 . You can also use the "Edit Tag" entry from the context menu of that tab.\par
+\par
+When renaming a tag, KeyNote will start showing the tag with the new name in the Metadata field of those notes that reference it (View | Editor info). In the case of the use of that tag within the text of the various notes, this will be optional. At the time of renaming the tag, KeyNote will ask:\par
+
+\pard\li360\sb80 "OK to ALSO replace <#OldName> with <#NewName> within the EXISTING NOTES text?"\par
+
+\pard\par
+\ul Tip\ulnone : If at this last question you click Cancel, the renaming of the tag will be cancelled.\par
+\par
+\par
+\b\fs22 Deleting Tags\par
+\b0\fs20\par
+It is possible to delete a registered tag from the Tags tab of the resources panel. Just select the tag and press \cf5\b Delete\cf0\b0  or select the "Edit Tag[s]" entry from the context menu of that tab.\par
+\par
+When deleting a tag, KeyNote will automatically remove it from the metadata of those notes that were referencing it (View | Editor info). \par
+As during renaming, in the case of the use of that tag within the text of the various notes, its elimination will be optional. Just after confirming the deletion, it will ask:\par
+
+\pard\li360\sb80 "OK to ALSO delete ALL REFERENCES within the EXISTING NOTES text?"\par
+
+\pard\par
+If the references in the text are not deleted, those that exist will be treated as unregistered tags.\par
+At any time, that tag can be added again to the list of tags, becoming registered again. And if necessary, this would allow, for example, confirming at another time the deletion of all references within the text.\par
+
+\pard\sb80\ul Tip\ulnone : If at this last question you press Cancel, the deletion will be cancelled, not affecting therefore the uses as metadata of the notes.\par
+
+\pard\par
+Important:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Optional renaming and removing tags from text will apply to all notes in all folders.\par
+{\pntext\f3\'B7\tab}In the current version, this renaming and deletion will not affect tags that may be included within a folded text block. KeyNote will not modify or delete them, although it will give a warning of the number of blocks in which those tags have been identified. Right now it will be necessary to modify those instances manually.\par
+{\pntext\f3\'B7\tab}Although it is not possible to make edits in a read-only folder, the indicated renaming and/or deletion of tags will apply to instances that may be found in a read-only folder.\par
+
+\pard\par
+\par
+\cf3\b\v\fs26\'11B7\'12\v0 Using the Tags Tab of the Resources Panel\b0\par
+\cf0\fs20\par
+In addition to inserting, renaming or deleting tags, as already indicated, this panel allows you to consult all registered tags, allowing their filtering based on the name and/or alias field of the same, using the control located at the bottom of it.\par
+\par
+
+\pard\li360\v\'11I221\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:221,209,355"}}{\fldrslt {221_Clipb_13abr.png}}}\lang1033\par
+
+\pard\par
+Other allowed actions:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Add Tags to selected Notes\b0\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Remove Tags from selected Notes\b0\par
+
+\pard\sb80 Through these options in the context menu, tags selected from the global tag list are added to or removed from the selected notes (or from the visible notes, if no notes are selected)\par
+
+\pard\li360\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 Tag filtering, use of tags in tree\par
+
+\pard\sb80 If "\b Show use of tags in tree\b0 " is checked, then only tags applied as metadata to any note will be displayed, with an indication of the number of nodes containing them.\par
+
+\pard Then, as we select one or more tags, and depending on the filtering mode (All or Any) set in "\b Filter notes with\b0  [ALL/ANY] tags" combo, the nodes of the tree will be filtered and the available tags and their associated number of nodes will change.\par
+\par
+The option "\b Inherited tags\b0 " will affect how nodes are filtered based on the selected tags. When checked, each node will be considered as having its own tags and the tags of its ancestors.\par
+\par
+\par
+For example, if we had something like:\par
+
+\pard\sb120\cf4  - Node A [#Important]\par
+
+\pard     - Node B\par
+    - Node C [#Urgent]\par
+ - Node D [#Important][#Urgent]\par
+\cf0  \par
+If "Inherited tags" is checked and we filtered by Urgent AND Important, "Node C" and "Node D" would be selected. If unchecked, then only "Node D" would be selected\par
+\par
+
+\pard\li360\v\'11I224\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:224,722,205"}}{\fldrslt {224_Clipb_13abr.png}}}\lang1033\par
+
+\pard\par
+This option will be considered not only with the filter associated with "Show use of tags in tree" (in the Tags tab) but also with the tag filtering performed using the text control in the tree panel.\par
+There is also a new tree context menu option, synchronized with the check in the Tags tab: "View / Filter | Inherited tags"\par
+\par
+
+\pard\li360 Note: \par
+the tag filter text control will be populated with the list of selected tag names and, if mode is ANY, preceded by "ANY:", like: "ANY: Bug Error"\par
+The correct filter to be executed is registered by this operation (Bug OR Error), but it not corresponds to the filter that the text control will deduce if that names were typed together in that control. So, currently, if after applying this action with "ANY" you enter in the text control, when you exit it, it will be probably changed to "Bug Error" and interpreted as an AND operation ("Bug & Error")\par
+
+\pard\par
+\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Export Tags to file (Ctrl: selected)\b0\par
+{\pntext\f3\'B7\tab}\b Import Tags from file\b0\par
+
+\pard\sb80 Added two options to the context menu of Tags tab: "Export Tags to file  (Ctrl: selected)", "Import Tags from file"\par
+
+\pard This two actions allows to share tags between .knt files. Additionally, all tags exported to a file named "\b Tags.txt\b0 " (common tags) in the same folder as Keynote.exe will be automatically imported when you open any file, adding new tags or updating the description of those modified.\par
+\par
+\par
+\cf3\b\v\fs26\'11B8\'12\v0 Using Tags to filter the Tree\b0\par
+\cf0\fs20\par
+Along with the existing control at the bottom of the tree panel, which allows filtering based on the name of the nodes as well as the date of last modification, a new text control has been added, to its left, which additionally allows filtering considering the added tags.\par
+
+\pard\sb80 See {{\field{\*\fldinst{HYPERLINK "file:///<27|31948|0|22"}}{\fldrslt{\ul\cf2\cf2\ul Filtering by Tags}}}}\f0\fs20 .\par
+
+\pard\par
+\par
+\cf3\b\v\fs26\'11B9\'12\v0 Using Tags with Find All\b0\par
+\cf0\fs20\par
+Several new options have been added to the search tab of the resources panel to make use of the new tag system.\par
+In addition to determining the notes to be considered taking into account whether they are hidden, whether or not they are marked or based on their creation or modification date, it is also possible to add as a restriction that they include certain tags and/or do not include others.\par
+\par
+But it is also possible to take advantage of the optional tagging within the text itself to restrict the search results to those paragraphs or text fragments that meet the indicated tagging criteria\par
+
+\pard\sb80 See {\f2\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|10051|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags with Find All}}}}\f0\fs20\par
+
+\pard\par
+\par
+\cf3\b\v\fs26\'11B10\'12\v0 Using Tags with Export\b0\par
+\cf0\fs20\par
+It's now possible to restrict the nodes considered or even the text fragments exported using Tag criteria.\par
+The same controls and features available in Find All have been added to the Export form to allow you to exclude nodes that don't meet the tag criteria. These new controls allow you to export only the fragments of notes that do meet the criteria.\par
+For example, we could exclude fragments tagged with #private from the export.\par
+
+\pard\sb80 See {{\field{\*\fldinst{HYPERLINK "file:///<57|3225|0|17"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags}}}}\f0\fs20  in Exporting or Printing Notes\par
+
+\pard\par
+\par
+\cf3\b\v\fs26\'11B11\'12\v0 Using Tags in combination with Folding\b0\par
+\cf0\fs20\par
+It's possible to combine the use of tags with text folding, taking advantage of the fact that each tag defines a scope, a block of text it affects. Furthermore, if the start of the folded block coincides with a KeyNote tag, we'll call it a "tagged" folded block, and it can be distinguished from other folded blocks in search and export operations.\par
+\par
+See {{\field{\*\fldinst{HYPERLINK "file:///<123|2308|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How to fold a block of text}}}}\f0\fs20  in Folding and unfolding\par
+See {\f2\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|10113|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Folded blocks}}}}\f0\fs20  in Using Find and Find All\par
+See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Using Folded text}}}}\f0\fs20  in Exporting or Printing Notes\par
+\par
+}
+%*
+GI=123
+ND=Folding and unfolding
+LM=1304252201
+%.
+DC=1204251504
+%:
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\f0\fs20\lang1033\par
+\cf1\b\fs36\lang3082 Folding and unfolding\cf2\lang1033\par
+\cf0\b0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<123|46|0|1"}}{\fldrslt{\ul\cf2\cf2\ul General information}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<123|2308|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How to fold a block of text}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<123|6140|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Unfold folded text}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<123|6632|0|4"}}{\fldrslt{\ul\cf2\cf2\ul View and edit folded text}}}}\f0\fs20\par
+\par
+\par
+\cf3\b\v\fs24\'11B1\'12\v0 General information\par
+\cf0\b0\fs20\par
+Since version 1.2.1, it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. We can manage collapsed blocks in different ways, such as to simplify visibility, to treat certain text as a kind of archive, etc.\par
+\par
+
+\pard\sb80 When a block is folded, a hyperlink with the text "+" is displayed, and it is closed with "...\protect\'13\protect0 ".\par
+Given a text to be folded, the visible excerpt will be selected from the beginning, including the rest of the sentence or until two consecutive spaces, an image or a hyperlink are detected.\par
+
+\pard\par
+Nesting of folded blocks is possible, and these can contain images, links, etc. The following is an \b example of folded text\b0 . Notice the hyperlink with the "+":\par
+\par
+{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf2\ul +}}}}\protect\f0\fs20 This is an fragment of the help included in\v  \'11L"file:///<41|0|0"@\cf2\ul Image management in KeyNote NF\'12\cf0\ulnone\par
+\par
+\cf3\b\fs26 Introduction\cf0\b0\par
+\fs20\par
+\'11I115\'12\lang3082\'11L"img:115,214,225"@\cf2\ul 115_Clipb_04ene.png\'12\cf0\ulnone\lang1033  \par
+\par
+\fs24\'11L"FOLD:"@\cf2\ul +\'12\cf0\ulnone\fs20 Since version 1.8.1 KeyNote NF allows to use the most common image formats  (GIF, PNG, JPG, BMP, TIF, WMF, EMF and ICO), and offer a series of new features, such as allowing images to be hidden or visible, providing various storage mechanisms, some of them external to the .knt file, or making use of an internal viewer, among others....\'13\v0 ...\'13\protect0\par
+\par
+\par
+\par
+You can define the scope of the text to be folded in several ways: manually, from a text selection, or automatically from a tag or a pair of tokens created for this purpose.\par
+\par
+Folded text is not directly editable. It can be copied and moved as a whole to another location (copy and cut + paste) but it cannot be partially deleted or modified while folded; it is protected text.\par
+It is possible to both view and modify the content of folded text without needing to unfold it, by using floating editors. \par
+\par
+
+\pard\li360\b Tip\b0 : You can insert a second space to force the point where you want the visible excerpt to end.\par
+
+\pard\par
+\par
+\b Notes\b0 :\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 If a search, either with Find or Find Next, or through Find All (resources panel), identifies a pattern within a folded block, when jumping to that position, the "+" at the beginning of the block will be selected.\par
+{\pntext\f2\'B7\tab}In the current version, when executing the Replace... or Replace Next function, possible words located within folded text blocks will not be modified. KeyNote will not modify them, although it will give a notice of the number of blocks in which they have been identified.\par
+{\pntext\f2\'B7\tab}In the search panel (Find All), a new option has been included that allows considering or not folded blocks. (See {\f1\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|10113|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Folded blocks}}}}\f0\fs20  in Using Find and Find All)\par
+{\pntext\f2\'B7\tab}When exporting notes (File | Export...), an option has been included that allows indicating how to treat folded blocks (See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Using Folded text}}}}\f0\fs20  in Exporting or Printing Notes)\par
+{\pntext\f2\'B7\tab}It is possible to check the structure of folded blocks and their nesting through the export to plain text. Vea {{\field{\*\fldinst{HYPERLINK "file:///<57|15769|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to Plain text}}}}\f0\fs20\par
+{\pntext\f2\'B7\tab}Text folding can also be performed in the Scratchpad\par
+{\pntext\f2\'B7\tab}Text folding is \b not\b0  available in \ul plain text\ulnone  notes.\par
+
+\pard\par
+\par
+  \par
+\cf3\b\v\fs24\'11B2\'12\v0 How to fold a block of text\par
+\cf0\b0\fs20\par
+You can fold a block of text, thus hiding its content, in several ways:\par
+\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Select\b0  the text you want to fold and click on \b "Fold"\b0  in the editor's context menu\par
+
+\pard\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a \b tag\b0\par
+
+\pard\li360 The text that will be considered and folded will be all that affected by this tag, which will depend on whether the tag is being used in open mode or not. (See {{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Scope or range of application of Tags}}}}\f0\fs20 )\par
+
+\pard\li720\sb80 Note: When Ctrl+double-Click on \cf5 ##Word, ###Word\cf0  ... it will be considered as a normal word, not as a tag\par
+
+\pard\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a word registered as an "\b opening\b0 " for folded blocks.\par
+
+\pard\li360\sb80 From Tools|Configuration Options... in the "\b Folding Blocks\b0 " section, it is possible to add pairs of tokens, one "opening" and one "closing", thus allowing identification of text blocks to be folded.\par
+
+\pard\li360\sb120 Examples:\par
+   \cf5 IF / END IF\par
+
+\pard\li360    ** / **\par
+   <> / </>\par
+\cf0\par
+If the two words are different, this allows nested blocks to be defined.\par
+
+\pard\li360\sb80\b Tip\b0 : These pairs of tokens are saved in a file called "\b keynote.fld\b0 " in the profile folder. You can edit the tokens directly from that file if you respect the format.\par
+
+\pard\li360\par
+
+\pard\li360\sb80 When you \cf4 Ctrl+double-Click\cf0  on the word defined as opening, KeyNote will search from that position in the text for the corresponding closing word. If it finds it, it will fold all the content between both words, both inclusive.\par
+Keep in mind the following:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720 It is possible to configure each pair of tokens indicating if they are case sensitive\par
+{\pntext\f2\'B7\tab}If the opening and closing words are different, this will allow working with nested blocks. In this case, folding should always be done on complete blocks. This implies the following. Imagine the following text:\par
+
+\pard\li360\par
+
+\pard\li720\cf5 IF first ....\par
+     IF second ...\par
+
+\pard\li360                ...\par
+
+\pard\li720      END IF\par
+
+\pard\li360            ...\par
+
+\pard\li720 END IF\par
+\cf0\par
+(The indentation is simply to see it more clearly, but it is not necessary).\par
+\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080 If you \cf4 Ctrl+double-Click\cf0  on the first IF, the entire text block will be folded. If you do it on the second IF, only the inner block will be folded. After folding the inner block, you can also fold the entire block, keeping the inner block folded.\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sb80 Folding will only be performed if a coherent structure is detected, also considering nesting. For example, if this pair has been defined as case sensitive, and "End IF" is written at the end of the inner block instead of "END IF", or that ending is not included, when trying to fold the outer IF, nothing will happen, no folding will be performed.\par
+
+\pard\li1080\sb40 This is because, as KeyNote traverses the text to fold, it will discover possible nested blocks from their opening tokens, and in that case, it will expect to find the corresponding closing tokens.\par
+In this example, and as the opening and closing tokens have been defined, the final "END IF" would not be recognized as the closure of the initial "IF", but as the closure of the second nested block identified through the "IF" of "End IF". Since it is not a valid closure, what is recognized is the IF word, which defines a new block.\par
+When it doesn't find the corresponding closure, it won't perform the folding.\par
+
+\pard\li720\par
+
+\pard\li1080\cf5 IF first ....               <- Block to fold\par
+     IF second ...      <- 1st nested block\par
+
+\pard\li720                ...\par
+
+\pard\li1080      End IF               <- 2nd nested block (for the "IF")\par
+
+\pard\li720            ...\par
+
+\pard\li1080 END IF                    <- Closure of the 2nd nested block\par
+
+\pard\li720\cf0\par
+
+\pard\li360\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a \b 'normal' word\b0  that is not defined as a block opening word nor as a tag.\par
+
+\pard\li360\sb80 In this case, the end of the block to be folded is searched for as follows:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720 If the string "[.]" is found after that word, it will be folded to it.\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40 If it is not found, the end of the paragraph in which it is located will be considered as the end of the block.\par
+
+\pard\li360\sb120 The use of this generic ending block ( \b [.]\b0  ) can allow you to maintain a folded block that you can easily expand from the beginning, unfolding it and folding it again from a higher position, once new text has been added.\par
+
+\pard\par
+\par
+\par
+\cf3\b\v\fs24\'11B3\'12\v0 Unfold folded text\par
+\cf0\b0\fs20\par
+You can unfold a folded text block in two ways:\par
+\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By placing the \b cursor\b0  at any position of the visible excerpt and selecting "\b Unfold\b0 " in the editor's context menu.\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 By pressing \cf4\b Ctrl+Click\cf0\b0  on the hyperlink ("\b +\b0 ") that defines the beginning of the folded block\par
+
+\pard\par
+If you make a mistake or want to fold it again immediately afterward, simply press \cf4\b Ctrl+Z\cf0\b0  (Undo).\par
+\par
+\par
+\cf3\b\v\fs24\'11B4\'12\v0 View and edit folded text\par
+\cf0\b0\fs20\par
+Although folded text is not directly editable, it is possible to view and modify its content without needing to unfold it, by using \b floating editors\b0 . \par
+\par
+To do this, \cf4\b Click\cf0\b0  on the hyperlink ("\b +\b0 ") that defines the beginning of the folded block. This will show the content within a floating editor. This floating editor is a normal editor that allows all the usual functionalities, with very few exceptions, such as not allowing its use with ClipCap. If this nested text contains in turn nested text blocks, you can view and edit them in the same way.\par
+\par
+A floating editor will remain visible as long as the focus is not returned to the "parent" editor, which will close all "child" floating editors, saving the changes made. Any operation that involves selecting another "parent" note will also close the floating editors, such as selecting another node in the tree or closing the file.\par
+\par
+\b Tip\b0 : It is possible to simultaneously maintain the floating editor(s) corresponding to a note and those corresponding to the Scratchpad.\par
+\par
+}
+%*
+GI=124
+ND=Folding Blocks
+LM=1304252029
+%.
+DC=1304252024
+%:
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
+{\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\f0\fs20\lang1033\par
+\cf1\b\fs36 Options: Folding Blocks\par
+\cf0\b0\fs20\par
+
+\pard\li360\v\'11I220\'12\v0{\field{\*\fldinst{HYPERLINK "img:220,347,370"}}{\fldrslt {220_Clipb_13abr.png}}}\par
+
+\pard\par
+\par
+This tab allows you to customize words that can be used to identify blocks of text to be folded.\par
+\par
+See {{\field{\*\fldinst{HYPERLINK "file:///<123|2308|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How to fold a block of text}}}}\f0\fs20  in Folding and unfolding note, for a detailed description of this functionality and how opening and closing words can be used.\par
+}
 %+
 NN=KNT Help
 ID=8
@@ -16673,7 +17723,7 @@ TC=clWindowText
 TN=Tahoma
 TZ=10
 TY=
-n:=118
+n:=121
 %-
 gi=1
 DI=2
@@ -16812,6 +17862,10 @@ DI=581
 gi=38
 DI=303
 LV=1
+%-
+gi=122
+%-
+gi=123
 %-
 gi=39
 DI=511
@@ -17046,6 +18100,8 @@ DI=250
 gi=102
 DI=251
 %-
+gi=124
+%-
 gi=103
 DI=252
 %-
@@ -17148,7 +18204,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=217
+II=225
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -17237,12 +18293,11 @@ PD=103||103_Clipb_02ene.png|1|843|374|4019961967||1|1||0
 PD=104||104_Clipb_03ene.png|1|163|101|244405219||1|2||0
 PD=105||105_Clipb_03ene.png|1|147|102|2223406620||1|1||0
 PD=106||106_Clipb_03ene.png|1|149|46|3523751802||1|1||0
-PD=108||108_Clipboard_03ene.png|1|539|456|2896061182||1|2||0
 PD=110||110_Clipb_03ene.png|1|358|375|3763404517||1|1||0
 PD=111||111_Clipb_03ene.png|1|343|332|1945380963||1|1||0
 PD=113||113_Clipb_04ene.png|1|526|80|2991040271||1|1||0
 PD=114||114_Clipb_04ene.png|1|360|247|630860667||1|1||0
-PD=115||115_Clipb_04ene.png|1|505|536|190152895||1|2||0
+PD=115||115_Clipb_04ene.png|1|505|536|190152895||1|3||0
 PD=116||116_Clipboard_05ene.png|1|74|35|1464027792||1|1||0
 PD=117||117_Clipboard_05ene.png|1|181|51|1960015756||1|1||0
 PD=118||118_Clipb_05ene.png|1|1025|608|2757826324||1|1||0
@@ -17299,13 +18354,19 @@ PD=197||197_Clipb_25nov.png|1|407|283|3780025982||1|1||0
 PD=202||202_Clipb_25nov.png|1|594|295|3724386940||1|1||0
 PD=203||203_Clipb_25nov.png|1|594|295|1371154350||1|1||0
 PD=204||204_Clipb_07dic.png|1|489|198|245941648||1|1||0
-PD=207||207_Clipb_06ene.png|1|669|467|1317509020||1|1||0
 PD=208||208_Clipb_06ene.png|1|334|411|2637135484||1|1||0
 PD=209||209_Clipb_06ene.png|1|279|109|3349534461||1|1||0
 PD=212||212_Clipb_08ene.png|1|387|530|136024720||1|1||0
 PD=213||213_Clipb_08ene.png|1|387|530|2421678084||1|1||0
 PD=214||214_Clipb_08ene.png|1|387|530|3693120505||1|1||0
-PD=215||215_Clipb_20ene.png|1|209|638|636872966||1|1||0
 PD=216||216_Clipb_20ene.png|1|312|600|784430773||1|1||0
+PD=217||217_Clipb_13abr.png|1|203|734|2984979133||1|1||0
+PD=218||218_Clipb_13abr.png|1|670|497|3653906140||1|1||0
+PD=219||219_Clipb_13abr.png|1|528|455|3207839127||1|2||0
+PD=220||220_Clipb_13abr.png|1|347|370|22007445||1|1||0
+PD=221||221_Clipb_13abr.png|1|209|355|3096465394||1|1||0
+PD=222||222_Clipb_13abr.png|1|216|73|3778486667||1|1||0
+PD=223||223_Clipb_13abr.png|1|389|97|240801985||1|1||0
+PD=224||224_Clipb_13abr.png|1|722|205|3960901167||1|2||0
 %EI
 %%
