@@ -191,15 +191,21 @@ end;
 
 
 procedure TFloatingEditor.ShowEditor(X, Y: Integer; FontHeight: integer);
+var
+  Monitor: TMonitor;
+  MonitorWorkArea: TRect;
 begin
   AdjustToContent;
 
-  if (X + Width) > Screen.WorkAreaRect.Right then
-     Left:= X + (Screen.WorkAreaRect.Right -(X + Width))
+  Monitor := Screen.MonitorFromPoint(Point(X, Y));
+  MonitorWorkArea := Monitor.WorkareaRect;
+
+  if (X + Width) > MonitorWorkArea.Right then
+     Left:= X + (MonitorWorkArea.Right -(X + Width))
   else
      Left:= X;
 
-  if (Y + Height + 1.5 * FontHeight) > Screen.WorkAreaRect.Bottom   then
+  if (Y + Height + 1.5 * FontHeight) > MonitorWorkArea.Bottom   then
      Top:= Y - Height - 5
   else
      Top:= Y + Round(1.5 * FontHeight);

@@ -156,6 +156,8 @@ end;
 
 procedure TTagSelector.ShowTagSelector(WidthName, WidthDesc: integer; OwnerHandle: HWND);
 var
+  Monitor: TMonitor;
+  MonitorWorkArea: TRect;
   CursorPos: TPoint;
   SS, SL: integer;
   NumItems, SelectorHeight, ScrollW, OffsetX: integer;
@@ -191,6 +193,9 @@ begin
        CursorPos:= CursorBeginPosTag;
 
 
+    Monitor := Screen.MonitorFromPoint(Point(CursorPos.X, CursorPos.Y));
+    MonitorWorkArea := Monitor.WorkareaRect;
+
     OffsetX:= 0;
     if EditorCtrlUI is TEdit then
        OffsetX:= -8;
@@ -216,12 +221,12 @@ begin
     TV.Top:= 2;
     TV.Left:= MARGIN_LEFT_TAGSEL_TV;
 
-    if (CursorPos.X + Width - MARGIN_LEFT_TAGSEL_TV) > Screen.WorkAreaRect.Right then
-        Left:= CursorPos.X + (Screen.WorkAreaRect.Right -(CursorPos.X + Width - MARGIN_LEFT_TAGSEL_TV)) + OffsetX
+    if (CursorPos.X + Width - MARGIN_LEFT_TAGSEL_TV) > MonitorWorkArea.Right then
+        Left:= CursorPos.X + (MonitorWorkArea.Right -(CursorPos.X + Width - MARGIN_LEFT_TAGSEL_TV)) + OffsetX
     else
         Left:= CursorPos.X - MARGIN_LEFT_TAGSEL_TV + OffsetX;
 
-    if (CursorPos.Y + SelectorHeight + 1.5 * FontHeight + SpaceBef) > Screen.WorkAreaRect.Bottom   then
+    if (CursorPos.Y + SelectorHeight + 1.5 * FontHeight + SpaceBef) > MonitorWorkArea.Bottom   then
        Top:= CursorPos.Y - SelectorHeight - 5 - SpaceBef
     else
        Top:= CursorPos.Y + Round(1.5 * FontHeight) + SpaceBef;
