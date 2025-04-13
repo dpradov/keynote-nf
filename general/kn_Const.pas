@@ -117,10 +117,11 @@ const
   NFHDR_ID_COMPRESSED = 'GFKNZ'; // compressed KeyNote file header ID
   NFILEVERSION_MAJOR = '3';     // and version numbers
   // NFILEVERSION_MAJOR = '1';     // non-tree version ID, obsolete
-  NFILEVERSION_MINOR = '0';     
- 
+  NFILEVERSION_MINOR = '1';
+
  // 2.1 : Since version 1.9.3.1: Use of GID as note identifier, with a new default internal Knt Links format, based on GIDs
  // 3.0 : New major version associated to an important rework: TNote, TNoteNode, TNoteEntry, ...
+ // 3.1 : Added Tags
 
 const
   FLAGS_STRING_LENGTH  = 24; // can store up to 24 booleans
