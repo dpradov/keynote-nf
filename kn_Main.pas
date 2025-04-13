@@ -1335,6 +1335,7 @@ type
     procedure TagsMAddClick(Sender: TObject);
     procedure TagsMRemoveClick(Sender: TObject);
     procedure chkFilterOnTagsClick(Sender: TObject);
+    procedure ChangeInhTags;
     procedure chkInhTagsClick(Sender: TObject);
     procedure cbTagFilterModeChange(Sender: TObject);
     procedure TVFilterInhTagsClick(Sender: TObject);
@@ -6096,22 +6097,35 @@ begin
 end;
 
 
-procedure TForm_Main.chkInhTagsClick(Sender: TObject);
+procedure TForm_Main.ChangeInhTags;
 begin
   if Initializing or fChangingInCode then exit;
-  FindOptions.InheritedTags:= not FindOptions.InheritedTags;
-  TVFilterInhTags.Checked:= FindOptions.InheritedTags;
-  chkInhTagsFind.Checked:= FindOptions.InheritedTags;
 
-  if ActiveTreeUI = nil then exit;
+  fChangingInCode:= True;
+  try
+     FindOptions.InheritedTags:= not FindOptions.InheritedTags;
+     TVFilterInhTags.Checked:= FindOptions.InheritedTags;
+     chkInhTagsFind.Checked:= FindOptions.InheritedTags;
+     chkInhTags.Checked:= FindOptions.InheritedTags;
 
-  if ActiveTreeUI.ShowUseOfTags then begin
-     FilterNotesOnTagsSelection;
-     if (App.TagsState = tsVisible) then
-        TVTags.Invalidate;
-  end
-  else
-     ActiveTreeUI.ReapplyFilter;
+     if ActiveTreeUI = nil then exit;
+
+     if ActiveTreeUI.ShowUseOfTags then begin
+        FilterNotesOnTagsSelection;
+        if (App.TagsState = tsVisible) then
+           TVTags.Invalidate;
+     end
+     else
+        ActiveTreeUI.ReapplyFilter;
+
+  finally
+    fChangingInCode:= False;
+  end;
+end;
+
+procedure TForm_Main.chkInhTagsClick(Sender: TObject);
+begin
+  ChangeInhTags;
 end;
 
 procedure TForm_Main.TagsMAddClick(Sender: TObject);
@@ -6924,15 +6938,7 @@ end;
 
 procedure TForm_Main.chkInhTagsFindClick(Sender: TObject);
 begin
-  if Initializing or fChangingInCode then exit;
-
-  fChangingInCode:= True;
-
-  FindOptions.InheritedTags:= not FindOptions.InheritedTags;
-  TVFilterInhTags.Checked:= FindOptions.InheritedTags;
-  chkInhTags.Checked:= chkInhTagsFind.Checked;
-
-  fChangingInCode:= False;
+  ChangeInhTags;
 end;
 
 
@@ -8087,7 +8093,7 @@ end;
 
 procedure TForm_Main.TVFilterInhTagsClick(Sender: TObject);
 begin
-  chkInhTags.Checked:= not chkInhTags.Checked;
+  ChangeInhTags;
 end;
 
 
