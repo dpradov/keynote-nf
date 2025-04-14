@@ -1202,6 +1202,8 @@ var
   Len: integer;
   p: integer;
   Txt: string;
+  TxtLower: string;
+  URLType: TKNTURL;
 
    function GetRestOfSentence(const Text: string; PosInsideSentence: integer): string;
    var
@@ -1252,6 +1254,20 @@ begin
   p:= pos('HYPERLINK', Txt);        // Do not include hyperlink texts, truncate at that point
   if p > 0 then
      delete(Txt, p-1, Length(Txt));
+
+  // If the hyperlink text matches the URL, the text obtained from TextPlain may not return HYPERLINK
+  // Therefore, if we find any of the known prefixes, we will also cut there.
+  TxtLower:= Txt.ToLower;
+  for URLType := low( TKNTURL ) to high( TKNTURL ) do begin
+    if URLType = urlUndefined then continue;
+    p := pos( KNT_URLS[URLType], TxtLower );
+    if p > 0 then begin
+       delete(Txt, p-1, Length(Txt));
+       delete(Txt, p-1, Length(TxtLower));
+    end;
+  end;
+
+
 
   p:= Length(Txt) + OffsetVisibleExtract -1;
 
