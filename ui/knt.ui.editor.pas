@@ -1848,7 +1848,7 @@ begin
   // Position of the next hidden marker. If it does not match any of the identified ones, it is a non-link marker, 
   // and we must keep it hidden (by adding \v and \v0) if it is to be in a visible area
   p:= Pos(KNT_RTF_HIDDEN_MARK_L, RTFIn, 1);
-
+  pEnd:= 0;
   for i:= 0 to Length(FoldedLinks) - 1 do begin
      if not FoldedLinks[i].Visible then continue;
      if FoldedLinks[i].FoldedBlock and not FoldedLinks[i].FirstLevel then continue;    // Redundant?
