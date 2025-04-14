@@ -216,6 +216,7 @@ begin
   if not Visible then
      Show;
 
+  Self.Editor.Refresh;
   App.EditorFocused(Self.Editor);
 end;
 
