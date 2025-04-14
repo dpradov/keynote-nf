@@ -210,6 +210,9 @@ begin
   else
      Top:= Y + Round(1.5 * FontHeight);
 
+  if Top < 5 then
+     Top:= 5;
+
   if not Visible then
      Show;
 
