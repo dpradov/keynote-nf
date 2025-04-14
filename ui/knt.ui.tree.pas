@@ -697,6 +697,7 @@ var
    VertScrollBarWidth: integer;
    ColNamePos: integer;
    ColNameLastPos: boolean;
+   TVWidth: integer;
 begin
    if fColsSizeAdjusting = 1 then exit;
    fColsSizeAdjusting:= 1;
@@ -732,15 +733,23 @@ begin
       if TV.IsVerticalScrollBarVisible  then
          VertScrollBarWidth := GetSystemMetrics(SM_CXVSCROLL) + 8;
 
-      if ((W > 0) and (not ColNameLastPos)) or (Columns[0].Width + W + VertScrollBarWidth < TV.Width) then begin
-
-         W:= TV.Width - W- VertScrollBarWidth;
-         if W < MIN_WIDTH_NAME_COL then
-            W := MIN_WIDTH_NAME_COL;
-         Columns[0].Width:= W;
+      TVWidth:= TV.Width;
+      if ((W > 0) and (not ColNameLastPos)) or (Columns[0].Width + W + VertScrollBarWidth < TVWidth) then begin
+         W:= TVWidth - W- VertScrollBarWidth;
+         Columns[0].Width:= W - 5;
       end;
 
    end;
+
+   TB_FilterUnflagged.Visible:= TVWidth >= 118;
+   TB_FilterTree.Visible:= TVWidth > 92;
+   if (TVWidth > 92) and (TVWidth < 118) then
+      txtFilter.Width:= TB_FilterTree.Left - txtFilter.Left
+   else
+   if (TVWidth <= 92) then
+      txtFilter.Width:= TVWidth - 2 * TB_HideChecked.Width
+   else
+      txtFilter.Width:= TB_FilterUnflagged.Left - txtFilter.Left;
 
    TV.EndUpdate;
    fColsSizeAdjusting:= 2;
@@ -4518,6 +4527,7 @@ const
 var
   MaxAvailableWidth, MaxAvailableForTags: integer;
   TagsWidth, FilterWidth: integer;
+  N: integer;
 
 begin
   TagsWidth:=   MinTagsWidth;
@@ -4528,7 +4538,12 @@ begin
   if txtFilter.Text <> '' then
      FilterWidth := TagMng.GetTextWidth(txtFilter.Text, txtFilter) + 10;
 
-  MaxAvailableWidth:= Self.Width - 3*TB_FilterTree.Width -2;
+  N:= 3;
+  if not TB_FilterTree.Visible then
+     dec(N);
+  if not TB_FilterUnflagged.Visible then
+     dec(N);
+  MaxAvailableWidth:= Self.Width - N*TB_FilterTree.Width -2;
 
   if AllowEdition then begin
      TagsWidth:= TagsWidth * 2;

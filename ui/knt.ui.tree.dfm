@@ -3,7 +3,6 @@ object KntTreeUI: TKntTreeUI
   Top = 0
   Width = 130
   Height = 397
-  Constraints.MinWidth = 125
   TabOrder = 0
   object TV: TVirtualStringTree
     Left = 0
