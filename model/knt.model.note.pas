@@ -1272,6 +1272,7 @@ begin
       exit;
    end;
 
+   N:= 0;
    Str:= Str + ',';
    pI:= 1;
    for i:= 1 to Length(Str) do begin
