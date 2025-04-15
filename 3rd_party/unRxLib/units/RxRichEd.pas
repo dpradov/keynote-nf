@@ -6872,6 +6872,7 @@ begin
               begin
                 FClickRange := chrg;
                 FClickBtn := mbRight;
+                SelStart:= chrg.cpMin;
               end;
             WM_RBUTTONUP:
               begin
