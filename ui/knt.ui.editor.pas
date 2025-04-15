@@ -2442,7 +2442,7 @@ begin
    finally
       EndUpdate;
    end;
-
+   Change;
 end;
 
 procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
@@ -2577,6 +2577,8 @@ begin
       FUnfolding:= False;
       SelStart:= pI;
       EndUpdate;
+
+      Change;
    end;
 end;
 
