@@ -31,6 +31,8 @@ uses
 type
   TFloatingEditor = class(TForm)
   private
+    TopPanel: TPanel;
+    TopAuxPanel: TPanel;
     MovingForm: Boolean;
     LastMousePos: TPoint;
 
@@ -80,8 +82,6 @@ end;
 
 constructor TFloatingEditor.Create(AOwner: TComponent; ParentEdit: TKntRichEdit);
 var
-  Pnl: TPanel;
-  TopPanel: TPanel;
   BottomBevel: TBevel;
 
 begin
@@ -108,18 +108,28 @@ begin
 
   TopPanel := TPanel.Create(AOwner);
   with TopPanel do begin
-    Parent := Self;
-    Height := 25;
+    Parent:= Self;
     Align := alTop;
+    Height := 20;
     BevelOuter := bvNone;
     BevelInner := bvNone;
     OnMouseDown := PanelMouseDown;
     OnMouseMove := PanelMouseMove;
     OnMouseUp := PanelMouseUp;
+  end;
+
+  TopAuxPanel := TPanel.Create(AOwner);
+  with TopAuxPanel do begin
+    Parent := Self;
+    Height := 10;
+    Align := alTop;
+    BevelOuter := bvNone;
+    BevelInner := bvNone;
+    StyleElements:= [];
     BottomBevel := TBevel.Create(TopPanel);
     with BottomBevel do begin
       Parent := TopPanel;
-      Height := 10;
+      Height := 2;
       Align := alBottom;
       Shape := bsTopLine;
       Color := clGray;
@@ -216,6 +226,7 @@ begin
   if not Visible then
      Show;
 
+  TopAuxPanel.Color:= Editor.Color;
   Self.Editor.Refresh;
   App.EditorFocused(Self.Editor);
 end;
@@ -260,7 +271,7 @@ begin
        NeededHeight := MulDiv(FormatRange.rc.Bottom, DPI, 1440);            // Current height in this "page" (Twips -> Pixels)
 
        Self.Width  := NeededWidth;
-       Self.Height := NeededHeight + 60;
+       Self.Height := NeededHeight + 65;
 
      finally
        SendMessage(Editor.Handle, EM_FORMATRANGE, 0, 0);
