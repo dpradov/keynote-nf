@@ -26,7 +26,7 @@ object KntNoteUI: TKntNoteUI
   end
   object pnlIdentif: TPanel
     Left = 0
-    Top = 0
+    Top = 456
     Width = 578
     Height = 24
     Align = alBottom
@@ -73,6 +73,7 @@ object KntNoteUI: TKntNoteUI
       Top = 2
       Width = 33
       Height = 22
+      HelpContext = 122
       TabStop = False
       ParentShowHint = False
       ShowHint = True

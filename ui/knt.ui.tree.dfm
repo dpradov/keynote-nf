@@ -73,6 +73,8 @@ object KntTreeUI: TKntTreeUI
       Top = 1
       Width = 24
       Height = 22
+      HelpType = htKeyword
+      HelpKeyword = '27-9'
       AllowAllUp = True
       Anchors = [akTop, akRight]
       GroupIndex = 3
@@ -84,6 +86,8 @@ object KntTreeUI: TKntTreeUI
       Top = 2
       Width = 30
       Height = 20
+      HelpType = htKeyword
+      HelpKeyword = '27-15'
       Anchors = [akLeft, akTop, akRight]
       Ctl3D = False
       ParentCtl3D = False
@@ -94,6 +98,8 @@ object KntTreeUI: TKntTreeUI
       Top = 2
       Width = 24
       Height = 20
+      HelpType = htKeyword
+      HelpKeyword = '27-22'
       Ctl3D = False
       ParentCtl3D = False
       TabOrder = 0

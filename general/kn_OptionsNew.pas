@@ -1929,23 +1929,25 @@ begin
    {
      I can’t access the Help Context values associated with each TPage object. ¿? I do it differently:
 
-     Configuration Options [295]
-       General Settings [238]
-         Rich Text Editor [239]
-         Images [573]
-         Tree Panel [240]
-       KeyNote Files [241]
-         File Options [242]
-         Backup Options [243]
-       Actions [244]
-         Confirmations [245]
-       Chrome [246]
-         Tab Icons [247]
-       Advanced [248]
-         Formats [249]
-         Clipboard [250]
-         File Types [251]
-         Other [252]
+     Configuration Options [87](id:295)
+       General Settings [88](id:238)
+         Rich Text Editor [89](id:239)
+         Images [90](id:573)
+         Tree Panel [91](id:240)
+       KeyNote Files [92](id:241)
+         File Options [93](id:242)
+         Backup Options [94](id:243)
+       Actions [95](id:244)
+         Confirmations [96](id:245)
+       Chrome [97](id:246)
+         Tab Icons [98](id:247)
+       Advanced [99](id:248)
+         Formats [100](id:249)
+         Clipboard [101](id:250)
+         File Types [102](id:251)
+         Folding Blocks [124]
+         Other [103](id:252)
+
    }
     case Pages.PageIndex of
       0: HC:= 88;
@@ -1963,7 +1965,7 @@ begin
       12: HC:= 100;
       13: HC:= 101;
       14: HC:= 102;
-      15: HC:= 99;
+      15: HC:= 124;
       16: HC:= 103;
     end;
     //self.HelpContext := Pages.HelpContext;

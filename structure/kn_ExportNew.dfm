@@ -5,7 +5,7 @@ object Form_ExportNew: TForm_ExportNew
   BorderStyle = bsDialog
   Caption = 'Export note Folders'
   ClientHeight = 463
-  ClientWidth = 667
+  ClientWidth = 666
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -76,43 +76,19 @@ object Form_ExportNew: TForm_ExportNew
       TabVisible = True
       object GroupBox_Source: TGroupBox
         Left = 5
-        Top = 11
-        Width = 310
-        Height = 371
+        Top = 8
+        Width = 314
+        Height = 376
+        HelpType = htKeyword
+        HelpKeyword = '57-1'
         Caption = ' Source: What to export? '
         TabOrder = 0
         DesignSize = (
-          310
-          371)
-        object lbl8: TLabel
-          Left = 31
-          Top = 178
-          Width = 45
-          Height = 13
-          Hint = 'Include text/notes with ALL or ANY of the selected tags'
-          AutoSize = False
-          Caption = 'With:'
-        end
-        object lbl9: TLabel
-          Left = 31
-          Top = 202
-          Width = 45
-          Height = 13
-          Hint = 'Exclude text/notes with ANY of the selected tags'
-          AutoSize = False
-          Caption = 'Without:'
-        end
-        object lbl4: TLabel
-          Left = 15
-          Top = 156
-          Width = 45
-          Height = 13
-          AutoSize = False
-          Caption = 'TAGs'
-        end
+          314
+          376)
         object lbl3: TLabel
           Left = 17
-          Top = 300
+          Top = 307
           Width = 89
           Height = 13
           AutoSize = False
@@ -160,7 +136,7 @@ object Form_ExportNew: TForm_ExportNew
         object Combo_TreeSelection: TComboBox
           Left = 35
           Top = 46
-          Width = 257
+          Width = 260
           Height = 21
           Hint = 'Select what part of folder to export'
           Style = csDropDownList
@@ -177,7 +153,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_ShowHiddenMarkers: TCheckBox
           Left = 15
-          Top = 346
+          Top = 353
           Width = 253
           Height = 17
           Hint = 
@@ -186,11 +162,11 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '57-11'
           Caption = 'Show hidden marks and IDs'
-          TabOrder = 16
+          TabOrder = 9
         end
         object Spin_TblMaxDepth: TSpinEdit
-          Left = 252
-          Top = 323
+          Left = 255
+          Top = 330
           Width = 40
           Height = 22
           HelpType = htKeyword
@@ -199,97 +175,29 @@ object Form_ExportNew: TForm_ExportNew
           MaxLength = 2
           MaxValue = 99
           MinValue = 1
-          TabOrder = 15
+          TabOrder = 8
           Value = 3
         end
         object CB_TableCont: TCheckBox
           Left = 15
-          Top = 325
+          Top = 332
           Width = 231
           Height = 17
           HelpType = htKeyword
           HelpKeyword = '57-14'
           Caption = 'Top N levels on a Table of Contents'
-          TabOrder = 14
-        end
-        object txtTagsIncl: TEdit
-          Left = 77
-          Top = 176
-          Width = 137
-          Height = 19
-          Anchors = [akLeft, akTop, akRight]
-          Ctl3D = False
-          ParentCtl3D = False
           TabOrder = 7
-          OnEnter = txtTagsInclEnter
-        end
-        object cbTagFindMode: TComboBox
-          Left = 221
-          Top = 175
-          Width = 71
-          Height = 21
-          Style = csDropDownList
-          Anchors = [akTop, akRight]
-          TabOrder = 8
-          OnChange = cbTagFindModeChange
-          Items.Strings = (
-            'ALL'
-            'ANY')
-        end
-        object txtTagsExcl: TEdit
-          Left = 77
-          Top = 200
-          Width = 137
-          Height = 19
-          Anchors = [akLeft, akTop, akRight]
-          Ctl3D = False
-          ParentCtl3D = False
-          TabOrder = 9
-          OnEnter = txtTagsExclEnter
-        end
-        object chkTagsMetad: TCheckBox
-          Left = 31
-          Top = 224
-          Width = 194
-          Height = 17
-          Hint = 'Notes'#39' metadata will be used to verify the tag criteria'
-          Anchors = [akLeft, akTop, akRight]
-          Caption = 'Consider metadata of notes'
-          Checked = True
-          State = cbChecked
-          TabOrder = 10
-          OnClick = chkTagsMetadClick
-        end
-        object chkTagsText: TCheckBox
-          Left = 31
-          Top = 245
-          Width = 194
-          Height = 17
-          Hint = 
-            'Export will only include text fragments that meet the tag criter' +
-            'ia'
-          Anchors = [akLeft, akTop, akRight]
-          Caption = 'Consider extracts from notes'
-          TabOrder = 11
-          OnClick = chkTagsTextClick
-        end
-        object chkInhTagsFind: TCheckBox
-          Left = 31
-          Top = 268
-          Width = 194
-          Height = 17
-          Anchors = [akLeft, akTop, akRight]
-          Caption = 'Inherited tags (metadata)'
-          TabOrder = 12
         end
         object cbFoldedText: TComboBox
-          Left = 112
-          Top = 297
-          Width = 180
+          Left = 116
+          Top = 304
+          Width = 179
           Height = 21
+          HelpType = htKeyword
+          HelpKeyword = '57-18'
           Style = csDropDownList
           Anchors = [akTop, akRight]
-          TabOrder = 13
+          TabOrder = 6
           OnChange = cbTagFindModeChange
           Items.Strings = (
             'Keep unchanged'
@@ -297,22 +205,123 @@ object Form_ExportNew: TForm_ExportNew
             'Remove "tagged"'
             'Remove All')
         end
-        object chkRemoveTags: TCheckBox
-          Left = 77
-          Top = 155
-          Width = 138
-          Height = 17
-          Hint = 'Remove tags from the final text (after processing)'
-          Anchors = [akLeft, akTop, akRight]
-          Caption = 'Remove'
-          TabOrder = 6
+        object PnlTags: TPanel
+          Left = 9
+          Top = 148
+          Width = 297
+          Height = 145
+          HelpType = htKeyword
+          HelpKeyword = '57-17'
+          BevelOuter = bvLowered
+          TabOrder = 10
+          object lbl4: TLabel
+            Left = 9
+            Top = 7
+            Width = 45
+            Height = 13
+            AutoSize = False
+            Caption = 'TAGs'
+          end
+          object lbl9: TLabel
+            Left = 25
+            Top = 55
+            Width = 45
+            Height = 13
+            Hint = 'Exclude text/notes with ANY of the selected tags'
+            AutoSize = False
+            Caption = 'Without:'
+          end
+          object lbl8: TLabel
+            Left = 25
+            Top = 31
+            Width = 45
+            Height = 13
+            Hint = 'Include text/notes with ALL or ANY of the selected tags'
+            AutoSize = False
+            Caption = 'With:'
+          end
+          object txtTagsIncl: TEdit
+            Left = 71
+            Top = 29
+            Width = 137
+            Height = 19
+            Ctl3D = False
+            ParentCtl3D = False
+            TabOrder = 0
+            OnEnter = txtTagsInclEnter
+          end
+          object chkRemoveTags: TCheckBox
+            Left = 71
+            Top = 8
+            Width = 138
+            Height = 17
+            Hint = 'Remove tags from the final text (after processing)'
+            Caption = 'Remove'
+            TabOrder = 1
+          end
+          object chkInhTagsFind: TCheckBox
+            Left = 25
+            Top = 121
+            Width = 194
+            Height = 17
+            Caption = 'Inherited tags (metadata)'
+            TabOrder = 2
+          end
+          object chkTagsText: TCheckBox
+            Left = 25
+            Top = 98
+            Width = 194
+            Height = 17
+            Hint = 
+              'Export will only include text fragments that meet the tag criter' +
+              'ia'
+            Caption = 'Consider extracts from notes'
+            TabOrder = 3
+            OnClick = chkTagsTextClick
+          end
+          object chkTagsMetad: TCheckBox
+            Left = 25
+            Top = 77
+            Width = 194
+            Height = 17
+            Hint = 'Notes'#39' metadata will be used to verify the tag criteria'
+            Caption = 'Consider metadata of notes'
+            Checked = True
+            State = cbChecked
+            TabOrder = 4
+            OnClick = chkTagsMetadClick
+          end
+          object txtTagsExcl: TEdit
+            Left = 71
+            Top = 53
+            Width = 137
+            Height = 19
+            Ctl3D = False
+            ParentCtl3D = False
+            TabOrder = 5
+            OnEnter = txtTagsExclEnter
+          end
+          object cbTagFindMode: TComboBox
+            Left = 215
+            Top = 28
+            Width = 71
+            Height = 21
+            Style = csDropDownList
+            TabOrder = 6
+            OnChange = cbTagFindModeChange
+            Items.Strings = (
+              'ALL'
+              'ANY')
+          end
         end
       end
       object GroupBox_Target: TGroupBox
-        Left = 327
-        Top = 11
+        Left = 329
+        Top = 8
         Width = 310
-        Height = 371
+        Height = 376
+        HelpType = htKeyword
+        HelpKeyword = '57-2'
         Caption = ' Target: Where and how to export?  '
         TabOrder = 1
         object Label1: TLabel
@@ -415,7 +424,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SaveImgDefWP: TCheckBox
           Left = 15
-          Top = 346
+          Top = 353
           Width = 282
           Height = 17
           Hint = 
@@ -450,7 +459,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_NoteNewPg: TCheckBox
           Left = 15
-          Top = 272
+          Top = 279
           Width = 236
           Height = 17
           HelpType = htKeyword
@@ -461,7 +470,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_FolderNewFile: TCheckBox
           Left = 15
-          Top = 299
+          Top = 306
           Width = 236
           Height = 17
           HelpType = htKeyword

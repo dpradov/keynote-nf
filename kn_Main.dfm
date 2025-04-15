@@ -1544,6 +1544,8 @@ object Form_Main: TForm_Main
               Hint = 
                 'Include or exclude depending on the pattern found in a folded te' +
                 'xt'
+              HelpType = htKeyword
+              HelpKeyword = '40-13'
               Style = csDropDownList
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 15
@@ -1553,6 +1555,8 @@ object Form_Main: TForm_Main
               Top = 270
               Width = 137
               Height = 19
+              HelpType = htKeyword
+              HelpKeyword = '40-12'
               Anchors = [akLeft, akTop, akRight]
               Ctl3D = False
               ParentCtl3D = False
@@ -1577,6 +1581,8 @@ object Form_Main: TForm_Main
               Top = 294
               Width = 137
               Height = 19
+              HelpType = htKeyword
+              HelpKeyword = '40-12'
               Anchors = [akLeft, akTop, akRight]
               Ctl3D = False
               ParentCtl3D = False
@@ -1860,8 +1866,8 @@ object Form_Main: TForm_Main
         object LB_PluginInfo: TLabel
           Left = 3
           Top = 3
-          Width = 12
-          Height = 14
+          Width = 196
+          Height = 47
           Align = alClient
           Caption = '...'
           WordWrap = True
@@ -1899,6 +1905,8 @@ object Form_Main: TForm_Main
       end
     end
     object ResTab_Tags: TTab95Sheet
+      HelpType = htKeyword
+      HelpKeyword = '122-7'
       Caption = 'Tags'
       GripAlign = gaLeft
       ImageIndex = -1
@@ -5460,7 +5468,7 @@ object Form_Main: TForm_Main
     end
   end
   object Menu_Tags: TPopupMenu
-    HelpContext = 307
+    HelpContext = 122
     Left = 472
     Top = 344
     object TagsMCreate: TMenuItem

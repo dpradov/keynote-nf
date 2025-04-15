@@ -36,6 +36,8 @@ Using KeyNote NF [19](id:281)
 			Using Dividers in Clipboard Capture and Web Clip [36](id:580)
 			Dividers. Examples [37](id:581)
 	Hyperlinks in KeyNote [38](id:303)
+	Tags in KeyNote [122]
+	Folding and unfolding [123]
 	Navigation history mechanism [39](id:511)
 	Using Find and Find All [40](id:479)
 	Image management in KeyNote [41](id:536)
@@ -100,6 +102,7 @@ Configuring KeyNote [85](id:293)
 			Formats [100](id:249)
 			Clipboard [101](id:250)
 			File Types [102](id:251)
+			Folding Blocks [124]
 			Other [103](id:252)
 	KeyNote.ini Settings [104](id:296)
 	Customizing Keyboard Shortcuts [105](id:316)
