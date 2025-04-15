@@ -938,7 +938,7 @@ function BrowseDirectory(const ShellMalloc: IMalloc; var Dest: string;
    var DestPIDL: PItemIDList; var ImgIdx: integer; var DisplayName: string;
    const AParent: TWinControl; const Title: string; Root: TRootID;
    Flags: TBrowseFlags; WantStatusText: boolean; Callback: TFNBFFCallBack;
-   Data: Longint): boolean;
+   Data: NativeInt): boolean;
 var
   shBuff: PChar;
   BrowseInfo: TBrowseInfo;
@@ -1080,7 +1080,7 @@ begin
   Result := BrowseDirectory(FShellMalloc, S, TempPIDL, FImageIndex,
      FDisplayName, AParent, FTitle, FRoot, FOptions,
      (FStatusText <> '') or FShowSelectionInStatus, BrowseCallbackProc,
-     LongInt(Self));
+     NativeInt(Self));
 
   FDlgWnd := 0; { Not valid any more. }
 
