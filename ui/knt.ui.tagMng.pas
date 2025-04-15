@@ -708,7 +708,7 @@ var
       M, i: integer;
       tagNameOR: string;
    begin
-      if pI = pF then exit;
+      if pI > pF then exit;
       tagName:= Copy(txt, pI, pF-pI+1);
       if Trim(tagName) = '' then exit;
       if tagName[Length(tagName)] = '.' then

@@ -4535,6 +4535,9 @@ begin
   if txtTags.Text <> EMPTY_TAGS then
      TagsWidth:= TagMng.GetTextWidth(txtTags.Text, txtTags) + 10;
 
+  if TagsWidth < MinTagsWidth then
+     TagsWidth:= MinTagsWidth;
+
   if txtFilter.Text <> '' then
      FilterWidth := TagMng.GetTextWidth(txtFilter.Text, txtFilter) + 10;
 
