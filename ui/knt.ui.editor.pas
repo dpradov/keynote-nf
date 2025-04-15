@@ -6047,7 +6047,7 @@ begin
 
        Str:= ActiveEditor.GetTextRange(SS-MaxLength, SS);
        CaretPos:= SS-1;
-       for i:= MaxLength downto 1 do begin
+       for i:= Length(Str) downto 1 do begin
           if Str[i] = '#' then begin
              CaretPosTag:= CaretPos;
              break;
