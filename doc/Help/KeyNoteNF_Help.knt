@@ -4711,7 +4711,7 @@ There is no such "one architecture fits all" nor "one framework fits all" soluti
 %*
 GI=38
 ND=Hyperlinks in KeyNote
-LM=1204251158
+LM=1504251756
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
@@ -5064,7 +5064,7 @@ As a special kind of link, inserting a KeyNote link requires two steps: marking 
 
 \pard 
 {\pntext\f0 2.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart2\pndec{\pntxta.}}
-\fi-360\li360 Navigate to the place where you want the link to appear. This can be any place in any note, \ul in the file that is currently open\ulnone  or in \ul another file\ulnone  (you can open it in current Keynote instance, previously closing already open file, or in another instance. See {{\field{\*\fldinst{HYPERLINK "file:///<38|16878|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Activating Links}}}}\f0\fs20 )\par
+\fi-360\li360 Navigate to the place where you want the link to appear. This can be any place in any note, \ul in the file that is currently open\ulnone  or in \ul another file\ulnone  (you must open it in current Keynote instance, previously closing already open file)\par
 
 \pard\li360\sb60 Select Insert | {{\field{\*\fldinst{HYPERLINK "file:///<112|2900|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Insert KeyNote Location}}}}\f0\fs20  in the menu, or simply press \cf5\b Shift+F6\par
 
@@ -7795,7 +7795,7 @@ Note:\par
 %*
 GI=57
 ND=Exporting or Printing Notes
-LM=1304252019
+LM=1504252249
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Arial;}{\f4\fnil Arial;}{\f5\fnil Tahoma;}{\f6\fnil\fcharset0 Courier New;}{\f7\fnil\fcharset2 Symbol;}}
@@ -7854,7 +7854,7 @@ The most important export settings are listed in the \cf4\b Source and target\cf
 \par
 \par
 
-\pard\li360\v\lang3082\'11I218\'12\v0{\field{\*\fldinst{HYPERLINK "img:218,670,497"}}{\fldrslt {218_Clipb_13abr.png}}}\par
+\pard\li360\v\lang3082\'11I225\'12\v0{\field{\*\fldinst{HYPERLINK "img:225,668,496"}}{\fldrslt {225_Clipb_15abr.png}}}\par
 \par
 
 \pard\lang1033\par
@@ -17064,7 +17064,7 @@ NS=0002
 %*
 GI=122
 ND=Tags in KeyNote
-LM=1304252144
+LM=1504251750
 %.
 DC=1204251150
 %:
@@ -17398,6 +17398,9 @@ Important:\par
 
 \pard\par
 \par
+\ul Tip\ulnone : Of course, don't forget that any tag can be searched through text like any other text pattern.\par
+\par
+\par
 \cf3\b\v\fs26\'11B7\'12\v0 Using the Tags Tab of the Resources Panel\b0\par
 \cf0\fs20\par
 In addition to inserting, renaming or deleting tags, as already indicated, this panel allows you to consult all registered tags, allowing their filtering based on the name and/or alias field of the same, using the control located at the bottom of it.\par
@@ -17499,7 +17502,7 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2
 %*
 GI=123
 ND=Folding and unfolding
-LM=1304252201
+LM=1504251803
 %.
 DC=1204251504
 %:
@@ -17578,7 +17581,7 @@ You can fold a block of text, thus hiding its content, in several ways:\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a word registered as an "\b opening\b0 " for folded blocks.\par
 
-\pard\li360\sb80 From Tools|Configuration Options... in the "\b Folding Blocks\b0 " section, it is possible to add pairs of tokens, one "opening" and one "closing", thus allowing identification of text blocks to be folded.\par
+\pard\li360\sb80 From Tools|Configuration Options... in the {{\field{\*\fldinst{HYPERLINK "file:///<124|0|0"}}{\fldrslt{\ul\cf2\cf2\ul "Folding Blocks"}}}}\f0\fs20  section, it is possible to add pairs of tokens, one "opening" and one "closing", thus allowing identification of text blocks to be folded.\par
 
 \pard\li360\sb120 Examples:\par
    \cf5 IF / END IF\par
@@ -18167,7 +18170,7 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=111110000000100000000000
+FL=111110000000100001000000
 SN=0
 TW=182
 TM=0
@@ -18204,7 +18207,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=225
+II=226
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -18361,12 +18364,12 @@ PD=213||213_Clipb_08ene.png|1|387|530|2421678084||1|1||0
 PD=214||214_Clipb_08ene.png|1|387|530|3693120505||1|1||0
 PD=216||216_Clipb_20ene.png|1|312|600|784430773||1|1||0
 PD=217||217_Clipb_13abr.png|1|203|734|2984979133||1|1||0
-PD=218||218_Clipb_13abr.png|1|670|497|3653906140||1|1||0
 PD=219||219_Clipb_13abr.png|1|528|455|3207839127||1|2||0
 PD=220||220_Clipb_13abr.png|1|347|370|22007445||1|1||0
 PD=221||221_Clipb_13abr.png|1|209|355|3096465394||1|1||0
 PD=222||222_Clipb_13abr.png|1|216|73|3778486667||1|1||0
 PD=223||223_Clipb_13abr.png|1|389|97|240801985||1|1||0
 PD=224||224_Clipb_13abr.png|1|722|205|3960901167||1|2||0
+PD=225||225_Clipb_15abr.png|1|668|496|2159485143||1|1||0
 %EI
 %%
