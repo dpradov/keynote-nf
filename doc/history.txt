@@ -3,6 +3,43 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.0.1  Beta1 (16 apr 2025)
+--------------------------
+Added two new functionalities:
+** TAGs. Can be applied to notes, paragraphs, or text fragments.
+** Folding and unfolding: You can fold text, hiding it and leaving a fragment visible.
+   You can nest folded blocks, which can contain images, links, etc.
+  --> See the help file for a full description
+* Fixed: Exporting to .knt was not correctly considering selected folders. (#824)
+* Fixed: KNTLinks were not being converted in MergeFile operations (2.0+), 
+* Fixed exception in File | Copy To... (in x64)
+* Fixed: Right click on a hyperlink doesn't work if caret is outside scroll view (#846)
+* Fixed: Tree panel horizontal scrollbar always shown #845
+* Fixed: Alarm form was not displaying the name of the note node  (#826)
+* Fixed: Taskbar icon is always shown on main monitor (#830)
+* Fixed: Enabled and checked state of the "Plain Text" entry in the editor context menu (if RO)
+* Fixed: "Please wait for printer connection or cancel connection"
+* Fixed: Find All with searches like "term1..term2" when term1 was at position 0 of the editor.
+* Fixed: Ctrl+DblClick on a visible image didn't open the image outside KNT, but with internal viewer
+* Fixed issue #822: The highlighting of the current node disappears
+* Fixed: Opening KNT links in external instances ignored the marker (#838)
+* Fixed exception when closing KNT while some toolbar is floating (#841)
+* Fixed: Folder Properties (F4). RTL checkbox text overlaps the tab (in translation) #837
+----
+* Added 3 .INI options related to RTL activation: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont
+* Find All: Simplify results when only note names or metadata need to be considered, not content.
+* Improved Scratchpad #693
+* Hovering over a hyperlink now displays the URL in the status bar (#833)
+* The state of the "Search All folders" option in the Find/Replace form is now remembered (.ini file)
+* New INI option: "SimpleFileName" in "[ExportOptions]"
+* KNT Links will ignore ">>" if included at the beginning of the file name, as unnecessary (#838)
+
+
+v 2.0.5.3   (01 feb 2025)
+--------------------------
+* Added patch for issue #811: 2.0.5 .03
+* Fixed: Nodes were not scrolled into view when clicking on internal link or search result
+
 v 2.0.5.2   (31 jan 2025)
 --------------------------
 Fixed: Nodes were not scrolled into view when clicking on internal link or search result

@@ -1,0 +1,131 @@
+
+Changes in 2.1.0 Beta 1     (16 apr 2025)
+====================
+
+Added two new functionalities:
+* TAGs can be applied to notes and within the text itself, allowing paragraphs or text fragments to be metadata-tagged. 
+
+* Folding and unfolding: it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt.
+  Nesting of folded blocks is possible, and these can contain images, links, etc.
+
+See the help file for a full description
+
+------
+
+* Fixed: Exporting to .knt was not correctly considering selected folders. (#824)
+  In x64, no folder was considered, causing the file to not include any notes and throwing an exception when trying to open it.
+  In x86, this same bug was not noticed because in this same situation, all folders were considered.
+
+* Fixed: KNTLinks were not being converted in MergeFile operations (2.0+), 
+  as imported notes were incorrectly identified as HTML.
+  TNoteEntry.IsHTML returned the opposite (Not IsHTML). The TKntFile.ConvertKNTLinksToNewFormatInNotes method used this
+  property to ignore note entries whose content did not include KNT links. Because of this bug, the method did not convert any links.
+  As a result, an internal link in the imported file could point to the wrong node, as the GID of the imported nodes was converted,
+  but in this case, the included links were not.
+
+* Fixed exception in File | Copy To... (in x64)
+
+* Fixed: Right click on a hyperlink doesn't work if caret is outside scroll view (#846)
+
+* Fixed: Tree panel horizontal scrollbar always shown #845
+
+* Fixed: Alarm form was not displaying the name of the note node  (#826)
+  The alarm was being correctly assigned to the node, but it was not showing its name, it appeared blank.
+
+* Fixed: Taskbar icon is always shown on main monitor (#830)
+
+* Fixed: The enabled and checked state of the "Plain Text" entry in the editor context menu was not correct if the folder was read-only.
+
+* Fix "Please wait for printer connection or cancel connection"
+
+* Fix in Find All with searches like "term1..term2" when term1 was at position 0 of the editor.
+
+* Fixed: The "View/Filter | Show Children" and "View/Filter | Use Node Path" tree menu options might
+  not display the correct value initially.
+
+* Tree: Do not display with the font in blue the selected node, even if it corresponds to a match according to Find filtering
+
+* Fixed: Ctrl+DblClick on a visible image didn't open the image outside KNT, but with internal viewer
+  As indicated in the help file the behavior should be:
+  If the image is visible:
+   - Double click on it opens the internal KNT viewer with that image loaded, displayed at 100% (or reduced if it cannot be displayed in full on the screen)
+   - Ctrl + double click directly opens the image from outside KNT, with the program that is associated with its extension (This is only possible with Linked images or images saved in an external Folder storage)
+   Now, if it is not possible to open the image with an external viewer, the internal one is used.
+   Error was introduced in commit 175fe359d157a009b9 (* New: Unregistered images can also be displayed in internal Image Viewer)
+
+* Fixed issue #822: The highlighting of the current node disappears
+  When entering the notes editor, make sure the tree has the focused node selected (and only that one)
+  This way, there will always be one node selected when the focus is on the editor —the node with the focus in the tree.
+  It's still possible to deselect all nodes so that certain operations apply to all visible nodes in the tree and not
+  just the selected ones, as in:
+   Tools | Deduce [missing] date information
+   Tools | Remove date prefixes
+   Tags Tab:
+     Add Tags to selected notes
+     Remove Tags from selected notes
+
+* Fixed: Opening KNT links in external instances ignored the marker (#838)
+  Example:
+   file:///help\KeyNoteNF_Help.knt*8|303|2804|0|1
+   was ignoring the marker "1"
+
+* Fixed exception when closing KNT while some toolbar is floating (#841)
+
+* Fixed: Folder Properties (F4). RTL checkbox text overlaps the tab (in translation) #837
+
+----
+
+* Find All: Simplify results when only note names or metadata need to be considered, not content.
+  When searching note content is not required and results will only include node names/paths,
+  display only one row per result (node), without any other grouping rows.
+  -> Display only rows with a yellow background, without headers.
+
+* Improved Scratchpad #693
+ - Background color of Scratchpad is now saved in .INI file. This way is remembered between sessions
+ - If there is no "scratch.rtf" file, the active editor default font will be applied as default in Scratchpad
+ - The font used at the final position in the editor is remembered when saving the file
+   (each time the resource panel is hidden) to allow recover it after deleting all content.
+   This way the font doesn't revert to default Tahoma 9pt.
+
+* Hovering over a hyperlink now displays the URL in the status bar (#833)
+
+* The state of the "Search All folders" option in the Find/Replace form is now remembered in the .ini file.
+  Until now, only the state of the corresponding option in the resource panel search (Find All) was saved.
+  The new option is saved in "AllTabs_FR", while the previous option was saved in "AllTabs".
+
+* New INI option: "SimpleFileName" in "[ExportOptions]"
+  SimpleFileName:      (Default: 0)
+    1: Use only the name of the node for file names, like:  "Node.rtf"
+    0: Use files names like: "01 - Folder - Node.rtf"
+
+* KNT Links will ignore ">>" if included at the beginning of the file name, as unnecessary (#838)
+  file:///>>help\KeyNoteNF_Help.knt*8|303|2804|0|1
+   will be converted to the recognized format:
+  file:///help\KeyNoteNF_Help.knt*8|303|2804|0|1
+
+
+* Added 3 .INI options related to RTL activation  :
+ - RTLkeyShct=0
+   Option that allows to disable keyboard shortcuts to change the default bidirectional keyboard mode (RTL or LTR) 
+   If set to 0 (default): don't use keyboard shortcuts for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)
+
+   This default value for option has been set to 0 to avoid the complications that RTL handling entails for the RichEdit control,
+   which could cause problems for users who might activate it by mistake (as originally reported in issue #816, due to the use of AutoHotKey).
+
+ - IMEAutoKeyboard=1
+   Option that determines whether automatic keyboard switching is allowed when setting the editor to bidirectional mode (RTL)
+   If automatic keyboard switching is on, the control automatically changes the keyboard layout when the user explicitly changes to
+   a different font, or when the user explicitly changes the insertion point to a new location in the text. 
+   If set to 1 (default) it will keep IMF_AUTOKEYBOARD on when turned on automatically for bidirectional controls  (Default: 1)
+   If set to 0, IMF_AUTOKEYBOARD will be turned off just after setting RTL mode 
+
+ - IMEAutoFont=1
+   Option that allows the RichEdit control to automatically change fonts when the user explicitly changes to a different keyboard layout 
+   If set to 1 (default), IMF_AUTOFONT will always be turned on.
+   If set to 0, IMF_AUTOFONT will be turned off
+
+   See this comment in issue #816 for a more detailed description of this options:
+   https://github.com/dpradov/keynote-nf/issues/816#issuecomment-2781550615
+
+- - - - - -
+
