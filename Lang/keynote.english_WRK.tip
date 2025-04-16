@@ -1,3 +1,12 @@
+Three .INI options related to RTL activation have been added: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont  (information on their usage can be found in the help file: Configuring Keynote -> KeyNote.ini file settings)
+You can fold text, hiding its content except for a small fragment used as a visible excerpt. You can manage collapsed blocks to simplify visibility, to treat certain text as a kind of archive, etc.
+When folding, you can insert a second space to force the point where you want the visible excerpt to end
+When exporting you can decide to unfold, remove or keep unchanged folded text
+In the search panel (Search All), the 'folded mode' option allows you to decide whether to search within folded blocks
+You can apply tags to notes, allowing you to filter visible nodes in a tree or restrict certain searches to nodes that contain (or do not contain) certain tags. You can also use them to further restrict the notes to be exported.
+You can add an alias and/or description to any tag, which you can use to help you search for a tag.
+You can add tags to paragraphs or text fragments. By defining tagging criteria, you can restrict search results to specific text fragments, use "Find All" to retrieve the beginning of all fragments that meet the tagging criteria, and export only certain text fragments.
+Tags are independent for each .knt file but you can export or import tags. If you export to "Tags.txt", in the same folder as Keynote.exe, it will be automatically imported when you open any file, adding new tags or updating the description of those modified
 KNT file can be configured to save the images internally, in RTF Ascii/Hex or in image's binary format, or externally in independent image files (zip or folder) (File | Properties ) (See doc\Images_Readme.txt)
 It is strongly recommended to conserve backups of .knt files, specially before upgrading to a new version. Consider the use of the option 'Backup at regular intervals' (See https://github.com/dpradov/keynote-nf/issues/544)
 You can insert GIF, PNG, JPG, TIF, BMP, WMF, EMF and ICO images into the note text: select "Picture" from the "Insert" menu, or drag and drop the file into the editor

@@ -1,0 +1,24 @@
+﻿[Japanese]
+Comment=v2.1.0.01
+Name=Japanese
+LangFile=Keynote.japanese.lng
+TipFile=Keynote.japanese.tip
+Translator=coolvitto
+RTL=0
+
+[Chinese Simplified]
+Comment=v2.1.0.01
+Name=Chinese  Simplified
+LangFile=Keynote.chinese-simplified.lng
+TipFile=Keynote.chinese-simplified.tip
+Translator=xbeta (http://xbeta.info)
+RTL=0
+
+[English]
+Comment=v2.1.0.01
+Comment=Initially: identical to text incrusted in .exe
+Name=English
+LangFile=Keynote.english.lng
+TipFile=Keynote.english.tip
+Translator=
+RTL=0
