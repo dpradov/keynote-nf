@@ -49,6 +49,12 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
  
  * *Improved Clipboard Capture / Web Clip* 
 
+ * *Tags* <br>
+   Tags can be applied to notes and within the text itself, allowing paragraphs or text fragments to be metadata-tagged. This can be used from note filtering, searching or even exporting .
+   
+ * *Folding and unfolding* <br>
+    it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. Nesting of folded blocks is possible, and these can contain images, links, etc
+
  * *Better treatment of tables*  
  
  * *Improved Export* 
