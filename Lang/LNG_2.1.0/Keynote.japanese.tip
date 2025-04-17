@@ -1,115 +1,115 @@
-Three .INI options related to RTL activation have been added: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont  (information on their usage can be found in the help file: Configuring Keynote -> KeyNote.ini file settings)
-You can fold text, hiding its content except for a small fragment used as a visible excerpt. You can manage collapsed blocks to simplify visibility, to treat certain text as a kind of archive, etc.
-When folding, you can insert a second space to force the point where you want the visible excerpt to end
-When exporting you can decide to unfold, remove or keep unchanged folded text
-In the search panel (Search All), the 'folded mode' option allows you to decide whether to search within folded blocks
-You can apply tags to notes, allowing you to filter visible nodes in a tree or restrict certain searches to nodes that contain (or do not contain) certain tags. You can also use them to further restrict the notes to be exported.
-You can add an alias and/or description to any tag, which you can use to help you search for a tag.
-You can add tags to paragraphs or text fragments. By defining tagging criteria, you can restrict search results to specific text fragments, use "Find All" to retrieve the beginning of all fragments that meet the tagging criteria, and export only certain text fragments.
-Tags are independent for each .knt file but you can export or import tags. If you export to "Tags.txt", in the same folder as Keynote.exe, it will be automatically imported when you open any file, adding new tags or updating the description of those modified
-KNT �t�@�C���́A�摜������I�� RTF Ascii/Hex �܂��͉摜�̃o�C�i���`���ŕۑ����邩�A�O���I�ɓƗ������摜�t�@�C�� (zip �܂��̓t�H���_�[) �ɕۑ�����悤�ɐݒ�ł��܂� (�t�@�C�� | �v���p�e�B) (doc\Images_Readme.txt ���Q��)
-���ɐV�����o�[�W�����ɃA�b�v�O���[�h����O�ɁA.knt �t�@�C���̃o�b�N�A�b�v��ۑ����邱�Ƃ����������߂��܂��B[����I�Ƀo�b�N�A�b�v����] �I�v�V�����̎g�p���������Ă������� (https://github.com/dpradov/keynote-nf/issues/544 ���Q��)
-GIF�APNG�AJPG�ATIF�ABMP�AWMF�AEMF�AICO �摜�������̃e�L�X�g�ɑ}���ł��܂��B[�}��] ���j���[���� [�摜] ��I�����邩�A�t�@�C�����G�f�B�^�[�Ƀh���b�O �A���h �h���b�v���܂�
-�A�v���P�[�V�������g�p����ƁA����̃t�@�C���̉摜�̕ۑ����[�h��ύX������A�O�� Zip �X�g���[�W����ʂ̃t�H���_�[�ɕύX������A���̋t���s������A�V�����ۑ��ꏊ���w�肵����ł��܂��B
-KNT �`���ɃG�N�X�|�[�g����ꍇ�A�ݒ�I�v�V�����ɉ����āA�t�@�C���́u�N���V�b�N�v���[�h�ŉ摜���܂߂� (RTF �ɖ��ߍ��܂��)�A�o�C�i���Ɋ܂߂� (���ߍ��� KNT ���[�h)�A�܂��͉摜���܂߂Ȃ��A�̂����ꂩ�ɂȂ�܂��B
-Keynote �ł́A�t�@�C�����̉摜�̕\����ύX�ł��܂��B�摜���\���ɂ���I�v�V������I�������ꍇ�A�A�v���P�[�V�����͉摜���\���ɂ��A����Ƀ����N��񋟂��܂��B
-�����摜�r���[�A�ŃY�[���ƃX�N���[���ɃL�[�{�[�h �V���[�g�J�b�g���g�p�ł��܂��B�r���[�A�Ŏg�p�ł���w���v �{�^�����Q�Ƃ��Ă��������B
-knt �t�@�C���̈ꕔ���A���܂��܂ȃI�v�V�����ŐV���� Keynote �t�@�C���ɃG�N�X�|�[�g�ł��܂��B[�t�@�C��] | [�G�N�X�|�[�g] �Ń^�[�Q�b�g�`���Ƃ��� [KeyNote] ��ǉ����܂����B
-KeyNote NF �������p�����������肪�Ƃ��������܂��B��t���邱�ƂŊ��ӂ̈ӂ�\���A����̊J�����T�|�[�g�ł��܂��B
-���k�`�����g�p���āAKeyNote �t�@�C���̃T�C�Y���k���ł��܂� ([�t�@�C��] | [�v���p�e�B])�B�uKNT �t�@�C���`���Ɋւ���R�����g.txt�v���Q�Ƃ��Ă��������B
-�����R���e���c�A�^�C�g���A�A���[����Ԃ����L����悤�Ɂu�����N�v�m�[�h���쐬�ł��܂��B�������邱�ƂŁA�������܂��܂ȕ��@�œ����ɐ����ł��܂� (https://github.com/dpradov/keynote-nf/issues/57 ���Q��)
-�u�����N�v�m�[�h���g�p����ƁA�^�X�N�𕡐��̃^�u�ɕ��U�����A�����ɕʂ̃^�u�Ɋ܂߂邱�Ƃ��ł��܂��B�u���ۂ́v�m�[�h�����݂���K�w�Ƃ͊֌W�Ȃ��A�t���[ �c���[�K�w�ŁA��ȍ�ƁA���בւ��A�����N�t���A�\�����̑S�̑���c���ł��܂��B
-KeyNote NF Web �T�C�g (https://github.com/dpradov/keynote-nf) �ł́A�v���O�����̍ŐV�o�[�W�������_�E�����[�h������A�o�O ���|�[�g��@�\���N�G�X�g�𑗐M������ł��܂��B
-�o�[�W���� 1.7.5 �ȍ~�AKeyNote NF �͕����̌���ŕ\���ł��܂��B��Ƃ��āA�X�y�C���� (�J�X�e�B�[������) �ւ̕����I�Ȗ|�󂪊܂܂�Ă��܂��B�R�~���j�e�B�̋��͂𓾂āA�V�������ꂪ�����o�[�W�����ɒǉ�����܂��B
-��\���̃m�[�h�́A�`�F�b�N���ꂽ�m�[�h�������I�ɔ�\���ɂ�����@�ƁA������Ɋ�Â��� 1 �܂��͂��ׂẴm�[�g���t�B���^�����O������@�� 2 �̕��@�ő���ł��܂��B
-���ׂẴm�[�h�̃`�F�b�N�{�b�N�X��\�������� (�\��/���ׂẴm�[�h�̃`�F�b�N�{�b�N�X)�A�I�������m�[�h�̎q�m�[�h�݂̂Ƀ`�F�b�N�{�b�N�X��\��������ł��܂� (�q�̃`�F�b�N�{�b�N�X)�B
-�ʏ�̃N���b�v�{�[�h �V���[�g�J�b�g (Ctrl-C�ACTRL-V�ACtrl-X �܂��� Ctrl-Ins�AShift-Ins�AShift-Supr) ���g�p���āA�m�[�h�ƃT�u�c���[���R�s�[�A�؂���A�\��t���邱�Ƃ��ł��܂��B
-Windows XP SP1 �ȍ~�ɃC���X�g�[������Ă���ꍇ�́A"msftedit.dll" ���g�p���� KeyNote ���Ńe�[�u���𐳂����g�p����ѕ\���ł��܂��B
-�m�[�h�Ɋ֘A�t����ꂽ�A���[����ݒ�ł��܂��B����� Outlook �Œ񋟂������̂Ǝ��Ă��܂�: �����A�j���ȂǁB
-�`�F�b�N���ꂽ�m�[�h�������I�ɔ�\���ɂ��郂�[�h (�`�F�b�N���ꂽ�m�[�h��\���܂��͔�\��) ��L���ɂ���ƁA�^�X�N�𑀍삷��̂ɖ𗧂��܂��B
-������Ɋ�Â��ăm�[�h���t�B���^�����O���� (�c���[ �m�[�g�̃t�B���^�����O) �ƁA���̃T�u�Z�b�g�𑀍삷��Ƃ��ɕ֗��ł��B���Ƃ��΁A�ꕔ�̃m�[�h�� [MILESTONE:1.7.4] �̂悤�ȃe�L�X�g���^�O�t�����܂��B
-�����N (���������N�܂��͂���ȊO) �ɕ\�������e�L�X�g��ύX�ł��܂��BShift �L�[�������Ȃ��� URL ���N���b�N����ƁA�I�v�V�������\������܂��B
-���܂��܂� KeyNote �@�\���Ăяo�����߂Ɏg�p����L�[�{�[�h �V���[�g�J�b�g���\���ł��܂��B�w���v �g�s�b�N�u�L�[�{�[�h �V���[�g�J�b�g�̍\���v���Q�Ƃ��Ă��������B
-�c�[���o�[���\���ł��܂��B�w���v �g�s�b�N�u�c�[���o�[�̍\���v���Q�Ƃ��Ă��������B
-�u����v�R�}���h�́A�t�@�C���ł͂Ȃ��m�[�g��������邽�߁A�m�[�g ���j���[ (�u�t�@�C���v�̉��ł͂���܂���) �ɂ���܂��B
-���ݑI������Ă���e�L�X�g����V�����c���[ �m�[�h���쐬����ɂ́AAlt+F11 �������܂��B
-�X�e�[�^�X �o�[���_�u���N���b�N����ƁA���\�[�X �p�l���̕\��/��\�����؂�ւ��܂��B
-���\�[�X �p�l���̐V�����u���C�ɓ���v�^�u���g�p����ƁA�ʂ̃m�[�g�܂��̓t�@�C���̏ꏊ�ɂ��΂₭�ړ��ł��܂��B
-�m�[�g�܂��̓c���[ �m�[�h�� HTML �ɊȒP�ɕϊ����ăG�N�X�|�[�g�ł���悤�ɂȂ�܂����B
-�}�N���A�v���O�C���A�e���v���[�g�́A�V�������\�[�X �p�l���ɃO���[�v������Ă��܂��B�p�l����\���܂��͔�\���ɂ���ɂ́AF9 �L�[�������܂��B
-���\�[�X �p�l���� [���ׂČ���] �R�}���h���g�p����ƁA�������̃e�L�X�g����������A���ʂ̈ꗗ���\������܂��B
-[���ׂČ���] �R�}���h���g�p����ƁA�P���ȃu�[�� (AND / OR) ���������s�ł��܂��B
-HTML �h�L�������g�� KeyNote �ɃC���|�[�g�ł���悤�ɂȂ�܂����BKeyNote �́AHTML ���� RTF �ւ̕ϊ������s���邽�߂ɁAMS Office 97/2000 �܂��� MS Internet Explorer �o�[�W���� 5.0 �ȍ~���g�p���܂��B
-KeyNote �ɂ̓X�y�� �`�F�b�J�[ ([����] ���j���[�̉�) ���܂܂��悤�ɂȂ�܂����B�X�y�� �`�F�b�J�[ ���W���[�����g�p����ɂ́AMS Office 97 �܂��� 2000 ���C���X�g�[������Ă���K�v������܂��B
-Windows �G�N�X�v���[���[�Ń_�u���N���b�N����ƁAKeyNote �̃}�N���ƃv���O�C�������s�ł��܂��B
-�c���[���̃m�[�h���`�F�b�N���邩�����ɂ��邱�ƂŁA�m�[�h���}�[�N�ł��܂��B�܂��A�X�̃c���[ �m�[�h�̐F��I�����邱�Ƃ��ł��܂� (�c���[�̉E�N���b�N ���j���[����A�N�Z�X�ł���@�\)�B
-KeyNote �ɂ́A�f�[�^�̈��S�������߂邽�߂̍��x�ȃo�b�N�A�b�v �I�v�V�������������p�ӂ���Ă��܂��B[�I�v�V����] �_�C�A���O �{�b�N�X (F5) �� [�o�b�N�A�b�v �I�v�V����] �^�u���Q�Ƃ��Ă��������B
-�e�L�X�g�̏����ݒ�ɖ�肪���������ꍇ (�t�@�C���ubugs.txt�v�Ő�������Ă���悤��)�A�I�v�V���� �_�C�A���O �{�b�N�X�� [�ڍאݒ�] �^�u�� [���b�` �G�f�B�b�g �o�[�W���� 3.0 �̏C����L���ɂ���] �ݒ���g�p���܂��B
-[�ŋߎg�p�����t�@�C��] �R�}���h ([�t�@�C��] ���j���[) �ɂ́A�ŋߊJ������ۑ������肵���m�[�g �t�@�C���̖��O���������܂܂�Ă��܂��B���j���[���ڂ��N���b�N���邾���ŁA�K�v�ȃt�@�C�����J�����Ƃ��ł��܂��B
-�ŋߎg�p�����t�@�C���̃��X�g�́A�c�[���o�[�� [�J��] �{�^���̂������ɂ���h���b�v�_�E�� ���j���[�Ƃ��Ă��g�p�ł��܂��B
-���[�U�[�� 1 ��̃R���s���[�^�� KeyNote �����L���Ă���ꍇ�AKeyNote ���N������V���[�g�J�b�g�ŕʂ� INI �t�@�C�������w�肷�邱�ƂŁA�e���[�U�[���l�ݒ�������Ƃ��ł��܂��B
-����������ĕύX�����̂�h���ɂ́A�^�u ���j���[���� [�ǂݎ���p] ��I�����邩�AShift+Ctrl+R �������āA������ǂݎ���p�ɂ��܂��B
-�t�@�C�����J���Ƃ��� [�ǂݎ���p�Ƃ��ĊJ��] �I�v�V������I�����āA�t�@�C���S�̂ɑ΂��邷�ׂĂ̕ύX��h�����Ƃ��ł��܂��B
-�t�@�C�����̃����̏�����ύX�ł��܂��B�}�E�X�Ń^�u���N���b�N���A���܂��͉E�Ƀh���b�O���邾���ł��B
-�ꕔ�̃c�[���o�[ �{�^���ƃ��j���[ �R�}���h�́AShift �L�[�܂��� Ctrl �L�[���������܂܂ɂ���Ɠ��삪�قȂ�܂��B����ɂ��ẮA�w���v �t�@�C���ŏڂ�����������Ă��܂��B
-KeyNote �̓}�N���ƃv���O�C�����T�|�[�g���Ă��܂��B�����̎g�p���@�ƍ쐬���@�ɂ��ẮA�w���v �t�@�C���̃}�N���ƃv���O�C���̃g�s�b�N���Q�Ƃ��Ă��������B
-�}�N�����쐬�܂��͎g�p����ɂ́A���\�[�X �p�l����\���� (F9 �L�[�������܂�)�A[�}�N��] �^�u���N���b�N���܂��B
-�C���X�g�[�����ꂽ�v���O�C����\�����Ďg�p����ɂ́A[�c�[��] ���j���[���� [�v���O�C��] �R�}���h��I�����邩�ACtrl+F12 �L�[�������܂��B
-����̃}�N���́A�V�����t�@�C���܂��͐V�����������쐬����邽�тɎ����I�Ɏ��s����܂��B�w���v �t�@�C���́u�}�N���̎������s�v���Q�Ƃ��Ă��������B
-�}�E�X���g�킸�� [�X�^�C��] �h���b�v�_�E�� ���X�g�ɃA�N�Z�X����ɂ́ACtrl �L�[���������܂܁A�e���L�[�� * �L�[�������܂��B���ɁA�X�^�C����I�����AEnter �L�[�������ēK�p���܂��B
-�}�E�X���g�킸�Ƀ}�N�� �h���b�v�_�E�� ���X�g�ɃA�N�Z�X����ɂ́ACtrl �L�[�������Ȃ���e���L�[�� / �L�[�������܂��B���Ƀ}�N����I�����AEnter �L�[�������Ď��s���܂��B
-KeyNote �̃_�C�A���O �{�b�N�X�̑����̓T�C�Y�ύX�\�ŁA�\�����ɈȑO�̃T�C�Y�ƈʒu���L������܂��B
-KeyNote �ɂ́u�u���v�R�}���h������܂��B���̃R�}���h�́u�����v���j���[�ɂ���܂� (�܂��� Ctrl+F3 �������܂�)�B
-�t�@�C�� �v���p�e�B �_�C�A���O �{�b�N�X�ŁA���݂̃t�@�C���̃J�X�^�� �V�X�e�� �g���C �A�C�R�����w��ł��܂��B����́AKeyNote �̕����̃C���X�^���X�𓯎��Ɏ��s����ꍇ�ɖ𗧂��܂��B
-�t�@�C���őg�ݍ��݂̃^�u �A�C�R�� �C���[�W�݂̂��g�p����悤�Ɏw��ł��܂��B����́A�J�X�^�}�C�Y���ꂽ�ʂ̃^�u �C���[�W �Z�b�g���g�p���Ă���\���̂���l�Ƀt�@�C����n���ꍇ�ɕ֗��ł��B
-�n�C�p�[�����N��}�����āAKeyNote �t�@�C�����̕ʂ̏ꏊ (�m�[�g�܂��̓c���[ �m�[�h) �ɃW�����v�ł��܂��B�ڍׂɂ��ẮA�w���v �t�@�C���̃n�C�p�[�����N�̃g�s�b�N���Q�Ƃ��Ă��������B
-���[�J�� �f�B�X�N��̃t�@�C���ւ� URL �X�^�C���̃����N���쐬�ł��܂��B�u�}���v���j���[����u�t�@�C���ւ̃����N�v��I�����܂��B�����N���N���b�N����ƁA�h�L�������g�܂��̓v���O�������J���܂��B
-���ׂĂ̒i���v���p�e�B����x�Ɏw�肷��ɂ́ACtrl+P �������Ēi���_�C�A���O �{�b�N�X���J���܂��B
-�c���[ �^�C�v�̃����ł́A�c���[ �p�l�����\���ɂ��邱�Ƃ��ł��܂��B�c���[���\���ɂ���ɂ� Shift+F11 �������܂��B�c���[����\���̏ꍇ�͕\�����܂��B
-�悭�g�p����e�L�X�g�̉�����΂₭�}������ɂ́A�p��W�@�\���g�p���܂��B�p��W�ɃV���[�g�J�b�g�Ƃ��̊��S�Ȍ`����ǉ����AF7 �L�[�������ăV���[�g�J�b�g��W�J���܂��B
-�قƂ�ǂ̕ҏW����я����ݒ�R�}���h�́ACtrl + / ���������ƂŌJ��Ԃ����Ƃ��ł��܂��B�J��Ԃ��R�}���h�̖��O�́A�G�f�B�^�[�̃R���e�L�X�g ���j���[�ɕ\������܂��B
-KeyNote �ɂ́A�V���v���ȃu�b�N�}�[�N�@�\������܂��BShift + Alt + �����L�[�������ău�b�N�}�[�N��ݒ肵�AAlt + �����L�[�������Ă��̃u�b�N�}�[�N�ɃW�����v���܂� (�����͓��R 0 ���� 9 �ł�)�B
-Shift + Ctrl + C �������ƁA�m�[�g�ɓ��ꕶ����}���ł��܂��B
-�Ή����銇�ʂ����΂₭������ɂ́ACtrl + M �������܂��B
-�P��̃c���[ �m�[�h���G�N�X�|�[�g�ł��܂��B�m�[�h���E�N���b�N���A[�G�N�X�|�[�g] �R�}���h��I�����܂��B
-KeyNote �ł́A�N���b�v�{�[�h����e�L�X�g���L���v�`�����Ȃ���T�E���h���Đ��ł��܂��B�f�t�H���g�̃T�E���h (clip.wav) ���A�I������ .wav �t�@�C���ɒu�������邱�Ƃ��ł��܂��B
-�c���[ �m�[�g�Ԃ���уt�@�C���ԂŃT�u�c���[���ړ��܂��̓R�s�[�ł��܂��B
-�T�u�c���[���N���b�N���ĕʂ̃^�u�Ƀh���b�v����ƁA����m�[�g����ʂ̃m�[�g�ɃT�u�c���[���R�s�[�ł��܂��B
-�c���[ �m�[�g�͐������C�A�E�g (�c���[���G�f�B�^�[�̏�) �ɂ��邱�Ƃ��ł��܂��B����́A�m�[�g �v���p�e�B (F4) �Őݒ�ł��܂��B
-�m�[�g���̃e�L�X�g�������\���ł��܂��BCtrl+H ���������AShift �L�[�������Ȃ���c�[���o�[�� [�F] �{�^�����N���b�N���܂��B
-Windows �G�N�X�v���[������ KeyNote �̃E�B���h�E�Ƀt�@�C�����h���b�O���āA�J������C���|�[�g������ł��܂��B
-�������̐V�����t�H���g�ƒi���̃v���p�e�B���ǉ�����܂����B[�t�H�[�}�b�g] ���j���[�̉��ɂ���V�����@�\���Q�Ƃ��Ă��������B
-�V���� [���z�m�[�h] �@�\���g�p����ƁA�O���̃e�L�X�g�܂��� RTF �t�@�C�����c���[���̃m�[�h�Ƀ����N�ł��܂��B�V�����m�[�h���쐬���A������E�N���b�N���� [���z�m�[�h] �R�}���h��I�����܂��B
-���z�m�[�h���쐬����ɂ́AWindows �G�N�X�v���[������e�L�X�g�܂��� RTF �t�@�C�����c���[�Ƀh���b�O���邱�Ƃ��ł��܂��B
-�����̖��O�����΂₭�ύX����ɂ́AF2 �L�[���������A���������\������Ă���^�u���_�u���N���b�N���܂��B
-�������� URL ���N���b�N�����Ƃ��̓����I���ł��܂��B[�I�v�V����] (F5)�A[���̑�] �^�u���Q�Ƃ��Ă��������B
-KeyNote �ł́A��`�ς݂̈�莞�ԑ��삪�s���Ȃ��ƁA�t�@�C���������I�ɍŏ����܂��͕��邱�Ƃ��ł��܂��B[�I�v�V����] (F5)�A[�A�N�V����] �^�u���Q�Ƃ��Ă��������B
-�c�[���o�[�́A���� �E�B���h�E�̉����Ƀh�b�L���O���邱�Ƃ��ł��܂��B
-KeyNote �t�@�C���͈��S�ɈÍ����ł��܂��B�ڍׂɂ��ẮA�w���v �t�@�C�����Q�Ƃ��Ă��������B
-�V���v�� �m�[�g�ƃc���[ �m�[�g�� 2 ��ނ̃m�[�g���쐬�ł��܂��BCtrl+N �������āA[���] �h���b�v�_�E�� �{�b�N�X�Ŏ�ނ�I�����܂��B
-�c���[���̂��ׂẴm�[�h�̔w�i�F�����΂₭�ύX�ł��܂��BShift �L�[�������Ȃ���A�u�w�i�F�v�R�}���h (�u�t�H�[�}�b�g�v���j���[) ���N���b�N���܂��B
-KeyNote �ł͐�����]���ł��܂��B�� (�u2 + 2�v�Ȃ�) ����͂��A�����I�����āACtrl + = �������܂��B���ʂ��N���b�v�{�[�h�ɃR�s�[����܂��B
-���݂̃t�@�C�� (���ׂẴt�@�C���ł͂Ȃ�) �̃f�t�H���g�̃m�[�g �v���p�e�B��ݒ�ł��܂��B�u�m�[�g�̃f�t�H���g�v�_�C�A���O �{�b�N�X�ŁA�u���ʁv�{�^�����N���b�N���A�u... �̃f�t�H���g�Ƃ��ĕۑ��v���N���b�N���܂��B
-KeyNote �ɂ́A�ȑO�g�p�����t�@�C�������΂₭�J�����Ƃ��ł���V���v���ȃt�@�C�� �}�l�[�W���[������܂��BF12 �������ƁA�t�@�C�� �}�l�[�W���[ �E�B���h�E���J���܂��B
-KeyNote �́AWordWeb �ƌĂ΂�鎫��/�V�\�[���X �v���O�����Ɠ�������Ă��܂��BCtrl + F11 �������ƁA�V�\�[���X�Ō��݂̒P��������ł��܂��B
-�ʂ� KeyNote �t�@�C�����猻�݊J���Ă���t�@�C���Ƀm�[�g���C���|�[�g�ł��܂��B[�c�[��] -> [�t�@�C���ƌ���] ��I�����܂��B
-���[�U�[�� 1 ��̃R���s���[�^�[�� KeyNote �����L���Ă���ꍇ�AKeyNote ���N������V���[�g�J�b�g�ő�ւ� INI �t�@�C�������w�肷�邱�ƂŁA�e���[�U�[���l�ݒ�������Ƃ��ł��܂��B
-Keynote �́A�C�ӂ� Windows �A�v���P�[�V�����ŃN���b�v�{�[�h�ɃR�s�[���ꂽ�e�L�X�g�������I�ɃL���v�`���ł��܂��B[����] ���j���[���� [�N���b�v�{�[�h �L���v�`��] ��I�����܂��B
-�X�v���b�V�� �X�N���[���̓I�t�ɂł��܂��B[�I�v�V����] (F5)�A[Chrome] �^�u���Q�Ƃ��Ă��������B
-���̃v���O�����͍��x�ɐݒ�\�ł��B[�I�v�V����] �_�C�A���O �{�b�N�X���J���A�ݒ���J�X�^�}�C�Y����ɂ́AF5 �L�[�������܂��B
-�V�����m�[�g���쐬����ɂ́ACtrl+N �������܂��B�V���� KeyNote �t�@�C�����쐬����ɂ́AShift+Ctrl+N �������܂��B
-�I�������m�[�g�̃v���p�e�B��ҏW����ɂ́AF4 �������܂��B�m�[�g�̖��O�����΂₭�ύX����ɂ́AF2 �������܂��B
-���C�� �E�B���h�E�̂��܂��܂ȗ̈�Ń}�E�X�̉E�{�^�����N���b�N����ƁA�ǉ��̃��j���[ �R�}���h���\������܂��B
-FAQ�A���m�̖��̈ꗗ�A����уA�b�v�O���[�h���ɂ��ẮA�v���O������ Web �T�C�g���m�F���Ă��������B[�w���v] -> [�o�[�W�������] ���Q�Ƃ��Ă��������B
-�v���O�������ŏ�������Ă��邩���̃E�B���h�E�̌��ɉB��Ă���ꍇ�́AShift+Ctrl+F12 �������ƑO�ʂɕ\���ł��܂� (�z�b�g�L�[���J�X�^�}�C�Y�ł��܂�)�B
-KeyNote ����m�[�g���G�N�X�|�[�g������A�v���[�� �e�L�X�g�܂��� RTF �t�@�C���� KeyNote �ɃC���|�[�g������ł��܂��B[�c�[��] -> [�C���|�[�g] ����� [�c�[��] -> [�G�N�X�|�[�g] ���j���[���ڂ��Q�Ƃ��Ă��������B
-�쐬����V�����m�[�g���ƂɊ��蓖�Ă������̑��� (�t�H���g �X�^�C���A�F�A�A�C�R���Ȃ�) ���w��ł��܂��B[�c�[��] -> [����l] ���Q�Ƃ��Ă��������B
-�قƂ�ǂ̕ҏW�@�\�ɂ́A�L�[�{�[�h �V���[�g�J�b�g�����蓖�Ă��Ă��܂��B���C�� ���j���[�Œ��ׂ邱�Ƃ��ł��܂��B
-�v���O�����ƂƂ��ɔz�z����� SAMPLE.KNT �t�@�C���ɂ́A�����̒ǉ��̃q���g��R�c���܂܂�Ă��܂��B
-�c�[���o�[���N���b�N���ĐV�����ꏊ�Ƀh���b�O����ƁA�c�[���o�[���ړ��ł��܂��B�c�[���o�[�͐V�����ʒu���L�����܂��B
-�m�[�g �^�u���X�y�[�X����肷���� 1 �s�Ɏ��܂�Ȃ��ꍇ�́A�A�C�R�����I�t�ɂ��ďk���ł��܂��B�I�v�V���� (F5) �́uChrome�v�^�u���Q�Ƃ��Ă��������B
-���̃v���O�����͏�Ƀt���[�E�F�A�Ƃ��Ĕz�z����܂��B�����𕥂����l���x���ꂽ���ƂɂȂ�܂��B
-�L���X�|���T�[ �v���O�����͖����ł͂Ȃ��Ƃ����̂���҂̋����ӌ��ł��B���̃v���O�����ł͂��̂悤�ȃX�L�[���͎g�p���܂���B
-�m�[�g���̉��ɕ\�������f�t�H���g�̃A�C�R����ύX�ł��܂��B�I�v�V���� -> �A�C�R�� �^�u���Q�Ƃ��Ă��������B
-�Ǝ��̃z�b�g�L�[���g�p���ăm�[�g��؂�ւ��邱�Ƃ��ł��܂��B�m�[�g���̕����̑O�Ɂu&�v���������AALT+�����������Ă��̃m�[�g�ɐ؂�ւ��܂��B
-���z�m�[�h�ɓY�t���ꂽ�t�@�C�����ʂ̃A�v���P�[�V�����ɂ���ĕύX����Ă���ꍇ�́A�m�[�h���E�N���b�N���āu�X�V�v��I�����A�m�[�h�̓��e���X�V���܂��B
+RTL アクティベーションに関連する 3 つの .INI オプションが追加されました: RTLkeyShct、IMEAutoKeyboard、IMEAutoFont (使用方法については、ヘルプ ファイル「Keynote の構成 -> KeyNote.ini ファイルの設定」を参照してください)
+テキストを折りたたんで、表示される抜粋として使用される小さなフラグメント以外のコンテンツを非表示にすることができます。折りたたまれたブロックを管理して、表示を簡略化したり、特定のテキストを一種のアーカイブとして扱うことができます。
+折りたたむときに、2つ目のスペースを挿入して、表示される抜粋を強制的に終了させることができます。
+エクスポート時に、折り畳まれたテキストを展開するか、削除するか、変更せずに保持するかを選択できます。
+検索パネル(すべて検索)の「折りたたみモード」オプションでは、折りたたまれたブロック内で検索するかどうかを決定できます。
+ノートにタグを適用することで、ツリーに表示されるノードをフィルタリングしたり、特定のタグを含む(または含まない)ノードのみを検索対象に絞り込んだりすることができます。また、エクスポートするノートをさらに絞り込むこともできます。
+任意のタグにエイリアスや説明を追加して、タグの検索に役立てることができます。
+段落またはテキストフラグメントにタグを追加できます。タグ付け条件を定義することで、検索結果を特定のテキストフラグメントに限定したり、「すべて検索」を使用してタグ付け条件を満たすすべてのフラグメントの先頭部分を取得したり、特定のテキストフラグメントのみをエクスポートしたりできます。
+タグは各.kntファイルごとに独立していますが、エクスポートまたはインポートが可能です。Keynote.exeと同じフォルダ内の「Tags.txt」にエクスポートすると、ファイルを開いたときに自動的にインポートされ、新しいタグが追加されたり、変更されたタグの説明が更新されたりします。
+KNT ファイルは、画像を内部的に RTF Ascii/Hex または画像のバイナリ形式で保存するか、外部的に独立した画像ファイル (zip またはフォルダー) に保存するように設定できます (ファイル | プロパティ) (doc\Images_Readme.txt を参照)
+特に新しいバージョンにアップグレードする前に、.knt ファイルのバックアップを保存することを強くお勧めします。[定期的にバックアップする] オプションの使用を検討してください (https://github.com/dpradov/keynote-nf/issues/544 を参照)
+GIF、PNG、JPG、TIF、BMP、WMF、EMF、ICO 画像をメモのテキストに挿入できます。[挿入] メニューから [画像] を選択するか、ファイルをエディターにドラッグ アンド ドロップします
+アプリケーションを使用すると、特定のファイルの画像の保存モードを変更したり、外部 Zip ストレージから別のフォルダーに変更したり、その逆を行ったり、新しい保存場所を指定したりできます。
+KNT 形式にエクスポートする場合、設定オプションに応じて、ファイルは「クラシック」モードで画像を含める (RTF に埋め込まれる)、バイナリに含める (埋め込み KNT モード)、または画像を含めない、のいずれかになります。
+Keynote では、ファイル内の画像の表示を変更できます。画像を非表示にするオプションを選択した場合、アプリケーションは画像を非表示にし、代わりにリンクを提供します。
+内部画像ビューアでズームとスクロールにキーボード ショートカットを使用できます。ビューアで使用できるヘルプ ボタンを参照してください。
+knt ファイルの一部を、さまざまなオプションで新しい Keynote ファイルにエクスポートできます。[ファイル] | [エクスポート] でターゲット形式として [KeyNote] を追加しました。
+KeyNote NF をご利用いただきありがとうございます。寄付することで感謝の意を表し、今後の開発をサポートできます。
+圧縮形式を使用して、KeyNote ファイルのサイズを縮小できます ([ファイル] | [プロパティ])。「KNT ファイル形式に関するコメント.txt」も参照してください。
+同じコンテンツ、タイトル、アラーム状態を共有するように「リンク」ノードを作成できます。こうすることで、情報をさまざまな方法で同時に整理できます (https://github.com/dpradov/keynote-nf/issues/57 を参照)
+「リンク」ノードを使用すると、タスクを複数のタブに分散させ、同時に別のタブに含めることができます。「実際の」ノードが存在する階層とは関係なく、フリー ツリー階層で、主な作業、並べ替え、ランク付け、構造化の全体像を把握できます。
+KeyNote NF Web サイト (https://github.com/dpradov/keynote-nf) では、プログラムの最新バージョンをダウンロードしたり、バグ レポートや機能リクエストを送信したりできます。
+バージョン 1.7.5 以降、KeyNote NF は複数の言語で表示できます。例として、スペイン語 (カスティーリャ語) への部分的な翻訳が含まれています。コミュニティの協力を得て、新しい言語が公式バージョンに追加されます。
+非表示のノードは、チェックされたノードを自動的に非表示にする方法と、検索基準に基づいて 1 つまたはすべてのノートをフィルタリングする方法の 2 つの方法で操作できます。
+すべてのノードのチェックボックスを表示したり (表示/すべてのノードのチェックボックス)、選択したノードの子ノードのみにチェックボックスを表示したりできます (子のチェックボックス)。
+通常のクリップボード ショートカット (Ctrl-C、CTRL-V、Ctrl-X または Ctrl-Ins、Shift-Ins、Shift-Supr) を使用して、ノードとサブツリーをコピー、切り取り、貼り付けることができます。
+Windows XP SP1 以降にインストールされている場合は、"msftedit.dll" を使用して KeyNote 内でテーブルを正しく使用および表示できます。
+ノードに関連付けられたアラームを設定できます。動作は Outlook で提供されるものと似ています: 延期、破棄など。
+チェックされたノードを自動的に非表示にするモード (チェックされたノードを表示または非表示) を有効にすると、タスクを操作するのに役立ちます。
+検索基準に基づいてノードをフィルタリングする (ツリー ノートのフィルタリング) と、情報のサブセットを操作するときに便利です。たとえば、一部のノードに [MILESTONE:1.7.4] のようなテキストをタグ付けします。
+リンク (内部リンクまたはそれ以外) に表示されるテキストを変更できます。Shift キーを押しながら URL をクリックすると、オプションが表示されます。
+さまざまな KeyNote 機能を呼び出すために使用するキーボード ショートカットを構成できます。ヘルプ トピック「キーボード ショートカットの構成」を参照してください。
+ツールバーを構成できます。ヘルプ トピック「ツールバーの構成」を参照してください。
+「印刷」コマンドは、ファイルではなくノートを印刷するため、ノート メニュー (「ファイル」の下ではありません) にあります。
+現在選択されているテキストから新しいツリー ノードを作成するには、Alt+F11 を押します。
+ステータス バーをダブルクリックすると、リソース パネルの表示/非表示が切り替わります。
+リソース パネルの新しい「お気に入り」タブを使用すると、別のノートまたはファイルの場所にすばやく移動できます。
+ノートまたはツリー ノードを HTML に簡単に変換してエクスポートできるようになりました。
+マクロ、プラグイン、テンプレートは、新しいリソース パネルにグループ化されています。パネルを表示または非表示にするには、F9 キーを押します。
+リソース パネルの [すべて検索] コマンドを使用すると、メモ内のテキストが検索され、結果の一覧が表示されます。
+[すべて検索] コマンドを使用すると、単純なブール (AND / OR) 検索を実行できます。
+HTML ドキュメントを KeyNote にインポートできるようになりました。KeyNote は、HTML から RTF への変換を実行するために、MS Office 97/2000 または MS Internet Explorer バージョン 5.0 以降を使用します。
+KeyNote にはスペル チェッカー ([メモ] メニューの下) が含まれるようになりました。スペル チェッカー モジュールを使用するには、MS Office 97 または 2000 がインストールされている必要があります。
+Windows エクスプローラーでダブルクリックすると、KeyNote のマクロとプラグインを実行できます。
+ツリー内のノードをチェックするか太字にすることで、ノードをマークできます。また、個々のツリー ノードの色を選択することもできます (ツリーの右クリック メニューからアクセスできる機能)。
+KeyNote には、データの安全性を高めるための高度なバックアップ オプションがいくつか用意されています。[オプション] ダイアログ ボックス (F5) の [バックアップ オプション] タブを参照してください。
+テキストの書式設定に問題が発生した場合 (ファイル「bugs.txt」で説明されているように)、オプション ダイアログ ボックスの [詳細設定] タブで [リッチ エディット バージョン 3.0 の修正を有効にする] 設定を使用します。
+[最近使用したファイル] コマンド ([ファイル] メニュー) には、最近開いたり保存したりしたノート ファイルの名前がいくつか含まれています。メニュー項目をクリックするだけで、必要なファイルを開くことができます。
+最近使用したファイルのリストは、ツールバーの [開く] ボタンのすぐ横にあるドロップダウン メニューとしても使用できます。
+ユーザーが 1 台のコンピュータで KeyNote を共有している場合、KeyNote を起動するショートカットで別の INI ファイル名を指定することで、各ユーザーが個人設定を持つことができます。
+メモが誤って変更されるのを防ぐには、タブ メニューから [読み取り専用] を選択するか、Shift+Ctrl+R を押して、メモを読み取り専用にします。
+ファイルを開くときに [読み取り専用として開く] オプションを選択して、ファイル全体に対するすべての変更を防ぐこともできます。
+ファイル内のメモの順序を変更できます。マウスでタブをクリックし、左または右にドラッグするだけです。
+一部のツールバー ボタンとメニュー コマンドは、Shift キーまたは Ctrl キーを押したままにすると動作が異なります。これについては、ヘルプ ファイルで詳しく説明されています。
+KeyNote はマクロとプラグインをサポートしています。それらの使用方法と作成方法については、ヘルプ ファイルのマクロとプラグインのトピックを参照してください。
+マクロを作成または使用するには、リソース パネルを表示し (F9 キーを押します)、[マクロ] タブをクリックします。
+インストールされたプラグインを表示して使用するには、[ツール] メニューから [プラグイン] コマンドを選択するか、Ctrl+F12 キーを押します。
+特定のマクロは、新しいファイルまたは新しいメモが作成されるたびに自動的に実行されます。ヘルプ ファイルの「マクロの自動実行」を参照してください。
+マウスを使わずに [スタイル] ドロップダウン リストにアクセスするには、Ctrl キーを押したまま、テンキーの * キーを押します。次に、スタイルを選択し、Enter キーを押して適用します。
+マウスを使わずにマクロ ドロップダウン リストにアクセスするには、Ctrl キーを押しながらテンキーの / キーを押します。次にマクロを選択し、Enter キーを押して実行します。
+KeyNote のダイアログ ボックスの多くはサイズ変更可能で、表示時に以前のサイズと位置が記憶されます。
+KeyNote には「置換」コマンドがあります。このコマンドは「検索」メニューにあります (または Ctrl+F3 を押します)。
+ファイル プロパティ ダイアログ ボックスで、現在のファイルのカスタム システム トレイ アイコンを指定できます。これは、KeyNote の複数のインスタンスを同時に実行する場合に役立ちます。
+ファイルで組み込みのタブ アイコン イメージのみを使用するように指定できます。これは、カスタマイズされた別のタブ イメージ セットを使用している可能性のある人にファイルを渡す場合に便利です。
+ハイパーリンクを挿入して、KeyNote ファイル内の別の場所 (ノートまたはツリー ノード) にジャンプできます。詳細については、ヘルプ ファイルのハイパーリンクのトピックを参照してください。
+ローカル ディスク上のファイルへの URL スタイルのリンクを作成できます。「挿入」メニューから「ファイルへのリンク」を選択します。リンクをクリックすると、ドキュメントまたはプログラムが開きます。
+すべての段落プロパティを一度に指定するには、Ctrl+P を押して段落ダイアログ ボックスを開きます。
+ツリー タイプのメモでは、ツリー パネルを非表示にすることができます。ツリーを非表示にするには Shift+F11 を押します。ツリーが非表示の場合は表示します。
+よく使用するテキストの塊をすばやく挿入するには、用語集機能を使用します。用語集にショートカットとその完全な形式を追加し、F7 キーを押してショートカットを展開します。
+ほとんどの編集および書式設定コマンドは、Ctrl + / を押すことで繰り返すことができます。繰り返すコマンドの名前は、エディターのコンテキスト メニューに表示されます。
+KeyNote には、シンプルなブックマーク機能があります。Shift + Alt + 数字キーを押してブックマークを設定し、Alt + 数字キーを押してそのブックマークにジャンプします (数字は当然 0 から 9 です)。
+Shift + Ctrl + C を押すと、ノートに特殊文字を挿入できます。
+対応する括弧をすばやく見つけるには、Ctrl + M を押します。
+単一のツリー ノードをエクスポートできます。ノードを右クリックし、[エクスポート] コマンドを選択します。
+KeyNote では、クリップボードからテキストをキャプチャしながらサウンドを再生できます。デフォルトのサウンド (clip.wav) を、選択した .wav ファイルに置き換えることができます。
+ツリー ノート間およびファイル間でサブツリーを移動またはコピーできます。
+サブツリーをクリックして別のタブにドロップすると、あるノートから別のノートにサブツリーをコピーできます。
+ツリー ノートは垂直レイアウト (ツリーがエディターの上) にすることができます。これは、ノート プロパティ (F4) で設定できます。
+ノート内のテキストを強調表示できます。Ctrl+H を押すか、Shift キーを押しながらツールバーの [色] ボタンをクリックします。
+Windows エクスプローラから KeyNote のウィンドウにファイルをドラッグして、開いたりインポートしたりできます。
+いくつかの新しいフォントと段落のプロパティが追加されました。[フォーマット] メニューの下にある新しい機能を参照してください。
+新しい [仮想ノード] 機能を使用すると、外部のテキストまたは RTF ファイルをツリー内のノードにリンクできます。新しいノードを作成し、それを右クリックして [仮想ノード] コマンドを選択します。
+仮想ノードを作成するには、Windows エクスプローラからテキストまたは RTF ファイルをツリーにドラッグすることもできます。
+メモの名前をすばやく変更するには、F2 キーを押すか、メモ名が表示されているタブをダブルクリックします。
+メモ内の URL をクリックしたときの動作を選択できます。[オプション] (F5)、[その他] タブを参照してください。
+KeyNote では、定義済みの一定時間操作が行われないと、ファイルを自動的に最小化または閉じることができます。[オプション] (F5)、[アクション] タブを参照してください。
+ツールバーは、メモ ウィンドウの下部にドッキングすることもできます。
+KeyNote ファイルは安全に暗号化できます。詳細については、ヘルプ ファイルを参照してください。
+シンプル ノートとツリー ノートの 2 種類のノートを作成できます。Ctrl+N を押して、[種類] ドロップダウン ボックスで種類を選択します。
+ツリー内のすべてのノードの背景色をすばやく変更できます。Shift キーを押しながら、「背景色」コマンド (「フォーマット」メニュー) をクリックします。
+KeyNote では数式を評価できます。式 (「2 + 2」など) を入力し、それを選択して、Ctrl + = を押します。結果がクリップボードにコピーされます。
+現在のファイル (すべてのファイルではなく) のデフォルトのノート プロパティを設定できます。「ノートのデフォルト」ダイアログ ボックスで、「特別」ボタンをクリックし、「... のデフォルトとして保存」をクリックします。
+KeyNote には、以前使用したファイルをすばやく開くことができるシンプルなファイル マネージャーがあります。F12 を押すと、ファイル マネージャー ウィンドウが開きます。
+KeyNote は、WordWeb と呼ばれる辞書/シソーラス プログラムと統合されています。Ctrl + F11 を押すと、シソーラスで現在の単語を検索できます。
+別の KeyNote ファイルから現在開いているファイルにノートをインポートできます。[ツール] -> [ファイルと結合] を選択します。
+ユーザーが 1 台のコンピューターで KeyNote を共有している場合、KeyNote を起動するショートカットで代替の INI ファイル名を指定することで、各ユーザーが個人設定を持つことができます。
+Keynote は、任意の Windows アプリケーションでクリップボードにコピーされたテキストを自動的にキャプチャできます。[メモ] メニューから [クリップボード キャプチャ] を選択します。
+スプラッシュ スクリーンはオフにできます。[オプション] (F5)、[Chrome] タブを参照してください。
+このプログラムは高度に設定可能です。[オプション] ダイアログ ボックスを開き、設定をカスタマイズするには、F5 キーを押します。
+新しいノートを作成するには、Ctrl+N を押します。新しい KeyNote ファイルを作成するには、Shift+Ctrl+N を押します。
+選択したノートのプロパティを編集するには、F4 を押します。ノートの名前をすばやく変更するには、F2 を押します。
+メイン ウィンドウのさまざまな領域でマウスの右ボタンをクリックすると、追加のメニュー コマンドが表示されます。
+FAQ、既知の問題の一覧、およびアップグレード情報については、プログラムの Web サイトを確認してください。[ヘルプ] -> [バージョン情報] を参照してください。
+プログラムが最小化されているか他のウィンドウの後ろに隠れている場合は、Shift+Ctrl+F12 を押すと前面に表示できます (ホットキーをカスタマイズできます)。
+KeyNote からノートをエクスポートしたり、プレーン テキストまたは RTF ファイルを KeyNote にインポートしたりできます。[ツール] -> [インポート] および [ツール] -> [エクスポート] メニュー項目を参照してください。
+作成する新しいノートごとに割り当てられる既定の属性 (フォント スタイル、色、アイコンなど) を指定できます。[ツール] -> [既定値] を参照してください。
+ほとんどの編集機能には、キーボード ショートカットが割り当てられています。メイン メニューで調べることができます。
+プログラムとともに配布される SAMPLE.KNT ファイルには、多くの追加のヒントやコツが含まれています。
+ツールバーをクリックして新しい場所にドラッグすると、ツールバーを移動できます。ツールバーは新しい位置を記憶します。
+ノート タブがスペースを取りすぎて 1 行に収まらない場合は、アイコンをオフにして縮小できます。オプション (F5) の「Chrome」タブを参照してください。
+このプログラムは常にフリーウェアとして配布されます。お金を払った人は騙されたことになります。
+広告スポンサー プログラムは無料ではないというのが作者の強い意見です。このプログラムではそのようなスキームは使用しません。
+ノート名の横に表示されるデフォルトのアイコンを変更できます。オプション -> アイコン タブを参照してください。
+独自のホットキーを使用してノートを切り替えることができます。ノート名の文字の前に「&」文字を入れ、ALT+文字を押してそのノートに切り替えます。
+仮想ノードに添付されたファイルが別のアプリケーションによって変更されている場合は、ノードを右クリックして「更新」を選択し、ノードの内容を更新します。
