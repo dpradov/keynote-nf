@@ -88,10 +88,10 @@ object KntTreeUI: TKntTreeUI
       Height = 20
       HelpType = htKeyword
       HelpKeyword = '27-15'
+      TabStop = False
       Anchors = [akLeft, akTop, akRight]
       Ctl3D = False
       ParentCtl3D = False
-      TabOrder = 1
     end
     object txtTags: TEdit
       Left = 24
@@ -100,9 +100,9 @@ object KntTreeUI: TKntTreeUI
       Height = 20
       HelpType = htKeyword
       HelpKeyword = '27-22'
+      TabStop = False
       Ctl3D = False
       ParentCtl3D = False
-      TabOrder = 0
     end
   end
   object CheckImages: TImageList
