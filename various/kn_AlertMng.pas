@@ -776,7 +776,7 @@ begin
          if ShowRemindersInModalWindow then begin
              PlaySound;
 
-             if IsIconic( Form_Main.Handle ) then begin  // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+             if IsIconic( Application.Handle ) then begin  // with MainFormOnTaskbar := True => Application.Handle -> Form_Main.Handle
                 Application_Restore;
                 Application_BringToFront;
              end;

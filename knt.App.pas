@@ -201,9 +201,9 @@ type
   function GetCurrentTreeNode : PVirtualNode;
   function GetTreeUI(TV: TVirtualStringTree): TKntTreeUI;
 
-  procedure Application_Minimize;
-  procedure Application_Restore;
-  procedure Application_BringToFront;
+  procedure Application_Minimize; inline;
+  procedure Application_Restore; inline;
+  procedure Application_BringToFront; inline;
 
 var
    App: TKntApp;
@@ -266,23 +266,39 @@ uses
 
 // Safe replacements to use with MainFormOnTaskbar := True
 
-procedure Application_Minimize;
+{ *1
+ It seems that the change needed to solve issue #830 is the cause of this issue #854, besides issue #858
+ I have solved issue #858 while maintaining the change necessary to fix issue #830 (Application.MainFormOnTaskbar := True)
+ but the impact in other aspects, like this issue #854, are more complex, specially by the influence on other controls like VirtualTreeView and RichText.
+ I think I will revert that change in #830. Only when all other issues are identified and solved I will try to reincorporate it.
+}
+
+procedure Application_Minimize; inline;
 begin
-  Form_Main.WindowState := wsMinimized;
-  Form_Main.AppMinimize(Form_Main);
+   Application.Minimize;
+{ *1
+   Form_Main.WindowState := wsMinimized;
+   Form_Main.AppMinimize(Form_Main);
+}
 end;
 
-procedure Application_Restore;
+procedure Application_Restore; inline;
 begin
+  Application.Restore;
+{ *1
   Form_Main.WindowState := wsNormal;
   Form_Main.AppRestore(Form_Main);
+}
 end;
 
-procedure Application_BringToFront;
+procedure Application_BringToFront; inline;
 begin
+  Application.BringToFront;
+{ *1
   if Form_Main.WindowState = wsMinimized then
      Form_Main.WindowState := wsNormal;
   SetForegroundWindow(Form_Main.Handle);
+}
 end;
 
 
@@ -1070,7 +1086,7 @@ begin
     KeyOptions.TipOfTheDay := false;
     exit;
   end;
-  wasiconic := ( IsIconic(Form_Main.Handle) = TRUE );     // with MainFormOnTaskbar := True => Application.Handle -> Form_Main.Handle
+  wasiconic := ( IsIconic(Application.Handle) = TRUE );     // with MainFormOnTaskbar := True => Application.Handle -> Form_Main.Handle
   if wasiconic then
      Application_Restore;
   Application_BringToFront;
@@ -1125,7 +1141,7 @@ function TKntApp.PopUpMessage( const Str: string; const mType: TMsgDlgType;
 var
   WasIconic : boolean;
 begin
-  WasIconic := ( IsIconic(Form_Main.Handle) = TRUE );    // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+  WasIconic := ( IsIconic(Application.Handle) = TRUE );    // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
   if WasIconic then
      Application_Restore;
   Application_BringToFront;

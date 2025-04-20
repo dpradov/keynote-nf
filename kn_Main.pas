@@ -2312,7 +2312,7 @@ begin
   WinOnTop.AlwaysOnTop := false;
   // FormStorage.Options := [fpPosition];
   if KeyOptions.UseTray then
-    ShowWindow(Self.Handle, SW_HIDE);           // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+    ShowWindow(Application.Handle, SW_HIDE);           // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
 
 end; // AppMinimize;
 
@@ -2443,10 +2443,10 @@ begin
        FRestoreFocusInEditor:= 1;
     end;
 
-    ShowWindow( Self.Handle, SW_SHOW );
+    ShowWindow( Application.Handle, SW_SHOW );
     WinOnTop.AlwaysOnTop := KeyOptions.AlwaysOnTop;
     //Application.BringToFront;                                                  // *1
-    SetForegroundWindow(Self.Handle);      // Safe replacement for SetForegroundWindow(Application.Handle) (with MainFormOnTaskbar := True)  (Also: Self.BringToFront)
+    SetForegroundWindow(Application.Handle);      // Safe replacement for SetForegroundWindow(Application.Handle) (with MainFormOnTaskbar := True)  (Also: Self.BringToFront)
 
     if _REOPEN_AUTOCLOSED_FILE then
     begin
@@ -2555,7 +2555,7 @@ begin
         end;
 
         if KeyOptions.TimerMinimize then begin
-          if ( not IsIconic( Self.Handle )) then begin             // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+          if ( not IsIconic( Application.Handle )) then begin             // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
            Hrs := ( KeyOptions.TimerMinimizeInt DIV 60 );
            Mins := ( KeyOptions.TimerMinimizeInt MOD 60 );
            if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then
@@ -2635,12 +2635,12 @@ begin
   if ( msg.hotkey = 1 ) then
   begin
     FRTLShortcutToExecute:= rtNone;
-    if IsIconic( Self.Handle ) then         // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+    if IsIconic( Application.Handle ) then         // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
       Application_Restore
     else
       if not Active then
         //Application.BringToFront;
-        SetForegroundWindow(Self.Handle);    // Safe replacement for SetForegroundWindow(Application.Handle) (with MainFormOnTaskbar := True)  (Also: Self.BringToFront)
+        SetForegroundWindow(Application.Handle);    // Safe replacement for SetForegroundWindow(Application.Handle) (with MainFormOnTaskbar := True)  (Also: Self.BringToFront)
   end;
 end; // WMHotkey
 
