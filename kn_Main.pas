@@ -1757,7 +1757,7 @@ begin
     Although at this point WindowState <> wsMinimized, it will end up being, if we do not queue a subsequent request for it to be restored }
 
   if (not App.opt_Minimize) then
-     Application.Restore;
+     Application_Restore;
 
   {
   if KeyOptions.TipOfTheDay then
@@ -1814,7 +1814,7 @@ begin
   TB_OnTop.Down := MMViewOnTop.Checked;
 
   if App.opt_Minimize then
-    Application.Minimize
+    Application_Minimize
   else
     WinOnTop.AlwaysOnTop := KeyOptions.AlwaysOnTop;
 
@@ -1992,8 +1992,8 @@ begin
   However, restore the window by running ShowWindow(_OTHER_INSTANCE_HANDLE, SW_RESTORE); from the calling instance it is problematic
   he window is restored but not minimized until the other one is closed (or after multiple minimizes/restorations of that one)
 }
-   Application.Restore;
-// Application.BringToFront;
+   Application_Restore;
+// Application_BringToFront;
 
 
    if not fromKntLauncher and ( KntFileToLoad <> '' ) then begin
@@ -2057,7 +2057,7 @@ begin
     if KeyOptions.MinimizeOnClose then
     begin
       CanClose := false;
-      Application.Minimize;
+      Application_Minimize;
       AppIsClosing := false;
       exit;
     end;
@@ -2312,7 +2312,8 @@ begin
   WinOnTop.AlwaysOnTop := false;
   // FormStorage.Options := [fpPosition];
   if KeyOptions.UseTray then
-    ShowWindow(Application.Handle, SW_HIDE);
+    ShowWindow(Self.Handle, SW_HIDE);           // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+
 end; // AppMinimize;
 
 
@@ -2442,10 +2443,10 @@ begin
        FRestoreFocusInEditor:= 1;
     end;
 
-    ShowWindow( Application.Handle, SW_SHOW );
+    ShowWindow( Self.Handle, SW_SHOW );
     WinOnTop.AlwaysOnTop := KeyOptions.AlwaysOnTop;
     //Application.BringToFront;                                                  // *1
-    SetForegroundWindow(Application.Handle);
+    SetForegroundWindow(Self.Handle);      // Safe replacement for SetForegroundWindow(Application.Handle) (with MainFormOnTaskbar := True)  (Also: Self.BringToFront)
 
     if _REOPEN_AUTOCLOSED_FILE then
     begin
@@ -2481,8 +2482,8 @@ procedure TForm_Main.TrayIconClick(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   AppLastActiveTime := now;
-  Application.Restore;
-  Application.BringToFront;
+  Application_Restore;
+  Application_BringToFront;
 end;
 
 procedure TForm_Main.MMFileExitClick(Sender: TObject);
@@ -2493,8 +2494,8 @@ end;
 
 procedure TForm_Main.TMRestoreClick(Sender: TObject);
 begin
-  Application.Restore;
-  Application.BringToFront;
+  Application_Restore;
+  Application_BringToFront;
 end;
 
 procedure TForm_Main.TntFormResize(Sender: TObject);
@@ -2554,11 +2555,11 @@ begin
         end;
 
         if KeyOptions.TimerMinimize then begin
-          if ( not IsIconic( Application.Handle )) then begin
+          if ( not IsIconic( Self.Handle )) then begin             // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
            Hrs := ( KeyOptions.TimerMinimizeInt DIV 60 );
            Mins := ( KeyOptions.TimerMinimizeInt MOD 60 );
            if (( AppLastActiveTime + EncodeTime( Hrs, Mins, 0, 0 )) < Now ) then
-             Application.Minimize;
+             Application_Minimize;
          end;
        end;
 
@@ -2634,12 +2635,12 @@ begin
   if ( msg.hotkey = 1 ) then
   begin
     FRTLShortcutToExecute:= rtNone;
-    if IsIconic( Application.Handle ) then
-      Application.Restore
+    if IsIconic( Self.Handle ) then         // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+      Application_Restore
     else
       if not Active then
         //Application.BringToFront;
-        SetForegroundWindow(Application.Handle);
+        SetForegroundWindow(Self.Handle);    // Safe replacement for SetForegroundWindow(Application.Handle) (with MainFormOnTaskbar := True)  (Also: Self.BringToFront)
   end;
 end; // WMHotkey
 
@@ -2783,8 +2784,8 @@ end;
 
 procedure TForm_Main.AnotherInstance;
 begin
-  Application.Restore;
-  Application.BringToFront;
+  Application_Restore;
+  Application_BringToFront;
 end; // AnotherInstance
 
 procedure TForm_Main.ShowInsMode;
@@ -2902,7 +2903,7 @@ begin
             // otherwise perform the function which
             // is configured in options
             case KeyOptions.EscAction of
-              ESC_MINIMIZE : Application.Minimize;
+              ESC_MINIMIZE : Application_Minimize;
               ESC_QUIT : Close;
             end;
           end;
@@ -6448,7 +6449,7 @@ begin
 
   case myAction of
     DBLCLK_NOTHING : begin end;
-    DBLCLK_MINIMIZE : Application.Minimize;
+    DBLCLK_MINIMIZE : Application_Minimize;
     DBLCLK_FILEPROP : KntFileProperties;
     DBLCLK_FILEMGR : RunFileManager;
     DBLCLK_FOLDERPROP : TKntFolder.EditKntFolderProperties( propThisFolder );

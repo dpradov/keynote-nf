@@ -2311,7 +2311,7 @@ begin
           end
           else begin
             if KeyOptions.MinimizeOnURL then
-               Application.Minimize;
+               Application_Minimize;
           end;
       end;
 

@@ -1296,7 +1296,7 @@ begin
       if UseIcon in [0, 1] then
          TrayIcon.Icon:= TrayIcon.Icons[UseIcon];
 
-      Application.Icon:= TrayIcon.Icon;
+      Form_Main.Icon:= TrayIcon.Icon;   //Application.Icon -> Form_Main.Icon  (MainFormOnTaskbar := True)
       if DoProcessMessage then
          Application.ProcessMessages;
       sleep( 100 );                        // <- Important. Without this line, the icon of the main window changes, but the icon in the taskbar doesn't

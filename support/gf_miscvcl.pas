@@ -67,9 +67,6 @@ type
   TMsgDlgDefBtn = (def1, def2, def3, def4);
 
 
-function PopUpMessage(const mStr : string; const caption: string; const mType : TMsgDlgType;
-                      const mButtons : TMsgDlgButtons; const DefButton: TMsgDlgDefBtn = def1;
-                      const mHelpCtx : integer= 0) : word; overload;
 {
 Function DefMessageDlg(const aCaption: String;
                        const Msg: string;
@@ -518,26 +515,6 @@ begin
     Result:= MessageBox(hWnd, PChar(text), PChar(caption), uType);
 end;
 
-
-function PopUpMessage(const mStr: string; const caption: string; const mType: TMsgDlgType;
-                      const mButtons: TMsgDlgButtons;
-                      const DefButton: TMsgDlgDefBtn = def1;
-                      const mHelpCtx: integer = 0) : word;
-
-// Like MessageDlg, but brings application window to front before
-// displaying the message, and minimizes application if it was
-// minimized before the message was shown.
-var
-  WasIconic : boolean;
-begin
-  WasIconic := ( IsIconic(Application.Handle) = TRUE );
-  if WasIconic then
-    Application.Restore;
-  Application.BringToFront;
-  result := DoMessageBox( mStr, caption, mType, mButtons, DefButton, mHelpCtx );
-  if WasIconic then
-    Application.Minimize;
-end; // PopUpMessage
 
 (*
 Function DefMessageDlg(const aCaption: String; const Msg: string;

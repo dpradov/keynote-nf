@@ -776,9 +776,9 @@ begin
          if ShowRemindersInModalWindow then begin
              PlaySound;
 
-             if IsIconic( Application.Handle ) then begin
-                Application.Restore;
-                Application.BringToFront;
+             if IsIconic( Form_Main.Handle ) then begin  // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+                Application_Restore;
+                Application_BringToFront;
              end;
 
              FSelectedAlarmList.Assign(TriggeredAlarmList);

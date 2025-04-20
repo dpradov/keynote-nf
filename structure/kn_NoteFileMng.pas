@@ -1515,7 +1515,7 @@ end; // MergeFromKNTFile
 //=================================================================
 procedure SomeoneChangedOurFile;
 begin
-  Application.BringToFront;
+  Application_BringToFront;
   Form_Main.FolderMon.Active := false;
   try
     case App.DoMessageBox( Format(GetRS(sFileM49), [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
@@ -1651,7 +1651,7 @@ begin
 
         if closing then begin
            wasMinimized:= (WindowState = wsMinimized);
-           Application.Minimize;  // Liberate the screen to let the user do other things while keyNote is closing
+           Application_Minimize;  // Liberate the screen to let the user do other things while keyNote is closing
         end;
 
        {$IFDEF KNT_DEBUG}
@@ -1663,7 +1663,7 @@ begin
           result := ( Application.MessageBox( PChar(GetRS(sFileM55)), PChar(GetRS(sFileM56)), MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2+MB_APPLMODAL) = ID_YES );
 
         if closing and not wasMinimized then begin
-           Application.Restore;
+           Application_Restore;
         end;
 
       finally
@@ -2301,7 +2301,7 @@ begin
 
      WinOnTop.AlwaysOnTop := false;
      try
-       Application.BringToFront;
+       Application_BringToFront;
 
        if ( myAction = factUnknown ) then begin
 
@@ -2728,7 +2728,7 @@ begin
         // on top of one another. But first, we must be the
         // active application, otherwise we'll send WM_CLOSE
         // to nowhere.
-        Application.BringToFront;
+        Application_BringToFront;
         // we KNOW we have a modal dialog open, so this is safe,
         // i.e. we won't be sending WM_CLOSE to main form
         SendMessage( GetActiveWindow, WM_CLOSE, 0, 0 ); // close the modal window!
@@ -2744,7 +2744,7 @@ begin
       _REOPEN_AUTOCLOSED_FILE := KeyOptions.TimerCloseAutoReopen;
 
     KntFileClose;
-    Application.Minimize;
+    Application_Minimize;
   end;
 
 end; // AutoCloseKntFile

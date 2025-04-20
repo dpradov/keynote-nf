@@ -201,6 +201,9 @@ type
   function GetCurrentTreeNode : PVirtualNode;
   function GetTreeUI(TV: TVirtualStringTree): TKntTreeUI;
 
+  procedure Application_Minimize;
+  procedure Application_Restore;
+  procedure Application_BringToFront;
 
 var
    App: TKntApp;
@@ -257,6 +260,33 @@ uses
    knt.ui.TagMng,
    knt.RS;
 
+
+
+//---------------------------------------------------------------------------------
+
+// Safe replacements to use with MainFormOnTaskbar := True
+
+procedure Application_Minimize;
+begin
+  Form_Main.WindowState := wsMinimized;
+  Form_Main.AppMinimize(Form_Main);
+end;
+
+procedure Application_Restore;
+begin
+  Form_Main.WindowState := wsNormal;
+  Form_Main.AppRestore(Form_Main);
+end;
+
+procedure Application_BringToFront;
+begin
+  if Form_Main.WindowState = wsMinimized then
+     Form_Main.WindowState := wsNormal;
+  SetForegroundWindow(Form_Main.Handle);
+end;
+
+
+//---------------------------------------------------------------------------------
 
 
 constructor TKntApp.Create;
@@ -1040,10 +1070,10 @@ begin
     KeyOptions.TipOfTheDay := false;
     exit;
   end;
-  wasiconic := ( IsIconic(Application.Handle) = TRUE );
+  wasiconic := ( IsIconic(Form_Main.Handle) = TRUE );     // with MainFormOnTaskbar := True => Application.Handle -> Form_Main.Handle
   if wasiconic then
-    Application.Restore;
-  Application.BringToFront;
+     Application_Restore;
+  Application_BringToFront;
 
   TipDlg := TGFTipDlg.Create( Form_Main );
   try
@@ -1064,7 +1094,7 @@ begin
   end;
 
   if wasiconic then
-    Application.Minimize;
+    Application_Minimize;
 
 end; // ShowTipOfTheDay
 
@@ -1089,9 +1119,23 @@ function TKntApp.PopUpMessage( const Str: string; const mType: TMsgDlgType;
                                const Buttons: TMsgDlgButtons;
                                const DefButton: TMsgDlgDefBtn = def1;
                                const HelpCtx: integer= 0): word;
+// Like MessageDlg, but brings application window to front before
+// displaying the message, and minimizes application if it was
+// minimized before the message was shown.
+var
+  WasIconic : boolean;
 begin
-   Result:= gf_miscvcl.PopUpMessage(Str, GetCaptionMessage, mType, Buttons, DefButton, HelpCtx);
+  WasIconic := ( IsIconic(Form_Main.Handle) = TRUE );    // with MainFormOnTaskbar := True => Application.Handle -> Self.Handle
+  if WasIconic then
+     Application_Restore;
+  Application_BringToFront;
+
+  result := gf_miscvcl.DoMessageBox( Str, GetCaptionMessage, mType, Buttons, DefButton, HelpCtx );
+
+  if WasIconic then
+     Application_Minimize;
 end;
+
 
 function GetCurrentTreeNode : PVirtualNode;
 begin
