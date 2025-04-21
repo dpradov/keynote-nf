@@ -1704,7 +1704,6 @@ begin
   ErrNoTextSelected:= False;
   ErrNotImplemented:= False;
 
-  Editor.BeginUpdate;
   with Editor do begin
     try
       try
@@ -2417,10 +2416,8 @@ begin
       end;
 
     finally
-      Editor.EndUpdate;
 
       if ( aCmd <> ecNone ) then begin
-        Editor.Change;
         Editor.ChangedSelection;
         if (aCmd = ecWordWrap) and assigned(Editor.NNodeObj) then
            App.ChangeInEditor(Editor);

@@ -2686,23 +2686,28 @@ var
 
 begin
    with Editor do begin
-      SS:= SelStart;
       SL:= SelLength;
+      if SL = 0 then
+         Result:= SelAttributes.Protected
 
-      IsProtected:= False;
-      BeginUpdate;
-      SelLength:= 0;
-      IsProtected:= SelAttributes.Protected;
-      if not IsProtected then begin
-         SelStart:= SS + SL;
-         IsProtected:= SelAttributes.Protected
+      else begin
+         SS:= SelStart;
+         IsProtected:= False;
+         BeginUpdate;
+         SelLength:= 0;
+         IsProtected:= SelAttributes.Protected;
+         if not IsProtected then begin
+            SelStart:= SS + SL;
+            IsProtected:= SelAttributes.Protected
+         end;
+         SelStart:= SS;
+         SelLength:= SL;
+         EndUpdate;
+
+         Result:= IsProtected;
       end;
-      SelStart:= SS;
-      SelLength:= SL;
-      EndUpdate;
    end;
 
-   Result:= IsProtected;
 end;
 
 
