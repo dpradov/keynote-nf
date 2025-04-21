@@ -1776,7 +1776,8 @@ begin
 
   Initializing := false;
 
-  App.ActivateFolder(nil);            // Activate (and focus) current active folder       View comment in KntFileOpen
+  if _GLOBAL_URLText = '' then
+     App.ActivateFolder(nil);            // Activate (and focus) current active folder       View comment in KntFileOpen
 
   Log_StoreTick( 'After ActiveKntFolder', 2 );
 
