@@ -2117,7 +2117,7 @@ begin
      if CtrlDown then
         Editor.Unfold
      else
-        Editor.PreviewFoldedBlock;
+        Editor.PreviewFoldedBlock(Editor.SelStart);
      exit;
   end;
 

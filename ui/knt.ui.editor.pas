@@ -216,7 +216,7 @@ type
 
     procedure Fold (SelectedText: boolean);
     procedure Unfold;
-    procedure PreviewFoldedBlock;
+    procedure PreviewFoldedBlock (SS: integer);
     procedure HideNestedFloatingEditor;
     procedure HidingFloatingEditor;
     function Focused: boolean; override;
@@ -2593,16 +2593,15 @@ begin
 end;
 
 
-procedure TKntRichEdit.PreviewFoldedBlock;
+procedure TKntRichEdit.PreviewFoldedBlock (SS: integer);
 var
   RTFIn, RTFOut: AnsiString;
-  SS: integer;
   pI, pF: integer;
   CursorPos: TPoint;
   FontHeight: integer;
   FE: TFloatingEditor;
 begin
-   if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
+   if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
       SetSelection(pI, pF+1, false);
       FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
@@ -3649,31 +3648,40 @@ end;
 
 procedure TKntRichEdit.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
-   bakS, S: integer;
+   bakSS, SS, SL: integer;
    MousePos: TPoint;
+   pI, pF: integer;
+
+   procedure GetSS;
+   begin
+      bakSS:= SelStart;
+      MousePos.X  := X;
+      MousePos.Y  := Y;
+      SS:= GetCharFromPos(MousePos);
+   end;
+
 begin
   if (IntroducingTagsState = itWithTagSelector) then begin
      IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
      cTagSelector.CloseTagSelector(false);
   end;
 
-  if (Button = mbRight) then begin
-      if SelLength > 0 then exit;
-
-      bakS:= SelStart;
-      MousePos.X  := X;
-      MousePos.Y  := Y;
-      S:= GetCharFromPos(MousePos);
-
-      BeginUpdate;
-      SetSelection(S, S + 1, false);
-      if SelAttributes.Link then begin
-         FPopupMenuBAK:= Self.PopUpMenu;
-         Self.PopUpMenu := nil;
-      end;
-
-      SetSelection(bakS, bakS, false);
-      EndUpdate;
+  SL:= SelLength;
+  if SL = 0 then begin
+     if (Button = mbRight) then begin
+         GetSS;
+         SetSelection(SS, SS + 1, false);
+         if SelAttributes.Link then begin
+            FPopupMenuBAK:= Self.PopUpMenu;
+            Self.PopUpMenu := nil;
+         end;
+         SetSelection(bakSS, bakSS, false);
+     end
+     else
+     if CtrlDown and SelAttributes.Protected then begin
+        GetSS;
+        PreviewFoldedBlock(SS);
+     end;
   end;
 
   inherited;
