@@ -1,4 +1,4 @@
-unit kn_Const;
+ï»¿unit kn_Const;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -46,8 +46,8 @@ const
 
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
-  Program_Credit1 = 'Copyright © 2007-25  Daniel Prado Velasco   (since 1.7.0)';
-  Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
+  Program_Credit1 = 'Copyright Â© 2007-25  Daniel Prado Velasco   (since 1.7.0)';
+  Program_Credit2 = 'Copyright Â© 2000-05  Marek Jedlinski';
   Hint_Support = 'Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!';
 
   // UniqueAppName_KEYNOTE10   = 'GFKeyNote10';       // Moved to knt_Msgs
@@ -243,11 +243,11 @@ const
        is not contained in the title, then that server domain will be shown, in square brackets. Some examples:
 
       'https://www.teoria.com/en/tutorials/functions/intro/03-dom-sub.php', 'Harmonic Functions : The Dominant and Subdominant'  => [teoria.com]
-      'https://musicnetmaterials.wordpress.com/analisis-musical/', 'Análisis musical | Musicnetmaterials'                        => ''
+      'https://musicnetmaterials.wordpress.com/analisis-musical/', 'AnÃ¡lisis musical | Musicnetmaterials'                        => ''
       'https://stackoverflow.com/questions/1549145/case-insensitive-pos', 'delphi - case insensitive Pos - Stack Overflow'       => ''
       'https://martinfowler.com/eaaCatalog/', 'Catalog of Patterns of Enterprise Application Architecture'                       => [martinfowler.com]
       'https://en.wikipedia.org/wiki/Johann_Sebastian_Bach', 'Johann Sebastian Bach - Wikipedia'                                 => ''
-      'https://www.youtube.com/watch?v=r0R6gMw2s44', 'El Círculo de Quintas: Una explicación detallada | Versión 2.0'            => [YouTube]
+      'https://www.youtube.com/watch?v=r0R6gMw2s44', 'El CÃ­rculo de Quintas: Una explicaciÃ³n detallada | VersiÃ³n 2.0'            => [YouTube]
 
    *5 Delimits a divider string for the second and following consecutive paste from the same page (same URL). 
       KNT will remember the last URL from wich pasted in the current [Clipboard Capture] session
@@ -286,7 +286,7 @@ const
   _NumNotes = 'N:';       // Number of notes
   _NF_Note = '%*';        // TNote begins
   _NF_NEntry = '%.';      // TNoteEntry begins
-  _NF_NEntry_Beta = '%·';      // · is not an adequate character (see https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11140153)
+  _NF_NEntry_Beta = '%Â·';      // Â· is not an adequate character (see https://github.com/dpradov/keynote-nf/discussions/739#discussioncomment-11140153)
   _NF_Folder = '%+';      // TKntFolder begins
   _NF_TxtContent  = '%>'; // end of TNoteEntry header; Plain Text data follows
   _NF_RTFContent  = '%:'; // end of TNoteEntry header; RTF data follows
@@ -581,13 +581,20 @@ const
   //KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt{\ul\cf0 %s}}}';    // {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
   KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt {%s}}}';    // If used {\fldrslt{\ul\cf0 %s} it ends up with something like {\fldrslt{\ul\cf0\cf0\ul %s}. (Idem with \ul\cf1 .. \cf1\ul etc)
 
+  // Used âž• a more clear character that help to mark the beginning of the folded block
+  // See https://github.com/dpradov/keynote-nf/discussions/852#discussioncomment-12914739
+
   KNT_RTF_FOLDED_LINK_PREFIX =       KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK;                                             //  \'11L
   KNT_RTF_FOLDED_LINK =        '{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}'; //  {\'11L%s@%s\'12}
   KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '"FOLD:"@';                                //  \''11L"FOLD:"@
-  KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
+//KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
+  KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@âž• ' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
 
-  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 +}}}';
-  KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"+';
+//KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 +}}}';
+  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 \u10133+ }}}';
+
+//KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"+';
+  KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"âž• ';
   KNT_RTF_END_FOLDED =             '\v0 ...' + KNT_RTF_HIDDEN_MARK_EndLink;                   // \v0 ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0 =      '...' + KNT_RTF_HIDDEN_MARK_EndLink;                   //     ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR = '...' + KNT_RTF_HIDDEN_MARK_EndLink_CHAR;              //     ...$13
