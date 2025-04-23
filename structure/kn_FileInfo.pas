@@ -241,6 +241,7 @@ end; // CREATE
 procedure TForm_KntFileInfo.FormActivate(Sender: TObject);
 var
   fs : longint;
+  IconFN: string;
 begin
   if assigned( myKntFile ) then
   begin
@@ -278,10 +279,13 @@ begin
     CB_NoMultiBackup.Checked := myKntFile.NoMultiBackup;
 
     // tray icon stuff
-    if (( myKntFile.TrayIconFN <> '' ) and fileexists( myKntFile.TrayIconFN )) then begin
-      CB_TrayIcon.Checked := true;
-      Edit_TrayIcon.Text := myKntFile.TrayIconFN;
-      Image_TrayIcon.Picture.LoadFromFile( GetAbsolutePath(ActiveFile.File_Path, myKntFile.TrayIconFN) );
+    IconFN:= myKntFile.TrayIconFN;
+    if IconFN <> '' then
+       IconFN:= GetAbsolutePath(ActiveFile.File_Path, myKntFile.TrayIconFN);
+    if (IconFN <> '') and FileExists(IconFN) then begin
+       CB_TrayIcon.Checked := true;
+       Edit_TrayIcon.Text := myKntFile.TrayIconFN;
+       Image_TrayIcon.Picture.LoadFromFile(IconFN);
     end
     else
       CB_TrayIcon.Checked := false;
