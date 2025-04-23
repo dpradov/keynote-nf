@@ -3678,7 +3678,7 @@ begin
          SetSelection(bakSS, bakSS, false);
      end
      else
-     if CtrlDown and SelAttributes.Protected then begin
+     if CtrlDown and SelAttributes.Protected and not SelAttributes.Link then begin
         GetSS;
         PreviewFoldedBlock(SS);
      end;
