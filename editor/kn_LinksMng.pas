@@ -28,6 +28,7 @@ uses
    System.StrUtils,
    System.IOUtils,
    System.Math,
+   System.DateUtils,
    Vcl.Controls,
    Vcl.Forms,
    Vcl.Dialogs,
@@ -2114,8 +2115,10 @@ begin
   end
   else
   if (URLType = urlKNTFold) then begin
-     if CtrlDown then
-        Editor.Unfold
+     if CtrlDown then begin
+        if SecondsBetween(Now, TKntRichEdit.LastFoldingTime) > 1 then
+           Editor.Unfold;
+     end
      else
         Editor.PreviewFoldedBlock(Editor.SelStart);
      exit;

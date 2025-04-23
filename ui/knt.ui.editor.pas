@@ -80,6 +80,7 @@ type
     DraggingImage_PosFirstHiddenChar: integer;
     FPopupMenuBAK: TPopupMenu;
     FFoldingInScrapbook: boolean;
+    FLastFoldingTime: TDateTime;
     FUnfolding: boolean;
     FCopying: boolean;
 
@@ -149,6 +150,7 @@ type
 
     class property Copying: boolean read FCopying write FCopying;
     class property FoldingInScrapbook: boolean read FFoldingInScrapbook write FFoldingInScrapbook;
+    class property LastFoldingTime: TDateTime read FLastFoldingTime;
 
     property PlainText: boolean read FPlainText write FPlainText;
     property SupportsRegisteredImages: boolean read FSupportsRegisteredImages write FSupportsRegisteredImages;
@@ -480,6 +482,7 @@ class constructor TKntRichEdit.Create;
 begin
    FUnfolding:= False;
    FFoldingInScrapbook:= False;
+   FLastFoldingTime:= 0;
    FCopying:= False;
 end;
 
@@ -3740,8 +3743,10 @@ begin
       ImageMng.OpenImageViewer(ImgID, CtrlDown, false, Img)
 
    else
-   if CtrlDown then
+   if CtrlDown then begin
       Fold (false);
+      FLastFoldingTime:= Now();
+   end;
 
    inherited;
 end;
