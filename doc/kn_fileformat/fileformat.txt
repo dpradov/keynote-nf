@@ -1,6 +1,6 @@
 -------------------------------------
-KEYNOTE NF -  File Format Specification 3.0  (KeyNote NF 2.0.0+)
-Last updated: 30 Nov 2024
+KEYNOTE NF -  File Format Specification 3.1  (KeyNote NF 2.1.0+)
+Last updated: 19 Feb 2025
 
 <dprado.keynote@gmail.com>
 
@@ -15,7 +15,10 @@ Last updated: 30 Nov 2024
  and the tree panel hidden
 
 * KeyNote will continue loading .knt files created with older versions. See "fileformat_2.1 (until v1.9.5).txt"
-* The format described here corresponds to how files are saved since version 2.0.0 of the application
+* The format described here corresponds to how files are saved since version 2.1.0 of the application
+
+* New in 3.1: Tags
+
 
 -------------------------------------
 
@@ -80,10 +83,10 @@ Optional: if clipboard capture was active at the time the file was saved, this i
 
 --------------------------------
 
-NOTES, ENTRIES AND NODES
+TAGS, NOTES, ENTRIES AND NODES
 
-Just after Header section, the file includes the data of all the notes, independent of the folders.
-The first line indicates the number of notes:
+Just after Header section, the file optionally includes a list of tags (%TG) and then data for all the notes, independent of the folders.
+The list of notes is preceded by a first line indicating the number of notes:
 
 N:= <Number notes in File>
 
@@ -109,6 +112,9 @@ n:= <Number nodes in Folder>
 SECTION (START AND END) MARKERS:
 
 The start of each subsection is marked by a single line. The first character in such lines is always the percent sign. For example, '%+' marks the start of a (tree-type) folder. Markers are as follows:
+
+%TG
+marks start of list of TAGS
 
 %*
 marks start of NOTE
@@ -173,6 +179,25 @@ identifies the folder name.
 Each line is guaranteed to be at least one character long. Each line with an identifier is guaranteed to be at least three characters long: the two characters of the identifier itself, plus the equal sign. (The file can be analyzed a little faster if we don't have to check for zero-length strings.)
 
 * Note: 2-character identifiers are case sensitive  (Ns <> NS <> ns)
+
+
+
+TAGS SECTION
+======================================
+  Since version 2.1.0, tags can be defined. They are saved in file in a new section, at the beginning of the file, before the list of Notes
+  Example:
+
+List of Tags starts --------------
+%TG
+
+Tag ID
+ID=1
+
+Tag name
+TN=ToDO
+
+Optional: Tag description, alias, etc
+TD=Pending, to be done
 
 
 List of NOTES (with their ENTRIES)
@@ -400,13 +425,14 @@ NA=21-05-2007 15:24:50
 --------------------------------------
 BOOKMARKS SECTION
 
-  From version 1.8.5, auxiliary bookmarks created with Search|Set Bookmark (Shift+Alt+[0-9]) are saved in file in a new section, at the end
+  Since version 1.8.5, auxiliary bookmarks created with Search|Set Bookmark (Shift+Alt+[0-9]) are saved in file in a new section, at the end
   of the file, but before Image Sections
   Example:
   
 %BK
 BK=0,file:///*8|2|29|0|1
 BK=1,file:///*4|2|29|0|1
+
 
 
 --------------------------------------
