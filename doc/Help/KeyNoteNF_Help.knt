@@ -5,6 +5,7 @@
 #$8
 #C20-04-2003 22:44:55
 #^010000000000000000000000
+#Tkeynote_hlp.ico
 N:=124
 %*
 GI=1
@@ -5423,10 +5424,10 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=1304252150
+LM=2304251932
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;\red128\green128\blue0;\red255\green255\blue179;\red179\green255\blue255;}
 {\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
@@ -5453,9 +5454,9 @@ LM=1304252150
 
 \pard\sb100\sa100 KeyNote offers two ways to search for text:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent360{\pntxtb\'B7}}\fi-360\li360 Incremental Search, with \b Find\b0  (Search|Find... command) and \b Find Node\b0  (Search|Find Node...). \fs24\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent360{\pntxtb\'B7}}\fi-360\li360 Incremental Search, with \b Find\b0  (Search|Find... command) and \b Find Node\b0  (Search|Find Node...). \fs24\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb20\fs20 Complete Search, that display a list of results, with \b Find All\b0  (Find tab in Resource Panel)\fs24\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb20\fs20 Complete Search, that display a list of results, with \b Find All\b0  (Find tab in Resource Panel)\fs24\par
 
 \pard\highlight3\f0\fs20\lang1033\par
 
@@ -5483,8 +5484,8 @@ Searches can be limited to the current editor or include all nodes (\b Search al
 \pard\par
 Note:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 In you have \ul focus on the Tree Panel\ulnone  you can use the same keyboard shortcuts for normal search: \cf5\b\f0\lang1033 Ctrl+F \cf0\b0\f1\lang3082 and \cf5\b\f0\lang1033 F3\cf0\b0\f1\lang3082  respectively (or actual, customized, hotkeys).\par
-{\pntext\f4\'B7\tab}The command \b Find Next Node\b0  will search all the folders and/or all the hidden nodes depending of the options selected in the Find tab of the Resource panel (\ul Search all folders\ulnone  and \ul Search hidden nodes\ulnone )\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 In you have \ul focus on the Tree Panel\ulnone  you can use the same keyboard shortcuts for normal search: \cf5\b\f0\lang1033 Ctrl+F \cf0\b0\f1\lang3082 and \cf5\b\f0\lang1033 F3\cf0\b0\f1\lang3082  respectively (or actual, customized, hotkeys).\par
+{\pntext\f5\'B7\tab}The command \b Find Next Node\b0  will search all the folders and/or all the hidden nodes depending of the options selected in the Find tab of the Resource panel (\ul Search all folders\ulnone  and \ul Search hidden nodes\ulnone )\par
 
 \pard\sb100\sa100\par
 \cf4\b\v\fs24\'11B4\'12\v0 Replace\par
@@ -5573,14 +5574,14 @@ As indicated {{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{\
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Exact phrase\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Exact phrase\b0\par
 
 \pard\li360\sb80 KeyNote will search for the exact text entered.\par
 \ul Note\ulnone : External spaces will be ignored (trimmed). Therefore, the search for "text entered" will be identical to the search for " text entered ". However, "text entered" will be different from "text  entered".\par
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\b All the words  \b0\fs18 (AND)\fs20\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\b All the words  \b0\fs18 (AND)\fs20\par
 
 \pard\li360\sb80 KeyNote will search for the words entered, using the space(s) as a word separator.\par
 With this option selected, KeyNote will include in the results all the consecutive matches where \ul all\ulnone  of the words are present.\par
@@ -5589,7 +5590,7 @@ The first word found from the list provided is highlighted, as well as those oth
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Any of the words  \b0\fs18 (OR)\fs20\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Any of the words  \b0\fs18 (OR)\fs20\par
 
 \pard\li360\sb80 KeyNote will search for the words entered, using the space(s) as a word separator.\par
 With this option selected, KeyNote will include in the results all the consecutive matches where \ul any\ulnone  of the words are present.\par
@@ -5599,9 +5600,9 @@ Results are created that include, and highlight, all occurrences of each of the 
 
 \pard\sb80 Note. With \ul All the words\ulnone  or \ul Any the words\ulnone :\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 There may be more than one result/match per note (node)\par
-{\pntext\f4\'B7\tab}The order of appearance of the words is not relevant.\par
-{\pntext\f4\'B7\tab}Selecting\f3  \f0 "All\f3  \f0 the\f3  \f0 words"\f3  \f0 or\f3  \f0 "Any\f3  \f0 of\f3  \f0 the\f3  \f0 words"\f3  \f0 when\f3  \f0 searching\f3  \f0 only\f3  \f0 one\f3  \f0 word\f3  \f0 is\f3  \f0 equivalent\f3  \f0 to\f3  \f0 use\f3  \f0 "Exact\f3  \f0 phrase"\f3 .\f0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 There may be more than one result/match per note (node)\par
+{\pntext\f5\'B7\tab}The order of appearance of the words is not relevant.\par
+{\pntext\f5\'B7\tab}Selecting\f3  \f0 "All\f3  \f0 the\f3  \f0 words"\f3  \f0 or\f3  \f0 "Any\f3  \f0 of\f3  \f0 the\f3  \f0 words"\f3  \f0 when\f3  \f0 searching\f3  \f0 only\f3  \f0 one\f3  \f0 word\f3  \f0 is\f3  \f0 equivalent\f3  \f0 to\f3  \f0 use\f3  \f0 "Exact\f3  \f0 phrase"\f3 .\f0\par
 
 \pard\par
 \par
@@ -5619,15 +5620,15 @@ Keynote will considere only the nodes created and/or modified in the intervals i
 
 \pard\sb80 With this option you can restrict searches to node names or note contents, considering:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa40\b Only node names\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa40\b Only node names\b0\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only note contents\b0\par
-{\pntext\f4\'B7\tab}\b All\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only note contents\b0\par
+{\pntext\f5\'B7\tab}\b All\b0\par
 
 \pard\sb160 Note:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Other options selected, like \ul Search Type\ulnone  (Exact phrase, All the words, Any of the words) or \ul Whole words only\ulnone  will also be considered when searching node names.\par
-{\pntext\f4\'B7\tab}Matches in node names are \cf6\highlight7 highlighted\cf0\highlight0  in results list, with \highlight7\lang3082 ligth yellow\highlight8\lang1033  \highlight0 background color\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Other options selected, like \ul Search Type\ulnone  (Exact phrase, All the words, Any of the words) or \ul Whole words only\ulnone  will also be considered when searching node names.\par
+{\pntext\f5\'B7\tab}Matches in node names are \cf6\highlight7 highlighted\cf0\highlight0  in results list, with \highlight7\lang3082 ligth yellow\highlight8\lang1033  \highlight0 background color\par
 
 \pard\par
 \par
@@ -5642,10 +5643,10 @@ There is an explanation and an example of its possible use in Folders as note tr
 
 \pard\sb80\f1\lang3082 This option allows you to restrict search depending on checked status of nodes, considering:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa40\b\f0\lang1033 Only non checked nodes\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa40\b\f0\lang1033 Only non checked nodes\b0\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only checked nodes\b0\par
-{\pntext\f4\'B7\tab}\b All\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40\b Only checked nodes\b0\par
+{\pntext\f5\'B7\tab}\b All\b0\par
 
 \pard\par
 \par
@@ -5654,10 +5655,10 @@ There is an explanation and an example of its possible use in Folders as note tr
 If you include folded text in your notes, you can use the "\b Folded mode\b0 " dropdown with one of these options:\par
 \par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 All\par
-{\pntext\f4\'B7\tab}Exclude folded\par
-{\pntext\f4\'B7\tab}Exclude tagged folded\par
-{\pntext\f4\'B7\tab}Only folded\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 All\par
+{\pntext\f5\'B7\tab}Exclude folded\par
+{\pntext\f5\'B7\tab}Exclude tagged folded\par
+{\pntext\f5\'B7\tab}Only folded\par
 
 \pard\par
 The first option, selected by default, does not distinguish based on text status and allows you to locate words regardless of whether they are in folded (hidden) blocks or not.\par
@@ -5685,18 +5686,18 @@ Using search criteria based on tags, it's also possible to determine which nodes
 \pard\par
 The \ul nodes considered\ulnone  can be restricted based on the selection of tags:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\b With\b0  [ALL or ANY] the tags indicated \par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\b With\b0  [ALL or ANY] the tags indicated \par
 
 \pard\li360 (can be use individual tags or multiple --ex. Err*)\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Without\b0  ANY of the tags indicated\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Without\b0  ANY of the tags indicated\par
 
 \pard\par
 Checks related:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Consider metadata of notes\b0\par
-{\pntext\f4\'B7\tab}\b Consider text of notes\b0\par
-{\pntext\f4\'B7\tab}\b Inherited tags (metadata)\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Consider metadata of notes\b0\par
+{\pntext\f5\'B7\tab}\b Consider text of notes\b0\par
+{\pntext\f5\'B7\tab}\b Inherited tags (metadata)\b0\par
 
 \pard\par
 The introduction of tags to use in the With and Without fields will be done with the help of a tag selector (See {{\field{\*\fldinst{HYPERLINK "file:///<122|7939|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tag Selector}}}}\f0\fs20 ) \par
@@ -5715,13 +5716,13 @@ We can \ul restrict the search to text fragments\ulnone  that do not include any
 \pard\par
 \b Notes\b0 :\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 When checking whether a text fragment satisfies the tag conditions, it is important to keep in mind that each tag defines a scope (an interval, with a lower bound and an upper bound for the text it affects) and that this will also depend on whether the tag has been defined "openly" (e.g., #Critical: ) or not, affecting in this last case only the paragraph in which it is located (See {{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Scope or range of application of Tags}}}}\f0\fs20 )\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 When checking whether a text fragment satisfies the tag conditions, it is important to keep in mind that each tag defines a scope (an interval, with a lower bound and an upper bound for the text it affects) and that this will also depend on whether the tag has been defined "openly" (e.g., #Critical: ) or not, affecting in this last case only the paragraph in which it is located (See {{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Scope or range of application of Tags}}}}\f0\fs20 )\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 It is possible to restrict the search using {{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{\ul\cf2\cf2\ul unregistered tags}}}}\f0\fs20\par
-{\pntext\f4\'B7\tab}If searching for content using tags and text to find is "", a match is returned for each piece of text that meets the criteria\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 It is possible to restrict the search using {{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{\ul\cf2\cf2\ul unregistered tags}}}}\f0\fs20\par
+{\pntext\f5\'B7\tab}If searching for content using tags and text to find is "", a match is returned for each piece of text that meets the criteria\par
 
 \pard\par
-{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul +}}}}\protect\f0\fs20\lang3082 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text \ul With\ulnone  any of the selected tags: "[x]"\v\par
+{\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text \ul With\ulnone  any of the selected tags: "[x]"\v\par
 \par
 
 \protect0\pard\protect\li360\sb40\cf9 #[x]\par
@@ -5755,7 +5756,7 @@ Task 4 ...\par
 
 \protect0\pard\protect   -----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\lang1033\par
 \par
-{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul +}}}}\protect\f0\fs20\lang3082 Now \ul excluding\ulnone  text \ul With any\ulnone  of the selected tags: "[x]" "E0"\v\par
+{\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Now \ul excluding\ulnone  text \ul With any\ulnone  of the selected tags: "[x]" "E0"\v\par
 
 \protect0\pard\protect\li360\sb160\cf9 Task 1 ...\par
 
@@ -5769,7 +5770,7 @@ Task 4 ...\par
 
 \pard\sa80 We can restrict the search to text fragments WITH certain tags and/or WITHOUT other tags\par
 
-\pard\sb80 {\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul +}}}}\protect\f0\fs20\lang3082 Some other examples to understand the possibilities; Searching for "task"; \ul With\ulnone  tags: "[x]" and "E0" and \ul Without\ulnone  tags:  \v "BB"\par
+\pard\sb80 {\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Some other examples to understand the possibilities; Searching for "task"; \ul With\ulnone  tags: "[x]" and "E0" and \ul Without\ulnone  tags:  \v "BB"\par
 
 \protect0\pard\protect\par
 
@@ -5849,7 +5850,7 @@ Task 7 ...\par
 \protect0\pard\protect   -----------------  -> 5 matches: Task 2, 3, 6, 7, 8\par
 \cf0\par
 
-\protect0\pard\protect{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Important: Writing "(#BB)" is not the same as writing "(#BB )"\par
+\protect0\pard\protect{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 Important: Writing "(#BB)" is not the same as writing "(#BB )"\par
 
 \protect0\pard\protect\li360   In "(#BB)", "BB" tag is not recognized, because ")" can be used inside a tag's name.\par
   With "(#BB )"      -> 4 matches: Task 2, 3, 6, 8\par
@@ -5887,22 +5888,22 @@ More information: {{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldr
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 By default, separating words with spaces means that they can be found anywhere, there is no restrictionon the distance between them\par
-{\pntext\f4\'B7\tab}If two or more \b words\b0  are \b separated by\b0  "\cf6\b ...\cf0\b0 " (three dots), they must all be located \b in the same paragraph\b0  to be recognized as a match.\par
-{\pntext\f4\'B7\tab}If two or more words are \b separated by \b0 "\cf6\b ..\cf0\b0 " (two dots), they must all be located \b in the same sentence\b0  to be recognized as a match.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 By default, separating words with spaces means that they can be found anywhere, there is no restrictionon the distance between them\par
+{\pntext\f5\'B7\tab}If two or more \b words\b0  are \b separated by\b0  "\cf6\b ...\cf0\b0 " (three dots), they must all be located \b in the same paragraph\b0  to be recognized as a match.\par
+{\pntext\f5\'B7\tab}If two or more words are \b separated by \b0 "\cf6\b ..\cf0\b0 " (two dots), they must all be located \b in the same sentence\b0  to be recognized as a match.\par
 
 \pard\li720\sb40 Sentences are understood to be separated by a period and at least one space or by a period and a tabulation sign, or by a line break or a column separator in a table.\par
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 If there are more than two words joined with ".." or "..." only the first separator will be considered. The rest should be the same, and if they are not, they are forced. For example, searching for something like [\cf9 w1..w2...w3 w4\cf0 ] will be equivalent to [\cf9 w1..w2..w3 w4\cf0 ]\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 If there are more than two words joined with ".." or "..." only the first separator will be considered. The rest should be the same, and if they are not, they are forced. For example, searching for something like [\cf9 w1..w2...w3 w4\cf0 ] will be equivalent to [\cf9 w1..w2..w3 w4\cf0 ]\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The order in which the words are joined is not important. Searching for [\cf9 w1..w2\cf0 ] is the same as searching for [\cf9 w2..w1\cf0 ]\par
-{\pntext\f4\'B7\tab}If you need to search for the separator characters themselves, they should be enclosed in quotes and will be treated as normal text to search for. Ex: \cf9 "w1..w2"\cf0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The order in which the words are joined is not important. Searching for [\cf9 w1..w2\cf0 ] is the same as searching for [\cf9 w2..w1\cf0 ]\par
+{\pntext\f5\'B7\tab}If you need to search for the separator characters themselves, they should be enclosed in quotes and will be treated as normal text to search for. Ex: \cf9 "w1..w2"\cf0\par
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 This restriction on distance or separation between words can be used with both the 'All' method (All the words) and the 'Any' method (Any of the words). Even if it is the 'Any' method, all words linked by distance (.. or ...) must be found to be considered a match.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 This restriction on distance or separation between words can be used with both the 'All' method (All the words) and the 'Any' method (Any of the words). Even if it is the 'Any' method, all words linked by distance (.. or ...) must be found to be considered a match.\par
 
 \pard\par
 Example. Looking for:   \cf9 w1...w2..w3 w4..w5 w6\cf0\par
@@ -5916,19 +5917,19 @@ Example. Looking for:   \cf9 w1...w2..w3 w4..w5 w6\cf0\par
 You can indicate if the words to search for must be emphasized, or also inside a same paragraph.\par
 \par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 If the \cf6\b *\cf0\b0  character is found individually, it will mean that the words to be searched for must be emphasized: \b bold\b0 , \b underlined\b0  or \b highlighted\b0 .\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 If the \cf6\b *\cf0\b0  character is found individually, it will mean that the words to be searched for must be emphasized: \b bold\b0 , \b underlined\b0  or \b highlighted\b0 .\par
 
 \pard\li360\sb80    Example: [\cf9 * text plain\cf0 ]\par
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 If the modifier \cf6\b **\cf0\b0  is found, all words must be located in the \b same paragraph\b0  \b or\b0  in the \b name of a note\b0 . In addition, \b all words in that paragraph\b0  must be \b emphasized\b0 : in bold, underlined or highlighted, \b or with a font size larger\b0  than the words in the following paragraph (the first characters after the line break will be ignored in case any additional line break was added with the same font size).\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 If the modifier \cf6\b **\cf0\b0  is found, all words must be located in the \b same paragraph\b0  \b or\b0  in the \b name of a note\b0 . In addition, \b all words in that paragraph\b0  must be \b emphasized\b0 : in bold, underlined or highlighted, \b or with a font size larger\b0  than the words in the following paragraph (the first characters after the line break will be ignored in case any additional line break was added with the same font size).\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb120 All this will be checked at least on the first and last word searched as well as the beginning and end of the paragraph\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb120 All this will be checked at least on the first and last word searched as well as the beginning and end of the paragraph\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 Note: words underlined as a result of containing hyperlinks won't be not considered emphasized.\par
-{\pntext\f4\'B7\tab}Note: search scope used will be All (contents and node names), ignoring the current selection of this group box.\par
-{\pntext\f4\'B7\tab}If a note/node name could be matched, and the same paragraph is used at the beginning of the note content, also as a match, then only the latter will be included in the results list.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720 Note: words underlined as a result of containing hyperlinks won't be not considered emphasized.\par
+{\pntext\f5\'B7\tab}Note: search scope used will be All (contents and node names), ignoring the current selection of this group box.\par
+{\pntext\f5\'B7\tab}If a note/node name could be matched, and the same paragraph is used at the beginning of the note content, also as a match, then only the latter will be included in the results list.\par
 
 \pard\par
 
@@ -5946,17 +5947,17 @@ When searching one or all folders with \ul Find All\ulnone  (Find resource tab),
 KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b  \b0 it will only keep visible those nodes (and their parents) that contain the searched text, that is, with one or more matches. Other nodes will be hidden while the filter is active.\par
 \par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 If \b Search all folders \b0 is disabled, the filter will only affect to the current folder.\par
-{\pntext\f4\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the tree toolbar button \v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033  will be shown pressed.\par
-{\pntext\f4\'B7\tab}Using this option, you will be able to \b refine your search\b0 , considering only the nodes (and parents...) that satisfied the previous search, if you run another search where the \b Search hidden nodes\b0  \ul option is disabled\ulnone . This new search may or may not keep the \ul Filter folder\ulnone  enabled. If enabled, it can hide some other nodes.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 If \b Search all folders \b0 is disabled, the filter will only affect to the current folder.\par
+{\pntext\f5\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the tree toolbar button \v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033  will be shown pressed.\par
+{\pntext\f5\'B7\tab}Using this option, you will be able to \b refine your search\b0 , considering only the nodes (and parents...) that satisfied the previous search, if you run another search where the \b Search hidden nodes\b0  \ul option is disabled\ulnone . This new search may or may not keep the \ul Filter folder\ulnone  enabled. If enabled, it can hide some other nodes.\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 When running a new search where \b Search hidden nodes\b0  \ul option is enabled\ulnone , it will not be affected by a previous filter that may be active. The new search will display all results found, whether in a hidden or visible node. If \ul Filter folder\ulnone  was enabled in this new search, all nodes will be shown or hidden depending on the search. Nodes that were hidden can now be shown.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 When running a new search where \b Search hidden nodes\b0  \ul option is enabled\ulnone , it will not be affected by a previous filter that may be active. The new search will display all results found, whether in a hidden or visible node. If \ul Filter folder\ulnone  was enabled in this new search, all nodes will be shown or hidden depending on the search. Nodes that were hidden can now be shown.\par
 
 \pard\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 After applying 'Filter folder[s]' it is possible to \b toggle\b0  whether or not to \b activate the filter\b0 . You can toggle between showing all the nodes or only the unfiltered ones using the "Filter nodes" button (or menu entry), \v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033 .\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 After applying 'Filter folder[s]' it is possible to \b toggle\b0  whether or not to \b activate the filter\b0 . You can toggle between showing all the nodes or only the unfiltered ones using the "Filter nodes" button (or menu entry), \v\'11I50\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}\lang1033 .\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The find filter applied can be \b cleared\b0  with \cf5\b Ctrl+Click\cf0\b0  on "Filter nodes" button, in tree panel. The tree filter appplied, if any, won't be affected\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The find filter applied can be \b cleared\b0  with \cf5\b Ctrl+Click\cf0\b0  on "Filter nodes" button, in tree panel. The tree filter appplied, if any, won't be affected\par
 
 \pard\li360 This way, it is possible to keep the find filter applied or disabled while continuing to use Find All (with 'Filter Filter' unchecked)\par
 
@@ -17502,11 +17503,11 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2
 %*
 GI=123
 ND=Folding and unfolding
-LM=1504251803
+LM=2304251938
 %.
 DC=1204251504
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fswiss\fprq2\fcharset1 Segoe UI Symbol;}{\f2\fnil\fcharset1 Segoe UI Symbol;}{\f3\fnil Segoe UI Symbol;}{\f4\froman\fcharset0 Tahoma;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
@@ -17523,19 +17524,19 @@ DC=1204251504
 Since version 1.2.1, it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. We can manage collapsed blocks in different ways, such as to simplify visibility, to treat certain text as a kind of archive, etc.\par
 \par
 
-\pard\sb80 When a block is folded, a hyperlink with the text "+" is displayed, and it is closed with "...\protect\'13\protect0 ".\par
+\pard\sb80 When a block is folded, a hyperlink with the character \f1\fs22\lang3082\u10133?\f0\fs20\lang1033  is displayed, and it is closed with "...\protect\'13\protect0 ".\par
 Given a text to be folded, the visible excerpt will be selected from the beginning, including the rest of the sentence or until two consecutive spaces, an image or a hyperlink are detected.\par
 
 \pard\par
-Nesting of folded blocks is possible, and these can contain images, links, etc. The following is an \b example of folded text\b0 . Notice the hyperlink with the "+":\par
+Nesting of folded blocks is possible, and these can contain images, links, etc. The following is an \b example of folded text\b0 . Notice the hyperlink with the \f1\fs22\lang3082\u10133?\f0\fs20\lang1033 :\par
 \par
-{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf2\ul +}}}}\protect\f0\fs20 This is an fragment of the help included in\v  \'11L"file:///<41|0|0"@\cf2\ul Image management in KeyNote NF\'12\cf0\ulnone\par
+{\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf2\ul\f2\u10133?\f0  \f2 }}}}\protect\f0\fs20\lang3082 This is an fragment of the help included in\v  \'11L"file:///<41|0|0"@\cf2\ul Image management in KeyNote NF\'12\cf0\ulnone\par
 \par
 \cf3\b\fs26 Introduction\cf0\b0\par
 \fs20\par
-\'11I115\'12\lang3082\'11L"img:115,214,225"@\cf2\ul 115_Clipb_04ene.png\'12\cf0\ulnone\lang1033  \par
+\'11I115\'12\'11L"img:115,214,225"@\cf2\ul 115_Clipb_04ene.png\'12\cf0\ulnone\lang1033  \par
 \par
-\fs24\'11L"FOLD:"@\cf2\ul +\'12\cf0\ulnone\fs20 Since version 1.8.1 KeyNote NF allows to use the most common image formats  (GIF, PNG, JPG, BMP, TIF, WMF, EMF and ICO), and offer a series of new features, such as allowing images to be hidden or visible, providing various storage mechanisms, some of them external to the .knt file, or making use of an internal viewer, among others....\'13\v0 ...\'13\protect0\par
+\fs24\lang3082\'11L"FOLD:"@\cf2\ul\f2\u10133?\f0  \f3\'12\cf0\ulnone\f0\fs20 Since version 1.8.1 KeyNote NF allows to use the most common image formats  (GIF, PNG, JPG, BMP, TIF, WMF, EMF and ICO), and offer a series of new features, such as allowing images to be hidden or visible, providing various storage mechanisms, some of them external to the .knt file, or making use of an internal viewer, among others....\'13\v0 ...\'13\protect0\lang1033\par
 \par
 \par
 \par
@@ -17551,13 +17552,13 @@ It is possible to both view and modify the content of folded text without needin
 \par
 \b Notes\b0 :\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 If a search, either with Find or Find Next, or through Find All (resources panel), identifies a pattern within a folded block, when jumping to that position, the "+" at the beginning of the block will be selected.\par
-{\pntext\f2\'B7\tab}In the current version, when executing the Replace... or Replace Next function, possible words located within folded text blocks will not be modified. KeyNote will not modify them, although it will give a notice of the number of blocks in which they have been identified.\par
-{\pntext\f2\'B7\tab}In the search panel (Find All), a new option has been included that allows considering or not folded blocks. (See {\f1\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|10113|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Folded blocks}}}}\f0\fs20  in Using Find and Find All)\par
-{\pntext\f2\'B7\tab}When exporting notes (File | Export...), an option has been included that allows indicating how to treat folded blocks (See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Using Folded text}}}}\f0\fs20  in Exporting or Printing Notes)\par
-{\pntext\f2\'B7\tab}It is possible to check the structure of folded blocks and their nesting through the export to plain text. Vea {{\field{\*\fldinst{HYPERLINK "file:///<57|15769|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to Plain text}}}}\f0\fs20\par
-{\pntext\f2\'B7\tab}Text folding can also be performed in the Scratchpad\par
-{\pntext\f2\'B7\tab}Text folding is \b not\b0  available in \ul plain text\ulnone  notes.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 If a search, either with Find or Find Next, or through Find All (resources panel), identifies a pattern within a folded block, when jumping to that position, the \f1\fs22\lang3082\u10133?\f0\fs20\lang1033  at the beginning of the block will be selected.\par
+{\pntext\f5\'B7\tab}In the current version, when executing the Replace... or Replace Next function, possible words located within folded text blocks will not be modified. KeyNote will not modify them, although it will give a notice of the number of blocks in which they have been identified.\par
+{\pntext\f5\'B7\tab}In the search panel (Find All), a new option has been included that allows considering or not folded blocks. (See {\f4\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|10113|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Folded blocks}}}}\f0\fs20  in Using Find and Find All)\par
+{\pntext\f5\'B7\tab}When exporting notes (File | Export...), an option has been included that allows indicating how to treat folded blocks (See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Using Folded text}}}}\f0\fs20  in Exporting or Printing Notes)\par
+{\pntext\f5\'B7\tab}It is possible to check the structure of folded blocks and their nesting through the export to plain text. Vea {{\field{\*\fldinst{HYPERLINK "file:///<57|15769|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to Plain text}}}}\f0\fs20\par
+{\pntext\f5\'B7\tab}Text folding can also be performed in the Scratchpad\par
+{\pntext\f5\'B7\tab}Text folding is \b not\b0  available in \ul plain text\ulnone  notes.\par
 
 \pard\par
 \par
@@ -17567,11 +17568,11 @@ It is possible to both view and modify the content of folded text without needin
 You can fold a block of text, thus hiding its content, in several ways:\par
 \par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Select\b0  the text you want to fold and click on \b "Fold"\b0  in the editor's context menu\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Select\b0  the text you want to fold and click on \b "Fold"\b0  in the editor's context menu\par
 
 \pard\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a \b tag\b0\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a \b tag\b0\par
 
 \pard\li360 The text that will be considered and folded will be all that affected by this tag, which will depend on whether the tag is being used in open mode or not. (See {{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Scope or range of application of Tags}}}}\f0\fs20 )\par
 
@@ -17579,7 +17580,7 @@ You can fold a block of text, thus hiding its content, in several ways:\par
 
 \pard\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a word registered as an "\b opening\b0 " for folded blocks.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a word registered as an "\b opening\b0 " for folded blocks.\par
 
 \pard\li360\sb80 From Tools|Configuration Options... in the {{\field{\*\fldinst{HYPERLINK "file:///<124|0|0"}}{\fldrslt{\ul\cf2\cf2\ul "Folding Blocks"}}}}\f0\fs20  section, it is possible to add pairs of tokens, one "opening" and one "closing", thus allowing identification of text blocks to be folded.\par
 
@@ -17598,8 +17599,8 @@ If the two words are different, this allows nested blocks to be defined.\par
 \pard\li360\sb80 When you \cf4 Ctrl+double-Click\cf0  on the word defined as opening, KeyNote will search from that position in the text for the corresponding closing word. If it finds it, it will fold all the content between both words, both inclusive.\par
 Keep in mind the following:\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720 It is possible to configure each pair of tokens indicating if they are case sensitive\par
-{\pntext\f2\'B7\tab}If the opening and closing words are different, this will allow working with nested blocks. In this case, folding should always be done on complete blocks. This implies the following. Imagine the following text:\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720 It is possible to configure each pair of tokens indicating if they are case sensitive\par
+{\pntext\f5\'B7\tab}If the opening and closing words are different, this will allow working with nested blocks. In this case, folding should always be done on complete blocks. This implies the following. Imagine the following text:\par
 
 \pard\li360\par
 
@@ -17617,9 +17618,9 @@ Keep in mind the following:\par
 (The indentation is simply to see it more clearly, but it is not necessary).\par
 \par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080 If you \cf4 Ctrl+double-Click\cf0  on the first IF, the entire text block will be folded. If you do it on the second IF, only the inner block will be folded. After folding the inner block, you can also fold the entire block, keeping the inner block folded.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li1080 If you \cf4 Ctrl+double-Click\cf0  on the first IF, the entire text block will be folded. If you do it on the second IF, only the inner block will be folded. After folding the inner block, you can also fold the entire block, keeping the inner block folded.\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sb80 Folding will only be performed if a coherent structure is detected, also considering nesting. For example, if this pair has been defined as case sensitive, and "End IF" is written at the end of the inner block instead of "END IF", or that ending is not included, when trying to fold the outer IF, nothing will happen, no folding will be performed.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li1080\sb80 Folding will only be performed if a coherent structure is detected, also considering nesting. For example, if this pair has been defined as case sensitive, and "End IF" is written at the end of the inner block instead of "END IF", or that ending is not included, when trying to fold the outer IF, nothing will happen, no folding will be performed.\par
 
 \pard\li1080\sb40 This is because, as KeyNote traverses the text to fold, it will discover possible nested blocks from their opening tokens, and in that case, it will expect to find the corresponding closing tokens.\par
 In this example, and as the opening and closing tokens have been defined, the final "END IF" would not be recognized as the closure of the initial "IF", but as the closure of the second nested block identified through the "IF" of "End IF". Since it is not a valid closure, what is recognized is the IF word, which defines a new block.\par
@@ -17642,13 +17643,13 @@ When it doesn't find the corresponding closure, it won't perform the folding.\pa
 
 \pard\li360\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a \b 'normal' word\b0  that is not defined as a block opening word nor as a tag.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 By \cf4\b Ctrl+double-Click\cf0\b0  on a \b 'normal' word\b0  that is not defined as a block opening word nor as a tag.\par
 
 \pard\li360\sb80 In this case, the end of the block to be folded is searched for as follows:\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720 If the string "[.]" is found after that word, it will be folded to it.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720 If the string "[.]" is found after that word, it will be folded to it.\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40 If it is not found, the end of the paragraph in which it is located will be considered as the end of the block.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40 If it is not found, the end of the paragraph in which it is located will be considered as the end of the block.\par
 
 \pard\li360\sb120 The use of this generic ending block ( \b [.]\b0  ) can allow you to maintain a folded block that you can easily expand from the beginning, unfolding it and folding it again from a higher position, once new text has been added.\par
 
@@ -17660,9 +17661,9 @@ When it doesn't find the corresponding closure, it won't perform the folding.\pa
 You can unfold a folded text block in two ways:\par
 \par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 By placing the \b cursor\b0  at any position of the visible excerpt and selecting "\b Unfold\b0 " in the editor's context menu.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 By placing the \b cursor\b0  at any position of the visible excerpt and selecting "\b Unfold\b0 " in the editor's context menu.\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 By pressing \cf4\b Ctrl+Click\cf0\b0  on the hyperlink ("\b +\b0 ") that defines the beginning of the folded block\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 By pressing \cf4\b Ctrl+Click\cf0\b0  on the hyperlink (\cf2\ul\protect\f2\fs24\lang3082\u10133?\cf0\ulnone\protect0\f0\fs20\lang1033 ) that defines the beginning of the folded block\par
 
 \pard\par
 If you make a mistake or want to fold it again immediately afterward, simply press \cf4\b Ctrl+Z\cf0\b0  (Undo).\par
@@ -17672,7 +17673,7 @@ If you make a mistake or want to fold it again immediately afterward, simply pre
 \cf0\b0\fs20\par
 Although folded text is not directly editable, it is possible to view and modify its content without needing to unfold it, by using \b floating editors\b0 . \par
 \par
-To do this, \cf4\b Click\cf0\b0  on the hyperlink ("\b +\b0 ") that defines the beginning of the folded block. This will show the content within a floating editor. This floating editor is a normal editor that allows all the usual functionalities, with very few exceptions, such as not allowing its use with ClipCap. If this nested text contains in turn nested text blocks, you can view and edit them in the same way.\par
+To do this, \cf4\b Click\cf0\b0  on the hyperlink (\cf2\ul\protect\f2\fs24\lang3082\u10133?\cf0\ulnone\protect0\f0\fs20\lang1033 ) that defines the beginning of the folded block or \cf4\b Ctrl+Click\cf0\b0  anywhere in the folded block.  This will show the content within a floating editor. This floating editor is a normal editor that allows all the usual functionalities, with very few exceptions, such as not allowing its use with ClipCap. If this nested text contains in turn nested text blocks, you can view and edit them in the same way.\par
 \par
 A floating editor will remain visible as long as the focus is not returned to the "parent" editor, which will close all "child" floating editors, saving the changes made. Any operation that involves selecting another "parent" note will also close the floating editors, such as selecting another node in the tree or closing the file.\par
 \par
