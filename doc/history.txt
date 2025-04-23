@@ -3,6 +3,23 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.0.2  Beta2 (23 apr 2025)
+--------------------------
+* Used a more visible/clear character to mark the beginning of the folded block
+  ** Note -> Unfold existent folded blocks with previous version before updating
+* The floating editor can be opened by Ctrl+Clicking anywhere in the folded block
+* Optimizations to reduce editor flashing (#859)
+--
+* Fixed: "Custom icon for this file" was not displaying the set icon (File|Properties|File Icons)
+* Fixed: Jumping to external note didn't work when note wasn't in the active folder (#860)
+* Fixed: TAB key inside the tree should set the focus to editor (#862)
+* Fixed: Error message about the language file when starting up (#857)
+* Reverted the change for solving issue #830 (Taskbar icon is always shown on main monitor)
+  This fixes:
+  * KeyNote and system tray (and activation Hotkey) (#858)
+  * Splash of a black area in the Tree panel when maximizing from minimized (#854)
+
+
 v 2.1.0.1  Beta1 (16 apr 2025)
 --------------------------
 Added two new functionalities:

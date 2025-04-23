@@ -199,7 +199,7 @@ begin
   LoadRichEditLibrary;
   ApplyLanguageUI (KeyOptions.LanguageUI);
 
-  Application.MainFormOnTaskbar := True;
+//  Application.MainFormOnTaskbar := True;
   Application.CreateForm(TChest, Chest);
   Application.CreateForm(TForm_Main, Form_Main);
   Application.Run;
