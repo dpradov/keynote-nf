@@ -2753,7 +2753,7 @@ end;
 
 procedure TForm_ExportNew.ExpandFoldedText(RTF : TAuxRichEdit);
 var
-  TxtPlain: AnsiString;
+  TxtPlain: string;
   SS: integer;
 begin
   SS:= 1;
@@ -2768,7 +2768,7 @@ end;
 
 procedure TForm_ExportNew.RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean);
 var
-  TxtPlain: AnsiString;
+  TxtPlain: string;
   SS: integer;
 begin
   SS:= 1;
