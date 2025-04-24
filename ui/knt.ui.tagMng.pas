@@ -452,6 +452,7 @@ begin
       txtTags.SelStart:= 0;
       CheckBeginOfTag;
 
+      fChangingInCode:= True;
       cTagSelector.CloseTagSelector(true);
 
       FindTags:= CommitIntroducedTags(true, FindTagsNotReg);
@@ -461,9 +462,7 @@ begin
 
       Color:= clWindowText;
       if txtTags.Text = '' then begin
-         fChangingInCode:= True;
          txtTags.Text := EMPTY_TAGS;
-         fChangingInCode:= False;
          Color:= clGray;
       end;
       txtTags.Font.Color:= Color;
@@ -497,6 +496,7 @@ begin
             FOnEndFindTagsIntrodBAK(PressedReturn, FindTags, FindTagsNotReg);
       end;
 
+      fChangingInCode:= False;
    end;
 
 end;
