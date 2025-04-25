@@ -2993,9 +2993,9 @@ var
        for i := 0 to NoteTags.Count -1 do begin
           NTag:= NoteTags[i];
           tf.WriteLine(_TagID + '=' + NTag.ID.ToString);
-          tf.WriteLine(_TagName + '=' + NTag.Name);
+          tf.WriteLine(_TagName + '=' + NTag.Name, True);
           if NTag.Description <> '' then
-             tf.WriteLine(_TagDescription + '=' + NTag.Description);
+             tf.WriteLine(_TagDescription + '=' + NTag.Description, True);
        end;
     end;
 
