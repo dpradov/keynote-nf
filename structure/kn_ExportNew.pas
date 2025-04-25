@@ -2688,10 +2688,11 @@ end;
 procedure TForm_ExportNew.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
 begin
    OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+   if PressedReturn then
+      txtTagsExcl.SetFocus;
+
    if txtTagsIncl.Focused then
-      txtTagsInclEnter(nil)
-   else
-      EnableDefaultButton(True);
+      txtTagsInclEnter(nil);
 end;
 
 
@@ -2719,10 +2720,11 @@ end;
 procedure TForm_ExportNew.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
 begin
    OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+   if PressedReturn then
+      chkTagsMetad.SetFocus;
+
    if txtTagsExcl.Focused then
-      txtTagsExclEnter(nil)
-   else
-      EnableDefaultButton(True);
+      txtTagsExclEnter(nil);
 end;
 
 

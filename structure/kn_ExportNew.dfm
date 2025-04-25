@@ -29,7 +29,7 @@ object Form_ExportNew: TForm_ExportNew
     Default = True
     ImageMargins.Left = 4
     Images = Form_Main.IMG_Toolbar
-    TabOrder = 0
+    TabOrder = 3
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
@@ -41,7 +41,7 @@ object Form_ExportNew: TForm_ExportNew
     Cancel = True
     Caption = 'Close'
     ModalResult = 2
-    TabOrder = 2
+    TabOrder = 4
   end
   object Button_Help: TButton
     Left = 562
@@ -49,7 +49,7 @@ object Form_ExportNew: TForm_ExportNew
     Width = 86
     Height = 25
     Caption = 'Help'
-    TabOrder = 4
+    TabOrder = 5
     OnClick = Button_HelpClick
   end
   object Pages: TPage95Control
@@ -65,7 +65,7 @@ object Form_ExportNew: TForm_ExportNew
     TabInactiveFont.Height = -11
     TabInactiveFont.Name = 'Tahoma'
     TabInactiveFont.Style = []
-    TabOrder = 3
+    TabOrder = 0
     object Tab_Main: TTab95Sheet
       HelpType = htKeyword
       HelpKeyword = '57-1'
@@ -162,7 +162,7 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '57-11'
           Caption = 'Show hidden marks and IDs'
-          TabOrder = 9
+          TabOrder = 10
         end
         object Spin_TblMaxDepth: TSpinEdit
           Left = 255
@@ -175,7 +175,7 @@ object Form_ExportNew: TForm_ExportNew
           MaxLength = 2
           MaxValue = 99
           MinValue = 1
-          TabOrder = 8
+          TabOrder = 9
           Value = 3
         end
         object CB_TableCont: TCheckBox
@@ -186,7 +186,7 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '57-14'
           Caption = 'Top N levels on a Table of Contents'
-          TabOrder = 7
+          TabOrder = 8
         end
         object cbFoldedText: TComboBox
           Left = 116
@@ -197,7 +197,7 @@ object Form_ExportNew: TForm_ExportNew
           HelpKeyword = '57-18'
           Style = csDropDownList
           Anchors = [akTop, akRight]
-          TabOrder = 6
+          TabOrder = 7
           OnChange = cbTagFindModeChange
           Items.Strings = (
             'Keep unchanged'
@@ -213,7 +213,7 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '57-17'
           BevelOuter = bvLowered
-          TabOrder = 10
+          TabOrder = 6
           object lbl4: TLabel
             Left = 9
             Top = 7
@@ -247,7 +247,7 @@ object Form_ExportNew: TForm_ExportNew
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 0
+            TabOrder = 1
             OnEnter = txtTagsInclEnter
           end
           object chkRemoveTags: TCheckBox
@@ -257,7 +257,7 @@ object Form_ExportNew: TForm_ExportNew
             Height = 17
             Hint = 'Remove tags from the final text (after processing)'
             Caption = 'Remove'
-            TabOrder = 1
+            TabOrder = 0
           end
           object chkInhTagsFind: TCheckBox
             Left = 25
@@ -265,7 +265,7 @@ object Form_ExportNew: TForm_ExportNew
             Width = 194
             Height = 17
             Caption = 'Inherited tags (metadata)'
-            TabOrder = 2
+            TabOrder = 5
           end
           object chkTagsText: TCheckBox
             Left = 25
@@ -276,7 +276,7 @@ object Form_ExportNew: TForm_ExportNew
               'Export will only include text fragments that meet the tag criter' +
               'ia'
             Caption = 'Consider extracts from notes'
-            TabOrder = 3
+            TabOrder = 4
             OnClick = chkTagsTextClick
           end
           object chkTagsMetad: TCheckBox
@@ -288,7 +288,7 @@ object Form_ExportNew: TForm_ExportNew
             Caption = 'Consider metadata of notes'
             Checked = True
             State = cbChecked
-            TabOrder = 4
+            TabOrder = 3
             OnClick = chkTagsMetadClick
           end
           object txtTagsExcl: TEdit
@@ -298,7 +298,7 @@ object Form_ExportNew: TForm_ExportNew
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 5
+            TabOrder = 2
             OnEnter = txtTagsExclEnter
           end
           object cbTagFindMode: TComboBox
@@ -858,7 +858,7 @@ object Form_ExportNew: TForm_ExportNew
     Caption = 'Pre&view'
     Default = True
     Images = Form_Main.IMG_Toolbar
-    TabOrder = 1
+    TabOrder = 2
     Visible = False
     OnClick = btnPreviewClick
   end
@@ -868,7 +868,7 @@ object Form_ExportNew: TForm_ExportNew
     Width = 86
     Height = 25
     Caption = 'Page &Setup...'
-    TabOrder = 5
+    TabOrder = 1
     Visible = False
     OnClick = btnPageSetupClick
   end

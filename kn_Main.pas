@@ -6904,6 +6904,9 @@ end;
 procedure TForm_Main.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
 begin
    OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+   if PressedReturn then
+      txtTagsExcl.SetFocus;
+
    if txtTagsIncl.Focused then
       txtTagsInclEnter(nil);
 end;
@@ -6933,6 +6936,9 @@ end;
 procedure TForm_Main.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
 begin
    OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+   if PressedReturn then
+      chkTagsMetad.SetFocus;
+
    if txtTagsExcl.Focused then
       txtTagsExclEnter(nil);
 end;
