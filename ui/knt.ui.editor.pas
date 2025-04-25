@@ -2448,16 +2448,36 @@ begin
    Change;
 end;
 
+
+function SelectTextToBeUnfolded(Editor: TRxRichEdit; pI, pF: integer): boolean;
+var
+  IncHighlighted: integer;
+begin
+   with Editor do begin
+      SetSelection(pI, pI, false);
+      IncHighlighted:= 0;
+      if (pI > 0) and (SelAttributes.BackColor <> Color) then begin
+         IncHighlighted:= 1;
+      end;
+      SetSelection(pI-IncHighlighted, pF+1, false);
+   end;
+   Result:= IncHighlighted <> 0;
+end;
+
+
 procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
 var
   RTFIn, RTFOut: AnsiString;
   pI, pF: integer;
+  AdjustHglt: boolean;
 begin
    with Editor do
       if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
-         SetSelection(pI, pF+1, false);
+         AdjustHglt:= SelectTextToBeUnfolded(Editor, pI, pF);
          RTFIn:= RtfSelText;
          PrepareRTFtoBeExpanded(RTFIn, RTFOut, nil);
+         if AdjustHglt then
+            SetSelection(pI, pF+1, false);
          RtfSelText:= RTFOut;
          SelStart:= pI;
       end;
@@ -2567,16 +2587,22 @@ var
   RTFIn, RTFOut: AnsiString;
   SS: integer;
   pI, pF: integer;
+  AdjustHglt: boolean;
 begin
    if CheckReadOnly then exit;
 
    if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
       BeginUpdate;
-      SetSelection(pI, pF+1, false);
+
+      AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
       RTFIn:= EnsureGetRtfSelText;
       PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
       FUnfolding:= True;
+
+      if AdjustHglt then
+         SetSelection(pI, pF+1, false);
       RtfSelText:= RTFOut;
+
       FUnfolding:= False;
       SelStart:= pI;
       EndUpdate;
@@ -2606,7 +2632,8 @@ var
 begin
    if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
-      SetSelection(pI, pF+1, false);
+      SelectTextToBeUnfolded(Self, pI, pF);
+
       FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
       RTFIn:= EnsureGetRtfSelText;
       PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
