@@ -297,6 +297,7 @@ type
                                   AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit): boolean;
   function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
+  function PositionInFoldedBlock_FindAll(const TxtPlain: string; PosSS: integer; var pBeginBlock, pEndBlock: integer): boolean;
   function OpenTagsConcatenated(PosTag, Lo: integer; const TxtPlain: string): boolean;
   function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit;
                               var pBeginBlock, pEndBlock: integer; FoldedBlock: boolean;
@@ -2270,6 +2271,18 @@ function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: T
 begin
    Result:= GetBlockAtPosition(TxtPlain, PosSS, Editor, pBeginBlock, pEndBlock, True,
                               KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR,
+                              KNT_RTF_FOLDED_LINK_BLOCK_CHAR, False, False);
+end;
+
+
+{ Searching for fragments from FindAll may temporarily cause ...#$13 to become #0..#$13
+  Therefore, in cases where this might happen, instead of searching for ...#$13, ..#$13 will be searched for, even though this might theoretically
+  be less safe. In any case, using the #$13 character should not be normal at all, especially not when used alongside ..
+}
+function PositionInFoldedBlock_FindAll(const TxtPlain: string; PosSS: integer; var pBeginBlock, pEndBlock: integer): boolean;
+begin
+   Result:= GetBlockAtPosition(TxtPlain, PosSS, nil, pBeginBlock, pEndBlock, True,
+                              KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, KNT_RTF_END_FOLDED_WITHOUT_v0_PARTIAL_CHAR,
                               KNT_RTF_FOLDED_LINK_BLOCK_CHAR, False, False);
 end;
 

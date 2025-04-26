@@ -598,6 +598,7 @@ const
   KNT_RTF_END_FOLDED =             '\v0 ...' + KNT_RTF_HIDDEN_MARK_EndLink;                   // \v0 ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0 =      '...' + KNT_RTF_HIDDEN_MARK_EndLink;                   //     ...\'13
   KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR = '...' + KNT_RTF_HIDDEN_MARK_EndLink_CHAR;              //     ...$13
+  KNT_RTF_END_FOLDED_WITHOUT_v0_PARTIAL_CHAR = '..' + KNT_RTF_HIDDEN_MARK_EndLink_CHAR;       //     ..$13
 
   KNT_IMG_LINK_FOLDED_PREFIX =    KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_LINK + '"img:';
   KNT_RTF_END_GENERIC_BLOCK = '[.]';

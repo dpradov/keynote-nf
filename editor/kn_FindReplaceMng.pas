@@ -84,6 +84,10 @@ type
   end;
   TNoteFragmentsList = TSimpleObjList<TNoteFragments>;
 
+procedure FreeFragments(FoundNodes: TNodeList; FragmentsInNodes: TNoteFragmentsList);
+
+
+
 var
   FoundNodes: TNodeList;
   FragmentsInNodes: TNoteFragmentsList;
@@ -230,6 +234,19 @@ const
    FIND_EMPHASIZED_SEARCH_PARAGRAPH_CHR = '**';
 
 
+procedure FreeFragments(FoundNodes: TNodeList; FragmentsInNodes: TNoteFragmentsList);
+var
+  i: integer;
+begin
+   if FoundNodes <> nil then
+      FreeAndNil(FoundNodes);
+
+   if FragmentsInNodes <> nil then begin
+      for i:= 0 to FragmentsInNodes.Count-1 do
+         FragmentsInNodes[i].Free;
+      FreeAndNil(FragmentsInNodes);
+   end;
+end;
 
 
 procedure RunFindReplace (modeReplace: boolean);
@@ -1465,7 +1482,11 @@ type
             // Position starts at zero
 
             if (pI = -99) or not ((Position >= pI) and (Position <= pF)) then begin
-               InFolded:= PositionInFoldedBlock(TextPlain, Position, nil, pI, pF);
+               if not ConsiderAllTextInNode then
+                  // It will look for ..#$13 instead of ...#$13, in case the temporary break (#0) added from FindPatternInTextFragments might override the final string of a folded block.
+                  InFolded:= PositionInFoldedBlock_FindAll(TextPlain, Position, pI, pF)
+               else
+                  InFolded:= PositionInFoldedBlock(TextPlain, Position, nil, pI, pF);
                inc(pI);
                inc(pF);
             end;
@@ -2637,10 +2658,7 @@ begin
 
 
       if OnlyGetlFragmentsInfo then begin
-         if FoundNodes <> nil then
-            FoundNodes.Clear;
-         if FragmentsInNodes <> nil then
-            FragmentsInNodes.Clear;
+         FreeFragments (FoundNodes, FragmentsInNodes);
          FoundNodes:= TNodeList.Create;
          FragmentsInNodes:= TNoteFragmentsList.Create;
          Fragments_LastNodeProcessed:= nil;
