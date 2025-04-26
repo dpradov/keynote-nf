@@ -2508,7 +2508,7 @@ begin
 
          L:= Length(TxtPlain);
          inc(pF);                 // #$13  HIDDEN_MARK_EndLink
-         while (pF < L) and (TxtPlain[pF + 1] in [#9, #32, #13]) do
+         while (pF < L) and (TxtPlain[pF + 1] in [#9, #32]) do
             inc(pF);
 
          SetSelection(pI, pF, false);

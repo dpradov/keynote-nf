@@ -100,8 +100,10 @@ procedure DoFindNext;
 procedure RunFinder;
 function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean;
-                       OnlyGetlFragmentsInfo: boolean = False;
-                       OnlyCurrentNode: boolean = False): boolean;
+                       OnlyGetFragmentsInfo: boolean = False;
+                       OnlyNode: PVirtualNode= nil;
+                       FolderToUse: TKntFolder = nil;
+                       TextPlainToUse: string = ''): boolean;
 procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
 procedure RunReplace;
 procedure RunReplaceNext;
@@ -1090,8 +1092,10 @@ end;
 }
 
 function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean;
-                       OnlyGetlFragmentsInfo: boolean = False;
-                       OnlyCurrentNode: boolean = False): boolean;
+                       OnlyGetFragmentsInfo: boolean = False;
+                       OnlyNode: PVirtualNode = nil;
+                       FolderToUse: TKntFolder = nil;
+                       TextPlainToUse: string = ''): boolean;
 var
   FindDone : boolean;
   Location : TLocation;
@@ -1232,7 +1236,7 @@ type
 
        begin
 
-          if OnlyGetlFragmentsInfo then begin
+          if OnlyGetFragmentsInfo then begin
              if not assigned(myTreeNode) then exit;
              if Fragments_LastNodeProcessed <> myTreeNode then begin
                 if Fragments_LastNodeProcessed <> nil then begin
@@ -1314,7 +1318,11 @@ type
        var
           path: string;
        begin
-          myTreeNode := TreeUI.FocusedNode;
+          if OnlyNode <> nil then
+             myTreeNode := OnlyNode
+          else
+             myTreeNode := TreeUI.FocusedNode;
+
           TreeNodeToSearchIn:= myTreeNode;
 
           if (TreeNodeToSearchIn <> nil) and KntTreeOptions.ShowFullPathSearch then begin
@@ -1382,7 +1390,7 @@ type
 
                 if not FindDone then begin
                    myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject);
-                   if not OnlyGetlFragmentsInfo or (myFolder.Info = 1) then break;
+                   if not OnlyGetFragmentsInfo or (myFolder.Info = 1) then break;
                 end;
              until FindDone;
 
@@ -2543,12 +2551,12 @@ begin
   Result:= false;
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   if ( not assigned( ActiveFolder )) then exit;
-  if ( (ActiveFileIsBusy and not OnlyGetlFragmentsInfo) or SearchInProgress ) then exit;
+  if ( (ActiveFileIsBusy and not OnlyGetFragmentsInfo) or SearchInProgress ) then exit;
 
   myFindOptions.Pattern := trim( myFindOptions.Pattern ); // leading and trailing blanks need to be stripped
   PreprocessTextPattern(myFindOptions);
 
-  FindAllSearch:= not (TreeFilter or OnlyGetlFragmentsInfo);
+  FindAllSearch:= not (TreeFilter or OnlyGetFragmentsInfo);
 
   with myFindOptions do begin
      UsingTags:= ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsInclNotReg <> '') or (FindTagsExclNotReg <> ''));
@@ -2657,7 +2665,7 @@ begin
       SearchModeToApply := myFindOptions.SearchMode;
 
 
-      if OnlyGetlFragmentsInfo then begin
+      if OnlyGetFragmentsInfo then begin
          FreeFragments (FoundNodes, FragmentsInNodes);
          FoundNodes:= TNodeList.Create;
          FragmentsInNodes:= TNoteFragmentsList.Create;
@@ -2666,6 +2674,9 @@ begin
       end;
 
 
+      if OnlyNode <> nil then
+         myFolder:= FolderToUse
+      else
       if myFindOptions.AllTabs then
          myFolder := TKntFolder(Form_Main.Pages.Pages[noteidx].PrimaryObject) // initially 0
       else
@@ -2674,7 +2685,7 @@ begin
       TreeUI:= myFolder.TreeUI;
       TV:= TreeUI.TV;
 
-      if myFindOptions.CurrentNodeAndSubtree then
+      if myFindOptions.CurrentNodeAndSubtree or (OnlyNode <> nil) then
          GetCurrentNode
       else begin
          GetFirstNode;
@@ -2792,7 +2803,10 @@ begin
                          end;
 
                          if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
-                            TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, ClearRTFAux);
+                            if TextPlainToUse <> '' then
+                               TextPlainBAK:= TextPlainToUse
+                            else
+                               TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, ClearRTFAux);
                             TextPlain:= TextPlainBAK;
                             if not myFindOptions.MatchCase then
                                TextPlain:=  AnsiUpperCase(TextPlain);
@@ -2828,7 +2842,7 @@ begin
                    end;
                 end;
 
-                if OnlyCurrentNode then
+                if OnlyNode <> nil then
                    break;
 
                 GetNextNode;
@@ -2848,7 +2862,7 @@ begin
                myTreeNode:= nil;
             end;
 
-            if OnlyCurrentNode then
+            if OnlyNode <> nil then
                break;
 
             while (not UserBreak) and ((not FindDone) and (not assigned(myTreeNode))) do

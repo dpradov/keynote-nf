@@ -207,7 +207,7 @@ type
 
     procedure UpdateSampleFont;
 
-    function GetFilterInfUsingFindAll: boolean;
+    function GetFilterInfUsingFindAll(OnlyNode: PVirtualNode = nil; FolderToUse: TKntFolder = nil; TextPlainToUse: string = ''): boolean;
     procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
     procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
     procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
@@ -260,6 +260,9 @@ uses
 var
   LengthsHeading_Max, LengthsHeading_Inc, LengthsHeading_Min: integer;
   FontSizes_Max, FontSizes_Inc, FontSizes_Min: integer;
+
+  ExpFoundNodes: TNodeList;
+  ExpFragmentsInNodes: TNoteFragmentsList;
 
 {$R *.DFM}
 
@@ -1229,7 +1232,7 @@ var
            (( TreeSelection = tsSubtree ) and ( TreeUI.TV.HasAsParent(Node, StartTreeNode) or ( StartTreeNode = Node )))) then
 
          if FilterNodesByTag or ExportTextFragments then begin
-             iNode:= FoundNodes.IndexOf(Node);
+             iNode:= ExpFoundNodes.IndexOf(Node);
              if iNode >= 0 then
                 Result:= True;
          end
@@ -1377,6 +1380,43 @@ var
       RTFAux.Clear;
   end;
 
+  {
+  If we are exporting text fragments, we must check whether any are in folded blocks, as well as take into account the option indicated in 'Folded mode'.
+  At this point, and from the start of PerformExport, from the call to GetFilterInfUsingFindAll, we will have in FragmentsInNodes the different fragments
+  identified throughout the file according to the specified options. NoteFragments here points to the fragments of a specific note (node, really...).
+  If that fragment is located wholly or partially within a folded block and we don't do anything special, even if we execute ExpandFoldedText or RemoveFoldedText
+  from FlushExportFile, if applicable, the fragment will not be affected.Because the fragment does not include the beginning of the folded block, it will likely remain hidden.
+  We also couldn't simply make the entire fragment visible, as in that case we could make links or images that are adapted to the folded format visible.
+
+  We therefore need to expand or delete the folded blocks before processing the fragments, but we must keep in mind that the identified fragments are referencing
+  positions based on the state of the note. For this reason, we will again use FindAllEx to locate the fragments after expanding or deleting folded blocks. 
+  We will do this by indicating that a specific node should be processed (to consider metadata, if applicable), but passing the plain text we have here.
+
+  If we expand or delete text, these positions will no longer be useful. Additionally, some fragments may be included in blocks that are deleted.
+  Depending on the option indicated in FoldedMode, we could continue to keep some fragments within folded blocks.
+  These fragments will simply be ignored because they will be invisible, or in any case, only the visible excerpt they include will be displayed.
+  }
+  procedure PreprocessFoldedFragments;
+  var
+     TxtPlain: string;
+     FoldedMode: integer;
+  begin
+     TxtPlain:= RTFAuxFrag.TextPlain;
+     if Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain) <= 0 then exit;
+
+     FoldedMode:= cbFoldedText.ItemIndex;
+     case FoldedMode of
+        1: ExpandFoldedText(RTFAuxFrag);            // Unfold
+        2: RemoveFoldedText(RTFAuxFrag, true);      // Remove "tagged"
+        3: RemoveFoldedText(RTFAuxFrag, false);     // Remove all
+     end;
+
+     if not GetFilterInfUsingFindAll(myTreeNode, myFolder, RTFAuxFrag.TextPlain) or (FoundNodes.Count = 0) then
+        NoteFragments.NumFrag:= 0
+     else
+        NoteFragments:= FragmentsInNodes[0];
+  end;
+
 
 begin
   FormToOptions;
@@ -1461,8 +1501,14 @@ begin
   RTFAux.OnProtectChangeEx:= RxRTFProtectChangeEx;
 
   if ExportTextFragments or FilterNodesByTag then begin
-     if not GetFilterInfUsingFindAll then
+     if not GetFilterInfUsingFindAll or (FoundNodes.Count = 0) then begin
         exit;
+     end;
+     ExpFoundNodes:= FoundNodes;
+     ExpFragmentsInNodes:= FragmentsInNodes;
+     FoundNodes:= nil;                              // We'll free the list from here. We do this in case we need to call GetFilterInfUsingFindAll again with a single node.
+     FragmentsInNodes:= nil;                        // ,,
+
      RTFAuxFrag:= CreateAuxRichEdit;
      RTFAuxFrag.BeginUpdate;
   end;
@@ -1688,8 +1734,8 @@ begin
 
                     if ExportTextFragments then begin
                        ExportWholeNoteText:= False;
-                       iNode:= FoundNodes.IndexOf(myTreeNode);
-                       NoteFragments:= FragmentsInNodes[iNode];
+                       iNode:= ExpFoundNodes.IndexOf(myTreeNode);
+                       NoteFragments:= ExpFragmentsInNodes[iNode];
                        if (NoteFragments.NumFrag = 1) and (NoteFragments.Fragments[0].PosF < 0) then
                           ExportWholeNoteText:= True
 
@@ -1698,26 +1744,38 @@ begin
                           RTFAuxFrag.PutRtfText(NodeText, false);
                           SSNodeContent:= RTFAux.SelStart;
 
-                          for i:= 0 to NoteFragments.NumFrag - 1 do begin
-                             RTFAuxFrag.SelStart:=  NoteFragments.Fragments[i].PosI;
-                             RTFAuxFrag.SelLength:= NoteFragments.Fragments[i].PosF - NoteFragments.Fragments[i].PosI + 2;
-                             RTFFrag:= RTFAuxFrag.RtfSelText;
+                          PreprocessFoldedFragments;
 
-                             RTFwithImages:= '';
-                             if NodeStreamIsRTF then
-                                RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
+                          { *3  This can occur if the initially located fragments are in folded blocks, and FoldedMode = Unfold has not been selected.
+                            In these cases (we are using fragments because we are searching for tags in the text of the notes), the note header will 
+                            be exported, but without content. It should be noted that this is the reason: there are fragments with the desired tagging,
+                            but they are in folded blocks. }
+                          if NoteFragments.NumFrag = 0 then        // *3
+                             RTFAux.AddText(#13)
 
-                             if RTFwithImages <> '' then
-                                RTFFrag:= RTFwithImages;
+                          else begin
+                             for i:= 0 to NoteFragments.NumFrag - 1 do begin
+                                RTFAuxFrag.SelStart:=  NoteFragments.Fragments[i].PosI;
+                                RTFAuxFrag.SelLength:= NoteFragments.Fragments[i].PosF - NoteFragments.Fragments[i].PosI + 2;
+                                RTFFrag:= RTFAuxFrag.RtfSelText;
 
-                             if ExportOptions.TargetFormat = xfRTF then
-                                GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
+                                RTFwithImages:= '';
+                                if NodeStreamIsRTF then
+                                   RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
 
-                             RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
+                                if RTFwithImages <> '' then
+                                   RTFFrag:= RTFwithImages;
+
+                                if ExportOptions.TargetFormat = xfRTF then
+                                   GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
+
+                                RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
+
+                                L:= RTFAux.TextLength;
+                                if RTFAux.GetTextRange(L-1, L) <> #13 then
+                                   RTFAux.AddText(#13);
+                             end;
                           end;
-                          L:= RTFAux.TextLength;
-                          if RTFAux.GetTextRange(L-1, L) <> #13 then
-                             RTFAux.AddText(#13);
                        end;
                     end;
 
@@ -2574,11 +2632,7 @@ begin
     end;
 
   finally
-    if FoundNodes <> nil then
-       FreeAndNil(FoundNodes);
-    if FragmentsInNodes <> nil then
-       FreeAndNil(FragmentsInNodes);
-
+    FreeFragments (ExpFoundNodes, ExpFragmentsInNodes);
     Form_Export.Free;
     Form_Export:= nil;
 
@@ -2587,17 +2641,23 @@ begin
 end; // ExportNotesEx
 
 
-function TForm_ExportNew.GetFilterInfUsingFindAll: boolean;
+function TForm_ExportNew.GetFilterInfUsingFindAll (OnlyNode: PVirtualNode = nil; FolderToUse: TKntFolder = nil; TextPlainToUse: string = ''): boolean;
 var
    myFindOptions: TFindOptions;
-   OnlyCurrenNode: boolean;
 
 begin
   myFindOptions.MatchCase := False;
   myFindOptions.WholeWordsOnly := False;
-  myFindOptions.AllTabs := (ExportOptions.ExportSource <> expCurrentFolder);   // From RunFindAllEx Folder.Info will be taken into account, in case expSelectedFolders has been chosen,
-  myFindOptions.CurrentNodeAndSubtree := (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection in [tsSubtree, tsNode]);
-  OnlyCurrenNode:= (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection = tsNode);
+  if OnlyNode <> nil then begin
+     myFindOptions.AllTabs := False;
+     myFindOptions.CurrentNodeAndSubtree:= True;
+  end
+  else begin
+     myFindOptions.AllTabs := (ExportOptions.ExportSource <> expCurrentFolder);   // From RunFindAllEx Folder.Info will be taken into account, in case expSelectedFolders has been chosen,
+     myFindOptions.CurrentNodeAndSubtree := (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection in [tsSubtree, tsNode]);
+     if (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection = tsNode) then // only current node
+        OnlyNode:= ActiveTreeUI.TV.FocusedNode;
+  end;
 
   myFindOptions.SearchScope := ssContentsAndNodeName;
   myFindOptions.SearchMode := smAll;
@@ -2624,7 +2684,7 @@ begin
   myFindOptions.EmphasizedSearch:= esNone;
   myFindOptions.FoldedMode:= sfAll;
 
-  Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyCurrenNode);
+  Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyNode, FolderToUse, TextPlainToUse);
 end;
 
 

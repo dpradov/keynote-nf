@@ -69,6 +69,7 @@ type
     function Add(const Node: PVirtualNode): integer; inline;
     function IndexOf(const Node: PVirtualNode): Integer; inline;
     procedure Clear; inline;
+    function Count: integer; inline;
   end;
 
 
@@ -4996,6 +4997,11 @@ end;
 procedure TNodeList.Clear;
 begin
    FList.Clear;
+end;
+
+function TNodeList.Count: integer;
+begin
+   Result:= FList.Count;
 end;
 
 
