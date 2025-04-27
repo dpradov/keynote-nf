@@ -212,6 +212,11 @@ var
    PosTag: integer;     // including initial #
 
 begin
+   if cTagSelector.EditorCtrlUI = nil then begin
+      IntroducingTagsState:= itNoTags;
+      exit;
+   end;
+
    Editor:= nil;
    if cTagSelector.EditorCtrlUI is TKntRichEdit then begin
       FTagsMode := tmEdit;
