@@ -3491,7 +3491,7 @@ begin
             else
                TextPlain:= GetTextPlainFromNode(NNode, RTFAux);
 
-            if PositionInFoldedBlock(TextPlain, Editor.SelStart, Editor, pI, pF) then
+            if PositionInFoldedBlock(TextPlain, Editor.SelStart, nil, pI, pF) then
                SearchOrigin:= pF + 1;
 
             if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then begin
