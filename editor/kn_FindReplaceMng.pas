@@ -2065,9 +2065,9 @@ type
                      if SecondNextTextIntervalToConsider.PosF <= SecondNextTextIntervalToConsider.PosI then  // There is no usable remainder afterwards
                         SecondNextTextIntervalToConsider.PosI:= 0;
                      if NextTextIntervalToConsider.PosF <= NextTextIntervalToConsider.PosI then begin        // There is no usable remainder before
-                        if IgnoreWithTagsInText then begin
-                           NextTextIntervalToConsider.PosI:= -1;        // If there is no With tags condition we will be using the maximum possible interval
-                           exit;                                        // We can exit. The interval to be excluded must necessarily reach the end.
+                        if (SecondNextTextIntervalToConsider.PosI = 0) and IgnoreWithTagsInText then begin
+                           NextTextIntervalToConsider.PosI:= -1;        // If there was no usable remainder afterwards and there wasn't With tags condition we will be using the maximum possible interval, we can exit
+                           exit;
                         end
                         else begin
                            NextTextIntervalToConsider.PosI:= 0;         // We'll look for another possible interval. If we've loaded a later usable
