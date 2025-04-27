@@ -770,7 +770,7 @@ begin
     InsertLink(BuildKntURL(aLocation),  TextURL, false, Editor);
     if aLocation.Mark <> 0 then
        strTargetMarker:= Format(GetRS(sLnk31), [aLocation.Mark]);
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk09) + strTargetMarker;
+    App.ShowInfoInStatusBar(GetRS(sLnk09) + strTargetMarker);
   end
   else begin
     // mark caret position as TLocation
@@ -802,7 +802,7 @@ begin
       aLocation.Mark:= TargetMarker;
     end;
 
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk10) + strTargetMarker;
+    App.ShowInfoInStatusBar(GetRS(sLnk10) + strTargetMarker);
   end;
 
 end; // InsertOrMarkKNTLink
@@ -1701,11 +1701,11 @@ begin
 
               if ResultOpen <> 0 then begin
                  if ResultOpen <> -2 then begin
-                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk11);
+                    App.ShowInfoInStatusBar(GetRS(sLnk11));
                     raise EInvalidLocation.Create(Format( GetRS(sLnk12), [origLocationStr] ));
                  end
                  else begin
-                    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk33);
+                    App.ShowInfoInStatusBar(GetRS(sLnk33));
                     exit;
                  end;
               end;
@@ -1781,7 +1781,7 @@ begin
         if not _Executing_History_Jump and not Location.Bookmark09 then
           App.WarningPopup( Format( GetRS(sLnk13), [E.Message] ));
       on E : Exception do begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk14);
+        App.ShowInfoInStatusBar(GetRS(sLnk14));
         App.WarningPopup( Format( GetRS(sLnk15), [E.Message] ));
       end;
   end;
@@ -1828,7 +1828,7 @@ begin
     end;
 
     on E : Exception do begin
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk14);
+      App.ShowInfoInStatusBar(GetRS(sLnk14));
       App.ErrorPopup( Format( GetRS(sLnk15), [E.Message]  ));
     end;
   end;
@@ -2212,13 +2212,13 @@ begin
           else
              InsertURL(myURL, TextURL, Editor);
 
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk17);
+          App.ShowInfoInStatusBar(GetRS(sLnk17));
           exit;
       end;
 
       //-------------------------------------
       if ( myURLAction = urlNothing ) then begin
-         Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk18);
+         App.ShowInfoInStatusBar(GetRS(sLnk18));
          exit;
       end;
 
@@ -2228,7 +2228,7 @@ begin
           else
              Clipboard.AsText:= myURL;
 
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk19);
+          App.ShowInfoInStatusBar(GetRS(sLnk19));
       end;
 
       //-------------------------------------
@@ -2697,7 +2697,7 @@ begin
 
 
   except
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk21);
+    App.ShowInfoInStatusBar(GetRS(sLnk21));
     TKntHistory(aFolder.History).Clear;
     History.Clear;
     if assigned(aLocation) then
@@ -2854,7 +2854,7 @@ begin
             end;
 
         if (not Done) then
-           Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk22);
+           App.ShowInfoInStatusBar(GetRS(sLnk22));
       end;
 
     finally
@@ -2864,7 +2864,7 @@ begin
     end;
 
   except
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk23);
+    App.ShowInfoInStatusBar(GetRS(sLnk23));
     masterHistory.Clear;
     if slaveHistory <> nil then
        slaveHistory.Clear;

@@ -5884,7 +5884,7 @@ begin
               GlossaryList.Sorted := true;
             end;
             GlossaryList.SaveToFile( Glossary_FN, TEncoding.UTF8);
-            Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sEdt26), [nstr,vstr] );
+            App.ShowInfoInStatusBar(Format(GetRS(sEdt26), [nstr,vstr] ));
 
           except
             on E : Exception do

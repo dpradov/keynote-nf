@@ -393,7 +393,7 @@ begin
 
       if assigned( myFolder ) then begin
         ActiveFile.AddFolder( myFolder );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sFld21);
+        App.ShowInfoInStatusBar(GetRS(sFld21));
         try
           with Form_Main do begin
              CreateVCLControlsForFolder( myFolder );

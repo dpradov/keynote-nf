@@ -1401,11 +1401,11 @@ begin
           Str:= GetRS(sVCL16)
        else
           Str:= GetRS(sVCL17);
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sVCL15), [Str]);
+       App.ShowInfoInStatusBar(Format(GetRS(sVCL15), [Str]));
     end
     else begin
        CopyFormatMode:= cfDisabled;
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := '';
+       App.ShowInfoInStatusBar('');
     end;
 
     with ActiveFile do

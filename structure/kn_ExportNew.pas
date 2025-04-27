@@ -2599,7 +2599,7 @@ begin
       end;
     end;
 
-    Form_Main.Statusbar.Panels[PANEL_HINT].Text := GetRS(sExpFrm18) + ExtractFilename( ExportFN );
+    App.ShowInfoInStatusBar(GetRS(sExpFrm18) + ExtractFilename( ExportFN ));
 
   except
     on E : Exception do

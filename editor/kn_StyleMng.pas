@@ -174,7 +174,7 @@ begin
       idx := AddToStyleManager( Style );
       StyleManagerToCombo;
       Form_Main.Combo_Style.ItemIndex := idx;
-      Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sStyM10), [Name,STYLE_RANGES[aRange]] );
+      App.ShowInfoInStatusBar(Format( GetRS(sStyM10), [Name,STYLE_RANGES[aRange]] ));
 
       CheckSaveStyleManagerInfo;
 

@@ -1118,7 +1118,7 @@ begin
       idAlarm:= alarm.NNode.GetNodeName(alarm.folder)
    else
       idAlarm:= alarm.folder.Name;
-   Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sAlrt08), [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]);
+   App.ShowInfoInStatusBar(Format(GetRS(sAlrt08), [FormatAlarmInstant(alarm.ExpirationDate), idAlarm + cad]));
 end;
 
 procedure TAlarmMng.TimerTimer(Sender: TObject);

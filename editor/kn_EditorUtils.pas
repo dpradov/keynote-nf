@@ -1345,7 +1345,7 @@ begin
 
       if KeyOptions.UASEnable then
         // success
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sEdt38)
+        App.ShowInfoInStatusBar(GetRS(sEdt38))
       else begin
         // something went wrong
         KeyOptions.UASEnable := false;
@@ -1356,7 +1356,7 @@ begin
     else begin
       if ( UAS_Window_Handle <> 0 ) then begin
         SendMessage(GetUASWnd,WM_CLOSE,0,0);
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sEdt40);
+        App.ShowInfoInStatusBar(GetRS(sEdt40));
       end;
     end;
 
@@ -1376,7 +1376,7 @@ var
   ptCursor : TPoint;
 begin
   if ( UAS_Window_Handle = 0 ) then begin
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sEdt41);
+    App.ShowInfoInStatusBar(GetRS(sEdt41));
     exit;
   end;
 

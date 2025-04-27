@@ -214,7 +214,7 @@ begin
     MacMMacro_Record.Hint := TB_MacroRecord.Hint;
     MacMMacroUserCommand.Enabled := true;
 
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format( GetRS(sMacM03), [ActiveMacro.Name] );
+    App.ShowInfoInStatusBar(Format( GetRS(sMacM03), [ActiveMacro.Name] ));
     SelectStatusbarGlyph( true );
   end;
 
@@ -448,9 +448,9 @@ begin
   MacroRecordingPaused := ( not MacroRecordingPaused );
   Form_Main.TB_MacroPause.Down := MacroRecordingPaused;
   if MacroRecordingPaused then
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM06)
+    App.ShowInfoInStatusBar(GetRS(sMacM06))
   else
-    Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM07);
+    App.ShowInfoInStatusBar(GetRS(sMacM07));
 end; // PauseRecordingMacro
 
 
@@ -478,16 +478,16 @@ begin
         end;
         Form_Main.ListBox_ResMacro.ItemIndex := Form_Main.ListBox_ResMacro.AddItem( ActiveMacro.Name, cbUnchecked, GetMacroIconIndex( ActiveMacro ));
         Macro_List.AddObject( ActiveMacro.Name, ActiveMacro );
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM11)
+        App.ShowInfoInStatusBar(GetRS(sMacM11));
       end
       else begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM12);
+        App.ShowInfoInStatusBar(GetRS(sMacM12));
         ActiveMacro.Free;
       end;
 
     except
       on E : Exception do begin
-        Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM13);
+        App.ShowInfoInStatusBar(GetRS(sMacM13));
         App.ErrorPopup( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ));
         ActiveMacro.Free;
       end;
@@ -555,7 +555,7 @@ begin
   IsRunningMacro := true;
   MacroAbortRequest := false;
   MacroErrorAbort := false;
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sMacM19), [Macro.Name] );
+  App.ShowInfoInStatusBar(Format(GetRS(sMacM19), [Macro.Name] ));
   screen.Cursor := crAppStart;
   SelectStatusbarGlyph( true );
 
@@ -593,12 +593,12 @@ begin
   finally
 
     if MacroErrorAbort then
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM23)
+       App.ShowInfoInStatusBar(GetRS(sMacM23))
     else
     if MacroAbortRequest then
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM24)
+       App.ShowInfoInStatusBar(GetRS(sMacM24))
     else
-       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM25);
+       App.ShowInfoInStatusBar(GetRS(sMacM25));
 
     try
       if wasNewMacro then
@@ -1112,7 +1112,7 @@ begin
                 end;
 
                 macStatus : begin
-                  Form_Main.StatusBar.Panels[PANEL_HINT].Text := argstr;
+                  App.ShowInfoInStatusBar(argstr);
                 end;
 
                 macPlugin : begin
@@ -1461,7 +1461,7 @@ begin
     end;
   end
   else
-     Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM43);
+     App.ShowInfoInStatusBar(GetRS(sMacM43));
 
 end; // RepeatLastCommand
 

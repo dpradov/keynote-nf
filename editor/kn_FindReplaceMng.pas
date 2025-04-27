@@ -3415,7 +3415,7 @@ begin
   if FindOptions.MatchCase then
      SearchOpts := SearchOpts + [stMatchCase];
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].text := GetRS(sFnd07);
+  App.ShowInfoInStatusBar(GetRS(sFnd07));
 
   RTFAux:= CreateAuxRichEdit;
   SearchInProgress := true;
@@ -3544,12 +3544,12 @@ begin
   finally
       if Found then begin
           if not Is_ReplacingAll then
-             Form_Main.StatusBar.Panels[PANEL_HINT].text := Format(GetRS(sFnd09), [PatternPos, NumberFoundItems]);
+             App.ShowInfoInStatusBar(Format(GetRS(sFnd09), [PatternPos, NumberFoundItems]));
           if IsRecordingMacro then
              AddMacroEditCommand( ecFindText );
       end
       else begin
-          Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sFnd10);
+          App.ShowInfoInStatusBar(GetRS(sFnd10));
           if not (UserBreak or Is_Replacing) then
              App.InfoPopup(Format( GetRS(sFnd02), [Text_To_Find] ));
       end;
@@ -3619,7 +3619,7 @@ begin
   if FindOptions.MatchCase then
      SearchOpts := SearchOpts + [stMatchCase];
 
-  Form_Main.StatusBar.Panels[PANEL_HINT].text := GetRS(sFnd07);
+  App.ShowInfoInStatusBar(GetRS(sFnd07));
 
 
   SearchInProgress := true;
@@ -3953,7 +3953,7 @@ begin
   end;
 
   txtMessage:= Format( GetRS(sFnd11), [ReplaceCnt] );
-  Form_Main.StatusBar.Panels[PANEL_HINT].Text := txtMessage;
+  App.ShowInfoInStatusBar(txtMessage);
   if ( ReplaceCnt > 0 ) then begin
      if ReplaceAll then begin
         Editor.SelLength:= 0;
