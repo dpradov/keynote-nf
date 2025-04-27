@@ -84,7 +84,7 @@ type
   end;
   TNoteFragmentsList = TSimpleObjList<TNoteFragments>;
 
-procedure FreeFragments(FoundNodes: TNodeList; FragmentsInNodes: TNoteFragmentsList);
+procedure FreeFragments(var FoundNodes: TNodeList; var FragmentsInNodes: TNoteFragmentsList);
 
 
 
@@ -236,7 +236,7 @@ const
    FIND_EMPHASIZED_SEARCH_PARAGRAPH_CHR = '**';
 
 
-procedure FreeFragments(FoundNodes: TNodeList; FragmentsInNodes: TNoteFragmentsList);
+procedure FreeFragments(var FoundNodes: TNodeList; var FragmentsInNodes: TNoteFragmentsList);
 var
   i: integer;
 begin
