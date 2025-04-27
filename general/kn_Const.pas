@@ -7,7 +7,7 @@
  - file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ------------------------------------------------------------------------------
- (c) 2007-2024 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2025 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
@@ -32,9 +32,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.0 Beta 2';
-  Program_Version_Number  = '2.1.0.2';
-  Program_Version_Date    = '23/04/2025';
+  Program_Version  = '2.1.0 Beta 3';
+  Program_Version_Number  = '2.1.0.3';
+  Program_Version_Date    = '27/04/2025';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';

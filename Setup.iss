@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "2.1.0.2"
-#define AppVersion "2.1.0 Beta 2"
+#define Version "2.1.0.3"
+#define AppVersion "2.1.0 Beta 3"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -17,8 +17,8 @@
 
 [Setup]
 SignTool=mySignTool
-TouchDate=2025-04-23
-TouchTime=22:00
+TouchDate=2025-04-27
+TouchTime=21:30
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -93,6 +93,7 @@ Type: files; Name: "{app}\help\KeyNote Help chm.lnk"
 Type: filesandordirs; Name: "{app}\help\kntHelpFiles"
 Type: files; Name: "{app}\plugins\funckey.knl"
 Type: files; Name: "{app}\plugins\funckey_readme.txt"
+Type: files; Name: "{app}\plugins\kncalendar_readme.txt"
 Type: files; Name: "{app}\plugins\readme.txt"
 Type: files; Name: "{app}\Profiles\Help\keynote_hlp.ico"
 Type: files; Name: "{app}\doc\fileformat_1.6.5.txt"
@@ -184,8 +185,10 @@ Source: "resources\Icons\keynote_hlp.ico"  ; DestDir: "{app}\help" ; Components:
 Source: "misc_files\Meeting template - sample.rtf"; DestDir: "{app}\templates"; Flags: onlyifdoesntexist
 
 ; {app}\plugins
-Source: "plugins\Binary examples\kncalendar.knl"; DestDir: "{app}\plugins" ; Components: plugins
-Source: "plugins\Binary examples\kncalendar_readme.txt"; DestDir: "{app}\plugins" ; Components: plugins
+Source: "plugins\Binary examples\32bits\kncalendar.knl"; DestDir: "{app}\plugins" ; Components: plugins
+Source: "plugins\Binary examples\32bits\Readme_plugins.txt"; DestDir: "{app}\plugins" ; Components: plugins
+Source: "plugins\Binary examples\32bits\GoogleSearch.knl"; DestDir: "{app}\plugins" ; Components: plugins
+;Source: "plugins\Binary examples\64bits\GoogleSearch.knl"; DestDir: "{app}\plugins" ; Components: plugins
 
 ; confirmoverwrite promptifolder
 

@@ -3,6 +3,25 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.0.3  Beta3 (27 apr 2025)
+--------------------------
+* Fixed: Too much editor flashing using Find Next (F3). Very noticeable when pattern not found
+* Fixed: "Folded mode" option in Export wasn't working (regression in 2.0.1.2)
+* Fixed: Exporting text fragments (using tags with "Consider text of notes") didn't work ok with folded blocks
+* Fixed: When exporting text fragments or filtering nodes tag, and nothing to export, closing was asking for confirmation
+* Fixed: Folding a partial selection of text with a highlighted background would lose the highlighting 
+         on the floating editor and when unfolding
+* Fixed: Tag name and description wasn't saved in UTF8 when needed
+* Fixed: Tag input in editor was sometimes not recognized, especially in W11, mainly after adding from editor info panel
+* Fixed a certain case when processing Tag criteria, where Without was indicated but not With
+* Fixed: With and Without [TAGs] prevents TAB from advancing making it difficult to use screen readers like NVDA (#867)
+* Fixed: Unhandled exception when clicking on a tag on certain, rare, situations
+* Fixed: Find All using tags and "Consider text of notes" selected could not respect "Folded mode" option.
+* Fixed: Some info/warning/error messages are shown behind the visible modal form or the floating editor.
+* Fixed: Unhandled exception when clicking on a invalid KNTLink
+* Added plugin "GoogleSearch.knl", similar to old 'googleplugin.knl', available for 32 and 64 bits
+
+
 v 2.1.0.2  Beta2 (23 apr 2025)
 --------------------------
 * Used a more visible/clear character to mark the beginning of the folded block
