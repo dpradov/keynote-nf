@@ -1503,6 +1503,8 @@ begin
   if ExportTextFragments or FilterNodesByTag then begin
      if not GetFilterInfUsingFindAll or (FoundNodes.Count = 0) then begin
         App.InfoPopup(GetRS(sExpFrm23));
+        ActiveFile.IsBusy := false;
+        IsBusy := false;
         exit;
      end;
      ExpFoundNodes:= FoundNodes;
