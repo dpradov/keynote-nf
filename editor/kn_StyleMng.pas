@@ -86,7 +86,7 @@ begin
         s := GetRS(sStyM04) + '"' + Style.Name + '"' + #13 +
              GetRS(sStyM05) + STYLE_RANGES[Style.Range] + #13#13 + s;
       end;
-      App.DoMessageBox( s, mtInformation, [mbOK] );
+      App.InfoPopup(s);
   end;
 end; // StyleDescribe
 
@@ -201,7 +201,7 @@ begin
         else
           myStyle := TStyle( StyleManager.Objects[StyleManager.IndexOf( aName )] );
       except
-        App.DoMessageBox( Format(GetRS(sStyM12), [aName]), mtError, [mbOK] );
+        App.ErrorPopup( Format(GetRS(sStyM12), [aName]));
         exit;
       end;
 

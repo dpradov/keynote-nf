@@ -5029,7 +5029,7 @@ begin
        if ( _Global_Location.FileName <> '' ) then begin
           if (( not FileExists( _Global_Location.Filename )) or
              ( KntFileOpen( _Global_Location.Filename ) <> 0 )) then begin
-            App.DoMessageBox( Format(GetRS(sMain81),[_Global_Location.Filename] ), mtError, [mbOK] );
+            App.ErrorPopup( Format(GetRS(sMain81),[_Global_Location.Filename] ));
             exit;
           end;
        end;

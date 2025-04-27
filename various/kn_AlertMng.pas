@@ -2124,7 +2124,7 @@ begin
 
     if (FProposedReminder >= 0) and (FProposedReminder < Now) then begin
        CB_ProposedIntervalReminder.SetFocus;
-       App.DoMessageBox( GetRS(sAlrt14), mtError, [mbOK], def1, 0, Handle );
+       App.ErrorPopup( GetRS(sAlrt14));
        exit;
     end;
 

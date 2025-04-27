@@ -2106,7 +2106,7 @@ begin
      FFileName := FN;
 
   if ( not FileExists( FN )) then begin
-     App.DoMessageBox(Format( GetRS(sFile01), [FN] ), mtError, [mbOK]);
+     App.ErrorPopup(Format( GetRS(sFile01), [FN] ));
      raise Exception.Create('');
   end;
 
@@ -2156,7 +2156,7 @@ begin
       VerID.ID := NFHDR_ID_ENCRYPTED;
     end
     else begin
-      App.DoMessageBox(Format( GetRS(sFile02), [FN] ), mtError, [mbOK]);
+      App.ErrorPopup(Format( GetRS(sFile02), [FN] ));
       raise Exception.Create('');
       exit;
     end;
@@ -2238,7 +2238,7 @@ begin
 
                  if (( VerID.Major in ['0'..'9'] ) and ( VerID.Minor in ['0'..'9'] )) then begin
                     if ( VerID.Major > NFILEVERSION_MAJOR ) then begin
-                       App.DoMessageBox(Format( GetRS(sFile05), [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ), mtError, [mbOK]);
+                       App.ErrorPopup(Format( GetRS(sFile05), [ExtractFilename( FN ), NFILEVERSION_MAJOR, NFILEVERSION_MINOR, VerID.Major, VerID.Minor] ));
                        raise EKeyKntFileError.Create('');
                     end;
 
@@ -2265,7 +2265,7 @@ begin
             FileIDTestFailed := false;
 
           if FileIDTestFailed then begin
-            App.DoMessageBox(Format( GetRS(sFile07), [ExtractFilename( FN )] ), mtError, [mbOK]);
+            App.ErrorPopup(Format( GetRS(sFile07), [ExtractFilename( FN )] ));
             raise EKeyKntFileError.Create('');
           end;
 
@@ -2923,7 +2923,7 @@ var
           except
             on E : Exception do
               // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
-              App.DoMessageBox(Format(GetRS(sFile20) + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]), mtError, [mbOK] );
+              App.ErrorPopup(Format(GetRS(sFile20) + #13#13+ '%s', [Note.Name, Note.VirtualFN, E.Message]));
           end;
     end;
 
@@ -2945,7 +2945,7 @@ var
       except
         on E : Exception do begin
             result := 3;
-            App.DoMessageBox( Format(GetRS(sFile13), [myFolder.Name, E.Message]), mtError, [mbOK] );
+            App.ErrorPopup( Format(GetRS(sFile13), [myFolder.Name, E.Message]));
             exit;
         end;
       end;

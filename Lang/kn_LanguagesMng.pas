@@ -187,7 +187,7 @@ begin
           end;
           if TipFile <> '' then begin
              if not fileexists( path + TipFile ) then
-                App.DoMessageBox( GetRS(sLng03) + path + TipFile, mtError, [mbOK] )
+                App.ErrorPopup( GetRS(sLng03) + path + TipFile)
              else
                 TIP_FN := path + TipFile;
           end;
@@ -199,7 +199,7 @@ begin
   except
     on E : Exception do
     begin
-      App.DoMessageBox( GetRS(sLng04) + path + FN + '"' + #13#13 + E.Message, mtError, [mbOK]);
+      App.ErrorPopup(E, GetRS(sLng04) + path + FN + '"');
       exit;
     end;
   end;

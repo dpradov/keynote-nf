@@ -264,7 +264,7 @@ begin
 
     except
       on E : Exception do begin
-        App.DoMessageBox( GetRS(sFmg01) + FN + '"' + #13#13 + E.Message, mtError, [mbOK] );
+        App.ErrorPopup(E, GetRS(sFmg01) + FN + '"');
         exit;
       end;
     end;

@@ -303,7 +303,7 @@ begin
   if not ok then begin
      btnAlwaysVisible.Down:= false;
      btnAlwaysVisibleClick(nil);
-     App.DoMessageBox(GetRS(sImgF01), mtWarning, [mbOK]);
+     App.WarningPopup(GetRS(sImgF01));
   end;
 end;
 

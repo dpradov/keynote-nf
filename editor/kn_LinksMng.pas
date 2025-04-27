@@ -507,7 +507,7 @@ begin
           ImportFileType := itText
 
        else begin
-          App.DoMessageBox( GetRS(sLnk07), mtError, [mbOK]);
+          App.ErrorPopup( GetRS(sLnk07));
           exit;
        end;
 
@@ -532,7 +532,7 @@ begin
 
          except
            on E : Exception do begin
-              App.DoMessageBox( E.Message, mtError, [mbOK] );
+              App.ErrorPopup( E.Message);
               exit;
            end;
          end;
@@ -1779,10 +1779,10 @@ begin
     except
       on E : EInvalidLocation do
         if not _Executing_History_Jump and not Location.Bookmark09 then
-          App.DoMessageBox( Format( GetRS(sLnk13), [E.Message] ), mtWarning, [mbOK]);
+          App.WarningPopup( Format( GetRS(sLnk13), [E.Message] ));
       on E : Exception do begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk14);
-        App.DoMessageBox( Format( GetRS(sLnk15), [E.Message] ), mtWarning, [mbOK]);
+        App.WarningPopup( Format( GetRS(sLnk15), [E.Message] ));
       end;
   end;
 
@@ -1823,12 +1823,12 @@ begin
     on E : EInvalidLocation do begin
       if Location <> nil then
          Location.Free;
-      App.DoMessageBox( Format( GetRS(sLnk13), [E.Message] ), mtWarning, [mbOK]);
+      App.WarningPopup( Format( GetRS(sLnk13), [E.Message] ));
     end;
 
     on E : Exception do begin
       Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sLnk14);
-      App.DoMessageBox( Format( GetRS(sLnk15), [E.Message]  ), mtError, [mbOK] );
+      App.ErrorPopup( Format( GetRS(sLnk15), [E.Message]  ));
     end;
   end;
 
@@ -2308,9 +2308,7 @@ begin
 
           if ( ShellExecResult <= 32 ) then begin
             if (( ShellExecResult > 2 ) or KeyOptions.ShellExecuteShowAllErrors ) then
-              App.PopupMessage( Format(
-                GetRS(sLnk20),
-                [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ), mtError, [mbOK] );
+              App.ErrorPopup(Format(GetRS(sLnk20), [ShellExecResult, myURL, TranslateShellExecuteError(ShellExecResult)] ));
           end
           else begin
             if KeyOptions.MinimizeOnURL then
@@ -2320,7 +2318,7 @@ begin
 
   except
      on E : Exception do
-       App.DoMessageBox( E.Message, mtWarning, [mbOK] );
+       App.WarningPopup(E.Message);
   end;
 
 end; // ClickOnURL
