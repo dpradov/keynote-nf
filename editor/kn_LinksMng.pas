@@ -1812,6 +1812,7 @@ begin
   try
     App.HideNestedFloatingEditors;
 
+    Location:= nil;
     Location:= BuildLocationFromKntURL(LocationStr);
     try
        JumpToLocation(Location, false, true, myURLAction, OpenInCurrentFile);
