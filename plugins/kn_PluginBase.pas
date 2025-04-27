@@ -18,8 +18,7 @@ unit kn_PluginBase;
 
 interface
 uses
-   Winapi.Windows,
-   knt.RS;
+   Winapi.Windows;
 
 
 const

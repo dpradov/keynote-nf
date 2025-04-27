@@ -1,5 +1,7 @@
-- kn_calendar.knl
-  Displays a simple calendar and allows you to insert selected date in active note.
+- GoogleSearch.KNL
+  Runs Google search for text or phrase selected in KeyNote
+  There is two versions of this plugin, available for 32 bits or 64 bits version of KeyNote NF.
+
 
 More plugins and additional material (sample files, help files, etc.) are available from the Add-ons page of 
 original KeyNote, in the following page:
