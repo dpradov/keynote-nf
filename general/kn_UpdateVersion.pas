@@ -274,7 +274,7 @@ begin
 
   except
     On E : Exception do
-      messagedlg( E.Message, mtError, [mbOK], 0 );
+      App.ErrorPopup( E.Message);
   end;
 end;
 

@@ -508,7 +508,7 @@ begin
 
      except
        On E : Exception do begin
-         messagedlg(E.Message, mtError, [mbOK], 0);
+         App.ErrorPopup(E.Message);
          exit;
        end;
      end;

@@ -760,7 +760,7 @@ begin
 
     if aLocation.Bookmark09 then exit;
     if (aLocation.NNodeGID = 0) and (aLocation.FolderID = 0) then begin
-      showmessage( GetRS(sLnk08) );
+      App.InfoPopup(GetRS(sLnk08));
       exit;
     end;
 
@@ -1798,7 +1798,7 @@ begin
    Args:= Format('-ignSI -jmp"%s"', [BuildKNTURL(aLocation)]);
    exresult := ShellExecute( 0, 'open', PChar( Application.ExeName ), PChar( Args ), nil, SW_NORMAL );
    if ( exresult <= 32 ) then
-      messagedlg( TranslateShellExecuteError( exresult ), mtError, [mbOK], 0 );
+      App.ErrorPopup( TranslateShellExecuteError( exresult ));
 end;
 
 
@@ -2660,7 +2660,7 @@ begin
 
    except
      on E: Exception do
-        MessageDlg( GetRS(sLnk20) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( GetRS(sLnk20) + E.Message);
    end;
 
 end;

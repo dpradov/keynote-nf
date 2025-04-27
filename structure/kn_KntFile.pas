@@ -1980,7 +1980,7 @@ begin
       end;
 
    except on E: Exception do begin
-     MessageDlg( GetRS(sFile19) + E.Message, mtError, [mbOK], 0 );
+     App.ErrorPopup( GetRS(sFile19) + E.Message);
      Result:= false;
      end
    end;
@@ -2185,7 +2185,7 @@ begin
             except
               On e : EPassphraseError do begin
                 HasLoadError := false;
-                if ( messagedlg(GetRS(sFile04), mtError, [mbYes,mbNo], 0  ) <> mrYes ) then raise;
+                if ( App.DoMessageBox(GetRS(sFile04), mtError, [mbYes,mbNo]) <> mrYes ) then raise;
               end;
             end;
 
@@ -2411,7 +2411,7 @@ begin
                    except
                      On E : Exception do begin
                        HasLoadError := true;
-                       messagedlg( GetRS(sFile08) + Folder.Name + #13#13 + E.Message, mtError, [mbOK], 0 );
+                       App.ErrorPopup(GetRS(sFile08) + Folder.Name + #13#13 + E.Message);
                        Folder.Free;
                        // raise;
                      end;

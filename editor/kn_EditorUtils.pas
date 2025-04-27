@@ -213,7 +213,7 @@ begin
               else
                 nodeMode := GetRS(sEdt44);
 
-              if MessageDlg( Format(GetRS(sEdt45), [nodeMode] ), mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK then begin
+              if App.DoMessageBox(Format(GetRS(sEdt45), [nodeMode] ), mtConfirmation, [mbOK,mbCancel], Def2 ) <> mrOK then begin
                 TB_ClipCap.Down := false;
                 exit;
               end;
@@ -238,7 +238,7 @@ begin
 
         except
           on e : exception do begin
-            messagedlg( E.Message, mtError, [mbOK], 0 );
+            App.ErrorPopup(E.Message);
             ToggleOff;
           end;
         end;
@@ -264,7 +264,7 @@ begin
             SetClipCapState( false );
         except
           on e : exception do
-            messagedlg( E.Message, mtError, [mbOK], 0 );
+			App.ErrorPopup(E.Message);
         end;
 
       finally
@@ -1328,7 +1328,7 @@ begin
             KeyOptions.UASPath := UASPath // found it, so store it for later
           else begin
             // user canceled or entered invalid path, so bail out
-            messagedlg( GetRS(sEdt37), mtError, [mbOK], 0 );
+            App.ErrorPopup( GetRS(sEdt37) );
             KeyOptions.UASEnable := false;
             exit;
           end;
@@ -1349,7 +1349,7 @@ begin
       else begin
         // something went wrong
         KeyOptions.UASEnable := false;
-        if ( messagedlg( GetRS(sEdt39), mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
+        if ( App.DoMessageBox( GetRS(sEdt39), mtWarning, [mbOK,mbCancel], Def2 ) = mrOK ) then
           GoDownloadUAS;
       end;
     end

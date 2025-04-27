@@ -551,7 +551,7 @@ end; // ACTIVATE
 
 function TForm_ExportNew.ConfirmAbort : boolean;
 begin
-  result := ( messagedlg( GetRS(sExpFrm01), mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK );
+  result := ( App.DoMessageBox( GetRS(sExpFrm01), mtConfirmation, [mbOK,mbCancel], Def2 ) = mrOK );
   DoAbort := result;
 end; // ConfirmAbort
 
@@ -1061,12 +1061,12 @@ function TForm_ExportNew.ValidatePath : boolean;
 begin
   result := false;
   if ( ExportOptions.ExportPath = '' ) then begin
-    App.DoMessageBox( GetRS(sExpFrm02), mtError, [mbOK] );
+    App.WarningPopup(GetRS(sExpFrm02));
     exit;
   end;
 
   if ( not System.SysUtils.DirectoryExists( ExportOptions.ExportPath )) then begin
-    App.DoMessageBox( GetRS(sExpFrm03), mtError, [mbOK] );
+    App.WarningPopup(GetRS(sExpFrm03));
     exit;
   end;
 
@@ -1438,7 +1438,7 @@ begin
 
 
   if (ExportOptions.TargetFormat= xfKeyNote) and (ExportOptions.TreeSelection = tsNode) and (Combo_TreeSelection.Enabled) then
-      if ( messagedlg( GetRS(sExpFrm20), mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+      if ( App.DoMessageBox( GetRS(sExpFrm20), mtInformation, [mbOK,mbCancel] ) <> mrOK ) then
          Exit;
 
   cnt := 0;
@@ -1467,7 +1467,7 @@ begin
   end;
 
   if ( cnt = 0 ) then begin
-    messagedlg( GetRS(sExpFrm04), mtError, [mbOK], 0 );
+    App.ErrorPopup(GetRS(sExpFrm04));
     exit;
   end;
 
@@ -1502,6 +1502,7 @@ begin
 
   if ExportTextFragments or FilterNodesByTag then begin
      if not GetFilterInfUsingFindAll or (FoundNodes.Count = 0) then begin
+        App.InfoPopup(GetRS(sExpFrm23));
         exit;
      end;
      ExpFoundNodes:= FoundNodes;
@@ -1996,7 +1997,7 @@ begin
        ExitMessage := ExitMessage + #13 + GetRS(sExpFrm14);
 
     if not ((ExportOptions.TargetFormat = xfPrinter) and PreviewMode) or DoAbort or WasError then
-      if ( messagedlg( ExitMessage, mtInformation, [mbOK,mbCancel], 0 ) <> mrOK ) then
+      if ( App.DoMessageBox( ExitMessage, mtInformation, [mbOK,mbCancel], Def2 ) <> mrOK ) then
           ModalResult := mrCancel; // close dialog box if Cancel clicked
 
   end;
@@ -2417,7 +2418,7 @@ end;
 
 procedure TForm_ExportNew.Btn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg(format(GetRS(sExpFrm15),[_TokenChar,EXP_FILENAME,
+  MessageDlg(format(GetRS(sExpFrm15),[_TokenChar,EXP_FILENAME,
                                    _TokenChar,EXP_FOLDERNAME,
                                    _TokenChar,EXP_NODENAME,
                                    _TokenChar,EXP_NODELEVEL,
@@ -2454,13 +2455,13 @@ var
 begin
   NNode:= ActiveTreeUI.GetFocusedNNode;
   if not assigned(NNode) then begin
-    showmessage( GetRS(sExpFrm16) );
+    App.InfoPopup(GetRS(sExpFrm16));
     exit;
   end;
 
   Editor:= ActiveFolder.Editor;
   if ( Editor.Lines.Count = 0 ) then begin
-    showmessage( GetRS(sExpFrm17) );
+    App.InfoPopup(GetRS(sExpFrm17));
     exit;
   end;
 
@@ -2602,7 +2603,7 @@ begin
 
   except
     on E : Exception do
-       messagedlg( GetRS(sExpFrm19) + E.Message, mtError, [mbOK], 0 );
+       App.ErrorPopup( GetRS(sExpFrm19) + E.Message);
   end;
  finally
    if RTFAux <> nil then

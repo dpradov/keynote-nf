@@ -1058,7 +1058,7 @@ begin
   result := Form_Main.Pages_Res.Visible;
   if ( not result ) then begin
     if DoWarn then  begin
-      case messagedlg(GetRS(sVCL14), mtConfirmation, [mbYes,mbNo], 0 ) of
+      case App.DoMessageBox(GetRS(sVCL14), mtConfirmation, [mbYes,mbNo]) of
         mrYes : begin
           Form_Main.MMViewResPanelClick( Form_Main.MMViewResPanel );
         end;

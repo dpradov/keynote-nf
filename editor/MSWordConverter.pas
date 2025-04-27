@@ -37,6 +37,8 @@ function MSWordQuit() : boolean;
 
 implementation
 
+uses knt.App;
+
 var
   _WordApp: WordXP.WordApplication;
 
@@ -110,7 +112,7 @@ begin
 
   except
     on E : Exception do
-        messagedlg( 'Error while converting text: ' + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( 'Error while converting text: ' + E.Message);
   end;
 end; // MSWordConvert
 
@@ -135,7 +137,7 @@ begin
 
   except
     on E : Exception do
-        messagedlg( 'Error while converting text: ' + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( 'Error while converting text: ' + E.Message);
   end;
 
 end; // MSWordConvertHTMLToRTF
@@ -168,7 +170,7 @@ begin
 
   except
     on E : Exception do
-        messagedlg( 'Error while converting text: ' + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( 'Error while converting text: ' + E.Message);
   end;
 end; // MSWordConvertRTFtoHTML
 

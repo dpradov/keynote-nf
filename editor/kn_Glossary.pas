@@ -77,6 +77,7 @@ var
 
 implementation
 uses
+   gf_miscvcl,
    kn_Info,
    kn_global,
    kn_ExpTermDef,
@@ -114,7 +115,7 @@ begin
 
     except
       On E : Exception do begin
-        ShowMessage( GetRS(sGlss05) + E.Message );
+        App.ErrorPopup(E, GetRS(sGlss05));
       end;
     end;
 
@@ -200,7 +201,7 @@ begin
 
     if ((not assigned( item )) or
         (LV.Items.Count = 0 )) then begin
-       messagedlg( GetRS(sGlss00), mtInformation, [mbOK], 0 );
+       App.InfoPopup(GetRS(sGlss00));
        exit;
     end;
 
@@ -223,7 +224,7 @@ begin
       end;
 
       if (( namestr = '' ) or ( valuestr = '' )) then begin
-         messagedlg( GetRS(sGlss01), mtError, [mbOK], 0 );
+         App.ErrorPopup(GetRS(sGlss01));
          exit;
       end;
 
@@ -241,7 +242,7 @@ begin
 
           if assigned( dupItem ) then begin
              if ( App.DoMessageBox( Format(GetRS(sGlss02), [namestr,dupItem.subitems[0] ,valuestr] ),
-                                 mtConfirmation, [mbYes,mbNo] ) <> mrYes ) then
+                                 mtConfirmation, [mbYes,mbNo], def2 ) <> mrYes ) then
                  exit;
              item := dupItem;
           end;
@@ -258,7 +259,7 @@ begin
 
       except
         on E : Exception do
-           messagedlg( E.Message, mtError, [mbOK], 0 );
+           App.ErrorPopup(E.Message);
       end;
 
     end;
@@ -279,7 +280,7 @@ begin
 
   if ( not assigned( item )) then
   begin
-    messagedlg( GetRS(sGlss00), mtInformation, [mbOK], 0 );
+    App.InfoPopup(GetRS(sGlss00));
     exit;
   end;
 
@@ -337,7 +338,7 @@ begin
 
     except
       on E : Exception do
-         messagedlg( GetRS(sGlss03) + E.Message, mtError, [mbOK], 0 );
+         App.ErrorPopup(E, GetRS(sGlss03))
     end;
 
   end;

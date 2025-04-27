@@ -387,7 +387,7 @@ begin
 {$IFDEF WITH_DART}
   if (( Combo_Format.ItemIndex = ord( nffDartNotes )) and myKntFile.HasExtendedNotes ) then
   begin
-    case messagedlg(GetRS(sFInf08, mtWarning, [mbOK,mbCancel], 0 ) of
+    case App.DoMessageBox(GetRS(sFInf08, mtWarning, [mbOK,mbCancel] ) of
       mrOK : Combo_Format.ItemIndex := ord( nffKeyNote );
       mrCancel : begin
         result := false;
@@ -417,12 +417,12 @@ begin
 
   if ( s <> '' ) then begin
     result := false;
-    messagedlg( s, mtError, [mbOK], 0 );
+    App.ErrorPopup(s);
     exit;
   end;
 
   if myKntFile.HasVirtualNotes then begin
-    result := ( messagedlg(GetRS(sFInf11), mtWarning, [mbYes,mbNo], 0 ) = mrYes );
+    result := ( App.DoMessageBox(GetRS(sFInf11), mtWarning, [mbYes,mbNo], Def2 ) = mrYes );
   end;
 
 
@@ -729,11 +729,11 @@ begin
   MaxSavedID:= ImageMng.GetMaxSavedImageID;
 
   if MaxSavedID+1 = ImageMng.NextImageID then
-     MessageDlg( Format(GetRS(sFInf19), [MaxSavedID+1, MaxSavedID]), mtInformation, [mbOK], 0 )
+     App.InfoPopup(Format(GetRS(sFInf19), [MaxSavedID+1, MaxSavedID]))
 
   else
-    if (MessageDlg( Format(GetRS(sFInf20), [MaxSavedID, ImageMng.NextImageID, MaxSavedID+1]),
-       mtInformation, [mbYes,mbNo,mbCancel], 0 ) = mrYes ) then begin
+    if (App.DoMessageBox( Format(GetRS(sFInf20), [MaxSavedID, ImageMng.NextImageID, MaxSavedID+1]),
+       mtInformation, [mbYes,mbNo,mbCancel], Def3 ) = mrYes ) then begin
        if ImageMng.RecalcNextID then
           App.InfoPopup(GetRS(sFInf21));
     end;
@@ -772,7 +772,7 @@ begin
   except
     on E : Exception do begin
      if E.Message <> '' then
-        App.PopupMessage( E.Message, mtError, [mbOK,mbHelp], def1, _HLP_KNTFILES );
+        App.ErrorPopup(E.Message);
     end;
   end;
 

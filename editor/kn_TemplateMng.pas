@@ -46,6 +46,7 @@ implementation
 uses
    RxRichEd,
    gf_misc,
+   gf_miscvcl,
    gf_files,
    gf_streams,
    kn_Global,
@@ -175,7 +176,7 @@ begin
              fn := Template_Folder + fn + ext_TXT;
 
           if FileExists(fn) then begin
-             if (App.DoMessageBox(Format(GetRS(sTpl01), [ExtractFilename(fn)]), mtConfirmation, [mbOK,mbCancel] ) <> mrOK) then
+             if (App.DoMessageBox(Format(GetRS(sTpl01), [ExtractFilename(fn)]), mtConfirmation, [mbOK,mbCancel], def2 ) <> mrOK) then
                 exit
              else
                 ReplaceExisting := true;
@@ -205,7 +206,7 @@ begin
 
           except
             on E : Exception do begin
-               messagedlg( E.Message, mtError, [mbOK], 0 );
+               App.ErrorPopup(E.Message);
                exit;
             end;
           end;
@@ -222,7 +223,7 @@ begin
 
             except
               on E : Exception do begin
-                messagedlg( E.Message, mtError, [mbOK], 0 );
+                App.ErrorPopup(E.Message);
                 exit;
               end;
             end;
@@ -321,7 +322,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( E.Message, mtError, [mbOK], 0 );
+            App.ErrorPopup( E.Message);
             exit;
           end;
         end;

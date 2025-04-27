@@ -587,7 +587,7 @@ begin
       // check other instance, and do the job is necessary
       if ( KeyOptions.SingleInstance and ( _OTHER_INSTANCE_HANDLE <> 0 )) then begin
         if KeyOptions.WarnSingleInstance then
-           Messagedlg(GetRS(sMain13), mtWarning, [mbOK], 0 );
+           App.WarningPopup(GetRS(sMain13));
         ClosedOnPreviousInstance := true;
         Application.ShowMainForm := false;
         try
@@ -596,7 +596,7 @@ begin
 
           except
             on E : Exception do begin
-              showmessage( 'Error on ActivatePreviousInstance: ' + E.Message );
+              App.ErrorPopup( 'Error on ActivatePreviousInstance: ' + E.Message );
               Halt;
             end;
           end;
@@ -706,7 +706,7 @@ begin
 
       except
         On E : Exception do
-          showmessage( E.Message );
+          App.ErrorPopup( E.Message );
       end;
 
       Log_StoreTick( 'End tabicons', 2 );
@@ -735,7 +735,7 @@ begin
         end;
       except
         On E : Exception do
-          showmessage( 'Error loading Style Manager: ' + E.Message );
+          App.ErrorPopup( 'Error loading Style Manager: ' + E.Message );
       end;
 
       Log_StoreTick( 'End stylemgr', 2 );

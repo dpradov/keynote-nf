@@ -1007,7 +1007,7 @@ end;
 
 procedure TForm_Image.btnHelpClick(Sender: TObject);
 begin
-  Messagedlg( btnHelp.Hint, mtInformation, [mbOK], 0 );
+  App.InfoPopup( btnHelp.Hint);
 end;
 
 procedure TForm_Image.GetImagesInNote;

@@ -190,7 +190,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg( E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E.Message);
         exit;
       end;
     end;
@@ -330,7 +330,7 @@ begin
       begin
         if assigned( Info ) then Info.Free;
       end;
-      messagedlg( E.Message, mtError, [mbOK], 0 );
+      App.ErrorPopup(E.Message);
     end;
   end;
 
@@ -378,7 +378,7 @@ begin
       TV.SortTree(-1, sdAscending);
     except
       on E : Exception do begin
-        messagedlg( GetRS(sFmg02) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(GetRS(sFmg02) + E.Message);
         ModalResult := mrCancel;
       end;
     end;
@@ -413,7 +413,7 @@ begin
      if assigned(TV.FocusedNode) then begin
         Info := GetFileInfo(TV.FocusedNode);
         if (Info.ImageIndex = NODEIMG_INVALID ) then begin
-          messagedlg( format(GetRS(sFmg04),[Program_Name]), mtInformation, [mbOK], 0 );
+          App.InfoPopup(Format(GetRS(sFmg04),[Program_Name]));
           CanClose := false;
         end
         else
@@ -485,7 +485,7 @@ begin
   TVSelNode := nil;
 
   if ( FileManager.Count = 0 ) then begin
-    messagedlg( GetRS(sFmg05), mtInformation, [mbOK], 0 );
+    App.InfoPopup(GetRS(sFmg05));
     PostMessage( Self.Handle, WM_CLOSE, 0, 0 );
     exit;
   end;
@@ -519,7 +519,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg( E.Message, mtInformation, [mbOK], 0 );
+        App.InfoPopup(E.Message);
         exit;
       end;
     end;

@@ -2795,5 +2795,6 @@ Button_OK.Caption=&Close
 55123_knt_RS_sTag17=Error importing Tags:
 55124_knt_RS_sTag18=Importing Tags from file
 55125_knt_RS_sFnd14=Ignored occurrences in %d folded blocks
+55126_knt_RS_sExpFrm23=Nothing to export
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

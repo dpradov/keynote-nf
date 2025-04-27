@@ -302,6 +302,7 @@ const
    sExpFrm20 = 54258;   // 'Current node' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
    sExpFrm21 = 55095;   // E&xport
    sExpFrm22 = 55096;   // Print
+   sExpFrm23 = 55126;   // Nothing to export
 
    sFav01 = 54653;   // Error loading Favorites:
    sFav02 = 54654;   // Rename favorite location

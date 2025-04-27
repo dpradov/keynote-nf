@@ -1068,7 +1068,7 @@ begin
 
   App.ShowInfoInStatusBar(Format(GetRS(sApp09), [numChars, numAlpChars, numWords] ));
 
-  if ( MessageDlg( s + GetRS(sApp10), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then
+  if ( App.DoMessageBox( s + GetRS(sApp10), mtInformation, [mbOK,mbCancel]) = mrOK ) then
       Clipboard.SetTextBuf( Pchar( s ));
 
 end;

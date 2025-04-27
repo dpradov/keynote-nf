@@ -242,10 +242,7 @@ begin
 
 
   if ( aCmd in CommandsProhibitedInMacros ) then begin
-    messagedlg( Format(
-      GetRS(sMacM04),
-      [EDITCMD_NAMES[aCmd]]
-      ), mtWarning, [mbOK], 0 );
+    App.WarningPopup( Format(GetRS(sMacM04), [EDITCMD_NAMES[aCmd]] ));
     exit;
   end;
 
@@ -257,8 +254,8 @@ begin
   end
   else
   if ( aCMD in EditCommandsWithDialogs ) then begin
-    case messagedlg( GetRS(sMacM05),
-      mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+    case App.DoMessageBox( GetRS(sMacM05),
+      mtConfirmation, [mbYes,mbNo,mbCancel], def3) of
         mrYes : OnPlayShowDlg := false;
         mrNo : OnPlayShowDlg := true;
         else
@@ -468,14 +465,14 @@ begin
       Form_Main.MacMMacroUserCommand.Enabled := false;
 
       if ( ActiveMacro.Lines.Count = 0 ) then begin
-        Messagedlg( Format(GetRS(sMacM08),[ActiveMacro.Name]), mtInformation, [mbOK], 0 );
+        App.InfoPopup( Format(GetRS(sMacM08),[ActiveMacro.Name]));
         ActiveMacro.Free;
         exit;
       end;
 
-      if (messagedlg(Format(GetRS(sMacM09), [ActiveMacro.Name,ActiveMacro.Lines.Count]), mtConfirmation, [mbYes,mbNo], 0 ) <> mrNo ) then begin
+      if (App.DoMessageBox(Format(GetRS(sMacM09), [ActiveMacro.Name,ActiveMacro.Lines.Count]), mtConfirmation, [mbYes,mbNo] ) <> mrNo ) then begin
         if ( not ActiveMacro.Save ) then begin
-          messagedlg( Format(GetRS(sMacM10), [ActiveMacro.FileName,ActiveMacro.LastError]), mtError, [mbOK], 0 );
+          App.ErrorPopup( Format(GetRS(sMacM10), [ActiveMacro.FileName,ActiveMacro.LastError]));
           ActiveMacro.Free;
           exit;
         end;
@@ -491,7 +488,7 @@ begin
     except
       on E : Exception do begin
         Form_Main.StatusBar.Panels[PANEL_HINT].Text := GetRS(sMacM13);
-        messagedlg( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ), mtError, [mbOK], 0 );
+        App.ErrorPopup( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ));
         ActiveMacro.Free;
       end;
     end;
@@ -773,7 +770,7 @@ var
 
    procedure AbortMacro( const s : string; i : integer; const line : string );
    begin
-     messagedlg( Format(GetRS(sMacM29), [i,copy( line, 1, 127 ),s]), mtError, [mbOK], 0 );
+     App.ErrorPopup( Format(GetRS(sMacM29), [i,copy( line, 1, 127 ),s]));
      MacroFinished := true;
      MacroErrorAbort := true;
    end;
@@ -1310,7 +1307,7 @@ begin
       On E : Exception do begin
         MacroFinished := true;
         MacroErrorAbort := true;
-        messagedlg( Format(GetRS(sMacM38),[E.Message,copy( Macro.Lines[pred(linecnt)], 1, 127 ),linecnt]), mtError, [mbOK], 0 );
+        App.ErrorPopup( Format(GetRS(sMacM38),[E.Message,copy( Macro.Lines[pred(linecnt)], 1, 127 ),linecnt]));
       end;
     end;
 
@@ -1326,7 +1323,7 @@ function MacroProcess( const DoWarn : boolean ) : boolean;
 begin
   result := ( IsRunningMacro or IsRecordingMacro );
   if ( result and DoWarn ) then
-     messagedlg( GetRS(sMacM39), mtInformation, [mbOK], 0 );
+     App.InfoPopup( GetRS(sMacM39));
 end; // MacroProcess
 
 
@@ -1379,7 +1376,7 @@ begin
 
   if (( Form_Main.ListBox_ResMacro.Items.Count = 0 ) or (Index < 0)) then begin
     if DoWarn then
-       messagedlg( GetRS(sMacM41), mtError, [mbOK], 0 );
+       App.ErrorPopup(GetRS(sMacM41));
     exit;
   end;
 
@@ -1393,7 +1390,7 @@ begin
 
   finally
     if (( result = nil ) and DoWarn ) then
-       messagedlg( GetRS(sMacM42), mtError, [mbOK], 0 );
+       App.ErrorPopup(GetRS(sMacM42));
   end;
 end; // GetCurrentMacro
 
@@ -1977,7 +1974,7 @@ begin
                 SelAttributes.Size := strtoint( Form_Main.Combo_FontSize.Text );
                 CommandRecall.Font.Size := SelAttributes.Size;
               except
-                messagedlg( Format( GetRS(sMacM54), [Form_Main.Combo_FontSize.Text] ), mtError, [mbOK], 0 );
+                App.ErrorPopup(Format( GetRS(sMacM54), [Form_Main.Combo_FontSize.Text] ));
                 Canceled:= True;
               end;
             end;
@@ -2085,8 +2082,8 @@ begin
                     NNode.EditorBGColor := tempChrome.BGColor;
 
                  if ShiftWasDown then begin
-                   if ( messagedlg( format(GetRS(sMacM55), [ActiveFolder.Name]),
-                       mtConfirmation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
+                   if ( App.DoMessageBox( format(GetRS(sMacM55), [ActiveFolder.Name]),
+                       mtConfirmation, [mbOK,mbCancel], Def2) = mrOK ) then begin
                      try
                        myTreeNode := TreeUI.TV.GetFirst;
                        while assigned(myTreeNode) do begin

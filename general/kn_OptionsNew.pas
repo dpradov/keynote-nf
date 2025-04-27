@@ -844,7 +844,7 @@ begin
       myClipOpts.MaxSize := strtoint( Combo_Size.Text );
     except
       Combo_Size.SetFocus;
-      messagedlg( GetRS(sOpt02), mtError, [mbOK], 0 );
+      App.ErrorPopup(GetRS(sOpt02));
       result := false;
     end;
 end; // FormToClipCap
@@ -1495,7 +1495,7 @@ end;
 
 procedure TForm_OptionsNew.ResetChromeDefaults;
 begin
-  if ( messagedlg( GetRS(sOpt05), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( App.DoMessageBox( GetRS(sOpt05), mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then exit;
 
   with myTabOpts.Font do
   begin
@@ -1650,7 +1650,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( GetRS(sOpt08) + fn + #13 + E.Message, mtError, [mbOK], 0 );
+            App.ErrorPopup(GetRS(sOpt08) + fn + #13 + E.Message);
             exit;
           end;
         end;
@@ -1679,9 +1679,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( Format(
-              GetRS(sOpt09) + #13 + E.Message,
-              [fn] ), mtError, [mbOK], 0 );
+            App.ErrorPopup(Format(GetRS(sOpt09) + #13 + E.Message, [fn] ));
             exit;
           end;
         end;
@@ -1711,7 +1709,7 @@ begin
         except
           on E : Exception do
           begin
-            messagedlg( GetRS(sOpt08) + fn + #13 + E.Message, mtError, [mbOK], 0 );
+            App.ErrorPopup(GetRS(sOpt08) + fn + #13 + E.Message);
             exit;
           end;
         end;
@@ -1742,11 +1740,11 @@ begin
 
   if ( Chest.IMG_Categories.Count < 2 ) then
   begin
-    showmessage( GetRS(sOpt10) );
+    App.InfoPopup(GetRS(sOpt10));
     exit;
   end;
 
-  if ( messagedlg( GetRS(sOpt11), mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( App.DoMessageBox( GetRS(sOpt11), mtCOnfirmation, [mbYes,mbNo], Def2) <> mrYes ) then exit;
 
   try
     i := List_ICN.ItemIndex;
@@ -1755,7 +1753,7 @@ begin
   except
     on E : Exception do
     begin
-      messagedlg( GetRS(sOpt11) + #13#13 + E.Message, mtError, [mbOK], 0 );
+      App.ErrorPopup(E.Message);
       exit;
     end;
   end;
@@ -1774,7 +1772,7 @@ procedure TForm_OptionsNew.ResetIcons;
 var
   i : integer;
 begin
-  if ( messagedlg( GetRS(sOpt13), mtCOnfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+  if ( App.DoMessageBox(GetRS(sOpt13), mtCOnfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then exit;
 
   Icons_RefList.Clear;
   LoadCategoryBitmapsBuiltIn;
@@ -1802,11 +1800,9 @@ end;
 
 procedure TForm_OptionsNew.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg( format(GetRS(sOpt14), [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR,
+  App.InfoPopup(Format(GetRS(sOpt14), [CLIPDATECHAR, CLIPTIMECHAR, CLIPDIVCHAR,
                               CLIPSOURCEDELIMITER, CLIPSOURCE, CLIPSOURCE_LIMITED, CLIPSOURCE_ONLY_URL, CLIPSOURCE_DOMAIN,
-                              CLIPSECONDDIV]),
-    mtInformation, [mbOK], 0
-  );
+                              CLIPSECONDDIV]) );
 
 end;
 
@@ -1848,7 +1844,7 @@ begin
     if (( not Checkbox_AutoSave.Checked ) and ( not AutoCloseWarned )) then
     begin
       AutoCloseWarned := true;
-      messagedlg( GetRS(sOpt15), mtWarning, [mbOK], 0 );
+      App.WarningPopup(GetRS(sOpt15));
     end;
   end;
 end;
@@ -1972,7 +1968,7 @@ begin
     self.HelpContext := HC;
 
   except
-    messagedlg( Format( GetRS(sOpt16), [Pages.PageIndex, Idx]), mtError, [mbOK], 0 );
+     App.ErrorPopup(Format( GetRS(sOpt16), [Pages.PageIndex, Idx]));
   end;
 end;
 
@@ -1988,7 +1984,7 @@ begin
     ext := ansilowercase( ext );
     if ( List_TxtExt.Items.IndexOf( ext ) >= 0 ) then
     begin
-      showmessage( Format( GetRS(sOpt19), [ext] ));
+      App.InfoPopup(Format(GetRS(sOpt19), [ext]));
       exit;
     end;
     List_TxtExt.ItemIndex := List_TxtExt.Items.Add( ext );
@@ -2022,8 +2018,8 @@ end;
 
 procedure TForm_OptionsNew.Button_ResetTxtExtClick(Sender: TObject);
 begin
-  if ( messagedlg( GetRS(sOpt20),
-    mtConfirmation, [mbOK,mbCancel], 0 ) <> mrOK ) then exit;
+  if ( App.DoMessageBox( GetRS(sOpt20),
+       mtConfirmation, [mbOK,mbCancel], Def2) <> mrOK ) then exit;
   with myOpts do
   begin
     ExtText := Def_Text_Extensions;
@@ -2177,7 +2173,7 @@ begin
      Item := LVfb.Selected;
      if ((not assigned( Item )) or
         (LVfb.Items.Count = 0 )) then begin
-        messagedlg( GetRS(sFoldBl0), mtInformation, [mbOK], 0 );
+        App.InfoPopup(GetRS(sFoldBl0));
         exit;
      end;
      Opening := Item.Caption;
@@ -2204,7 +2200,7 @@ begin
       end;
 
       if (Opening = '') or (Closing = '') then begin
-         messagedlg( GetRS(sFoldBl1), mtError, [mbOK], 0 );
+         App.ErrorPopup(GetRS(sFoldBl1));
          exit;
       end;
 
@@ -2221,7 +2217,7 @@ begin
           end;
 
           if assigned(dupItem) then begin
-             if App.DoMessageBox( Format(GetRS(sFoldBl2), [Opening, dupItem.subitems[0]] ), mtConfirmation, [mbYes,mbNo] ) <> mrYes then
+             if App.DoMessageBox( Format(GetRS(sFoldBl2), [Opening, dupItem.subitems[0]] ), mtConfirmation, [mbYes,mbNo], def2) <> mrYes then
                 exit;
              Item := dupItem;
           end;
@@ -2241,7 +2237,7 @@ begin
 
       except
         on E : Exception do
-           messagedlg( E.Message, mtError, [mbOK], 0 );
+           App.ErrorPopup(E.Message);
       end;
 
     end;
@@ -2260,7 +2256,7 @@ begin
   item := LVfb.Selected;
 
   if not assigned(item) then begin
-    messagedlg( GetRS(sFoldBl0), mtInformation, [mbOK], 0 );
+    App.InfoPopup(GetRS(sFoldBl0));
     exit;
   end;
 

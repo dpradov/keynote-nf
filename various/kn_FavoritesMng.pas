@@ -45,6 +45,7 @@ uses
 implementation
 uses
    gf_misc,
+   gf_miscvcl,
    gf_strings,
    gf_files,
    kn_Global,
@@ -76,7 +77,7 @@ begin
       LoadFavorites( FAV_FN );
     except
       On E : Exception do begin
-        showmessage( GetRS(sFav01) + E.Message );
+        App.ErrorPopup(E, GetRS(sFav01));
         exit;
       end;
     end;
@@ -377,7 +378,7 @@ begin
   if ( not assigned( myFav )) then exit;
   name := Form_Main.ListBox_ResFav.Items[i];
 
-  if (messagedlg(Format(GetRS(sFav09), [name] ), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK) then begin
+  if (App.DoMessageBox(Format(GetRS(sFav09), [name] ), mtConfirmation, [mbOK, mbCancel], Def2 ) = mrOK) then begin
     try
       Form_Main.ListBox_ResFav.Items.Delete( i );
       if ( Form_Main.ListBox_ResFav.Items.Count > 0 ) then begin

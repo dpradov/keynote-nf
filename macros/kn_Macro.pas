@@ -97,12 +97,14 @@ function IsAutorunMacro (FileName: string): boolean;
 implementation
 uses
   gf_misc,
+  gf_miscvcl,
   gf_files,
   gf_strings,
   kn_Global,
   kn_Const,
   kn_MacroCmd,
   kn_MacroMng,
+  knt.App,
   knt.RS;
 
 
@@ -372,7 +374,7 @@ begin
             Macro_List.AddObject( Macro.Name, Macro );
          end
          else begin
-           if DoWarn and ( messagedlg( Format(GetRS(sMac03),[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], 0 ) <> mrYes ) then
+           if DoWarn and ( App.DoMessageBox( Format(GetRS(sMac03),[DirInfo.Name, Macro.LastError]), mtWarning, [mbYes, mbNo], def2 ) <> mrYes ) then
                FindResult := -1; // will abort loop
            Macro.Free;
          end;
@@ -382,7 +384,7 @@ begin
     except
       On E : Exception do
         if DoWarn then
-           messagedlg( Format(GetRS(sMac04), [DirInfo.Name, E.Message] ), mtError, [mbOK], 0 );
+           App.ErrorPopup( Format(GetRS(sMac04), [DirInfo.Name, E.Message] ));
     end;
 
   finally

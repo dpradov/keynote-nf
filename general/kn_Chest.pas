@@ -137,7 +137,7 @@ begin
 
   except
     _LOADED_ICON_FILE := '';
-    Messagedlg( GetRS(sChest01), mtError, [mbOK], 0 );
+    App.ErrorPopup( GetRS(sChest01));
   end;
 end; // LoadCategoryBitmapsBuiltIn
 
@@ -160,7 +160,7 @@ begin
       on E : Exception do begin
         _LOADED_ICON_FILE := '';
         result := false;
-        Messagedlg( GetRS(sChest02) + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, GetRS(sChest02) + fn);
         exit;
       end;
     end
@@ -183,7 +183,7 @@ begin
       s.WriteComponent( Chest.IMG_Categories );
     except
       on E : Exception do begin
-        Messagedlg( GetRS(sChest03) + fn + #13#13 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, GetRS(sChest03) + fn);
         exit;
       end;
     end;

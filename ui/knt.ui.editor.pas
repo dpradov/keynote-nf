@@ -5368,7 +5368,7 @@ begin
   wholeNote:= false;
   if ( SelLength = 0 ) then begin
     wholeNote:= true;
-    if messagedlg(GetRS(sEdt14), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes then exit;
+    if App.DoMessageBox(GetRS(sEdt14), mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes then exit;
   end;
 
   BeginUpdate;
@@ -5427,7 +5427,7 @@ begin
   if ( Lines.Count < 1 ) then exit;
 
   if ( SelLength = 0 ) then begin
-     if ( messagedlg(GetRS(sEdt15), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then
+     if ( App.DoMessageBox(GetRS(sEdt15), mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then
          exit;
   end;
 
@@ -5551,7 +5551,7 @@ begin
           SelText := #32 + LastEvalExprResult;
        end
        else
-          if ( messagedlg( Format( GetRS(sEdt18), [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel], 0 ) = mrOK ) then begin
+          if ( App.DoMessageBox( Format( GetRS(sEdt18), [src,LastEvalExprResult] ), mtInformation, [mbOK,mbCancel]) = mrOK ) then begin
              if not CheckReadOnly then begin
                SelStart := SelStart + SelLength;
                SelText := #32 + LastEvalExprResult;
@@ -5677,7 +5677,7 @@ begin
 
    except
      on E : Exception do
-       ShowMessage( E.Message );
+       App.ErrorPopup( E.Message );
    end;
 
 end; // InsertSpecialCharacter
@@ -5842,7 +5842,7 @@ var
 
 begin
   if (not assigned( GlossaryList)) then begin
-    showmessage( Format(GetRS(sEdt24), [Glossary_FN] ));
+    App.ErrorPopup( Format(GetRS(sEdt24), [Glossary_FN] ));
     exit;
   end;
 
@@ -5871,9 +5871,9 @@ begin
         if (( nstr <> '' ) and ( vstr <> '' ) and ( nstr <> vstr )) then begin
 
           if ( GlossaryList.IndexOfName( nstr ) >= 0 ) then begin
-            if ( messagedlg( Format(GetRS(sEdt25),
+            if ( App.DoMessageBox( Format(GetRS(sEdt25),
               [nstr,GlossaryList.Values[nstr],vstr] ),
-              mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+              mtConfirmation, [mbYes,mbNo], def2) <> mrYes ) then exit;
           end;
 
           try
@@ -5888,7 +5888,7 @@ begin
 
           except
             on E : Exception do
-              showmessage( E.Message );
+              App.ErrorPopup(E.Message);
           end;
         end;
       end;
@@ -5943,7 +5943,7 @@ begin
 
     except
       On E : Exception do begin
-        ShowMessage( GetRS(sFoldBl4) + E.Message );
+        App.ErrorPopup( GetRS(sFoldBl4) + E.Message );
       end;
     end;
 end;
@@ -5978,7 +5978,7 @@ begin
 
  except
    on E : Exception do
-      messagedlg( GetRS(sFoldBl3) + E.Message, mtError, [mbOK], 0 );
+      App.ErrorPopup( GetRS(sFoldBl3) + E.Message);
  end;
 end;
 
@@ -5998,7 +5998,7 @@ begin
       SelectAll;
       CopyToClipboard;
       if AJBSpell.CheckClipboardSpell then begin
-        if ( messagedlg( GetRS(sEdt27), mtConfirmation, [mbOK, mbCancel], 0 ) = mrOK ) then
+        if ( App.DoMessageBox( GetRS(sEdt27), mtConfirmation, [mbOK, mbCancel] ) = mrOK ) then
             PasteFromClipboard;
       end;
 

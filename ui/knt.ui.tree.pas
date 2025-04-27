@@ -2547,7 +2547,7 @@ begin
       end;
 
       if (SubtreeOnly and not assigned(StartNode)) then begin
-        messagedlg(GetRS(sTree04), mtError, [mbOK], 0);
+        App.ErrorPopup(GetRS(sTree04));
         exit;
       end;
 
@@ -2595,7 +2595,7 @@ procedure TKntTreeUI.SortTree;
 begin
   if CheckReadOnly then exit;
 
-  if (MessageDlg(GetRS(sTree49), mtConfirmation, [mbYes,mbNo], 0) <> mrYes) then exit;
+  if (App.DoMessageBox(GetRS(sTree49), mtConfirmation, [mbYes,mbNo]) <> mrYes) then exit;
 
   TV.SortTree(-1, sdAscending);
   TKntFolder(Folder).Modified:= true;
@@ -2830,7 +2830,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg(GetRS(sTree01) + E.Message, mtError, [mbOK], 0);
+        App.ErrorPopup(GetRS(sTree01) + E.Message);
         // if assigned(myTreeNode) then myTreeNode.Free;
         // if assigned(myNote) then myNote.Free;
       end;
@@ -3153,7 +3153,7 @@ begin
             end
             else begin
               if not ConfirmationOnlyForChildren then
-                 showmessage(GetRS(sTree13));
+                 App.InfoPopup(GetRS(sTree13));
               exit;
             end;
          end
@@ -3402,7 +3402,7 @@ begin
    case XferAction of
       ttClear: begin
         result := true;
-        if (messagedlg(Format(GetRS(sTree18), [GetRS(sTree20)]), mtConfirmation, [mbYes,mbNo], 0) = mrYes) then begin
+        if (App.DoMessageBox(Format(GetRS(sTree18), [GetRS(sTree20)]), mtConfirmation, [mbYes,mbNo]) = mrYes) then begin
            fSourceTVSelectedNodes:= nil;
            fTVCopiedNodes.Clear;
            fiNextSourceTVNode:= 0;

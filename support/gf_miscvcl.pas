@@ -503,8 +503,9 @@ begin
        def4: uType:= uType or MB_DEFBUTTON4;
     end;
 
-    if hWnd = 0 then
-       hWnd:= Application.MainFormHandle;
+    if hWnd = 0 then begin
+       uType:= uType or MB_TOPMOST;
+    end;
     Result:= MessageBox(hWnd, PChar(text), PChar(caption), uType);
 end;
 

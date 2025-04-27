@@ -115,7 +115,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( 'Loading Languages file  "' + FN + '"' + #13#13 + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, 'Loading Languages file  "' + FN + '"');
         exit;
       end;
     end;
@@ -148,7 +148,7 @@ begin
 
       if (LanguageUI = GetRS(LANGUAGE_DEFAULT)) or (LanguageUI = '') then begin
          if FreeLocalizer.LanguageFile <> '' then
-            messagedlg( GetRS(sLng01), mtInformation, [mbOK], 0 );
+            App.InfoPopup(GetRS(sLng01));
          result:= True;
       end
       else begin
@@ -169,7 +169,7 @@ begin
 
           if FN <> '' then begin
              if not fileexists( path + FN ) then
-                messagedlg( GetRS(sLng02) + path + FN, mtError, [mbOK], 0 )
+                App.ErrorPopup( GetRS(sLng02) + path + FN)
              else begin
                  if FreeLocalizer.LanguageFile <> path + FN then begin
                     FreeLocalizer.LanguageFile:= path + FN;

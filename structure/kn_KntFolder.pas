@@ -1391,7 +1391,7 @@ begin
 
   with Form_Main do begin
       if (( ActiveFile.FileFormat = nffEncrypted ) and ( not App.Virtual_UnEncrypt_Warning_Done )) then begin
-        if ( messagedlg(GetRS(sFld33), mtWarning, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+        if ( App.DoMessageBox(GetRS(sFld33), mtWarning, [mbYes,mbNo]) <> mrYes ) then exit;
         App.Virtual_UnEncrypt_Warning_Done := true;
       end;
 
@@ -1444,7 +1444,7 @@ begin
 
       ext := ExtractFileExt( VirtFN );
       if not ( ExtIsRTF(ext) or ExtIsText(ext) or ExtIsHTML(ext)) then begin
-         messagedlg( GetRS(sFld35), mtError, [mbOK], 0 );
+         App.ErrorPopup( GetRS(sFld35));
          exit;
       end;
 
@@ -1453,12 +1453,12 @@ begin
       if IsDriveRemovable(VirtFN) then begin
         case KntTreeOptions.RemovableMediaVNodes of
           _REMOVABLE_MEDIA_VNODES_DENY : begin
-            MessageDlg( Format(GetRS(sFld36),[Extractfiledrive( VirtFN )] ), mtError, [mbOK], 0 );
+            App.ErrorPopup( Format(GetRS(sFld36),[Extractfiledrive( VirtFN )] ));
             exit;
           end;
           _REMOVABLE_MEDIA_VNODES_WARN : begin
-            if ( messagedlg( Format(GetRS(sFld37),
-              [Extractfiledrive( VirtFN )] ), mtWarning, [mbOK,mbCancel], 0 ) <> mrOK ) then
+            if ( App.DoMessageBox( Format(GetRS(sFld37),
+              [Extractfiledrive( VirtFN )] ), mtWarning, [mbOK,mbCancel]) <> mrOK ) then
                 exit;
           end;
           { _REMOVABLE_MEDIA_VNODES_ALLOW or any other value: allow }
@@ -1650,7 +1650,7 @@ begin
 
       except
         On E : Exception do begin
-          messagedlg(E.Message, mtError, [mbOK], 0);
+          App.ErrorPopup(E.Message);
           exit;
         end;
       end;
@@ -2891,7 +2891,7 @@ begin
   try
     tf.Reset;
   except
-    messagedlg( GetRS(sFld11) + FN, mtError, [mbOK], 0 );
+    App.ErrorPopup( GetRS(sFld11) + FN);
     exit;
   end;
 

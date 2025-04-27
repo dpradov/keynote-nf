@@ -169,14 +169,14 @@ begin
   result := false;
   if ( trim( Combo_TabName.Text ) = '' ) then
   begin
-    messagedlg( GetRS(sFldN03), mtError, [mbOK], 0 );
+    App.ErrorPopup( GetRS(sFldN03));
     Combo_TabName.SetFocus;
     exit;
   end;
 
   if ( pos( KNTLINK_SEPARATOR, Combo_TabName.Text ) > 0 ) then
   begin
-    messagedlg( Format(GetRS(sFldN04),[KNTLINK_SEPARATOR]), mtError, [mbOK], 0 );
+    App.ErrorPopup( Format(GetRS(sFldN04),[KNTLINK_SEPARATOR]));
     Combo_TabName.SetFocus;
     exit;
   end;

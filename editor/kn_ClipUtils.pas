@@ -529,7 +529,7 @@ begin
         CalculateCRC32( addr(ClpStr[1]), length(ClpStr) * SizeOf(Char), thisClipCRC32 );
       except
         on E : Exception do begin
-          messagedlg( GetRS(sEdt50) + E.Message, mtError, [mbOK], 0 );
+          App.ErrorPopup( GetRS(sEdt50) + E.Message);
           ClipOptions.TestDupClips := false;
           exit;
         end;

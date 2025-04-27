@@ -176,7 +176,7 @@ begin
     MProfile := chkProfile.Checked;
 
     if ( MName = '' ) then begin
-      messagedlg( GetRS(sMacE02), mtError, [mbOK], 0 );
+      App.ErrorPopup(GetRS(sMacE02));
       Edit_Name.SetFocus;
       CanClose := false;
       exit;
@@ -191,7 +191,7 @@ begin
                   ( Macro_List.IndexOf( OriginalName ) = i ));
 
     if ( not CanClose ) then begin
-      messagedlg( GetRS(sMacE03), mtError, [mbOK], 0 );
+      App.ErrorPopup( GetRS(sMacE03));
       Edit_Name.SetFocus;
       exit;
     end;

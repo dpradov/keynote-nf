@@ -58,6 +58,7 @@ type
 implementation
 uses
    gf_misc,
+   gf_miscvcl,
    kn_Info,
    kn_Global,
    kn_main,
@@ -94,7 +95,7 @@ begin
   if ( ModalResult = mrOK ) then
   begin
     if ( not FileExists( NormalFN( AbsolutePath(Edit_FN.Text) ))) then
-      CanClose := ( messagedlg( GetRS(sFavDlg01), mtWarning, [mbOK,mbCancel], 0 ) = mrOK );
+      CanClose := ( App.DoMessageBox(GetRS(sFavDlg01), mtWarning, [mbOK,mbCancel], Def2 ) = mrOK );
   end;
 end;
 

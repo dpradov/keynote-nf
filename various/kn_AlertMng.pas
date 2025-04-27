@@ -1050,7 +1050,7 @@ begin
   except
     on E : Exception do
     begin
-      messagedlg( E.Message, mtError, [mbOK], 0 );
+      App.ErrorPopup( E.Message);
     end;
   end;
 

@@ -105,7 +105,7 @@ begin
 
   except
     on E : Exception do
-        messagedlg( GetRS(sExp01) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(GetRS(sExp01) + E.Message);
   end;
 end; // ConvertHTMLToRTF
 
@@ -168,7 +168,7 @@ begin
 
   except
     on E : Exception do
-        messagedlg( GetRS(sExp01) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(GetRS(sExp01) + E.Message);
   end;
 end; // ConvertHTMLToRTF
 
@@ -194,7 +194,7 @@ begin
 
   except
     on E : Exception do
-        MessageDlg(GetRS(sExp02) + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(GetRS(sExp02) + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message);
   end;
 end; // ConvertRTFToHTML
 
@@ -228,7 +228,7 @@ begin
 
   except
     on E : Exception do
-        MessageDlg(GetRS(sExp02) + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(GetRS(sExp02) + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message);
   end;
 end; // ConvertRTFToHTML
 

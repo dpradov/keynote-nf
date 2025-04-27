@@ -220,7 +220,7 @@ begin
   end;
 
   if (errstr <> '' ) then
-      MessageDlg( GetRS(sCfg03) + #13 + errstr, mtWarning, [mbOK], 0 );
+      App.WarningPopup( GetRS(sCfg03) + #13 + errstr);
 
 end; // ReadCmdLine
 
@@ -390,7 +390,7 @@ begin
   except
     on E : Exception do
     begin
-      showmessage( Format(GetRS(sCfg05) , [E.Message]) );
+      App.ErrorPopup( Format(GetRS(sCfg05) , [E.Message]) );
     end;
   end;
 end; // LoadDefaults
@@ -594,7 +594,7 @@ begin
 
     except
       on E : Exception do
-        MessageDlg(Format(GetRS(sCfg04), [Keyboard_FN, E.Message] ), mtError, [mbOK], 0 );
+        App.ErrorPopup(Format(GetRS(sCfg04), [Keyboard_FN, E.Message] ));
     end;
 
   finally
@@ -695,7 +695,7 @@ begin
 
     except
       on E : Exception do
-        messagedlg( GetRS(sCfg01) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( GetRS(sCfg01) + E.Message);
     end;
 
   finally
@@ -752,7 +752,7 @@ begin
 
     except
       on E : Exception do
-        messagedlg( GetRS(sCfg01) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( GetRS(sCfg01) + E.Message);
     end;
 
   finally

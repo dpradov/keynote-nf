@@ -45,7 +45,7 @@ function DlgCustomizeKeyboard(
 {$ENDIF}
 
 implementation
-
+uses knt.App;
 
 {$IFDEF EMBED_UTILS_DLL}
 
@@ -73,7 +73,7 @@ begin
 
     except
       on E : Exception do
-        messagedlg( 'Error in keyboard customization procedure: ' + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( 'Error in keyboard customization procedure: ' + E.Message);
     end;
 
   finally
@@ -119,7 +119,7 @@ begin
 
     except
       on E : Exception do
-        messagedlg( 'Error in keyboard customization procedure: ' + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( 'Error in keyboard customization procedure: ' + E.Message);
     end;
 
   finally

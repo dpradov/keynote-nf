@@ -1611,10 +1611,7 @@ begin
             // No warning if we can be running more than 1 instance of KeyNote,
             // because only the first instance will be able to register the hotkey,
             // so we would ALWAYS be getting the damn warning on each subsequent instance.
-            Messagedlg( Format(
-              GetRS(sMain01),
-              [ShortCutToText( KeyOptions.HotKey )] ),
-              mtWarning, [mbOK], 0 );
+            App.WarningPopup( Format(GetRS(sMain01), [ShortCutToText(KeyOptions.HotKey)] ));
           end;
         end;
       end;
@@ -1630,10 +1627,7 @@ begin
     On E : Exception do
     begin
       App.Kbd.HotKeySuccess := false;
-      messagedlg( Format(
-        GetRS(sMain02),
-        [TOGGLEARRAY[TurnOn], ShortCutToText( KeyOptions.HotKey ), E.Message]
-        ), mtError, [mbOK], 0 );
+      App.ErrorPopup(Format(GetRS(sMain02), [TOGGLEARRAY[TurnOn], ShortCutToText( KeyOptions.HotKey ), E.Message]));
 
     end;
   end;
@@ -2178,7 +2172,7 @@ begin
       // at this stage, we can only swallow all exceptions (and pride)
      {$IFDEF KNT_DEBUG}
         on E : Exception do begin
-          showmessage( 'Exception in OnDestroy: ' + #13#13 +E.Message );
+          App.ErrorPopup( 'Exception in OnDestroy: ' + #13#13 +E.Message );
           if assigned( Log ) then Log.Add( 'Exception in OnDestroy: ' + E.Message );
         end;
      {$ENDIF}
@@ -3281,10 +3275,10 @@ begin
   if ( not KeyOptions.IgnoreUpgrades and ( IsLaterVersion(KeyOptions.LastVersion, Program_Version_Number ) )) then begin
      //KeyOptions.TipOfTheDay := true;
      KeyOptions.TipOfTheDayIdx := -1;
-     case messagedlg(
+     case App.DoMessageBox(
        Format(GetRS(sMain17)
        , [KeyOptions.LastVersion, Program_Version, SampleFileName] ),
-       mtInformation, [mbYes,mbNo], 0
+       mtInformation, [mbYes,mbNo], Def2
      ) of
        mrYes : begin
          DisplayHistoryFile;
@@ -3660,7 +3654,7 @@ begin
        'RichEdit version: '  + _LoadedRichEditVersion.ToString + #13 +
        'AllocMemSize: ' + AllocMemSize.ToString;
 
-  if ( messagedlg( s, mtInformation, [mbOK,mbCancel], 0 ) = mrCancel ) then exit;
+  if ( App.DoMessageBox( s, mtInformation, [mbOK,mbCancel]) = mrCancel ) then exit;
 
   if HaveKntFolders( false, false ) then begin
     s := 'Filename: ' + ExtractFilename( KntFile.FileName ) +#13+
@@ -3815,9 +3809,9 @@ begin
   if ShiftDown and ( sender is TToolbarButton97 ) then
   begin
     if LoadDateFormatsList then
-      messagedlg( Format( GetRS(sMain19), [DATE_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
+      App.InfoPopup( Format( GetRS(sMain19), [DATE_FORMAT_LIST.Count] ))
     else
-      messagedlg( Format( GetRS(sMain20), [GetRS(sMain20a), _DateFormatsFile] ), mtError, [mbOK], 0 );
+      App.ErrorPopup( Format( GetRS(sMain20), [GetRS(sMain20a), _DateFormatsFile] ));
   end
   else
     PerformCmd( ecInsDate );
@@ -3828,9 +3822,9 @@ begin
   if ShiftDown and ( sender is TTOolbarButton97 ) then
   begin
     if LoadTimeFormatsList then
-      messagedlg( Format( GetRS(sMain21), [TIME_FORMAT_LIST.Count] ), mtInformation, [mbOK], 0 )
+      App.InfoPopup( Format( GetRS(sMain21), [TIME_FORMAT_LIST.Count] ))
     else
-      messagedlg( Format( GetRS(sMain20), [GetRS(sMain20b), _TimeFormatsFile] ), mtError, [mbOK], 0 );
+      App.ErrorPopup( Format( GetRS(sMain20), [GetRS(sMain20b), _TimeFormatsFile] ));
   end
   else
     PerformCmd( ecInsTime );
@@ -4612,7 +4606,7 @@ begin
     7 : Msg := GetRS(sMain62);
   end; { case }
   Msg := GetRS(sMain63) + Msg + #13 + GetRS(sMain64) + IntToStr(( sender as TMathParser ).Position);
-  MessageDlg( Msg, mtError, [mbOk], 0 );
+  App.ErrorPopup(Msg);
 end; // MathParserParseError
 
 
@@ -4684,7 +4678,7 @@ begin
 
   myTreeNode := GetCurrentTreeNode;
   if not assigned(myTreeNode) then begin
-    showmessage( GetRS(sMain65) );
+    App.InfoPopup( GetRS(sMain65) );
     exit;
   end;
 
@@ -4803,9 +4797,9 @@ procedure TForm_Main.BtnStyleApplyClick(Sender: TObject);
 begin
   if ( not Toolbar_Style.Visible ) then
   begin
-    case messagedlg(
+    case App.DoMessageBox(
       GetRS(sMain69),
-      mtConfirmation, [mbYes,mbNo], 0 ) of
+      mtConfirmation, [mbYes,mbNo] ) of
       mrYes : begin
         // [x] this assumes .Visible is always synced with KeyOptions.ShowStyleToolbar
         // which SHOULD always be the case...
@@ -4817,12 +4811,12 @@ begin
   end;
   if ( Combo_Style.ItemIndex < 0 ) then
   begin
-    messagedlg( GetRS(sMain70), mtInformation, [mbOK], 0 );
+    App.InfoPopup(GetRS(sMain70));
     exit;
   end;
   if ( not assigned( StyleManager )) then
   begin
-    messagedlg( GetRS(sMain71), mtError, [mbOK], 0 );
+    App.ErrorPopup( GetRS(sMain71));
     exit;
   end;
 
@@ -5093,7 +5087,7 @@ begin
     On E : Exception do begin
        // ActiveFolder.Editor.PasteSpecialDialog can raise an exception if for example RTF format obtained converting HTML is not correct
        // See PasteBestAvailableFormatInEditor (kn_EditorUtils)
-       MessageDlg( E.Message, mtError, [mbOK], 0 );
+       App.ErrorPopup(E.Message);
        exit;
     end;
   end;
@@ -5132,7 +5126,7 @@ end;
 
 procedure TForm_Main.MMHelpVisitWebsiteClick(Sender: TObject);
 begin
-  if messagedlg(GetRS(sMain82), mtConfirmation, [mbOK,mbCancel], 0) <> mrOK then exit;
+  if App.DoMessageBox(GetRS(sMain82), mtConfirmation, [mbOK,mbCancel], Def2) <> mrOK then exit;
 
   screen.Cursor := crHourGlass;
   ShellExecute( 0, 'open', PChar( Program_URL ), nil, nil, SW_NORMAL );
@@ -6316,7 +6310,7 @@ var
 
   procedure CannotHideTabMsg;
   begin
-    messagedlg( GetRS(sMain87), mtInformation, [mbOK], 0 );
+    App.InfoPopup(GetRS(sMain87));
   end;
 
 begin
@@ -6686,7 +6680,7 @@ begin
     end;
     if WillChange then
     begin
-      messagedlg( GetRS(sMain88), mtInformation, [mbOK], 0 );
+      App.InfoPopup(GetRS(sMain88));
     end;
   end;
 end; // ResMPanelRightClick
@@ -7127,15 +7121,14 @@ begin
   end
   else begin
     SaveToolbars;
-    messagedlg(Format(GetRS(sMain94), [Toolbar_FN] ), mtError, [mbOK], 0 );
+    App.ErrorPopup(Format(GetRS(sMain94), [Toolbar_FN] ));
   end;
 end;
 
 procedure TForm_Main.MMViewTBSaveConfigClick(Sender: TObject);
 begin
   SaveToolbars;
-  messagedlg( Format(
-    GetRS(sMain95), [Toolbar_FN] ), mtInformation, [mbOK], 0 );
+  App.InfoPopup( Format(GetRS(sMain95), [Toolbar_FN] ));
 end;
 
 

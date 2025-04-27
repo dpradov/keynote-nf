@@ -104,6 +104,8 @@ procedure Register;
 
 implementation
 
+uses knt.App;
+
 const
   _MAXLOGLINES = 1024;
 
@@ -306,7 +308,7 @@ begin
       if fDeactivateOnError then
         fActive := false;
       if fShowErrors then
-        messagedlg( Name + ' Log error: Cannot REWRITE' +#13+ fLastError, mtError, [mbOK], 0 );
+        App.ErrorPopup( Name + ' Log error: Cannot REWRITE' +#13+ fLastError);
     end;
   end;
 
@@ -325,7 +327,7 @@ begin
         if fDeactivateOnError then
           fActive := false;
         if fShowErrors then
-          messagedlg( Name + ' Log error: Cannot SAVE' +#13+ fLastError, mtError, [mbOK], 0 );
+          App.ErrorPopup( Name + ' Log error: Cannot SAVE' +#13+ fLastError);
       end;
     end;
 

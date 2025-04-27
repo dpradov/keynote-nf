@@ -407,7 +407,7 @@ begin
     if ( Edit_FolderName.Text = '' ) then
     begin
       CanClose := false;
-      messagedlg( GetRS(sDef12), mtError, [mbOK], 0 );
+      App.ErrorPopup( GetRS(sDef12));
       Pages.ActivePage := Tab_Main;
       Edit_FolderName.SetFocus;
       exit;
@@ -416,10 +416,7 @@ begin
     if ( pos( KNTLINK_SEPARATOR, Edit_FolderName.Text ) > 0 ) then
     begin
       CanClose := false;
-      messagedlg( Format(
-        GetRS(sDef13),
-        [KNTLINK_SEPARATOR]
-      ), mtError, [mbOK], 0 );
+      App.ErrorPopup( Format(GetRS(sDef13),[KNTLINK_SEPARATOR] ));
       Pages.ActivePage := Tab_Main;
       Edit_FolderName.SetFocus;
       exit;
@@ -428,10 +425,7 @@ begin
     if ( pos( KNTLINK_SEPARATOR, Edit_NodeName.Text ) > 0 ) then
     begin
       CanClose := false;
-      messagedlg( Format(
-        GetRS(sDef14),
-        [KNTLINK_SEPARATOR]
-      ), mtError, [mbOK], 0 );
+      App.ErrorPopup( Format(GetRS(sDef14),[KNTLINK_SEPARATOR]));
       Pages.ActivePage := Tab_Tree;
       Edit_NodeName.SetFocus;
       exit;
@@ -643,7 +637,7 @@ begin
   ShiftWasDown := ShiftDown;
   if ( Pages.ActivePage = Tab_Main ) then
   begin
-    if ( messagedlg( GetRS(sDef15), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( App.DoMessageBox( GetRS(sDef15), mtConfirmation, [mbYes,mbNo], def2 ) <> mrYes ) then exit;
 
     InitializeChrome( myEditorChrome );
 
@@ -665,7 +659,7 @@ begin
   end
   else
   begin
-    if ( messagedlg( GetRS(sDef16), mtConfirmation, [mbYes,mbNo], 0 ) <> mrYes ) then exit;
+    if ( App.DoMessageBox( GetRS(sDef16), mtConfirmation, [mbYes,mbNo], def2 ) <> mrYes ) then exit;
     InitializeChrome( myTreeChrome );
     InitializeChrome( tmpChrome );
 
@@ -696,7 +690,7 @@ end;
 
 procedure TForm_Defaults.BitBtn_TknHlpClick(Sender: TObject);
 begin
-  messagedlg(
+  App.InfoPopup(
     GetRS(sDef17) +#13+
     GetRS(sDef18) +#13#13+
      NODEINSDATE  + GetRS(sDef19) +#13+
@@ -707,9 +701,7 @@ begin
      NODEABSINDEX + GetRS(sDef24) +#13+
      NODEPARENT   + GetRS(sDef25) +#13+
      NODENOTENAME + GetRS(sDef26) +#13+
-     NODEFILENAME + GetRS(sDef27),
-
-    mtInformation, [mbOK], 0
+     NODEFILENAME + GetRS(sDef27)
   );
 end;
 
@@ -756,7 +748,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg( GetRS(sDef29) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E, GetRS(sDef29));
         fDefaultZoom := 100;
         CB_Zoom.Text:= '100';
       end;
@@ -795,17 +787,17 @@ end; // Edit_NoteNameKeyPress
 
 procedure TForm_Defaults.BitBtn_FolderHelpClick(Sender: TObject);
 begin
-  messagedlg(GetRS(sDef31) , mtInformation, [mbOK], 0  );
+  App.InfoPopup(GetRS(sDef31));
 end;
 
 procedure TForm_Defaults.BitBtn_FolderChromeHelpClick(Sender: TObject);
 begin
-  messagedlg(GetRS(sDef32) , mtInformation, [mbOK], 0  );
+  App.InfoPopup(GetRS(sDef32));
 end;
 
 procedure TForm_Defaults.BitBtn_TreeChromeHelpClick(Sender: TObject);
 begin
-  messagedlg(GetRS(sDef33) , mtInformation, [mbOK], 0  );
+  App.InfoPopup(GetRS(sDef33));
 end;
 
 

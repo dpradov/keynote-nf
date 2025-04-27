@@ -64,7 +64,8 @@ implementation
 uses
    gf_misc,
    kn_INI,
-   knt.RS
+   knt.RS,
+   knt.App
    ;
 
 
@@ -197,7 +198,7 @@ begin
     except
       on E : Exception do
       begin
-        messagedlg( E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E.Message);
         exit;
       end;
     end;

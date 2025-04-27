@@ -101,6 +101,8 @@ function Writing(flags, nPercentComplete: integer): Integer; stdcall;
 
 implementation
 
+uses Knt.App;
+
   // Return Codes from the converter, Defined by the interface.
 const                                   // File Conversion Errors.
       fceTrue           =  1;   // IsFormatCorrect32 recognized the input file
@@ -162,7 +164,7 @@ begin
     if LoadConverter(Converter, True, ConverterLocation ) <> 0 then begin
 
         if not IsKnownFormat(FileName) then        // Check selected file format.
-            ShowMessage('Incorrect file format.')
+            App.ErrorPopup('Incorrect file format.')
 
         else begin
             // prepare parameters
@@ -229,7 +231,7 @@ begin
       if not (Assigned(InitConverter)
          and LongBool(InitConverter(Application.Handle, PAnsiChar(AnsiString(Uppercase(Application.ExeName)))))) then
         begin
-          ShowMessage('InitConverter failed');
+          App.ErrorPopup('InitConverter failed');
           Result := False;
           Exit;
         end;
@@ -258,7 +260,7 @@ begin
           end
         else
           begin
-            ShowMessage('Coult not export document');
+            App.ErrorPopup('Coult not export document');
             Result := False;
           end;
 
@@ -559,7 +561,7 @@ begin
 
   if not (Assigned(InitConverter)
      and LongBool(InitConverter(Application.Handle, PAnsiChar(AnsiString(Uppercase(Application.ExeName)))))) then
-    ShowMessage('InitConverter failed') // Question only is: report to who?
+    App.ErrorPopup('InitConverter failed') // Question only is: report to who?
   else
     begin
       hFileName := StringToHGLOBAL(FileName);

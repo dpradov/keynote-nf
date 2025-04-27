@@ -300,7 +300,7 @@ begin
             if ( result <> 0 ) then begin
               KntFile.ReadOnly := true;
               result := 0;
-              messagedlg( GetRS(sFileM07), mtWarning, [mbOK] , 0 );
+              App.WarningPopup( GetRS(sFileM07));
             end;
 
             if FileExists( KntFile.FileName + ext_DEFAULTS ) then
@@ -899,7 +899,7 @@ begin
             // BACKUP (using previous file, before this saving) of the file
             if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
                if not SUCCESS then begin
-                  if MessageDlg(Format(GetRS(sFileM21), [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo], 0) <> mrYes then begin
+                  if App.DoMessageBox(Format(GetRS(sFileM21), [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo]) <> mrYes then begin
                     Result := -2;
                     Exit;
                   end;
@@ -1283,12 +1283,12 @@ begin
             AFileIsLoading:= true;                  // -> MergeFile notes uploaded here will not be marked as modified (nor will their fLastModified field be overwritten)
             LoadResult := MergeFile.Load( MergeFN, ImgManagerMF, ClipCapIdx, false);
             if ( LoadResult <> 0 ) then begin
-              messagedlg( GetRS(sFileM40), mtError, [mbOK], 0 );
+              App.ErrorPopup( GetRS(sFileM40));
               exit;
             end;
 
             if ( MergeFile.FolderCount = 0 ) then begin
-              messagedlg( GetRS(sFileM41), mtInformation, [mbOK], 0 );
+              App.InfoPopup( GetRS(sFileM41));
               exit;
             end;
 
@@ -1299,7 +1299,7 @@ begin
 
           except
             on E : Exception do begin
-              messagedlg( GetRS(sFileM42) + E.Message, mtError, [mbOK], 0 );
+              App.ErrorPopup( GetRS(sFileM42) + E.Message);
               exit;
             end;
           end;
@@ -1324,7 +1324,7 @@ begin
           end;
 
           if ( mergecnt = 0 ) then begin
-            messagedlg( GetRS(sFileM44), mtInformation, [mbOK], 0 );
+            App.InfoPopup( GetRS(sFileM44));
             exit;
           end;
 
@@ -1469,7 +1469,7 @@ begin
 
             ActiveFile.ConvertKNTLinksToNewFormatInNotes(NoteGIDs, GIDsNotConverted);      // only on selected folders (with .Info=1)
             if GIDsNotConverted > 0 then
-               messagedlg( Format(GetRS(sFileM83), [GIDsNotConverted, NoteGID_NotConverted]), mtWarning, [mbOK], 0 );
+               App.WarningPopup( Format(GetRS(sFileM83), [GIDsNotConverted, NoteGID_NotConverted]));
 
             for i := 0 to pred( MergeFile.FolderCount ) do
                 if FolderIDs[i].newFolder then begin
@@ -1480,7 +1480,7 @@ begin
 
           except
             On E : Exception do begin
-              messagedlg( GetRS(sFileM46) + E.Message, mtError, [mbOK], 0 );
+              App.ErrorPopup( GetRS(sFileM46) + E.Message);
               exit;
             end;
           end;
@@ -1561,7 +1561,7 @@ begin
     on e : exception do begin
       result := false;
       if Prompt then
-        messagedlg( Format(GetRS(sFileM52), [E.Message] ), mtError, [mbOK], 0 );
+        App.ErrorPopup( Format(GetRS(sFileM52), [E.Message] ));
     end;
   end;
 
@@ -1634,7 +1634,7 @@ begin
 
         if ( not ActiveFile.Modified ) then exit;
         if Warn then begin
-          case messagedlg( GetRS(sFileM54), mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) of
+          case App.DoMessageBox( GetRS(sFileM54), mtConfirmation, [mbYes,mbNo,mbCancel] ) of
             mrYes : begin
               // fall through and save file
             end;
@@ -2195,7 +2195,7 @@ begin
            end;
          end
          else begin
-           messagedlg( GetRS(sFileM63), mtError, [mbOK], 0 );
+           App.ErrorPopup(GetRS(sFileM63));
            exit;
          end;
 
@@ -2502,7 +2502,7 @@ begin
              end;
 
            else begin
-             messagedlg( Format( GetRS(sFileM67), [ord( myAction )] ), mtError, [mbOK], 0 );
+             App.ErrorPopup( Format( GetRS(sFileM67), [ord( myAction )] ));
              exit;
            end;
 
@@ -2510,7 +2510,7 @@ begin
 
        except
          on E : Exception do begin
-           messagedlg( GetRS(sFileM68) + E.Message, mtError, [mbOK], 0 );
+           App.ErrorPopup( GetRS(sFileM68) + E.Message);
            exit;
          end;
        end;
@@ -2792,7 +2792,7 @@ begin
   except
     on E : Exception do // [xx]
     begin
-      messagedlg( 'Debug message: Error in RunFileManager.', mtWarning, [mbOK], 0 );
+      App.WarningPopup('Debug message: Error in RunFileManager.');
     end;
   end;
 
@@ -2821,11 +2821,11 @@ begin
       RegisterFiletype( ext_Macro,     _KNL_FILETYPE, _KNL_FILETYPE, 'open', ParamStr( 0 ));
 
       if KeyOptions.AutoRegisterPrompt then
-         messagedlg( Format( GetRS(sFileM75), [ext_KeyNote] ), mtInformation, [mbOK], 0 );
+         App.InfoPopup( Format( GetRS(sFileM75), [ext_KeyNote] ));
 
     except
       on E : Exception do begin
-        MessageDlg( GetRS(sFileM76) + e.Message + GetRS(sFileM80), mtWarning, [mbOK], 0 );
+        App.WarningPopup( GetRS(sFileM76) + e.Message + GetRS(sFileM80));
         KeyOptions.AutoRegisterFileType:= False;
       end;
     end;

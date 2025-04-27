@@ -101,7 +101,7 @@ begin
   if not App.CheckActiveEditor then exit;
 
   if ( not assigned( StyleManager )) then begin
-    showmessage( GetRS(sStyM06) );
+    App.ErrorPopup( GetRS(sStyM06) );
     exit;
   end;
 
@@ -180,7 +180,7 @@ begin
 
     except
       on E : Exception do begin
-        messagedlg( GetRS(sStyM11) + E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup( GetRS(sStyM11) + E.Message);
         exit;
       end;
     end;
@@ -301,7 +301,7 @@ begin
     for i := 0 to pred( StyleManager.Count ) do
       if (( i <> idx ) and ( StyleManager[i] = name )) then
       begin
-        showmessage( GetRS(sStyM15) );
+        App.InfoPopup( GetRS(sStyM15) );
         exit;
       end;
 
@@ -320,7 +320,7 @@ begin
     CheckSaveStyleManagerInfo;
 
   except
-    showmessage( GetRS(sStyM16) );
+    App.ErrorPopup( GetRS(sStyM16) );
   end;
 
 end; // StyleRename
@@ -349,7 +349,7 @@ begin
         CheckSaveStyleManagerInfo;
 
       except
-        showmessage( GetRS(sStyM18) );
+        App.ErrorPopup( GetRS(sStyM18) );
       end;
 
 end; // StyleDelete

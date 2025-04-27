@@ -115,7 +115,7 @@ begin
   if ( not result ) then
   begin
     Edit_Pass.SetFocus;
-    messagedlg( GetRS(sPass01), mtError, [mbOK], 0 );
+    App.ErrorPopup( GetRS(sPass01));
   end;
 end; // VerifyPass
 

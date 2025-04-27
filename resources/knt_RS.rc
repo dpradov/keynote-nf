@@ -925,4 +925,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55123,  "Error importing Tags:"
 55124,  "Importing Tags from file"
 55125,  "Ignored occurrences in %d folded blocks"
+55126,  "Nothing to export"
 }

@@ -1,4 +1,4 @@
-unit kn_FindReplaceMng;
+ï»¿unit kn_FindReplaceMng;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -290,7 +290,7 @@ begin
 
   except
      on E : Exception do
-        messagedlg( E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E.Message);
   end;
 
 end;
@@ -328,7 +328,7 @@ begin
   cnt := Location_List.Count;
   if ( cnt = 0 ) then
   begin
-    showmessage( GetRS(sFnd05) );
+    App.InfoPopup( GetRS(sFnd05) );
     exit;
   end;
 
@@ -2941,7 +2941,7 @@ begin
 
     except
       on E : Exception do
-         messagedlg( E.Message, mtError, [mbOK], 0 );
+         App.ErrorPopup(E.Message);
     end;
 
   finally
@@ -3267,7 +3267,7 @@ var
           and (myTreeNode = StartNode)    ) then
          Result:= False
       else
-          if Wrap and (NumberFoundItems > 0) then begin    // Wrap será siempre false si Is_ReplacingAll = True
+          if Wrap and (NumberFoundItems > 0) then begin    // Wrap serÃ¡ siempre false si Is_ReplacingAll = True
              Result:= False;
              NumberFoundItems:= 0;
           end;
@@ -3282,16 +3282,16 @@ var
   end;
 
 
-  // Actualiza el siguiente nodo a utilizar, que podrá ser nil si no se puede avanzar hacia
-  // ningún nodo de la nota actual.
-  // También puede establecer FindDone a True indicando que la búsqueda ha finalizado.
-  // Si FindDone = False y el nodo = nil implicará que debe continuarse con la siguiente nota.
+  // Actualiza el siguiente nodo a utilizar, que podrÃ¡ ser nil si no se puede avanzar hacia
+  // ningÃºn nodo de la nota actual.
+  // TambiÃ©n puede establecer FindDone a True indicando que la bÃºsqueda ha finalizado.
+  // Si FindDone = False y el nodo = nil implicarÃ¡ que debe continuarse con la siguiente nota.
   //
   procedure GetNextNode();
   var
      Wrap: boolean;
   begin
-     FindDone:= True;     // Supondremos inicialmente que no se podrá avanzar más
+     FindDone:= True;     // Supondremos inicialmente que no se podrÃ¡ avanzar mÃ¡s
 
      if not assigned(myTreeNode) or FindOptions.SelectedText then exit;
 
@@ -3322,7 +3322,7 @@ var
      tabidx : integer;
      wrap: boolean;
   begin
-      FindDone:= True;   // Supondremos inicialmente que no se podrá avanzar más
+      FindDone:= True;   // Supondremos inicialmente que no se podrÃ¡ avanzar mÃ¡s
 
       Wrap:= FindOptions.Wrap and not Is_ReplacingAll;
 
@@ -3447,7 +3447,7 @@ begin
       end;
 
 
-      // Identificación de la posición de inicio de la búsqueda ---------------------------
+      // IdentificaciÃ³n de la posiciÃ³n de inicio de la bÃºsqueda ---------------------------
       if ( FindOptions.FindNew and FindOptions.EntireScope ) then
           SearchOrigin := 0
 
@@ -3474,9 +3474,9 @@ begin
       end;
 
 
-      // Búsqueda del patrón iterando sobre los nodos / notas hasta encontrar uno -------------
-      // Según las opciones establecidas así podrán recorrerse o no todos los nodos de una nota, todas las notas
-      // o incluso continuar buscando desde el punto de partida, de manera cíclica.
+      // BÃºsqueda del patrÃ³n iterando sobre los nodos / notas hasta encontrar uno -------------
+      // SegÃºn las opciones establecidas asÃ­ podrÃ¡n recorrerse o no todos los nodos de una nota, todas las notas
+      // o incluso continuar buscando desde el punto de partida, de manera cÃ­clica.
 
       repeat
             NNode:= TreeUI.GetNNode(myTreeNode);
@@ -3515,7 +3515,7 @@ begin
             }
 
             if PatternPos < 0 then begin
-               GetNextNode;                 // Podrá actualizar FindDone
+               GetNextNode;                 // PodrÃ¡ actualizar FindDone
                while (not FindDone) and (not assigned(myTreeNode)) do
                    GetNextFolder();
             end;
@@ -3536,7 +3536,7 @@ begin
 
     except
       on E: Exception do begin
-          App.PopupMessage( GetRS(sFnd08) +#13+ E.Message, mtError, [mbOK] );
+          App.ErrorPopup(E, GetRS(sFnd08));
           exit;
       end;
     end;
@@ -3582,7 +3582,7 @@ var
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
      Result:= True;
-      if Wrap and (SearchOrigin < SearchOriginNew ) and (NumberFoundItems > 0) then begin    // Wrap será siempre false si Is_ReplacingAll = True
+      if Wrap and (SearchOrigin < SearchOriginNew ) and (NumberFoundItems > 0) then begin    // Wrap serÃ¡ siempre false si Is_ReplacingAll = True
          Result:= False;
          NumberFoundItems:= 0;
       end;
@@ -3682,7 +3682,7 @@ begin
 
     except
       on E: Exception do begin
-          App.PopupMessage( GetRS(sFnd08) +#13+ E.Message, mtError, [mbOK] );
+          App.ErrorPopup(E, GetRS(sFnd08));
           exit;
       end;
     end;
@@ -3794,7 +3794,7 @@ var
       Result := false;
       if ReplaceAll and FindOptions.ReplaceConfirm then
           // Note: With DoMessageBox I can't show All button
-          case messagedlg( GetRS(sFnd01),
+          case MessageDlg( GetRS(sFnd01),
              mtConfirmation, [mbYes,mbNo,mbAll,mbCancel], 0 ) of
              mrYes:  Result := true;
              mrNo:   Result := false;
@@ -3870,7 +3870,7 @@ begin
   try
     DoReplace:= True;
 
-    // Verificamos si hay que restringir la búsqueda a la selección actual
+    // Verificamos si hay que restringir la bÃºsqueda a la selecciÃ³n actual
     if FindOptions.FindNew then begin
         if ReplaceAll and FindOptions.SelectedText then begin
            FindOptions.SelectionStart:= Editor.SelStart;
@@ -3880,7 +3880,7 @@ begin
     end;
 
     // Comprobamos (si no se ha pulsado ReplaceAll) en primer lugar si el texto que se encuentra
-    // seleccionado es el que hay que buscar y reemplazar. Si es así, haremos el reemplazo con éste,
+    // seleccionado es el que hay que buscar y reemplazar. Si es asÃ­, haremos el reemplazo con Ã©ste,
     // directamente.
     SelectedTextToReplace:= False;
     if not ReplaceAll then
@@ -3898,14 +3898,14 @@ begin
        if not ReplaceAll then
           DoReplace:= False;   // Lo dejaremos seleccionado pero no lo reemplazaremos. El usuario no ha llegado
                                //a ver ese texto y debe confirmarlo pulsando conscientemente en Replace (el
-                               // checkbox 'confirm replace' sólo se aplica a ReplaceAll)
+                               // checkbox 'confirm replace' sÃ³lo se aplica a ReplaceAll)
     end;
 
 
     if DoReplace then begin
         while SelectedTextToReplace do begin
             try
-                // ¿Hay que restringirse al texto inicialmente seleccionado?
+                // Â¿Hay que restringirse al texto inicialmente seleccionado?
                 if ReplaceAll and FindOptions.SelectedText then
                    if (Editor.SelStart < FindOptions.SelectionStart) or
                      ((Editor.SelStart + Editor.SelLength) > FindOptions.SelectionEnd) then
@@ -3928,14 +3928,14 @@ begin
                 Application.ProcessMessages;
                 if UserBreak then break;
 
-                SelectedTextToReplace:= RunFindNext(ReplaceAll);     // Localizamos el siguiente patrón a remplazar
+                SelectedTextToReplace:= RunFindNext(ReplaceAll);     // Localizamos el siguiente patrÃ³n a remplazar
                 Editor:= SearchingInEditor;
 
                 if (not ReplaceAll) then break;          // Dejamos simplemente localizado el texto si no ReplaceAll
 
             except
                On E : Exception do begin
-                  showmessage( E.Message );
+                  App.ErrorPopup( E.Message );
                   break;
                end;
             end;

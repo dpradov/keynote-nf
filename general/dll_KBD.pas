@@ -129,10 +129,12 @@ type
 
 
 implementation
-{$IFDEF EMBED_UTILS_DLL}
 uses
-  kn_Global;
+{$IFDEF EMBED_UTILS_DLL}
+  kn_Global,
 {$ENDIF}
+  gf_miscvcl,
+  knt.App;
 
 {$R *.DFM}
 
@@ -493,9 +495,7 @@ begin
    {if (aShortcut <> 0) and (Str = '') then
       Str:= ShortcutToText( KeyNoteActivationHotkey );  }
 
-    messagedlg( Format(
-   '"%s" is not a valid keyboard shortcut for the selected command.',
-   [Str]), mtWarning, [mbOK], 0 );
+    App.WarningPopup( Format('"%s" is not a valid keyboard shortcut for the selected command.', [Str]));
 
    CleanEdit_Hotkey;
 end;
@@ -521,9 +521,9 @@ begin
   if item.Group= cgOther then begin
      oldItem := GetItemByShortcut( item, newShortcut, true );
      if assigned(oldItem) and (oldItem.Group <> cgOther) then
-       if messagedlg('The menu shortcut will not be deleted and will take priority over this shortcut. CONTINUE?' + #13#13 +
+       if App.DoMessageBox('The menu shortcut will not be deleted and will take priority over this shortcut. CONTINUE?' + #13#13 +
                     '(You can remove the menu shortcut selecting the corresponding command category)',
-            mtConfirmation, [mbYes,mbNo,mbCancel], 0 ) <> mrYes then
+            mtConfirmation, [mbYes,mbNo,mbCancel], def3 ) <> mrYes then
           exit;
   end;
 
@@ -553,7 +553,7 @@ begin
       shellexecute( 0, 'open', PChar( kbdlist_fn ), nil, nil, SW_NORMAL );
     except
       on E : Exception do
-        messagedlg( E.Message, mtError, [mbOK], 0 );
+        App.ErrorPopup(E.Message);
     end;
 
   finally
@@ -564,21 +564,21 @@ end;
 procedure TForm_KBD.Btn_ResetAllClick(Sender: TObject);
 begin
   if ( not fileexists( myKBD_FN )) then begin
-    messagedlg( Format(
+    App.InfoPopup( Format(
       'Keyboard configuration file "%s" does not exist. KeyNote is currently using default keyboard configuration.',
-      [myKBD_FN] ), mtInformation, [mbOK], 0 );
+      [myKBD_FN] ));
     exit;
   end;
 
-  if ( messagedlg(
-    'Existing keyboard configuration file will be deleted.'+ #13 + 'ORIGINAL keyboard SHORTCUTS will be RESTORED AFTER you RESTART KeyNote' + #13#13 + 'Continue?', mtWarning, [mbOK,mbCancel], 0 ) = mrOK ) then
+  if ( App.DoMessageBox(
+    'Existing keyboard configuration file will be deleted.'+ #13 + 'ORIGINAL keyboard SHORTCUTS will be RESTORED AFTER you RESTART KeyNote' + #13#13 + 'Continue?', mtWarning, [mbOK,mbCancel], def2 ) = mrOK ) then
   begin
     if deletefile( myKBD_FN ) then begin
       IsModified := false;
       ModalResult := mrCancel;
     end
     else
-       messagedlg( Format( 'Could not delete keyboard configuration file "%s"', [myKBD_FN] ), mtError, [mbOK], 0 );
+       App.ErrorPopup( Format( 'Could not delete keyboard configuration file "%s"', [myKBD_FN] ));
   end;
 
 end;
@@ -586,8 +586,8 @@ end;
 procedure TForm_KBD.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   if ( IsModified and ( ModalResult = mrCancel )) then
-    CanClose := ( messagedlg(
-      'Keyboard configuration has changed. Are you sure you want to discard these changes?', mtConfirmation, [mbOK, mbCancel], 0 )  = mrOK );
+    CanClose := ( App.DoMessageBox(
+      'Keyboard configuration has changed. Are you sure you want to discard these changes?', mtConfirmation, [mbOK, mbCancel], def2 )  = mrOK );
 end;
 
 procedure TForm_KBD.EnableAccelerators(const DoEnable: boolean);
