@@ -3654,7 +3654,7 @@ begin
       end;
 
       repeat
-         if PositionInFoldedBlock(TextPlain, Editor.SelStart, Editor, pI, pF) then
+         if PositionInFoldedBlock(TextPlain, Editor.SelStart, nil, pI, pF) then
             SearchOrigin:= pF + 1;
 
          if FindOptions.MatchCase then
