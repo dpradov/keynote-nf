@@ -176,6 +176,7 @@ end;
 
 procedure TFloatingEditor.FormActivate(Sender: TObject);
 begin
+   Form_Main.ActiveControl:= nil;
    HideNestedFloatingEditor;
    App.EditorFocused(Self.Editor);
    Editor.SetFocus;

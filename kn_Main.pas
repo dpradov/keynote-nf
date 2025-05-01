@@ -2376,6 +2376,13 @@ begin
   //    I keep it for safety and because nothing is noticeable, because of its short duration and because at that point
   //    the window is already visible and the editor doesn't show changes (BeginUpdate)
 
+   if (ActiveEditor <> nil) and (ActiveEditor.Parent = nil) then begin
+       if ActiveFolder <> nil then
+          ActiveEditor:= ActiveFolder.Editor
+       else
+          ActiveEditor:= nil;
+       exit;
+   end;
 
     if (FRestoreFocusInEditor = 2) then begin
        FRestoreFocusInEditor:= 0;

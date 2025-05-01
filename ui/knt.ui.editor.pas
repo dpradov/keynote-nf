@@ -2676,7 +2676,6 @@ begin
       FE.Editor.Color:= LightenColor(Color, 20);
       TagMng.CreateTagSelector(TForm(FloatingEditor));
 
-      Form_Main.ActiveControl:= nil;
       FE.ShowEditor(CursorPos.X, CursorPos.Y, FontHeight);
    end;
 end;
