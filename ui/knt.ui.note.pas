@@ -282,6 +282,7 @@ end;
 
 procedure TKntNoteUI.NoteUIEnter(Sender: TObject);
 begin
+  Editor.HideNestedFloatingEditor;
   App.EditorFocused(Editor);
   TagMng.UpdateTxtTagsHint(txtTags);
   if Assigned(FOnEnterOnEditor) then
