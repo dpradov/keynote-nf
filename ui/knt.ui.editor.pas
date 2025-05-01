@@ -1957,6 +1957,8 @@ begin
   SetLength(RTFOut, pOut - Length('\par'+#$D#$A+'}'+#$D#$A));
 
 
+  if ActiveFolder = nil then exit;
+
   ReconsiderImageDimensionsGoalBAK:= ImageMng.ReconsiderImageDimensionsGoal;
   try
      ImagesMode:= ActiveFolder.ImagesMode;
@@ -2728,7 +2730,7 @@ end;
 
 function TKntRichEdit.Focused: boolean;
 begin
-   Result:= inherited Focused or ((ParentEditor <> nil) and (ActiveFolder.FocusMemory = focRTF));
+   Result:= inherited Focused or ((ParentEditor <> nil) and (ActiveFolder <> nil) and (ActiveFolder.FocusMemory = focRTF));
 end;
 
 
