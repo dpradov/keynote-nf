@@ -89,7 +89,7 @@ type
                              ConsiderOffset: boolean = false): integer;
     function PositionInImLinkTextPlain (myFolder: TKntFolder; NNode: TNoteNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
 
-    procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
+    procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
 
     function PathOfKntLink (myTreeNode: PVirtualNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
@@ -2048,7 +2048,7 @@ End;
 //===============================================================
 // ClickOnURL
 //===============================================================
-procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false);
+procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
 var
   ShellExecResult : integer;
   Form_URLAction: TForm_URLAction;
@@ -2121,6 +2121,7 @@ begin
            Editor.Unfold;
      end
      else
+     if Button <> mbRight then
         Editor.PreviewFoldedBlock(Editor.SelStart);
      exit;
   end;

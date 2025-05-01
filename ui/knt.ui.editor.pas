@@ -3878,7 +3878,7 @@ begin
   end;
 
   chrg:= LinkClickRange;
-  ClickOnURL (URLText, chrg, myURLAction, EnsureAsk);
+  ClickOnURL (URLText, chrg, myURLAction, EnsureAsk, Button);
 end;
 
 

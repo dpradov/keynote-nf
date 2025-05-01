@@ -207,6 +207,7 @@ function CtrlDown : Boolean;
 function ShiftDown : Boolean;
 function AltDown : Boolean;
 function VKeyDown(nVirtKey: integer) : Boolean;
+function VAsyncKeyDown(nVirtKey: integer) : Boolean;
 function GetEnvVar( const csVarName : string ) : string;
 function GetTimeZone( var offset, mode : longint ) : boolean;
 Function TimeDeltaInMinutes( const StartDate, EndDate   : TDateTime): Double;
@@ -797,6 +798,12 @@ function VKeyDown(nVirtKey: integer) : Boolean;
 begin
   Result := ((GetKeyState(nVirtKey) and $8000) <> 0);
 end;
+
+function VAsyncKeyDown(nVirtKey: integer) : Boolean;
+begin
+  Result := ((GetAsyncKeyState(nVirtKey) and $8000) <> 0);
+end;
+
 
 
 function GetEnvVar( const csVarName : string ) : string;
