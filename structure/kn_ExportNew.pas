@@ -2826,7 +2826,7 @@ begin
      TxtPlain:= RTF.TextPlain;
      SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
      if SS > 0 then
-        Unfold(RTF, TxtPlain, SS + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR));
+        Unfold(RTF, TxtPlain, SS);
   until SS = 0;
 end;
 
@@ -2841,7 +2841,7 @@ begin
      TxtPlain:= RTF.TextPlain;
      SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
      if SS > 0 then
-        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR), OnlyIfTaggedFolded);
+        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS, OnlyIfTaggedFolded);
   until SS = 0;
 end;
 
