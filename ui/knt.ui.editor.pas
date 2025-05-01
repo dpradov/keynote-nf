@@ -3438,7 +3438,7 @@ begin
                      AddText(Key);
                   EndUpdate;
                   case key of
-                      #9: ;
+                      #0: ;
                      '#': begin
                        TagMng.EndTagIntroduction;
                        ProccessKeyHash;
