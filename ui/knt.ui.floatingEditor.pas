@@ -240,25 +240,29 @@ var
   NeededWidth, NeededHeight: Integer;
   PWidth, PHeight: Integer;
   FullPageRect: TRect;
+  ZoomRatio, InvZoomRatio: Single;
+
 const
   DPI = 96;
 begin
-
   DC := GetDC(Editor.Handle);
+
+  ZoomRatio:= Editor.ZoomGoal/100;
+  InvZoomRatio:= 1/ZoomRatio;
 
   with FormatRange do begin
     try
        FillChar(FormatRange, SizeOf(TFormatRange), 0);
 
        PWidth :=  Round(Form_Main.Width * 0.70);     // Max width
-       PHeight := Round(Form_Main.Height * 0.70);    // Max height
+       PHeight := Round(Form_Main.Height * 0.75);    // Max height
 
        FullPageRect.Top:= 0;
        FullPageRect.Left:= 0;
-       FullPageRect.Right := PWidth;
+       FullPageRect.Right := Round(PWidth * InvZoomRatio);
        FullPageRect.Bottom:= PHeight;
 
-       rc.right  := PWidth  * 1440 div DPI;
+       rc.right  := Round((PWidth  * 1440 div DPI) * InvZoomRatio);
        rc.bottom := PHeight * 1440 div DPI;
        rcPage := FullPageRect;
        hdcTarget := DC;
@@ -271,8 +275,13 @@ begin
        NeededWidth :=  MulDiv(FormatRange.rc.Right,  DPI, 1440);
        NeededHeight := MulDiv(FormatRange.rc.Bottom, DPI, 1440);            // Current height in this "page" (Twips -> Pixels)
 
+       NeededWidth:=  Round(NeededWidth  * ZoomRatio);
+       NeededHeight:= Round((NeededHeight+ 55) * ZoomRatio) + 10;
+       if NeededHeight > PHeight then
+          NeededHeight := PHeight;
+
        Self.Width  := NeededWidth;
-       Self.Height := NeededHeight + 65;
+       Self.Height := NeededHeight;
 
      finally
        SendMessage(Editor.Handle, EM_FORMATRANGE, 0, 0);

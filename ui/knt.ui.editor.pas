@@ -2675,6 +2675,7 @@ begin
       FE.Editor.ReadOnly:= Self.ReadOnly;
       FE.Editor.FZoomGoal:= FZoomGoal;
       FE.Editor.FZoomCurrent:= FZoomCurrent;
+      FE.Editor.RestoreZoomGoal;
       FE.Editor.Color:= LightenColor(Color, 20);
       TagMng.CreateTagSelector(TForm(FloatingEditor));
 
