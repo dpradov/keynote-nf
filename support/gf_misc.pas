@@ -206,6 +206,7 @@ function LastPos( const ASubStr : AnsiString; const AStr : AnsiString; PosFrom: 
 function CtrlDown : Boolean;
 function ShiftDown : Boolean;
 function AltDown : Boolean;
+function VKeyDown(nVirtKey: integer) : Boolean;
 function GetEnvVar( const csVarName : string ) : string;
 function GetTimeZone( var offset, mode : longint ) : boolean;
 Function TimeDeltaInMinutes( const StartDate, EndDate   : TDateTime): Double;
@@ -783,15 +784,18 @@ function CtrlDown : Boolean;
 begin
   Result := ((GetKeyState(VK_CONTROL) and $8000) <> 0);
 end;
-
 function ShiftDown : Boolean;
 begin
   Result := ((GetKeyState(VK_SHIFT) and $8000) <> 0);
 end;
-
 function AltDown : Boolean;
 begin
   Result := ((GetKeyState(VK_MENU) and $8000) <> 0);
+end;
+
+function VKeyDown(nVirtKey: integer) : Boolean;
+begin
+  Result := ((GetKeyState(nVirtKey) and $8000) <> 0);
 end;
 
 

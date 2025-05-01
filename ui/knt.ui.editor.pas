@@ -2723,32 +2723,42 @@ end;
 
 function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit): boolean;
 var
-   IsProtected: boolean;
-   SS, SL: integer;
-
+   SS, SL, EndPos: integer;
+   pI, pF: integer;
+   NProtectedEdges, TL: integer;
 begin
-   with Editor do begin
-      SL:= SelLength;
-      if SL = 0 then
-         Result:= SelAttributes.Protected
+  Result:= False;
 
-      else begin
-         SS:= SelStart;
-         IsProtected:= False;
-         BeginUpdate;
-         SelLength:= 0;
-         IsProtected:= SelAttributes.Protected;
-         if not IsProtected then begin
-            SelStart:= SS + SL;
-            IsProtected:= SelAttributes.Protected
-         end;
-         SelStart:= SS;
-         SelLength:= SL;
-         EndUpdate;
+  with Editor do begin
+     SL:= SelLength;
+     TL:= TextLength;
+     if SL = 0 then
+        if not (SelAttributes.Protected and (SS > 0) and (SS < TL)) then
+           exit;
 
-         Result:= IsProtected;
-      end;
-   end;
+     NProtectedEdges:= 0;
+     SS:= SelStart;
+     EndPos:= SS + SL;
+     if SL > 0 then begin
+        SelLength:= 0;
+        if SelAttributes.Protected and (SS > 0) and (SelStart < TL) then
+           inc(NProtectedEdges);
+
+        if (EndPos < TL) then begin
+           SetSelection(EndPos, EndPos, False);
+           if SelAttributes.Protected then begin
+              inc(NProtectedEdges);
+              SS:= EndPos;
+           end;
+        end;
+     end;
+
+     if (SL = 0) or (NProtectedEdges > 0) then begin
+        if (SS > 0) and PositionInFoldedBlock(TextPlain, SS, nil, pI, pF) and (SS > pI) then
+           Result:= True;
+     end;
+     SetSelection(SS, EndPos, False);
+  end;
 
 end;
 
@@ -3528,28 +3538,58 @@ end;  // KeyPress
 procedure TKntRichEdit.RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
 var
   pI, pF, SS: integer;
+  PressedDELETE, PressedBACK: boolean;
+  IsProtected: boolean;
+  NProtectedEdges, TL: integer;
 begin
   if FUnfolding or FCopying then
      AllowChange:= True
 
   else begin
      AllowChange := EditorOptions.EditProtected;
+     if not AllowChange then
+        exit;
 
-     SS:= EndPos;
-     BeginUpdate;
-     SetSelection(SS, SS+1, False);
-     if not SelAttributes.Protected and (SS > 0) then
-        dec(SS);                                     // Cursor can be just after the last character of the protected block, and press BACKSPACE..
-     if StartPos <> EndPos then begin
-        SetSelection(StartPos, StartPos+1, False);
-        if SelAttributes.Protected then
-           SS:= StartPos;
+     PressedDELETE:= VKeyDown(VK_DELETE);
+     PressedBACK:=   VKeyDown(VK_BACK);
+     NProtectedEdges:= 0;
+
+     // *1
+     // If the folded block is right at the beginning and the cursor is at the beginning, before it (SS=0), or right
+     // at the end and the cursor is after it (SS=TextLength), then SelAttributes.Protected will return True,
+     // which is not the case with the same relative position of the cursor with respect to the folded block in other
+     // situations. We should treat it as if Protected=False, and be very careful whether DELETED or BACK is being
+     // pressed to look at the next or previous position.
+
+     SS:= StartPos;
+     TL:= TextLength;
+     if StartPos <> EndPos then
+        SetSelection(StartPos, StartPos, False);
+     IsProtected:= SelAttributes.Protected and (SS > 0) and (StartPos < TL);        // *1
+     if IsProtected then
+        inc(NProtectedEdges);
+
+     if PressedDELETE and not IsProtected then
+        inc(SS);
+     if (StartPos <> EndPos) and (EndPos < TL) then begin
+        SetSelection(EndPos, EndPos, False);
+        if SelAttributes.Protected then begin
+           inc(NProtectedEdges);
+           SS:= EndPos;
+        end;
+     end;
+
+     if (StartPos = EndPos) or (NProtectedEdges > 0) then begin
+        if PressedBACK and (NProtectedEdges = 0) then
+           SS:= EndPos - 1;
+
+        if (SS > 0) and PositionInFoldedBlock(Self.TextPlain, SS, nil, pI, pF) then
+           if ((StartPos = EndPos) and PressedDELETE) or (SS > pI) then               // *1 -> (SS > pI)
+              AllowChange:= False;
      end;
      SetSelection(StartPos, EndPos, False);
-     EndUpdate;
-     if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then
-        AllowChange:= False;
   end;
+
 end; // RxRTF_ProtectChangeEx
 
 
