@@ -1179,7 +1179,7 @@ type
 
                  for i := 0 to N - 1 do begin
                     p:= wordList[i].wordPos;
-                    WordsPos[i]:= -1;
+                    WordsPos[i+N]:= -1;
                     if (p >= pL_Extract) and ((p <= pR_Extract)) then begin
                        WordsPos[i+N]:= p;
                        WordsSel[i+N]:= wordList[i].word.Length + wordList[i].SizeInternalHiddenText;
