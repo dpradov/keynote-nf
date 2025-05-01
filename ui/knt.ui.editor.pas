@@ -2091,15 +2091,19 @@ var
       Result:= True;                                    // By default we will assume yes, and check if Editor is provided
       if Editor <> nil then begin
          Editor.BeginUpdate;
-         SS:= Editor.SelStart;
-         SL:= Editor.SelLength;
+         try
+            SS:= Editor.SelStart;
+            SL:= Editor.SelLength;
 
-         Editor.SetSelection(X, X+1, False);
-         IsProtected:= Editor.SelAttributes.Protected;
+            Editor.SetSelection(X, X+1, False);
+            IsProtected:= Editor.SelAttributes.Protected;
 
-         Editor.SelStart:= SS;
-         Editor.SelLength:= SL;
-         Editor.EndUpdate;
+            Editor.SelStart:= SS;
+            Editor.SelLength:= SL;
+
+         finally
+           Editor.EndUpdate;
+         end;
 
          if not IsProtected then
             Result:= False;
@@ -2606,19 +2610,22 @@ begin
 
    if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
       BeginUpdate;
+      try
+         AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
+         RTFIn:= EnsureGetRtfSelText;
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
+         FUnfolding:= True;
 
-      AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
-      RTFIn:= EnsureGetRtfSelText;
-      PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
-      FUnfolding:= True;
+         if AdjustHglt then
+            SetSelection(pI, pF+1, false);
+         RtfSelText:= RTFOut;
 
-      if AdjustHglt then
-         SetSelection(pI, pF+1, false);
-      RtfSelText:= RTFOut;
+         FUnfolding:= False;
+         SelStart:= pI;
+      finally
+         EndUpdate;
+      end;
 
-      FUnfolding:= False;
-      SelStart:= pI;
-      EndUpdate;
 
       Change;
    end;
@@ -2645,13 +2652,15 @@ var
 begin
    if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
-      SelectTextToBeUnfolded(Self, pI, pF);
-
-      FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
-      RTFIn:= EnsureGetRtfSelText;
-      PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
-      SelStart:= pI;
-      EndUpdate;
+      try
+         SelectTextToBeUnfolded(Self, pI, pF);
+         FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
+         RTFIn:= EnsureGetRtfSelText;
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
+         SelStart:= pI;
+      finally
+         EndUpdate;
+      end;
 
       CursorPos:= ActiveEditor.ClientToScreen(ActiveEditor.GetCharPos(pI));
 
@@ -2703,12 +2712,15 @@ begin
      if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
         RTFIn:= FE.Editor.RtfText;
         BeginUpdate;
-        SetSelection(pI, pF+1, false);
-        PrepareRTFtoBeFolded(RTFIn, RTFOut, Self);
-        RtfSelText:= RTFOut;
-        SelStart:= pI;
-        SelLength:= 0;
-        EndUpdate;
+        try
+           SetSelection(pI, pF+1, false);
+           PrepareRTFtoBeFolded(RTFIn, RTFOut, Self);
+           RtfSelText:= RTFOut;
+           SelStart:= pI;
+           SelLength:= 0;
+        finally
+           EndUpdate;
+        end;
      end;
 
   end;
