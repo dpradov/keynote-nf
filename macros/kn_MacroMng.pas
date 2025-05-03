@@ -1722,7 +1722,7 @@ begin
                SetStrikeOut(not (fsStrikeout in Style));
 
           ecCut: begin
-              if InsideOrPartiallySelectedProtectedBlock(Editor) then exit;       // Do not allow cutting inside a folded block, or cut a partially selected folded block
+              if InsideOrPartiallySelectedProtectedBlock(Editor) = ipsFolded then exit;       // Do not allow cutting inside a folded block, or cut a partially selected folded block
 
               if Editor.SupportsRegisteredImages then begin
                  p:= -1;
@@ -1759,7 +1759,7 @@ begin
 
           ecPaste :
             begin
-              if InsideOrPartiallySelectedProtectedBlock(Editor) then exit;       // Do not allow pasting inside a folded block, or on a partially selected folded block
+              if InsideOrPartiallySelectedProtectedBlock(Editor) = ipsFolded then exit;       // Do not allow pasting inside a folded block, or on a partially selected folded block
 
               if Editor.SupportsRegisteredImages then begin
                  // If we have an image selected (and maybe more elements), we need to make sure we also select the possible

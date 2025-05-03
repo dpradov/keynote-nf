@@ -309,7 +309,10 @@ type
                               IsTag: boolean = false;
                               IgnoreFoldedBlocks: boolean = True;
                               ForFolding: boolean = False): boolean;
-  function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit): boolean;
+type
+  TInsideOrPartialSelection = (ipsNone, ipsFolded, ipsLink);
+
+  function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit; ConsiderAlsoLinkedStyle: boolean = False): TInsideOrPartialSelection;
 
   procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
   function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false): integer;
@@ -2794,25 +2797,31 @@ begin
 end;
 
 
-function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit): boolean;
+function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit; ConsiderAlsoLinkedStyle: boolean = False): TInsideOrPartialSelection;
 var
    SS, SL, EndPos: integer;
    pI, pF: integer;
    NProtectedEdges, TL: integer;
 begin
-  Result:= False;
+  Result:= ipsNone;
 
   with Editor do begin
      SL:= SelLength;
      TL:= TextLength;
-     if SL = 0 then
+     if SL = 0 then begin
+        if ConsiderAlsoLinkedStyle and (SelAttributes.Link and SelAttributes.Hidden) then
+           exit(ipsLink);
         if not (SelAttributes.Protected and (SS > 0) and (SS < TL)) then
            exit;
+     end;
 
      NProtectedEdges:= 0;
      SS:= SelStart;
      EndPos:= SS + SL;
      if SL > 0 then begin
+        if ConsiderAlsoLinkedStyle and ((SelAttributes.LinkStyle = lsMixed) or ((SelAttributes.LinkStyle = lsLink) and SelAttributes.Hidden)) then
+           exit(ipsLink);
+
         SelLength:= 0;
         if SelAttributes.Protected and (SS > 0) and (SelStart < TL) then
            inc(NProtectedEdges);
@@ -2828,7 +2837,7 @@ begin
 
      if (SL = 0) or (NProtectedEdges > 0) then begin
         if (SS > 0) and PositionInFoldedBlock(TextPlain, SS, nil, pI, pF) and (SS > pI) then
-           Result:= True;
+           Result:= ipsFolded;
      end;
      SetSelection(SS, EndPos, False);
   end;

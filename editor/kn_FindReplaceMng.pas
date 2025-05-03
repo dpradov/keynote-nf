@@ -3750,6 +3750,8 @@ var
   AppliedBeginUpdate: Boolean;
   Editor: TKntRichEdit;
   pI, pF: integer;
+  SS: integer;
+  Selection: TInsideOrPartialSelection;
 
 
   procedure BeginUpdateOnFolders;
@@ -3905,23 +3907,30 @@ begin
     if DoReplace then begin
         while SelectedTextToReplace do begin
             try
+                SS:= Editor.SelStart;
+
                 // ¿Hay que restringirse al texto inicialmente seleccionado?
                 if ReplaceAll and FindOptions.SelectedText then
-                   if (Editor.SelStart < FindOptions.SelectionStart) or
-                     ((Editor.SelStart + Editor.SelLength) > FindOptions.SelectionEnd) then
+                   if (SS < FindOptions.SelectionStart) or
+                     ((SS + Editor.SelLength) > FindOptions.SelectionEnd) then
                        break;
 
                 if GetReplacementConfirmation then begin
-                   if not InsideOrPartiallySelectedProtectedBlock(Editor) then begin
+                   Selection:= InsideOrPartiallySelectedProtectedBlock(Editor, True);
+                   if Selection = ipsNone then begin
                       inc(ReplaceCnt);
                       Editor.AddText(ReplaceWith);
                       if Editor.NNodeObj <> nil then
                          App.ChangeInEditor(Editor);
                    end
                    else begin
-                      PositionInFoldedBlock(Editor.TextPlain, Editor.SelStart, Editor, pI, pF);
-                      Editor.SelStart:= pF + 1;
-                      inc(IgnoreCnt);
+                      if Selection = ipsFolded then begin
+                         PositionInFoldedBlock(Editor.TextPlain, Editor.SelStart, Editor, pI, pF);
+                         Editor.SelStart:= pF + 1;
+                         inc(IgnoreCnt);
+                      end
+                      else
+                         Editor.SelStart:= SS + 1;
                    end;
                 end;
 
