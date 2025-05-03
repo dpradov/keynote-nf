@@ -553,6 +553,7 @@ const
   KNT_RTF_HIDDEN_FORMAT_HEADER = 'H';       //  H -> new page Header (\v\'11FHMy header\'12\v0)
   KNT_RTF_HIDDEN_FORMAT_PLUS = '+';         // To concat format commands: \v\'11FD+S+HMy header\'12\v0
   KNT_RTF_HIDDEN_LINK = 'L';
+  KNT_RTF_HIDDEN_FOLD_INF = 'f';
 
   KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
   (* *2
@@ -592,6 +593,7 @@ const
 
 //KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 +}}}';
   KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 \u10133+ }}}';
+  KNT_RTF_BEGIN_FOLDED_URL = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}';
 
 //KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"+';
   KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"➕ ';

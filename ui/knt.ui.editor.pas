@@ -110,6 +110,8 @@ type
     FChangedSelection: TChangedSelectionEvent;
     FLinkHover: TCharRange;
 
+    FKeepEndCR: boolean;       // in folded block open in floating editor
+
     procedure CMDialogKey( var Message: TCMDialogKey ); message CM_DIALOGKEY;
 
   protected
@@ -294,8 +296,9 @@ type
   function IsATag(const Word: string): boolean;
   function IsAPossibleTag(const Word: string): boolean;
   function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit;
-                                  AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
-  function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit): boolean;
+                                  KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False;
+                                  MinLenExtract: integer= 0): boolean;
+  function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean): boolean;
   function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
   function PositionInFoldedBlock_FindAll(const TxtPlain: string; PosSS: integer; var pBeginBlock, pEndBlock: integer): boolean;
   function OpenTagsConcatenated(PosTag, Lo: integer; const TxtPlain: string): boolean;
@@ -1285,7 +1288,7 @@ begin
 end;
 
 
-function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; AddEndGenericBlock: Boolean = False; MinLenExtract: integer= 0): boolean;
+function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False; MinLenExtract: integer= 0): boolean;
 var
    pI, pF, len, p, PosRTFLinkEnd: integer;
    pIn, pOut, NBytes: integer;
@@ -1440,14 +1443,14 @@ begin
      // The end will be of the form: ...\par'#$D#$A'}'#$D#$A#0
      RTFAux.PutRtfText(RTFIn, true, false);
 
-     if AddEndGenericBlock then begin
-        RTFAux.SelStart:= RTFAux.TextLength;
-        RTFAux.AddText(KNT_RTF_END_GENERIC_BLOCK);
-     end;
-
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
      MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
+
+     if KeepEndCR and (Pos(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF, RTFIn, 1) = 0) then begin
+        RTFAux.SelStart:= RTFAux.SelStart + 1;
+        InsertMarker(RTFAux, 'f', 1);               // f: Folded inf. 1 -> Keep end carriage return        //'\v\'11f0\'12\v0'
+     end;
 
      RTFAux.SelectAll;
      RTFAux.SelAttributes.Protected := True;
@@ -1500,9 +1503,20 @@ begin
   // Add \v0 ...\'13 before last }  (there will be no \protect0 because it is not necessary, since it applies to everything)
   // Remember: remove the extra line break that is being added in RTFAux.PutRtfTex
   // The end will be like this: ...\par'#$D#$A'}'#$D#$A#0
-  pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
-  Len:= Length('\par'+#$D#$A + '}');
-  RemoveReplace(pI, KNT_RTF_END_FOLDED + '}');
+  ReplaceWith:= KNT_RTF_END_FOLDED + '}';
+  if not KeepEndCR then begin
+     pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
+     Len:= Length('\par'+#$D#$A + '}');
+  end
+  else begin
+     pI := Lastpos( '}', RTFIn );
+     Len:= 1;
+  end;
+
+  if AddAdditionalEndCR then
+     ReplaceWith:= KNT_RTF_END_FOLDED + '\par}';
+
+  RemoveReplace(pI, ReplaceWith);
 
   NBytes:= Length(RTFIn) - pIn;
   CheckCreateResult(NBytes);
@@ -1513,9 +1527,33 @@ begin
 end;
 
 
-// --------------------------------------
 
-function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit): boolean;
+function FoldedMarkerPos (const RTF: AnsiString): integer;
+var
+   p: integer;
+begin
+   // We will look for the position of this marker when the folded block in which it was added (if it was added), 
+   // has already been unfolded in the received RTF
+   Result:= Pos(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF, RTF, 1);
+   if Result > 0 then begin
+      p:= Pos(KNT_RTF_BEGIN_FOLDED_URL, RTF, 1);
+      if (p > 0) and (Result > p) then begin
+         Result:= 0;
+         exit;
+      end;
+      p:= Pos(KNT_RTF_FOLDED_LINK_BLOCK_CHAR, RTF, 1);
+      if (p > 0) and (Result > p) then begin
+         Result:= 0;
+         exit;
+      end;
+   end;
+end;
+
+
+// --------------------------------------
+// KeepEndCR: Keep End CarriageReturn
+
+function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean): boolean;
 
 type
    TFoldedLink = record
@@ -1952,9 +1990,10 @@ begin
 
   // A \par will have been added at the end that we must remove:
   //  ...\par'#$D#$A'}'#$D#$A  --->  ...}
-  ReplaceWith:= '}';
   RTFOut[pOut-Length('\par'+#$D#$A+'}'+#$D#$A)]:= '}';
   SetLength(RTFOut, pOut - Length('\par'+#$D#$A+'}'+#$D#$A));
+
+  KeepEndCR:= (FoldedMarkerPos(RTFOut) > 0);
 
 
   if ActiveFolder = nil then exit;
@@ -2345,7 +2384,7 @@ var
   CaseSens, IsTag: boolean;
   TxtPlain: String;
   pI, pF, p: integer;
-  AddEndGenericBlock: Boolean;
+  KeepEndCarriageReturn: boolean;
   MinLenExtract: integer;
 
   function InsidePossibleTag: boolean;
@@ -2385,22 +2424,19 @@ begin
       SS:= SelStart;
       SL:= SelLength;
 
-      AddEndGenericBlock:= False;
+      KeepEndCarriageReturn:= False;
       TxtPlain:= Self.TextPlain;
 
       if SelectedText or (SL = 0) then begin
          if (SL > 0) and ((SS+SL <= Length(TxtPlain)) and (TxtPlain[SS+SL] = #13)) then begin
             SelLength:= SL-1;
-            dec(SL);
+            KeepEndCarriageReturn:= True;
          end;
          GetTextScope(TxtPlain, dsParagraph, SS+1, pI, pF, 0);
          dec(pI);
          dec(pF);
 
-         if (SL > 0) then
-         // Commented: Don't add automatically an EndGenericBlock "[.]" when the user folds a selected text
-         // AddEndGenericBlock:= not ((SS = pI) and (SL = pF - pI) )         // -> KNT_RTF_END_GENERIC_BLOCK
-         else begin
+         if (SL = 0) then begin
             SS:= pI;
             SL:= pF - pI;
          end;
@@ -2454,7 +2490,7 @@ begin
       end;
 
       RTFIn:= EnsureGetRtfSelText;
-      PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, AddEndGenericBlock, MinLenExtract);
+      PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract);
       RtfSelText:= RTFOut;
 
       sleep(100);         // If we don't do this, the initial word will remain selected.
@@ -2489,14 +2525,19 @@ var
   RTFIn, RTFOut: AnsiString;
   pI, pF: integer;
   AdjustHglt: boolean;
+  KeepEndCR: boolean;
 begin
    with Editor do
       if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
          AdjustHglt:= SelectTextToBeUnfolded(Editor, pI, pF);
          RTFIn:= RtfSelText;
-         PrepareRTFtoBeExpanded(RTFIn, RTFOut, nil);
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, nil, KeepEndCR);
          if AdjustHglt then
             SetSelection(pI, pF+1, false);
+
+         if KeepEndCR then
+            SelLength:= SelLength+1;
+
          RtfSelText:= RTFOut;
          SelStart:= pI;
       end;
@@ -2600,6 +2641,16 @@ begin
 end;
 
 
+procedure RemoveFoldedMarker (var RTF: AnsiString);
+var
+   p: integer;
+begin
+   // We will only remove the marker associated with this folded block, if there is one, but not any markers that may be in any nested blocks
+
+   p:= FoldedMarkerPos(RTF);
+   if p > 0 then
+      delete(RTF, p, Length(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF + '1' + KNT_RTF_HIDDEN_MARK_R));
+end;
 
 procedure TKntRichEdit.Unfold;
 var
@@ -2607,6 +2658,7 @@ var
   SS: integer;
   pI, pF: integer;
   AdjustHglt: boolean;
+  KeepEndCR: boolean;
 begin
    if CheckReadOnly then exit;
 
@@ -2615,11 +2667,16 @@ begin
       try
          AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
          RTFIn:= EnsureGetRtfSelText;
-         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR);
          FUnfolding:= True;
 
          if AdjustHglt then
             SetSelection(pI, pF+1, false);
+
+         if KeepEndCR then
+            SelLength:= SelLength+1;
+
+         RemoveFoldedMarker(RTFOut);
          RtfSelText:= RTFOut;
 
          FUnfolding:= False;
@@ -2651,6 +2708,7 @@ var
   CursorPos: TPoint;
   FontHeight: integer;
   FE: TFloatingEditor;
+  KeepEndCR: boolean;
 begin
    if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
@@ -2658,7 +2716,8 @@ begin
          SelectTextToBeUnfolded(Self, pI, pF);
          FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
          RTFIn:= EnsureGetRtfSelText;
-         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self);
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR);
+         FKeepEndCR:= KeepEndCR;
          SelStart:= pI;
       finally
          EndUpdate;
@@ -2716,7 +2775,7 @@ begin
         BeginUpdate;
         try
            SetSelection(pI, pF+1, false);
-           PrepareRTFtoBeFolded(RTFIn, RTFOut, Self);
+           PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, FKeepEndCR, False);
            RtfSelText:= RTFOut;
            SelStart:= pI;
            SelLength:= 0;
