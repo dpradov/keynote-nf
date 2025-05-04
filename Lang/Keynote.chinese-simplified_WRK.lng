@@ -1469,10 +1469,12 @@ Pages.PG_Editor.GroupBox_RTFEdit2.Label12.Caption=增加段落间距：
 Pages.PG_Editor.GroupBox_RTFEdit2.Label11.Caption=增加 &字号：  
 Pages.PG_Editor.GroupBox_RTFEdit2.Label1.Caption=增加 &缩进：  
 Pages.PG_Editor.GroupBox_RTFEdit2.Label_UndoLimit.Caption=&撤销缓冲区限制：  
+(!)Pages.PG_Editor.GroupBox_RTFEdit2.lbl1.Caption=Spacing between bullet and text:
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_UndoLimit.Hint=可撤销的编辑操作数量  
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_IndentInc.Hint=每次增量缩进  
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_FontSizeInc.Hint=每次增量字号  
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_ParaSpaceInc.Hint=每次增量“段落前/后间距”  
+(!)Pages.PG_Editor.GroupBox_RTFEdit2.txtSepInLists.Hint=Factor (F) used to calculate spacing between bullet and text for all list types: \+S = 10 * FontSize / F
 Pages.PG_Images.Caption=PG_Images  
 Pages.PG_Images.GroupBox_Images.Caption=编辑器中的图像  
 Pages.PG_Images.GroupBox_Images.Label23.Caption=默认格式来自剪贴板  
@@ -2797,5 +2799,6 @@ Button_OK.Caption=(&C)关闭
 (!)55123_knt_RS_sTag17=Error importing Tags:
 (!)55124_knt_RS_sTag18=Importing Tags from file
 (!)55125_knt_RS_sFnd14=Ignored occurrences in %d folded blocks
+(!)55126_knt_RS_sExpFrm23=Nothing to export
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

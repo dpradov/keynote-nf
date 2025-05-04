@@ -1468,10 +1468,12 @@ Pages.PG_Editor.GroupBox_RTFEdit2.Label12.Caption=Incr&ement para space by:
 Pages.PG_Editor.GroupBox_RTFEdit2.Label11.Caption=Increment &font size by:
 Pages.PG_Editor.GroupBox_RTFEdit2.Label1.Caption=I&ncrement indents by:
 Pages.PG_Editor.GroupBox_RTFEdit2.Label_UndoLimit.Caption=&Undo buffer limit:
+Pages.PG_Editor.GroupBox_RTFEdit2.lbl1.Caption=Spacing between bullet and text:
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_UndoLimit.Hint=Number of editing operations that can be undone
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_IndentInc.Hint=Increment line indents by this value
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_FontSizeInc.Hint=Increment font size by this value
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_ParaSpaceInc.Hint=Increment "space before/after paragraph" by this value
+Pages.PG_Editor.GroupBox_RTFEdit2.txtSepInLists.Hint=Factor (F) used to calculate spacing between bullet and text for all list types: \+S = 10 * FontSize / F
 Pages.PG_Images.Caption=PG_Images
 Pages.PG_Images.GroupBox_Images.Caption=Images in Editor
 Pages.PG_Images.GroupBox_Images.Label23.Caption=Default Format from clipboard

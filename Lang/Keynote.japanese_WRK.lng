@@ -1471,10 +1471,12 @@ Pages.PG_Editor.GroupBox_RTFEdit2.Label12.Caption=段落スペースの増加数
 Pages.PG_Editor.GroupBox_RTFEdit2.Label11.Caption=フォントサイズの増加数(&F) :
 Pages.PG_Editor.GroupBox_RTFEdit2.Label1.Caption=インデントの増加数(&N) :
 Pages.PG_Editor.GroupBox_RTFEdit2.Label_UndoLimit.Caption=元に戻すバッファ制限(&U) :
+(!)Pages.PG_Editor.GroupBox_RTFEdit2.lbl1.Caption=Spacing between bullet and text:
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_UndoLimit.Hint=元に戻せる編集操作の数
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_IndentInc.Hint=行のインデントをこの値で増加します
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_FontSizeInc.Hint=フォントサイズをこの値だけ増加します
 Pages.PG_Editor.GroupBox_RTFEdit2.Spin_ParaSpaceInc.Hint="段落の前後のスペース"をこの値で増加します
+(!)Pages.PG_Editor.GroupBox_RTFEdit2.txtSepInLists.Hint=Factor (F) used to calculate spacing between bullet and text for all list types: \+S = 10 * FontSize / F
 Pages.PG_Images.Caption=PG_Images
 Pages.PG_Images.GroupBox_Images.Caption=エディタ内の画像処理
 Pages.PG_Images.GroupBox_Images.Label23.Caption=クリップボードの既定形式 :
@@ -2799,5 +2801,6 @@ Button_OK.Caption=閉じる(&C)
 55123_knt_RS_sTag17=タグのインポート中にエラー :
 55124_knt_RS_sTag18=ファイルからタグをインポート
 55125_knt_RS_sFnd14=折りたたまれたブロック %d で無視された件数
+(!)55126_knt_RS_sExpFrm23=Nothing to export
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*
