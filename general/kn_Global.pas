@@ -767,7 +767,7 @@ begin
         // have we been upgraded?
         NewVersionInformation;
 
-      if ( KntFileToLoad = '' ) then begin
+      if ( KntFileToLoad = '' ) and (_GLOBAL_URLText = '') then begin              // if _GLOBAL_URLText <> '' and KntFileToLoad = '', file to load should be implicit in the jmp parameter
         if ( KeyOptions.LoadUserFile and ( KeyOptions.UserFile <> '' )) then
           KntFileToLoad := KeyOptions.UserFile
         else begin
@@ -780,12 +780,12 @@ begin
         KntFileToLoad:= GetAbsolutePath(ExtractFilePath(Application.ExeName), KntFileToLoad);
 
         if ( KntFileOpen( KntFileToLoad ) <> 0 ) then begin
-          if KeyOptions.AutoNewFile then
+          if KeyOptions.AutoNewFile and (_GLOBAL_URLText = '') then
             KntFileNew( 'untitled' );
         end;
       end
       else
-        if KeyOptions.AutoNewFile and not FirstTimeRun then
+        if KeyOptions.AutoNewFile and not FirstTimeRun and (_GLOBAL_URLText = '') then
           KntFileNew( '' );
 
       Log_StoreTick( 'FormCreate - END', 0, -1 );

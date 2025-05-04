@@ -1189,7 +1189,7 @@ begin
        1 : FileName := ''; // same file as current
        else begin
          FileName := HTTPDecode( copy( KntURL, 1, pMin-1));
-         if (FileName = ActiveFile.FileName ) then
+         if (ActiveFile <> nil) and (FileName = ActiveFile.FileName ) then
            FileName := '';
        end;
      end;
@@ -1211,13 +1211,14 @@ begin
            FolderName := HTTPDecode(str);
        delete( KntURL, 1, p );
 
-        if FolderID <> 0 then
-           Folder := ActiveFile.GetFolderByID (FolderID)
-        else begin
-           Folder := ActiveFile.GetFolderByName (FolderName);
-           if assigned(Folder) then
-              FolderID:= Folder.ID;
-        end;
+        if ActiveFile <>  nil then
+           if FolderID <> 0 then
+              Folder := ActiveFile.GetFolderByID (FolderID)
+           else begin
+              Folder := ActiveFile.GetFolderByName (FolderName);
+              if assigned(Folder) then
+                 FolderID:= Folder.ID;
+           end;
      end;
 
      p := pos( KNTLINK_SEPARATOR, KntURL );
@@ -1599,7 +1600,7 @@ begin
    myTreeNode : PVirtualNode;
    origLocationStr : string;
    LocBeforeJump: TLocation;
-   FN: string;
+   FN, FN_ActiveFile: string;
    ResultOpen: integer;
 
    function SearchTargetMark (SearchBookmark09: boolean = false): boolean;
@@ -1661,8 +1662,10 @@ begin
 
   try
       LocBeforeJump:= nil;
-      GetKntLocation (ActiveFolder, LocBeforeJump, false);
-      LocBeforeJump.ScrollPosInEditor:= ActiveFolder.Editor.GetScrollPosInEditor;
+      if ActiveFolder <> nil then begin
+         GetKntLocation (ActiveFolder, LocBeforeJump, false);
+         LocBeforeJump.ScrollPosInEditor:= ActiveFolder.Editor.GetScrollPosInEditor;
+      end;
 
       (*
       showmessage(
@@ -1678,7 +1681,11 @@ begin
 
 
       // open file, if necessary
-      if ( Location.FileName <> '' ) and ( Location.FileName <> ActiveFile.FileName ) then begin
+      FN_ActiveFile:= '?';
+      if ActiveFile <> nil then
+         FN_ActiveFile:= ActiveFile.FileName;
+
+      if ( Location.FileName <> '' ) and ( Location.FileName <> FN_ActiveFile ) then begin
         if IgnoreOtherFiles then
            exit;
 
@@ -1687,7 +1694,7 @@ begin
 
         FN:= GetAbsolutePath(ExtractFilePath(Application.ExeName), Location.FileName);
 
-        if FN.ToUpper <> ActiveFile.FileName.ToUpper then begin
+        if FN.ToUpper <> FN_ActiveFile.ToUpper then begin
            if not Initializing and not OpenInCurrentFile and (KeyOptions.ExtKNTLnkInNewInst or (myURLAction = urlOpenNew)) then begin
               OpenLocationInOtherInstance (Location);
               exit;
