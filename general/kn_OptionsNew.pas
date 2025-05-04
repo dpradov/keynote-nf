@@ -313,6 +313,8 @@ type
     btnFBEdit: TButton;
     btnFBDelete: TButton;
     LVfb: TListView;
+    lbl1: TLabel;
+    txtSepInLists: TEdit;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -374,11 +376,13 @@ type
     procedure btnFBNewClick(Sender: TObject);
     procedure btnFBEditClick(Sender: TObject);
     procedure btnFBDeleteClick(Sender: TObject);
+    procedure txtSepInListsExit(Sender: TObject);
   private
     fOptions: array[0..16] of TOption;
     procedure CheckImgMaxAutoWidthGoalValue;
     procedure CheckImgCompressionQualityValue;
     procedure CheckImgRatioSizePngVsJPGValue;
+    procedure CheckNumbListSepFactor;
     procedure CreateMenu;
 
   public
@@ -1112,6 +1116,7 @@ begin
     AutoKeyboard := CB_AutoKeyboard.Checked;
     PlainDefaultPaste := CB_PlainDefaultPaste.Checked;
     CtrlUpDownMode:= TCtrlUpDownMode(cbCtrlUpDownMode.ItemIndex);
+    BulletSepFactor:= StrToFloatDef( txtSepInLists.Text, 5.7);
   end;
 
   with myTreeOptions do
@@ -1369,6 +1374,7 @@ begin
     CB_AutoKeyboard.Checked := AutoKeyboard;
     CB_PlainDefaultPaste.Checked := PlainDefaultPaste;
     cbCtrlUpDownMode.ItemIndex:= Ord(CtrlUpDownMode);
+    txtSepInLists.Text:=  BulletSepFactor.ToString(ffGeneral,3,2);
   end;
 
   with myTreeOptions do
@@ -2083,6 +2089,26 @@ begin
     if ColorDlg.Execute then
       myOpts.ImgViewerBGColor := ColorDlg.Color;
 end;
+
+procedure TForm_OptionsNew.txtSepInListsExit(Sender: TObject);
+begin
+   CheckNumbListSepFactor;
+end;
+
+procedure TForm_OptionsNew.CheckNumbListSepFactor;
+var
+  SepFactor: Single;
+begin
+   SepFactor := StrToFloatDef( txtSepInLists.Text, 5.7);
+   if SepFactor > 17 then
+      SepFactor:= 17
+   else
+   if SepFactor < 2 then
+      SepFactor:= 2;
+
+   txtSepInLists.Text:= SepFactor.ToString(ffGeneral,3,2);
+end;
+
 
 procedure TForm_OptionsNew.txtImgCompressionQualityExit(Sender: TObject);
 begin

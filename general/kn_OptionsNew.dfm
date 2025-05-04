@@ -49,7 +49,7 @@ object Form_OptionsNew: TForm_OptionsNew
     Top = 6
     Width = 364
     Height = 377
-    PageIndex = 15
+    PageIndex = 1
     TabOrder = 1
     object PG_Interface: TPage
       Left = 0
@@ -296,7 +296,7 @@ object Form_OptionsNew: TForm_OptionsNew
         Left = 5
         Top = 5
         Width = 350
-        Height = 208
+        Height = 207
         Caption = ' Global editor settings'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -307,7 +307,7 @@ object Form_OptionsNew: TForm_OptionsNew
         TabOrder = 0
         object Label34: TLabel
           Left = 12
-          Top = 182
+          Top = 177
           Width = 74
           Height = 13
           AutoSize = False
@@ -323,7 +323,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_WordSelect: TCheckBox
           Left = 10
-          Top = 32
+          Top = 27
           Width = 303
           Height = 17
           Hint = 'Double-click select whole word'
@@ -338,7 +338,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_SaveCaretPos: TCheckBox
           Left = 10
-          Top = 100
+          Top = 95
           Width = 303
           Height = 17
           Hint = 'Restore caret positions in notes when the file is opened'
@@ -353,7 +353,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_TrackCaretPos: TCheckBox
           Left = 10
-          Top = 60
+          Top = 55
           Width = 303
           Height = 17
           Hint = 'Display cursor row and column in status bar'
@@ -369,7 +369,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_AutoIndent: TCheckBox
           Left = 10
-          Top = 126
+          Top = 121
           Width = 303
           Height = 17
           Hint = 'Indent new line to match previous'
@@ -384,7 +384,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_TrackWordCount: TCheckBox
           Left = 10
-          Top = 80
+          Top = 75
           Width = 303
           Height = 17
           Hint = 'Display word and page counts in status bar'
@@ -400,7 +400,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_InheritBGColor: TCheckBox
           Left = 10
-          Top = 152
+          Top = 147
           Width = 311
           Height = 17
           Hint = 
@@ -417,7 +417,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object cbCtrlUpDownMode: TComboBox
           Left = 100
-          Top = 178
+          Top = 173
           Width = 221
           Height = 21
           Style = csDropDownList
@@ -432,13 +432,13 @@ object Form_OptionsNew: TForm_OptionsNew
       end
       object GroupBox_RTFEdit2: TGroupBox
         Left = 5
-        Top = 221
+        Top = 211
         Width = 350
-        Height = 146
+        Height = 156
         TabOrder = 1
         object Label12: TLabel
           Left = 10
-          Top = 113
+          Top = 99
           Width = 159
           Height = 13
           AutoSize = False
@@ -447,7 +447,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label11: TLabel
           Left = 10
-          Top = 83
+          Top = 73
           Width = 159
           Height = 13
           AutoSize = False
@@ -456,7 +456,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label1: TLabel
           Left = 10
-          Top = 53
+          Top = 46
           Width = 159
           Height = 13
           AutoSize = False
@@ -465,18 +465,27 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label_UndoLimit: TLabel
           Left = 10
-          Top = 23
+          Top = 17
           Width = 159
-          Height = 13
+          Height = 12
           AutoSize = False
           Caption = '&Undo buffer limit:'
           FocusControl = Spin_UndoLimit
         end
+        object lbl1: TLabel
+          Left = 10
+          Top = 130
+          Width = 159
+          Height = 13
+          AutoSize = False
+          Caption = 'Spacing between bullet and text:'
+          FocusControl = txtSepInLists
+        end
         object Spin_UndoLimit: TSpinEdit
           Left = 175
-          Top = 16
+          Top = 11
           Width = 56
-          Height = 22
+          Height = 25
           Hint = 'Number of editing operations that can be undone'
           MaxLength = 3
           MaxValue = 255
@@ -486,7 +495,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_IndentInc: TSpinEdit
           Left = 175
-          Top = 46
+          Top = 43
           Width = 56
           Height = 22
           Hint = 'Increment line indents by this value'
@@ -498,7 +507,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_FontSizeInc: TSpinEdit
           Left = 175
-          Top = 76
+          Top = 71
           Width = 56
           Height = 22
           Hint = 'Increment font size by this value'
@@ -510,7 +519,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_ParaSpaceInc: TSpinEdit
           Left = 175
-          Top = 106
+          Top = 99
           Width = 56
           Height = 22
           Hint = 'Increment "space before/after paragraph" by this value'
@@ -519,6 +528,17 @@ object Form_OptionsNew: TForm_OptionsNew
           MinValue = 1
           TabOrder = 3
           Value = 2
+        end
+        object txtSepInLists: TEdit
+          Left = 175
+          Top = 127
+          Width = 56
+          Height = 21
+          Hint = 
+            'Factor (F) used to calculate spacing between bullet and text for' +
+            ' all list types: '#13#10'S = 10 * FontSize / F'
+          TabOrder = 4
+          OnExit = txtSepInListsExit
         end
       end
     end

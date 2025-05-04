@@ -95,7 +95,8 @@ type
     WordsPerPage,
     PlainDefaultPaste,
     BulletsInPlainText,
-    CtrlUpDownMode: string;
+    CtrlUpDownMode,
+    BulletSepFactor: string;
   end;
 
 const
@@ -120,6 +121,7 @@ const
     PlainDefaultPaste: 'PlainDefaultPaste';
     BulletsInPlainText: 'BulletsInPlainText';
     CtrlUpDownMode: 'CtrlUpDownMode';
+    BulletSepFactor: 'BulletSepFactor';
   );
 
 
@@ -1020,6 +1022,7 @@ begin
     PlainDefaultPaste:= true;
     BulletsInPlainText:= '- ';
     CtrlUpDownMode:= TCtrlUpDownMode.cudDefault;
+    BulletSepFactor:= 5.7;
   end;
   _SAVE_RESTORE_CARETPOS := Struct.SaveCaretPos;
 end; // InitializeEditorOptions
@@ -1558,6 +1561,7 @@ begin
       writebool( section, EditorOptionsIniStr.PlainDefaultPaste, EditorOptions.PlainDefaultPaste);
       writestring( section, EditorOptionsIniStr.BulletsInPlainText, '"' + EditorOptions.BulletsInPlainText + '"' );
       writeinteger( section, EditorOptionsIniStr.CtrlUpDownMode, Ord(EditorOptions.CtrlUpDownMode));
+      writeFloat( section, EditorOptionsIniStr.BulletSepFactor, EditorOptions.BulletSepFactor);
 
       section := ClipOptionsIniStr.Section;
       writestring( section, ClipOptionsIniStr.WCDivider, ClipOptions.WCDivider );
@@ -1941,6 +1945,7 @@ begin
       EditorOptions.PlainDefaultPaste := readbool( section, EditorOptionsIniStr.PlainDefaultPaste, EditorOptions.PlainDefaultPaste );
       EditorOptions.BulletsInPlainText := readstring( section, EditorOptionsIniStr.BulletsInPlainText, EditorOptions.BulletsInPlainText);
       EditorOptions.CtrlUpDownMode := TCtrlUpDownMode( readinteger( section, EditorOptionsIniStr.CtrlUpDownMode, ord( EditorOptions.CtrlUpDownMode )));
+      EditorOptions.BulletSepFactor:= readFloat( section, EditorOptionsIniStr.BulletSepFactor, EditorOptions.BulletSepFactor );
 
 
       _SAVE_RESTORE_CARETPOS := EditorOptions.SaveCaretPos;

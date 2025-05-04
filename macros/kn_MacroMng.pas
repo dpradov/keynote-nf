@@ -1677,11 +1677,11 @@ var
           If (actualNumbering = tipo) and (actualNumberingStyle = KeyOptions.LastNumberingStyle) and (NumberingStart = 1) Then
               Paragraph.Numbering := nsNone
           else begin
-                LeftIndent:= Round(10* SelAttributes.Size/5.7);
+                LeftIndent:= Round(10* SelAttributes.Size/EditorOptions.BulletSepFactor);   // Default: 5.7
                 actLeftIndent:= Paragraph.LeftIndent;
                 if actLeftIndent > LeftIndent then
                    LeftIndent:= actLeftIndent;
-               if LeftIndent < 13 then LeftIndent := 13;
+               //if LeftIndent < 13 then LeftIndent := 13;       // Commented. See #876
                Paragraph.SetNumberingList(tipo, KeyOptions.LastNumberingStyle, NumberingStart, leftIndent);
           End
        end;
