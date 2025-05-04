@@ -5424,7 +5424,7 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=2304251932
+LM=0405251310
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset2 Symbol;}}
@@ -5722,7 +5722,7 @@ We can \ul restrict the search to text fragments\ulnone  that do not include any
 {\pntext\f5\'B7\tab}If searching for content using tags and text to find is "", a match is returned for each piece of text that meets the criteria\par
 
 \pard\par
-{\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text \ul With\ulnone  any of the selected tags: "[x]"\v\par
+{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]"\v\par
 \par
 
 \protect0\pard\protect\li360\sb40\cf9 #[x]\par
@@ -5756,7 +5756,7 @@ Task 4 ...\par
 
 \protect0\pard\protect   -----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\lang1033\par
 \par
-{\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Now \ul excluding\ulnone  text \ul With any\ulnone  of the selected tags: "[x]" "E0"\v\par
+{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Now \ul excluding\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]" "E0"\v\par
 
 \protect0\pard\protect\li360\sb160\cf9 Task 1 ...\par
 
@@ -11856,6 +11856,7 @@ LM=1304252023
 %*
 GI=89
 ND=Rich Text Editor
+LM=0405251307
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -11866,7 +11867,7 @@ ND=Rich Text Editor
 
 \pard\sa100\cf0\b0\fs22\par
 
-\pard\li360\sa100\v\'11I188\'12\v0{\field{\*\fldinst{HYPERLINK "img:188,332,368"}}{\fldrslt {188_Clipb_31mar.png}}}\par
+\pard\li360\sa100\v\'11I226\'12\v0{\field{\*\fldinst{HYPERLINK "img:226,341,366"}}{\fldrslt {226_Clipb_04may.png}}}\par
 
 \pard\fs20\par
 See also {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20  \par
@@ -11954,7 +11955,16 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\
 
 \pard\cf0\b0\fs20 Set the amount of space before/after a paragraph when you use the space commands on the \b Format|Paragraph Style\b0  commands. The \ul increment is in points\ulnone .\par
 \par
-\par
+
+\pard\sa80\cf1\b\fs22 Spacing between bullet and text\tab\tab\cf0\fs20\tab\tab\tab\b0 Default: 5,7\cf1\b\fs22\par
+
+\pard\cf0\b0\fs20 Set a factor (F) used to calculate the spacing between bullet and text for all list types: S = 10 * FontSize / F\par
+You can set a number with decimal places, between 2 and 17. The result (S), in points, is used as First and Left indent values.\par
+
+\pard\sb80 Spacing is inversely proportional to the F value. The higher the value, the narrower the spacing. The extreme values \u8203?\u8203?are set at 2 and 17 because, above 17, bullets become misaligned when the text spans more than one line, and below 2, the spacing becomes excessive.\par
+You can see {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/876"}}{\fldrslt{\ul\cf2\cf2\ul issue #876}}}}\f0\fs20  for some examples\par
+
+\pard\par
 }
 %*
 GI=90
@@ -17503,7 +17513,7 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2
 %*
 GI=123
 ND=Folding and unfolding
-LM=2304251938
+LM=0405251324
 %.
 DC=1204251504
 %:
@@ -17524,7 +17534,7 @@ DC=1204251504
 Since version 1.2.1, it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. We can manage collapsed blocks in different ways, such as to simplify visibility, to treat certain text as a kind of archive, etc.\par
 \par
 
-\pard\sb80 When a block is folded, a hyperlink with the character \f1\fs22\lang3082\u10133?\f0\fs20\lang1033  is displayed, and it is closed with "...\protect\'13\protect0 ".\par
+\pard\sb80 When a block is folded, a hyperlink with the character \f1\fs22\lang3082\u10133?\f0\fs20\lang1033  is displayed, and it is closed with "...\protect\'14\protect0 ".\par
 Given a text to be folded, the visible excerpt will be selected from the beginning, including the rest of the sentence or until two consecutive spaces, an image or a hyperlink are detected.\par
 
 \pard\par
@@ -18171,7 +18181,7 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=111110000000100001000000
+FL=111110000000100000000000
 SN=0
 TW=182
 TM=0
@@ -18208,7 +18218,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=226
+II=227
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -18346,7 +18356,6 @@ PD=184||184_Clipb_31mar.png|1|326|285|2196688151||1|1||0
 PD=185||185_Clipb_31mar.png|1|297|152|2996717648||1|1||0
 PD=186||186_Clipb_31mar.png|1|293|152|190736701||1|1||0
 PD=187||187_Clipb_31mar.png|1|286|150|594474843||1|1||0
-PD=188||188_Clipb_31mar.png|1|332|368|1451056024||1|1||0
 PD=189||189_Clipb_31mar.png|1|339|342|4218597864||1|1||0
 PD=190||190_Clipb_31mar.png|1|358|370|4238132767||1|1||0
 PD=192||192_Clipb_31mar.png|1|411|28|2464087388||1|1||0
@@ -18372,5 +18381,6 @@ PD=222||222_Clipb_13abr.png|1|216|73|3778486667||1|1||0
 PD=223||223_Clipb_13abr.png|1|389|97|240801985||1|1||0
 PD=224||224_Clipb_13abr.png|1|722|205|3960901167||1|2||0
 PD=225||225_Clipb_15abr.png|1|668|496|2159485143||1|1||0
+PD=226||226_Clipb_04may.png|1|341|366|2163406170||1|1||0
 %EI
 %%
