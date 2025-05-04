@@ -3,6 +3,27 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.0.4  Beta4 (04 may 2025)
+--------------------------
+* New: Configurable spacing between bullet and text is now available for all list types (#876)
+* Replacement operations will ignore matches located entirely or partially in the hidden part of hyperlinks (#871)
+--
+* Fixed: IMPORTANT! "Control TKntRichEdit(..) has no parent window" -> Forces to kill KNT! (see discussions/868)
+* Various fixes for interacting with a folded block (#869)
+* Fixed: Folding doesn't allow to select certain entire lines (eg. bullets), ensuring the formatting of all of them (#873)
+* Fixed: Prevent flickering when right-clicking on the (+) link of the folded block
+* Fixed: Show floating editor with the same zoom ratio as the main editor
+* Hided floating editor when the Editor Info panel is focused.
+* Fixed: When exporting and "Folded Text" = Remove**, one of two contiguous folded blocks could remain unchanged
+* Fixed: Exception when trying to open a folded block in the scratchpad editor when no file is open
+--
+* Minor improvement when entering tags and using TAB when the selector is displayed
+* Minor fix when iterating through found words by clicking on the Find All search result
+* Avoid possible flickering when searching (F3) in Scratchpad editor
+* Fixed: Opening external KNT hyperlinks in other instances should not depend on "Load last-used file" and 
+  "Create a blank new file if no file is loaded" options (#872)
+
+
 v 2.1.0.3  Beta3 (27 apr 2025)
 --------------------------
 * Fixed: Too much editor flashing using Find Next (F3). Very noticeable when pattern not found
