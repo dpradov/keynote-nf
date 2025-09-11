@@ -3188,6 +3188,7 @@ begin
   if IntroducingTagsState <> itNoTags then
      TagMng.CheckEndTagIntroduction;
 
+  cTagSelector.CloseTagSelector(true);
   CommitAddedTags;
   inherited;
 end;
