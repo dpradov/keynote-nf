@@ -140,6 +140,7 @@ uses
    kn_VCLControlsMng,
    kn_MacroMng,
    kn_RTFUtils,
+   knt.ui.tagMng,
    knt.App,
    knt.RS
    ;
@@ -1431,6 +1432,8 @@ begin
           AEditor.WordWrap := WordWrap;
 
        AEditor.AutoURLDetect := URLDetect;
+
+       TagMng.DisableTagSelector(TagSelectorDisabled);
 
        AEditor.Color := EditorChrome.BGColor;
        TextLen:= AEditor.TextLength;

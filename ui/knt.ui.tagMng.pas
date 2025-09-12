@@ -83,6 +83,8 @@ type
 
     procedure ExportTagsSelected(SelectedTags: TNoteTagArray);
     procedure ImportTagsFromFile(FN: string; DisplayErrors: boolean = false);
+
+    procedure DisableTagSelector(Disable: boolean);
   end;
 
 
@@ -573,7 +575,7 @@ begin
      cTagSelector.EditorCtrlUI:= txtTags;
      IntroducingTagsState := itWithoutTagSelector;
   end;
-  if IntroducingTagsState <> itNoTags then
+  if not (IntroducingTagsState in [itDisabled, itNoTags]) then
      CheckEndTagIntroduction;
 end;
 
@@ -1033,6 +1035,18 @@ begin
          if DisplayErrors then
             App.ErrorPopup(E, GetRS(sTag17));
     end;
+end;
+
+
+procedure TTagMng.DisableTagSelector(Disable: boolean);
+begin
+    if Disable then begin
+       IntroducingTagsState:= itDisabled;
+       if cTagSelector <> nil then
+          cTagSelector.EditorCtrlUI := nil;
+    end
+    else
+       IntroducingTagsState:= itNoTags;
 end;
 
 

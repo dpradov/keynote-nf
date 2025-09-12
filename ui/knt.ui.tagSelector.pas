@@ -43,7 +43,7 @@ const
    TAG_MAX_LENGTH = 65;
 
 type
-   TIntroducingTagsState = (itNoTags, itHashTyped, itWithTagSelector, itWithoutTagSelector);
+   TIntroducingTagsState = (itDisabled, itNoTags, itHashTyped, itWithTagSelector, itWithoutTagSelector);
 
 var
    IntroducingTagsState: TIntroducingTagsState;

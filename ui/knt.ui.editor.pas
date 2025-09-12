@@ -3179,13 +3179,16 @@ begin
 
   ImageMng.DoNotRegisterNewImages:= not DoRegisterNewImages;
 
+  if FolderObj <> nil then
+     TagMng.DisableTagSelector(TKntFolder(FolderObj).TagSelectorDisabled);
+
   inherited;
 end;
 
 
 procedure TKntRichEdit.DoExit;
 begin
-  if IntroducingTagsState <> itNoTags then
+  if not (IntroducingTagsState in [itDisabled, itNoTags]) then
      TagMng.CheckEndTagIntroduction;
 
   cTagSelector.CloseTagSelector(true);
@@ -3475,7 +3478,7 @@ begin
   end;
 
 
-  if (IntroducingTagsState = itNoTags) or (cTagSelector.EditorCtrlUI = Self) then
+  if (IntroducingTagsState <> itDisabled) and ((IntroducingTagsState = itNoTags) or (cTagSelector.EditorCtrlUI = Self)) then
      if (Key = '#') and (IntroducingTagsState <> itWithTagSelector) then begin
         AddText('#');
         Key:= #0;
@@ -3686,15 +3689,16 @@ var
 begin
   if FUpdating > 0 then exit;
   if FIgnoreSelectionChange then exit;
-  if (IntroducingTagsState <> itNoTags) and (cTagSelector.EditorCtrlUI = Self) then begin
-     if (Self.SelLength > 0) then
-        cTagSelector.CloseTagSelector(false)
+  if (IntroducingTagsState <> itDisabled) then
+     if (IntroducingTagsState <> itNoTags) and (cTagSelector.EditorCtrlUI = Self) then begin
+        if (Self.SelLength > 0) then
+           cTagSelector.CloseTagSelector(false)
+        else
+           TagMng.CheckEndTagIntroduction;
+     end
      else
-        TagMng.CheckEndTagIntroduction;
-  end
-  else
-  if IgnoreSelectorForTagSubsr = ' ' then
-     IgnoreSelectorForTagSubsr := '';
+     if IgnoreSelectorForTagSubsr = ' ' then
+        IgnoreSelectorForTagSubsr := '';
 
   if FLinkHover.cpMin <> -1 then begin
      App.ShowInfoInStatusBar('');

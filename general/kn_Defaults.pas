@@ -98,6 +98,7 @@ type
     CB_ShowDateCol: TCheckBox;
     CB_ShowFlagCol: TCheckBox;
     CB_RTL: TCheckBox;
+    CB_DisableTagSel: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -496,6 +497,7 @@ begin
     UseTabChar := CB_UseTabChar.Checked;
     WordWrap := CB_WordWrap.Checked;
     DefaultZoom:= fDefaultZoom;
+    TagSelectorDisabled:= CB_DisableTagSel.Checked;
   end;
 
   with myTreeProperties do
@@ -549,6 +551,7 @@ begin
     CB_UseTabChar.Checked := UseTabChar;
     CB_WordWrap.Checked := WordWrap;
     CB_Zoom.Text:= IntToStr(DefaultZoom);
+    CB_DisableTagSel.Checked := TagSelectorDisabled;
   end;
 
   with myTreeProperties do

@@ -394,7 +394,7 @@ object Form_Defaults: TForm_Defaults
         end
         object Label14: TLabel
           Left = 15
-          Top = 142
+          Top = 150
           Width = 73
           Height = 18
           AutoSize = False
@@ -501,12 +501,12 @@ object Form_Defaults: TForm_Defaults
           MaxValue = 32
           MinValue = 1
           ParentFont = False
-          TabOrder = 3
+          TabOrder = 4
           Value = 4
         end
         object Combo_DefEdLang: TLanguagesCombo
           Left = 92
-          Top = 139
+          Top = 147
           Width = 216
           Height = 22
           Language = 2048
@@ -521,7 +521,7 @@ object Form_Defaults: TForm_Defaults
           ParentShowHint = False
           ShowFlag = False
           ShowHint = True
-          TabOrder = 6
+          TabOrder = 7
         end
         object CB_Zoom: TComboBox
           Left = 284
@@ -535,7 +535,7 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 4
+          TabOrder = 5
           OnExit = CB_ZoomExit
           OnKeyPress = CB_ZoomKeyPress
           Items.Strings = (
@@ -551,7 +551,7 @@ object Form_Defaults: TForm_Defaults
         end
         object CB_PlainText: TCheckBox
           Left = 13
-          Top = 112
+          Top = 120
           Width = 326
           Height = 17
           Hint = 
@@ -564,17 +564,17 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 5
+          TabOrder = 6
           StyleElements = [seClient, seBorder]
         end
         object BitBtn_FolderHelp: TBitBtn
           Left = 317
-          Top = 137
+          Top = 145
           Width = 25
           Height = 25
           ImageIndex = 60
           Images = Form_Main.IMG_Toolbar
-          TabOrder = 7
+          TabOrder = 8
           TabStop = False
           OnClick = BitBtn_FolderHelpClick
         end
@@ -585,7 +585,7 @@ object Form_Defaults: TForm_Defaults
           Height = 25
           ImageIndex = 60
           Images = Form_Main.IMG_Toolbar
-          TabOrder = 8
+          TabOrder = 9
           TabStop = False
           OnClick = BitBtn_FolderChromeHelpClick
         end
@@ -603,7 +603,22 @@ object Form_Defaults: TForm_Defaults
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
-          TabOrder = 9
+          TabOrder = 10
+        end
+        object CB_DisableTagSel: TCheckBox
+          Left = 13
+          Top = 86
+          Width = 229
+          Height = 17
+          Hint = 'Disables tag selector and auto-tag registration'
+          Caption = 'Disable Tag selector'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
         end
       end
     end
