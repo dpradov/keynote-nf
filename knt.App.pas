@@ -258,6 +258,7 @@ uses
    kn_FindReplaceMng,
    kn_NoteFileMng,
    knt.ui.TagMng,
+   knt.ui.tagSelector,
    knt.RS;
 
 
@@ -547,6 +548,12 @@ end;
 
 procedure TKntApp.SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
 begin
+   if IntroducingTagsState = itWithTagSelector then begin
+      IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
+      cTagSelector.CloseTagSelector(false);
+      SetForegroundWindow(hWND);
+   end;
+
    if OnlyWithFloatingEditor and ((ActiveFolder = nil) or (ActiveFolder.Editor.FloatingEditor = nil)) then exit;
 
    SetWindowPos(hWND, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE)
