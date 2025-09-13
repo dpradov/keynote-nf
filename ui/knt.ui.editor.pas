@@ -3189,7 +3189,7 @@ end;
 procedure TKntRichEdit.DoExit;
 begin
   if not (IntroducingTagsState in [itDisabled, itNoTags]) then
-     TagMng.CheckEndTagIntroduction;
+     TagMng.CheckEndTagIntroduction(true);    // True -> Add ' ' to process tags added to the end of the note
 
   cTagSelector.CloseTagSelector(true);
   CommitAddedTags;
