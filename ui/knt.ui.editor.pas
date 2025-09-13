@@ -3192,7 +3192,8 @@ begin
      TagMng.CheckEndTagIntroduction(true);    // True -> Add ' ' to process tags added to the end of the note
 
   cTagSelector.CloseTagSelector(true);
-  CommitAddedTags;
+  if FloatingEditor = nil then            // Don't call with floating editors
+     CommitAddedTags;
   inherited;
 end;
 
