@@ -1257,7 +1257,7 @@ begin
    --or until the appearance of a link or an image  }
 
   Txt:= GetRestOfSentence(TextPlain, OffsetVisibleExtract);
-  p:= pos('  ', Txt);               // End at the first double space we find
+  p:= pos('  ', Txt, PosFirstNonSpace(Txt));               // End at the first double space we find
   if p > 0 then
      delete(Txt, p+2, Length(Txt));
 

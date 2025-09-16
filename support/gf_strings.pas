@@ -82,6 +82,7 @@ function BytesToRawByteString(const bytes: TBytes): RawByteString;
 
 function FirstLineFromString(const str: string; const MaxLen : integer) : string;
 function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1; StartAtPos: integer=-1): integer;
+function PosFirstNonSpace(const S: string; StartAtPos: integer=1): integer;
 
 function ConvertHTMLAsciiCharacters(const S: string): string;
 function DecodeURLWebUTF8Characters(const S: string): string;
@@ -884,6 +885,21 @@ begin
           Exit(i);
     end;
 end;
+
+
+function PosFirstNonSpace(const S: string; StartAtPos: integer=1): integer;
+var
+  i: Integer;
+begin
+  Result := -1;
+  if (StartAtPos <= 0) or (StartAtPos > Length(S)) then
+     Exit;
+
+  for i := StartAtPos to length(S) do
+    if S[i] <> #32 then
+       Exit(i);
+end;
+
 
 {
  ASCII Table (https://www.ascii-code.com/   https://www.rapidtables.com/code/text/ascii-table.html
