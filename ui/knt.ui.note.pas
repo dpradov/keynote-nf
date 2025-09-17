@@ -613,16 +613,26 @@ begin
      if not NEntry.IsRTF then
         UpdateEditor (FEditor, FKntFolder, False);
 
+     // *1 For newly created, empty notes, this must be ensured (when the note is not intended to be created as plain text. See call to ConfigureEditor).
+     //    If we don't do this, we may encounter with an exception when calling LoadFromStream while working with the note, before it
+     //    is persisted to the model (for example, when selecting another note from the tree). This can occur if in that situation
+     //    we select several lines and press Shift+TAB (to tab multiple lines, decreasing indentation)
+
      fImagesReferenceCount:= nil;
-     if NodeStreamIsRTF (NEntry.Stream) then begin
-        FEditor.StreamFormat:= sfRichText;
-        if FEditor.SupportsRegisteredImages then begin
-           GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
-           strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
-        end;
-     end
-     else
-        FEditor.StreamFormat:= sfPlainText;
+     if (not FEditor.PlainText) and (NEntry.Stream.Size = 0) then
+        FEditor.StreamFormat:= sfRichText                             // *1
+
+     else begin
+       if NodeStreamIsRTF (NEntry.Stream) then begin
+          FEditor.StreamFormat:= sfRichText;
+          if FEditor.SupportsRegisteredImages then begin
+             GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
+             strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+          end;
+       end
+       else
+          FEditor.StreamFormat:= sfPlainText;
+     end;
 
      Log_StoreTick('TKntNoteUI.LoadFromDataModel - BEGIN', 4, +1);
     {$IFDEF KNT_DEBUG}
@@ -641,6 +651,7 @@ begin
         FEditor.ClearUndo;
      end
      else
+     if NEntry.Stream.Size > 0 then
         FEditor.Lines.LoadFromStream( NEntry.Stream );
 
      Log_StoreTick('TKntNoteUI.LoadFromDataModel - END', 4, -1);
