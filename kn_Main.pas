@@ -2375,6 +2375,7 @@ begin
   // *2 In the tests it doesn't seem necessary with the Host (W11) but it does with W10 (from virtual machine).
   //    I keep it for safety and because nothing is noticeable, because of its short duration and because at that point
   //    the window is already visible and the editor doesn't show changes (BeginUpdate)
+ try
 
    if (ActiveEditor <> nil) and (ActiveEditor.Parent = nil) then begin
        if ActiveFolder <> nil then
@@ -2429,7 +2430,21 @@ begin
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;
 
-  Done := True;
+   Done := True;
+
+ except
+    // It is important to drop all exceptions here.
+   {$IFDEF KNT_DEBUG}
+    on E : Exception do begin
+      var S: string;
+      Log.Flush( true );
+      S:= 'Exception in ApplicationEventsIdle: ' + #13#13 + E.Message + #13#13 + E.StackTrace;
+      Log.Add( S );
+      App.ErrorPopup( S );
+    end;
+   {$ENDIF}
+ end;
+
 end;
 
 
