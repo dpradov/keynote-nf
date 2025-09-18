@@ -225,6 +225,8 @@ type
     procedure HidingFloatingEditor;
     function Focused: boolean; override;
 
+    function VinculatedNNode(var NNodeObj, NEntryObj, FolderObj: TObject): boolean;
+
     function GetZoom: integer;
     procedure SetZoom(ZoomValue : integer; ZoomString : string; Increment: integer= 0 );
     procedure RestoreZoomGoal;
@@ -581,6 +583,23 @@ function TKntRichEdit.GetDoRegisterNewImages: boolean;
 begin
    Result:= (NNodeObj <> nil) or ((ParentEditor <> nil) and ParentEditor.DoRegisterNewImages);
 end;
+
+
+function TKntRichEdit.VinculatedNNode(var NNodeObj, NEntryObj, FolderObj: TObject): boolean;
+begin
+   if (Self.NNodeObj <> nil) then begin
+       NNodeObj:= Self.NNodeObj;
+       NEntryObj:= Self.NEntryObj;
+       FolderObj:= Self.FolderObj;
+       Result:= True;
+   end
+   else
+   if (ParentEditor <> nil) then
+      Result:= ParentEditor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj)
+   else
+      Result:= false;
+end;
+
 
 {
  NOTE:
@@ -2727,19 +2746,25 @@ begin
       end;
 
       CursorPos:= ActiveEditor.ClientToScreen(ActiveEditor.GetCharPos(pI));
+      try
+         IgnoringEditorChanges:= True;   // Ignore changes triggered by floating editor initialization
 
-      if FloatingEditor = nil then
-         FloatingEditor:= TFloatingEditor.Create(Form_Main, Self);
+         if FloatingEditor = nil then
+            FloatingEditor:= TFloatingEditor.Create(Form_Main, Self);
 
-      FE:= TFloatingEditor(FloatingEditor);
-      FE.Editor.RtfText:= RTFOut;
-      FE.Editor.Modified:= False;
-      FE.Editor.ReadOnly:= Self.ReadOnly;
-      FE.Editor.FZoomGoal:= FZoomGoal;
-      FE.Editor.FZoomCurrent:= FZoomCurrent;
-      FE.Editor.RestoreZoomGoal;
-      FE.Editor.Color:= LightenColor(Color, 20);
-      TagMng.CreateTagSelector(TForm(FloatingEditor));
+         FE:= TFloatingEditor(FloatingEditor);
+         FE.Editor.RtfText:= RTFOut;
+         FE.Editor.Modified:= False;
+         FE.Editor.ReadOnly:= Self.ReadOnly;
+         FE.Editor.FZoomGoal:= FZoomGoal;
+         FE.Editor.FZoomCurrent:= FZoomCurrent;
+         FE.Editor.RestoreZoomGoal;
+         FE.Editor.Color:= LightenColor(Color, 20);
+         TagMng.CreateTagSelector(TForm(FloatingEditor));
+
+      finally
+        IgnoringEditorChanges:= False;
+      end;
 
       FE.ShowEditor(CursorPos.X, CursorPos.Y, FontHeight);
    end;

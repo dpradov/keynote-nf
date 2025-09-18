@@ -730,7 +730,7 @@ end;
 
 procedure TKntApp.ChangeInEditor (Editor: TKntRichEdit);
 var
-   NNode: TNoteNode;
+   NNodeObj, NEntryObj, FolderObj: TObject;
 
 begin
   with Form_Main do begin
@@ -742,10 +742,9 @@ begin
   if CopyFormatMode= cfEnabled then
      EnableCopyFormat(False);
 
-  NNode:= TNoteNode(Editor.NNodeObj);
-  if not assigned(NNode) then exit;           // Eg. Scratchpad
+  if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad)
 
-  NEntryModified (TNoteEntry(Editor.NEntryObj), NNode.Note, TKntFolder(Editor.FolderObj));
+  NEntryModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
 end;
 
 
