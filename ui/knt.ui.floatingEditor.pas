@@ -58,6 +58,8 @@ type
     procedure ShowEditor(X, Y: Integer; FontHeight: integer);
     procedure HideEditor;
     procedure HideNestedFloatingEditor;
+
+    procedure SaveChangesToParentEditor;
   end;
 
 
@@ -188,7 +190,7 @@ begin
   TagMng.FreeTagSelector;
   HideNestedFloatingEditor;
 
-  fParentEditor.HidingFloatingEditor;
+  fParentEditor.SaveChangesFromFloatingEditor(True);       // True -> HidingFloatingEditor: True
   Hide();
 end;
 
@@ -198,6 +200,14 @@ begin
      TFloatingEditor(Editor.FloatingEditor).HideEditor;
      FreeAndNil(Editor.FloatingEditor);
   end;
+end;
+
+procedure TFloatingEditor.SaveChangesToParentEditor;
+begin
+    if Editor.FloatingEditor <> nil then
+       TFloatingEditor(Editor.FloatingEditor).SaveChangesToParentEditor;    // Recursive
+
+    fParentEditor.SaveChangesFromFloatingEditor(False);    // HidingFloatingEditor: False
 end;
 
 

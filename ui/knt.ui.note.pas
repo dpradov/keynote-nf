@@ -717,7 +717,7 @@ begin
 
   if assigned(NNode) then begin
      if FEditor.FloatingEditor <> nil then
-        FEditor.HideNestedFloatingEditor;
+        FEditor.DoSaveChangesInFloatingEditor;
 
      NEntry:= Note.Entries[0];
 

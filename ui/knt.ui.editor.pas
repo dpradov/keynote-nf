@@ -222,7 +222,8 @@ type
     procedure Unfold;
     procedure PreviewFoldedBlock (SS: integer);
     procedure HideNestedFloatingEditor;
-    procedure HidingFloatingEditor;
+    procedure DoSaveChangesInFloatingEditor;
+    procedure SaveChangesFromFloatingEditor (HidingFloatingEditor: boolean);
     function Focused: boolean; override;
 
     function VinculatedNNode(var NNodeObj, NEntryObj, FolderObj: TObject): boolean;
@@ -2779,7 +2780,8 @@ begin
   end;
 end;
 
-procedure TKntRichEdit.HidingFloatingEditor;
+
+procedure TKntRichEdit.SaveChangesFromFloatingEditor (HidingFloatingEditor: boolean);
 var
   FE: TFloatingEditor;
   pI, pF: integer;
@@ -2788,12 +2790,14 @@ var
 
 begin
   if FloatingEditor <> nil then begin
-     FormParent:= Form_Main;
-     if ParentEditor = nil then
-        FormParent:= Form_Main
-     else
-        FormParent:= TForm(Self.Parent);
-     TagMng.CreateTagSelector(FormParent);
+     if HidingFloatingEditor then begin
+       FormParent:= Form_Main;
+       if ParentEditor = nil then
+          FormParent:= Form_Main
+       else
+          FormParent:= TForm(Self.Parent);
+       TagMng.CreateTagSelector(FormParent);
+     end;
 
      FE:= TFloatingEditor(FloatingEditor);
      if not FE.Editor.Modified then exit;
@@ -2813,6 +2817,13 @@ begin
      end;
 
   end;
+end;
+
+
+procedure TKntRichEdit.DoSaveChangesInFloatingEditor;
+begin
+  if FloatingEditor <> nil then
+     TFloatingEditor(FloatingEditor).SaveChangesToParentEditor;
 end;
 
 
