@@ -120,7 +120,18 @@ begin
 
    if PotentialNTags <> nil then
       PotentialNTags.Clear;
-   PotentialNTags:= nil;
+
+   {  *1
+     It's safer to just call PotentialNTags.Clear and not assign nil.
+     This CloseTagSelector method is called from many sources, and it could also be called from ApplicationEventsIdle.
+     I've even detected an AccessViolation from ApplicationEventsIdle -> TkntRichEdit.CheckSelectingRegisteredTag -> TTagMng.UpdateTagSelector
+     when doing TV.RootNodeCount:= PotentialNTags.Count (having previously checked that PotentialNTags.Count > 0).
+     This is very rare and unusual, but it could happen. If we just call PotentialNTags.Clear, TV.RootNodeCount:= 0 wouldn't cause any problems.
+
+     Note: PotentialNTags is created, if nil (first time), in TTagMng.UpdateTagSelector: ActiveFile.UpdateNTagsMatching(TagSubstr, PotentialNTags);
+   }
+   //PotentialNTags:= nil;                        // *1
+
    if EndTagEdition then begin
       IntroducingTagsState := itNoTags;
       EditorCtrlUI:= nil;
