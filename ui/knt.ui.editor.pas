@@ -1462,13 +1462,18 @@ begin
      RTFAux.Clear;
      RTFAux.BeginUpdate;
 
+     // We need to make sure that \cf1=>Blue :   {\colortbl ;\red0\green0\blue255;.....}
+     RTFAux.SelText:= NFHDR_ID;
+     RTFAux.SelLength:= Length(NFHDR_ID);
+     RTFAux.SelAttributes.Color:= clBlue;
+
      // It will add a \par at the end that we should ignore:
      // The end will be of the form: ...\par'#$D#$A'}'#$D#$A#0
-     RTFAux.PutRtfText(RTFIn, true, false);
+     RTFAux.PutRtfText(RTFIn, false, true);
 
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
-     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
+     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), Length(NFHDR_ID)+1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
 
      if KeepEndCR and (Pos(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF, RTFIn, 1) = 0) then begin
         RTFAux.SelStart:= RTFAux.SelStart + 1;
@@ -1495,6 +1500,12 @@ begin
   pI:= Pos('\protect', RTFIn, 1);
   Len:= 0;                                                        // Add, without replacing
   RemoveReplace(pI + Length('\protect'), KNT_RTF_BEGIN_FOLDED);
+
+  // Remove the mark used to ensure that \cf1=>Blue
+  pI:= Pos(NFHDR_ID, RTFIn, 1);
+  Len:= Length(NFHDR_ID);
+  RemoveReplace(pI, '');
+
 
   // We need to make sure that the hidden internal markers ($11...$12) remain hidden in the part we serve as a visible extract.
   // We use as help the #$14 mark we inserted from MarkEndVisibleExtract
