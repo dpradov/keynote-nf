@@ -1462,23 +1462,27 @@ begin
      RTFAux.Clear;
      RTFAux.BeginUpdate;
 
-     // We need to make sure that \cf1=>Blue :   {\colortbl ;\red0\green0\blue255;.....}
-     RTFAux.SelText:= NFHDR_ID;
-     RTFAux.SelLength:= Length(NFHDR_ID);
-     RTFAux.SelAttributes.Color:= clBlue;
-
      // It will add a \par at the end that we should ignore:
      // The end will be of the form: ...\par'#$D#$A'}'#$D#$A#0
-     RTFAux.PutRtfText(RTFIn, false, true);
+     RTFAux.PutRtfText(RTFIn, true, false);
 
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
-     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), Length(NFHDR_ID)+1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
+     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
 
      if KeepEndCR and (Pos(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF, RTFIn, 1) = 0) then begin
         RTFAux.SelStart:= RTFAux.SelStart + 1;
         InsertMarker(RTFAux, 'f', 1);               // f: Folded inf. 1 -> Keep end carriage return        //'\v\'11f0\'12\v0'
      end;
+
+     // We need to make sure that \cf1=>Blue :   {\colortbl ;\red0\green0\blue255;.....}
+     RTFAux.SelStart:= 0;
+     RTFAux.SelText:= NFHDR_ID;
+     RTFAux.SelLength:= Length(NFHDR_ID);
+     RTFAux.SelAttributes.Color:= clBlue;
+     RTFAux.SelAttributes.Size:= 4;              // To make sure that the size of the following text has it own \fsN command and it will not deleted together with the aux NFHDR_ID word
+     RTFAux.SelStart:= Length(NFHDR_ID);
+     RTFAux.SelAttributes.Color:= clBlack;
 
      RTFAux.SelectAll;
      RTFAux.SelAttributes.Protected := True;
@@ -1498,18 +1502,15 @@ begin
   RTFOut := '';
 
   pI:= Pos('\protect', RTFIn, 1);
-  Len:= 0;                                                        // Add, without replacing
-  RemoveReplace(pI + Length('\protect'), KNT_RTF_BEGIN_FOLDED);
 
   // Remove the mark used to ensure that \cf1=>Blue
-  pI:= Pos(NFHDR_ID, RTFIn, 1);
-  Len:= Length(NFHDR_ID);
-  RemoveReplace(pI, '');
-
+  p:= Pos(NFHDR_ID, RTFIn, pI);
+  Len:= p - pI + Length(NFHDR_ID);                          // Length to be replaced
+  RemoveReplace(pI, '\protect' + KNT_RTF_BEGIN_FOLDED);    // Eg: \protect\f0\fs8 GFKNT\cf0\fs18... -> \protect\<KNT_RTF_BEGIN_FOLDED>\cf0\fs18
 
   // We need to make sure that the hidden internal markers ($11...$12) remain hidden in the part we serve as a visible extract.
   // We use as help the #$14 mark we inserted from MarkEndVisibleExtract
-  pI:= pI + Length('\protect');
+  pI:= pI + Len;
   p:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pI);
 
   ReplaceWith:= Copy(RTFIn, pI, p - pI);
