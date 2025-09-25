@@ -1683,6 +1683,7 @@ begin
      RTFAux.SelText:= NFHDR_ID;
      RTFAux.SelLength:= Length(NFHDR_ID);
      RTFAux.SelAttributes.Color:= clBlue;
+     RTFAux.SelAttributes.Name:= 'Tahoma';       // Ensure \f0 -> Tahoma, to apply to "...[]"
      RTFAux.SelAttributes.Size:= 4;              // To make sure that the size of the following text has it own \fsN command and it will not deleted together with the aux NFHDR_ID word
      RTFAux.SelStart:= Length(NFHDR_ID);
      RTFAux.SelAttributes.Color:= clBlack;
@@ -1750,9 +1751,9 @@ begin
   // Remember: remove the extra line break that is being added in RTFAux.PutRtfTex
   // The end will be like this: ...\par'#$D#$A'}'#$D#$A#0
   if AddAdditionalEndCR then
-     ReplaceWith:= KNT_RTF_END_FOLDED + '\par}'
+      ReplaceWith:= '{\f0\fs16' + KNT_RTF_END_FOLDED + '}\par}'
   else
-     ReplaceWith:= KNT_RTF_END_FOLDED + '}';
+      ReplaceWith:= '{\f0\fs16' + KNT_RTF_END_FOLDED + '}}';
 
   if not KeepEndCR then begin
      pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
