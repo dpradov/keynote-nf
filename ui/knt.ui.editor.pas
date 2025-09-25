@@ -224,6 +224,7 @@ type
     procedure HideNestedFloatingEditor;
     procedure DoSaveChangesInFloatingEditor;
     procedure SaveChangesFromFloatingEditor (HidingFloatingEditor: boolean);
+    procedure ActivateFloatingEditor;
     function Focused: boolean; override;
 
     function VinculatedNNode(var NNodeObj, NEntryObj, FolderObj: TObject): boolean;
@@ -1311,6 +1312,198 @@ begin
 end;
 
 
+(*
+
+FOLDING / UNFOLDING OF TEXT WITH TABLES
+
+The Folding/Unfolding mechanism in KeyNote uses the \v and \v0 tags to hide text. It's considerably more complicated than simply adding these
+tags to the beginning and end of the text to be collapsed, as there are several restrictions that must be met, such as the fact that nesting
+\v commands is not allowed, nor is hiding images or links, etc. To avoid these problems, KeyNote must perform some conversions before hiding
+the text (leaving only the necessary excerpt visible).
+With the implementation available up to KeyNote version 2.1.0, if you try to fold text that includes tables, you may notice that the text is
+hidden, but the tables remain visible, albeit empty.
+
+This is because the \v command only affects character content: letters, numbers, symbols, etc. Structural elements, such as the table definition
+(\trowd, \cell, \row), are not considered "text" but rather layout control marks. This is why the viewer (RichEdit) continues to display the
+empty table structure even if all its contents are hidden. \v ... \v0 cannot hide the table itself, only the contents of the cells.
+
+To solve this, since version 2.1.1, the preprocessing of possible tables is contemplated when performing Folding/Unfolding, taking into account
+the format of the tables in RTF (there is no definition of tables themselves, but of independent rows):
+
+Row := \trowd RowDecl RowCell+ \row
+RowDecl := \trgaphN? \trleft? CellDecl+
+RowCell := \pard\intbl CellHAlign? TextContent \cell
+CellDecl := CellBorders CellVAlign? \cellxN
+CellBorders := DeclTop? DeclLeft? DeclBottom? DeclRight?
+DeclTop := \clbrdrt OneBorder
+DeclLeft := \clbrdrl OneBorder
+DeclBottom := \clbrdrb OneBorder
+DeclRight := \clbrdrr OneBorder
+OneBorder := \brdrwN BorderType
+BorderType := ( \brdrs | \brdrdot | \brdrdash | \brdrdb
+CellHAlign := ( \ql | \qc | \qr )
+CellVAlign := ( \clvertalt | \clvertalc | \clvertalb )
+
+\intbl	Paragraph is part of a table.
+\itapN	Paragraph nesting level, where 0 is the main document, 1 is a table cell, 2 is a nested table cell, 3 is a doubly
+        nested table cell, and so forth (default is 1).
+
+
+An example with a table of one row and two cells:
+
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Arial;}{\f2\fnil Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;\red255\green255\blue0;}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1
+\pard\f0\fs18\lang3082 Text Before Row\par
+\par
+\trowd\trgaph30\trleft-30\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\clcfpat3\clcbpat2\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf2\clbrdrt\brdrw15\brdrs\brdrcf2\clbrdrr\brdrw15\brdrs\brdrcf2\clbrdrb\brdrw15\brdrs\brdrcf2
+\cellx1122\clcfpat3\clcbpat2\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf2\clbrdrt\brdrw15\brdrs\brdrcf2\clbrdrr\brdrw15\brdrs\brdrcf2\clbrdrb\brdrw15\brdrs\brdrcf2 \cellx2274
+\pard\intbl\cf1\f1 TextInCellA\f2\cell
+\pard\intbl\qr\f1 TextInCellB\f2\cell\row
+\pard\cf0\f0\par
+Text After Row\par
+}
+
+During Folding, structural fragments are converted into text by replacing the \ character with $ in commands linked to the table. To ensure this
+doesn't affect the normal behavior of searches, which must continue to offer results located within collapsed text, and to prevent structural
+fragments (with the adaptation) from being displayed in search results, even when hidden, these structural fragments will be enclosed between
+the special characters \'11 and \'12.
+These characters are already used internally by KeyNote to manage images, internal KNT Links, etc.; it is the character following \'11 that defines
+the content enclosed by these special characters.
+In this case, two new characters are used: X, to indicate that the content can be deleted, and $, to indicate that it contains a table fragment.
+
+When converting certain structural fragments of the table to text, we run the risk of some of them referring to the use of certain colors, which
+are only used in the table, specifically in the cell background/pattern. When this happens, the RichEdit control simplifies the RTF code by
+removing the unused colors from the color definition table ({\colortbl ...}).
+To avoid this potential problem, a fragment of the form "\'11X\cf1 0\cf2 0\cf3 0\cf4 0\'12" is added, which includes commands that use all the
+colors present in the table, thus avoiding their deletion. By enclosing them between \'11X and \'12, we know we can delete it.
+Example:
+  {\colortbl ;\red0\green0\blue0;\red0\green0\blue255;\red255\green255\blue255;\red255\green255\blue0;}
+  --> 5 ";" after \colortbl => 4 colors =>  \cf0 0 \cf1 0\cf2 0\cf3 0\cf4 0
+
+
+When identifying structural fragments, the main commands are located, fundamentally:
+* \trowd -> beginning of a row, which may have many commands following it, and will end (with some line breaks inserted) in the commands
+   \pard\intbl (or \pard\intbl\ql \qr or \qc)
+
+* \pard\intbl\ (or \pard\intbl\ql \qr or \qc) -> which may be accompanied by another series of commands, normally for configuring the cell text,
+  such as setting the color, font type and size, for example (e.g.: \pard\intbl\cf1\f1\fs18 TextinCellA), but it may also include commands specific
+  to the paragraph defined by the cell (e.g.: \pard\intbl\widctlpar\sb40\sa40 TextInCellA...) or of course, both types
+  (e.g.: \pard\intbl\widctlpar\sb40\sa40\b\f1\fs40 TextInCell\b0\f0\fs16
+
+* \cell -> signals the end of a cell
+* \cell\row -> signals the end of a cell and row
+
+The handling of commands specific to the space defined by the cell is problematic, as I describe in the comment associated with the ProcessTableFragment method.
+
+All of these fragments will be bounded between \'11 and \'12, trying to reduce the number of fragments. Thus, processing the previous example, it could become the following:
+
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Arial;}{\f2\fnil Arial;}}
+{\colortbl ;\red0\green0\blue0;\red255\green255\blue255;\red255\green255\blue0;}
+{\*\generator Riched20 10.0.19041}\viewkind4\uc1
+\pard\f0\fs18\lang3082 Text Before Row\par
+\par
+\'11X\cf1 0\cf2 0\cf3 0\cf4 0\'12
+\'11$trowd$trgaph30$trleft-30$trrh223$trpaddl30$trpaddr30$trpaddfl3$trpaddfr3$clcfpat3$clcbpat2$clshdng10000$clbrdrl$brdrw15$brdrs$brdrcf2$clbrdrt$brdrw15$brdrs
+$brdrcf2$clbrdrr$brdrw15$brdrs$brdrcf2$clbrdrb$brdrw15$brdrs$brdrcf2$cellx1122$clcfpat3$clcbpat2$clshdng10000$clbrdrl$brdrw15$brdrs$brdrcf2$clbrdrt$brdrw15$brdrs
+$brdrcf2$clbrdrr$brdrw15$brdrs$brdrcf2$clbrdrb$brdrw15$brdrs$brdrcf2$cellx2274$pard$intbl\'12\cf1\f1 TextInCellA\f2\'11$cell$pard$intbl\'12\qr\f1 TextInCellB\f2
+\'11$cell$row$pard\'12\cf0\f0\par Text After Row\par
+
+(Apart from this processing, the rest of the actions required by the Folding mechanism would follow, to handle images, links, nested folding, etc.)
+
+NESTED CELLS
+In addition to the usual formatting indicated for tables, RTF allows for the inclusion of cells within other cells, using commands such as \nestcell.
+Managing tables with nested cells would unnecessarily complicate the entire processing process and increase the possibility of errors that could result in malformed
+RTF code and therefore potentially lead to the loss of information. For this reason, KeyNote NF will *NOT* initially support tables with nested cells. When applying
+folding, if it detects the \nestcell command, it will issue a warning and prevent these changes from being applied.
+
+Although folding is not supported on tables with nested cells, it is possible to apply folding in text fragments with tables that include images, links, or even
+other nested blocks as the content of one or more cells. These nested blocks can, in turn, contain other tables, images, text, and so on.
+*)
+
+
+function PosOfNextRow(const RTFIn: AnsiString; Offset: integer= 1): integer;
+var
+   p: integer;
+begin
+   Result:= 0;
+   p:= Offset - 1;
+   repeat
+      p:= Pos('\trowd', RTFIn, p + 1);
+      if (p > 0) and (RTFIn[p-1]<>'\') then begin
+         Exit(p);
+      end;
+   until p = 0;
+end;
+
+
+function CheckContainsNestedCells(const RTFIn: AnsiString; Offset: integer= 1): boolean;
+var
+   p: integer;
+begin
+   Result:= True;                             // Ok. No contains nested cells
+   p:= Pos('\nestcell', RTFIn, Offset);
+   if p > 0 then begin
+     App.WarningPopup(GetRS(sFold1));
+     FloatingEditorCannotBeSaved:= True;
+     Exit (False);
+   end;
+end;
+
+
+procedure ProcessTablesInRTFBeforeFolded(var RTFIn: AnsiString);
+var
+   pRow, p1, p2, NColors, i: integer;
+   S, SColors: AnsiString;
+
+begin
+   pRow:= PosOfNextRow (RTFIn);
+
+   if pRow > 0 then begin
+       p1:= Pos('{\colortbl', RTFIn, 1);
+       p2:= Pos('}', RTFIn, p1);
+       S:= Copy(RTFIn, p1, p2 - p1);
+       NColors:= CountChars(';', S);
+       for i:= 0 to NColors - 1 do
+          SColors:= SColors + Format('\cf%d 0', [i]);
+       SColors:= KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DISCARD + '{' + SColors + '}' + KNT_RTF_HIDDEN_MARK_R;    // => \'11X\cf1 0\cf2 0\cf3 0\cf4 0\'12
+       RTFIn:= StringReplace(RTFIn, '\trowd', SColors + '\trowd', []);
+       inc(pRow, length(SColors));
+
+       while pRow > 0 do begin
+
+           // p2 must point to the last character found in the closest string that is "\pard\intbl\qr" or "\pard\intbl\ql" or "\pard\intbl\qc" or "\pard\intbl"
+           p1:= Pos('\pard\intbl', RTFIn, pRow);
+           if p1 > 0 then begin
+              p2:= p1 + length('\pard\intbl');
+              if Copy(RTFIn, p2, 2) = '\q' then
+                 p2:= p2 + 3;
+              S:= Copy(RTFIn, pRow, p2 - pRow);
+              S:= StringReplace(S, '\', '$', [rfReplaceAll]);
+              S:= StringReplace(S, ' ', '',  [rfReplaceAll]);
+              S:= KNT_RTF_HIDDEN_MARK_L + StringReplace(S, #13#10, '', [rfReplaceAll]) + KNT_RTF_HIDDEN_MARK_R;
+           end;
+
+           delete(RTFIn, pRow, p2-pRow);
+           insert(S, RTFIn, pRow);
+
+           p1:= pRow + Length(S);
+           pRow:= PosOfNextRow(RTFIn, p1+1);
+        end;
+
+        RTFIn:= StringReplace(RTFIn, '\cell\row', KNT_RTF_HIDDEN_MARK_L + '$cell$row$pard'+ KNT_RTF_HIDDEN_MARK_R, [rfReplaceAll]);
+        RTFIn:= StringReplace(RTFIn, '\cell '+#13#10+'\pard\intbl\qr', KNT_RTF_HIDDEN_MARK_L + '$cell$pard$intbl$qr'+ KNT_RTF_HIDDEN_MARK_R, [rfReplaceAll]);
+        RTFIn:= StringReplace(RTFIn, '\cell '+#13#10+'\pard\intbl\ql', KNT_RTF_HIDDEN_MARK_L + '$cell$pard$intbl$ql'+ KNT_RTF_HIDDEN_MARK_R, [rfReplaceAll]);
+        RTFIn:= StringReplace(RTFIn, '\cell '+#13#10+'\pard\intbl\qc', KNT_RTF_HIDDEN_MARK_L + '$cell$pard$intbl$qc'+ KNT_RTF_HIDDEN_MARK_R, [rfReplaceAll]);
+        RTFIn:= StringReplace(RTFIn, '\cell '+#13#10+'\pard\intbl',    KNT_RTF_HIDDEN_MARK_L + '$cell$pard$intbl '  + KNT_RTF_HIDDEN_MARK_R, [rfReplaceAll]);
+        RTFIn:= StringReplace(RTFIn, '\cell',                          KNT_RTF_HIDDEN_MARK_L + '$cell'              + KNT_RTF_HIDDEN_MARK_R, [rfReplaceAll]);
+        RTFIn:= StringReplace(RTFIn, '\pard\intbl',                    KNT_RTF_HIDDEN_MARK_L + '$pard$intbl '       + KNT_RTF_HIDDEN_MARK_R, [rfReplaceAll]);
+   end;
+
+end;
+
+
 function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False; MinLenExtract: integer= 0): boolean;
 var
    pI, pF, len, p, PosRTFLinkEnd: integer;
@@ -1320,6 +1513,7 @@ var
    RTFAux : TAuxRichEdit;
    ImagesMode: TImagesMode;
    ReconsiderImageDimensionsGoalBAK: boolean;
+   ContainsTables: boolean;
 
 
    procedure CheckCreateResult (N: Integer);
@@ -1432,6 +1626,7 @@ begin
 //             '\''11B5\''12recordar\v0 ...\''13\protect0 ' +
 //             'nombre no quiero \v\''11B6\''12\v0 acordarme}';
 
+  Result:= False;
   if RTFIn='' then Exit;
 
 
@@ -1455,6 +1650,12 @@ begin
      ImageMng.ReconsiderImageDimensionsGoal:= ReconsiderImageDimensionsGoalBAK;
   end;
 
+  ContainsTables:= False;
+  p:= PosOfNextRow (RTFIn);
+  if p > 0 then begin
+     ContainsTables:= True;
+     if not CheckContainsNestedCells(RTFIn, p) then exit;
+  end;
 
 
   RTFAux:= CreateAuxRichEdit;
@@ -1483,6 +1684,14 @@ begin
      RTFAux.SelAttributes.Size:= 4;              // To make sure that the size of the following text has it own \fsN command and it will not deleted together with the aux NFHDR_ID word
      RTFAux.SelStart:= Length(NFHDR_ID);
      RTFAux.SelAttributes.Color:= clBlack;
+
+     if ContainsTables then begin
+        RTFIn:= RTFAux.RtfText;
+        ProcessTablesInRTFBeforeFolded(RTFIn);
+        RTFAux.Clear;
+        RTFAux.BeginUpdate;
+        RTFAux.PutRtfText(RTFIn, false, true);
+     end;
 
      RTFAux.SelectAll;
      RTFAux.SelAttributes.Protected := True;
@@ -1538,7 +1747,11 @@ begin
   // Add \v0 ...\'13 before last }  (there will be no \protect0 because it is not necessary, since it applies to everything)
   // Remember: remove the extra line break that is being added in RTFAux.PutRtfTex
   // The end will be like this: ...\par'#$D#$A'}'#$D#$A#0
-  ReplaceWith:= KNT_RTF_END_FOLDED + '}';
+  if AddAdditionalEndCR then
+     ReplaceWith:= KNT_RTF_END_FOLDED + '\par}'
+  else
+     ReplaceWith:= KNT_RTF_END_FOLDED + '}';
+
   if not KeepEndCR then begin
      pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
      Len:= Length('\par'+#$D#$A + '}');
@@ -1548,9 +1761,6 @@ begin
      Len:= 1;
   end;
 
-  if AddAdditionalEndCR then
-     ReplaceWith:= KNT_RTF_END_FOLDED + '\par}';
-
   RemoveReplace(pI, ReplaceWith);
 
   NBytes:= Length(RTFIn) - pIn;
@@ -1559,6 +1769,8 @@ begin
   inc(pOut, NBytes);
 
   SetLength(RTFOut, pOut-1);
+
+  Result:= True;
 end;
 
 
@@ -1582,6 +1794,187 @@ begin
          exit;
       end;
    end;
+end;
+
+
+
+procedure ProcessTablesInRTFBeforeExpanded(var RTFIn: AnsiString);
+var
+   FoundTables, FragProcessed: boolean;
+   pSColors, pI, pF : integer;
+   pBeginNextFolded, pEndNextFolded: integer;
+   L, Lm: integer;
+
+   procedure IdentifyNextFoldedBlock;
+   var
+      iNested: integer;
+      pI, pF : integer;
+      nEnd: integer;
+   begin
+     iNested:= 0;
+     pBeginNextFolded:= Pos(KNT_RTF_FOLDED_LINK_BLOCK_PREFIX, RTFIn, pBeginNextFolded + 1);
+     if pBeginNextFolded = 0 then begin
+        pBeginNextFolded:= Integer.MaxValue;
+        pEndNextFolded:= Integer.MaxValue;
+     end
+     else begin
+        pI:= pBeginNextFolded;
+        pF:= pI;
+        nEnd:= 1;
+        repeat
+            pF:= Pos(KNT_RTF_END_FOLDED_WITHOUT_v0, RTFIn, pF+1);          // KNT_RTF_END_FOLDED_WITHOUT_v0 = ...\'13
+            if pF > 0 then
+               dec(nEnd);
+            pI:= Pos(KNT_RTF_FOLDED_LINK_BLOCK_PREFIX, RTFIn, pI+1);
+            if (pI > 0) and (pI < pF) then
+               inc(nEnd);
+
+            if (nEnd = 0) then begin
+               pEndNextFolded:= pF;
+               exit;
+            end;
+        until pF = 0;
+     end;
+
+     pBeginNextFolded:= Integer.MaxValue;
+     pEndNextFolded:= Integer.MaxValue;
+   end;
+
+   procedure ProcessTableFragment(pI: integer; var pF: integer);
+   var
+     S: AnsiString;
+     Ch: AnsiChar;
+     CharAdic: integer;
+   begin
+     { *1
+      We'll also recover the right delimiter (\'12) and one more character. This character is used to determine whether
+      a \ character, a space, or another character follows.
+      We need it for the following reason: In common tables, such as those copied from Excel, cells are basically defined
+      using expressions of the form:
+         \pard\intbl\cf1\f1 Text1\cell
+         \pard\intbl\qr Text2\cell\row
+         \pard\intbl Text3\cell\row
+
+      Suppose [ represents \'11 and ] represents \'12
+      In that case, when processing the tables, we'll convert the structural fragments of the tables into text so they can
+      remain hidden in collapsed text. They would look like this:
+         [$pard$intbl]\cf1\f1 Text1[$cell]
+         [$pard$intbl$qr] Text2[$cell$row$pard]
+         [$pard$intbl] Text3[$cell$row$pard]
+
+      We only process up to \intbl or \intbl\qr (or \ql or \qc). We don't include other control characters inside the "]" because if we do,
+      and these include color or font selection commands, it's quite likely that the control will alter the order of the colors in the
+      \colortbl ;... table, or even the fonts used. And logically, since they've become 'immobile' fragments, the
+      \cf1 \f1 commands and similar commands wouldn't be changed accordingly. What's more, colors could be used within the table text,
+      which, if we "hide" them, could cause them to disappear from the color table (the same goes for fonts).
+
+      In some more elaborately designed tables, such as those that could be achieved with tables copied from MSWord, for example, cells could
+      be defined with expressions of the form:
+         \pard\intbl\widctlpar\sb40\sa40 Text1\cell
+         \pard\intbl\widctlpar\sb40\sa40\b\f1\fs40 Text2\b0\f0\fs16\cell\row
+
+      When processed they would look like:
+         [$pard$intbl]\widctlpar\sb40\sa40 Text1[$cell]
+         [$pard$intbl]\widctlpar\sb40\sa40\b\f1\fs40 Text2\b0\f0\fs16[$cell$row$pard]
+
+      The problem arises from the fact that the control, when processing this text, will respect text-related commands, such as
+      \b\f1\fs40 in this case.
+      But the \widctlpar\sb40\sa40 commands will be discarded. As a result, once we save the RTF text, the process would become:
+         [$pard$intbl]Text1[$cell]
+         [$pard$intbl]\b\f1\fs40 Text2\b0\f0\fs16[$cell$row$pard]
+
+      Despite the removed commands (\widctlpar\sb40\sa40), the table's appearance will be practically the same in many cases.
+      The second case wouldn't cause any problems. But the first one would if we're not careful. If we simply restore the
+      \ characters starting with the $ and remove the [ and ] characters, we'd end up with:
+        \pard\intblText1\cell
+
+      This will cause "Text1" to be lost and the cell to appear empty. In this case, you'll need to add a space:
+        \pard\intbl Text1\cell
+      }
+
+      CharAdic:= 0;
+      S:= Copy(RTFIn, pI, pF - pI  + Lm+1);                   // *1
+      Ch:= S[length(S)];                                      // *1
+      S:= Copy(S, Lm + 1, length(S)-2*Lm-1);
+      S:= StringReplace(S, '$', '\', [rfReplaceAll]);
+
+      if not (Ch in ['\',' ']) then begin                     // *1
+         S:= S + ' ';
+         CharAdic:= 1;
+      end;
+
+      delete(RTFIn, pI, pF-pI  + Lm);
+      insert(S, RTFIn, pI);
+
+      L:= 2 * Lm - CharAdic;
+      dec(pF, Lm+1 - CharAdic);
+      dec(pBeginNextFolded,  L);
+      dec(pEndNextFolded, L);
+   end;
+
+begin
+
+  // Remove strings \'11X\cf1 0\cf2 0\'12 (SColors..) that are not in nested folder blocks
+
+   Lm:= length(KNT_RTF_HIDDEN_MARK_L);
+
+   pBeginNextFolded:= 0;
+   pEndNextFolded:= 0;
+   FoundTables:= false;
+   pSColors:= 0;
+   FragProcessed:= True;
+
+   repeat
+      if FragProcessed then
+         pSColors:= Pos(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DISCARD, RTFIn, pSColors+1);   // \'11X\cf1 0\cf2 0\'12  => Colors.. => Process table
+      if (pSColors = 0) then break;
+
+      FoundTables:= True;
+      FragProcessed:= False;
+      while (pSColors > pEndNextFolded) do
+         IdentifyNextFoldedBlock;
+
+      if (pSColors < pBeginNextFolded) then begin
+         pF:= Pos(KNT_RTF_HIDDEN_MARK_R, RTFIn, pSColors+1);
+         L:= pF-pSColors + Lm;
+         delete(RTFIn, pSColors, L);
+         dec(pBeginNextFolded,  L);
+         dec(pEndNextFolded, L);
+      end;
+      if (pSColors < pEndNextFolded) then
+         FragProcessed:= True;
+   until pSColors = 0;
+
+
+   if not FoundTables then exit;
+
+   // Find strings of the form \'11$....\'12, replacing the $ with \ and removing special characters ('\11 and \'12)
+   // (Ignore those found in nested folder blocks)
+
+   pF:= 0;
+   pBeginNextFolded:= 0;
+   pEndNextFolded:= 0;
+   FragProcessed:= True;
+   repeat
+      if FragProcessed then
+         pI:= Pos(KNT_RTF_HIDDEN_MARK_L + '$', RTFIn, pF + 1);
+      if (pI = 0) then break;
+
+      FragProcessed:= False;
+      while (pI > pEndNextFolded) do
+         IdentifyNextFoldedBlock;
+
+      if (pI < pBeginNextFolded) then begin
+         pF:= Pos(KNT_RTF_HIDDEN_MARK_R, RTFIn, pI+1);
+         ProcessTableFragment(pI, pF);
+      end
+      else
+         pF:= pEndNextFolded;
+
+      if (pI < pEndNextFolded) then
+         FragProcessed:= True;
+   until pI = 0;
+
 end;
 
 
@@ -1796,6 +2189,9 @@ begin
   if RTFIn='' then Exit;
 
 
+  ProcessTablesInRTFBeforeExpanded(RTFIn);
+
+
   RTFAux:= CreateAuxRichEdit;
 
   try
@@ -1853,9 +2249,10 @@ begin
     // We are traversing the block closure strings ...\'13 from start to end, and the blocks cannot
     // intersect. Therefore, we will link the closure string to the first block we find, here traversing
     // from the last block to the first, where the closure position is after its start.
+     pEnd:= 1;
      for i:= 0 to Length(FoldedLinks)-1 do begin
         if not FoldedLinks[i].FoldedBlock then continue;
-        pEnd:= Pos(KNT_RTF_END_FOLDED_WITHOUT_v0, RTFIn, FoldedLinks[i].pI);          // KNT_RTF_END_FOLDED_WITHOUT_v0 = ...\'13
+        pEnd:= Pos(KNT_RTF_END_FOLDED_WITHOUT_v0, RTFIn, pEnd+1);          // KNT_RTF_END_FOLDED_WITHOUT_v0 = ...\'13
         for j:= Length(FoldedLinks)-1 downto 0 do begin
             if not FoldedLinks[j].FoldedBlock then continue;
             if (pEnd > FoldedLinks[j].pF) and (FoldedLinks[j].pEndBlock = 0) then begin
@@ -1877,10 +2274,10 @@ begin
            FoldedLinks[i].Visible:= True;                    // It can be a 'normal' link, and visible, outside of any block (not considering the one we are expanding...)
         if not FoldedLinks[i].FoldedBlock then continue;
 
+        pIplain_Last1stLevelBlock:= Pos(KNT_RTF_FOLDED_LINK_BLOCK_CHAR, TextPlain, pIplain_Last1stLevelBlock + 1);
         if pI > pEnd_Last1stLevelBlock then begin            // If Visible
            pF:= FoldedLinks[i].pF;
            FoldedLinks[i].FirstLevel:= True;
-           pEnd_Last1stLevelBlock:= FoldedLinks[i].pEndBlock;
 
            // Mark the final position of the visible extract ------------------
            // We are not going to update the TextPlain variable after each insertion of $14. Instead we will take into account
@@ -1888,7 +2285,6 @@ begin
            // (Offset of 1 byte in PlainText, and 4 in Rtf; the latter to be reflected in FoldedLinks)
            // In pIplain_Last1stLevelBlock we are saving the start position of the last processed first-level folded block
            // but referring to TextPlain, not to the RTF string, therefore the position where '$11L"fold:"@+#$12' is located
-           pIplain_Last1stLevelBlock:= Pos(KNT_RTF_FOLDED_LINK_BLOCK_CHAR, TextPlain, pIplain_Last1stLevelBlock + 1);
            pF:= pIplain_Last1stLevelBlock + Length(KNT_RTF_FOLDED_LINK_BLOCK_CHAR) + Num1stLevelBlocks;  // pF -> Primer carácter del extracto
 
            // Insert character $14 -> \'14 (4 characters in RTF) KNT_RTF_HIDDEN_MARK_AUX = \'14
@@ -1906,6 +2302,8 @@ begin
            //    \highlight0\'14KeyNote NF\b0  is an evolution of Tranglos
 
            inc(FoldedLinks[i].pEndBlock, Length(KNT_RTF_HIDDEN_MARK_AUX));
+           pEnd_Last1stLevelBlock:= FoldedLinks[i].pEndBlock;
+
            for j:= i + 1 to Length(FoldedLinks)-1 do begin
                inc(FoldedLinks[j].pI, Length(KNT_RTF_HIDDEN_MARK_AUX));
                inc(FoldedLinks[j].pF, Length(KNT_RTF_HIDDEN_MARK_AUX));
@@ -2525,10 +2923,10 @@ begin
       end;
 
       RTFIn:= EnsureGetRtfSelText;
-      PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract);
-      RtfSelText:= RTFOut;
-
-      sleep(100);         // If we don't do this, the initial word will remain selected.
+      if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract) then begin
+         RtfSelText:= RTFOut;
+         sleep(100);         // If we don't do this, the initial word will remain selected.
+      end;
       SelStart:= pI;
       SelLength:= 0;
 
@@ -2787,8 +3185,10 @@ procedure TKntRichEdit.HideNestedFloatingEditor;
 begin
   if FloatingEditor <> nil then begin
      TFloatingEditor(FloatingEditor).HideEditor;
-     TFloatingEditor(FloatingEditor).Free;
-     FloatingEditor:= nil;
+     if not FloatingEditorCannotBeSaved then begin
+        TFloatingEditor(FloatingEditor).Free;
+        FloatingEditor:= nil;
+     end;
   end;
 end;
 
@@ -2801,6 +3201,8 @@ var
   FormParent: TForm;
 
 begin
+  FloatingEditorCannotBeSaved:= False;
+
   if FloatingEditor <> nil then begin
      if HidingFloatingEditor then begin
        FormParent:= Form_Main;
@@ -2814,13 +3216,15 @@ begin
      FE:= TFloatingEditor(FloatingEditor);
      if not FE.Editor.Modified then exit;
 
-     if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
+     if PositionInFoldedBlock(Self.TextPlain, FE.SelStartInParentEditor, Self, pI, pF) then begin  // It is safer to use FE.SelStartInParentEditor than Self.SelStart
         RTFIn:= FE.Editor.RtfText;
         BeginUpdate;
         try
            SetSelection(pI, pF+1, false);
-           PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, FKeepEndCR, False);
-           RtfSelText:= RTFOut;
+
+           if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, FKeepEndCR, False) then
+              RtfSelText:= RTFOut;
+
            SelStart:= pI;
            SelLength:= 0;
         finally
@@ -2836,6 +3240,13 @@ procedure TKntRichEdit.DoSaveChangesInFloatingEditor;
 begin
   if FloatingEditor <> nil then
      TFloatingEditor(FloatingEditor).SaveChangesToParentEditor;
+end;
+
+
+procedure TKntRichEdit.ActivateFloatingEditor;
+begin
+  if FloatingEditor <> nil then
+     TFloatingEditor(FloatingEditor).SetFocus;
 end;
 
 
@@ -3223,7 +3634,7 @@ end;
 procedure TKntRichEdit.DoEnter;
 begin
   HideNestedFloatingEditor;
-  if FUpdating > 0 then exit;
+  if FloatingEditorCannotBeSaved or (FUpdating > 0) then exit;
 
   ImageMng.DoNotRegisterNewImages:= not DoRegisterNewImages;
 

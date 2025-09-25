@@ -926,4 +926,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55124,  "Importing Tags from file"
 55125,  "Ignored occurrences in %d folded blocks"
 55126,  "Nothing to export"
+55127,  "Cannot fold text with a table that has nested cells\nSee help for possible options"
 }

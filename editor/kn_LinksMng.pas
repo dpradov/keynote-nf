@@ -1818,6 +1818,7 @@ var
 begin
   try
     App.HideNestedFloatingEditors;
+    if FloatingEditorCannotBeSaved then exit;
 
     Location:= nil;
     Location:= BuildLocationFromKntURL(LocationStr);
@@ -2774,6 +2775,8 @@ begin
   if not assigned(ActiveFolder) then exit;
 
   App.HideNestedFloatingEditors;
+  if FloatingEditorCannotBeSaved then exit;
+
 
 {$IFDEF DEBUG_HISTORY}
   if KntFile <> nil then begin

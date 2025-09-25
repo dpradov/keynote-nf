@@ -554,6 +554,8 @@ const
   KNT_RTF_HIDDEN_FORMAT_PLUS = '+';         // To concat format commands: \v\'11FD+S+HMy header\'12\v0
   KNT_RTF_HIDDEN_LINK = 'L';
   KNT_RTF_HIDDEN_FOLD_INF = 'f';
+  KNT_RTF_HIDDEN_DISCARD = 'X';           // Text enclosed will be discarded
+  KNT_RTF_HIDDEN_TABLE_FRAG = '$';        // layout control marks of tables (rows and cells) (See "FOLDING / UNFOLDING OF TEXT WITH TABLES" in knt.ui.editor)
 
   KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
   (* *2

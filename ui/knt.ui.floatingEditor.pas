@@ -40,6 +40,7 @@ type
 
   protected
     FParentEditor: TKntRichEdit;
+    FSelStartInParentEditor: integer;
 
     procedure FormActivate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -53,6 +54,8 @@ type
 
     constructor Create(AOwner: TComponent; ParentEdit: TKntRichEdit);
     destructor Destroy; override;
+
+    property SelStartInParentEditor: integer read FSelStartInParentEditor;
 
     procedure AdjustToContent();
     procedure ShowEditor(X, Y: Integer; FontHeight: integer);
@@ -90,6 +93,7 @@ begin
   inherited CreateNew(AOwner, 0);
 
   FParentEditor:= ParentEdit;
+  FSelStartInParentEditor:= ParentEdit.SelStart;        // For security... (in case another folder is selected when this floating editor cannot be saved, because it contains tables with nested cells)
 
   BorderStyle := bsSingle;
   BorderWidth := 1;
@@ -178,10 +182,16 @@ end;
 
 procedure TFloatingEditor.FormActivate(Sender: TObject);
 begin
+   FloatingEditorCannotBeSaved:= False;
    Form_Main.ActiveControl:= nil;
    HideNestedFloatingEditor;
-   App.EditorFocused(Self.Editor);
-   Editor.SetFocus;
+   if FloatingEditorCannotBeSaved and (Editor.FloatingEditor <> nil) then
+      TFloatingEditor(Editor.FloatingEditor).SetFocus
+
+   else begin
+      App.EditorFocused(Self.Editor);
+      Editor.SetFocus;  
+   end;
 end;
 
 
@@ -189,25 +199,30 @@ procedure TFloatingEditor.HideEditor;
 begin
   TagMng.FreeTagSelector;
   HideNestedFloatingEditor;
-
-  fParentEditor.SaveChangesFromFloatingEditor(True);       // True -> HidingFloatingEditor: True
-  Hide();
+  if not FloatingEditorCannotBeSaved then begin
+     fParentEditor.SaveChangesFromFloatingEditor(True);       // True -> HidingFloatingEditor: True
+     if not FloatingEditorCannotBeSaved then
+        Hide();
+  end;
 end;
 
 procedure TFloatingEditor.HideNestedFloatingEditor;
 begin
   if Editor.FloatingEditor <> nil then begin
      TFloatingEditor(Editor.FloatingEditor).HideEditor;
-     FreeAndNil(Editor.FloatingEditor);
+     if not FloatingEditorCannotBeSaved then
+        FreeAndNil(Editor.FloatingEditor);
   end;
 end;
 
 procedure TFloatingEditor.SaveChangesToParentEditor;
 begin
+    FloatingEditorCannotBeSaved:= False;
     if Editor.FloatingEditor <> nil then
        TFloatingEditor(Editor.FloatingEditor).SaveChangesToParentEditor;    // Recursive
 
-    fParentEditor.SaveChangesFromFloatingEditor(False);    // HidingFloatingEditor: False
+    if not FloatingEditorCannotBeSaved then
+       fParentEditor.SaveChangesFromFloatingEditor(False);    // HidingFloatingEditor: False
 end;
 
 

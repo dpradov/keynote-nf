@@ -1050,6 +1050,8 @@ const
    sTag17 = 55123;   // Error importing Tags:
    sTag18 = 55124;   // Importing Tags from file
 
+   sFold1 = 55127;   // Cannot fold text with a table that has nested cells\^See help for possible options
+
 
 implementation
 

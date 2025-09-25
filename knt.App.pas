@@ -227,6 +227,7 @@ var
    UpdatingTextPlain: boolean;
 
    IgnoringEditorChanges: boolean;
+   FloatingEditorCannotBeSaved: boolean;
 
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas

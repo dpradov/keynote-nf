@@ -282,11 +282,15 @@ end;
 
 procedure TKntNoteUI.NoteUIEnter(Sender: TObject);
 begin
+  FloatingEditorCannotBeSaved:= False;
   Editor.HideNestedFloatingEditor;
   App.EditorFocused(Editor);
   TagMng.UpdateTxtTagsHint(txtTags);
   if Assigned(FOnEnterOnEditor) then
     FOnEnterOnEditor(Self);
+
+  if FloatingEditorCannotBeSaved then
+     Editor.ActivateFloatingEditor;
 end;
 
 procedure TKntNoteUI.EditorMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);

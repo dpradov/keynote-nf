@@ -1629,8 +1629,16 @@ begin
 
   if (Node <> fLastNodeSelected) then begin
      TKntFolder(Folder).NodeSelected(Node, fLastNodeSelected);
-     fLastNodeSelected:= Node;
-     App.NNodeFocused(GetNNode(Node));
+     if not FloatingEditorCannotBeSaved then begin
+        fLastNodeSelected:= Node;
+        App.NNodeFocused(GetNNode(Node));
+     end
+     else begin
+        TV.FocusedNode:= fLastNodeSelected;
+        TKntFolder(Folder).NodeSelected(fLastNodeSelected, nil);
+        TV.Selected[Node]:= False;
+        TV.Selected[TV.FocusedNode]:= True;
+     end;
   end;
 end;
 

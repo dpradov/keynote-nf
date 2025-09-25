@@ -2970,5 +2970,6 @@ Button_Prev.Caption=&Anterior
 (!)55124_knt_RS_sTag18=Importing Tags from file
 (!)55125_knt_RS_sFnd14=Ignored occurrences in %d folded blocks
 (!)55126_knt_RS_sExpFrm23=Nothing to export
+(!)55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*
