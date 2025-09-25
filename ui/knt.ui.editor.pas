@@ -1286,25 +1286,27 @@ begin
   if p > 0 then
      delete(Txt, p-1, Length(Txt));
 
-  // If the hyperlink text matches the URL, the text obtained from TextPlain may not return HYPERLINK
-  // Therefore, if we find any of the known prefixes, we will also cut there.
-  TxtLower:= Txt.ToLower;
-  for URLType := low( TKNTURL ) to high( TKNTURL ) do begin
-    if URLType = urlUndefined then continue;
-    p := pos( KNT_URLS[URLType], TxtLower );
-    if p > 0 then begin
-       delete(Txt, p-1, Length(Txt));
-       delete(Txt, p-1, Length(TxtLower));
+  if (p = 1) and (Copy(Txt, 1, Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR)) = KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR) then
+     p:= 0
+
+  else begin
+    // If the hyperlink text matches the URL, the text obtained from TextPlain may not return HYPERLINK
+    // Therefore, if we find any of the known prefixes, we will also cut there.
+    TxtLower:= Txt.ToLower;
+    for URLType := low( TKNTURL ) to high( TKNTURL ) do begin
+      if URLType = urlUndefined then continue;
+      p := pos( KNT_URLS[URLType], TxtLower );
+      if p > 0 then begin
+         delete(Txt, p-1, Length(Txt));
+         delete(Txt, p-1, Length(TxtLower));
+      end;
     end;
+
+    p:= Length(Txt) + OffsetVisibleExtract -1;
+    if Copy(Txt, Length(Txt)-Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) + 1,
+                 Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) ) = KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR then
+       dec(p, Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR));
   end;
-
-
-
-  p:= Length(Txt) + OffsetVisibleExtract -1;
-
-  if Copy(Txt, Length(Txt)-Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) + 1,
-               Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) ) = KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR then
-     dec(p, Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR));
 
   RTFAux.SelStart:= p;
   RTFAux.SelLength:= 0;
