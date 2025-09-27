@@ -1259,7 +1259,7 @@ var
 
      else begin
         p:= 1;
-        for p := PosInsideSentence + 1 to pR_Scope-1 do
+        for p := PosInsideSentence + 1 to pR_Scope do
           if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)
                  or (Text[p] = KNT_RTF_HIDDEN_MARK_EndLink_CHAR)
                  or (Text[p] = #$FFFC) then
@@ -1267,7 +1267,7 @@ var
 
         if Text[p] = #$FFFC then
            dec(p);
-        if p < pR_Scope then
+        if p <= pR_Scope then
            pR_Scope:= p;
         Result:= Copy(Text, PosInsideSentence, pR_Scope - PosInsideSentence + 1);
      end;
@@ -1280,7 +1280,7 @@ begin
   Txt:= GetRestOfSentence(TextPlain, OffsetVisibleExtract);
   p:= pos('  ', Txt, PosFirstNonSpace(Txt));               // End at the first double space we find
   if p > 0 then
-     delete(Txt, p+2, Length(Txt));
+     delete(Txt, p+1, Length(Txt));
 
   p:= pos('HYPERLINK', Txt);        // Do not include hyperlink texts, truncate at that point
   if p > 0 then
