@@ -3601,9 +3601,13 @@ const
           Inc(nLinks);
           SetLength(ImagesVisible, nLinks);
           ImagesVisible[nLinks-1]:= 0;
-          if TextPlainInEditor[pIDr_e+1] <> 'H' then begin           // <L>1I999999<R>HYPERLINK
-             ImagesVisible[nLinks-1]:= 1;
-             SomeImagesAreVisible:= true;
+          if TextPlainInEditor[pIDr_e+1] <> 'H' then begin           // <L>1I999999<R>HYPERLINK  or  <L>I999999<R><L>"img:<ImgID>,... in Folded mode
+             if Copy(TextPlainInEditor, pIDr_e+1, Length(KNT_IMG_FOLDED_PREFIX)) = KNT_IMG_FOLDED_PREFIX then
+                // It is an image inside a folded block => hidden   (See comment *1, below)
+             else begin
+                ImagesVisible[nLinks-1]:= 1;
+                SomeImagesAreVisible:= true;
+             end;
           end;
           Result:= true;
        end;
@@ -3635,7 +3639,7 @@ begin
      We must take into account that in the editor there can be both visible (imImage mode) and hidden (imLink mode)
      individual images.
 
-     This method returns, from a position defined according to TextPlain-imLink (if Pos_ImLinkTextPlain >= 0), 
+     This method returns, from a position defined according to TextPlain-imLink (if Pos_ImLinkTextPlain >= 0),
      or according to TextPlain-Editor (for the indicated folder/node) if CaretPos >=0, the positive difference (offset)
      with respect to the equivalent position in the alternative TextPlain (for the indicated folder/node)
 
@@ -3677,6 +3681,23 @@ begin
      from the editor (TextPlainInEditor), as it is being displayed at this moment, to know which of the images are in
      one mode or another and thus consider them or not when calculating the offset.
      }
+
+     (*
+
+     *1
+     Update.
+     Since new folding functionality it is necessary to consider images that can be inside folded texts.
+     That images are always hidden and their format is different.
+
+     Normal image:
+       imLink ->   <L>I999999<R>HYPERLINK img:<ImgID>,<W>,<H> <textOfHyperlink>
+       RTF    ->   \v\'11I2\'12\v0{\field{\*\fldinst{HYPERLINK "img:2,35,39"}}{\fldrslt {Image.png}}}
+
+     Image insided folded text:
+        imLink ->  <L>I999999<R><L>"img:<ImgID>,<W>,<H>"@\cf1\ul Image.png<R>
+        RTF    ->  \'11I2\'12\'11L"img:<ImgID>,<W>,<H>"@\cf1\ul Image.png\'12
+
+     *)
 
 
     Result:= 0;
@@ -3764,7 +3785,7 @@ begin
        if (pID > 0) and (pID < Stream.Size) and (n < nLinks) then begin
           pIDr:= PosPAnsiChar(endIDImg, Text, pID);                             // \v\'11I999999\'12\v0        pID-> \'11I999999  pIDr-> \'12      (Max-normal-: pIDr-pID=11) -> 12 ..
           if (pIDr > 0) and ((pIDr-pID) <= 12) then begin
-             // Damos por válida la marca oculta -> contabilizamos el hiperenlace
+             // We accept the hidden mark as valid (and not inside a folded block --see *1) -> we count the hyperlink
               if ImagesVisible[n] = 1 then begin
                  charsLink:= CountRTFLinkChars(Text, pIDr + 1);
                  Inc(Offset, charsLink);
