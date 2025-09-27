@@ -3614,7 +3614,7 @@ object Form_Main: TForm_Main
         Caption = 'Set Focus'
         object MMTreeFocusToogle: TMenuItem
           Caption = 'Toggle focus: Editor / Tree panel'
-          ShortCut = 16411
+          ShortCut = 16604
           OnClick = MMTreeFocusToogleClick
         end
         object MMTreeFocusEditor: TMenuItem
