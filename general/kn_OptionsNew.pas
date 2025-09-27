@@ -315,6 +315,8 @@ type
     LVfb: TListView;
     lbl1: TLabel;
     txtSepInLists: TEdit;
+    lblTab: TLabel;
+    lbl2: TLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);

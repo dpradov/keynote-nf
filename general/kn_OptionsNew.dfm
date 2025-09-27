@@ -2360,7 +2360,7 @@ object Form_OptionsNew: TForm_OptionsNew
         TabOrder = 0
         object Label15: TLabel
           Left = 17
-          Top = 114
+          Top = 101
           Width = 90
           Height = 13
           Alignment = taCenter
@@ -2374,10 +2374,36 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Style = []
           ParentFont = False
         end
+        object lblTab: TLabel
+          Left = 116
+          Top = 163
+          Width = 217
+          Height = 13
+          Caption = '(*) : Will take effect after restarting KeyNote'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
+        object lbl2: TLabel
+          Left = 311
+          Top = 112
+          Width = 14
+          Height = 13
+          Caption = '(*)'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+        end
         object CheckBox_TabsStacked: TCheckBox
-          Left = 30
-          Top = 141
-          Width = 320
+          Left = 27
+          Top = 125
+          Width = 294
           Height = 17
           Hint = 'Arrange tabs in rows when necesary'
           Caption = '&Multiline tabs (arrange in rows when cannot fit)'
@@ -2421,7 +2447,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Combo_TabPos: TComboBox
           Left = 111
-          Top = 111
+          Top = 98
           Width = 185
           Height = 21
           Style = csDropDownList
