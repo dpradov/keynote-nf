@@ -1079,6 +1079,8 @@ begin
     end;
     ImgHotTrackViewer:= chkImgHotTrackViewer.Checked;
     ImgKeepOrigName:= chkImgKeepOrigName.Checked;
+    if not ImgHotTrackViewer then
+       App.ShowingImageOnTrack:= false;
   end;
 
   with myTabOpts do

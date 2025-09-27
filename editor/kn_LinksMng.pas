@@ -2112,7 +2112,7 @@ begin
          ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk)
 
       else begin
-         if App.ShowingImageOnTrack then
+         if App.ShowingImageOnTrack and ImageMng.ImgViewerIsOpen then
             App.ShowingImageOnTrack:= false
          else begin
            ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk);
