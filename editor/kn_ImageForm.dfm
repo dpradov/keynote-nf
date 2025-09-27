@@ -85,8 +85,6 @@ object Form_Image: TForm_Image
     DropdownArrowWidth = 12
     DropdownCombo = True
     Enabled = False
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 1
     Images = Form_Main.IMG_Toolbar
     OnClick = btnOpenFolderClick
@@ -100,8 +98,6 @@ object Form_Image: TForm_Image
     Hint = 'Creates a file with the image content'
     Anchors = [akLeft, akBottom]
     DropdownCombo = True
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 2
     Images = Form_Main.IMG_Toolbar
     OnClick = btnCreateFileClick
@@ -115,8 +111,6 @@ object Form_Image: TForm_Image
     Hint = 'Zoom Out  (numeric -)'
     Anchors = [akLeft, akBottom]
     DropdownCombo = True
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 58
     Images = Form_Main.IMG_Toolbar
     OnClick = btnZoomOutClick
@@ -131,8 +125,6 @@ object Form_Image: TForm_Image
     Anchors = [akLeft, akBottom]
     DropdownArrowWidth = 12
     DropdownCombo = True
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 57
     Images = Form_Main.IMG_Toolbar
     OnClick = btnZoomInClick
@@ -157,8 +149,6 @@ object Form_Image: TForm_Image
     Hint = 'Show the image in 100%   (numeric *)'
     Anchors = [akLeft, akBottom]
     DropdownCombo = True
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 0
     Images = Form_Main.IMG_Toolbar
     OnClick = btnZoomResetClick
@@ -191,8 +181,6 @@ object Form_Image: TForm_Image
     Anchors = [akLeft, akBottom]
     DropdownArrowWidth = 12
     DropdownCombo = True
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 38
     Images = Form_Main.IMG_Toolbar
     OnClick = btnPrevImageClick
@@ -206,8 +194,6 @@ object Form_Image: TForm_Image
     Hint = 'Next image instance in node [Ctrl: next ID in file]'
     Anchors = [akLeft, akBottom]
     DropdownCombo = True
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 39
     Images = Form_Main.IMG_Toolbar
     OnClick = btnNextImageClick
@@ -223,8 +209,6 @@ object Form_Image: TForm_Image
     Anchors = [akLeft, akBottom]
     GroupIndex = 1
     DropdownCombo = True
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 45
     Images = Form_Main.IMG_Toolbar
     OnClick = btnAlwaysVisibleClick
@@ -242,8 +226,6 @@ object Form_Image: TForm_Image
     TabOrder = 0
     TabStop = False
     OnClick = Button_CancelClick
-    ExplicitLeft = 303
-    ExplicitTop = 382
   end
   object txtCaption: TEdit
     Left = 8
@@ -261,7 +243,6 @@ object Form_Image: TForm_Image
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 1
-    ExplicitWidth = 357
   end
   object Button_Modify: TButton
     Left = 240
@@ -275,8 +256,6 @@ object Form_Image: TForm_Image
     TabOrder = 2
     TabStop = False
     OnClick = Button_ModifyClick
-    ExplicitLeft = 236
-    ExplicitTop = 382
   end
   object cScrollBox: TScrollBox
     Left = 8
@@ -286,8 +265,6 @@ object Form_Image: TForm_Image
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 3
     OnResize = cScrollBoxResize
-    ExplicitWidth = 357
-    ExplicitHeight = 297
     DesignSize = (
       357
       294)
@@ -316,16 +293,8 @@ object Form_Image: TForm_Image
     TabStop = False
     Anchors = [akRight, akBottom]
     Caption = 'Adjust'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 4
     OnClick = chkExpandClick
-    ExplicitLeft = 281
-    ExplicitTop = 345
   end
   object txtID: TEdit
     Left = 25
@@ -340,7 +309,6 @@ object Form_Image: TForm_Image
     OnEnter = txtIDEnter
     OnExit = txtIDExit
     OnKeyDown = txtIDKeyDown
-    ExplicitTop = 385
   end
   object chkCompact: TCheckBox
     Left = 95
@@ -351,15 +319,8 @@ object Form_Image: TForm_Image
     TabStop = False
     Anchors = [akLeft, akBottom]
     Caption = 'Compact'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 6
     OnClick = chkCompactClick
-    ExplicitTop = 383
   end
   object btnHelp: TBitBtn
     Left = 344
@@ -376,8 +337,6 @@ object Form_Image: TForm_Image
     TabOrder = 7
     TabStop = False
     OnClick = btnHelpClick
-    ExplicitLeft = 340
-    ExplicitTop = 346
   end
   object WinOnTop: TTopMostWindow
     AlwaysOnTop = False

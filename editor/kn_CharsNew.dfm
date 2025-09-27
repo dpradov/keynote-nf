@@ -27,12 +27,6 @@ object Form_CharsNew: TForm_CharsNew
     Height = 13
     AutoSize = False
     Caption = 'Selected characters'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     ShowAccelChar = False
   end
   object lblCode: TLabel
@@ -44,12 +38,6 @@ object Form_CharsNew: TForm_CharsNew
     Alignment = taCenter
     AutoSize = False
     Caption = '000'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     ShowAccelChar = False
     WordWrap = True
   end
@@ -60,12 +48,6 @@ object Form_CharsNew: TForm_CharsNew
     Height = 14
     Caption = '&Number:'
     FocusControl = Spin_Count
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
   end
   object lblFontName: TLabel
     Left = 248
@@ -76,12 +58,6 @@ object Form_CharsNew: TForm_CharsNew
     Alignment = taRightJustify
     AutoSize = False
     Caption = 'Tahoma'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     ShowAccelChar = False
   end
   object btnEditTable: TToolbarButton97
@@ -93,8 +69,6 @@ object Form_CharsNew: TForm_CharsNew
     AllowAllUp = True
     GroupIndex = 1
     Caption = ' Edit'
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 5
     Images = Form_Main.IMG_TV
     RepeatInterval = 101
@@ -109,8 +83,6 @@ object Form_CharsNew: TForm_CharsNew
     AllowAllUp = True
     GroupIndex = 2
     Caption = ' Add'
-    Glyph.Data = {00000000}
-    GlyphMask.Data = {00000000}
     ImageIndex = 19
     Images = Form_Main.IMG_Toolbar
     RepeatInterval = 101
@@ -140,12 +112,6 @@ object Form_CharsNew: TForm_CharsNew
     Height = 253
     DrawEndPage = False
     Color = 12582911
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 1
     Visible = False
   end
@@ -157,12 +123,6 @@ object Form_CharsNew: TForm_CharsNew
     Hint = 'Insert selected character'
     Caption = '&Insert'
     Default = True
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 2
     OnClick = btnInsertClick
   end
@@ -173,13 +133,7 @@ object Form_CharsNew: TForm_CharsNew
     Height = 25
     Hint = 'Close this dialog box'
     Caption = '&Close'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
     ModalResult = 2
-    ParentFont = False
     TabOrder = 3
     OnClick = Button_CloseClick
   end
@@ -189,15 +143,9 @@ object Form_CharsNew: TForm_CharsNew
     Width = 75
     Height = 23
     Hint = 'Number of characters to insert'
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
     MaxLength = 3
     MaxValue = 999
     MinValue = 1
-    ParentFont = False
     TabOrder = 4
     Value = 1
   end
@@ -208,15 +156,9 @@ object Form_CharsNew: TForm_CharsNew
     Height = 25
     Hint = 'Copy character to clipboard'
     Caption = 'C&opy'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
     ImageIndex = 4
     ImageMargins.Left = 4
     Images = Form_Main.IMG_Toolbar
-    ParentFont = False
     TabOrder = 5
     OnClick = btnCopyClick
   end
@@ -227,12 +169,6 @@ object Form_CharsNew: TForm_CharsNew
     Height = 25
     Hint = 'Insert new characters'
     Caption = '&Insert'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 6
     OnClick = btnInsertNewClick
   end
@@ -245,12 +181,6 @@ object Form_CharsNew: TForm_CharsNew
     DrawEndPage = False
     Alignment = taCenter
     BorderStyle = bsNone
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -53
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     ReadOnly = True
     ScrollBars = ssNone
     TabOrder = 7
@@ -263,13 +193,8 @@ object Form_CharsNew: TForm_CharsNew
     Width = 318
     Height = 28
     DrawEndPage = False
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 8
+    WordSelection = False
   end
   object chkAutoAddNew: TCheckBox
     Left = 81
@@ -288,16 +213,10 @@ object Form_CharsNew: TForm_CharsNew
     Top = 332
     Width = 30
     Height = 28
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -12
-    Font.Name = 'Tahoma'
-    Font.Style = []
     ImageAlignment = iaCenter
     ImageIndex = 5
     ImageMargins.Left = 4
     Images = Form_Main.IMG_Toolbar
-    ParentFont = False
     TabOrder = 10
     OnClick = btnPasteClick
   end

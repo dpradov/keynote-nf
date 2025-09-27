@@ -30,12 +30,6 @@ object UpdateVersion: TUpdateVersion
     Width = 93
     Height = 16
     Caption = 'Your version is :'
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
   end
   object Label2: TLabel
     Left = 23
@@ -43,12 +37,6 @@ object UpdateVersion: TUpdateVersion
     Width = 110
     Height = 16
     Caption = 'Current version is :'
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
   end
   object lblDonations: TLabel
     Left = 23
@@ -150,8 +138,6 @@ object UpdateVersion: TUpdateVersion
     Anchors = [akRight, akBottom]
     Caption = ' &Check for updates on startup'
     TabOrder = 0
-    ExplicitLeft = 492
-    ExplicitTop = 406
   end
   object Button_OK: TButton
     Left = 721
@@ -163,8 +149,6 @@ object UpdateVersion: TUpdateVersion
     Default = True
     TabOrder = 1
     OnClick = Button_OKClick
-    ExplicitLeft = 717
-    ExplicitTop = 405
   end
   object txtChanges: TMemo
     Left = 20
@@ -182,7 +166,5 @@ object UpdateVersion: TUpdateVersion
     ReadOnly = True
     ScrollBars = ssVertical
     TabOrder = 2
-    ExplicitWidth = 790
-    ExplicitHeight = 301
   end
 end
