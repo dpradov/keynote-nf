@@ -2785,7 +2785,7 @@ begin
 end;
 
 
-function GetClosingToken(const OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
+function GetClosingToken(var OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
 var
    i: integer;
 begin
@@ -2793,21 +2793,42 @@ begin
    IsTag:= False;
    ClosingToken:= '';
 
-   // Closing = Opening -> Does not allow nested blocks
-   // Closing <> Opening -> Yes it allows nested blocks
-   for i := 0 to Length(FoldBlocks) -1 do begin
-     if (FoldBlocks[i].CaseSensitive and (OpeningToken = FoldBlocks[i].Opening)) or
-        (not FoldBlocks[i].CaseSensitive and (OpeningToken.ToUpper = FoldBlocks[i].Opening.ToUpper)) then begin
-        ClosingToken:= FoldBlocks[i].Closing;
-        CaseSens:= FoldBlocks[i].CaseSensitive;
-        Exit(True);
-     end;
-   end;
+   if OpeningToken = '' then exit;
 
    if IsAPossibleTag(OpeningToken) then begin
       Result:= True;
       IsTag:= True;
       CaseSens:= False;
+   end
+   else begin
+     // Closing = Opening -> Does not allow nested blocks
+     // Closing <> Opening -> Yes it allows nested blocks
+     for i := 0 to Length(FoldBlocks) -1 do begin
+       if (FoldBlocks[i].CaseSensitive and (OpeningToken = FoldBlocks[i].Opening)) or
+          (not FoldBlocks[i].CaseSensitive and (OpeningToken.ToUpper = FoldBlocks[i].Opening.ToUpper)) then begin
+          ClosingToken:= FoldBlocks[i].Closing;
+          CaseSens:= FoldBlocks[i].CaseSensitive;
+          Exit(True);
+       end;
+     end;
+
+     (*
+      There is no opening token that matches. Let's check if there is one that matches the beginning of the provided word.
+      If the token is very small, it's likely that when the user Ctrl+Clicks on it, some other character has been selected.
+      This could happen, for example, if « is used as the opening token and » as the closing token. Trying to Ctrl+Click
+      on the character will select "«¿"
+         «¿Plegado ...?»
+      The same thing happened, for example, with {{ and }} in the following case:
+        {{¿Plegado ...?}}
+     *)
+     for i := 0 to Length(FoldBlocks) -1 do begin
+       if OpeningToken.ToUpper.StartsWith(FoldBlocks[i].Opening.ToUpper, not FoldBlocks[i].CaseSensitive) then begin
+          OpeningToken:= FoldBlocks[i].Opening;
+          ClosingToken:= FoldBlocks[i].Closing;
+          CaseSens:= FoldBlocks[i].CaseSensitive;
+          Exit(True);
+       end;
+     end;
    end;
 
 end;
