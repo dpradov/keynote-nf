@@ -1265,10 +1265,11 @@ var
                  or (Text[p] = #$FFFC) then
              break;
 
-        if Text[p] = #$FFFC then
-           dec(p);
-        if p <= pR_Scope then
+        if p <= pR_Scope then begin
+           if Text[p] = #$FFFC then
+              dec(p);
            pR_Scope:= p;
+        end;
         Result:= Copy(Text, PosInsideSentence, pR_Scope - PosInsideSentence + 1);
      end;
    end;
