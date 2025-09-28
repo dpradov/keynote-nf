@@ -7,10 +7,10 @@ object Form_Image: TForm_Image
   Anchors = [akLeft, akTop, akRight, akBottom]
   Caption = 'Image properties'
   ClientHeight = 414
-  ClientWidth = 386
+  ClientWidth = 382
   Color = clBtnFace
   Constraints.MinHeight = 250
-  Constraints.MinWidth = 323
+  Constraints.MinWidth = 347
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -27,13 +27,30 @@ object Form_Image: TForm_Image
   OnResize = FormResize
   OnShow = FormShow
   DesignSize = (
-    386
+    382
     414)
   TextHeight = 13
+  object lblZoom: TLabel
+    Left = 211
+    Top = 351
+    Width = 40
+    Height = 13
+    Alignment = taRightJustify
+    Anchors = [akRight, akBottom]
+    AutoSize = False
+    Caption = '3000%'
+    FocusControl = txtCaption
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+  end
   object lblDetails: TLabel
     Left = 8
     Top = 4
-    Width = 311
+    Width = 314
     Height = 16
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
@@ -44,41 +61,37 @@ object Form_Image: TForm_Image
     Font.Name = 'Tahoma'
     Font.Style = []
     ParentFont = False
-    ExplicitWidth = 357
   end
   object bGray: TToolbarButton97
-    Left = 189
+    Left = 187
     Top = 390
     Width = 15
     Height = 15
     Anchors = [akLeft, akBottom]
     Color = clGray
     OnClick = bGrayClick
-    ExplicitTop = 426
   end
   object bWhite: TToolbarButton97
-    Left = 208
+    Left = 206
     Top = 390
     Width = 15
     Height = 15
     Anchors = [akLeft, akBottom]
     Color = clWhite
     OnClick = bWhiteClick
-    ExplicitTop = 426
   end
   object bBlack: TToolbarButton97
-    Left = 171
+    Left = 169
     Top = 390
     Width = 15
     Height = 15
     Anchors = [akLeft, akBottom]
     Color = clBlack
     OnClick = bBlackClick
-    ExplicitTop = 426
   end
   object btnOpenFolder: TToolbarButton97
-    Left = 29
-    Top = 349
+    Left = 3
+    Top = 348
     Width = 25
     Height = 22
     Anchors = [akLeft, akBottom]
@@ -88,11 +101,10 @@ object Form_Image: TForm_Image
     ImageIndex = 1
     Images = Form_Main.IMG_Toolbar
     OnClick = btnOpenFolderClick
-    ExplicitTop = 375
   end
   object btnCreateFile: TToolbarButton97
-    Left = 55
-    Top = 349
+    Left = 29
+    Top = 348
     Width = 25
     Height = 22
     Hint = 'Creates a file with the image content'
@@ -101,61 +113,46 @@ object Form_Image: TForm_Image
     ImageIndex = 2
     Images = Form_Main.IMG_Toolbar
     OnClick = btnCreateFileClick
-    ExplicitTop = 375
   end
   object btnZoomOut: TToolbarButton97
-    Left = 111
-    Top = 349
-    Width = 30
+    Left = 163
+    Top = 348
+    Width = 23
     Height = 22
     Hint = 'Zoom Out  (numeric -)'
-    Anchors = [akLeft, akBottom]
+    Anchors = [akRight, akBottom]
     DropdownCombo = True
     ImageIndex = 58
     Images = Form_Main.IMG_Toolbar
     OnClick = btnZoomOutClick
-    ExplicitTop = 350
   end
   object btnZoomIn: TToolbarButton97
-    Left = 84
-    Top = 349
-    Width = 30
+    Left = 138
+    Top = 348
+    Width = 23
     Height = 22
     Hint = 'Zoom In   (numeric +)'
-    Anchors = [akLeft, akBottom]
+    Anchors = [akRight, akBottom]
     DropdownArrowWidth = 12
     DropdownCombo = True
     ImageIndex = 57
     Images = Form_Main.IMG_Toolbar
     OnClick = btnZoomInClick
-    ExplicitTop = 350
-  end
-  object lblZoom: TLabel
-    Left = 171
-    Top = 353
-    Width = 46
-    Height = 13
-    Anchors = [akLeft, akBottom]
-    AutoSize = False
-    Caption = '3000%'
-    FocusControl = txtCaption
-    ExplicitTop = 354
   end
   object btnZoomReset: TToolbarButton97
-    Left = 142
-    Top = 349
-    Width = 25
+    Left = 188
+    Top = 348
+    Width = 23
     Height = 22
     Hint = 'Show the image in 100%   (numeric *)'
-    Anchors = [akLeft, akBottom]
+    Anchors = [akRight, akBottom]
     DropdownCombo = True
     ImageIndex = 0
     Images = Form_Main.IMG_Toolbar
     OnClick = btnZoomResetClick
-    ExplicitTop = 350
   end
   object lblLinked: TLabel
-    Left = 325
+    Left = 328
     Top = 6
     Width = 56
     Height = 13
@@ -170,7 +167,6 @@ object Form_Image: TForm_Image
     Font.Style = [fsBold]
     ParentFont = False
     Visible = False
-    ExplicitLeft = 371
   end
   object btnPrevImage: TToolbarButton97
     Left = 3
@@ -200,22 +196,33 @@ object Form_Image: TForm_Image
     ExplicitTop = 422
   end
   object btnAlwaysVisible: TToolbarButton97
-    Left = 5
-    Top = 350
+    Left = 328
+    Top = 349
     Width = 20
     Height = 22
     Hint = 'Always visible'
     AllowAllUp = True
-    Anchors = [akLeft, akBottom]
+    Anchors = [akRight, akBottom]
     GroupIndex = 1
     DropdownCombo = True
     ImageIndex = 45
     Images = Form_Main.IMG_Toolbar
     OnClick = btnAlwaysVisibleClick
-    ExplicitTop = 386
+  end
+  object btnCopy: TToolbarButton97
+    Left = 56
+    Top = 348
+    Width = 25
+    Height = 22
+    Hint = 'Copy image to clipboard'
+    Anchors = [akLeft, akBottom]
+    DropdownCombo = True
+    ImageIndex = 4
+    Images = Form_Main.IMG_Toolbar
+    OnClick = btnCopyClick
   end
   object Button_Cancel: TButton
-    Left = 307
+    Left = 315
     Top = 383
     Width = 60
     Height = 25
@@ -230,7 +237,7 @@ object Form_Image: TForm_Image
   object txtCaption: TEdit
     Left = 8
     Top = 22
-    Width = 361
+    Width = 366
     Height = 24
     Hint = 'Caption of the image'
     TabStop = False
@@ -245,7 +252,7 @@ object Form_Image: TForm_Image
     TabOrder = 1
   end
   object Button_Modify: TButton
-    Left = 240
+    Left = 248
     Top = 383
     Width = 60
     Height = 25
@@ -260,17 +267,17 @@ object Form_Image: TForm_Image
   object cScrollBox: TScrollBox
     Left = 8
     Top = 47
-    Width = 361
+    Width = 366
     Height = 298
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 3
     OnResize = cScrollBoxResize
     DesignSize = (
-      357
+      362
       294)
     object cImage: TImage
       AlignWithMargins = True
-      Left = 0
+      Left = 4
       Top = 0
       Width = 354
       Height = 292
@@ -280,12 +287,11 @@ object Form_Image: TForm_Image
       Margins.Bottom = 0
       Anchors = [akLeft, akTop, akRight, akBottom]
       Proportional = True
-      ExplicitWidth = 403
-      ExplicitHeight = 328
+      ExplicitWidth = 352
     end
   end
   object chkExpand: TCheckBox
-    Left = 285
+    Left = 263
     Top = 346
     Width = 62
     Height = 25
@@ -311,7 +317,7 @@ object Form_Image: TForm_Image
     OnKeyDown = txtIDKeyDown
   end
   object chkCompact: TCheckBox
-    Left = 95
+    Left = 93
     Top = 384
     Width = 68
     Height = 25
@@ -323,7 +329,7 @@ object Form_Image: TForm_Image
     OnClick = chkCompactClick
   end
   object btnHelp: TBitBtn
-    Left = 344
+    Left = 350
     Top = 347
     Width = 25
     Height = 25
