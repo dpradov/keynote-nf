@@ -2837,7 +2837,7 @@ end;
 procedure TKntRichEdit.Fold (SelectedText: boolean);
 var
   RTFIn, RTFOut: AnsiString;
-  SS, SL: integer;
+  SS, SL, SSback: integer;
   WordAtPos, ClosingWord: String;
   CaseSens, IsTag: boolean;
   TxtPlain: String;
@@ -2923,12 +2923,29 @@ begin
          if InsidePossibleTag() then        // -> it will update WordAtPos and SS
             SelStart:= SS;
 
+         SSback:= SS;
+         if (SS >= 1) and (WordAtPos = '') and (SelText = #13) then begin
+            { We might have something like this:
+              <<
+              Line 1
+              Line 2
+              >>
+              Where << is an opening token. If we Ctrl+Click slightly to the right of <<, we'll select #D. To make it easier to use
+              these types of tokens, in these cases we'll check if there's a word to the left and if it's a token. If it is, we'll use it.
+            }
+            SelStart:= SS - 1;
+            WordAtPos:= GetWordAtCursor(True,True, True, True);
+            SS:= SelStart;
+         end;
+
 
          if not GetClosingToken(WordAtPos, ClosingWord, CaseSens, IsTag) then begin
            // It is not a defined block opening word, nor a tag.
            // The initial position will be considered, and the final position will be the position of the following [.]
            // (which is not included in another block) and if not found, the end of the paragraph
             WordAtPos:= '';
+            SS:= SSBack;
+            SelStart:= SSback;
          end
          else   // The token is recognized
             MinLenExtract:= Length(WordAtPos);
