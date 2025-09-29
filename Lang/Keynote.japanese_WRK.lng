@@ -2803,5 +2803,6 @@ Button_OK.Caption=閉じる(&C)
 55125_knt_RS_sFnd14=折りたたまれたブロック %d で無視された件数
 55126_knt_RS_sExpFrm23=エクスポートするものがありません
 (!)55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
+(!)55128_knt_RS_sFoldBl5=Markers to be used when expanding already exist (uncheck them first)
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

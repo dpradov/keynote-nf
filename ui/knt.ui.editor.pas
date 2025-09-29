@@ -2817,8 +2817,6 @@ begin
       CaseSens:= False;
    end
    else begin
-      IsDisposable:= True;                                          // ### TEST
-
      // Closing = Opening -> Does not allow nested blocks
      // Closing <> Opening -> Yes it allows nested blocks
      for i := 0 to Length(FoldBlocks) -1 do begin
@@ -2826,6 +2824,7 @@ begin
           (not FoldBlocks[i].CaseSensitive and (OpeningToken.ToUpper = FoldBlocks[i].Opening.ToUpper)) then begin
           ClosingToken:= FoldBlocks[i].Closing;
           CaseSens:= FoldBlocks[i].CaseSensitive;
+          IsDisposable:= FoldBlocks[i].Disposable;
           Exit(True);
        end;
      end;
@@ -2844,6 +2843,7 @@ begin
           OpeningToken:= FoldBlocks[i].Opening;
           ClosingToken:= FoldBlocks[i].Closing;
           CaseSens:= FoldBlocks[i].CaseSensitive;
+          IsDisposable:= FoldBlocks[i].Disposable;
           Exit(True);
        end;
      end;
@@ -6584,7 +6584,7 @@ end; // EditGlossaryTerms
 
 procedure LoadFoldingBlockInfo;
 var
-   i, p1,p2: integer;
+   i, p1,p2,p3,p4: integer;
    str: string;
    SL: TStringList;
 begin
@@ -6597,10 +6597,24 @@ begin
              Str:= SL[i];
              p1:= Pos(',', Str, 1);
              p2:= Pos(',', Str, p1+1);
+             p3:= Pos(',', Str, p2+1);
+             p4:= 0;
+             if (p3 = 0) then
+                p3:= integer.MaxValue
+             else
+                p4:= Pos(',', Str, p3+1);
+
              if (p1 > 0) and (p2 > 0) then begin
                 FoldBlocks[i].Opening:= Trim(Copy(Str,1,p1-1));
                 FoldBlocks[i].Closing:= Trim(Copy(Str,p1+1,p2-1-p1));
-                FoldBlocks[i].CaseSensitive := (Trim(Copy(Str,p2+1)))[1]='1';
+                FoldBlocks[i].CaseSensitive := (Trim(Copy(Str,p2+1,p3-1-p2)))[1]='1';
+                if (p3 < integer.MaxValue) then begin
+                   if (p4 = 0) then
+                       p4:= integer.MaxValue;
+                   FoldBlocks[i].Disposable := (Trim(Copy(Str,p3+1,p4-1-p3)))[1]='1';
+                   if (p4 < integer.MaxValue) then
+                      FoldBlocks[i].UseOnExpand := (Trim(Copy(Str,p4+1)))[1]='1';
+                end;
              end;
           end;
           SL.Free;
@@ -6619,7 +6633,7 @@ var
   i : integer;
   SL : TStringList;
   Item : TListItem;
-  Opening, Closing, CaseSens: String;
+  Opening, Closing, CaseSens, Disposable, UseOnExpand: String;
 begin
    try
      SL := TStringList.Create;
@@ -6630,10 +6644,16 @@ begin
           Opening:= Item.Caption;
           Closing:= Item.Subitems[0];
           CaseSens:= Item.Subitems[1];
+          Disposable:= Item.Subitems[2];
+          UseOnExpand:= Item.Subitems[3];
           FoldBlocks[i].Opening:= Opening;
           FoldBlocks[i].Closing:= Closing;
+          FoldBlocks[i].Disposable:= (Disposable = 'x');
+          FoldBlocks[i].UseOnExpand:= (UseOnExpand = 'x');
           FoldBlocks[i].CaseSensitive:= (CaseSens = 'x');
-          SL.Add(Opening + ', ' + Closing + ', ' + BOOLEANSTR[FoldBlocks[i].CaseSensitive]);
+          SL.Add(Opening + ', ' + Closing + ', ' + BOOLEANSTR[FoldBlocks[i].CaseSensitive] + ', '
+                                                 + BOOLEANSTR[FoldBlocks[i].Disposable]  + ', '
+                                                 + BOOLEANSTR[FoldBlocks[i].UseOnExpand]);
        end;
        SL.SaveToFile( FoldingBlock_FN, TEncoding.UTF8);
 

@@ -78,10 +78,31 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
     Top = 71
     Width = 113
     Height = 17
-    Hint = 'Display node path in reverse order (for use only in status bar)'
     Caption = 'Case sensitive'
     Checked = True
     State = cbChecked
     TabOrder = 4
+  end
+  object chkDispos: TCheckBox
+    Left = 122
+    Top = 71
+    Width = 113
+    Height = 17
+    Hint = 'Discard markers on fold'
+    Caption = 'Discard markers'
+    TabOrder = 5
+    OnClick = chkDisposClick
+  end
+  object chkOnExpand: TCheckBox
+    Left = 245
+    Top = 71
+    Width = 113
+    Height = 17
+    Hint = 
+      'Markers will be added to the beginning and end of the text block' +
+      ', on '#39'Expand'#39
+    Caption = 'Use on Expand'
+    Enabled = False
+    TabOrder = 6
   end
 end

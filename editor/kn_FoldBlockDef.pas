@@ -34,11 +34,14 @@ type
     Edit_Opening: TEdit;
     Edit_Closing: TEdit;
     chkCaseSens: TCheckBox;
+    chkDispos: TCheckBox;
+    chkOnExpand: TCheckBox;
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormActivate(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
+    procedure chkDisposClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -71,6 +74,13 @@ begin
       ModalResult := mrCancel;
     end;
   end;
+end;
+
+procedure TForm_FoldBlockDef.chkDisposClick(Sender: TObject);
+begin
+   chkOnExpand.Enabled:= chkDispos.Checked;
+   if not chkOnExpand.Enabled then
+      chkOnExpand.Checked:= False;
 end;
 
 procedure TForm_FoldBlockDef.FormActivate(Sender: TObject);
