@@ -301,7 +301,8 @@ type
   function IsAPossibleTag(const Word: string): boolean;
   function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit;
                                   KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False;
-                                  MinLenExtract: integer= 0): boolean;
+                                  MinLenExtract: integer= 0;
+                                  nToRemove_Begin: integer= 0; nToRemove_End: integer= 0): boolean;
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean): boolean;
   function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
   function PositionInFoldedBlock_FindAll(const TxtPlain: string; PosSS: integer; var pBeginBlock, pEndBlock: integer): boolean;
@@ -331,6 +332,8 @@ type
      Opening: String;
      Closing: String;
      CaseSensitive: boolean;
+     Disposable: boolean;           // True => Discard markers on fold / False=> Keep markers / Eg.True: <<Text very  long .... >> -->  +Text very...[]  (<< and >> are discarded)
+     UseOnExpand: boolean;          // To be used when "expanding" a block, to allow subsequent folding, without losing the boundaries
   end;
 
 procedure LoadFoldingBlockInfo;
@@ -1507,7 +1510,8 @@ begin
 end;
 
 
-function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False; MinLenExtract: integer= 0): boolean;
+function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False; MinLenExtract: integer= 0;
+                              nToRemove_Begin: integer= 0; nToRemove_End: integer= 0): boolean;
 var
    pI, pF, len, p, PosRTFLinkEnd: integer;
    pIn, pOut, NBytes: integer;
@@ -1669,6 +1673,17 @@ begin
      // It will add a \par at the end that we should ignore:
      // The end will be of the form: ...\par'#$D#$A'}'#$D#$A#0
      RTFAux.PutRtfText(RTFIn, true, false);
+
+     if nToRemove_Begin > 0 then begin
+        RTFAux.SelStart:= 0;
+        RTFAux.SelLength:= nToRemove_Begin;
+        RTFAux.SelText:= '';
+     end;
+     if nToRemove_End > 0 then begin
+        RTFAux.SelStart:= RTFAux.TextLength - nToRemove_End;
+        RTFAux.SelLength:= nToRemove_End;
+        RTFAux.SelText:= '';
+     end;
 
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
@@ -2785,13 +2800,14 @@ begin
 end;
 
 
-function GetClosingToken(var OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
+function GetClosingToken(var OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; var IsDisposable: boolean; IgnoreTagCase: boolean = False): boolean;
 var
    i: integer;
 begin
    Result:= False;
    IsTag:= False;
    ClosingToken:= '';
+   IsDisposable:= false;
 
    if OpeningToken = '' then exit;
 
@@ -2801,6 +2817,8 @@ begin
       CaseSens:= False;
    end
    else begin
+      IsDisposable:= True;                                          // ### TEST
+
      // Closing = Opening -> Does not allow nested blocks
      // Closing <> Opening -> Yes it allows nested blocks
      for i := 0 to Length(FoldBlocks) -1 do begin
@@ -2844,6 +2862,9 @@ var
   pI, pF, p: integer;
   KeepEndCarriageReturn: boolean;
   MinLenExtract: integer;
+  MarkersDisposable: boolean;
+  posNextChar: integer;
+  nToRemove_Begin, nToRemove_End: integer;
 
   function InsidePossibleTag: boolean;
   var
@@ -2907,6 +2928,8 @@ begin
       if SelAttributes.Protected then exit;
 
       MinLenExtract:= 0;
+      nToRemove_Begin:= 0;
+      nToRemove_End:= 0;
 
       SelStart:= SS;
       SelLength:= SL;
@@ -2939,7 +2962,7 @@ begin
          end;
 
 
-         if not GetClosingToken(WordAtPos, ClosingWord, CaseSens, IsTag) then begin
+         if not GetClosingToken(WordAtPos, ClosingWord, CaseSens, IsTag, MarkersDisposable) then begin
            // It is not a defined block opening word, nor a tag.
            // The initial position will be considered, and the final position will be the position of the following [.]
            // (which is not included in another block) and if not found, the end of the paragraph
@@ -2950,9 +2973,22 @@ begin
          else   // The token is recognized
             MinLenExtract:= Length(WordAtPos);
 
-         if IsTag and (TxtPlain[SS+Length(WordAtPos)+1] = ':') then begin
-            inc(MinLenExtract);
-         end;
+
+         posNextChar:= SS+Length(WordAtPos)+1;
+         if IsTag then begin
+           if (TxtPlain[posNextChar] = ':') then
+              inc(MinLenExtract);
+         end
+         else
+         if MarkersDisposable then begin
+            nToRemove_Begin:= Length(WordAtPos);
+            nToRemove_End:= Length(ClosingWord);
+            if (TxtPlain[posNextChar] = #13) then
+               inc(nToRemove_Begin);
+         end
+         else
+            nToRemove_Begin:= 0;
+
 
          if not CaseSens then begin
             TxtPlain:= TxtPlain.ToUpper;
@@ -2965,7 +3001,7 @@ begin
       end;
 
       RTFIn:= EnsureGetRtfSelText;
-      if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract) then begin
+      if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract, nToRemove_Begin, nToRemove_End) then begin
          RtfSelText:= RTFOut;
          sleep(100);         // If we don't do this, the initial word will remain selected.
       end;
