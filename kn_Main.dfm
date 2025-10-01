@@ -4164,6 +4164,11 @@ object Form_Main: TForm_Main
       Hint = 'Collapse selected text'
       OnClick = RTFMFoldClick
     end
+    object RTFMExpand: TMenuItem
+      Caption = 'Expand (with markers)'
+      Hint = 'Restore folded text with boundary markers'
+      OnClick = RTFMExpandClick
+    end
     object RTFMUnfold: TMenuItem
       Caption = 'Unfold'
       Hint = 'Expand folded/collapsed text'

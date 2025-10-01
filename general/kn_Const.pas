@@ -610,6 +610,10 @@ const
   KNT_RTF_END_GENERIC_BLOCK = '[.]';
   KNT_RTF_END_TAG = '##';
 
+  DEFAULT_USE_ON_EXPAND_OPENING = '«:';
+  DEFAULT_USE_ON_EXPAND_CLOSING = ':»';
+
+
   EMPTY_TAGS = '#';
   MAX_SEARCHED_TAGS = 15;                         // Nobody will type more than 15 tags...
 

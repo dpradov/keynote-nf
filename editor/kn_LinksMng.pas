@@ -2124,9 +2124,9 @@ begin
   end
   else
   if (URLType = urlKNTFold) then begin
-     if CtrlDown then begin
+     if CtrlDown or AltDown then begin
         if SecondsBetween(Now, TKntRichEdit.LastFoldingTime) > 1 then
-           Editor.Unfold;
+           Editor.Unfold(CtrlDown);
      end
      else
      if Button <> mbRight then
