@@ -83,6 +83,7 @@ function BytesToRawByteString(const bytes: TBytes): RawByteString;
 function FirstLineFromString(const str: string; const MaxLen : integer) : string;
 function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integer= 1; StartAtPos: integer=-1): integer;
 function PosFirstNonSpace(const S: string; StartAtPos: integer=1): integer;
+function PosFirstNonAlphaNumeric(const S: string): integer;
 
 function ConvertHTMLAsciiCharacters(const S: string): string;
 function DecodeURLWebUTF8Characters(const S: string): string;
@@ -898,6 +899,19 @@ begin
   for i := StartAtPos to length(S) do
     if S[i] <> #32 then
        Exit(i);
+end;
+
+
+function PosFirstNonAlphaNumeric(const S: string): integer;
+var
+  i: Integer;
+begin
+  Result := 0;
+  if S ='' then exit;
+
+  for i := 1 to length(S) do
+    if not IsCharAlphaNumeric(S[i]) then
+        Exit(i);
 end;
 
 

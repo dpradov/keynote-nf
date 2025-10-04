@@ -2245,7 +2245,12 @@ begin
      if ExpandWithMarkers and (UseOnExpand_Opening <> '') and (UseOnExpand_Closing <> '') then begin
         RTFAux.SelStart:= 0;
         RTFAux.SelText:= UseOnExpand_Opening;
-        RTFAux.SelStart:= RTFAux.TextLength;
+        Len:= RTFAux.TextLength;
+        RTFAux.SelStart:= Len-1;
+        RTFAux.SelLength:= 1;
+        if RTFAux.SelText = #13 then
+           dec(Len);
+        RTFAux.SelStart:= Len;
         RTFAux.SelText:= UseOnExpand_Closing;
      end;
 
@@ -2916,6 +2921,7 @@ var
   function IdentifyBlockBetweenMarkersOnExpand (var pI, pF: integer): boolean;
   var
     pBeg: array[1..9] of integer;    // Up to 10 levels of nesting...
+    pEnd: array[1..9] of integer;
     Level: integer;
   begin
      // Let's check if the current position is bounded by markers used in Expand. If so, we'll use them to identify the block to be folded.
@@ -2942,6 +2948,7 @@ var
        if (pI = 0) or (pI > SS) then exit;
 
        pBeg[1]:= pI;
+       pEnd[1]:= 0;
        pF:= 0;
        Level:= 1;
 
@@ -2949,30 +2956,36 @@ var
           if (pI > pF) or (pI = 0) then begin
             pF:= Pos(UseOnExpand_Closing, TxtPlain, pF + 1);
             if (pF = 0) then exit;
-            if (pF < pI) or (pI = 0) then
-               dec(Level);
+            if (pF < pI) or (pI = 0) then begin
+               if (Level > 1) then
+                  dec(Level);
+               pEnd[Level]:= pF;
+            end;
+            if (pF > pI) then begin
+                pBeg[Level]:= pI;
+                pEnd[Level]:= 0;
+            end;
           end
           else begin
             pI:= Pos(UseOnExpand_Opening, TxtPlain, pI + 1);
-            if (pI > 0) then begin
-               if (pI < pF) then
-                  inc(Level);
-               if (pI < SS) then
-                  pBeg[Level]:= pI;
-            end;
+            if (pI > 0) and (pI < pF) then
+               inc(Level)
+            else
+               pEnd[Level]:= pF;
+            if (pI > 0) and (pI < SS) then
+                pBeg[Level]:= pI;
           end;
 
-          if Level < 1 then exit;  // False
-
-          if (pF > SS) and (pBeg[Level] < SS) and ((pI > pF) or (pI = 0)) then begin
+          if (pBeg[Level] > 0) and (pBeg[Level] <= SS) and (pEnd[Level] >= SS) then begin
              Result:= True;
              break;
           end;
 
-       until Result;
+       until False;
 
        if Result then begin
           pI:= pBeg[Level];
+          pF:= pEnd[Level];
        end;
   end;
 
@@ -3101,18 +3114,30 @@ begin
       end;
 
 
+      SS:= SelStart;
+      SL:= SelLength;
+
       if MarkersDisposable then begin
          posNextChar:= SS+Length(WordAtPos)+1;
          nToRemove_Begin:= Length(WordAtPos);
          nToRemove_End:= Length(ClosingWord);
          if (posNextChar <= Length(TxtPlain)) and (TxtPlain[posNextChar] = #13) then
             inc(nToRemove_Begin);
+
+         if (SS+SL < Length(TxtPlain)) and (TxtPlain[SS+SL+1] = #13) then begin
+            SelLength:= SL+1;
+            KeepEndCarriageReturn:= True;
+         end
       end
       else
          nToRemove_Begin:= 0;
 
 
       RTFIn:= EnsureGetRtfSelText;
+      if (SL=1) or ((SL < 40) and (PosFirstNonAlphaNumeric(SelText) = 0)) then begin
+         exit;
+      end;
+
       if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract, nToRemove_Begin, nToRemove_End) then begin
          RtfSelText:= RTFOut;
          sleep(100);         // If we don't do this, the initial word will remain selected.
