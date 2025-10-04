@@ -3096,11 +3096,17 @@ begin
 
          if not GetClosingToken(OpeningToken, ClosingToken, CaseSens, IsTag, MarkersDisposable) then begin
            // It is not a defined block opening word, nor a tag.
-           // The initial position will be considered, and the final position will be the position of the following [.]
-           // (which is not included in another block) and if not found, the end of the paragraph
-            OpeningToken:= '';
-            SS:= SSBack;
-            SelStart:= SS;
+           // Try a particular case, but one that could be frequent: token of the form (x) or [x]
+            SelStart:= SS - 1;
+            SelLength:= 3;
+            OpeningToken:= SelText;
+            if not GetClosingToken(OpeningToken, ClosingToken, CaseSens, IsTag, MarkersDisposable) then begin
+              // The initial position will be considered, and the final position will be the position of the following [.]
+              // (which is not included in another block) and if not found, the end of the paragraph
+               OpeningToken:= '';
+               SS:= SSBack;
+               SelStart:= SS;
+            end;
          end
          else   // The token is recognized
             MinLenExtract:= Length(OpeningToken);
