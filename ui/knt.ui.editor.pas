@@ -218,8 +218,10 @@ type
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode); overload;
     function EnsureGetRtfSelText: AnsiString;
 
-    procedure Fold (SelectedText: boolean);
+    procedure Fold (ExecutedFromContextMenu: boolean; SelectedOpeningToken: boolean);
     procedure Unfold(ExpandWithMarkers: boolean);
+    procedure UnfoldAll (ExpandWithMarkers: boolean);
+    procedure FoldAllExpanded;
     procedure PreviewFoldedBlock (SS: integer);
     procedure HideNestedFloatingEditor;
     procedure DoSaveChangesInFloatingEditor;
@@ -2875,11 +2877,11 @@ begin
 end;
 
 
-procedure TKntRichEdit.Fold (SelectedText: boolean);
+procedure TKntRichEdit.Fold (ExecutedFromContextMenu: boolean; SelectedOpeningToken: boolean);
 var
   RTFIn, RTFOut: AnsiString;
-  SS, SL, SSback: integer;
-  WordAtPos, ClosingWord: String;
+  SS, SL, SSback, SLback: integer;
+  OpeningToken, ClosingToken: String;
   CaseSens, IsTag: boolean;
   TxtPlain: String;
   pI, pF, p: integer;
@@ -2904,16 +2906,16 @@ var
      pI:= SS;
      repeat
         dec(pI);
-     until (pI < 1) or (TxtPlain[pI] in TagCharsDelimiters);
+     until (pI = 1) or (TxtPlain[pI] in TagCharsDelimiters);
 
-     if (TxtPlain[pI] = '#') and ((pI <= 1) or (TxtPlain[pI-1] <> '#')) then begin
+     if (TxtPlain[pI] = '#') and ((pI = 1) or (TxtPlain[pI-1] <> '#')) then begin
         Result:= True;
 
         L:= Length(TxtPlain);
         pF:= SS + SL + 1;
         while (pF < L) and not (TxtPlain[pF] in TagCharsDelimiters) do
            inc(pF);
-        WordAtPos:= Copy(TxtPlain, pI, pF-pI);
+        OpeningToken:= Copy(TxtPlain, pI, pF-pI);
         SS:= pI-1;
      end;
   end;
@@ -2993,10 +2995,14 @@ var
 begin
    if CheckReadOnly or PlainText then exit;
 
+   // not ExecutedFromContextMenu => We are accessing with Ctrl+DblClick or Alt+DblClick
+   // SelectedOpeningToken: True  -> OpeningToken have been explicitly selected. We are certain that it is selected
+
    BeginUpdate;
    try
       SS:= SelStart;
       SL:= SelLength;
+      SLback:= SL;
 
       KeepEndCarriageReturn:= False;
       TxtPlain:= Self.TextPlain;
@@ -3004,7 +3010,7 @@ begin
       SelectedFoldedBlockBetweenMarkersOnExpand:= False;
       MarkersDisposable:= False;
 
-      if SelectedText or (SL = 0) then begin              // We are using the Fold option from the editor menu
+      if ExecutedFromContextMenu and not SelectedOpeningToken or (SL = 0) then begin              // We are using the Fold option from the editor menu
 
          if (SL > 0) and ((SS+SL <= Length(TxtPlain)) and (TxtPlain[SS+SL] = #13)) then begin
             SelLength:= SL-1;
@@ -3021,8 +3027,8 @@ begin
                    if not SelAttributes.Protected then begin
                       SS:= pI -1;
                       SL:= pF - pI + Length(UseOnExpand_Closing);
-                      WordAtPos:=   UseOnExpand_Opening;
-                      ClosingWord:= UseOnExpand_Closing;
+                      OpeningToken:=   UseOnExpand_Opening;
+                      ClosingToken:= UseOnExpand_Closing;
                       SelectedFoldedBlockBetweenMarkersOnExpand:= True;
                       MarkersDisposable:= True;
                    end;
@@ -3056,48 +3062,51 @@ begin
 
       SelStart:= SS;
       SelLength:= SL;
-      if not SelectedText then begin                     // We are accessing with Ctrl+DblClick or Alt+DblClick
+      if not ExecutedFromContextMenu or SelectedOpeningToken then begin
          //WordAtCursor:= GetWordAtCursor(True,true);
-         WordAtPos:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
-         SS:= SelStart;
-         if (SS >= 1) and (TxtPlain[SS] = '#') and ((SS <= 1) or (TxtPlain[SS-1] <> '#'))  then begin
-            WordAtPos:= '#' + WordAtPos;
-            dec(SS);
-            SelStart:= SS;
-         end
-         else
-         if InsidePossibleTag() then        // -> it will update WordAtPos and SS
-            SelStart:= SS;
+         OpeningToken:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
 
-         SSback:= SS;
-         if (SS >= 1) and (WordAtPos = '') and (SelText = #13) then begin
-            { We might have something like this:
-              <<
-              Line 1
-              Line 2
-              >>
-              Where << is an opening token. If we Ctrl+Click slightly to the right of <<, we'll select #D. To make it easier to use
-              these types of tokens, in these cases we'll check if there's a word to the left and if it's a token. If it is, we'll use it.
-            }
-            SelStart:= SS - 1;
-            WordAtPos:= GetWordAtCursor(True,True, True, True);
-            SS:= SelStart;
+         if not SelectedOpeningToken then begin
+             SS:= SelStart;
+             if (SS >= 1) and (TxtPlain[SS] = '#') and ((SS <= 1) or (TxtPlain[SS-1] <> '#'))  then begin
+                OpeningToken:= '#' + OpeningToken;
+                dec(SS);
+                SelStart:= SS;
+             end
+             else
+             if InsidePossibleTag() then        // -> it will update OpeningToken and SS
+                SelStart:= SS;
+
+             SSback:= SS;
+             if (SS >= 1) and (OpeningToken = '') and (SelText = #13) then begin
+                { We might have something like this:
+                  <<
+                  Line 1
+                  Line 2
+                  >>
+                  Where << is an opening token. If we Ctrl+Click slightly to the right of <<, we'll select #D. To make it easier to use
+                  these types of tokens, in these cases we'll check if there's a word to the left and if it's a token. If it is, we'll use it.
+                }
+                SelStart:= SS - 1;
+                OpeningToken:= GetWordAtCursor(True,True, True, True);
+                SS:= SelStart;
+             end;
          end;
 
 
-         if not GetClosingToken(WordAtPos, ClosingWord, CaseSens, IsTag, MarkersDisposable) then begin
+         if not GetClosingToken(OpeningToken, ClosingToken, CaseSens, IsTag, MarkersDisposable) then begin
            // It is not a defined block opening word, nor a tag.
            // The initial position will be considered, and the final position will be the position of the following [.]
            // (which is not included in another block) and if not found, the end of the paragraph
-            WordAtPos:= '';
+            OpeningToken:= '';
             SS:= SSBack;
-            SelStart:= SSback;
+            SelStart:= SS;
          end
          else   // The token is recognized
-            MinLenExtract:= Length(WordAtPos);
+            MinLenExtract:= Length(OpeningToken);
 
 
-         posNextChar:= SS+Length(WordAtPos)+1;
+         posNextChar:= SS+Length(OpeningToken)+1;
          if IsTag then begin
            if (posNextChar <= Length(TxtPlain)) and (TxtPlain[posNextChar] = ':') then
               inc(MinLenExtract);
@@ -3105,10 +3114,10 @@ begin
 
          if not CaseSens then begin
             TxtPlain:= TxtPlain.ToUpper;
-            WordAtPos:= WordAtPos.ToUpper;
-            ClosingWord:= ClosingWord.ToUpper;
+            OpeningToken:= OpeningToken.ToUpper;
+            ClosingToken:= ClosingToken.ToUpper;
          end;
-         if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True, True) then exit;
+         if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, OpeningToken, ClosingToken, '', IsTag, True, True) then exit;
 
          SetSelection(pI, pF + 1, false);
       end;
@@ -3118,9 +3127,9 @@ begin
       SL:= SelLength;
 
       if MarkersDisposable then begin
-         posNextChar:= SS+Length(WordAtPos)+1;
-         nToRemove_Begin:= Length(WordAtPos);
-         nToRemove_End:= Length(ClosingWord);
+         posNextChar:= SS+Length(OpeningToken)+1;
+         nToRemove_Begin:= Length(OpeningToken);
+         nToRemove_End:= Length(ClosingToken);
          if (posNextChar <= Length(TxtPlain)) and (TxtPlain[posNextChar] = #13) then
             inc(nToRemove_Begin);
 
@@ -3135,12 +3144,14 @@ begin
 
       RTFIn:= EnsureGetRtfSelText;
       if (SL=1) or ((SL < 40) and (PosFirstNonAlphaNumeric(SelText) = 0)) then begin
+         SelLength:= SLback;
          exit;
       end;
 
       if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract, nToRemove_Begin, nToRemove_End) then begin
          RtfSelText:= RTFOut;
-         sleep(100);         // If we don't do this, the initial word will remain selected.
+         if not ExecutedFromContextMenu then
+            sleep(100);         // If we don't do this, the initial word will remain selected.
       end;
       SelStart:= pI;
       SelLength:= 0;
@@ -3337,6 +3348,115 @@ begin
       Change;
    end;
 end;
+
+
+
+procedure TKntRichEdit.UnfoldAll (ExpandWithMarkers: boolean);
+var
+  TxtPlain: string;
+  SS: integer;
+  BeginUpdateApplied: boolean;
+
+  function RemoveRemainingMarkers(OnExpandMarker: string): boolean;
+  var
+    Offset, L: integer;
+  begin
+    Offset:= 0;
+    L:= Length(OnExpandMarker);
+    SS:= 0;
+    repeat
+       SS:= Pos(OnExpandMarker, TxtPlain, SS+1);
+       if SS > 0 then begin
+         if not BeginUpdateApplied then begin
+            BeginUpdate;
+            BeginUpdateApplied:= True;
+         end;
+         SelStart:= SS - Offset - 1;
+         SelLength:= L;
+         SelText:= '';
+         Offset:= Offset + L;
+       end;
+    until SS = 0;
+  end;
+
+begin
+  SS:= 0;
+  BeginUpdateApplied:= False;
+  repeat
+     TxtPlain:= TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS+1);
+     if SS > 0 then begin
+        if not BeginUpdateApplied then begin
+           BeginUpdate;
+           BeginUpdateApplied:= True;
+        end;
+        SelStart:= SS;
+        Unfold(ExpandWithMarkers);
+     end;
+  until (SS = 0);
+
+  if not ExpandWithMarkers then begin
+     // Delete markers to be used with Expand that may have remained visible because they were not expanded
+     if not BeginUpdateApplied then
+        TxtPlain:= TextPlain;
+     if RemoveRemainingMarkers(UseOnExpand_Opening) then begin
+        TxtPlain:= TextPlain;
+        RemoveRemainingMarkers(UseOnExpand_Closing);
+     end;
+  end;
+
+  if BeginUpdateApplied then
+     EndUpdate;
+end;
+
+
+procedure TKntRichEdit.FoldAllExpanded;
+var
+  TxtPlain: string;
+  SS: integer;
+  BeginUpdateApplied: boolean;
+  LenContentFolded: integer;
+
+  function PosOfNextBlockToFold: integer;
+  var
+     pI, pF: integer;
+  begin
+     Result:= 0;
+     pF:= Pos(UseOnExpand_Closing, TxtPlain, 1);
+     if pF = 0 then
+        exit;
+     pI:= 0;
+     repeat
+        pI:= Pos(UseOnExpand_Opening, TxtPlain, pI+1);
+        if (pI = 0) then exit;
+        if (pI < pF) then
+           Result:= pI;
+     until (pI > pF);
+  end;
+
+begin
+  SS:= 0;
+
+  BeginUpdateApplied:= False;
+  repeat
+     TxtPlain:= TextPlain;
+
+     SS:= PosOfNextBlockToFold;
+     if SS > 0 then begin
+        if not BeginUpdateApplied then begin
+           BeginUpdate;
+           BeginUpdateApplied:= True;
+        end;
+        SelStart:= SS - 1;
+        SelLength:= Length(UseOnExpand_Opening);
+        Fold(True, True);
+     end;
+  until (SS = 0);
+
+  if BeginUpdateApplied then
+     EndUpdate;
+end;
+
 
 
 function TKntRichEdit.EnsureGetRtfSelText: AnsiString;
@@ -4586,7 +4706,7 @@ begin
 
    else
    if CtrlDown then begin
-      Fold (false);
+      Fold (false, false);
       FLastFoldingTime:= Now();
    end;
 

@@ -4547,17 +4547,26 @@ end;
 
 procedure TForm_Main.RTFMFoldClick(Sender: TObject);
 begin
-   ActiveEditor.Fold (True);
+   if ShiftDown then
+      ActiveEditor.FoldAllExpanded
+   else
+      ActiveEditor.Fold (True, False);
 end;
 
 procedure TForm_Main.RTFMExpandClick(Sender: TObject);
 begin
-   ActiveEditor.Unfold (True);
+   if ShiftDown then
+      ActiveEditor.UnfoldAll (True)
+   else
+      ActiveEditor.Unfold (True);
 end;
 
 procedure TForm_Main.RTFMUnfoldClick(Sender: TObject);
 begin
-   ActiveEditor.Unfold(False);
+   if ShiftDown then
+      ActiveEditor.UnfoldAll (false)
+   else
+      ActiveEditor.Unfold (false);
 end;
 
 procedure TForm_Main.RTFMTagsClick(Sender: TObject);
