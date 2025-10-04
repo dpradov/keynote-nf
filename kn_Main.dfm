@@ -4161,12 +4161,21 @@ object Form_Main: TForm_Main
     end
     object RTFMFold: TMenuItem
       Caption = 'Fold'
-      Hint = 'Collapse selected text'
+      Hint = 
+        'Collapse selected text or expanded block with markers (Shift: al' +
+        'l expanded blocks)'
       OnClick = RTFMFoldClick
+    end
+    object RTFMExpand: TMenuItem
+      Caption = 'Expand (with markers)'
+      Hint = 
+        'Restore folded text with boundary markers (Shift: all folded blo' +
+        'cks)'
+      OnClick = RTFMExpandClick
     end
     object RTFMUnfold: TMenuItem
       Caption = 'Unfold'
-      Hint = 'Expand folded/collapsed text'
+      Hint = 'Restore folded/collapsed text (Shift: all folded blocks)'
       OnClick = RTFMUnfoldClick
     end
     object RTFMTags: TMenuItem

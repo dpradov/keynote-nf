@@ -49,13 +49,15 @@ object Form_OptionsNew: TForm_OptionsNew
     Top = 6
     Width = 364
     Height = 377
-    PageIndex = 1
+    PageIndex = 15
     TabOrder = 1
     object PG_Interface: TPage
       Left = 0
       Top = 0
       HelpContext = 88
       Caption = 'PG_Interface'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_General1: TGroupBox
         Left = 5
         Top = 5
@@ -220,6 +222,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 89
       Caption = 'PG_Editor'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_RTFEdit1: TGroupBox
         Left = 5
         Top = 5
@@ -377,7 +381,7 @@ object Form_OptionsNew: TForm_OptionsNew
           Left = 175
           Top = 11
           Width = 56
-          Height = 25
+          Height = 22
           Hint = 'Number of editing operations that can be undone'
           MaxLength = 3
           MaxValue = 255
@@ -439,6 +443,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 90
       Caption = 'PG_Images'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Images: TGroupBox
         Left = 5
         Top = 5
@@ -783,6 +789,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 91
       Caption = 'PG_Tree'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GBox_TreeGlobal: TGroupBox
         Left = 5
         Top = 5
@@ -922,6 +930,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 92
       Caption = 'PG_KNTFiles'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Files1: TGroupBox
         Left = 5
         Top = 5
@@ -1064,6 +1074,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 93
       Caption = 'PG_FileOptions'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_FileOpt1: TGroupBox
         Left = 5
         Top = 5
@@ -1205,6 +1217,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 94
       Caption = 'PG_BackupOptions'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Back: TGroupBox
         Left = 5
         Top = 5
@@ -1371,6 +1385,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 95
       Caption = 'PG_Actions'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Actions1: TGroupBox
         Left = 5
         Top = 5
@@ -1559,6 +1575,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 96
       Caption = 'PG_Confirmations'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Conf: TGroupBox
         Left = 5
         Top = 5
@@ -1673,6 +1691,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 97
       Caption = 'PG_Chrome'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Chrome2: TGroupBox
         Left = 5
         Top = 184
@@ -1836,6 +1856,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 98
       Caption = 'PG_Icons'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_TabIcons: TGroupBox
         Left = 5
         Top = 5
@@ -1912,6 +1934,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 99
       Caption = 'PG_Advanced'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Adv: TGroupBox
         Left = 5
         Top = 5
@@ -2039,6 +2063,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 100
       Caption = 'PG_Formats'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Formats1: TGroupBox
         Left = 5
         Top = 5
@@ -2139,6 +2165,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 101
       Caption = 'PG_ClipCap'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label_PlainTextMode: TLabel
         Left = 8
         Top = 348
@@ -2434,6 +2462,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 102
       Caption = 'PG_FileTypes'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_FileTypes: TGroupBox
         Left = 5
         Top = 5
@@ -2533,7 +2563,7 @@ object Form_OptionsNew: TForm_OptionsNew
           OnClick = btnFBEditClick
         end
         object btnFBDelete: TButton
-          Left = 241
+          Left = 252
           Top = 327
           Width = 85
           Height = 25
@@ -2544,20 +2574,28 @@ object Form_OptionsNew: TForm_OptionsNew
         object LVfb: TListView
           Left = 15
           Top = 23
-          Width = 311
+          Width = 322
           Height = 298
           Columns = <
             item
               Caption = 'Opening'
-              Width = 90
+              Width = 55
             end
             item
               Caption = 'Closing'
-              Width = 120
+              Width = 55
             end
             item
               Caption = 'Case Sens.'
-              Width = 80
+              Width = 66
+            end
+            item
+              Caption = 'Discard'
+              Width = 52
+            end
+            item
+              Caption = 'Add on Expand'
+              Width = 85
             end>
           ColumnClick = False
           HideSelection = False
@@ -2573,6 +2611,8 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 103
       Caption = 'PG_Language'
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GroupBox_Other1: TGroupBox
         Left = 5
         Top = 5

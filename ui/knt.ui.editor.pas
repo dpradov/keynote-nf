@@ -218,8 +218,10 @@ type
     procedure ReconsiderImages(Selection: boolean; ImagesMode: TImagesMode); overload;
     function EnsureGetRtfSelText: AnsiString;
 
-    procedure Fold (SelectedText: boolean);
-    procedure Unfold;
+    procedure Fold (ExecutedFromContextMenu: boolean; SelectedOpeningToken: boolean);
+    procedure Unfold(ExpandWithMarkers: boolean);
+    procedure UnfoldAll (ExpandWithMarkers: boolean);
+    procedure FoldAllExpanded;
     procedure PreviewFoldedBlock (SS: integer);
     procedure HideNestedFloatingEditor;
     procedure DoSaveChangesInFloatingEditor;
@@ -301,8 +303,9 @@ type
   function IsAPossibleTag(const Word: string): boolean;
   function PrepareRTFtoBeFolded  (RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit;
                                   KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False;
-                                  MinLenExtract: integer= 0): boolean;
-  function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean): boolean;
+                                  MinLenExtract: integer= 0;
+                                  nToRemove_Begin: integer= 0; nToRemove_End: integer= 0): boolean;
+  function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean; ExpandWithMarkers: boolean): boolean;
   function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
   function PositionInFoldedBlock_FindAll(const TxtPlain: string; PosSS: integer; var pBeginBlock, pEndBlock: integer): boolean;
   function OpenTagsConcatenated(PosTag, Lo: integer; const TxtPlain: string): boolean;
@@ -331,6 +334,8 @@ type
      Opening: String;
      Closing: String;
      CaseSensitive: boolean;
+     Disposable: boolean;           // True => Discard markers on fold / False=> Keep markers / Eg.True: <<Text very  long .... >> -->  +Text very...[]  (<< and >> are discarded)
+     UseOnExpand: boolean;          // To be used when "expanding" a block, to allow subsequent folding, without losing the boundaries
   end;
 
 procedure LoadFoldingBlockInfo;
@@ -344,6 +349,8 @@ const
 var
   _LoadedRichEditVersion : Single;
    FoldBlocks: Array of TFoldingBlock;
+   UseOnExpand_Opening: string;
+   UseOnExpand_Closing: string;
 
 
 implementation
@@ -1239,6 +1246,7 @@ var
    function GetRestOfSentence(const Text: string; PosInsideSentence: integer): string;
    var
      p, pR_Scope, i: integer;
+     TextLen: integer;
    begin
      { We have a position (PosInsideScope) located within a sentence. We have to locate
        the end of it and return it from that initial position
@@ -1251,8 +1259,9 @@ var
      }
 
      pR_Scope:= Pos(#13, Text, PosInsideSentence) -1;
+     TextLen:= Text.Length;
      if pR_Scope <= -1 then
-        pR_Scope:= Text.Length;
+        pR_Scope:= TextLen;
 
      if pR_Scope <= MinLenExtract then
         Result:= Copy(Text,1, MinLenExtract)
@@ -1260,7 +1269,7 @@ var
      else begin
         p:= 1;
         for p := PosInsideSentence + 1 to pR_Scope do
-          if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)
+          if ((Text[p] = '.') and ((p >= TextLen) or (Text[p+1] in [' ', #9]))) or (Text[p] = #7)
                  or (Text[p] = KNT_RTF_HIDDEN_MARK_EndLink_CHAR)
                  or (Text[p] = #$FFFC) then
              break;
@@ -1507,7 +1516,8 @@ begin
 end;
 
 
-function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False; MinLenExtract: integer= 0): boolean;
+function PrepareRTFtoBeFolded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; KeepEndCR: Boolean = False; AddAdditionalEndCR: Boolean = False; MinLenExtract: integer= 0;
+                              nToRemove_Begin: integer= 0; nToRemove_End: integer= 0): boolean;
 var
    pI, pF, len, p, PosRTFLinkEnd: integer;
    pIn, pOut, NBytes: integer;
@@ -1670,6 +1680,17 @@ begin
      // The end will be of the form: ...\par'#$D#$A'}'#$D#$A#0
      RTFAux.PutRtfText(RTFIn, true, false);
 
+     if nToRemove_Begin > 0 then begin
+        RTFAux.SelStart:= 0;
+        RTFAux.SelLength:= nToRemove_Begin;
+        RTFAux.SelText:= '';
+     end;
+     if nToRemove_End > 0 then begin
+        RTFAux.SelStart:= RTFAux.TextLength - nToRemove_End;
+        RTFAux.SelLength:= nToRemove_End;
+        RTFAux.SelText:= '';
+     end;
+
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
      MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
@@ -1752,9 +1773,9 @@ begin
   // Remember: remove the extra line break that is being added in RTFAux.PutRtfTex
   // The end will be like this: ...\par'#$D#$A'}'#$D#$A#0
   if AddAdditionalEndCR then
-      ReplaceWith:= '{\f0\fs16' + KNT_RTF_END_FOLDED + '}\par}'
+      ReplaceWith:= '\v0{\f0\fs20' + KNT_RTF_END_FOLDED_WITHOUT_v0 + '}\par}'
   else
-      ReplaceWith:= '{\f0\fs16' + KNT_RTF_END_FOLDED + '}}';
+      ReplaceWith:= '\v0{\f0\fs20' + KNT_RTF_END_FOLDED_WITHOUT_v0 + '}}';
 
   if not KeepEndCR then begin
      pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
@@ -1985,7 +2006,7 @@ end;
 // --------------------------------------
 // KeepEndCR: Keep End CarriageReturn
 
-function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean): boolean;
+function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean; ExpandWithMarkers: boolean): boolean;
 
 type
    TFoldedLink = record
@@ -2190,6 +2211,11 @@ begin
 //           'En un lugar de la \v\''11B7\''12\v0 Mancha  \v de cuyo \''11L"fold:"@\ul\cf1 +\''12' +
 //           '-muy dificil  de \''11B5\''12recordar-...\''13nombre no quiero \''11B6\''12acordarme\v0 ...\''13\protect0}';
 
+{
+    * If there are markers defined to used on Expand, the will be added at the beginning and at the end.
+      -> UseOnExpand_Opening, UseOnExpand_Closing
+}
+
   if RTFIn='' then Exit;
 
 
@@ -2217,6 +2243,18 @@ begin
      RTFAux.SelLength:= Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);
      RTFAux.SelText:= '';
 
+     // If there are markers defined to used on Expand, the will be added at the beginning and at the end.
+     if ExpandWithMarkers and (UseOnExpand_Opening <> '') and (UseOnExpand_Closing <> '') then begin
+        RTFAux.SelStart:= 0;
+        RTFAux.SelText:= UseOnExpand_Opening;
+        Len:= RTFAux.TextLength;
+        RTFAux.SelStart:= Len-1;
+        RTFAux.SelLength:= 1;
+        if RTFAux.SelText = #13 then
+           dec(Len);
+        RTFAux.SelStart:= Len;
+        RTFAux.SelText:= UseOnExpand_Closing;
+     end;
 
      // We retrieve the RTF content (RTFIn) and the equivalent plain text (TextPlain) and continue without needing to
      // interact with the RichEdit control
@@ -2603,6 +2641,8 @@ begin
       // If WordOpening = '' or is searching for a FoldedBlock -> CheckWholeWords=ConsiderNestedBlocks= False
       ConsiderNestedBlocks:= True;
       CheckWholeWords:= not FoldedBlock and (WordOpening <> '');
+      if CheckWholeWords and HasNonAlphaNumericOrWordDelimiter(WordOpening) or HasNonAlphaNumericOrWordDelimiter(WordClosing) then
+         CheckWholeWords:= False;
 
       if WordClosing = '' then begin
          ConsiderNestedBlocks:= False;
@@ -2785,13 +2825,14 @@ begin
 end;
 
 
-function GetClosingToken(var OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; IgnoreTagCase: boolean = False): boolean;
+function GetClosingToken(var OpeningToken: string; var ClosingToken: string; var CaseSens: boolean; var IsTag: boolean; var IsDisposable: boolean; IgnoreTagCase: boolean = False): boolean;
 var
    i: integer;
 begin
    Result:= False;
    IsTag:= False;
    ClosingToken:= '';
+   IsDisposable:= false;
 
    if OpeningToken = '' then exit;
 
@@ -2808,6 +2849,7 @@ begin
           (not FoldBlocks[i].CaseSensitive and (OpeningToken.ToUpper = FoldBlocks[i].Opening.ToUpper)) then begin
           ClosingToken:= FoldBlocks[i].Closing;
           CaseSens:= FoldBlocks[i].CaseSensitive;
+          IsDisposable:= FoldBlocks[i].Disposable;
           Exit(True);
        end;
      end;
@@ -2826,6 +2868,7 @@ begin
           OpeningToken:= FoldBlocks[i].Opening;
           ClosingToken:= FoldBlocks[i].Closing;
           CaseSens:= FoldBlocks[i].CaseSensitive;
+          IsDisposable:= FoldBlocks[i].Disposable;
           Exit(True);
        end;
      end;
@@ -2834,16 +2877,20 @@ begin
 end;
 
 
-procedure TKntRichEdit.Fold (SelectedText: boolean);
+procedure TKntRichEdit.Fold (ExecutedFromContextMenu: boolean; SelectedOpeningToken: boolean);
 var
   RTFIn, RTFOut: AnsiString;
-  SS, SL, SSback: integer;
-  WordAtPos, ClosingWord: String;
+  SS, SL, SSback, SLback: integer;
+  OpeningToken, ClosingToken: String;
   CaseSens, IsTag: boolean;
   TxtPlain: String;
   pI, pF, p: integer;
   KeepEndCarriageReturn: boolean;
   MinLenExtract: integer;
+  MarkersDisposable: boolean;
+  posNextChar: integer;
+  nToRemove_Begin, nToRemove_End: integer;
+  SelectedFoldedBlockBetweenMarkersOnExpand: boolean;
 
   function InsidePossibleTag: boolean;
   var
@@ -2859,115 +2906,258 @@ var
      pI:= SS;
      repeat
         dec(pI);
-     until (pI < 1) or (TxtPlain[pI] in TagCharsDelimiters);
+     until (pI = 1) or (TxtPlain[pI] in TagCharsDelimiters);
 
-     if (TxtPlain[pI] = '#') and ((pI <= 1) or (TxtPlain[pI-1] <> '#')) then begin
+     if (TxtPlain[pI] = '#') and ((pI = 1) or (TxtPlain[pI-1] <> '#')) then begin
         Result:= True;
 
         L:= Length(TxtPlain);
         pF:= SS + SL + 1;
         while (pF < L) and not (TxtPlain[pF] in TagCharsDelimiters) do
            inc(pF);
-        WordAtPos:= Copy(TxtPlain, pI, pF-pI);
+        OpeningToken:= Copy(TxtPlain, pI, pF-pI);
         SS:= pI-1;
      end;
+  end;
+
+  function IdentifyBlockBetweenMarkersOnExpand (var pI, pF: integer): boolean;
+  var
+    pBeg: array[1..9] of integer;    // Up to 10 levels of nesting...
+    pEnd: array[1..9] of integer;
+    Level: integer;
+  begin
+     // Let's check if the current position is bounded by markers used in Expand. If so, we'll use them to identify the block to be folded.
+    {  Some examples:
+
+         [    <-            [
+           [                  [   <--
+           ]
+     SS ......          ...........
+         ]   <-               ]   <--
+                           ]
+
+          [     <-
+     SS ......
+             [
+             ]
+         ]      <-
+
+    }
+
+       Result:= False;
+
+       pI:= Pos(UseOnExpand_Opening, TxtPlain, 1);
+       if (pI = 0) or (pI > SS) then exit;
+
+       pBeg[1]:= pI;
+       pEnd[1]:= 0;
+       pF:= 0;
+       Level:= 1;
+
+       repeat
+          if (pI > pF) or (pI = 0) then begin
+            pF:= Pos(UseOnExpand_Closing, TxtPlain, pF + 1);
+            if (pF = 0) then exit;
+            if (pF < pI) or (pI = 0) then begin
+               if (Level > 1) then
+                  dec(Level);
+               pEnd[Level]:= pF;
+            end;
+            if (pF > pI) then begin
+                pBeg[Level]:= pI;
+                pEnd[Level]:= 0;
+            end;
+          end
+          else begin
+            pI:= Pos(UseOnExpand_Opening, TxtPlain, pI + 1);
+            if (pI > 0) and (pI < pF) then
+               inc(Level)
+            else
+               pEnd[Level]:= pF;
+            if (pI > 0) and (pI < SS) then
+                pBeg[Level]:= pI;
+          end;
+
+          if (pBeg[Level] > 0) and (pBeg[Level] <= SS) and (pEnd[Level] >= SS) then begin
+             Result:= True;
+             break;
+          end;
+
+       until False;
+
+       if Result then begin
+          pI:= pBeg[Level];
+          pF:= pEnd[Level];
+       end;
   end;
 
 
 begin
    if CheckReadOnly or PlainText then exit;
 
+   // not ExecutedFromContextMenu => We are accessing with Ctrl+DblClick or Alt+DblClick
+   // SelectedOpeningToken: True  -> OpeningToken have been explicitly selected. We are certain that it is selected
+
    BeginUpdate;
    try
       SS:= SelStart;
       SL:= SelLength;
+      SLback:= SL;
 
       KeepEndCarriageReturn:= False;
       TxtPlain:= Self.TextPlain;
 
-      if SelectedText or (SL = 0) then begin
+      SelectedFoldedBlockBetweenMarkersOnExpand:= False;
+      MarkersDisposable:= False;
+
+      if ExecutedFromContextMenu and not SelectedOpeningToken or (SL = 0) then begin              // We are using the Fold option from the editor menu
+
          if (SL > 0) and ((SS+SL <= Length(TxtPlain)) and (TxtPlain[SS+SL] = #13)) then begin
             SelLength:= SL-1;
             KeepEndCarriageReturn:= True;
-         end;
-         GetTextScope(TxtPlain, dsParagraph, SS+1, pI, pF, 0);
-         dec(pI);
-         dec(pF);
-
+         end
+         else
          if (SL = 0) then begin
-            SS:= pI;
-            SL:= pF - pI;
+             if IdentifyBlockBetweenMarkersOnExpand(pI, pF) then begin
+                // If inside a folded block or partially selected, ignore an use the original position (SS)
+                SelStart:= pI;
+                SelLength:= 0;
+                if not SelAttributes.Protected then begin
+                   SelStart:= SS + (pF - pI);
+                   if not SelAttributes.Protected then begin
+                      SS:= pI -1;
+                      SL:= pF - pI + Length(UseOnExpand_Closing);
+                      OpeningToken:=   UseOnExpand_Opening;
+                      ClosingToken:= UseOnExpand_Closing;
+                      SelectedFoldedBlockBetweenMarkersOnExpand:= True;
+                      MarkersDisposable:= True;
+                   end;
+                end;
+             end;
+         end;
+
+         if not SelectedFoldedBlockBetweenMarkersOnExpand then begin
+           GetTextScope(TxtPlain, dsParagraph, SS+1, pI, pF, 0);
+           dec(pI);
+           dec(pF);
+
+           if (SL = 0) then begin
+              SS:= pI;
+              SL:= pF - pI;
+           end;
          end;
       end;
 
-      // Do not allow folding inside a folded block or partially selected
-      SelLength:= 0;
-      if SelAttributes.Protected then exit;
-      SelStart:= SS + SL;
-      if SelAttributes.Protected then exit;
+      if not SelectedFoldedBlockBetweenMarkersOnExpand then begin             // If it is selected, we have already checked it before
+         // Do not allow folding inside a folded block or partially selected
+         SelLength:= 0;
+         if SelAttributes.Protected then exit;
+         SelStart:= SS + SL;
+         if SelAttributes.Protected then exit;
+      end;
 
       MinLenExtract:= 0;
+      nToRemove_Begin:= 0;
+      nToRemove_End:= 0;
 
       SelStart:= SS;
       SelLength:= SL;
-      if not SelectedText then begin
+      if not ExecutedFromContextMenu or SelectedOpeningToken then begin
          //WordAtCursor:= GetWordAtCursor(True,true);
-         WordAtPos:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
-         SS:= SelStart;
-         if (SS >= 1) and (TxtPlain[SS] = '#') and ((SS <= 1) or (TxtPlain[SS-1] <> '#'))  then begin
-            WordAtPos:= '#' + WordAtPos;
-            dec(SS);
-            SelStart:= SS;
-         end
-         else
-         if InsidePossibleTag() then        // -> it will update WordAtPos and SS
-            SelStart:= SS;
+         OpeningToken:= SelText.Trim;                    // If we access via Ctrl+DblClick it is enough, and it also allows us to select texts such as "**", "<>", etc.
 
-         SSback:= SS;
-         if (SS >= 1) and (WordAtPos = '') and (SelText = #13) then begin
-            { We might have something like this:
-              <<
-              Line 1
-              Line 2
-              >>
-              Where << is an opening token. If we Ctrl+Click slightly to the right of <<, we'll select #D. To make it easier to use
-              these types of tokens, in these cases we'll check if there's a word to the left and if it's a token. If it is, we'll use it.
-            }
-            SelStart:= SS - 1;
-            WordAtPos:= GetWordAtCursor(True,True, True, True);
-            SS:= SelStart;
+         if not SelectedOpeningToken then begin
+             SS:= SelStart;
+             if (SS >= 1) and (TxtPlain[SS] = '#') and ((SS <= 1) or (TxtPlain[SS-1] <> '#'))  then begin
+                OpeningToken:= '#' + OpeningToken;
+                dec(SS);
+                SelStart:= SS;
+             end
+             else
+             if InsidePossibleTag() then        // -> it will update OpeningToken and SS
+                SelStart:= SS;
+
+             SSback:= SS;
+             if (SS >= 1) and (OpeningToken = '') and (SelText = #13) then begin
+                { We might have something like this:
+                  <<
+                  Line 1
+                  Line 2
+                  >>
+                  Where << is an opening token. If we Ctrl+Click slightly to the right of <<, we'll select #D. To make it easier to use
+                  these types of tokens, in these cases we'll check if there's a word to the left and if it's a token. If it is, we'll use it.
+                }
+                SelStart:= SS - 1;
+                OpeningToken:= GetWordAtCursor(True,True, True, True);
+                SS:= SelStart;
+             end;
          end;
 
 
-         if not GetClosingToken(WordAtPos, ClosingWord, CaseSens, IsTag) then begin
+         if not GetClosingToken(OpeningToken, ClosingToken, CaseSens, IsTag, MarkersDisposable) then begin
            // It is not a defined block opening word, nor a tag.
-           // The initial position will be considered, and the final position will be the position of the following [.]
-           // (which is not included in another block) and if not found, the end of the paragraph
-            WordAtPos:= '';
-            SS:= SSBack;
-            SelStart:= SSback;
+           // Try a particular case, but one that could be frequent: token of the form (x) or [x]
+            SelStart:= SS - 1;
+            SelLength:= 3;
+            OpeningToken:= SelText;
+            if not GetClosingToken(OpeningToken, ClosingToken, CaseSens, IsTag, MarkersDisposable) then begin
+              // The initial position will be considered, and the final position will be the position of the following [.]
+              // (which is not included in another block) and if not found, the end of the paragraph
+               OpeningToken:= '';
+               SS:= SSBack;
+               SelStart:= SS;
+            end;
          end
          else   // The token is recognized
-            MinLenExtract:= Length(WordAtPos);
+            MinLenExtract:= Length(OpeningToken);
 
-         if IsTag and (TxtPlain[SS+Length(WordAtPos)+1] = ':') then begin
-            inc(MinLenExtract);
+
+         posNextChar:= SS+Length(OpeningToken)+1;
+         if IsTag then begin
+           if (posNextChar <= Length(TxtPlain)) and (TxtPlain[posNextChar] = ':') then
+              inc(MinLenExtract);
          end;
 
          if not CaseSens then begin
             TxtPlain:= TxtPlain.ToUpper;
-            WordAtPos:= WordAtPos.ToUpper;
-            ClosingWord:= ClosingWord.ToUpper;
+            OpeningToken:= OpeningToken.ToUpper;
+            ClosingToken:= ClosingToken.ToUpper;
          end;
-         if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, WordAtPos, ClosingWord, '', IsTag, True, True) then exit;
+         if not GetBlockAtPosition(TxtPlain, SS, Self, pI, pF, False, OpeningToken, ClosingToken, '', IsTag, True, True) then exit;
 
          SetSelection(pI, pF + 1, false);
       end;
 
+
+      SS:= SelStart;
+      SL:= SelLength;
+
+      if MarkersDisposable then begin
+         posNextChar:= SS+Length(OpeningToken)+1;
+         nToRemove_Begin:= Length(OpeningToken);
+         nToRemove_End:= Length(ClosingToken);
+         if (posNextChar <= Length(TxtPlain)) and (TxtPlain[posNextChar] = #13) then
+            inc(nToRemove_Begin);
+
+         if (SS+SL < Length(TxtPlain)) and (TxtPlain[SS+SL+1] = #13) then begin
+            SelLength:= SL+1;
+            KeepEndCarriageReturn:= True;
+         end
+      end
+      else
+         nToRemove_Begin:= 0;
+
+
       RTFIn:= EnsureGetRtfSelText;
-      if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract) then begin
+      if (SL=1) or ((SL < 40) and (PosFirstNonAlphaNumeric(SelText) = 0)) then begin
+         SelLength:= SLback;
+         exit;
+      end;
+
+      if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, KeepEndCarriageReturn, KeepEndCarriageReturn, MinLenExtract, nToRemove_Begin, nToRemove_End) then begin
          RtfSelText:= RTFOut;
-         sleep(100);         // If we don't do this, the initial word will remain selected.
+         if not ExecutedFromContextMenu then
+            sleep(100);         // If we don't do this, the initial word will remain selected.
       end;
       SelStart:= pI;
       SelLength:= 0;
@@ -3006,7 +3196,7 @@ begin
       if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
          AdjustHglt:= SelectTextToBeUnfolded(Editor, pI, pF);
          RTFIn:= RtfSelText;
-         PrepareRTFtoBeExpanded(RTFIn, RTFOut, nil, KeepEndCR);
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, nil, KeepEndCR, False);
          if AdjustHglt then
             SetSelection(pI, pF+1, false);
 
@@ -3127,7 +3317,7 @@ begin
       delete(RTF, p, Length(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF + '1' + KNT_RTF_HIDDEN_MARK_R));
 end;
 
-procedure TKntRichEdit.Unfold;
+procedure TKntRichEdit.Unfold (ExpandWithMarkers: boolean);
 var
   RTFIn, RTFOut: AnsiString;
   SS: integer;
@@ -3142,7 +3332,7 @@ begin
       try
          AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
          RTFIn:= EnsureGetRtfSelText;
-         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR);
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR, ExpandWithMarkers);
          FUnfolding:= True;
 
          if AdjustHglt then
@@ -3164,6 +3354,115 @@ begin
       Change;
    end;
 end;
+
+
+
+procedure TKntRichEdit.UnfoldAll (ExpandWithMarkers: boolean);
+var
+  TxtPlain: string;
+  SS: integer;
+  BeginUpdateApplied: boolean;
+
+  function RemoveRemainingMarkers(OnExpandMarker: string): boolean;
+  var
+    Offset, L: integer;
+  begin
+    Offset:= 0;
+    L:= Length(OnExpandMarker);
+    SS:= 0;
+    repeat
+       SS:= Pos(OnExpandMarker, TxtPlain, SS+1);
+       if SS > 0 then begin
+         if not BeginUpdateApplied then begin
+            BeginUpdate;
+            BeginUpdateApplied:= True;
+         end;
+         SelStart:= SS - Offset - 1;
+         SelLength:= L;
+         SelText:= '';
+         Offset:= Offset + L;
+       end;
+    until SS = 0;
+  end;
+
+begin
+  SS:= 0;
+  BeginUpdateApplied:= False;
+  repeat
+     TxtPlain:= TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS+1);
+     if SS > 0 then begin
+        if not BeginUpdateApplied then begin
+           BeginUpdate;
+           BeginUpdateApplied:= True;
+        end;
+        SelStart:= SS;
+        Unfold(ExpandWithMarkers);
+     end;
+  until (SS = 0);
+
+  if not ExpandWithMarkers then begin
+     // Delete markers to be used with Expand that may have remained visible because they were not expanded
+     if not BeginUpdateApplied then
+        TxtPlain:= TextPlain;
+     if RemoveRemainingMarkers(UseOnExpand_Opening) then begin
+        TxtPlain:= TextPlain;
+        RemoveRemainingMarkers(UseOnExpand_Closing);
+     end;
+  end;
+
+  if BeginUpdateApplied then
+     EndUpdate;
+end;
+
+
+procedure TKntRichEdit.FoldAllExpanded;
+var
+  TxtPlain: string;
+  SS: integer;
+  BeginUpdateApplied: boolean;
+  LenContentFolded: integer;
+
+  function PosOfNextBlockToFold: integer;
+  var
+     pI, pF: integer;
+  begin
+     Result:= 0;
+     pF:= Pos(UseOnExpand_Closing, TxtPlain, 1);
+     if pF = 0 then
+        exit;
+     pI:= 0;
+     repeat
+        pI:= Pos(UseOnExpand_Opening, TxtPlain, pI+1);
+        if (pI = 0) then exit;
+        if (pI < pF) then
+           Result:= pI;
+     until (pI > pF);
+  end;
+
+begin
+  SS:= 0;
+
+  BeginUpdateApplied:= False;
+  repeat
+     TxtPlain:= TextPlain;
+
+     SS:= PosOfNextBlockToFold;
+     if SS > 0 then begin
+        if not BeginUpdateApplied then begin
+           BeginUpdate;
+           BeginUpdateApplied:= True;
+        end;
+        SelStart:= SS - 1;
+        SelLength:= Length(UseOnExpand_Opening);
+        Fold(True, True);
+     end;
+  until (SS = 0);
+
+  if BeginUpdateApplied then
+     EndUpdate;
+end;
+
 
 
 function TKntRichEdit.EnsureGetRtfSelText: AnsiString;
@@ -3191,7 +3490,7 @@ begin
          SelectTextToBeUnfolded(Self, pI, pF);
          FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
          RTFIn:= EnsureGetRtfSelText;
-         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR);
+         PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR, False);
          FKeepEndCR:= KeepEndCR;
          SelStart:= pI;
       finally
@@ -4413,7 +4712,7 @@ begin
 
    else
    if CtrlDown then begin
-      Fold (false);
+      Fold (false, false);
       FLastFoldingTime:= Now();
    end;
 
@@ -6546,12 +6845,34 @@ end; // EditGlossaryTerms
 
 //--------------------------------------------
 
+procedure EnsureMarkerForUseOnExpand (iMarkersForUseOnExpand: integer);
+var
+   i: integer;
+begin
+       if iMarkersForUseOnExpand < 0 then begin
+          i:= Length(FoldBlocks);
+          iMarkersForUseOnExpand:= i;
+          SetLength(FoldBlocks, i+1);
+          FoldBlocks[i].Opening:= DEFAULT_USE_ON_EXPAND_OPENING;
+          FoldBlocks[i].Closing:= DEFAULT_USE_ON_EXPAND_CLOSING;
+          FoldBlocks[i].CaseSensitive := True;
+          FoldBlocks[i].Disposable := True;
+          FoldBlocks[i].UseOnExpand := True;
+       end;
+
+       UseOnExpand_Opening:= FoldBlocks[iMarkersForUseOnExpand].Opening;
+       UseOnExpand_Closing:= FoldBlocks[iMarkersForUseOnExpand].Closing;
+end;
+
+
 procedure LoadFoldingBlockInfo;
 var
-   i, p1,p2: integer;
+   i, p1,p2,p3,p4: integer;
    str: string;
    SL: TStringList;
+   iMarkersForUseOnExpand: integer;
 begin
+    iMarkersForUseOnExpand:= -1;
     try
        if FileExists( FoldingBlock_FN) then begin
           SL := TStringList.Create;
@@ -6561,14 +6882,33 @@ begin
              Str:= SL[i];
              p1:= Pos(',', Str, 1);
              p2:= Pos(',', Str, p1+1);
+             p3:= Pos(',', Str, p2+1);
+             p4:= 0;
+             if (p3 = 0) then
+                p3:= integer.MaxValue
+             else
+                p4:= Pos(',', Str, p3+1);
+
              if (p1 > 0) and (p2 > 0) then begin
                 FoldBlocks[i].Opening:= Trim(Copy(Str,1,p1-1));
                 FoldBlocks[i].Closing:= Trim(Copy(Str,p1+1,p2-1-p1));
-                FoldBlocks[i].CaseSensitive := (Trim(Copy(Str,p2+1)))[1]='1';
+                FoldBlocks[i].CaseSensitive := (Trim(Copy(Str,p2+1,p3-1-p2)))[1]='1';
+                if (p3 < integer.MaxValue) then begin
+                   if (p4 = 0) then
+                       p4:= integer.MaxValue;
+                   FoldBlocks[i].Disposable := (Trim(Copy(Str,p3+1,p4-1-p3)))[1]='1';
+                   if (p4 < integer.MaxValue) then begin
+                      FoldBlocks[i].UseOnExpand := (Trim(Copy(Str,p4+1)))[1]='1';
+                      if FoldBlocks[i].UseOnExpand then
+                         iMarkersForUseOnExpand:= i;
+                   end;
+                end;
              end;
           end;
           SL.Free;
        end;
+
+       EnsureMarkerForUseOnExpand(iMarkersForUseOnExpand);
 
     except
       On E : Exception do begin
@@ -6583,8 +6923,10 @@ var
   i : integer;
   SL : TStringList;
   Item : TListItem;
-  Opening, Closing, CaseSens: String;
+  Opening, Closing, CaseSens, Disposable, UseOnExpand: String;
+  iMarkersForUseOnExpand: integer;
 begin
+   iMarkersForUseOnExpand:= -1;
    try
      SL := TStringList.Create;
      try
@@ -6594,11 +6936,22 @@ begin
           Opening:= Item.Caption;
           Closing:= Item.Subitems[0];
           CaseSens:= Item.Subitems[1];
+          Disposable:= Item.Subitems[2];
+          UseOnExpand:= Item.Subitems[3];
           FoldBlocks[i].Opening:= Opening;
           FoldBlocks[i].Closing:= Closing;
+          FoldBlocks[i].Disposable:= (Disposable = 'x');
+          FoldBlocks[i].UseOnExpand:= (UseOnExpand = 'x');
           FoldBlocks[i].CaseSensitive:= (CaseSens = 'x');
-          SL.Add(Opening + ', ' + Closing + ', ' + BOOLEANSTR[FoldBlocks[i].CaseSensitive]);
+          SL.Add(Opening + ', ' + Closing + ', ' + BOOLEANSTR[FoldBlocks[i].CaseSensitive] + ', '
+                                                 + BOOLEANSTR[FoldBlocks[i].Disposable]  + ', '
+                                                 + BOOLEANSTR[FoldBlocks[i].UseOnExpand]);
+          if FoldBlocks[i].UseOnExpand then
+             iMarkersForUseOnExpand:= i;
        end;
+
+       EnsureMarkerForUseOnExpand(iMarkersForUseOnExpand);
+
        SL.SaveToFile( FoldingBlock_FN, TEncoding.UTF8);
 
      finally
@@ -6832,6 +7185,9 @@ end;
 
 Initialization
    ShowingSelectionInformation:= false;
+   UseOnExpand_Opening:= '';
+   UseOnExpand_Closing:= '';
+
 
 end.
 

@@ -2801,5 +2801,6 @@ Button_OK.Caption=(&C)关闭
 (!)55125_knt_RS_sFnd14=Ignored occurrences in %d folded blocks
 (!)55126_knt_RS_sExpFrm23=Nothing to export
 (!)55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
+(!)55128_knt_RS_sFoldBl5=Markers to be used when expanding already exist (uncheck them first)
 
 65100_KDL_Localizer_rsKdlMark=*KDL*Mark*

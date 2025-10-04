@@ -924,6 +924,7 @@ type
     mi3: TMenuItem;
     TagsMExport: TMenuItem;
     TagsMImport: TMenuItem;
+    RTFMExpand: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1347,6 +1348,7 @@ type
     procedure cbTagFindModeChange(Sender: TObject);
     procedure TagsMExportClick(Sender: TObject);
     procedure TagsMImportClick(Sender: TObject);
+    procedure RTFMExpandClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -4545,12 +4547,26 @@ end;
 
 procedure TForm_Main.RTFMFoldClick(Sender: TObject);
 begin
-   ActiveEditor.Fold (True);
+   if ShiftDown then
+      ActiveEditor.FoldAllExpanded
+   else
+      ActiveEditor.Fold (True, False);
+end;
+
+procedure TForm_Main.RTFMExpandClick(Sender: TObject);
+begin
+   if ShiftDown then
+      ActiveEditor.UnfoldAll (True)
+   else
+      ActiveEditor.Unfold (True);
 end;
 
 procedure TForm_Main.RTFMUnfoldClick(Sender: TObject);
 begin
-   ActiveEditor.Unfold;
+   if ShiftDown then
+      ActiveEditor.UnfoldAll (false)
+   else
+      ActiveEditor.Unfold (false);
 end;
 
 procedure TForm_Main.RTFMTagsClick(Sender: TObject);
