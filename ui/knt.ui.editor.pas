@@ -1771,9 +1771,9 @@ begin
   // Remember: remove the extra line break that is being added in RTFAux.PutRtfTex
   // The end will be like this: ...\par'#$D#$A'}'#$D#$A#0
   if AddAdditionalEndCR then
-      ReplaceWith:= '{\f0\fs16' + KNT_RTF_END_FOLDED + '}\par}'
+      ReplaceWith:= '\v0{\f0\fs20' + KNT_RTF_END_FOLDED_WITHOUT_v0 + '}\par}'
   else
-      ReplaceWith:= '{\f0\fs16' + KNT_RTF_END_FOLDED + '}}';
+      ReplaceWith:= '\v0{\f0\fs20' + KNT_RTF_END_FOLDED_WITHOUT_v0 + '}}';
 
   if not KeepEndCR then begin
      pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
