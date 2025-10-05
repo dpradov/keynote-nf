@@ -958,6 +958,7 @@ type
     procedure MMFilePropertiesClick(Sender: TObject);
     procedure MMFileAutoSaveClick(Sender: TObject);
     procedure RxFindAllResultsSelectionChange(Sender: TObject);
+    procedure RxFindAllResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MMEditSelectAllClick(Sender: TObject);
     procedure MMFormatWordWrapClick(Sender: TObject);
     procedure PagesChange(Sender: TObject);
@@ -6579,12 +6580,12 @@ end;
 
 procedure TForm_Main.Btn_ResFind_PrevClick(Sender: TObject);
 begin
-  FindAllResults_SelectMatch (true);
+  FindAllResults_SelectMatch (Form_Main.FindAllResults, true);
 end;
 
 procedure TForm_Main.Btn_ResFind_NextClick(Sender: TObject);
 begin
-  FindAllResults_SelectMatch (false);
+  FindAllResults_SelectMatch (Form_Main.FindAllResults, false);
 end;
 
 procedure TForm_Main.Combo_ResFindKeyDown(Sender: TObject; var Key: Word;
@@ -6607,6 +6608,13 @@ procedure TForm_Main.RxFindAllResultsSelectionChange(Sender: TObject);
 begin
   FindAllResults_OnSelectionChange (sender as TRxRichEdit);
 end;
+
+procedure TForm_Main.RxFindAllResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  FindAllResults_OnKeyDown (Sender as TRxRichEdit, Key);
+  Key:= 0;
+end;
+
 
 procedure TForm_Main.CheckFindAllEnabled;
 begin
