@@ -1004,7 +1004,7 @@ begin
 
   pR_Scope:= Pos(#13, Text, PosInsideScope);
   if pR_Scope <= 0 then
-     pR_Scope:= Text.Length;
+     pR_Scope:= Text.Length + 1;
 
   if Scope = dsSentence then begin
      for p := PosInsideScope to pR_Scope-1 do
