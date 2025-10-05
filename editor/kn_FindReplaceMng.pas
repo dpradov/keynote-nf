@@ -3157,7 +3157,10 @@ begin
 end;
 
 procedure FindAllResults_OnKeyDown (Editor: TRxRichEdit; Key: Word);
+var
+  SS: integer;
 begin
+   SS:= Editor.SelStart;
    case Key of
      VK_RETURN: begin
         ActiveEditor.SetFocus;
@@ -3176,6 +3179,19 @@ begin
 
      VK_END: begin
         Editor.SelStart:= Editor.TextLength;
+        Editor.SetFocus;
+     end;
+
+     VK_PRIOR: begin
+        SS:= SS - 700;
+        if SS < 5 then
+           SS:= 5;
+        Editor.SelStart:= SS;
+        Editor.SetFocus;
+     end;
+
+     VK_NEXT: begin
+        Editor.SelStart:= SS + 700;
         Editor.SetFocus;
      end;
 
