@@ -874,8 +874,10 @@ function NFromLastCharPos(const S: string; const Chr: char; nthOccurrence: integ
 var
   i, n: Integer;
 begin
-  n:= 0;
   result := 0;
+  if S = '' then Exit;
+
+  n:= 0;
   if StartAtPos < 0 then
      StartAtPos:= length(S);
 

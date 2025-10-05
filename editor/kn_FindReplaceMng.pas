@@ -3078,9 +3078,14 @@ var
   item: integer;
   s:string;
   matchSelected: boolean;
+  TxtPlain: string;
 begin
   if SelectedMatch < 0 then exit;             // *1
 //if Editor.SelLength > 0 then exit;          // *1
+
+  TxtPlain:= Editor.TextPlain;
+  if TxtPlain = '' then exit;
+
 
   SelectedMatch := -1;
   try
@@ -3115,8 +3120,8 @@ begin
 
   pS:= Editor.SelStart;
 
-  pLaux:= Editor.FindText(#$FFF9, pS+1, -1, [stBackward]) +1;
-  pL:= Editor.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, pS+1, -1, [stBackward]) +1;
+  pLaux:= NFromLastCharPos(TxtPlain,#$FFF9,1, pS+1);                     //  pLaux:= Editor.FindText( #$FFF9, pS+1, -1, [stBackward]) +1;
+  pL:= NFromLastCharPos(TxtPlain,KNT_RTF_HIDDEN_MARK_L_CHAR,1, pS+1);    //pL:= Editor.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, pS+1, -1, [stBackward]) +1;
   matchSelected:= (pL > 0) and (pL > pLaux);
   Form_Main.FAMCopytoEditor.Enabled:= matchSelected;
 
@@ -3124,7 +3129,7 @@ begin
      s:= Editor.GetTextRange(pL, pL+6);
      pR:= pos(' ', s, 1);
      item:= StrToInt(Copy(s, 1, pR-1));
-     pR:= Editor.FindText(#$FFFB, pS, -1, []) -1;
+     pR:= Pos(#$FFFB, TxtPlain, pS) - 2;                                 // pR:= Editor.FindText(#$FFFB, pS, -1, []) -1;
      Editor.SetSelection(pL, pR, true);
 
      FindAllResults_SelectedMatch (item);
@@ -3136,7 +3141,8 @@ begin
   end
   else begin
      SelectedMatch:= 0;          // we are going to force reentrance, but controlled (FindAllResults_SelectMatch)
-     if Editor.FindText(#$FFFB, pS, -1, []) < 0 then
+     pR:= Pos(#$FFFB, TxtPlain, pS) - 1;                                 // pR:= Editor.FindText(#$FFFB, pS, -1, []);
+     if pR < 0 then
         FindAllResults_SelectMatch (true)      // Prev
      else
         FindAllResults_SelectMatch (false);    // Next
