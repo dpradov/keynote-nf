@@ -4466,13 +4466,22 @@ begin
         end;
      end;
 
+     if (StartPos + 1 >= EndPos) and (NProtectedEdges = 2) then
+        AllowChange:= False
+     else
      if (StartPos = EndPos) or (NProtectedEdges > 0) then begin
         if PressedBACK and (NProtectedEdges = 0) then
            SS:= EndPos - 1;
 
-        if (SS > 0) and PositionInFoldedBlock(Self.TextPlain, SS, nil, pI, pF) then
-           if ((StartPos = EndPos) and PressedDELETE) or (SS > pI) then               // *1 -> (SS > pI)
+        if (SS > 0) and PositionInFoldedBlock(Self.TextPlain, SS, nil, pI, pF) then begin
+           if ((StartPos = EndPos) and PressedDELETE) or (SS > pI)  then               // *1 -> (SS > pI)
               AllowChange:= False;
+        end
+        else
+        if (pI > 0) and (pF > 0) and
+              ( ((StartPos > pI) and (StartPos <= pF)) or
+                (StartPos = EndPos) and (StartPos = pF + 1) and PressedBACK  )  then
+           AllowChange:= False;
      end;
      SetSelection(StartPos, EndPos, False);
   end;
