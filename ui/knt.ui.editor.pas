@@ -1823,7 +1823,7 @@ end;
 
 
 
-procedure ProcessTablesInRTFBeforeExpanded(var RTFIn: AnsiString);
+function ProcessTablesInRTFBeforeExpanded(var RTFIn: AnsiString): boolean;
 var
    FoundTables, FragProcessed: boolean;
    pSColors, pI, pF : integer;
@@ -1941,6 +1941,7 @@ begin
 
   // Remove strings \'11X\cf1 0\cf2 0\'12 (SColors..) that are not in nested folder blocks
 
+   Result:= False;
    Lm:= length(KNT_RTF_HIDDEN_MARK_L);
 
    pBeginNextFolded:= 0;
@@ -2000,6 +2001,7 @@ begin
          FragProcessed:= True;
    until pI = 0;
 
+   Result:= True;
 end;
 
 
@@ -2031,6 +2033,7 @@ var
    RTFOutWithProcessedImages: AnsiString;
    ImagesMode: TImagesMode;
    ReconsiderImageDimensionsGoalBAK: boolean;
+   ProcessedTables: boolean;
 
 
    procedure CheckCreateResult (N: Integer);
@@ -2219,7 +2222,7 @@ begin
   if RTFIn='' then Exit;
 
 
-  ProcessTablesInRTFBeforeExpanded(RTFIn);
+  ProcessedTables:= ProcessTablesInRTFBeforeExpanded(RTFIn);
 
 
   RTFAux:= CreateAuxRichEdit;
@@ -2242,6 +2245,14 @@ begin
      RTFAux.SelStart:= RTFAux.TextLength- Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);  // 4 ..
      RTFAux.SelLength:= Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);
      RTFAux.SelText:= '';
+
+     if ProcessedTables then begin
+        // From what I see, an extra line break is added.
+        RTFAux.SelStart:= RTFAux.TextLength- 1;
+        RTFAux.SelLength:= 1;
+        if RTFAux.SelText = #13 then
+           RTFAux.SelText:= ''
+     end;
 
      // If there are markers defined to used on Expand, the will be added at the beginning and at the end.
      if ExpandWithMarkers and (UseOnExpand_Opening <> '') and (UseOnExpand_Closing <> '') then begin
