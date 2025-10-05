@@ -1008,7 +1008,7 @@ begin
 
   if Scope = dsSentence then begin
      for p := PosInsideScope to pR_Scope-1 do
-       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
+       if ((Text[p] in ['.','¿','?','¡','!']) and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
           break;
      if p < pR_Scope then
         pR_Scope:= p;
@@ -1026,7 +1026,7 @@ begin
 
   if Scope = dsSentence then begin
      for p := PosInsideScope downto pL_Scope do
-       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
+       if ((Text[p] in ['.','¿','?','¡','!']) and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
           break;
      if (p > pL_Scope) then
         pL_Scope := p;
