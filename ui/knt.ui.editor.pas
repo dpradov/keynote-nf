@@ -3437,8 +3437,10 @@ begin
      end;
   end;
 
-  if BeginUpdateApplied then
+  if BeginUpdateApplied then begin
      EndUpdate;
+     Change;
+  end;
 end;
 
 
@@ -3485,8 +3487,10 @@ begin
      end;
   until (SS = 0);
 
-  if BeginUpdateApplied then
+  if BeginUpdateApplied then begin
      EndUpdate;
+     Change;
+  end;
 end;
 
 
