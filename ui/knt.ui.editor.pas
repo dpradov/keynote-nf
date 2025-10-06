@@ -3034,7 +3034,7 @@ begin
                 SelStart:= pI;
                 SelLength:= 0;
                 if not SelAttributes.Protected then begin
-                   SelStart:= SS + (pF - pI);
+                   SelStart:= pI + (pF - pI);
                    if not SelAttributes.Protected then begin
                       SS:= pI -1;
                       SL:= pF - pI + Length(UseOnExpand_Closing);
@@ -3335,10 +3335,25 @@ var
   pI, pF: integer;
   AdjustHglt: boolean;
   KeepEndCR: boolean;
+  TxtPlain: string;
 begin
    if CheckReadOnly then exit;
+   { *1:
+    If the nested block is inside a cell and the following character is the column separator in tables, we should avoid selecting
+    the character #7, as we will be selecting the entire contents of the cell, including everything before and after it.
 
-   if PositionInFoldedBlock(Self.TextPlain, Self.SelStart, Self, pI, pF) then begin
+    It could also happen that the block to be expanded contains a nested block that ends right at the end of the block (...)
+    In that case, if the nested block is expanded after having expanded the outer block with markers (for example, by using
+    Expand (with markers) with Shift (ALL), all or part of the end marker could be lost.
+    ->
+    Let's simply make sure to apply that line (SelLength:= SelLength+1) if the following character is a line break.
+    In the case of a block nested at the end of another, this process of expanding with markers would not eliminate the line break.
+    However, this situation should be rare, and if it occurs, simply delete the extra line manually.
+
+    Note: Although SelStart+SelLength = TextLengh will not cause an error, TxtPlain[SelStart+SelLength+1] will return #0.  }
+
+   TxtPlain:= Self.TextPlain;
+   if PositionInFoldedBlock(TxtPlain, Self.SelStart, Self, pI, pF) then begin
       BeginUpdate;
       try
          AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
@@ -3349,7 +3364,7 @@ begin
          if AdjustHglt then
             SetSelection(pI, pF+1, false);
 
-         if KeepEndCR then
+         if KeepEndCR and (TxtPlain[SelStart+SelLength+1] = #13) then   // *1
             SelLength:= SelLength+1;
 
          RemoveFoldedMarker(RTFOut);
