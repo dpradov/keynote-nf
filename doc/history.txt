@@ -3,6 +3,44 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.1.1  (08 oct 2025)
+--------------------------
+* New: Image viewer allows copying images to clipboard (#882)
+* Fixed: Possible exception "Failed to Load Stream" working on newly created node, before persisted to the model
+* Fixed: Exception when exporting (File|Export...) "Current node" filtering by tags (in metadata or note content)
+* Fixed: All possible exceptions that may occur in ApplicationEventsIdle are now discarded.
+* Fixed: Tree > Set Focus > "Toggle Focus Editor / Tree Panel" keyboard shortcut. Should display Ctrl+\ (#887)
+* Fixed: Hiding a node by checking it doesn't select another node and the editor still displays it.
+* Fixed: If Image/Single instance/Hot track option is enabled, often two clicks are required to open the viewer
+--
+* Find All: You can navigate through search results using Up, Down, Home, End, Prior, Next and Enter keys (#888)
+* Fixed: Advanced search: "sentences" can also be separated by exclamation or question marks (¿ ? ¡ !)
+* Fixed: Difficulty selecting a search result (in Find All) if it displays special characters.
+* Fixed: Searches may not correctly highlight results if images are visible and note contains images inside folded text
+--
+* New property on Folder: TagSelectorDisabled, to allow disabling the display of the tag selector in the editor (#884)
+* Fixed: Exception after removing a temporary added tag (green) if it's visible in tag selector and focus changes
+  to tree panel
+* Fixed: Register tags added to the end of the editor when the editor loses focus
+* Fixed: Hide tag selector when opening a modal window (like Configuration options (F5), Default settings (F6), etc)
+* Fixed: Tags registered within folded text (via floating editors) are discarded when returning to the parent editor
+* Fixed: Avoided situation that could generate an AccessViolation exception, caused by tag management
+--
+* Folding/Unfolding can now be used with TABLES (the table structure, with its borders, will also be hidden)
+* Folding: New properties in the opening/closing tokens defining folding blocks: [Keep | Discard], Use on expand
+* Folding: New RTF context menu command: "Expand (with markers)"
+* Folding: Shift + menu commands "Fold", "Expand (with markers)" or "Unfold":  all blocks in a note at once
+* Folding: Ignore leading spaces when searching for two consecutive spaces to identify the end of the visible excerpt
+* Folding: Improved selection (with Ctrl+Click) of opening token when set before a carriage return 
+* Folding: Improved use of very small opening tokens when attached to text to be folded (and Ctrl+Click is used)
+* Fixed: Making changes within a floating editor does not mark the file as Modified
+* Fixed: When saving a file, either manually or automatically, any floating editors will not close.
+* Fixed: The ➕ character in the hyperlink that starts a folded block is not always displayed in blue
+* Fixed: The closing symbol for a folded block, ...[ ], will now always display in the same font and size.
+* Fixed: It was possible to delete characters from an already folded text block in some circumstances.
+* Fixed: Other corrections related to folding
+
+
 v 2.1.0.4  Beta4 (04 may 2025)
 --------------------------
 * New: Configurable spacing between bullet and text is now available for all list types (#876)

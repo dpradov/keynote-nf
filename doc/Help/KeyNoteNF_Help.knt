@@ -641,7 +641,7 @@ You may add additional accurate notices of copyright ownership.\par
 %*
 GI=10
 ND=Features
-LM=1304252212
+LM=0710252201
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -689,7 +689,7 @@ LM=1304252212
 {\pntext\f3\'B7\tab}\b Clickable hyperlinks \b0 to Internet addresses, local files and internal locations in KeyNote notes ({{\field{\*\fldinst{HYPERLINK "file:///<38|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}"\b Clipboard capture\b0 " feature, enabling you to automatically capture and store any text and images that was copied to Clipboard from any other application, or even from KeyNote ({{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}"\b Web clip\b0 " feature, that allows to paste text and images from external programs (included web browsers) in a configurable way ({{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
-{\pntext\f3\'B7\tab}\b Folding and unfolding\b0 : it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. Nesting of folded blocks is possible, and these can contain images, links, etc ({{\field{\*\fldinst{HYPERLINK "file:///<123|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+{\pntext\f3\'B7\tab}\b Folding and unfolding\b0 : it is possible to fold text, hiding its content except for a small fragment used as a visible excerpt. Nesting of folded blocks is possible, and these can contain images, links, tables, etc ({{\field{\*\fldinst{HYPERLINK "file:///<123|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Simple \b bookmarks\b0  ({{\field{\*\fldinst{HYPERLINK "file:///<20|23704|0|13"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Basic RTF \b Tables\b0  support ({{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}\b Glossary \b0 function to automatically replace a piece of text with another ({{\field{\*\fldinst{HYPERLINK "file:///<24|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Expand text}}}}\f0\fs20 )\par
@@ -3688,7 +3688,7 @@ The dialog box contains two tab sheets:\par
 %*
 GI=31
 ND=Editor Settings
-LM=0801252203
+LM=0710252034
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -3699,7 +3699,7 @@ LM=0801252203
 \par
 \b Folder | Properties \b0 (\cf2\b F4\cf0\b0 )\tab\tab\tab\tab\tab\tab\b Tools | Default settings... \b0 (\cf2\b F6\cf0\b0 )\par
 \par
-\v\'11I213\'12\v0{\field{\*\fldinst{HYPERLINK "img:213,387,530"}}{\fldrslt {213_Clipb_08ene.png}}}            \v\'11I214\'12\v0{\field{\*\fldinst{HYPERLINK "img:214,387,530"}}{\fldrslt {214_Clipb_08ene.png}}}\par
+\v\'11I229\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:229,385,532"}}{\fldrslt {229_Clipb_07oct.png}}}\lang1033             \v\'11I230\'12\v0{\field{\*\fldinst{HYPERLINK "img:230,385,532"}}{\fldrslt {230_Clipb_07oct.png}}}\par
 \par
 \par
 On this tab you can specify \ul folder and editor-related settings\ulnone  for either the \b active folder\b0  (\cf2\b F4\cf0\b0 ), or for \b all folders you later create\b0  (\cf2\b F6\cf0\b0 ).\par
@@ -3743,8 +3743,9 @@ If the \b Use Tab character\b0  option is disabled, specifies the number of spac
 More info in {{\field{\*\fldinst{HYPERLINK "file:///<38|3323|0|3"}}{\fldrslt{\ul\cf3\cf3\ul Using URL recognition of RTF Editor}}}}\f0\fs20\par
 
 \pard\par
-\cf1\b\v\fs22\'11B1\'12\v0 Language\cf0\b0\fs20\par
-Set the language for the note text. This property is used to select the proper dictionary for the spell-checker. It does not change the language of the text or the language of the KeyNote program.\par
+\cf1\b\fs22 Disable Tag selector\cf0\b0\fs20\par
+Allows to disable the display of the tag selector in the editor.\par
+If this option is selected, new tags will not be registered from the editor of this folder, although they can be registered from the Tags tab (in the Resource panel).\par
 \par
 \cf1\b\fs22 Default Plain text only\cf0\b0\fs20\par
 Normally, note contents are saved as Rich Text. If this options is selected, content of new notes in this folder (or new folders) will be saved by default as plain text (do not save formatting information)\par
@@ -3754,6 +3755,9 @@ Normally, note contents are saved as Rich Text. If this options is selected, con
 {\pntext\f1\'B7\tab}Please note that since that version it is possible to combine RTF and Plain text notes in the same folder.\par
 
 \pard\par
+\cf1\b\v\fs22\'11B1\'12\v0 Language\cf0\b0\fs20\par
+Set the language for the note text. This property is used to select the proper dictionary for the spell-checker. It does not change the language of the text or the language of the KeyNote program.\par
+\par
 \par
 \cf1\b\fs22 Font button\cf0\b0\fs20\par
 Selects initial font style for notes in active folder. Does not affect already existing text! (*)\par
@@ -5424,7 +5428,7 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=0405251310
+LM=0710252012
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset2 Symbol;}}
@@ -5528,9 +5532,13 @@ Note that pressing \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  in any tab of Reso
 \pard\li360\sb80 (*) If focus is set to the Scratch editor and "On Escape key" is set to "Minimize KeyNote", Esc will minimize the application; otherwise, it will switch focus to the editor.\par
 
 \pard\par
+\b Tip\b0 : You can navigate through search results using the \cf5\b\f0 Up \cf0\b0\f1 and \cf5\b\f0 Down\cf0\b0\f1  (also \cf5\b\f0 Home\cf0\b0\f1 , \cf5\b\f0 End\cf0\b0\f1 , \cf5\b\f0 Prior\cf0\b0\f1  and \cf5\b\f0 Next\cf0\b0\f1 ) and \cf5\b\f0 Enter\cf0\b0\f1  keys. Selecting a result will locate it and display it in context, but the find results window will remain focused. To switch focus to the editor, you can press \cf5\f0 Enter\cf0\f1 .\par
+\par
 \b Tip\b0 : Clicking in a search result will iterate the different words of the match. With each consecutive click, each of the words that were considered when adding the match to the list of results will be selected.\par
 \b   \par
 Tip\b0 : \f0\lang1033 After you have used the "Find All" command, right-click the search results list for a context menu. The menu contains commands to insert the search results as clickable hyperlinks in current note.\par
+\par
+\b\f1\lang3082 Tip\b0 : You can further narrow your search by using a {{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{\ul\cf2\cf2\ul syntax for additional/advanced search}}}}\f0\fs20\lang1033 .\par
 \f1\lang3082\par
 \par
 
@@ -5892,7 +5900,7 @@ More information: {{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldr
 {\pntext\f5\'B7\tab}If two or more \b words\b0  are \b separated by\b0  "\cf6\b ...\cf0\b0 " (three dots), they must all be located \b in the same paragraph\b0  to be recognized as a match.\par
 {\pntext\f5\'B7\tab}If two or more words are \b separated by \b0 "\cf6\b ..\cf0\b0 " (two dots), they must all be located \b in the same sentence\b0  to be recognized as a match.\par
 
-\pard\li720\sb40 Sentences are understood to be separated by a period and at least one space or by a period and a tabulation sign, or by a line break or a column separator in a table.\par
+\pard\li720\sb40 Sentences are understood to be separated by a period (or question/exclamation mark) and at least one space or by a period (or question/exclamation mark) and a tabulation sign, or by a line break or a column separator in a table..\par
 
 \pard\par
 
@@ -6024,6 +6032,7 @@ The number of results may vary slightly depending on whether or not the word w3 
 %*
 GI=41
 ND=Image management in KeyNote
+LM=0710252000
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\froman\fcharset0 Tahoma;}{\f4\froman Tahoma;}{\f5\fnil\fcharset0 Cambria Math;}{\f6\fnil\fcharset2 Symbol;}}
@@ -6055,7 +6064,7 @@ See also:\par
 \par
 \cf3\b\v\fs26\'11B11\'12\v0 Introduction\cf0\b0\par
 \fs20\par
-\v\'11I115\'12\v0{\field{\*\fldinst{HYPERLINK "img:115,214,225"}}{\fldrslt {115_Clipb_04ene.png}}} \par
+\v\'11I228\'12\v0{\field{\*\fldinst{HYPERLINK "img:228,210,222"}}{\fldrslt {228_Clipb_07oct.png}}} \par
 \par
 Since version 1.8.1 KeyNote NF allows to use the most common image formats (GIF, PNG, JPG, BMP, TIF, WMF, EMF and ICO), and offer a series of new features, such as allowing images to be hidden or visible, providing various storage mechanisms, some of them external to the .knt file, or making use of an internal viewer, among others.\par
 \par
@@ -6245,7 +6254,7 @@ Owned images can be deleted (from the storage defined) when unused. See also {{\
 
 \pard\li360\par
 
-\pard\li720\v\'11I114\'12\v0{\field{\*\fldinst{HYPERLINK "img:114,360,247"}}{\fldrslt {114_Clipb_04ene.png}}}\par
+\pard\li720\v\'11I114\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:114,360,247"}}{\fldrslt {114_Clipb_04ene.png}}}\lang1033\par
 
 \pard\li360\par
 \b Tip: \b0 It is possible to drag any file into the Editor panel, in a specific position, and not only to the Tree panel or other parts of the main window.\par
@@ -6300,7 +6309,7 @@ Based on the above, if we externally modify a previously added image file (perha
 The application allows you to change the visibility of the images of the file. Every image can be visible (\b Image mode \b0\f1\emdash\b\f0 imImage\b0 ) or hidden (or\b  Link mode \b0\f1\emdash\b\f0 imLink\b0 ).\par
 It will become effective only when it is required to show each individual note (node). If the option to hide the images is selected, the application hides their content and instead offers a \b link\b0  from which they can be consulted (with the help of a viewer). A similar link will appear next to a referenced image that is not accesible (storage is not available or the file has been moved or deleted).\par
 \par
-For this purpose, a new menu entry (\b View | Show Images\b0 ) is included, as well as a new Image button in one of the toolbars: \v\'11I60\'12\v0{\field{\*\fldinst{HYPERLINK "img:60,16,16"}}{\fldrslt {60_Main_60.png}}}\par
+For this purpose, a new menu entry (\b View | Show Images\b0 ) is included, as well as a new Image button in one of the toolbars: \v\'11I60\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:60,16,16"}}{\fldrslt {60_Main_60.png}}}\lang1033\par
 \par
 Note:\par
 
@@ -6332,7 +6341,7 @@ At any time it's possible to restore the proportions of one or all the images in
 
 \pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Using \cf5\b\fs18 Alt+Click\cf0\b0\fs20  on Image button (or equivalent menu item)\par
 
-\pard\li360\v\'11I113\'12\v0{\field{\*\fldinst{HYPERLINK "img:113,526,80"}}{\fldrslt {113_Clipb_04ene.png}}}\par
+\pard\li360\v\'11I113\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:113,526,80"}}{\fldrslt {113_Clipb_04ene.png}}}\lang1033\par
 
 \pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Selecting \cf6\b Restore image[s] proportions\cf0\b0  in the context menu (right click) of the Editor. \par
 
@@ -6371,7 +6380,7 @@ For example, we can have a certain node with many images, where we may be intere
 A simple image viewer is incorporated that allows one or more images to be opened from independent windows.\par
 \par
 
-\pard\li360\v\'11I115\'12\v0{\field{\*\fldinst{HYPERLINK "img:115,505,536"}}{\fldrslt {115_Clipb_04ene.png}}}\par
+\pard\li360\v\'11I228\'12\v0{\field{\*\fldinst{HYPERLINK "img:228,505,536"}}{\fldrslt {228_Clipb_07oct.png}}}\par
 
 \pard\par
 With the viewer it is possible:\par
@@ -6383,6 +6392,7 @@ With the viewer it is possible:\par
 {\pntext\f6\'B7\tab}Dynamically enlarge the image adjusting it to the size of the window (respecting the proportions): \b Adjust\b0  \cf4 [4]\cf0\par
 {\pntext\f6\'B7\tab}\b Open\b0  the \b image path\b0  or the \b image file\b0  (in case of external images). The latter allows to view the image in a specialized external image viewer \cf4 [4]\cf0\par
 {\pntext\f6\'B7\tab}\b Save\b0  the image to a file \cf4 [4]\cf0\par
+{\pntext\f6\'B7\tab}\b Copy\b0  the image to the clipboard \cf4 [4]\cf0\par
 {\pntext\f6\'B7\tab}\b Scroll through all the images\b0  in the Editor (or in the file) or show the one corresponding to a \b specific image ID\b0  \cf4 [5]\cf0\par
 
 \pard\li720\sb80\b Tip\b0 : By default, navigation toolbar buttons will show previous or next image instance in the Editor) (note from where the image has been selected). With \cf5\b\fs18 Ctrl \cf0\b0\fs20 it will show the image with previous or next ID (in the entire .knt file)\par
@@ -12748,6 +12758,7 @@ See notes in \b Confirm before transferring nodes\b0 , above, on possible asked 
 %*
 GI=97
 ND=Chrome
+LM=0710251943
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12757,7 +12768,7 @@ ND=Chrome
 \cf1\b\fs36 Options: Chrome\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\fs20\'11I190\'12\v0{\field{\*\fldinst{HYPERLINK "img:190,358,370"}}{\fldrslt {190_Clipb_31mar.png}}}\par
+\pard\li360\v\fs20\'11I227\'12\v0{\field{\*\fldinst{HYPERLINK "img:227,359,369"}}{\fldrslt {227_Clipb_07oct.png}}}\par
 
 \pard\par
 See {{\field{\*\fldinst{HYPERLINK "file:///<104|7096|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20\par
@@ -16813,7 +16824,7 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=1304252215
+LM=0710251940
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -16837,6 +16848,13 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.1.1\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Folding/Unfolding can now be used with tables\par
+{\pntext\f3\'B7\tab}New RTF context menu command: Expand (with markers)\par
+{\pntext\f3\'B7\tab}Folding and unfolding can be applied to all blocks in a note at once\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.1.0\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Added two new functionalities:\par
@@ -16930,7 +16948,7 @@ The \b main changes/improvements of the latest versions\b0  are highlighted belo
 %*
 GI=120
 ND=News
-LM=2001252014
+LM=0710251940
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
@@ -16939,6 +16957,12 @@ LM=2001252014
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 KeyNote\f0\lang3082  NF:  News\cf2\lang1033\par
 \cf0\b0\fs20\par
+\par
+
+\pard\sa120\cf1\b\fs24\lang3082 7\f1\lang1045  \f0\lang3082 oct\f1\lang1045  202\f0\lang3082 5\cf2\lang1033\par
+
+\pard\cf0\b0\fs20 Now compiled with Delphi 12.1 Community Edition.\par
+\par
 \par
 
 \pard\sa120\cf1\b\fs24\lang3082 20\f1\lang1045  \f0\lang3082 jan\f1\lang1045  202\f0\lang3082 5\cf2\lang1033\par
@@ -17513,7 +17537,7 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2
 %*
 GI=123
 ND=Folding and unfolding
-LM=0405251324
+LM=0710252159
 %.
 DC=1204251504
 %:
@@ -17526,6 +17550,7 @@ DC=1204251504
 {{\field{\*\fldinst{HYPERLINK "file:///<123|46|0|1"}}{\fldrslt{\ul\cf2\cf2\ul General information}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<123|2308|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How to fold a block of text}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<123|6140|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Unfold folded text}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<123|10543|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Fold, Unfold or Expand (with markers) all blocks in a note at once}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<123|6632|0|4"}}{\fldrslt{\ul\cf2\cf2\ul View and edit folded text}}}}\f0\fs20\par
 \par
 \par
@@ -17538,13 +17563,13 @@ Since version 1.2.1, it is possible to fold text, hiding its content except for 
 Given a text to be folded, the visible excerpt will be selected from the beginning, including the rest of the sentence or until two consecutive spaces, an image or a hyperlink are detected.\par
 
 \pard\par
-Nesting of folded blocks is possible, and these can contain images, links, etc. The following is an \b example of folded text\b0 . Notice the hyperlink with the \f1\fs22\lang3082\u10133?\f0\fs20\lang1033 :\par
+Nesting of folded blocks is possible, and these can contain images, links, tables, etc. The following is an \b example of folded text\b0 . Notice the hyperlink with the \f1\fs22\lang3082\u10133?\f0\fs20\lang1033 :\par
 \par
-{\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf2\ul\f2\u10133?\f0  \f2 }}}}\protect\f0\fs20\lang3082 This is an fragment of the help included in\v  \'11L"file:///<41|0|0"@\cf2\ul Image management in KeyNote NF\'12\cf0\ulnone\par
+{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf2\ul\f1\u10133?\f0  \f1 }}}}\protect\f0\fs20\lang3082 This is an fragment of the help included in\v  \'11L"file:///<41|0|0"@\cf2\ul Image management in KeyNote NF\'12\cf0\ulnone\par
 \par
 \cf3\b\fs26 Introduction\cf0\b0\par
 \fs20\par
-\'11I115\'12\'11L"img:115,214,225"@\cf2\ul 115_Clipb_04ene.png\'12\cf0\ulnone\lang1033  \par
+\lang1033\'11I228\'12\'11L"img:228,210,222"@\cf2\ul 228_Clipb_07oct.png\'12\cf0\ulnone  \par
 \par
 \fs24\lang3082\'11L"FOLD:"@\cf2\ul\f2\u10133?\f0  \f3\'12\cf0\ulnone\f0\fs20 Since version 1.8.1 KeyNote NF allows to use the most common image formats  (GIF, PNG, JPG, BMP, TIF, WMF, EMF and ICO), and offer a series of new features, such as allowing images to be hidden or visible, providing various storage mechanisms, some of them external to the .knt file, or making use of an internal viewer, among others....\'13\v0 ...\'13\protect0\lang1033\par
 \par
@@ -17569,14 +17594,21 @@ It is possible to both view and modify the content of folded text without needin
 {\pntext\f5\'B7\tab}It is possible to check the structure of folded blocks and their nesting through the export to plain text. Vea {{\field{\*\fldinst{HYPERLINK "file:///<57|15769|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to Plain text}}}}\f0\fs20\par
 {\pntext\f5\'B7\tab}Text folding can also be performed in the Scratchpad\par
 {\pntext\f5\'B7\tab}Text folding is \b not\b0  available in \ul plain text\ulnone  notes.\par
+{\pntext\f5\'B7\tab}Folding/Unfolding can now be used with \b tables\b0  (the table structure, with its borders, will also be hidden). \par
+
+\pard\li360\sb40 RTF allows for the inclusion of cells within other cells. However KeyNote NF will \b not\b0  initially support tables with nested cells. When applying folding, if it detects nested cells (\\nestcell RTF command), it will issue a warning and prevent these changes from being applied.\par
+Although folding is not supported on tables with nested cells, it is possible to apply folding in text fragments with tables that include images, links, or even other nested blocks as the content of one or more cells. These nested blocks can, in turn, contain other tables, images, text, and so on.\par
 
 \pard\par
-\par
   \par
 \cf3\b\v\fs24\'11B2\'12\v0 How to fold a block of text\par
 \cf0\b0\fs20\par
 You can fold a block of text, thus hiding its content, in several ways:\par
 \par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 Place the \b caret\b0  inside a \b block\b0  of text \b delimited by markers\b0  defined as "Add on Expand", and click on \b "Fold"\b0  in the editor's context menu. (See use of "Expand (with markers)" in {{\field{\*\fldinst{HYPERLINK "file:///<123|6140|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Unfold folded text}}}}\f0\fs20 , below)\par
+
+\pard\par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Select\b0  the text you want to fold and click on \b "Fold"\b0  in the editor's context menu\par
 
@@ -17602,11 +17634,17 @@ You can fold a block of text, thus hiding its content, in several ways:\par
 \cf0\par
 If the two words are different, this allows nested blocks to be defined.\par
 
+\pard\li360\sb160 For each of this pair opening/closing tokens you can configure:\par
+
+\pard\li360\sb40 - Case sensitive\par
+
+\pard\li360 - \b Discard\b0                Yes  => Discard markers on fold     No => Keep markers\par
+- \b Add on Expand\b0 :  Yes => It will be used on expanding, with "Expand (with markers)", to allow subsequent folding, without losing the boundaries\par
+    \par
+
 \pard\li360\sb80\b Tip\b0 : These pairs of tokens are saved in a file called "\b keynote.fld\b0 " in the profile folder. You can edit the tokens directly from that file if you respect the format.\par
-
-\pard\li360\par
-
-\pard\li360\sb80 When you \cf4 Ctrl+double-Click\cf0  on the word defined as opening, KeyNote will search from that position in the text for the corresponding closing word. If it finds it, it will fold all the content between both words, both inclusive.\par
+\par
+When you \cf4 Ctrl+double-Click\cf0  on the word defined as opening, KeyNote will search from that position in the text for the corresponding closing word. If it finds it, it will fold all the content between both words, both inclusive.\par
 Keep in mind the following:\par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720 It is possible to configure each pair of tokens indicating if they are case sensitive\par
@@ -17664,19 +17702,71 @@ When it doesn't find the corresponding closure, it won't perform the folding.\pa
 \pard\li360\sb120 The use of this generic ending block ( \b [.]\b0  ) can allow you to maintain a folded block that you can easily expand from the beginning, unfolding it and folding it again from a higher position, once new text has been added.\par
 
 \pard\par
+
+\pard\sb80\b   Tip\b0 : You can \cf4 Ctrl+double-Click\cf0  on the space after the opening token when set before a carriage return :\par
+
+\pard\li360    We might have something like this:\par
+      <<\par
+     Line 1\par
+     Line 2\par
+     >>\par
+Where << is an opening token. If you \cf4 Ctrl+double-Click\cf0  slightly to the right of <<, we'll select the carriage return. To make it easier to use tokens on this situations, in these cases KeyNote will check if there's a word to the left and if it's a token. If it is, we'll use it.\par
+
+\pard\par
 \par
 \par
 \cf3\b\v\fs24\'11B3\'12\v0 Unfold folded text\par
 \cf0\b0\fs20\par
-You can unfold a folded text block in two ways:\par
+You can unfold a folded text block in several ways:\par
 \par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 By placing the \b cursor\b0  at any position of the visible excerpt and selecting "\b Unfold\b0 " in the editor's context menu.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 By placing the \b cursor\b0  at any position of the visible excerpt and selecting one of the following entries in the editor's context menu:\par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 By pressing \cf4\b Ctrl+Click\cf0\b0  on the hyperlink (\cf2\ul\protect\f2\fs24\lang3082\u10133?\cf0\ulnone\protect0\f0\fs20\lang1033 ) that defines the beginning of the folded block\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80 "\b Unfold\b0 "\par
+
+\pard\li720 Restore folded/collapsed text, without adding any additional markers\par
+\par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720 "\b Expand (with markers)\b0 "\par
+
+\pard\li720 Restore folded text with boundary opening/closing tokens (markers)\par
+These added markers are the ones configured, from 'Folding Blocks', to be used when expanding ("Add on Expand" = Yes). They will be discarded from the text when this block is folded.\par
+\par
+This way, the block can be folded again by pressing \cf4 Ctrl+double-Click\cf0  on the opening token (marker), or by placing the cursor inside it and selecting "\b Fold\b0 " from the context menu. If blocks with these markers are nested, the innermost one will be folded. \par
+This also make it possible to temporarily expand all collapsed blocks in a note, allowing them to be collapsed again later if you want to view the entire text at once.\par
+\par
+\ul\fs18\lang3082 Note\ulnone : If no markers are defined with "Add on Expand" = Yes, they will be automatically added by default: (\f2\u10134?\f0 ) and (\f2\u9633?\f0 )\fs20\lang1033\par
+
+\pard\li360\par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 By pressing \cf4\b Ctrl+Click\cf0\b0  or \cf4\b Alt+Click\cf0\b0  on the hyperlink (\cf2\ul\protect\f2\fs24\lang3082\u10133?\cf0\ulnone\protect0\f0\fs20\lang1033 ) that defines the beginning of the folded block:\par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40\cf4\b Ctrl\b0 +Click\cf0 : will will "\b expand\b0 " the folded text, adding boundary markers.\par
+{\pntext\f5\'B7\tab}\cf4\b Alt\b0 +Click\cf0 : will "\b unfold\b0 ", restoring the folded text without any boundary markers\par
 
 \pard\par
 If you make a mistake or want to fold it again immediately afterward, simply press \cf4\b Ctrl+Z\cf0\b0  (Undo).\par
+\par
+\par
+\par
+\cf3\b\v\fs24\'11B5\'12\v0 Fold, Unfold or Expand (with markers) all blocks in a note at once\par
+\cf0\b0\fs20\par
+With the help of the markers added with "\b Expand (with markers)\b0 " command (or by manually using these special markers, selected for "Add on Expand") it is possible to expand all blocks at once and then collapse them again at a later time, or viceversa.\par
+\par
+Place the caret anywhere in the note and then press \cf4\b Shift\cf0\b0  while selecting one of the entries in the editor's context menu:\par
+
+\pard\li720\sb40\par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\cf4\b Shift \cf0\b0 + \b Fold\b0 : \tab\tab\tab Collapse all blocks of text delimited by the markers defined as "Add on Expand" (\fs18\lang3082 by default: (\f2\u10134?\f0 ) and (\f2\u9633?\f0 )\fs20\lang1033 ).\par
+{\pntext\f5\'B7\tab}\cf4\b Shift \cf0\b0 + \b Expand (with markers)\b0 : \tab Restore all folded blocks adding boundary markers\par
+{\pntext\f5\'B7\tab}\cf4\b Shift \cf0\b0 + \b Unfold\b0 : \tab\tab\tab Restore all folded blocks without any boundary markers\par
+
+\pard\li360\sb40\par
+
+\pard\sb40\b Tip\b0 : \cf4 Shift \cf0 + "Unfold" will also remove any markers ("Add on Expand" = Yes) that may remain visible\par
+\b Tip\b0 : All nested blocks will be collpased or expanded\par
+
+\pard\par
 \par
 \par
 \cf3\b\v\fs24\'11B4\'12\v0 View and edit folded text\par
@@ -17689,26 +17779,43 @@ A floating editor will remain visible as long as the focus is not returned to th
 \par
 \b Tip\b0 : It is possible to simultaneously maintain the floating editor(s) corresponding to a note and those corresponding to the Scratchpad.\par
 \par
+\b Tip\b0 : It you prefer editing in the normal editor you can use "\b Expand (with markers)\b0 ", modify the content of the block, and then fold it again placing the cursor inside the block (between the added markers) and selecting "\b Unfold\b0 " in the editor's context menu.\par
+\par
 }
 %*
 GI=124
 ND=Folding Blocks
-LM=1304252029
+LM=0710252135
 %.
 DC=1304252024
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset1 Segoe UI Symbol;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 Options: Folding Blocks\par
 \cf0\b0\fs20\par
 
-\pard\li360\v\'11I220\'12\v0{\field{\*\fldinst{HYPERLINK "img:220,347,370"}}{\fldrslt {220_Clipb_13abr.png}}}\par
+\pard\li360\v\'11I231\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:231,349,368"}}{\fldrslt {231_Clipb_07oct.png}}}\lang1033\par
 
 \pard\par
 \par
 This tab allows you to customize words that can be used to identify blocks of text to be folded.\par
+\par
+Discard\par
+    No           => Keep markers\par
+    Yes ("x")  => Discard markers on fold\par
+\par
+Add on Expand:\par
+    To be used when "expanding" a folded block, with "Expand (with markers)", to allow subsequent folding, without losing the boundaries\par
+    Yes ("x")  => It will be used on expanding\par
+    \par
+    Notes:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720 Only one pair opening/closing can be selected as "Add on Expand".\par
+{\pntext\f2\'B7\tab}If no entry is defined as "Add on Expand", a default one will be added: opening: (\f1\u10134?\f0 )  closing: (\f1\u9633?\f0 )\par
+
+\pard\par
 \par
 See {{\field{\*\fldinst{HYPERLINK "file:///<123|2308|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How to fold a block of text}}}}\f0\fs20  in Folding and unfolding note, for a detailed description of this functionality and how opening and closing words can be used.\par
 }
@@ -17726,7 +17833,7 @@ FN=Tahoma
 FS=10
 LN=1033
 ST=
-FL=111110000000100000000000
+FL=111110000000100001000000
 SN=0
 TW=239
 TM=0
@@ -18181,7 +18288,7 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=111110000000100000000000
+FL=111110000000100001000000
 SN=0
 TW=182
 TM=0
@@ -18218,7 +18325,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=227
+II=232
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -18311,7 +18418,6 @@ PD=110||110_Clipb_03ene.png|1|358|375|3763404517||1|1||0
 PD=111||111_Clipb_03ene.png|1|343|332|1945380963||1|1||0
 PD=113||113_Clipb_04ene.png|1|526|80|2991040271||1|1||0
 PD=114||114_Clipb_04ene.png|1|360|247|630860667||1|1||0
-PD=115||115_Clipb_04ene.png|1|505|536|190152895||1|3||0
 PD=116||116_Clipboard_05ene.png|1|74|35|1464027792||1|1||0
 PD=117||117_Clipboard_05ene.png|1|181|51|1960015756||1|1||0
 PD=118||118_Clipb_05ene.png|1|1025|608|2757826324||1|1||0
@@ -18357,7 +18463,6 @@ PD=185||185_Clipb_31mar.png|1|297|152|2996717648||1|1||0
 PD=186||186_Clipb_31mar.png|1|293|152|190736701||1|1||0
 PD=187||187_Clipb_31mar.png|1|286|150|594474843||1|1||0
 PD=189||189_Clipb_31mar.png|1|339|342|4218597864||1|1||0
-PD=190||190_Clipb_31mar.png|1|358|370|4238132767||1|1||0
 PD=192||192_Clipb_31mar.png|1|411|28|2464087388||1|1||0
 PD=193||193_Clipb_31mar.png|1|202|232|2195227359||1|1||0
 PD=194||194_Clipb_24nov.png|1|198|233|788728395||1|1||0
@@ -18370,17 +18475,19 @@ PD=204||204_Clipb_07dic.png|1|489|198|245941648||1|1||0
 PD=208||208_Clipb_06ene.png|1|334|411|2637135484||1|1||0
 PD=209||209_Clipb_06ene.png|1|279|109|3349534461||1|1||0
 PD=212||212_Clipb_08ene.png|1|387|530|136024720||1|1||0
-PD=213||213_Clipb_08ene.png|1|387|530|2421678084||1|1||0
-PD=214||214_Clipb_08ene.png|1|387|530|3693120505||1|1||0
 PD=216||216_Clipb_20ene.png|1|312|600|784430773||1|1||0
 PD=217||217_Clipb_13abr.png|1|203|734|2984979133||1|1||0
 PD=219||219_Clipb_13abr.png|1|528|455|3207839127||1|2||0
-PD=220||220_Clipb_13abr.png|1|347|370|22007445||1|1||0
 PD=221||221_Clipb_13abr.png|1|209|355|3096465394||1|1||0
 PD=222||222_Clipb_13abr.png|1|216|73|3778486667||1|1||0
 PD=223||223_Clipb_13abr.png|1|389|97|240801985||1|1||0
 PD=224||224_Clipb_13abr.png|1|722|205|3960901167||1|2||0
 PD=225||225_Clipb_15abr.png|1|668|496|2159485143||1|1||0
 PD=226||226_Clipb_04may.png|1|341|366|2163406170||1|1||0
+PD=227||227_Clipb_07oct.png|1|359|369|1162371342||1|1||0
+PD=228||228_Clipb_07oct.png|1|505|536|372918343||1|3||0
+PD=229||229_Clipb_07oct.png|1|385|532|2396441486||1|1||0
+PD=230||230_Clipb_07oct.png|1|385|532|2063594020||1|1||0
+PD=231||231_Clipb_07oct.png|1|349|368|3670992723||1|1||0
 %EI
 %%
