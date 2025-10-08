@@ -1,5 +1,5 @@
 
-Changes in 2.1.1 .01    (XX oct 2025)
+Changes in 2.1.1 .01    (08 oct 2025)
 ====================
 
 * New: Image viewer allows copying images to clipboard (#882)

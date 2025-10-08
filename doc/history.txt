@@ -3,7 +3,7 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
-v 2.1.1.1  (XX oct 2025)
+v 2.1.1.1  (08 oct 2025)
 --------------------------
 * New: Image viewer allows copying images to clipboard (#882)
 * Fixed: Possible exception "Failed to Load Stream" working on newly created node, before persisted to the model

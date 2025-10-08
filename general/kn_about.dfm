@@ -177,7 +177,7 @@ object AboutBox: TAboutBox
       Width = 45
       Height = 45
       Cursor = crHandPoint
-      Hint = 'Created with Delphi 11 Community Edition'
+      Hint = 'Created with Delphi 12.1 Community Edition'
       ParentShowHint = False
       ShowHint = True
       OnDblClick = Image1DblClick
