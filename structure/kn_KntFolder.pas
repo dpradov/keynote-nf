@@ -132,6 +132,7 @@ type
     //FAutoNumberNotes : boolean;      // Information is currently saved at the NNodes level
     FCheckboxes : boolean;             // [*] All Checkboxes
     FVerticalLayout : boolean;         // [*]
+    FTagSelectorDisabled: boolean;     // [*]
 
     // state that needs to be recalled
     FTreeWidth : integer;              // [*]
@@ -193,6 +194,7 @@ type
     property URLDetect : boolean read FURLDetect write SetURLDetect;
     property TabSize : byte read FTabSize write SetTabSize;
     property UseTabChar : boolean read FUseTabChar write FUseTabChar;
+    property TagSelectorDisabled : boolean read FTagSelectorDisabled write FTagSelectorDisabled;
     property IsInsertMode : boolean read FIsInsertMode write FIsInsertMode;
     property FocusMemory : TFocusMemory read FFocusMemory write FFocusMemory;
 
@@ -1700,6 +1702,7 @@ begin
   FURLDetect := aProps.URLDetect;
   FUseTabChar := aProps.UseTabChar;
   FWordWrap := aProps.WordWrap;
+  FTagSelectorDisabled := aProps.TagSelectorDisabled;
   Modified := true;
 end; // SetEditorProperties
 
@@ -1711,6 +1714,7 @@ begin
   aProps.URLDetect := FURLDetect;
   aProps.UseTabChar := FUseTabChar;
   aProps.WordWrap := FWordWrap;
+  aProps.TagSelectorDisabled := FTagSelectorDisabled;
 end; // GetEditorProperties
 
 
@@ -2976,6 +2980,7 @@ begin
      result[7] := BOOLEANSTR[FFiltered];
 
   result[8] := BOOLEANSTR[FRTL];
+  result[9] := BOOLEANSTR[FTagSelectorDisabled];
 
   result[13] := AnsiChar(inttostr( ord( FIconKind ))[1]);
   //result[14] := BOOLEANSTR[FAutoNumberNotes];
@@ -3012,6 +3017,7 @@ begin
   FDefaultPlainText  := FlagsStr[6] = BOOLEANSTR[true];
   FFiltered   := FlagsStr[7] = BOOLEANSTR[true];
   FRTL        := FlagsStr[8] = BOOLEANSTR[true];
+  FTagSelectorDisabled  := FlagsStr[9] = BOOLEANSTR[true];
 
   case FlagsStr[13] of
     '0' : FIconKind := niNone;

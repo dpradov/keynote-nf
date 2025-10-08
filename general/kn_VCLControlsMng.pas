@@ -146,6 +146,7 @@ begin
 
   with Form_Main do begin
       FindAllResults.OnSelectionChange:= RxFindAllResultsSelectionChange;
+      FindAllResults.OnKeyDown:= RxFindAllResultsKeyDown;
       FindAllResults.ShowHint:= False;
       FindAllResults.AutoURLDetect:= False;
 

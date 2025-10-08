@@ -31,6 +31,7 @@ uses
    Vcl.StdCtrls,
    Vcl.ExtCtrls,
    Vcl.Buttons,
+   Vcl.Clipbrd,
 
    TB97Ctls,
    TopWnd,
@@ -68,6 +69,7 @@ type
     btnAlwaysVisible: TToolbarButton97;
     chkCompact: TCheckBox;
     btnHelp: TBitBtn;
+    btnCopy: TToolbarButton97;
     procedure FormShow(Sender: TObject);
     procedure bGrayClick(Sender: TObject);
     procedure bBlackClick(Sender: TObject);
@@ -97,6 +99,7 @@ type
     procedure FormResize(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
+    procedure btnCopyClick(Sender: TObject);
   private
     { Private declarations }
     fCurrentKntFile: TKntFile;
@@ -174,6 +177,7 @@ uses
   kn_NoteFileMng,
   kn_global,
   kn_info,
+  kn_ClipUtils,
   knt.App,
   knt.RS
   ;
@@ -875,6 +879,14 @@ begin
 
 end;
 
+
+
+procedure TForm_Image.btnCopyClick(Sender: TObject);
+begin
+   Clipboard.CopyImage(cImage.Picture);
+end;
+
+
 // https://stackoverflow.com/questions/5064349/onkeydown-event-not-fired-when-pressing-vk-left-on-tcombobox-or-tbutton
 procedure TForm_Image.CMDialogKey(var Message: TCMDialogKey);
 var
@@ -999,7 +1011,7 @@ procedure TForm_Image.FormResize(Sender: TObject);
 var
   Visible: boolean;
 begin
-  Visible:= (Self.Width >= 382) and (fImages = nil);
+  Visible:= (Self.Width >= 375) and (fImages = nil);
   bGray.Visible:= Visible;
   bWhite.Visible:= Visible;
   bBlack.Visible:= Visible;

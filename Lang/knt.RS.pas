@@ -504,6 +504,8 @@ const
    sFoldBl2 = 55103;  // Opening token already exists: "%s" | "%s". OK to redefine?
    sFoldBl3 = 55104;  // Error saving Folding Block list:
    sFoldBl4 = 55105;  // Error loading Folding Block list:
+   sFoldBl5 = 55128;  // Markers to be used when expanding already exist (uncheck them first)
+   sFold1   = 55127;  // Cannot fold text with a table that has nested cells\^See help for possible options
 
    sImg01 = 54675;   // Invalid Storage definition:
    sImg02 = 54676;   // Invalid Image definition:

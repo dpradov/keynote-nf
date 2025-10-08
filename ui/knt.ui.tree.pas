@@ -346,7 +346,7 @@ type
     procedure ApplyFilterOnFolder;   // [dpv]
     procedure ClearFindFilter;
     procedure CheckFilterOff;
-    procedure CheckFocusedNode;
+    procedure EnsureFocusedNode(CheckedChanged: boolean = False);
     procedure ExecuteTreeFiltering(ForceReapplying: boolean= True);
     procedure txtFilterChange(Sender: TObject);
     procedure FilterOutUnflagged (Apply: boolean);
@@ -1629,8 +1629,16 @@ begin
 
   if (Node <> fLastNodeSelected) then begin
      TKntFolder(Folder).NodeSelected(Node, fLastNodeSelected);
-     fLastNodeSelected:= Node;
-     App.NNodeFocused(GetNNode(Node));
+     if not FloatingEditorCannotBeSaved then begin
+        fLastNodeSelected:= Node;
+        App.NNodeFocused(GetNNode(Node));
+     end
+     else begin
+        TV.FocusedNode:= fLastNodeSelected;
+        TKntFolder(Folder).NodeSelected(fLastNodeSelected, nil);
+        TV.Selected[Node]:= False;
+        TV.Selected[TV.FocusedNode]:= True;
+     end;
   end;
 end;
 
@@ -3325,7 +3333,7 @@ begin
 
   TKntFolder(Folder).Modified:= true;
   if TargetNode = TV.RootNode then
-     CheckFocusedNode;
+     EnsureFocusedNode;
 
 end;
 
@@ -3388,7 +3396,7 @@ begin
   TKntFolder(Folder).Modified:= true;
 
   if TargetNode = TV.RootNode then
-     CheckFocusedNode;
+     EnsureFocusedNode;
 
 end;
 
@@ -3887,6 +3895,8 @@ begin
    for Node in Enum do
       if (Node.CheckState.IsChecked = Checked) then   // ¿csCheckedNormal o CheckState.IsChecked?
          TV.IsVisible[Node]:= False;
+
+   EnsureFocusedNode(true);
    TV.EndUpdate;
 end;
 
@@ -3904,6 +3914,8 @@ begin
 
    for Node in Enum do
       TV.IsVisible[Node]:= True;       // If the node is Filtered and the filter is being applied, it will not be seen
+
+   EnsureFocusedNode(true);
    TV.EndUpdate;
 end;
 
@@ -3930,8 +3942,10 @@ begin
       if (Shiftdown and (vsHasChildren in Node.States)) then
          CheckChildren(node);
 
-      if HideCheckedNodes then
+      if HideCheckedNodes then begin
           TV.IsVisible[Node]:= not Checked;
+          EnsureFocusedNode(True);
+      end;
 
     finally
         TKntFolder(Folder).Modified:= true;
@@ -4297,7 +4311,7 @@ begin
       ApplyFilterOnFolder;
    end;
 
-   CheckFocusedNode;
+   EnsureFocusedNode;
    TV.Invalidate;
 end;
 
@@ -4366,7 +4380,7 @@ begin
      if Self.ShowUseOfTags then
         Form_Main.CheckFilterTags;
 
-     //CheckFocusedNode;      // RunFindAllEx (from here, and from normal Find All -with Apply Filter) will call ActivateFilter ( -> CheckFocusedNode)
+     //EnsureFocusedNode;      // RunFindAllEx (from here, and from normal Find All -with Apply Filter) will call ActivateFilter ( -> EnsureFocusedNode)
   end;
 end;
 
@@ -4390,26 +4404,51 @@ begin
 end;
 
 
-procedure TKntTreeUI.CheckFocusedNode;
+procedure TKntTreeUI.EnsureFocusedNode(CheckedChanged: boolean = False);
 var
   Node: PVirtualNode;
 begin
      Node:= TV.FocusedNode;
-     if TV.IsEffectivelyFiltered[Node] then begin
-        Node := TV.GetNextNotHidden(Node);                     // By default, IncludeFiltered=False
-        if Node = nil then
-           Node := TV.GetPreviousNotHidden(TV.FocusedNode);    // ,,
-        if Node <> nil then
-           SelectAlone(Node)
-        else begin
-           fLastNodeSelected:= nil;
-           TKntFolder(Folder).NoNodeInTree;
-           TV.TreeOptions.SelectionOptions:= TV.TreeOptions.SelectionOptions - [toAlwaysSelectNode];
-        end;
+
+     if not CheckedChanged then begin
+
+         if TV.IsEffectivelyFiltered[Node] then begin              // True => Node <> nil
+            Node := TV.GetNextNotHidden(Node);                     // By default, IncludeFiltered=False
+            if Node = nil then
+               Node := TV.GetPreviousNotHidden(TV.FocusedNode);    // ,,
+            if Node <> nil then
+               SelectAlone(Node)
+            else begin
+               fLastNodeSelected:= nil;
+               TKntFolder(Folder).NoNodeInTree;
+               TV.TreeOptions.SelectionOptions:= TV.TreeOptions.SelectionOptions - [toAlwaysSelectNode];
+            end;
+         end
+         else begin
+            TV.TreeOptions.SelectionOptions:= TV.TreeOptions.SelectionOptions + [toAlwaysSelectNode];
+            TV_FocusChanged(TV, TV.FocusedNode, -1);
+         end;
      end
      else begin
-        TV.TreeOptions.SelectionOptions:= TV.TreeOptions.SelectionOptions + [toAlwaysSelectNode];
-        TV_FocusChanged(TV, TV.FocusedNode, -1);
+         if (Node = nil) or not TV.FullyVisible[Node] then begin
+            if (Node <> nil) then begin
+               Node := TV.GetNextNotHidden(Node);
+               if (Node = nil) then
+                  Node := TV.GetPreviousNotHidden(TV.FocusedNode);
+            end;
+            if (node = nil) or not TV.FullyVisible[Node] then
+                Node := TV.GetPreviousVisible(node);
+
+            if Node <> nil then
+               SelectAlone(Node)
+            else begin
+               fLastNodeSelected:= nil;
+               TKntFolder(Folder).NoNodeInTree;
+            end;
+         end
+         else
+         if not ActiveEditor.Enabled then
+            TKntFolder(Folder).NodeSelected(Node, nil);
      end;
 
      if Node <> nil then
@@ -4423,7 +4462,7 @@ begin
   TKntFolder(Self.Folder).Filtered:= True;
   ApplyFilterOnFolder;
 
-  CheckFocusedNode;
+  EnsureFocusedNode;
 end;
 
 procedure TKntTreeUI.TB_FilterTreeClick(Sender: TObject);
@@ -4442,7 +4481,7 @@ begin
    ApplyFilters(Folder.Filtered);
    FilterApplied(Folder.Filtered);
 
-   CheckFocusedNode;
+   EnsureFocusedNode;
 end;
 
 procedure TKntTreeUI.FilterApplied (Applied: boolean);   // [dpv]

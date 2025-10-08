@@ -1,6 +1,6 @@
 -------------------------------------
 KEYNOTE NF -  File Format Specification 3.1  (KeyNote NF 2.1.0+)
-Last updated: 19 Feb 2025
+Last updated: 13 Sep 2025
 
 <dprado.keynote@gmail.com>
 
@@ -550,8 +550,9 @@ position	type		meaning
 6           boolean		Default Plain text only  (Folder properties|Editor settings)
                         if TRUE, new notes willl created as "Plain text only" 
 7           boolean		if TRUE, filter folder is applied                        (New in 2.0.0)
-8           boolean		if TRUE, Folder is configured as RTL (Right to Left language)                    (New in 2.0.2)
-            
+8           boolean		if TRUE, Folder is configured as RTL (Right to Left language)                                   (New in 2.0.2)
+9           boolean		if TRUE, Tag selector is disabled in the Folder's editor, and also auto-registering of tags     (New in 2.1.1)
+           
 13          integer		Tree icons selector: 0 = No icons; 1 = Standard (default) icons; 2 = Custom icons
 14          boolean		Automatic node numbering ON/OFF                                                     (* UNUSED since version 2.0.0)
                         (if TRUE, node number is automatically added to node name when node is created)

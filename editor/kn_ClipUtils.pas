@@ -25,7 +25,8 @@ uses
    System.StrUtils,
    System.SysUtils,
    Vcl.Dialogs,
-   Vcl.Clipbrd ,
+   Vcl.Clipbrd,
+   Vcl.Graphics,
    RxRichEd;
 
 var
@@ -64,6 +65,7 @@ type
        function TryGetFirstLine(const MaxLen : integer): string;
        function TryOfferRTF (const HTMLText: AnsiString=''; TextAttrib: TRxTextAttributes = nil; PlainText: boolean = false): AnsiString;
        function TryGetAsHandle(Format: Word): THandle;
+       procedure CopyImage(Pic: TPicture);
    end;
 
 
@@ -88,6 +90,7 @@ uses
    kn_global,
    kn_ExportImport,
    kn_RTFUtils,
+   kn_ImagesUtils,
    knt.App,
    knt.RS
    ;
@@ -813,6 +816,70 @@ begin
     end;
 end;
 
+
+procedure TClipboardHelper.CopyImage(Pic: TPicture);
+var
+  fmtBmp, fmtEmf: Word;
+  hBmp, hEmf: THandle;
+  Pal: HPALETTE;
+  Bmp: TBitmap;
+  MF: TMetafile;
+  MStream: TMemoryStream;
+
+begin
+  if (Pic = nil) or (Pic.Graphic = nil) or (Pic.Graphic.Empty) then exit;
+
+ // It will offer:
+ // CF_BITMAP = 2; CF_METAFILEPICT = 3; CF_ENHMETAFILE = 14; CF_DIB = 8; CF_DIBV5 = 17
+
+ // *1
+ // By default: Bmp.PixelFormat := pfDevice
+ // If I use Bmp.PixelFormat := pf24bit (DIB (device-independent bitmap)) -> it will not offer CF_DIV5, and many programs will not recognize it
+
+
+  fmtBmp:= 0;
+  fmtEmf:= 0;
+  Bmp:= nil;
+  MStream:= nil;
+  try
+    Clipboard.Open;
+    try
+       Bmp:= TBitmap.Create;             // *1
+       MStream:= TMemoryStream.Create;
+
+       Clipboard.Clear;
+
+       Bmp.Width  := Pic.Width;
+       Bmp.Height := Pic.Height;
+       Bmp.Canvas.Draw(0,0,Pic.Graphic);
+       Bmp.SaveToClipboardFormat(fmtBmp, hBmp, Pal);
+       if (fmtBmp <> 0) and (hBmp <> 0) then begin
+          Clipboard.SetAsHandle(fmtBmp, hBmp);
+          hBmp := 0;
+       end;
+
+       Pic.SaveToStream(MStream);
+       MF:= ImgStreamToMetafile(MStream);
+       MF.SaveToClipboardFormat(fmtEmf, hEmf, Pal);
+       if (fmtEmf <> 0) and (hEmf <> 0) then begin
+          Clipboard.SetAsHandle(fmtEmf, hEmf);
+          hEmf := 0;
+       end;
+
+    finally
+      Bmp.Free;
+      MStream.Free;
+      Clipboard.Close;
+    end;
+
+  finally
+     // Manually release handles that did not reach the clipboard
+     if hBmp <> 0 then
+        GlobalFree(hBmp);
+     if hEmf <> 0 then
+        GlobalFree(hEmf);
+   end;
+end;
 
 
 Initialization

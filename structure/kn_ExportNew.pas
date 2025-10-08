@@ -522,6 +522,8 @@ procedure TForm_ExportNew.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
   App.HideNestedFloatingEditors;
+  if FloatingEditorCannotBeSaved then exit;
+
 
   ReadConfig (ExportOptions, myINIFN, PrinterMode);
   OptionsToForm;
@@ -2658,8 +2660,10 @@ begin
   else begin
      myFindOptions.AllTabs := (ExportOptions.ExportSource <> expCurrentFolder);   // From RunFindAllEx Folder.Info will be taken into account, in case expSelectedFolders has been chosen,
      myFindOptions.CurrentNodeAndSubtree := (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection in [tsSubtree, tsNode]);
-     if (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection = tsNode) then // only current node
+     if (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection = tsNode) then begin  // only current node
         OnlyNode:= ActiveTreeUI.TV.FocusedNode;
+        FolderToUse:= ActiveFolder;
+     end;
   end;
 
   myFindOptions.SearchScope := ssContentsAndNodeName;

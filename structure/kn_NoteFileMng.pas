@@ -1631,6 +1631,8 @@ begin
         Log.Add( 'CheckModified: KntFile modified? ' + BOOLARRAY[ActiveFile.Modified], 1 );
        {$ENDIF}
         App.HideNestedFloatingEditors;
+        if FloatingEditorCannotBeSaved then exit(False);
+
 
         if ( not ActiveFile.Modified ) then exit;
         if Warn then begin

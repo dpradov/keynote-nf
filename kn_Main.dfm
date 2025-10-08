@@ -69,8 +69,6 @@ object Form_Main: TForm_Main
       end>
     OnDblClick = StatusBarDblClick
     OnDrawPanel = StatusBarDrawPanel
-    ExplicitTop = 829
-    ExplicitWidth = 1001
   end
   object Dock_Top: TDock97
     Left = 0
@@ -79,7 +77,6 @@ object Form_Main: TForm_Main
     Height = 54
     BoundLines = [blTop, blBottom]
     FixAlign = True
-    ExplicitWidth = 1001
     object Toolbar_Main: TToolbar97
       Tag = 1
       Left = 0
@@ -876,8 +873,6 @@ object Form_Main: TForm_Main
     OnDragOver = PagesDragOver
     OnMouseDown = PagesMouseDown
     OnTabShift = PagesTabShift
-    ExplicitWidth = 779
-    ExplicitHeight = 749
   end
   object Dock_Left: TDock97
     Left = 0
@@ -886,7 +881,6 @@ object Form_Main: TForm_Main
     Height = 750
     LimitToOneRow = True
     Position = dpLeft
-    ExplicitHeight = 749
   end
   object Dock_Bottom: TDock97
     Left = 0
@@ -894,8 +888,6 @@ object Form_Main: TForm_Main
     Width = 1005
     Height = 26
     Position = dpBottom
-    ExplicitTop = 803
-    ExplicitWidth = 1001
     object Toolbar_Style: TToolbar97
       Tag = 3
       Left = 250
@@ -1221,8 +1213,6 @@ object Form_Main: TForm_Main
           Left = 0
           Top = 0
           Caption = 'PAGE_RES_FIND_OPT'
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object Pnl: TPanel
             Left = 0
             Top = 0
@@ -1246,12 +1236,6 @@ object Form_Main: TForm_Main
               Height = 13
               Caption = 'Last modification'
               FocusControl = Combo_ResFind
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              Font.Style = []
-              ParentFont = False
             end
             object Label3: TLabel
               Left = 9
@@ -1260,12 +1244,6 @@ object Form_Main: TForm_Main
               Height = 13
               Caption = 'Creation date'
               FocusControl = Combo_ResFind
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              Font.Style = []
-              ParentFont = False
             end
             object lblCalNotSup: TLabel
               Left = 50
@@ -1274,12 +1252,6 @@ object Form_Main: TForm_Main
               Height = 13
               Caption = 'Calendar not supported'
               FocusControl = Combo_ResFind
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              Font.Style = []
-              ParentFont = False
               Visible = False
             end
             object Label4: TLabel
@@ -1291,12 +1263,6 @@ object Form_Main: TForm_Main
               AutoSize = False
               Caption = 'Folded mode:'
               FocusControl = CbFindFoldedMode
-              Font.Charset = DEFAULT_CHARSET
-              Font.Color = clWindowText
-              Font.Height = -11
-              Font.Name = 'Tahoma'
-              Font.Style = []
-              ParentFont = False
             end
             object lbl1: TLabel
               Left = 10
@@ -3614,7 +3580,7 @@ object Form_Main: TForm_Main
         Caption = 'Set Focus'
         object MMTreeFocusToogle: TMenuItem
           Caption = 'Toggle focus: Editor / Tree panel'
-          ShortCut = 16411
+          ShortCut = 16604
           OnClick = MMTreeFocusToogleClick
         end
         object MMTreeFocusEditor: TMenuItem
@@ -4195,12 +4161,21 @@ object Form_Main: TForm_Main
     end
     object RTFMFold: TMenuItem
       Caption = 'Fold'
-      Hint = 'Collapse selected text'
+      Hint = 
+        'Collapse selected text or expanded block with markers (Shift: al' +
+        'l expanded blocks)'
       OnClick = RTFMFoldClick
+    end
+    object RTFMExpand: TMenuItem
+      Caption = 'Expand (with markers)'
+      Hint = 
+        'Restore folded text with boundary markers (Shift: all folded blo' +
+        'cks)'
+      OnClick = RTFMExpandClick
     end
     object RTFMUnfold: TMenuItem
       Caption = 'Unfold'
-      Hint = 'Expand folded/collapsed text'
+      Hint = 'Restore folded/collapsed text (Shift: all folded blocks)'
       OnClick = RTFMUnfoldClick
     end
     object RTFMTags: TMenuItem

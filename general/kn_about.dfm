@@ -63,6 +63,12 @@ object AboutBox: TAboutBox
     BorderWidth = 1
     BorderStyle = bsSingle
     Color = 13684944
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
     object Label_Name: TLabel
       Left = 69
@@ -114,12 +120,6 @@ object AboutBox: TAboutBox
       Width = 28
       Height = 13
       Caption = 'email:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
     end
     object Label11: TLabel
       Left = 80
@@ -127,12 +127,6 @@ object AboutBox: TAboutBox
       Width = 31
       Height = 13
       Caption = 'Home:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
     end
     object Label_URL: TLabel
       Left = 125
@@ -176,12 +170,6 @@ object AboutBox: TAboutBox
       Width = 29
       Height = 13
       Caption = 'Dart..'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
     end
     object Image1: TImage
       Left = 341
@@ -189,7 +177,7 @@ object AboutBox: TAboutBox
       Width = 45
       Height = 45
       Cursor = crHandPoint
-      Hint = 'Created with Delphi 11 Community Edition'
+      Hint = 'Created with Delphi 12.1 Community Edition'
       ParentShowHint = False
       ShowHint = True
       OnDblClick = Image1DblClick
@@ -197,7 +185,7 @@ object AboutBox: TAboutBox
     object LB_RichEditVer: TLabel
       Left = 66
       Top = 282
-      Width = 9
+      Width = 12
       Height = 13
       Caption = 'rtf'
       ShowAccelChar = False
@@ -208,12 +196,6 @@ object AboutBox: TAboutBox
       Width = 55
       Height = 13
       Caption = 'Copyright..'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       ShowAccelChar = False
     end
     object Label_Credit1: TLabel
@@ -222,12 +204,6 @@ object AboutBox: TAboutBox
       Width = 55
       Height = 13
       Caption = 'Copyright..'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       ShowAccelChar = False
     end
     object Label_MAILTO2: TLabel
@@ -254,12 +230,6 @@ object AboutBox: TAboutBox
       Width = 28
       Height = 13
       Caption = 'email:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
     end
     object Label_Version: TLabel
       Left = 193
@@ -287,12 +257,6 @@ object AboutBox: TAboutBox
       Width = 16
       Height = 13
       Caption = '(..)'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
     end
     object Label_KeynoteNF: TLabel
       Left = 66
@@ -300,12 +264,6 @@ object AboutBox: TAboutBox
       Width = 43
       Height = 13
       Caption = 'KNT NF..'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
     end
   end
   object NetMenu: TPopupMenu

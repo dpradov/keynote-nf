@@ -32,9 +32,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.0 Beta 4';
-  Program_Version_Number  = '2.1.0.4';
-  Program_Version_Date    = '04/05/2025';
+  Program_Version  = '2.1.1 .01';
+  Program_Version_Number  = '2.1.1.1';
+  Program_Version_Date    = '08/10/2025';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -554,6 +554,8 @@ const
   KNT_RTF_HIDDEN_FORMAT_PLUS = '+';         // To concat format commands: \v\'11FD+S+HMy header\'12\v0
   KNT_RTF_HIDDEN_LINK = 'L';
   KNT_RTF_HIDDEN_FOLD_INF = 'f';
+  KNT_RTF_HIDDEN_DISCARD = 'X';           // Text enclosed will be discarded
+  KNT_RTF_HIDDEN_TABLE_FRAG = '$';        // layout control marks of tables (rows and cells) (See "FOLDING / UNFOLDING OF TEXT WITH TABLES" in knt.ui.editor)
 
   KNT_RTF_HIDDEN_MAX_LENGHT_CHAR = 10;         // *1
   (* *2
@@ -591,6 +593,8 @@ const
 //KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
   KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@➕ ' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
 
+  KNT_IMG_FOLDED_PREFIX =  KNT_RTF_HIDDEN_MARK_L_CHAR + 'L"img:';
+
 //KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 +}}}';
   KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 \u10133+ }}}';
   KNT_RTF_BEGIN_FOLDED_URL = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}';
@@ -605,6 +609,10 @@ const
   KNT_IMG_LINK_FOLDED_PREFIX =    KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_LINK + '"img:';
   KNT_RTF_END_GENERIC_BLOCK = '[.]';
   KNT_RTF_END_TAG = '##';
+
+  DEFAULT_USE_ON_EXPAND_OPENING = '(➖)';  // '«:';
+  DEFAULT_USE_ON_EXPAND_CLOSING = '(□)';   // ':»';
+
 
   EMPTY_TAGS = '#';
   MAX_SEARCHED_TAGS = 15;                         // Nobody will type more than 15 tags...

@@ -227,6 +227,7 @@ var
    UpdatingTextPlain: boolean;
 
    IgnoringEditorChanges: boolean;
+   FloatingEditorCannotBeSaved: boolean;
 
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas
@@ -258,6 +259,7 @@ uses
    kn_FindReplaceMng,
    kn_NoteFileMng,
    knt.ui.TagMng,
+   knt.ui.tagSelector,
    knt.RS;
 
 
@@ -547,6 +549,12 @@ end;
 
 procedure TKntApp.SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
 begin
+   if IntroducingTagsState = itWithTagSelector then begin
+      IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
+      cTagSelector.CloseTagSelector(false);
+      SetForegroundWindow(hWND);
+   end;
+
    if OnlyWithFloatingEditor and ((ActiveFolder = nil) or (ActiveFolder.Editor.FloatingEditor = nil)) then exit;
 
    SetWindowPos(hWND, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE)
@@ -723,7 +731,7 @@ end;
 
 procedure TKntApp.ChangeInEditor (Editor: TKntRichEdit);
 var
-   NNode: TNoteNode;
+   NNodeObj, NEntryObj, FolderObj: TObject;
 
 begin
   with Form_Main do begin
@@ -735,10 +743,9 @@ begin
   if CopyFormatMode= cfEnabled then
      EnableCopyFormat(False);
 
-  NNode:= TNoteNode(Editor.NNodeObj);
-  if not assigned(NNode) then exit;           // Eg. Scratchpad
+  if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad)
 
-  NEntryModified (TNoteEntry(Editor.NEntryObj), NNode.Note, TKntFolder(Editor.FolderObj));
+  NEntryModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
 end;
 
 

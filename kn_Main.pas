@@ -924,6 +924,7 @@ type
     mi3: TMenuItem;
     TagsMExport: TMenuItem;
     TagsMImport: TMenuItem;
+    RTFMExpand: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -957,6 +958,7 @@ type
     procedure MMFilePropertiesClick(Sender: TObject);
     procedure MMFileAutoSaveClick(Sender: TObject);
     procedure RxFindAllResultsSelectionChange(Sender: TObject);
+    procedure RxFindAllResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure MMEditSelectAllClick(Sender: TObject);
     procedure MMFormatWordWrapClick(Sender: TObject);
     procedure PagesChange(Sender: TObject);
@@ -1347,6 +1349,7 @@ type
     procedure cbTagFindModeChange(Sender: TObject);
     procedure TagsMExportClick(Sender: TObject);
     procedure TagsMImportClick(Sender: TObject);
+    procedure RTFMExpandClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -2375,6 +2378,7 @@ begin
   // *2 In the tests it doesn't seem necessary with the Host (W11) but it does with W10 (from virtual machine).
   //    I keep it for safety and because nothing is noticeable, because of its short duration and because at that point
   //    the window is already visible and the editor doesn't show changes (BeginUpdate)
+ try
 
    if (ActiveEditor <> nil) and (ActiveEditor.Parent = nil) then begin
        if ActiveFolder <> nil then
@@ -2429,7 +2433,21 @@ begin
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;
 
-  Done := True;
+   Done := True;
+
+ except
+    // It is important to drop all exceptions here.
+   {$IFDEF KNT_DEBUG}
+    on E : Exception do begin
+      var S: string;
+      Log.Flush( true );
+      S:= 'Exception in ApplicationEventsIdle: ' + #13#13 + E.Message + #13#13 + E.StackTrace;
+      Log.Add( S );
+      App.ErrorPopup( S );
+    end;
+   {$ENDIF}
+ end;
+
 end;
 
 
@@ -4530,12 +4548,26 @@ end;
 
 procedure TForm_Main.RTFMFoldClick(Sender: TObject);
 begin
-   ActiveEditor.Fold (True);
+   if ShiftDown then
+      ActiveEditor.FoldAllExpanded
+   else
+      ActiveEditor.Fold (True, False);
+end;
+
+procedure TForm_Main.RTFMExpandClick(Sender: TObject);
+begin
+   if ShiftDown then
+      ActiveEditor.UnfoldAll (True)
+   else
+      ActiveEditor.Unfold (True);
 end;
 
 procedure TForm_Main.RTFMUnfoldClick(Sender: TObject);
 begin
-   ActiveEditor.Unfold;
+   if ShiftDown then
+      ActiveEditor.UnfoldAll (false)
+   else
+      ActiveEditor.Unfold (false);
 end;
 
 procedure TForm_Main.RTFMTagsClick(Sender: TObject);
@@ -6548,12 +6580,12 @@ end;
 
 procedure TForm_Main.Btn_ResFind_PrevClick(Sender: TObject);
 begin
-  FindAllResults_SelectMatch (true);
+  FindAllResults_SelectMatch (Form_Main.FindAllResults, true);
 end;
 
 procedure TForm_Main.Btn_ResFind_NextClick(Sender: TObject);
 begin
-  FindAllResults_SelectMatch (false);
+  FindAllResults_SelectMatch (Form_Main.FindAllResults, false);
 end;
 
 procedure TForm_Main.Combo_ResFindKeyDown(Sender: TObject; var Key: Word;
@@ -6576,6 +6608,13 @@ procedure TForm_Main.RxFindAllResultsSelectionChange(Sender: TObject);
 begin
   FindAllResults_OnSelectionChange (sender as TRxRichEdit);
 end;
+
+procedure TForm_Main.RxFindAllResultsKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  FindAllResults_OnKeyDown (Sender as TRxRichEdit, Key);
+  Key:= 0;
+end;
+
 
 procedure TForm_Main.CheckFindAllEnabled;
 begin

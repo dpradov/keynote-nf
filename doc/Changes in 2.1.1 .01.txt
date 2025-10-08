@@ -1,0 +1,203 @@
+
+Changes in 2.1.1 .01    (08 oct 2025)
+====================
+
+* New: Image viewer allows copying images to clipboard (#882)
+
+* Fixed: Possible exception "Failed to Load Stream" when working on newly created note/node, before it is persisted to the model
+  In a newly created node, before it is persisted in the model (for example, when selecting another node from the tree or when saving
+  the file), an exception "Failed to Load Stream" could occur on some situations.
+  For example, if we paste text in a new note and immediately select several lines and press Shift+TAB (to tab multiple lines, and
+  reduce indentation) the exception could raise. However, if we perform an RTF operation, such as making the text bold, before pasting
+  (or typing the text), the Shift+TAB operation will work correctly.
+
+* Fixed: Exception when exporting (File|Export...) "Current node" filtering by tags (in metadata or note content)
+
+* Fixed: All possible exceptions that may occur in ApplicationEventsIdle are discarded.
+  These would be very rare exceptions, due to the possible assignment of the active paragraph's RTL property, or an attempt to 
+  display the tag selector. However, if they occur, they could be very dangerous, as they would probably be repeated continuously,
+  making it impossible to continue and save (or save as).
+
+* Fixed: The Tree > Set Focus > "Toggle Focus Editor / Tree Panel" menu entry had the keyboard shortcut Ctrl+Esc. It should be Ctrl+º. (#887)
+  It was assigned the Ctrl+Esc keyboard shortcut, which is used by Windows to open the Start Menu. However, this was never a problem since 
+  internally, KeyNote also uses the Ctrl+\ (Ctrl+º) shortcut, as indicated in the help.
+
+* Fixed: When Image/'Single instance'/'Hot track' option is enabled, often two consecutive mouse clicks are required to open the viewer
+  (if it is closed)
+
+* Fixed: Hiding a node by checking it doesn't select another node and the editor still displays it.
+  With the "Hide checked nodes" option active, when a node is hidden as a result of checking it, no other node is selected in the tree
+  and the editor continues to display the contents of the newly hidden node.
+
+* Added label to the configuration options (Chrome) to remind you that the 'Tab Position' and 'Multi-line Tabs' settings will take effect
+  after restarting KeyNote
+
+* Now compiled with Delphi 12.1 Community Edition
+
+
+
+FIND ALL =============================
+
+* Find All: You can now navigate through search results using the Up and Down (also Home, End, Prior and Next) and Enter keys (#888)
+  Selecting a result will locate it and display it in context, but the find results window will remain focused.
+  To switch focus to the editor, you can press Enter.
+
+* Fixed: Searches may not correctly highlight results when images are visible and the note contains images inside folded text
+
+* Fixed: Advanced search (Words in the same sentence): sentences can also be separated by exclamation or question marks (¿ ? ¡ !)
+  When searching, if two or more words are separated by ".." (two dots), they must all be located in the same sentence to be
+  recognized as a match.
+    <<Sentences are understood to be separated by a period and at least one space or by a period and a tabulation sign, or by a
+    line break or a column separator in a table.>>
+     ->
+    <<Sentences are understood to be separated by a period (or question/exclamation mark) and at least one space or by a period
+    (or question/exclamation mark) and a tabulation sign, or by a line break or a column separator in a table.>>
+
+* Fixed: Difficulty selecting a search result (in Find All) if it displays special characters.
+  This occurs when special characters, such as ➖ or ⊡, are displayed.
+  When they appear, the result can only be selected by clicking somewhere before those characters.
+
+
+TAGS =============================
+
+* Added property to Folder: TagSelectorDisabled. Allows you to disable the display of the tag selector in the editor (#884)
+  If disabled, new tags will not be registered from the editor of this folder, although they can be registered from the Tags tab (Resource panel)
+  and from the text field in the editor information panel.
+  ->  Updated fileformat.txt
+      New folder flag: [9] boolean - if TRUE, Tag selector is disabled in the Folder's editor, and also auto-registering of tags
+
+* Fixed: Exception after removing a temporary added tag (green) if it's visible in tag selector and focus changes to tree panel
+  Example: write  #MyTag and change selection. Then remove "Tag" (#My ) => Tag selector will show the "My" and "MyTag".
+  Now click on the tree panel.
+
+* Fixed: Register tags added to the end of the editor when the editor loses focus (selecting other folder, tree panel, etc)
+
+* Fixed: Hide tag selector when opening a modal window (like Configuration options (F5), Default settings (F6), etc)
+
+* Fixed: Tags registered within folded text (via floating editors) are discarded when returning to the parent editor
+
+* Fixed: A situation that could generate an AccessViolation exception, caused by checks related to tag management, was avoided.
+  This was rare and unusual, but it could happen.
+
+
+
+FOLDING AND UNFOLDING ===============
+
+* When folding a text fragment, ignore leading spaces when searching for two consecutive spaces to identify the end of the visible excerpt.
+  Example: When selecting the following lines, their folding should not show ' ' as the visible part, but rather "Public Sub MyProcedureX":
+     public procedure MyProcedureX  (Param1, ..., ParamN)
+     var ....
+     begin
+     ....
+     end
+
+* Folding/Unfolding can now be used with TABLES (the table structure, with its borders, will also be hidden.)
+  The Folding/Unfolding mechanism in KeyNote uses the \v and \v0 RTF tags to hide text. It's considerably more complicated than simply 
+  adding these tags to the beginning and end of the text to be collapsed, as there are several restrictions that must be met, such as 
+  the fact that nesting \v commands is not allowed, nor is hiding images or links, etc. To avoid these problems, KeyNote must perform 
+  some conversions before hiding the text (leaving only the necessary excerpt visible).
+  With the implementation available up to KeyNote version 2.1.0, if you try to fold text that includes tables, you may notice that the
+  text is hidden, but the tables remain visible, albeit empty.
+  * Nested Cells
+  In addition to the usual formatting indicated for tables, RTF allows for the inclusion of cells within other cells, using commands
+  such as \nestcell. Managing tables with nested cells would unnecessarily complicate the entire processing process and increase the
+  possibility of errors that could result in malformed RTF code and therefore potentially lead to the loss of information. For this
+  reason, KeyNote NF will *NOT* initially support tables with nested cells. When applying folding, if it detects the \nestcell command,
+  it will issue a warning and prevent these changes from being applied.
+  Although folding is not supported on tables with nested cells, it is possible to apply folding in text fragments with tables that include
+  images, links, or even other nested blocks as the content of one or more cells. These nested blocks can, in turn, contain other tables,
+  images, text, and so on.
+
+* Folding: Added new properties to the opening/closing tokens that define folding blocks: [Keep | Discard], Use on expand
+  - Discard markers on fold: Yes/No
+    No   => Keep markers
+    Yes  => Discard markers on fold
+      Eg.:
+  	<<Text very  long bla, bla, bla>>               =>
+  	+Text very...[]                                (<< and >> are discarded)
+  - Use on expand:
+    To be used when "expanding" a folded block, with "Expand (with markers)", to allow subsequent folding, without losing the boundaries  
+  
+* Folding: The default markers defined as "Add on Expand" = Yes, are now (➖) and (□)
+  Example
+   ➕Tasks to be done:...□
+    ->
+   (➖)Tasks to be done:
+    One
+    Two
+    Three(□)  
+  
+* Folding: Improved selection (with Ctrl+Click) of opening token when set before a carriage return 
+  We might have something like this:
+    <<
+    Line 1
+    Line 2
+    >>
+  Where << is an opening token. If we Ctrl+Click slightly to the right of <<, we'll select the carriage return. To make it easier to use
+  tokens on this situations, in these cases we'll check if there's a word to the left and if it's a token. If it is, we'll use it.
+
+* Folding: Improved use of very small opening tokens when attached to text to be folded (and Ctrl+Click is used)
+  If the token is very small, it's likely that when we do Ctrl+Click on it, some other character has been selected.
+  This could happen, for example, if « is used as the opening token and » as the closing token:
+   «¿Plegado ...?»
+   -> Trying to Ctrl+Click on the character will select "«¿"
+   The same thing happened, for example, with {{ and }} in the following situation:
+   {{¿Plegado ...?}}
+
+- - - -
+* New RTF context menu command: "Expand (with markers)"
+
+   "Restore folded text with boundary markers"
+   These added markers are the ones configured, from 'Folding Blocks', to be used when expanding ("Add on Expand" = Yes).
+   They will be discarded from the text when this block is folded.
+   If no markers are defined with "Add on Expand" = Yes, they will be automatically added by default: (➖) and (□)
+   -> The block can be folded again by pressing Ctrl+double-click on the opening token (marker), or by placing the cursor
+      inside it and selecting "Fold" from the context menu. If blocks with these markers are nested, the innermost one will
+	  be folded. 
+   This will make it possible to temporarily expand all collapsed blocks in a note, allowing them to be collapsed again later
+   if you want to view the entire text at once.
+   Actions will be included to allow you to expand all blocks at once and then collapse them again at a later time.
+      You can also manually use these special markers ("Add on Expand") to define blocks to be collapsed, even nested ones,
+   which you can then collapse as a block.
+
+  - Ctrl + clik on the ➕ character in the hyperlink that starts a collapsed block will "expand" the folded text, 
+    adding boundary markers.
+  -  Alt + clik on the ➕ character will "unfold", restoring the folded text without any boundary markers
+ 
+- - - -
+
+* New: Fold, Expand (with markers) or Unfold all blocks in a note at once
+
+  Shift + Click on RTF context menu commands:
+  - Fold: Collapse selected text or expanded block with markers (Shift: all expanded blocks)
+  - Expand (with markers) :  Restore folded text with boundary markers (Shift: all folded blocks)
+  - Unfold:  Restore folded/collapsed text (Shift: all folded blocks)
+             Shift+Unfold: It will also remove any markers ("Add on Expand" = Yes) that may remain visible.
+			 
+- - - -
+
+* Fixed: Making changes within a floating editor does not mark the file as Modified
+
+* Fixed: When saving a file, either manually or automatically, any floating editors will not close.
+  Changes can be made in these floating editors. Those changes will be saved, but the editors will remain open, unaffected.
+
+* Fixed: The ➕ character in the hyperlink that starts a folded block is not always displayed in blue, depending on the content colors
+
+* Fixed: The closing symbol for a folded block, ...[ ], will now always display in the same font and size.
+  Until now, if the collapsed text includes fonts like Arial, Courier New, and others at the end, the character used is not displayed
+  as a little square but as a vertical rectangle. Its size also varies depending on the text content, which can make it very large or
+  very small. It will now always display in the same size, corresponding to Tahoma 10.
+
+* Fixed: It was possible to delete characters from an already folded text block in some circumstances.
+  - Pressing Backspace from the position immediately after the final character, □, or selecting this character and pressing Delete.
+    This allowed deleting this character.
+  - Selecting from an intermediate position in the block up to exactly the final character, □. This allowed deleting or replacing.
+
+* Fixed: Minor adjustment related to visible excerpt in Folding
+
+* Fixed: Executing Fold (from the RTF context menu) on a paragraph at the end of the note and not ending with a break leaves out the last character
+  This is at the end of the note
+  ->
+  +This is at the end of the not...[]e
+
+* Fixed: Text folding that starts from the beginning with folded text fails and displays incorrect text.

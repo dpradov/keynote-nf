@@ -26,9 +26,13 @@ object Form_Glossary: TForm_Glossary
     Height = 271
     Align = alRight
     BevelOuter = bvNone
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
     TabOrder = 0
-    ExplicitLeft = 324
-    ExplicitHeight = 270
     object Button_OK: TButton
       Left = 12
       Top = 15
@@ -37,13 +41,7 @@ object Form_Glossary: TForm_Glossary
       Hint = 'Accept changes and close dialog box'
       Caption = 'OK'
       Default = True
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
       ModalResult = 1
-      ParentFont = False
       TabOrder = 0
       OnClick = Button_OKClick
     end
@@ -55,13 +53,7 @@ object Form_Glossary: TForm_Glossary
       Hint = 'Discard changes and close dialog box'
       Cancel = True
       Caption = 'Cancel'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
       ModalResult = 2
-      ParentFont = False
       TabOrder = 1
     end
     object Button_New: TButton
@@ -70,12 +62,6 @@ object Form_Glossary: TForm_Glossary
       Width = 93
       Height = 30
       Caption = '&New'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       TabOrder = 2
       OnClick = Button_NewClick
     end
@@ -85,12 +71,6 @@ object Form_Glossary: TForm_Glossary
       Width = 93
       Height = 30
       Caption = '&Edit'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       TabOrder = 3
       OnClick = Button_EditClick
     end
@@ -100,12 +80,6 @@ object Form_Glossary: TForm_Glossary
       Width = 93
       Height = 31
       Caption = '&Delete'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       TabOrder = 4
       OnClick = Button_DelClick
     end
@@ -115,12 +89,6 @@ object Form_Glossary: TForm_Glossary
       Width = 93
       Height = 30
       Caption = '&Help'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -12
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       TabOrder = 5
       OnClick = Button_HelpClick
     end
@@ -134,8 +102,6 @@ object Form_Glossary: TForm_Glossary
     BevelOuter = bvNone
     BorderWidth = 3
     TabOrder = 1
-    ExplicitWidth = 324
-    ExplicitHeight = 270
     object LV: TListView
       Left = 3
       Top = 3

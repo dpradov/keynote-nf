@@ -115,8 +115,9 @@ procedure ClearFindAllResults;
 procedure UpdateFindAllResultsWidth;
 procedure FindResultsToEditor( const SelectedOnly : boolean );
 
-procedure FindAllResults_SelectMatch (Prev: boolean);
+procedure FindAllResults_SelectMatch (Editor: TRxRichEdit; Prev: boolean);
 procedure FindAllResults_OnSelectionChange(Editor: TRxRichEdit);
+procedure FindAllResults_OnKeyDown (Editor: TRxRichEdit; Key: Word);
 procedure FindAllResults_RightClick (CharIndex: integer);
 
 function GetTextScope(const Text: string; Scope: TDistanceScope; PosInsideScope: integer; var pL_Scope, pR_Scope: integer; pLmin: integer): string;
@@ -1004,11 +1005,11 @@ begin
 
   pR_Scope:= Pos(#13, Text, PosInsideScope);
   if pR_Scope <= 0 then
-     pR_Scope:= Text.Length;
+     pR_Scope:= Text.Length + 1;
 
   if Scope = dsSentence then begin
      for p := PosInsideScope to pR_Scope-1 do
-       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
+       if ((Text[p] in ['.','¿','?','¡','!']) and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
           break;
      if p < pR_Scope then
         pR_Scope:= p;
@@ -1026,7 +1027,7 @@ begin
 
   if Scope = dsSentence then begin
      for p := PosInsideScope downto pL_Scope do
-       if ((Text[p] = '.') and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
+       if ((Text[p] in ['.','¿','?','¡','!']) and (Text[p+1] in [' ', #9])) or (Text[p] = #7)   then
           break;
      if (p > pL_Scope) then
         pL_Scope := p;
@@ -3041,24 +3042,25 @@ begin
   LastWordFollowed.iWord := iWord;
 
   JumpToLocation( Location, true,true,urlOpen,false,  true, WordInRS);
+  Form_Main.FindAllResults.SetFocus;
 end;
 
 
-procedure FindAllResults_SelectMatch (Prev: boolean);
+procedure FindAllResults_SelectMatch (Editor: TRxRichEdit; Prev: boolean);
 var
   pS, p, offset: integer;
-  opt: TRichSearchTypes;
 begin
-  opt:= [];
-  offset:= 5;
-  if Prev then begin
-     opt:= [stBackward];
-     offset:= -7;
-  end;
-
   with Form_Main.FindAllResults do begin
       pS:= SelStart;
-      p:= FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, pS + offset, -1, opt);
+      if Prev then begin
+         offset:= -7;
+         p:= NFromLastCharPos(Editor.TextPlain, KNT_RTF_HIDDEN_MARK_L_CHAR, 1, pS + offset);
+      end
+      else begin
+         offset:= 5;
+         p:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Editor.TextPlain, pS + offset);
+      end;
+
       if (p > 0) then
          SetSelection(p+5, p+5, true);
       end;
@@ -3078,13 +3080,17 @@ var
   item: integer;
   s:string;
   matchSelected: boolean;
+  TxtPlain: string;
 begin
   if SelectedMatch < 0 then exit;             // *1
 //if Editor.SelLength > 0 then exit;          // *1
 
+  TxtPlain:= Editor.TextPlain;
+  if TxtPlain = '' then exit;
+
+
   SelectedMatch := -1;
   try
-  
 
  { *1
    The statement Editor.SetSelection(pL, pR, true); will cause FindAllResults_OnSelectionChange to be called again.
@@ -3115,8 +3121,8 @@ begin
 
   pS:= Editor.SelStart;
 
-  pLaux:= Editor.FindText(#$FFF9, pS+1, -1, [stBackward]) +1;
-  pL:= Editor.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, pS+1, -1, [stBackward]) +1;
+  pLaux:= NFromLastCharPos(TxtPlain,#$FFF9,1, pS+1);                     //  pLaux:= Editor.FindText( #$FFF9, pS+1, -1, [stBackward]) +1;
+  pL:= NFromLastCharPos(TxtPlain,KNT_RTF_HIDDEN_MARK_L_CHAR,1, pS+1);    //pL:= Editor.FindText(KNT_RTF_HIDDEN_MARK_L_CHAR, pS+1, -1, [stBackward]) +1;
   matchSelected:= (pL > 0) and (pL > pLaux);
   Form_Main.FAMCopytoEditor.Enabled:= matchSelected;
 
@@ -3124,7 +3130,7 @@ begin
      s:= Editor.GetTextRange(pL, pL+6);
      pR:= pos(' ', s, 1);
      item:= StrToInt(Copy(s, 1, pR-1));
-     pR:= Editor.FindText(#$FFFB, pS, -1, []) -1;
+     pR:= Pos(#$FFFB, TxtPlain, pS) - 2;                                 // pR:= Editor.FindText(#$FFFB, pS, -1, []) -1;
      Editor.SetSelection(pL, pR, true);
 
      FindAllResults_SelectedMatch (item);
@@ -3136,10 +3142,11 @@ begin
   end
   else begin
      SelectedMatch:= 0;          // we are going to force reentrance, but controlled (FindAllResults_SelectMatch)
-     if Editor.FindText(#$FFFB, pS, -1, []) < 0 then
-        FindAllResults_SelectMatch (true)      // Prev
+     pR:= Pos(#$FFFB, TxtPlain, pS) - 1;                                 // pR:= Editor.FindText(#$FFFB, pS, -1, []);
+     if pR < 0 then
+        FindAllResults_SelectMatch (Editor, true)      // Prev
      else
-        FindAllResults_SelectMatch (false);    // Next
+        FindAllResults_SelectMatch (Editor, false);    // Next
   end;
 
 
@@ -3147,6 +3154,49 @@ begin
     if SelectedMatch < 0 then
        SelectedMatch:= 0;
  end;
+end;
+
+procedure FindAllResults_OnKeyDown (Editor: TRxRichEdit; Key: Word);
+var
+  SS: integer;
+begin
+   SS:= Editor.SelStart;
+   case Key of
+     VK_RETURN: begin
+        ActiveEditor.SetFocus;
+        ActiveEditor.SelLength:= 0;
+     end;
+
+     VK_UP, VK_DOWN: begin
+        FindAllResults_SelectMatch (Editor, key=VK_UP);
+        Editor.SetFocus;
+     end;
+
+     VK_HOME: begin
+        Editor.SelStart:= 5;
+        Editor.SetFocus;
+     end;
+
+     VK_END: begin
+        Editor.SelStart:= Editor.TextLength;
+        Editor.SetFocus;
+     end;
+
+     VK_PRIOR: begin
+        SS:= SS - 700;
+        if SS < 5 then
+           SS:= 5;
+        Editor.SelStart:= SS;
+        Editor.SetFocus;
+     end;
+
+     VK_NEXT: begin
+        Editor.SelStart:= SS + 700;
+        Editor.SetFocus;
+     end;
+
+   end;
+
 end;
 
 

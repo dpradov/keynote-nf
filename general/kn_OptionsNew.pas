@@ -315,6 +315,8 @@ type
     LVfb: TListView;
     lbl1: TLabel;
     txtSepInLists: TEdit;
+    lblTab: TLabel;
+    lbl2: TLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -599,6 +601,9 @@ begin
 
   var Item : TListItem;
   var CaseSens: string;
+  var Disposable: string;
+  var UseOnExpand: string;
+
   FoldingBlocks_Changed:= False;
   LVfb.Items.BeginUpdate;
   try
@@ -610,6 +615,14 @@ begin
         if FoldBlocks[i].CaseSensitive then
            CaseSens:= 'x';
         Item.subitems.add(CaseSens);
+        Disposable:= '';
+        if FoldBlocks[i].Disposable then
+           Disposable:= 'x';
+        Item.subitems.add(Disposable);
+        UseOnExpand:= '';
+        if FoldBlocks[i].UseOnExpand then
+           UseOnExpand:= 'x';
+        Item.subitems.add(UseOnExpand);
      end;
   finally
     LVfb.Items.EndUpdate;
@@ -1079,6 +1092,8 @@ begin
     end;
     ImgHotTrackViewer:= chkImgHotTrackViewer.Checked;
     ImgKeepOrigName:= chkImgKeepOrigName.Checked;
+    if not ImgHotTrackViewer then
+       App.ShowingImageOnTrack:= false;
   end;
 
   with myTabOpts do
@@ -2184,8 +2199,9 @@ end;
 procedure TForm_OptionsNew.EditBlock( const NewBlock : boolean );
 var
   Form_BlockDef : TForm_FoldBlockDef;
-  Opening, Closing, CaseSens : string;
+  Opening, Closing, CaseSens, Disposable, UseOnExpand : string;
   Item, dupItem : TListItem;
+  dupOnExpand: boolean;
   i : integer;
 begin
 
@@ -2205,6 +2221,8 @@ begin
      Opening := Item.Caption;
      Closing := Item.Subitems[0];
      CaseSens := Item.Subitems[1];
+     Disposable:= Item.Subitems[2];
+     UseOnExpand:= Item.Subitems[3];
   end;
 
 
@@ -2214,6 +2232,8 @@ begin
        Edit_Opening.Text := Opening;
        Edit_Closing.Text := Closing;
        chkCaseSens.Checked:= (CaseSens = 'x');
+       chkDispos.Checked:= (Disposable = 'x');
+       chkOnExpand.Checked:= (UseOnExpand = 'x');
     end;
 
     if ( Form_BlockDef.ShowModal = mrOK ) then begin
@@ -2221,8 +2241,14 @@ begin
          Opening := Edit_Opening.Text;
          Closing := Edit_Closing.Text;
          CaseSens := '';
+         Disposable := '';
+         UseOnExpand:= '';
          if chkCaseSens.Checked then
             CaseSens := 'x';
+         if chkDispos.Checked then
+            Disposable := 'x';
+         if chkOnExpand.Checked then
+            UseOnExpand := 'x';
       end;
 
       if (Opening = '') or (Closing = '') then begin
@@ -2231,23 +2257,37 @@ begin
       end;
 
       dupItem := nil;
+      dupOnExpand:= false;
 
-      if NewBlock then begin
-          if (LVfb.Items.Count > 0) then begin
-             for i := 0 to LVfb.Items.Count -1 do begin
-                if LVfb.Items[i].Caption = Opening then begin
-                   dupItem := LVfb.Items[i];
-                   break;
-                end;
-             end;
-          end;
-
-          if assigned(dupItem) then begin
-             if App.DoMessageBox( Format(GetRS(sFoldBl2), [Opening, dupItem.subitems[0]] ), mtConfirmation, [mbYes,mbNo], def2) <> mrYes then
-                exit;
-             Item := dupItem;
-          end;
+      if (LVfb.Items.Count > 0) then begin
+         for i := 0 to LVfb.Items.Count -1 do begin
+            if Item = LVfb.Items[i] then continue;
+            if LVfb.Items[i].Caption = Opening then begin
+               dupItem := LVfb.Items[i];
+               break;
+            end;
+            if (UseOnExpand = 'x') and (LVfb.Items[i].Subitems[3] = 'x') then begin
+               dupOnExpand:= true;
+               break;
+            end;
+         end;
       end;
+
+      if assigned(dupItem) then begin
+         if App.DoMessageBox( Format(GetRS(sFoldBl2), [Opening, dupItem.subitems[0]] ), mtConfirmation, [mbYes,mbNo], def2) <> mrYes then
+            exit
+         else begin
+           if NewBlock then
+              Item := dupItem
+           else
+              LVfb.Items.Delete(LVfb.Items.IndexOf( dupItem ));
+         end;
+      end;
+      if dupOnExpand then begin
+         App.WarningPopup( GetRS(sFoldBl5));
+         exit;
+      end;
+
 
       try
         if ( Item = nil ) then
@@ -2257,6 +2297,8 @@ begin
         Item.Subitems.Clear;
         Item.Subitems.Add(Closing);
         Item.Subitems.Add(CaseSens);
+        Item.Subitems.Add(Disposable);
+        Item.Subitems.Add(UseOnExpand);
         LVfb.Selected := Item;
 
         FoldingBlocks_Changed:= True;

@@ -309,6 +309,7 @@ type
     UseTabChar : boolean;
     WordWrap : boolean;
     DefaultZoom: integer;
+    TagSelectorDisabled: boolean;
   end;
 
 type

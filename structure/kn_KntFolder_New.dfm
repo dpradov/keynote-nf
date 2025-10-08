@@ -70,12 +70,6 @@ object Form_NewKntFolder: TForm_NewKntFolder
     Width = 237
     Height = 21
     Hint = 'Enter folder name'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 0

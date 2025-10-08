@@ -1818,6 +1818,7 @@ var
 begin
   try
     App.HideNestedFloatingEditors;
+    if FloatingEditorCannotBeSaved then exit;
 
     Location:= nil;
     Location:= BuildLocationFromKntURL(LocationStr);
@@ -2111,7 +2112,7 @@ begin
          ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk)
 
       else begin
-         if App.ShowingImageOnTrack then
+         if App.ShowingImageOnTrack and ImageMng.ImgViewerIsOpen then
             App.ShowingImageOnTrack:= false
          else begin
            ClickOnURLImage (URLstr, chrgURL, myURLAction, EnsureAsk);
@@ -2123,9 +2124,9 @@ begin
   end
   else
   if (URLType = urlKNTFold) then begin
-     if CtrlDown then begin
+     if CtrlDown or AltDown then begin
         if SecondsBetween(Now, TKntRichEdit.LastFoldingTime) > 1 then
-           Editor.Unfold;
+           Editor.Unfold(CtrlDown);
      end
      else
      if Button <> mbRight then
@@ -2774,6 +2775,8 @@ begin
   if not assigned(ActiveFolder) then exit;
 
   App.HideNestedFloatingEditors;
+  if FloatingEditorCannotBeSaved then exit;
+
 
 {$IFDEF DEBUG_HISTORY}
   if KntFile <> nil then begin
