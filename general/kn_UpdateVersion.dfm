@@ -25,17 +25,21 @@ object UpdateVersion: TUpdateVersion
     443)
   TextHeight = 16
   object Label1: TLabel
-    Left = 40
+    Left = 20
     Top = 11
-    Width = 93
+    Width = 136
     Height = 16
+    Alignment = taRightJustify
+    AutoSize = False
     Caption = 'Your version is :'
   end
   object Label2: TLabel
-    Left = 23
+    Left = 20
     Top = 33
-    Width = 110
+    Width = 136
     Height = 16
+    Alignment = taRightJustify
+    AutoSize = False
     Caption = 'Current version is :'
   end
   object lblDonations: TLabel
@@ -59,11 +63,12 @@ object UpdateVersion: TUpdateVersion
     ExplicitTop = 421
   end
   object lblVisitWeb: TLabel
-    Left = 642
+    Left = 536
     Top = 57
-    Width = 174
+    Width = 278
     Height = 16
     Cursor = crHandPoint
+    Alignment = taRightJustify
     Anchors = [akTop, akRight]
     Caption = 'Click here to go to the website'
     Font.Charset = ANSI_CHARSET
@@ -76,10 +81,9 @@ object UpdateVersion: TUpdateVersion
     OnClick = lblVisitWebClick
     OnMouseEnter = lblVisitWebMouseEnter
     OnMouseLeave = lblVisitWebMouseLeave
-    ExplicitLeft = 646
   end
   object lblInstalledVersion: TLabel
-    Left = 145
+    Left = 163
     Top = 11
     Width = 12
     Height = 16
@@ -92,7 +96,7 @@ object UpdateVersion: TUpdateVersion
     ParentFont = False
   end
   object lblCurrentVersion: TLabel
-    Left = 145
+    Left = 163
     Top = 33
     Width = 12
     Height = 16
@@ -105,7 +109,7 @@ object UpdateVersion: TUpdateVersion
     ParentFont = False
   end
   object lblStatus: TLabel
-    Left = 255
+    Left = 273
     Top = 33
     Width = 12
     Height = 16
@@ -131,9 +135,9 @@ object UpdateVersion: TUpdateVersion
     ParentFont = False
   end
   object chkCheckUpd: TCheckBox
-    Left = 496
+    Left = 464
     Top = 407
-    Width = 205
+    Width = 251
     Height = 16
     Anchors = [akRight, akBottom]
     Caption = ' &Check for updates on startup'

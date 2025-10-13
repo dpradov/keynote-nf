@@ -20,7 +20,7 @@ object AboutBox: TAboutBox
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object BTN_Close: TSpeedButton
-    Left = 173
+    Left = 164
     Top = 333
     Width = 91
     Height = 25
@@ -36,11 +36,12 @@ object AboutBox: TAboutBox
     OnClick = BTN_CloseClick
   end
   object lblDonations: TLabel
-    Left = 283
+    Left = 278
     Top = 333
     Width = 128
     Height = 13
     Cursor = crHandPoint
+    Alignment = taRightJustify
     Caption = 'Support the developer'
     Font.Charset = ANSI_CHARSET
     Font.Color = clBlue
@@ -165,7 +166,7 @@ object AboutBox: TAboutBox
       OnMouseUp = Label_MAILTOMouseUp
     end
     object Label_Dart: TLabel
-      Left = 66
+      Left = 65
       Top = 211
       Width = 29
       Height = 13
@@ -183,7 +184,7 @@ object AboutBox: TAboutBox
       OnDblClick = Image1DblClick
     end
     object LB_RichEditVer: TLabel
-      Left = 66
+      Left = 65
       Top = 282
       Width = 12
       Height = 13
@@ -259,7 +260,7 @@ object AboutBox: TAboutBox
       Caption = '(..)'
     end
     object Label_KeynoteNF: TLabel
-      Left = 66
+      Left = 65
       Top = 243
       Width = 43
       Height = 13

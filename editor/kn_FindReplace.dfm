@@ -5,8 +5,8 @@ object Form_FindReplace: TForm_FindReplace
   ActiveControl = Combo_Text
   BorderStyle = bsDialog
   Caption = 'Find'
-  ClientHeight = 229
-  ClientWidth = 506
+  ClientHeight = 236
+  ClientWidth = 515
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -25,8 +25,8 @@ object Form_FindReplace: TForm_FindReplace
   TextHeight = 13
   object Pages: TPage95Control
     Left = 0
-    Top = 0
-    Width = 509
+    Top = 2
+    Width = 512
     Height = 233
     ActivePage = Tab_Find
     FlatSeperators = False
@@ -60,10 +60,11 @@ object Form_FindReplace: TForm_FindReplace
       StaticPageIndex = -1
       ParentFont = False
       TabVisible = True
+      ExplicitWidth = 501
       object TntLabel3: TLabel
         Left = 3
         Top = 16
-        Width = 94
+        Width = 106
         Height = 13
         Alignment = taRightJustify
         AutoSize = False
@@ -85,10 +86,11 @@ object Form_FindReplace: TForm_FindReplace
       StaticPageIndex = -1
       ParentFont = False
       TabVisible = True
+      ExplicitWidth = 501
       object TntLabel1: TLabel
         Left = 2
         Top = 45
-        Width = 94
+        Width = 106
         Height = 13
         Alignment = taRightJustify
         AutoSize = False
@@ -98,7 +100,7 @@ object Form_FindReplace: TForm_FindReplace
       object TntLabel2: TLabel
         Left = 2
         Top = 16
-        Width = 94
+        Width = 106
         Height = 13
         Alignment = taRightJustify
         AutoSize = False
@@ -108,7 +110,7 @@ object Form_FindReplace: TForm_FindReplace
     end
   end
   object Button_Find: TButton
-    Left = 376
+    Left = 385
     Top = 40
     Width = 117
     Height = 25
@@ -120,8 +122,8 @@ object Form_FindReplace: TForm_FindReplace
     OnClick = Button_FindClick
   end
   object Button_Cancel: TButton
-    Left = 376
-    Top = 189
+    Left = 385
+    Top = 195
     Width = 117
     Height = 25
     Hint = 'Close this dialog box'
@@ -131,9 +133,9 @@ object Form_FindReplace: TForm_FindReplace
     OnClick = Button_CancelClick
   end
   object Combo_Text: TComboBox
-    Left = 104
+    Left = 116
     Top = 39
-    Width = 255
+    Width = 257
     Height = 21
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -146,24 +148,24 @@ object Form_FindReplace: TForm_FindReplace
     OnChange = Combo_TextChange
   end
   object GroupBox_Opts: TGroupBox
-    Left = 10
+    Left = 9
     Top = 99
-    Width = 354
-    Height = 118
+    Width = 368
+    Height = 124
     Caption = ' Options: '
     TabOrder = 8
     object CheckBox_MatchCase: TCheckBox
       Left = 193
       Top = 25
-      Width = 155
+      Width = 171
       Height = 17
       Caption = '&Match case'
       TabOrder = 4
     end
     object CheckBox_EntireScope: TCheckBox
-      Left = 24
+      Left = 14
       Top = 25
-      Width = 165
+      Width = 178
       Height = 17
       Caption = 'From T&op of Text'
       TabOrder = 0
@@ -171,34 +173,34 @@ object Form_FindReplace: TForm_FindReplace
     end
     object CheckBox_WholeWordsOnly: TCheckBox
       Left = 193
-      Top = 44
-      Width = 155
+      Top = 46
+      Width = 171
       Height = 17
       Caption = 'W&hole words'
       TabOrder = 5
     end
     object CheckBox_AllTabs: TCheckBox
-      Left = 24
+      Left = 14
       Top = 51
-      Width = 165
+      Width = 178
       Height = 17
       Caption = 'Search A&ll folders'
       TabOrder = 1
       OnClick = CheckBox_ScopeChanged
     end
     object CheckBox_AllNodes: TCheckBox
-      Left = 24
-      Top = 70
-      Width = 165
+      Left = 14
+      Top = 72
+      Width = 351
       Height = 17
       Caption = 'Search all tree &Nodes'
       TabOrder = 2
       OnClick = CheckBox_AllNodesClick
     end
     object CheckBox_HiddenNodes: TCheckBox
-      Left = 24
-      Top = 90
-      Width = 165
+      Left = 14
+      Top = 97
+      Width = 178
       Height = 17
       Caption = 'Search Hi&dden nodes'
       Enabled = False
@@ -207,17 +209,17 @@ object Form_FindReplace: TForm_FindReplace
     end
     object CheckBox_Wrap: TCheckBox
       Left = 193
-      Top = 90
-      Width = 155
+      Top = 97
+      Width = 171
       Height = 17
       Caption = '&Wrap'
       TabOrder = 6
     end
   end
   object Combo_Replace: TComboBox
-    Left = 104
+    Left = 116
     Top = 68
-    Width = 255
+    Width = 257
     Height = 21
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -231,7 +233,7 @@ object Form_FindReplace: TForm_FindReplace
   end
   object Button_Replace: TButton
     Tag = 1
-    Left = 376
+    Left = 385
     Top = 70
     Width = 117
     Height = 25
@@ -243,7 +245,7 @@ object Form_FindReplace: TForm_FindReplace
   end
   object Button_ReplaceAll: TButton
     Tag = 2
-    Left = 376
+    Left = 385
     Top = 102
     Width = 117
     Height = 25
@@ -254,7 +256,7 @@ object Form_FindReplace: TForm_FindReplace
     OnClick = Button_FindClick
   end
   object CheckBox_SelectedText: TCheckBox
-    Left = 377
+    Left = 383
     Top = 135
     Width = 127
     Height = 19
@@ -264,7 +266,7 @@ object Form_FindReplace: TForm_FindReplace
     Visible = False
   end
   object CheckBox_Confirm: TCheckBox
-    Left = 377
+    Left = 383
     Top = 154
     Width = 127
     Height = 19
@@ -277,6 +279,6 @@ object Form_FindReplace: TForm_FindReplace
     Options = [fpPosition]
     UseRegistry = True
     Left = 311
-    Top = 175
+    Top = 167
   end
 end

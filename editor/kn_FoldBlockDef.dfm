@@ -5,7 +5,7 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
   BorderStyle = bsDialog
   Caption = 'Folding block'
   ClientHeight = 96
-  ClientWidth = 367
+  ClientWidth = 391
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -37,9 +37,9 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
     FocusControl = Edit_Closing
   end
   object Button_OK: TButton
-    Left = 284
+    Left = 302
     Top = 8
-    Width = 75
+    Width = 80
     Height = 25
     Hint = 'Accept changes and close dialog box'
     Caption = 'OK'
@@ -48,9 +48,9 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
     TabOrder = 0
   end
   object Button_Cancel: TButton
-    Left = 284
+    Left = 302
     Top = 38
-    Width = 75
+    Width = 80
     Height = 25
     Hint = 'Discard changes and close dialog box'
     Caption = 'Cancel'
@@ -60,7 +60,7 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
   object Edit_Opening: TEdit
     Left = 86
     Top = 10
-    Width = 181
+    Width = 200
     Height = 21
     MaxLength = 255
     TabOrder = 2
@@ -68,7 +68,7 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
   object Edit_Closing: TEdit
     Left = 86
     Top = 40
-    Width = 181
+    Width = 200
     Height = 21
     MaxLength = 255
     TabOrder = 3
@@ -84,9 +84,9 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
     TabOrder = 4
   end
   object chkDispos: TCheckBox
-    Left = 122
+    Left = 129
     Top = 71
-    Width = 113
+    Width = 128
     Height = 17
     Hint = 'Discard markers on fold'
     Caption = 'Discard markers'
@@ -94,9 +94,9 @@ object Form_FoldBlockDef: TForm_FoldBlockDef
     OnClick = chkDisposClick
   end
   object chkOnExpand: TCheckBox
-    Left = 245
+    Left = 262
     Top = 71
-    Width = 113
+    Width = 120
     Height = 17
     Hint = 
       'Markers will be added to the beginning and end of the text block' +

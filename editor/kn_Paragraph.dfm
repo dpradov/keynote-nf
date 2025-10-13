@@ -7,7 +7,7 @@ object Form_Para: TForm_Para
   BorderStyle = bsDialog
   Caption = 'Paragraph properties'
   ClientHeight = 269
-  ClientWidth = 413
+  ClientWidth = 417
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -24,7 +24,7 @@ object Form_Para: TForm_Para
   TextHeight = 13
   object Button_OK: TButton
     Left = 135
-    Top = 236
+    Top = 238
     Width = 75
     Height = 25
     Hint = 'Accept changes and close dialog box'
@@ -36,7 +36,7 @@ object Form_Para: TForm_Para
   end
   object Button_Cancel: TButton
     Left = 231
-    Top = 236
+    Top = 238
     Width = 75
     Height = 25
     Hint = 'Discard changes and close dialog box'
@@ -48,12 +48,12 @@ object Form_Para: TForm_Para
     Left = 4
     Top = 113
     Width = 244
-    Height = 111
+    Height = 116
     Caption = ' Spacing '
     TabOrder = 2
     object Label4: TLabel
       Left = 13
-      Top = 20
+      Top = 26
       Width = 62
       Height = 13
       Caption = 'Line &spacing:'
@@ -61,7 +61,7 @@ object Form_Para: TForm_Para
     end
     object Label5: TLabel
       Left = 13
-      Top = 80
+      Top = 88
       Width = 61
       Height = 13
       Caption = 'S&pace After:'
@@ -69,7 +69,7 @@ object Form_Para: TForm_Para
     end
     object Label6: TLabel
       Left = 13
-      Top = 50
+      Top = 58
       Width = 68
       Height = 13
       Caption = 'Space B&efore:'
@@ -77,7 +77,7 @@ object Form_Para: TForm_Para
     end
     object Combo_Spc: TComboBox
       Left = 106
-      Top = 15
+      Top = 21
       Width = 119
       Height = 21
       Style = csDropDownList
@@ -89,7 +89,7 @@ object Form_Para: TForm_Para
     end
     object Spin_SpcBef: TSpinEdit
       Left = 106
-      Top = 45
+      Top = 53
       Width = 51
       Height = 22
       MaxValue = 0
@@ -100,7 +100,7 @@ object Form_Para: TForm_Para
     end
     object Spin_SpcAft: TSpinEdit
       Left = 106
-      Top = 75
+      Top = 83
       Width = 51
       Height = 22
       MaxValue = 0
@@ -114,7 +114,7 @@ object Form_Para: TForm_Para
     Left = 5
     Top = 3
     Width = 407
-    Height = 41
+    Height = 42
     Caption = ' &Alignment '
     Columns = 4
     ItemIndex = 0
@@ -200,12 +200,12 @@ object Form_Para: TForm_Para
     Left = 254
     Top = 113
     Width = 159
-    Height = 111
+    Height = 116
     Caption = ' List '
     TabOrder = 3
     object CB_Bullets: TCheckBox
       Left = 13
-      Top = 42
+      Top = 46
       Width = 140
       Height = 17
       Caption = '&Bulleted list'
@@ -214,7 +214,7 @@ object Form_Para: TForm_Para
     end
     object CB_Numbers: TCheckBox
       Left = 13
-      Top = 19
+      Top = 23
       Width = 140
       Height = 17
       Caption = '&Numbered list'

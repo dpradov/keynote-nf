@@ -21,9 +21,9 @@ object Form_Defaults: TForm_Defaults
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object LB_Scope: TLabel
-    Left = 14
+    Left = 3
     Top = 7
-    Width = 348
+    Width = 371
     Height = 18
     Alignment = taRightJustify
     AutoSize = False
@@ -82,7 +82,7 @@ object Form_Defaults: TForm_Defaults
     Top = 90
     Width = 369
     Height = 320
-    ActivePage = Tab_Tree
+    ActivePage = Tab_Main
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -117,9 +117,9 @@ object Form_Defaults: TForm_Defaults
         ParentFont = False
         TabOrder = 0
         object Label5: TLabel
-          Left = 17
-          Top = 19
-          Width = 108
+          Left = 11
+          Top = 21
+          Width = 164
           Height = 26
           Caption = 'Default &Name for new tree nodes:'
           FocusControl = Edit_NodeName
@@ -141,6 +141,12 @@ object Form_Defaults: TForm_Defaults
           AutoSize = False
           Caption = 'Default font and background color (Tree): '
           FocusControl = BitBtn_TreeChromeHelp
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = [fsBold]
+          ParentFont = False
           Transparent = False
         end
         object CB_TreeCheck: TCheckBox
@@ -153,16 +159,16 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 3
         end
         object Edit_NodeName: TComboBox
-          Left = 132
-          Top = 17
-          Width = 176
+          Left = 178
+          Top = 19
+          Width = 134
           Height = 21
           Hint = 'Enter default name for nodes added to tree'
           TabOrder = 0
         end
         object CB_AutoNumberNodes: TCheckBox
-          Left = 158
-          Top = 18
+          Left = 181
+          Top = 20
           Width = 188
           Height = 17
           Hint = 'When adding a node, append sequential number to its name'
@@ -172,7 +178,7 @@ object Form_Defaults: TForm_Defaults
         end
         object BitBtn_TknHlp: TBitBtn
           Left = 321
-          Top = 15
+          Top = 17
           Width = 25
           Height = 25
           Hint = 'Help for auto-naming tree nodes'
@@ -290,10 +296,11 @@ object Form_Defaults: TForm_Defaults
         ParentFont = False
         TabOrder = 0
         object Label_TabSize: TLabel
-          Left = 283
+          Left = 248
           Top = 12
-          Width = 60
+          Width = 95
           Height = 14
+          Alignment = taRightJustify
           AutoSize = False
           Caption = 'Tab &Size:'
           FocusControl = Spin_TabSize
@@ -345,7 +352,7 @@ object Form_Defaults: TForm_Defaults
           Caption = '(*)'
         end
         object CB_WordWrap: TCheckBox
-          Left = 13
+          Left = 11
           Top = 14
           Width = 229
           Height = 17
@@ -354,7 +361,7 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 0
         end
         object CB_URLDetect: TCheckBox
-          Left = 13
+          Left = 11
           Top = 63
           Width = 229
           Height = 17
@@ -363,7 +370,7 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 2
         end
         object CB_UseTabChar: TCheckBox
-          Left = 13
+          Left = 11
           Top = 39
           Width = 229
           Height = 17
@@ -418,9 +425,9 @@ object Form_Defaults: TForm_Defaults
             '75')
         end
         object CB_PlainText: TCheckBox
-          Left = 13
+          Left = 11
           Top = 120
-          Width = 326
+          Width = 340
           Height = 17
           Hint = 
             'If checked, new notes (or new entries of existing notes) will de' +
@@ -462,7 +469,7 @@ object Form_Defaults: TForm_Defaults
           TabOrder = 10
         end
         object CB_DisableTagSel: TCheckBox
-          Left = 13
+          Left = 11
           Top = 86
           Width = 229
           Height = 17
@@ -508,7 +515,7 @@ object Form_Defaults: TForm_Defaults
   end
   object Edit_Sample: TEdit
     Left = 140
-    Top = 337
+    Top = 341
     Width = 218
     Height = 21
     TabStop = False
@@ -534,7 +541,7 @@ object Form_Defaults: TForm_Defaults
     object CB_SaveDefaults: TCheckBox
       Left = 10
       Top = 7
-      Width = 341
+      Width = 357
       Height = 17
       Caption = 'Save as Defaults'
       Font.Charset = DEFAULT_CHARSET
@@ -548,9 +555,9 @@ object Form_Defaults: TForm_Defaults
       OnClick = CB_SaveDefaultsClick
     end
     object CB_SaveAsDef: TCheckBox
-      Left = 44
+      Left = 32
       Top = 28
-      Width = 277
+      Width = 331
       Height = 17
       Hint = 
         'Normally, properties are saved as defaults for all new folders y' +

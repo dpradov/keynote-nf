@@ -7,7 +7,7 @@ object Form_Macro: TForm_Macro
   BorderStyle = bsDialog
   Caption = 'Edit macro'
   ClientHeight = 249
-  ClientWidth = 360
+  ClientWidth = 390
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,7 +23,7 @@ object Form_Macro: TForm_Macro
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Button_OK: TButton
-    Left = 62
+    Left = 110
     Top = 217
     Width = 75
     Height = 25
@@ -35,7 +35,7 @@ object Form_Macro: TForm_Macro
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
-    Left = 142
+    Left = 190
     Top = 217
     Width = 75
     Height = 25
@@ -48,7 +48,7 @@ object Form_Macro: TForm_Macro
   object GroupBox1: TGroupBox
     Left = 5
     Top = 0
-    Width = 351
+    Width = 376
     Height = 207
     TabOrder = 2
     object Label1: TLabel
@@ -69,15 +69,15 @@ object Form_Macro: TForm_Macro
     end
     object Label3: TLabel
       Left = 15
-      Top = 114
-      Width = 62
+      Top = 111
+      Width = 83
       Height = 13
       AutoSize = False
       Caption = 'Modified:'
     end
     object LB_Date: TLabel
-      Left = 81
-      Top = 114
+      Left = 107
+      Top = 111
       Width = 12
       Height = 13
       Caption = '...'
@@ -91,16 +91,16 @@ object Form_Macro: TForm_Macro
     end
     object Label4: TLabel
       Left = 15
-      Top = 134
-      Width = 62
+      Top = 131
+      Width = 83
       Height = 13
       AutoSize = False
       Caption = 'Filename:'
     end
     object LB_FileName: TLabel
-      Left = 81
-      Top = 134
-      Width = 253
+      Left = 107
+      Top = 131
+      Width = 261
       Height = 28
       AutoSize = False
       Caption = '...'
@@ -116,7 +116,7 @@ object Form_Macro: TForm_Macro
     object Edit_Desc: TEdit
       Left = 15
       Top = 79
-      Width = 319
+      Width = 350
       Height = 22
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -129,7 +129,7 @@ object Form_Macro: TForm_Macro
     object Edit_Name: TEdit
       Left = 15
       Top = 28
-      Width = 319
+      Width = 350
       Height = 22
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -165,7 +165,7 @@ object Form_Macro: TForm_Macro
     end
   end
   object Button_Help: TButton
-    Left = 222
+    Left = 304
     Top = 217
     Width = 75
     Height = 25
