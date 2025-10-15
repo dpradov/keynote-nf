@@ -4609,17 +4609,13 @@ begin
         if (SelLength = 1) then
            ImgID:= CheckToIdentifyImageID(p)
 
-        else begin
-            if App.ShowingImageOnTrack  then
-               App.ShowingImageOnTrack:= false
-            else
-              if SelAttributes.Link and (SelLength = 0) then begin
-                 var URLText, TxtSel: string;
-                 var chrg: TCharRange;
-                 var L, R: integer;
-                 GetLinkAtCursor(URLText, TxtSel, L, R, false);
-                 ImgID:= GetImageIDinPlaintext(URLText);
-              end;
+        else
+        if (SelLength = 0) and SelAttributes.Link then begin
+            var URLText, TxtSel: string;
+            var chrg: TCharRange;
+            var L, R: integer;
+            GetLinkAtCursor(URLText, TxtSel, L, R, false);
+            ImgID:= GetImageIDinPlaintext(URLText);
         end;
 
         if (ImgID > 0) and (ImageMng.ImgIDinViewer <> ImgID) then begin
