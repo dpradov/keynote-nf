@@ -243,7 +243,8 @@ type
     procedure PasteBestAvailableFormat (const FolderName: string;
                                         TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                         PrioritizeImage: boolean = False);
-    procedure TryToDetectAndSolveHTMLtoRTFbadConv (posI: integer);
+    procedure TryToDetectAndSolveHTMLtoRTFbadConv (posI, posF: integer);
+    procedure TryToDetectAndSolveEmojisProblematic (posI, posF: integer);
 
 
     function CheckReadOnly: boolean;
@@ -4850,6 +4851,33 @@ end;
 
 //----------------------------------------------------------------------------
 
+function FixEmojisProblematicInTxt(var TxtPlain: string): boolean;
+var
+   NewSelStart: integer;
+begin
+     {  See FixEmojisProblemInRTF in kn_ClipUtils
+         U+FE0E (\u-498?)  Variation Selector-15        “Force text mode”   -> Breaks format
+         U+FE0F (\u-497?)  Variation Selector-16        “Force emoji mode”  -> Breaks format
+         U+20E3 (\u8419?)  Combining Enclosing Keycap	  “Key box”         -> Breaks format      }
+
+     Result:= False;
+     if not KeyOptions.FixEmojisProblem then exit;
+
+     if (pos(Char($FE0E), TxtPlain) > 0) then begin
+        TxtPlain:= StringReplace(TxtPlain, Char($FE0E), '', [rfReplaceAll]);
+        Result:= True;
+     end;
+     if (pos(Char($FE0F), TxtPlain) > 0) then begin
+        TxtPlain:= StringReplace(TxtPlain, Char($FE0F), '', [rfReplaceAll]);
+        Result:= True;
+     end;
+     if (pos(Char($20E3), TxtPlain) > 0) then begin
+        TxtPlain:= StringReplace(TxtPlain, Char($20E3), '', [rfReplaceAll]);
+        Result:= True;
+     end;
+end;
+
+
 procedure TKntRichEdit.TryPasteRTF(HTMLText: AnsiString=''; FolderName: String= ''; PlainText: boolean = false);
 var
   RTF: AnsiString;
@@ -4864,7 +4892,7 @@ begin
     else
         PasteBestAvailableFormat(FolderName, false, false);      // false: don't to try to offer RTF (Maybe it's already available), false: don't try to detect and correct HTML to RTF (will be done here)
 
-    TryToDetectAndSolveHTMLtoRTFbadConv(posI);
+    TryToDetectAndSolveHTMLtoRTFbadConv(posI, SelStart);
 end;
 
 
@@ -4872,9 +4900,11 @@ procedure TKntRichEdit.PastePlain( StrClp: string = ''; HTMLClip: AnsiString= ''
                                    ForcePlainText: boolean = false;
                                    MaxSize: integer = 0 );
 var
-   SS, j: integer;
+   SS, j, NewSS: integer;
    TextToReplace: string;
    Ok, DoUndo: boolean;
+   Txt: string;
+   TextModified: boolean;
 
   function PasteOperationWasOK (): boolean;
   var
@@ -4937,18 +4967,13 @@ var
      Result:= Ok;
   end;
 
-  procedure ReplaceBullets;
-  var
-     NewSelStart: integer;
-     PlainText: string;
+  function ReplaceBullets: boolean;
   begin
        // Replace bullets when pasting in plain text. By default a symbol in Cambria Math font + Tab character are added
-       NewSelStart:= SelStart;
-       PlainText:= GetTextRange(SS, NewSelStart);
-       if pos(Char(10625), PlainText) > 0 then begin
-          PlainText:= StringReplace(PlainText, Char(10625) + #9, EditorOptions.BulletsInPlainText, [rfReplaceAll]);  // Ord(TextToReplace) = 10625 : Symbol of font Cambria Math
-          SetSelection(SS, NewSelStart, True);
-          PutRtfText(PlainText, true);
+       Result:= False;
+       if pos(Char(10625), Txt) > 0 then begin
+          Txt:= StringReplace(Txt, Char(10625) + #9, EditorOptions.BulletsInPlainText, [rfReplaceAll]);  // Ord(TextToReplace) = 10625 : Symbol of font Cambria Math
+          Result:= True;
        end;
   end;
 
@@ -4973,7 +4998,18 @@ begin
 
        PasteIRichEditOLE(CF_UNICODETEXT);
 
-       ReplaceBullets;
+       NewSS:= SelStart;
+       Txt:= GetTextRange(SS, NewSS);
+
+       TextModified:= ReplaceBullets;
+       if FixEmojisProblematicInTxt(Txt) then
+          TextModified:= True;
+
+       if TextModified then begin
+          SetSelection(SS, NewSS, True);
+          PutRtfText(Txt, true);
+       end;
+
 
        if RichEditVersion < 5 then begin
           if not PasteOperationWasOK() then begin
@@ -5047,11 +5083,13 @@ procedure TKntRichEdit.PasteBestAvailableFormat (const FolderName: string;
                                            TryOfferRTF: boolean= True; CorrectHTMLtoRTF: boolean = False;
                                            PrioritizeImage: boolean = False);
 var
-  posI, pos: integer;
+  posI, posF, pos: integer;
   RTFText: AnsiString;
   WasCopiedByKNT, ClipbHasRTFFormat: boolean;
+  CheckEmojisProblem: boolean;
 
 begin
+    CheckEmojisProblem:= False;
     WasCopiedByKNT:= ClipboardContentWasCopiedByKNT;         // If not -> it will also make LastCopiedIDImage <-0
 
     ClipbHasRTFFormat:= Clipboard.HasFormat(CFRtf);
@@ -5067,7 +5105,7 @@ begin
     posI:= SelStart;
 
     if TryOfferRTF then
-       RTFText:= Clipboard.TryOfferRTF('', SelAttributes);
+       RTFText:= Clipboard.TryOfferRTF('', SelAttributes);     // It will consider KeyOptions.FixEmojisProblem
 
     // If we have added RTF, we are going to use it instead of calling PasteFromClipboard, because the default font and size
     // will have set in this returned RTF text, not in the text in the clipboard
@@ -5078,6 +5116,8 @@ begin
       // If I paste text and images from WordPad it may appear as a "Wordpad Document" format, and in that case it only appears to paste the text.
       // It seems best to try to paste the RTF format if it is available
 
+      CheckEmojisProblem:= True;
+
       if ClipbHasRTFFormat then
          try
             PasteIRichEditOLE(CFRtf);
@@ -5087,7 +5127,7 @@ begin
              This happens, for example, when you copy and paste the first answer that appears on this page:
               https://stackoverflow.com/questions/4960829/how-to-convert-from-dos-path-to-file-scheme-uri-in-batch-file}
             Self.PasteFromClipboard;
-            exit;
+            //exit;
          end
 
       else
@@ -5109,15 +5149,18 @@ begin
 
     end;
 
+    posF := SelStart;
     if CorrectHTMLtoRTF then
-       TryToDetectAndSolveHTMLtoRTFbadConv(posI);
+       TryToDetectAndSolveHTMLtoRTFbadConv(posI, posF);
 
+
+    if CheckEmojisProblem and KeyOptions.FixEmojisProblem then
+       TryToDetectAndSolveEmojisProblematic(posI, posF);
 end;
 
 
-procedure TKntRichEdit.TryToDetectAndSolveHTMLtoRTFbadConv (posI: integer);
+procedure TKntRichEdit.TryToDetectAndSolveHTMLtoRTFbadConv (posI, posF: integer);
 var
-  posF: integer;
   PlainText: string;
 
 begin
@@ -5126,7 +5169,6 @@ begin
     if not (Clipboard.HasHTMLformat and Clipboard.HasRTFformat) then
        exit;
 
-    posF := SelStart;
     if (posF-posI) > RTFCONVERSON_MAX_TEXTSIZE_TO_CHECK then
        exit;
 
@@ -5270,6 +5312,52 @@ begin
            ResumeUndo;
         end;
      end;
+
+end;
+
+
+
+procedure TKntRichEdit.TryToDetectAndSolveEmojisProblematic (posI, posF: integer);
+var
+  Txt: string;
+  p, i, S: integer;
+  Chars: Array[0..2] of Char;
+  Ch, ChEmoji: Char;
+
+begin
+   Txt:= GetTextRange(posI, posF);
+
+   if ContainsEmojisProblematic(Txt) then begin
+        SuspendUndo;
+        try
+          Chars[0]:= Char($FE0E);
+          Chars[1]:= Char($FE0F);
+          Chars[2]:= Char($20E3);
+          S:= 1;
+          if posI > 1 then
+             S:= posI - 1;
+          for i := 0 to 2 do begin
+              Ch:= Chars[i];
+              p:= S;
+              repeat
+                 p:= pos(Ch, TextPlain, p);
+                 if (p > 0) then begin
+                    SetSelection(p-1, p, false);
+                    ChEmoji:= SelText[1];
+                    if ChEmoji <> Ch then
+                       SelText:= ChEmoji
+                    else
+                       SelText:= '';
+                 end;
+              until p = 0;
+          end;
+          SelStart:= posF;
+
+        finally
+           ResumeUndo;
+        end;
+
+   end;
 
 end;
 

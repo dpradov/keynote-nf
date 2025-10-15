@@ -631,6 +631,7 @@ type
     HintsAccesible: boolean;  // [*] 1 => When hints are shown in status bar, other text panels will be shown blank
     EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom
     //AutoDiscoverTags: boolean;
+    FixEmojisProblem : boolean;  // [*]   (See issue Lost the bullets - how to get back? #896
     RTLkeyShct: boolean;          // [*] 0 => Don't use keyboard shortcut for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)  (Default: 0)
     IMEAutoKeyboard: boolean;     // [*] 1 => Will keep IMF_AUTOKEYBOARD on when turned on automatically for bidirectional controls  (Default: 1)
                                   //     0 => IMF_AUTOKEYBOARD will be turned off just after setting RTL mode

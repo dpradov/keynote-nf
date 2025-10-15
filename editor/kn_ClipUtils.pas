@@ -78,6 +78,9 @@ type
   procedure CopyToClipboard (Editor: TRxRichEdit);
   procedure CutToClipboard (Editor: TRxRichEdit);
 
+  procedure FixEmojisProblematicInRTF(var RTFText: AnsiString);
+  function ContainsEmojisProblematic(const Txt: string): boolean;
+
 
 implementation
 uses
@@ -219,6 +222,35 @@ begin
   end;
 
 end;
+
+
+procedure FixEmojisProblematicInRTF(var RTFText: AnsiString);
+begin
+  {  U+FE0E  Variation Selector-15  “Force text mode”  -> Breaks format
+     U+FE0F	Variation Selector-16	“Force emoji mode”  -> Breaks format
+     U+20E3	Combining Enclosing Keycap	“Key box”     -> Breaks format
+
+     See issue Lost the bullets - how to get back? #896                     }
+
+   if RTFText = '' then exit;
+
+   RTFText:= StringReplace(RTFText, '\u-498 ?', '', [rfReplaceAll]);
+   RTFText:= StringReplace(RTFText, '\u-497 ?', '', [rfReplaceAll]);
+   RTFText:= StringReplace(RTFText, '\u8419 ?', '', [rfReplaceAll]);
+end;
+
+
+function ContainsEmojisProblematic(const Txt: string): boolean;
+begin
+     Result:= False;
+
+     if (pos(Char($FE0E), Txt) > 0) or
+        (pos(Char($FE0F), Txt) > 0) or
+        (pos(Char($20E3), Txt) > 0) then
+        Result:= True;
+end;
+
+
 
 function TClipboardHelper.HasHTMLformat: boolean;
 begin
@@ -814,6 +846,10 @@ begin
           LastCopiedRTFHandle_ConvFromHTML_Plain:= PlainText;
        end;
     end;
+
+    if (Result <> '') and KeyOptions.FixEmojisProblem then
+       FixEmojisProblematicInRTF(Result);
+
 end;
 
 
