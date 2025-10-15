@@ -534,6 +534,7 @@ position	type		meaning
 2           boolean		Show icons on tabs
 3           boolean		TRUE if file was saved using version 3.0 of the richedit control; otherwise FALSE
 4           boolean		TRUE if the multi-level backup setting (Tools|Options) should be IGNORED for this file; otherwise FALSE (i.e. perform multi-level backup if so configured)
+5           boolean     Hide images (Saves the (inverse) state of the button 'Show or Hide images')
 
 
 

@@ -3463,7 +3463,8 @@ begin
   result[2] := BOOLEANSTR[FShowTabIcons];
   result[3] := BOOLEANSTR[FSavedWithRichEdit3];
   result[4] := BOOLEANSTR[FNoMultiBackup];
-end; // PropertiesToFlagsString
+  result[5] := BOOLEANSTR[(ImageMng.ImagesMode = imLink)];   // 5º: Hide images (Saves the (inverse) state of the button 'Show or Hide images')
+end;
 
 
 procedure TKntFile.FlagsStringToProperties( const FlagsStr : TFlagsString );
@@ -3473,6 +3474,8 @@ begin
   FShowTabIcons       := FlagsStr[2] = BOOLEANSTR[true];
   FSavedWithRichEdit3 := FlagsStr[3] = BOOLEANSTR[true];
   FNoMultiBackup      := FlagsStr[4] = BOOLEANSTR[true];
+  if FlagsStr[5] = BOOLEANSTR[true] then
+     ImageMng.ImagesMode := imLink;
 end;
 
 
