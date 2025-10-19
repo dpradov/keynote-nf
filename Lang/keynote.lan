@@ -7,7 +7,7 @@ Translator=
 RTL=0
 
 [Japanese]
-Comment=v2.1.1.01
+Comment=v2.1.1.01     (new texts in 2.1.2.01 in english. Details in Keynote.japanese_WRK.lng)
 Name=Japanese
 LangFile=Keynote.japanese.lng
 TipFile=Keynote.japanese.tip
@@ -15,7 +15,7 @@ Translator=coolvitto
 RTL=0
 
 [Chinese Simplified]
-Comment=v2.0.5.02    (new texts until 2.1.1.01 in english. Details in Keynote.chinese-simplified_WRK.lng)
+Comment=v2.0.5.02    (new texts until 2.1.2.01 in english. Details in Keynote.chinese-simplified_WRK.lng)
 Name=Chinese  Simplified
 LangFile=Keynote.chinese-simplified.lng
 TipFile=Keynote.chinese-simplified.tip
@@ -23,7 +23,7 @@ Translator=xbeta (http://xbeta.info)
 RTL=0
 
 [Spanish]
-Comment=v2.1.1.01
+Comment=v2.1.2.01
 Name=Spanish (Español-Castellano)
 LangFile=Keynote.spanish.lng
 TipFile=Keynote.spanish.tip
