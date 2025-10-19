@@ -280,6 +280,8 @@ Pages.Tab_Main.GroupBox_Source.Caption= Bron: wat te exporteren?
 Pages.Tab_Main.GroupBox_Source.CheckBox_ExcludeHiddenNodes.Hint=Verborgen knopen niet exporteren
 Pages.Tab_Main.GroupBox_Source.CheckBox_ExcludeHiddenNodes.Caption=Uitsluiten &verborgen knopen
 (!)Pages.Tab_Main.GroupBox_Source.CB_TableCont.Caption=Top N levels on a Table of Contents
+(!)Pages.Tab_Main.GroupBox_Source.CB_UseNote.Caption=Use '_note' attribute
+(!)Pages.Tab_Main.GroupBox_Source.CB_UseNote.Hint=Include notes'content as plain text in "_note" attribute
 (!)Pages.Tab_Main.GroupBox_Source.cbFoldedText.Items.Strings=Keep unchanged\^Unfold\^Remove "tagged"\^Remove All
 (!)Pages.Tab_Main.GroupBox_Source.PnlTags.lbl4.Caption=TAGs
 (!)Pages.Tab_Main.GroupBox_Source.PnlTags.lbl9.Hint=Exclude text/notes with ANY of the selected tags
@@ -3226,4 +3228,4 @@ Button_Prev.Caption=V&orige Tip
 (!)55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
 (!)55128_knt_RS_sFoldBl5=Markers to be used when expanding already exist (uncheck them first)
 
-65100_KDL_Localizer_rsKdlMark=*KDL*Mark*
+65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

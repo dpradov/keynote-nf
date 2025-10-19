@@ -5,7 +5,7 @@ object Form_SelectTab: TForm_SelectTab
   BorderStyle = bsDialog
   Caption = 'Select Folders'
   ClientHeight = 243
-  ClientWidth = 330
+  ClientWidth = 343
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,9 +21,9 @@ object Form_SelectTab: TForm_SelectTab
   OnKeyDown = FormKeyDown
   TextHeight = 13
   object Button_OK: TButton
-    Left = 213
+    Left = 222
     Top = 10
-    Width = 108
+    Width = 112
     Height = 25
     Caption = 'OK'
     Default = True
@@ -32,9 +32,9 @@ object Form_SelectTab: TForm_SelectTab
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
-    Left = 213
+    Left = 222
     Top = 40
-    Width = 108
+    Width = 112
     Height = 25
     Caption = 'Cancel'
     ModalResult = 2
@@ -42,27 +42,27 @@ object Form_SelectTab: TForm_SelectTab
     OnClick = Button_CancelClick
   end
   object Button_All: TButton
-    Left = 213
+    Left = 222
     Top = 85
-    Width = 108
+    Width = 112
     Height = 25
     Caption = 'Select &All'
     TabOrder = 2
     OnClick = Button_AllClick
   end
   object Button_None: TButton
-    Left = 213
+    Left = 222
     Top = 115
-    Width = 108
+    Width = 112
     Height = 25
     Caption = 'Select &None'
     TabOrder = 3
     OnClick = Button_NoneClick
   end
   object Button_Invert: TButton
-    Left = 213
+    Left = 222
     Top = 145
-    Width = 108
+    Width = 112
     Height = 25
     Caption = '&Invert selection'
     TabOrder = 4
@@ -71,7 +71,7 @@ object Form_SelectTab: TForm_SelectTab
   object List_Tabs: TGFXListBox
     Left = 10
     Top = 5
-    Width = 191
+    Width = 199
     Height = 231
     ExtendedSelect = False
     ItemHeight = 20

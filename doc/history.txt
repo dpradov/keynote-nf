@@ -3,6 +3,22 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.2.1  (19 oct 2025)
+--------------------------
+* The design of several forms and dialogs has been revised to facilitate translation into other languages.
+* Added completed Spanish translation for version 2.1.2
+--
+* New: When saving the file, the current state of the 'Show or Hide Images' button will also be saved.
+* Fixed: When Image/'Single instance'/'Hot track' option is enabled, navigating with keyboard between two hidden 
+  and contiguous images doesn't show the image, it is necessary to press left or right
+--
+* Fixed: Added INI option (FixEmojisProblem) to avoid problem caused by certain Unicode sequences used in Emojis [#896]
+* Fixed: Scroll bar position could be lost when focus was returned to KeyNote by clicking in the Editor (#720)
+--
+* New: Added OPML format to File - Export  (#802)
+* Fixed: Export/"Folded Text": "Keep unchanged" is handled as "Unfold" when exporting to "Plain Text", "HTML", or "OPML"
+
+
 v 2.1.1.1  (08 oct 2025)
 --------------------------
 * New: Image viewer allows copying images to clipboard (#882)

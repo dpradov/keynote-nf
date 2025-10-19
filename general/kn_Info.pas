@@ -69,6 +69,7 @@ const
   ext_CNV        = '.cnv'; // code page conversion table
   ext_Shortcut   = '.lnk'; // Windows shortcuts
   ext_LAN        = '.lan'; // Languages available
+  ext_OPML       = '.opml';
 
   KeyboardFileName = 'keyboard.ini'; // custom keyboard config
   ToolbarFileName  = 'toolbar.ini'; // custom toolbar config
@@ -115,6 +116,7 @@ const
 
   FILTER_HJTFILES    = 'TreePad files (*' + ext_TreePad + ')|*' + ext_TreePad;
   FILTER_HTMLFILES   = 'HTML files (*' + ext_html + ')|*' + ext_html;
+  FILTER_OPMLFILES   = 'OPML files (*' + ext_opml + ')|*' + ext_opml;
   FILTER_PROGRAMS    = 'Programs (*.exe;*.com)|*.exe;*.com;*.bat';
   FILTER_NOTEFILES   = 'Keynote files (*' + ext_KeyNote + ')|*' + ext_KeyNote + ';*' + ext_Encrypted;
 {$IFDEF WITH_DART}
@@ -631,6 +633,7 @@ type
     HintsAccesible: boolean;  // [*] 1 => When hints are shown in status bar, other text panels will be shown blank
     EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom
     //AutoDiscoverTags: boolean;
+    FixEmojisProblem : boolean;  // [*]   (See issue Lost the bullets - how to get back? #896
     RTLkeyShct: boolean;          // [*] 0 => Don't use keyboard shortcut for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)  (Default: 0)
     IMEAutoKeyboard: boolean;     // [*] 1 => Will keep IMF_AUTOKEYBOARD on when turned on automatically for bidirectional controls  (Default: 1)
                                   //     0 => IMF_AUTOKEYBOARD will be turned off just after setting RTL mode

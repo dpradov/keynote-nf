@@ -1405,6 +1405,8 @@ type
     procedure CheckFindAllEnabled;
     procedure CheckTxtTagsEnabled;
 
+    procedure Fix_DoNotLoseScrollPosInEditor;
+
   public
     procedure CheckFilterTags;
 
@@ -1831,6 +1833,7 @@ begin
 
   Log_StoreTick( 'FormActivate - End', 1, -1 );
 
+  Fix_DoNotLoseScrollPosInEditor;
 end; // ACTIVATE
 
 
@@ -2474,6 +2477,17 @@ begin
       KntFileOpen( KeyOptions.LastFile );
     end;
 end; // AppRestore;
+
+
+// See comment in issue #720 "save and restore caret position...not sure what it's supposed to do"
+
+procedure TForm_Main.Fix_DoNotLoseScrollPosInEditor;
+begin
+   ActiveControl:= nil;
+   Application.ProcessMessages;
+   ActiveControl:= ActiveEditor;
+end;
+
 
 procedure TForm_Main.DisplayAppHint( sender: TObject );
 var

@@ -6,7 +6,7 @@ object Form_NodeNum: TForm_NodeNum
   BorderStyle = bsDialog
   Caption = 'Outline node numbering'
   ClientHeight = 269
-  ClientWidth = 472
+  ClientWidth = 484
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -19,10 +19,10 @@ object Form_NodeNum: TForm_NodeNum
   OnHelp = FormHelp
   TextHeight = 13
   object Label1: TLabel
-    Left = 21
-    Top = 187
-    Width = 397
-    Height = 26
+    Left = 9
+    Top = 188
+    Width = 468
+    Height = 39
     Caption = 
       'Nodes are renumbered automatically'#13#10'Names are never lost, they s' +
       'imply can be hidden, depending on numbering method'
@@ -35,11 +35,12 @@ object Form_NodeNum: TForm_NodeNum
     Font.Style = []
     ParentColor = False
     ParentFont = False
+    WordWrap = True
     StyleElements = [seClient, seBorder]
   end
   object Button_OK: TButton
-    Left = 149
-    Top = 234
+    Left = 163
+    Top = 236
     Width = 77
     Height = 25
     Hint = 'Accept settings and execute'
@@ -49,8 +50,8 @@ object Form_NodeNum: TForm_NodeNum
     TabOrder = 3
   end
   object Button_Cancel: TButton
-    Left = 232
-    Top = 234
+    Left = 246
+    Top = 236
     Width = 82
     Height = 25
     Hint = 'Cancel'
@@ -62,7 +63,7 @@ object Form_NodeNum: TForm_NodeNum
   object RG_Scope: TRadioGroup
     Left = 8
     Top = 8
-    Width = 450
+    Width = 468
     Height = 57
     Caption = ' &Numbering scope '
     Columns = 2
@@ -76,7 +77,7 @@ object Form_NodeNum: TForm_NodeNum
     Left = 8
     Top = 74
     Width = 233
-    Height = 102
+    Height = 105
     Hint = 
       'Example of numbers and node name:'#13#10'"1.2 - Node"'#13#10'Only number: "1' +
       '.2"'
@@ -92,21 +93,21 @@ object Form_NodeNum: TForm_NodeNum
   object gbDepth: TGroupBox
     Left = 247
     Top = 74
-    Width = 211
-    Height = 102
+    Width = 228
+    Height = 105
     Caption = ' Numbering depth'
     TabOrder = 2
     object LB_Depth: TLabel
-      Left = 22
-      Top = 61
-      Width = 81
+      Left = 18
+      Top = 55
+      Width = 205
       Height = 13
       Caption = '&Limit level depth:'
       FocusControl = Spin_Depth
     end
     object Spin_Depth: TSpinEdit
-      Left = 112
-      Top = 56
+      Left = 18
+      Top = 75
       Width = 61
       Height = 22
       Enabled = False
@@ -117,9 +118,9 @@ object Form_NodeNum: TForm_NodeNum
       Value = 1
     end
     object CB_FullDepth: TCheckBox
-      Left = 22
-      Top = 36
-      Width = 186
+      Left = 16
+      Top = 26
+      Width = 205
       Height = 17
       Caption = '&Apply numbering to all levels'
       Checked = True

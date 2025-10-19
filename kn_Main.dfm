@@ -59,7 +59,7 @@ object Form_Main: TForm_Main
         Width = 35
       end
       item
-        Width = 50
+        Width = 65
       end
       item
         Width = 35
@@ -1106,7 +1106,7 @@ object Form_Main: TForm_Main
         object CB_ResFind_Filter: TCheckBox
           Left = 10
           Top = 64
-          Width = 97
+          Width = 119
           Height = 17
           Hint = 'Show or hide nodes based on search conditions'
           Caption = 'Filter folder[s]'
@@ -1150,9 +1150,9 @@ object Form_Main: TForm_Main
           OnClick = Btn_ResFindClick
         end
         object Btn_ResFlip: TButton
-          Left = 114
+          Left = 117
           Top = 58
-          Width = 83
+          Width = 80
           Height = 25
           Hint = 'Toggle options and search results display'
           Anchors = [akTop, akRight]
@@ -1230,7 +1230,7 @@ object Form_Main: TForm_Main
               202
               614)
             object Label2: TLabel
-              Left = 9
+              Left = 7
               Top = 451
               Width = 80
               Height = 13
@@ -1238,7 +1238,7 @@ object Form_Main: TForm_Main
               FocusControl = Combo_ResFind
             end
             object Label3: TLabel
-              Left = 9
+              Left = 7
               Top = 527
               Width = 66
               Height = 13
@@ -1255,7 +1255,7 @@ object Form_Main: TForm_Main
               Visible = False
             end
             object Label4: TLabel
-              Left = 10
+              Left = 8
               Top = 390
               Width = 183
               Height = 13
@@ -1265,7 +1265,7 @@ object Form_Main: TForm_Main
               FocusControl = CbFindFoldedMode
             end
             object lbl1: TLabel
-              Left = 10
+              Left = 8
               Top = 130
               Width = 45
               Height = 13
@@ -1273,7 +1273,7 @@ object Form_Main: TForm_Main
               Caption = 'Type:'
             end
             object lbl2: TLabel
-              Left = 10
+              Left = 8
               Top = 157
               Width = 45
               Height = 13
@@ -1282,7 +1282,7 @@ object Form_Main: TForm_Main
               FocusControl = CbFindFoldedMode
             end
             object lbl3: TLabel
-              Left = 10
+              Left = 8
               Top = 184
               Width = 45
               Height = 13
@@ -1291,7 +1291,7 @@ object Form_Main: TForm_Main
               FocusControl = CbFindFoldedMode
             end
             object lbl8: TLabel
-              Left = 10
+              Left = 8
               Top = 272
               Width = 45
               Height = 13
@@ -1301,7 +1301,7 @@ object Form_Main: TForm_Main
               FocusControl = CbFindFoldedMode
             end
             object lbl9: TLabel
-              Left = 10
+              Left = 8
               Top = 296
               Width = 45
               Height = 13
@@ -1311,16 +1311,16 @@ object Form_Main: TForm_Main
               FocusControl = CbFindFoldedMode
             end
             object lbl4: TLabel
-              Left = 10
+              Left = 8
               Top = 248
-              Width = 45
+              Width = 81
               Height = 13
               AutoSize = False
               Caption = 'TAGs'
               FocusControl = CbFindFoldedMode
             end
             object lbl7: TLabel
-              Left = 88
+              Left = 86
               Top = 249
               Width = 34
               Height = 13
@@ -1332,7 +1332,7 @@ object Form_Main: TForm_Main
               FocusControl = CbFindFoldedMode
             end
             object CB_ResFind_CaseSens: TCheckBox
-              Left = 10
+              Left = 8
               Top = 9
               Width = 192
               Height = 17
@@ -1342,7 +1342,7 @@ object Form_Main: TForm_Main
               TabOrder = 0
             end
             object CB_ResFind_WholeWords: TCheckBox
-              Left = 10
+              Left = 8
               Top = 29
               Width = 192
               Height = 17
@@ -1352,7 +1352,7 @@ object Form_Main: TForm_Main
               TabOrder = 1
             end
             object CB_ResFind_AllNotes: TCheckBox
-              Left = 10
+              Left = 8
               Top = 55
               Width = 192
               Height = 17
@@ -1365,7 +1365,7 @@ object Form_Main: TForm_Main
               OnClick = CB_ResFind_AllNotesClick
             end
             object CB_ResFind_CurrentNodeAndSubtree: TCheckBox
-              Left = 10
+              Left = 8
               Top = 75
               Width = 192
               Height = 17
@@ -1406,7 +1406,7 @@ object Form_Main: TForm_Main
               TabOrder = 7
             end
             object CB_ResFind_HiddenNodes: TCheckBox
-              Left = 10
+              Left = 8
               Top = 95
               Width = 192
               Height = 17
@@ -1418,7 +1418,7 @@ object Form_Main: TForm_Main
               TabOrder = 4
             end
             object chk_LastModifFrom: TCheckBox
-              Left = 10
+              Left = 8
               Top = 473
               Width = 17
               Height = 17
@@ -1437,7 +1437,7 @@ object Form_Main: TForm_Main
               Visible = False
             end
             object chk_LastModifUntil: TCheckBox
-              Left = 10
+              Left = 8
               Top = 498
               Width = 17
               Height = 17
@@ -1455,7 +1455,7 @@ object Form_Main: TForm_Main
               Visible = False
             end
             object chk_CreatedFrom: TCheckBox
-              Left = 10
+              Left = 8
               Top = 547
               Width = 17
               Height = 17
@@ -1474,7 +1474,7 @@ object Form_Main: TForm_Main
               Visible = False
             end
             object chk_CreatedUntil: TCheckBox
-              Left = 10
+              Left = 8
               Top = 572
               Width = 17
               Height = 17
@@ -1492,7 +1492,7 @@ object Form_Main: TForm_Main
               Visible = False
             end
             object CB_ResFind_PathInNames: TCheckBox
-              Left = 10
+              Left = 8
               Top = 208
               Width = 194
               Height = 17
@@ -1503,7 +1503,7 @@ object Form_Main: TForm_Main
               OnClick = CB_ResFind_PathInNamesClick
             end
             object CbFindFoldedMode: TComboBox
-              Left = 10
+              Left = 8
               Top = 408
               Width = 183
               Height = 21
@@ -1556,7 +1556,7 @@ object Form_Main: TForm_Main
               OnEnter = txtTagsExclEnter
             end
             object chkTagsMetad: TCheckBox
-              Left = 10
+              Left = 8
               Top = 318
               Width = 194
               Height = 17
@@ -1569,7 +1569,7 @@ object Form_Main: TForm_Main
               OnClick = chkTagsMetadClick
             end
             object chkTagsText: TCheckBox
-              Left = 10
+              Left = 8
               Top = 338
               Width = 194
               Height = 17
@@ -1580,7 +1580,7 @@ object Form_Main: TForm_Main
               OnClick = chkTagsTextClick
             end
             object chkInhTagsFind: TCheckBox
-              Left = 10
+              Left = 8
               Top = 358
               Width = 194
               Height = 17
@@ -1884,7 +1884,7 @@ object Form_Main: TForm_Main
       object lblTg: TLabel
         Left = 5
         Top = 53
-        Width = 90
+        Width = 97
         Height = 13
         AutoSize = False
         Caption = 'Filter notes with'
@@ -1895,7 +1895,7 @@ object Form_Main: TForm_Main
         Left = 175
         Top = 53
         Width = 26
-        Height = 13
+        Height = 16
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 'tags'
@@ -1943,9 +1943,9 @@ object Form_Main: TForm_Main
         OnClick = chkFilterOnTagsClick
       end
       object cbTagFilterMode: TComboBox
-        Left = 99
+        Left = 103
         Top = 49
-        Width = 71
+        Width = 67
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]

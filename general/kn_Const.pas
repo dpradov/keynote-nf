@@ -32,9 +32,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.1 .01';
-  Program_Version_Number  = '2.1.1.1';
-  Program_Version_Date    = '08/10/2025';
+  Program_Version  = '2.1.2 .01';
+  Program_Version_Number  = '2.1.2.1';
+  Program_Version_Date    = '19/10/2025';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -468,7 +468,8 @@ type
     xfPlainText, xfRTF, xfHTML,
     xfKeyNote,
     xfTreePad,
-    xfPrinter
+    xfPrinter,
+    xfOPML
   );
 
 type
@@ -1096,6 +1097,7 @@ begin
   EXPORT_FORMAT_NAMES[xfKeyNote]:=   GetRS(sINFExptFrmt3);
   EXPORT_FORMAT_NAMES[xfTreePad]:=   'TreePad';
   EXPORT_FORMAT_NAMES[xfPrinter]:=   GetRS(sINFExptFrmt4);
+  EXPORT_FORMAT_NAMES[xfOPML]:=   'OPML';
 
   NODE_ICON_KINDS[niNone]:=       GetRS(sINFIconKind1);
   NODE_ICON_KINDS[niStandard]:=   GetRS(sINFIconKind2);

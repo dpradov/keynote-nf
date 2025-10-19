@@ -441,6 +441,7 @@ type
     ModifiedOnTreeResized,
     HintsAccesible,
     EditorInfoPanelTop,
+    FixEmojisProblem,
     //AutoDiscoverTags,
     RTLkeyShct,
     IMEAutoKeyboard,
@@ -625,6 +626,7 @@ const
     ModifiedOnTreeResized : 'ModifiedOnTreeResized';
     HintsAccesible : 'HintsAccesible';
     EditorInfoPanelTop: 'EditorInfoPanelTop';
+    FixEmojisProblem: 'FixEmojisProblem';
     //AutoDiscoverTags: 'AutoDiscoverTags';
     RTLkeyShct: 'RTLkeyShct';
     IMEAutoKeyboard: 'IMEAutoKeyboard';
@@ -1197,6 +1199,7 @@ begin
     HintsAccesible:= False;
     EditorInfoPanelTop:= False;
     //AutoDiscoverTags:= False;
+    FixEmojisProblem:= True;
     RTLkeyShct:= False;
     IMEAutoKeyboard:= True;
     IMEAutoFont:= True;
@@ -1515,6 +1518,7 @@ begin
       writebool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
       writebool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
       //writebool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
+      writebool( section, KeyOptionsIniStr.FixEmojisProblem, KeyOptions.FixEmojisProblem );
       writebool( section, KeyOptionsIniStr.RTLkeyShct, KeyOptions.RTLkeyShct );
       writebool( section, KeyOptionsIniStr.IMEAutoKeyboard, KeyOptions.IMEAutoKeyboard );
       writebool( section, KeyOptionsIniStr.IMEAutoFont, KeyOptions.IMEAutoFont );
@@ -1891,6 +1895,7 @@ begin
       KeyOptions.ModifiedOnTreeResized := readbool( section, KeyOptionsIniStr.ModifiedOnTreeResized, KeyOptions.ModifiedOnTreeResized );
       KeyOptions.HintsAccesible := readbool( section, KeyOptionsIniStr.HintsAccesible, KeyOptions.HintsAccesible );
       KeyOptions.EditorInfoPanelTop := readbool( section, KeyOptionsIniStr.EditorInfoPanelTop, KeyOptions.EditorInfoPanelTop );
+      KeyOptions.FixEmojisProblem := readbool( section, KeyOptionsIniStr.FixEmojisProblem, KeyOptions.FixEmojisProblem );
       //KeyOptions.AutoDiscoverTags := readbool( section, KeyOptionsIniStr.AutoDiscoverTags, KeyOptions.AutoDiscoverTags );
       KeyOptions.RTLkeyShct := readbool( section, KeyOptionsIniStr.RTLkeyShct, KeyOptions.RTLkeyShct );
       KeyOptions.IMEAutoKeyboard := readbool( section, KeyOptionsIniStr.IMEAutoKeyboard, KeyOptions.IMEAutoKeyboard );

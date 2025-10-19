@@ -90,8 +90,11 @@ type
     //procedure WriteLn (const Args: array of const);
     procedure WriteLine (const Cad: String; CheckSaveAsUTF8: boolean= false); overload;
     procedure WriteLine (const Cad: AnsiString; CheckSaveAsUTF8: boolean= false); overload;
+    procedure WriteLineUTF8 (const Cad: string);
     procedure Write (const Buffer; Count: integer); overload;
-    procedure Write (const Cad: AnsiString); overload;
+    procedure Write (const Cad: AnsiString; CheckSaveAsUTF8: boolean= false); overload;
+    procedure Write (const Cad: String; CheckSaveAsUTF8: boolean= false); overload;
+    procedure WriteUTF8 (const Cad: string);
     function Eof: boolean;
     function Position: Int64;
   end;
@@ -723,22 +726,33 @@ end;
 
 
 procedure TTextFile.WriteLine (const Cad: String; CheckSaveAsUTF8: boolean= false);
-  var
-     S: RawByteString;
 begin
    if not assigned (F) then exit;
-   if CheckSaveAsUTF8 and (not CanSaveAsANSI(cad)) then
-      S:= UTF8Encode(cad)
-   else
-      S:= AnsiString(Cad);
 
-   F.WriteBuffer(PAnsiChar(S)^, length(S));
+   Write(Cad, CheckSaveAsUTF8);
    F.WriteBuffer(PAnsiChar(#13#10)^, 2);
 end;
 
 procedure TTextFile.WriteLine (const Cad: AnsiString; CheckSaveAsUTF8: boolean= false);
-  var
-     S: RawByteString;
+begin
+   if not assigned (F) then exit;
+
+   Write(Cad, CheckSaveAsUTF8);
+   F.WriteBuffer(PAnsiChar(#13#10)^, 2);
+end;
+
+procedure TTextFile.WriteLineUTF8 (const Cad: string);
+begin
+   if not assigned (F) then exit;
+
+   WriteUTF8(Cad);
+   F.WriteBuffer(PAnsiChar(#13#10)^, 2);
+end;
+
+
+procedure TTextFile.Write (const Cad: AnsiString; CheckSaveAsUTF8: boolean= false);
+var
+  S: RawByteString;
 begin
    if not assigned (F) then exit;
    if CheckSaveAsUTF8 and (not CanSaveAsANSI(cad)) then
@@ -747,15 +761,30 @@ begin
       S:= Cad;
 
    F.WriteBuffer(PAnsiChar(S)^, length(S));
-   F.WriteBuffer(PAnsiChar(#13#10)^, 2);
 end;
 
-
-procedure TTextFile.Write (const Cad: AnsiString);
+procedure TTextFile.Write (const Cad: String; CheckSaveAsUTF8: boolean= false);
+var
+  S: RawByteString;
 begin
    if not assigned (F) then exit;
-   F.WriteBuffer(PAnsiChar(Cad)^, length(Cad));
+   if CheckSaveAsUTF8 and (not CanSaveAsANSI(cad)) then
+      S:= UTF8Encode(cad)
+   else
+      S:= Cad;
+
+   F.WriteBuffer(PAnsiChar(S)^, length(S));
 end;
+
+procedure TTextFile.WriteUTF8 (const Cad: string);
+var
+  S: RawByteString;
+begin
+   if not assigned (F) then exit;
+   S:= UTF8Encode(cad);
+   F.WriteBuffer(PAnsiChar(S)^, length(S));
+end;
+
 
 procedure TTextFile.Write (const Buffer; Count: integer);
 begin

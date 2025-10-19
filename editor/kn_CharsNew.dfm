@@ -23,16 +23,16 @@ object Form_CharsNew: TForm_CharsNew
   object Label3: TLabel
     Left = 9
     Top = 6
-    Width = 184
+    Width = 423
     Height = 13
     AutoSize = False
     Caption = 'Selected characters'
     ShowAccelChar = False
   end
   object lblCode: TLabel
-    Left = 446
+    Left = 443
     Top = 287
-    Width = 69
+    Width = 78
     Height = 29
     Hint = 'Selected character code'
     Alignment = taCenter
@@ -42,17 +42,17 @@ object Form_CharsNew: TForm_CharsNew
     WordWrap = True
   end
   object Label1: TLabel
-    Left = 446
+    Left = 443
     Top = 147
-    Width = 47
+    Width = 78
     Height = 14
     Caption = '&Number:'
     FocusControl = Spin_Count
   end
   object lblFontName: TLabel
-    Left = 248
+    Left = 192
     Top = 287
-    Width = 184
+    Width = 240
     Height = 21
     Hint = 'Selected character font name'
     Alignment = taRightJustify
@@ -63,7 +63,7 @@ object Form_CharsNew: TForm_CharsNew
   object btnEditTable: TToolbarButton97
     Left = 12
     Top = 288
-    Width = 67
+    Width = 75
     Height = 28
     Hint = 'Edit characters in custom table'
     AllowAllUp = True
@@ -75,9 +75,9 @@ object Form_CharsNew: TForm_CharsNew
     OnClick = btnEditTableClick
   end
   object btnAddToTable: TToolbarButton97
-    Left = 82
+    Left = 97
     Top = 288
-    Width = 67
+    Width = 75
     Height = 28
     Hint = 'Add new characters to table'
     AllowAllUp = True
@@ -102,6 +102,7 @@ object Form_CharsNew: TForm_CharsNew
     ParentFont = False
     ReadOnly = True
     TabOrder = 0
+    WordSelection = False
     OnKeyDown = EditorTableKeyDown
   end
   object EditorAux: TRxRichEdit
@@ -114,11 +115,12 @@ object Form_CharsNew: TForm_CharsNew
     Color = 12582911
     TabOrder = 1
     Visible = False
+    WordSelection = False
   end
   object btnInsert: TButton
-    Left = 446
+    Left = 443
     Top = 81
-    Width = 75
+    Width = 78
     Height = 25
     Hint = 'Insert selected character'
     Caption = '&Insert'
@@ -127,9 +129,9 @@ object Form_CharsNew: TForm_CharsNew
     OnClick = btnInsertClick
   end
   object Button_Close: TButton
-    Left = 446
+    Left = 443
     Top = 26
-    Width = 75
+    Width = 78
     Height = 25
     Hint = 'Close this dialog box'
     Caption = '&Close'
@@ -138,9 +140,9 @@ object Form_CharsNew: TForm_CharsNew
     OnClick = Button_CloseClick
   end
   object Spin_Count: TSpinEdit
-    Left = 446
+    Left = 443
     Top = 166
-    Width = 75
+    Width = 78
     Height = 23
     Hint = 'Number of characters to insert'
     MaxLength = 3
@@ -150,9 +152,9 @@ object Form_CharsNew: TForm_CharsNew
     Value = 1
   end
   object btnCopy: TButton
-    Left = 446
+    Left = 443
     Top = 114
-    Width = 75
+    Width = 78
     Height = 25
     Hint = 'Copy character to clipboard'
     Caption = 'C&opy'
@@ -163,9 +165,9 @@ object Form_CharsNew: TForm_CharsNew
     OnClick = btnCopyClick
   end
   object btnInsertNew: TButton
-    Left = 446
+    Left = 443
     Top = 332
-    Width = 75
+    Width = 78
     Height = 25
     Hint = 'Insert new characters'
     Caption = '&Insert'
@@ -174,9 +176,9 @@ object Form_CharsNew: TForm_CharsNew
   end
   object txtSelectedChar: TRxRichEdit
     AlignWithMargins = True
-    Left = 446
+    Left = 443
     Top = 211
-    Width = 74
+    Width = 78
     Height = 65
     DrawEndPage = False
     Alignment = taCenter
@@ -188,18 +190,18 @@ object Form_CharsNew: TForm_CharsNew
     WordWrap = False
   end
   object EditorNewChars: TRxRichEdit
-    Left = 81
+    Left = 97
     Top = 332
-    Width = 318
+    Width = 302
     Height = 28
     DrawEndPage = False
     TabOrder = 8
     WordSelection = False
   end
   object chkAutoAddNew: TCheckBox
-    Left = 81
+    Left = 97
     Top = 366
-    Width = 235
+    Width = 352
     Height = 19
     Caption = 'Automatically add new chars inserted'
     Color = clBtnFace
@@ -223,7 +225,7 @@ object Form_CharsNew: TForm_CharsNew
   object btnOpenCharmap: TBitBtn
     Left = 9
     Top = 329
-    Width = 67
+    Width = 82
     Height = 34
     Hint = 'Open windows tool "Character Map"'
     TabOrder = 11

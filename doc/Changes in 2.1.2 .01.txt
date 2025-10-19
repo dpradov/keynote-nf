@@ -1,0 +1,83 @@
+
+Changes in 2.1.2 .01    (19 oct 2025)
+====================
+
+* The design of several forms and dialogs has been revised to facilitate translation into other languages.
+  The space reserved for some labels in various forms or dialog boxes has been adjusted.
+  English allows very short expressions, but Spanish, and certainly other languages, sometimes require longer words or expressions that
+  can be truncated.
+
+* Added completed Spanish translation for version 2.1.2
+
+- - - - 
+* New: When saving the file, the current state of the 'Show or Hide Images' button will also be saved.
+  When opening the file, the images will be shown or hidden depending on their state before saving.
+
+* Fixed: When Image/'Single instance'/'Hot track' option is enabled, navigating with keyboard between two hidden and contiguous images doesn't
+  show the image, it is necessary to press left or right
+
+- - - - - - 
+* Fixed: Added new INI option (FixEmojisProblem) to avoid the problem caused by certain Unicode sequences used as modifiers in Emojis [#896]
+
+  When enabled, KeyNote will try to identify and remove the presence of certain special characters that can cause problems in in the RichEdit
+  control due to a limitation of the RTF parser. See issue 896: Lost the bullets - how to get back?
+
+   U+FE0E (\u-498?)  Variation Selector-15        “Force text mode”   -> Breaks format
+   U+FE0F (\u-497?)  Variation Selector-16        “Force emoji mode”  -> Breaks format
+   U+20E3 (\u8419?)  Combining Enclosing Keycap	“Key box”         -> Breaks format
+
+  FixEmojisProblem is enabled by default
+  
+- - - - - - 
+* New: Added OPML format to File - Export  (#802)
+  The OPML file can be used by Scrivener application to automatically populate a project when importing.
+  It is possible to include or not the content of the notes using the _note attribute
+
+  Example of output:
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <opml version="2.0">
+  <head>
+  <title>Folder name</title>
+  </head>
+  <body>
+  <outline text="Node 1" _note="">
+    <outline text="Node 1.1" _note="Content of Node 1.1">
+    </outline>
+  </outline>
+  <outline text="ノード 2" _note="Content of Node 2">
+    <outline text="Node 2.1" _note="1. First line (numbered list) in Node 2.1
+  - Second line (bullet list)
+  Third line with &quot;text in quotation marks&quot; and &lt;bounded text&gt; ">
+    </outline>
+  </outline>
+  </body>
+  </opml>
+
+- - - - - - 
+* Fixed: Export / "Folded Text": The "Keep unchanged" option is handled as "Unfold" when exporting to "Plain Text", "HTML", or "OPML"
+
+- - - - - - 
+* Fixed: Scroll bar position could be lost when focus was returned to KeyNote by clicking in the Editor (#720)
+  
+  The problem is that when you click on the KeyNote editor window, it ignores the current scroll position and switches to displaying the position
+  of the caret. That is, if we have the caret in a position and we display the content of previous or subsequent lines using the scroll bar or 
+  Ctrl+Up/Down (depending on the configuration associated with that shortcut), when you switch to another application and then return to KeyNote,
+  clicking on the editor no longer respects what the editor was displaying, but instead switches to displaying the position of the caret.
+  
+  This problem doesn't occur in Windows 10
+  It only occurs in Windows 11 and only if the app isn't restored from the minimized state at some point. Additionally, setting the focus to the
+  application by clicking on the tree panel or the resource panel will prevent or resolve this issue from that point forward in the session.
+  
+  As soon as the application is minimized, by pressing ESC (if configured so), clicking the corresponding button in the application's title bar, 
+  or clicking the application's icon in the taskbar, the error will no longer occur once it is restored during the session.
+  Again, it doesn't matter how it is restored: by clicking the icon in the system tray, using the Hot Key, or Alt+TAB -- "Minimize to system tray"
+  is not selected. It is possible to close and open the same or a different file; the problem no longer occurs.
+  
+  Therefore, this problem shouldn't occur for users who have the "Start program minimized" option enabled or who use the ESC button to minimize 
+  ("On Escape key" = "Minimize main window"). I personally have both of those options enabled and am used to exiting the application with ESC, 
+  minimizing it, and returning to it by pressing the activation hotkey.
+  
+  This issue has some relation to the problem reported in issue #720, already solved with commit 13ba02dab (* Fixed: Scrollbar position could be 
+  forgotten when returning to app with Hotkey (Ctrl+Shift+...)
+ 

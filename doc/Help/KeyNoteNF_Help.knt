@@ -11,6 +11,7 @@ N:=124
 GI=1
 ND=Welcome to KeyNote NF
 LM=1304252206
+SS=2153
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
@@ -641,7 +642,8 @@ You may add additional accurate notices of copyright ownership.\par
 %*
 GI=10
 ND=Features
-LM=0710252201
+LM=1910251550
+SS=911
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -656,7 +658,7 @@ LM=0710252201
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa100\fs20 Several \b KNT file formats\b0 : native, compressed or encrypted ({{\field{\*\fldinst{HYPERLINK "file:///<46|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Simple \b file manager \b0 to quickly open often-used files ({{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
-{\pntext\f3\'B7\tab}\b Export and import \b0 files (as plain text, RTF, HTML or KNT) (More on {{\field{\*\fldinst{HYPERLINK "file:///<57|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Exporting}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<56|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Importing}}}}\f0\fs20 )\par
+{\pntext\f3\'B7\tab}\b Export and import \b0 files (as plain text, RTF, HTML, OPML or KNT) (More on {{\field{\*\fldinst{HYPERLINK "file:///<57|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Exporting}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<56|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Importing}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Ability to \b merge \b0 two KeyNote files ({{\field{\*\fldinst{HYPERLINK "file:///<56|7413|0|4"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Support for \b drag-and-drop file operations \b0 (including the ability to drag files from Windows Explorer)\par
 {\pntext\f3\'B7\tab}You can \b protect your data files with secure encryption\b0  using a strong cipher: Blowfish or IDEA ({{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
@@ -1574,7 +1576,8 @@ ND=Using KeyNote NF
 %*
 GI=20
 ND=KeyNote Editor
-LM=1304251924
+LM=1910251523
+SS=8949
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
@@ -1926,7 +1929,7 @@ When you paste a bullet list as plain text (with \cf3\b\lang1033 Shift+Insert\cf
 turns:\par
 \f3\u10625?\f0\tab One\lang3082\par
 \par
-This can be annoying if you want to copy the list to other applications as just plain text. And it just doesn't look good.. KeyNote incorporate an INI {{\field{\*\fldinst{HYPERLINK "file:///<89|0|0"}}{\fldrslt{\ul\cf2\cf2\ul option}}}}\f0\fs20  that allow you to replace \lang1033 bullets by alternative string when pasting as plain text:\par
+This can be annoying if you want to copy the list to other applications as just plain text. And it just doesn't look good.. KeyNote incorporate an INI {{\field{\*\fldinst{HYPERLINK "file:///<104|17457|0|14"}}{\fldrslt{\ul\cf2\cf2\ul option}}}}\f0\fs20  that allow you to replace \lang1033 bullets by alternative string when pasting as plain text:\par
 \par
 \b BulletsInPlainText\b0 ="- "\par
 \par
@@ -2687,6 +2690,7 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 GI=27
 ND=Folders as note trees
 LM=1304252133
+SS=23285
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
@@ -5429,6 +5433,7 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 GI=40
 ND=Using Find and Find All
 LM=0710252012
+SS=1218
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset2 Symbol;}}
@@ -6032,7 +6037,8 @@ The number of results may vary slightly depending on whether or not the word w3 
 %*
 GI=41
 ND=Image management in KeyNote
-LM=0710252000
+LM=1910251533
+SS=19212
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\froman\fcharset0 Tahoma;}{\f4\froman Tahoma;}{\f5\fnil\fcharset0 Cambria Math;}{\f6\fnil\fcharset2 Symbol;}}
@@ -6064,7 +6070,7 @@ See also:\par
 \par
 \cf3\b\v\fs26\'11B11\'12\v0 Introduction\cf0\b0\par
 \fs20\par
-\v\'11I228\'12\v0{\field{\*\fldinst{HYPERLINK "img:228,210,222"}}{\fldrslt {228_Clipb_07oct.png}}} \par
+\v\'11I228\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:228,210,222"}}{\fldrslt {228_Clipb_07oct.png}}}\lang1033  \par
 \par
 Since version 1.8.1 KeyNote NF allows to use the most common image formats (GIF, PNG, JPG, BMP, TIF, WMF, EMF and ICO), and offer a series of new features, such as allowing images to be hidden or visible, providing various storage mechanisms, some of them external to the .knt file, or making use of an internal viewer, among others.\par
 \par
@@ -6314,7 +6320,8 @@ For this purpose, a new menu entry (\b View | Show Images\b0 ) is included, as w
 Note:\par
 
 \pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Even if images are hidden, any new image will always be inserted visible.\par
-{\pntext\f6\'B7\tab}It is perfectly possible for the same image (or different ones) to coexist at any given time in visible mode and in link mode. For example, we can have an image on the clipboard and paste it several times (calculating its crc32 it will recognized is the same image), sometimes doing so with the previous images visible and other times with them hidden. We can also copy the image in its link format to the clipboard and paste it later, with the images visible, etc. In all cases the behavior must be predictable and intuitive:\par
+{\pntext\f6\'B7\tab}It is perfectly possible for the same image (or different ones) to coexist at any given time in visible mode and in link mode. For example, we can have an image on the clipboard and paste it several times (calculating its crc32 it will recognized is the same image), sometimes doing so with the previous images visible and other times with them hidden. We can also copy the image in its link format to the clipboard and paste it later, with the images visible, etc. In all cases the behavior must be predictable and intuitive\par
+{\pntext\f6\'B7\tab}When saving the file, the current state of the 'Show or Hide Images' button will also be saved. So, when opening the file, the images will be shown or hidden depending on their state before saving.\par
 
 \pard\par
    \par
@@ -6380,7 +6387,7 @@ For example, we can have a certain node with many images, where we may be intere
 A simple image viewer is incorporated that allows one or more images to be opened from independent windows.\par
 \par
 
-\pard\li360\v\'11I228\'12\v0{\field{\*\fldinst{HYPERLINK "img:228,505,536"}}{\fldrslt {228_Clipb_07oct.png}}}\par
+\pard\li360\v\'11I228\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:228,505,536"}}{\fldrslt {228_Clipb_07oct.png}}}\lang1033\par
 
 \pard\par
 With the viewer it is possible:\par
@@ -6793,6 +6800,8 @@ File properties:\par
 %*
 GI=46
 ND=Information
+LM=1910251602
+SS=369
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}}
@@ -6802,7 +6811,7 @@ ND=Information
 \cf1\b\fs36 File properties: Information\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I143\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:143,537,330"}}{\fldrslt {143_Clipb_19ene.png}}}\fs26\par
+\pard\li360\v\'11I234\'12\v0{\field{\*\fldinst{HYPERLINK "img:234,532,390"}}{\fldrslt {234_Clipb_19oct.png}}}\par
 
 \pard\par
 \fs20 On this tab you can view or change general information about the current KeyNote file.\par
@@ -6852,6 +6861,8 @@ Below, more information is displayed about the currently open file, including th
 %*
 GI=47
 ND=Settings
+LM=1910251758
+SS=34
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
@@ -6861,7 +6872,7 @@ ND=Settings
 \cf1\b\fs36 File properties: Settings\cf2\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\fs20\'11I180\'12\v0{\field{\*\fldinst{HYPERLINK "img:180,532,330"}}{\fldrslt {180_Clipb_31mar.png}}}\par
+\pard\li360\v\fs20\'11I235\'12\v0{\field{\*\fldinst{HYPERLINK "img:235,532,390"}}{\fldrslt {235_Clipb_19oct.png}}}\par
 
 \pard\par
 On this tab you can view or change settings for the current KeyNote file.\par
@@ -7806,10 +7817,11 @@ Note:\par
 %*
 GI=57
 ND=Exporting or Printing Notes
-LM=1504252249
+LM=1910251556
+SS=12523
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Arial;}{\f4\fnil Arial;}{\f5\fnil Tahoma;}{\f6\fnil\fcharset0 Courier New;}{\f7\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Arial;}{\f4\fnil Arial;}{\f5\fnil Tahoma;}{\f6\fnil\fcharset0 Courier New;}{\f7\fnil\fcharset128 Yu Gothic;}{\f8\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue0;\red64\green64\blue64;\red0\green0\blue128;\red255\green0\blue0;\red128\green0\blue0;\red255\green255\blue0;\red128\green128\blue0;\red0\green0\blue0;\red48\green48\blue48;\red96\green96\blue96;\red255\green255\blue255;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
@@ -7838,22 +7850,24 @@ LM=1504252249
 
 \pard    {{\field{\*\fldinst{HYPERLINK "file:///<57|10310|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Additional settings when exporting to HTML}}}}\f0\fs20\par
 
-\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<57|7475|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Exporting notes to plain TreePad files}}}}\f0\fs20\par
+\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<57|32004|0|19"}}{\fldrslt{\ul\cf2\cf2\ul Exporting notes to OPML format}}}}\f0\fs20\par
 
-\pard\par
+\pard {{\field{\*\fldinst{HYPERLINK "file:///<57|7475|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Exporting notes to plain TreePad files}}}}\f0\fs20\par
+\par
 See also:\par
 {{\field{\*\fldinst{HYPERLINK "file:///<58|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options in Exporting. Examples}}}}\f0\fs20\par
 \par
 \par
 Individual notes (nodes) can be exported to files in the following formats:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Plain text\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Plain text\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 Rich text (RTF)\par
-{\pntext\f7\'B7\tab}HTML\par
-{\pntext\f7\'B7\tab}KeyNote NF (KNT)\par
-{\pntext\f7\'B7\tab}TreePad\par
-{\pntext\f7\'B7\tab}\cf3\b Printer (PDF, ...)\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Rich text (RTF)\par
+{\pntext\f8\'B7\tab}HTML\par
+{\pntext\f8\'B7\tab}KeyNote NF (KNT)\par
+{\pntext\f8\'B7\tab}TreePad\par
+{\pntext\f8\'B7\tab}OPML\par
+{\pntext\f8\'B7\tab}\cf3\b Printer (PDF, ...)\par
 
 \pard\cf0\b0\par
 There are two separate sets of options which control how notes are exported. One set of options controls text, RTF and HTML export, the other set controls TreePad export.\par
@@ -7865,7 +7879,7 @@ The most important export settings are listed in the \cf4\b Source and target\cf
 \par
 \par
 
-\pard\li360\v\lang3082\'11I225\'12\v0{\field{\*\fldinst{HYPERLINK "img:225,668,496"}}{\fldrslt {225_Clipb_15abr.png}}}\par
+\pard\li360\v\lang3082\'11I232\'12\v0{\field{\*\fldinst{HYPERLINK "img:232,678,495"}}{\fldrslt {232_Clipb_19oct.png}}}\par
 \par
 
 \pard\lang1033\par
@@ -7875,20 +7889,20 @@ The most important export settings are listed in the \cf4\b Source and target\cf
 \pard\cf0\b0\f0\fs20 In this field you can select which folder[s] or part of a folder you wish to export. The available settings are:\par
 \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Current folder\b0  \tab Exports all or part of the currently active folder\par
-{\pntext\f7\'B7\tab}\b All folders\b0   \tab Exports all folders in the current file\par
-{\pntext\f7\'B7\tab}\b Selected folders\b0   \tab Allows you to select which folders should be exported.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Current folder\b0  \tab Exports all or part of the currently active folder\par
+{\pntext\f8\'B7\tab}\b All folders\b0   \tab Exports all folders in the current file\par
+{\pntext\f8\'B7\tab}\b Selected folders\b0   \tab Allows you to select which folders should be exported.\par
 
 \pard\par
 With any of these options you can optionally \b exclude hidden nodes\b0  (More on {{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Using Hidden nodes}}}}\f0\fs20 )\par
 \par
 If you select the \cf4\b Current folder\cf0\b0  option, the following additional options are available in the drop-down list:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Current node\b0  \tab  Exports only the currently selected node\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Current node\b0  \tab  Exports only the currently selected node\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Current node and subtree\b0   Exports the currently selected tree node with its children\par
-{\pntext\f7\'B7\tab}\b Checked nodes\b0  \tab  Exports all checked nodes in the current folder\par
-{\pntext\f7\'B7\tab}\b All nodes\b0  \tab\tab  Exports all nodes in the current folder\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Current node and subtree\b0   Exports the currently selected tree node with its children\par
+{\pntext\f8\'B7\tab}\b Checked nodes\b0  \tab  Exports all checked nodes in the current folder\par
+{\pntext\f8\'B7\tab}\b All nodes\b0  \tab\tab  Exports all nodes in the current folder\par
 
 \pard\par
 
@@ -7910,24 +7924,24 @@ For example, we could exclude fragments tagged with #private from the export.\pa
 See {\f2\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|10051|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using Tags with Find All}}}}\f0\fs20  for information on how to used With an Without [tag] controls, and {{\field{\*\fldinst{HYPERLINK "file:///<122|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Tags in KeyNote}}}}\f0\fs20  for a more general information about tags.\par
 \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b With\b0 :      Include text/notes with ALL or ANY of the selected tags\par
-{\pntext\f7\'B7\tab}\b Without\b0 : Exclude text/notes with ANY of the selected tags\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b With\b0 :      Include text/notes with ALL or ANY of the selected tags\par
+{\pntext\f8\'B7\tab}\b Without\b0 : Exclude text/notes with ANY of the selected tags\par
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Consider metadata of notes\b0  \par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Consider metadata of notes\b0  \par
 
 \pard\li360 Notes' metadatata will be used to verify the tag criteria\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Consider extracts from notes\b0\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Consider extracts from notes\b0\par
 
 \pard\li360 Export will only include the text fragments that meet the tag criteria\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Inherited tags\b0  (metadata)\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Inherited tags\b0  (metadata)\par
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Remove\b0\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Remove\b0\par
 
 \pard\li360 Remove tags from the final text (after processing)\par
 The actual words used to tag the text can thus be removed from the exported text.\par
@@ -7942,20 +7956,20 @@ The actual words used to tag the text can thus be removed from the exported text
 
 \pard\sb120\b0 If the text you want to export contains folded text blocks, consider using the "Folded text" drop-down menu, with the following options:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 Keep unchanged\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 Keep unchanged\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 Unfold\par
-{\pntext\f7\'B7\tab}Remove "untagged"\par
-{\pntext\f7\'B7\tab}Remove All\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Unfold\par
+{\pntext\f8\'B7\tab}Remove "untagged"\par
+{\pntext\f8\'B7\tab}Remove All\par
 
 \pard\par
 All the options are pretty obvious. If you need further information, please consult XX for a brief explanation of the differences between {{\field{\*\fldinst{HYPERLINK "file:///<122|23127|0|11"}}{\fldrslt{\ul\cf2\cf2\ul "tagged" folded text}}}}\f0\fs20  and untagged folded text.\par
 \par
 \b Note\b0 :\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 In the current version, this option will not be considered if you use "KeyNote File (knt)" as the destination format\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 In the current version, this option will not be considered if you use "KeyNote File (knt)" as the destination format\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 If the export is made using Rich Text Format (RTF) as the destination format and you have selected the "Keep unchanged" option, please note that even if the hidden text content is not visible and can be viewed in editors such as WordPad or MS Word, it will still be present in the generated file. In fact, if you later paste that content into KeyNote, you will be able to access it. (Of course, someone with minimal knowledge of RTF will be able to access it.)\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 If the export is made using Rich Text Format (RTF) as the destination format and you have selected the "Keep unchanged" option, please note that even if the hidden text content is not visible and can be viewed in editors such as WordPad or MS Word, it will still be present in the generated file. In fact, if you later paste that content into KeyNote, you will be able to access it. (Of course, someone with minimal knowledge of RTF will be able to access it.)\par
 
 \pard\par
 \par
@@ -7976,11 +7990,11 @@ Click the button in \ul Directory for exported files\ulnone  field, and select t
 \par
 \ul\fs22 Additional options\ulnone\fs20\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Prompt before overwriting files\tab\b0  \par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Prompt before overwriting files\tab\b0  \par
 
 \pard\li360\sb40\sa80 When exporting a note using a filename that already exists, a warning is displayed, and you are given an opportunity to or change the filename.\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Prompt for individual filenames\b0\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Prompt for individual filenames\b0\par
 
 \pard\li360\sb40 Every time KeyNote exports a folder to a file, a dialog box is displayed where you can accept the suggested filename or enter your own. If this option is disabled, KeyNote automatically determines names for exported files and does not prompt you to confirm them.\par
 
@@ -8001,7 +8015,7 @@ How many files are created during export depends on whether you define sections 
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 {\f2\lang3082{\field{\*\fldinst{HYPERLINK "file:///<90|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Storage mode on Export}}}}\f2\fs20\lang3082  : Embedded RTF, Embedded KNT, No export images. \par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 {\f2\lang3082{\field{\*\fldinst{HYPERLINK "file:///<90|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Storage mode on Export}}}}\f2\fs20\lang3082  : Embedded RTF, Embedded KNT, No export images. \par
 
 \pard\li360\sb80 The generated .knt file may or may not include the images depending on that option. If you want them included, you should probably select "Embedded KNT".\par
 
@@ -8051,14 +8065,14 @@ Note: Internal links without marker are also converted to standard RTF format. T
 \par
 \b Important:\b0\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 The exported document can be opened in \cf5\b WordPad\cf0\b0  but internal links won't work, because WordPad doesn't recognize that kind of links (WordPad uses a limited subset of the Rich Text Format specification). If the exported document is modified and saved from WordPad, the data attached to the links and the bookmarks themselves will be lost.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 The exported document can be opened in \cf5\b WordPad\cf0\b0  but internal links won't work, because WordPad doesn't recognize that kind of links (WordPad uses a limited subset of the Rich Text Format specification). If the exported document is modified and saved from WordPad, the data attached to the links and the bookmarks themselves will be lost.\par
 
 \pard\par
 \par
 \b\fs22 Options\par
 \b0\fs20\par
 
-\pard\li360\v\'11I208\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:208,334,411"}}{\fldrslt {208_Clipb_06ene.png}}}\lang1033\par
+\pard\li360\v\'11I233\'12\v0{\field{\*\fldinst{HYPERLINK "img:233,654,318"}}{\fldrslt {233_Clipb_19oct.png}}}\par
 \par
 
 \pard\li1080\v\'11I209\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:209,279,109"}}{\fldrslt {209_Clipb_06ene.png}}}\lang1033\par
@@ -8081,13 +8095,13 @@ If multiple folders are exported (or printed), a single table of contents will b
 
 \pard\cf0\b0\fs20\lang3082 By using sections it is possible to create groupings of notes with a defined maximum depth level. Seen another way, each time a note with a depth equal to or less than the set value is processed a new section is started. If you enable the use of sections you will be able to:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li720\sb100 Decide whether the section will start on a new page or be saved in a separate file (one of two alternatives)\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li720\sb100 Decide whether the section will start on a new page or be saved in a separate file (one of two alternatives)\par
 
 \pard\li720\f0\lang1033 (When printing, the only possible option, automatically selected, will be to start each section on a new page)\par
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li720\sb100\f2\lang3082 Set a section-dependent page header\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li720\sb100\f2\lang3082 Set a section-dependent page header\par
 
 \pard\li720\sb40\sa80\f0\lang1033 By default, the name of the highest level node on which the node depends (and which is included in the export) will be used as the page header. It is possible to define, through the option "Top N levels as Page Header (in sections)", the level of detail in the header, adding the name of other lower level parent nodes.\par
 
@@ -8208,11 +8222,11 @@ Level 1.B\cf10\f4\fs18\cell\row
 \pard\cf0\f0\fs20\par
 Note:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 The depth is considered relative to the selected node in case "Current node and subtree" is selected as source.\par
-{\pntext\f7\'B7\tab}When dH matches the node level \f5\emdash relative level to the selected node if "Current node and subtree" is exported\emdash\f0\lang3082  \f5\lang1033 the page header will include the name of the node that starts the header only if it has (exported) children or its (relative) level is 1.\par
-{\pntext\f7\'B7\tab}\f0 The indentation is also relative to the selected initial node, as well as to the set depth. The first node of each section is always shown unindented, and the rest are indented relative to it.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 The depth is considered relative to the selected node in case "Current node and subtree" is selected as source.\par
+{\pntext\f8\'B7\tab}When dH matches the node level \f5\emdash relative level to the selected node if "Current node and subtree" is exported\emdash\f0\lang3082  \f5\lang1033 the page header will include the name of the node that starts the header only if it has (exported) children or its (relative) level is 1.\par
+{\pntext\f8\'B7\tab}\f0 The indentation is also relative to the selected initial node, as well as to the set depth. The first node of each section is always shown unindented, and the rest are indented relative to it.\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 In versions prior to 2.0.2, when exporting keynote folders, you could choose to \cf11\b put all nodes to a single target file\cf0\b0 , or to \cf11\b export each tree node to a separate target file\cf0\b0 . Now it is also possible with the use of sections; you only have to define a dS value equal or higher than the level of the deepest node you want to consider.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 In versions prior to 2.0.2, when exporting keynote folders, you could choose to \cf11\b put all nodes to a single target file\cf0\b0 , or to \cf11\b export each tree node to a separate target file\cf0\b0 . Now it is also possible with the use of sections; you only have to define a dS value equal or higher than the level of the deepest node you want to consider.\par
 
 \pard\par
 \par
@@ -8253,16 +8267,16 @@ Note: Since version 1.8.3 when exporting, the \b highest node level will be mana
 \f0\lang1033 Notes:\par
 \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf5\b\f6\fs24\lang3082 %L\cf0\b0\f0\fs20\lang1033  : Remember, %L for the top level nodes will return 1. With versions older than 1.8.3 %L did produce nothing for the topmost level (which in other programs corresponds to level 1).\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf5\b\f6\fs24\lang3082 %L\cf0\b0\f0\fs20\lang1033  : Remember, %L for the top level nodes will return 1. With versions older than 1.8.3 %L did produce nothing for the topmost level (which in other programs corresponds to level 1).\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\cf5\b\f6\fs24\lang3082 %>\cf0\b0\f0\fs20\lang1033  will add symbols until node heading reach a calculated length, based on level (decreasing)\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\cf5\b\f6\fs24\lang3082 %>\cf0\b0\f0\fs20\lang1033  will add symbols until node heading reach a calculated length, based on level (decreasing)\par
 
 \pard\li360 - It depends on \b Length heading\b0  option, see below.\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\cf5\b\f6\fs24\lang3082 %<\cf0\b0\f0\fs20\lang1033  will add symbols based on node level (increasing)\par
-{\pntext\f7\'B7\tab}\f2\lang3082 The tokens \cf5\b %>\cf0\b0  and \cf5\b %<\cf0\b0  will be ignored in folder heading.\f0\lang1033\par
-{\pntext\f7\'B7\tab}The character that will be repeated in \cf5\b\f2\lang3082 %>\cf0\b0  or \cf5\b %< \cf0\b0\f0\lang1033 is the one deduced from the \b Symbols\b0  option, see below.\par
-{\pntext\f7\'B7\tab}\cf5\b\f6\fs24\lang3082 %I\cf0\b0\f0\fs20\lang1033  : shows a sequential number for each node in the tree, beginning with 1 for the first top. This value is \ul not\ulnone  the ID of the node. If you need to include the ID of the nodes you can use the "Show hidden marks" option, available when exporting to plain text.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\cf5\b\f6\fs24\lang3082 %<\cf0\b0\f0\fs20\lang1033  will add symbols based on node level (increasing)\par
+{\pntext\f8\'B7\tab}\f2\lang3082 The tokens \cf5\b %>\cf0\b0  and \cf5\b %<\cf0\b0  will be ignored in folder heading.\f0\lang1033\par
+{\pntext\f8\'B7\tab}The character that will be repeated in \cf5\b\f2\lang3082 %>\cf0\b0  or \cf5\b %< \cf0\b0\f0\lang1033 is the one deduced from the \b Symbols\b0  option, see below.\par
+{\pntext\f8\'B7\tab}\cf5\b\f6\fs24\lang3082 %I\cf0\b0\f0\fs20\lang1033  : shows a sequential number for each node in the tree, beginning with 1 for the first top. This value is \ul not\ulnone  the ID of the node. If you need to include the ID of the nodes you can use the "Show hidden marks" option, available when exporting to plain text.\par
 
 \pard\sb80\par
 
@@ -8273,18 +8287,18 @@ Note: Since version 1.8.3 when exporting, the \b highest node level will be mana
 \pard\tab\par
 \b Related options\b0\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\b\f2\lang3082 Symbols\b0  in \b node\b0  heading\line Determines which symbols to repeat in the \cf5\b %>\cf0\b0  and \cf5\b %<\cf0\b0  tokens\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\b\f2\lang3082 Symbols\b0  in \b node\b0  heading\line Determines which symbols to repeat in the \cf5\b %>\cf0\b0  and \cf5\b %<\cf0\b0  tokens\par
 
 \pard\li360\sb80 It is a text string where each character will be the one to use depending on the different levels of nodes, starting with the top one (1). \par
 Examples:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\li360\f6\fs24 "#=-"\fs20  ->\f2  "#" would be used in the first level, "=" in the second and "-" for the third and subsequent levels.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\li360\f6\fs24 "#=-"\fs20  ->\f2  "#" would be used in the first level, "=" in the second and "-" for the third and subsequent levels.\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li720\f6\fs24 "#"\fs20    ->\f2  "#" would be used in all node levels\f0\lang1033\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720\f6\fs24 "#"\fs20    ->\f2  "#" would be used in all node levels\f0\lang1033\par
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa60\b\f2\lang3082 Length heading \b0  (max., decr., min.)\line Text string that determines the number of repetitions of the symbol corresponding to the level, to be used with the \cf5\b %>\cf0\b0  token.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa60\b\f2\lang3082 Length heading \b0  (max., decr., min.)\line Text string that determines the number of repetitions of the symbol corresponding to the level, to be used with the \cf5\b %>\cf0\b0  token.\par
 
 \pard\li360 It defines the length to be reached for the level header, using a maximum value, a decrement and a minimum value.\fs24\par
 
@@ -8297,17 +8311,17 @@ If the header is 30 characters and the calculated length is 70, the token will b
 
 \pard\li360\sb40 Note:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li720 This option is not used with %<. That token is always expanded with a number of characters equal to the level\par
-{\pntext\f7\'B7\tab}The length calculated is reduced if option \b Indent nodes\b0  is enabled (See {{\field{\*\fldinst{HYPERLINK "file:///<57|12609|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f2\fs20 , below)\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720 This option is not used with %<. That token is always expanded with a number of characters equal to the level\par
+{\pntext\f8\'B7\tab}The length calculated is reduced if option \b Indent nodes\b0  is enabled (See {{\field{\*\fldinst{HYPERLINK "file:///<57|12609|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f2\fs20 , below)\par
 
 \pard\li720\sb80 This reduction depends on node level and the value set in \b Tab size\b0  (in {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Note properties}}}}\f2\fs20 ). When exporting to plain text, it also depends on the relation between \b Indents by\b0  (see {\f0\lang1033{\field{\*\fldinst{HYPERLINK "file:///<57|8199|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f2\fs20 ) and \b Increment indents by\b0  option (in {{\field{\*\fldinst{HYPERLINK "file:///<89|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Configuration Options...|Rich Text editor}}}}\f2\fs20 ), both defined in points.\line\par
 
 \pard\f0\lang1033\par
 \b Tip and notes\b0 :\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 You can use \cf5\b\f2\lang3082 %<\cf0\b0\f0\lang1033  to easily generate headings in {{\field{\*\fldinst{HYPERLINK "https://www.markdownguide.org/basic-syntax/"}}{\fldrslt{\ul\cf2\cf2\ul markdown}}}}\f0\fs20  syntax:\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 You can use \cf5\b\f2\lang3082 %<\cf0\b0\f0\lang1033  to easily generate headings in {{\field{\*\fldinst{HYPERLINK "https://www.markdownguide.org/basic-syntax/"}}{\fldrslt{\ul\cf2\cf2\ul markdown}}}}\f0\fs20  syntax:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb160 With "\cf3 %> %D\cf0 " and Symbols="#" you can obtain something like:\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb160 With "\cf3 %> %D\cf0 " and Symbols="#" you can obtain something like:\par
 
 \pard\li720\sb80\f6 # Heading level 1\par
 
@@ -8316,7 +8330,7 @@ If the header is 30 characters and the calculated length is 70, the token will b
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li720 With "\cf3 %D%^%<\cf0 ", Symbols="=-." and Length heading="20,0,0" you can obtain something like:\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720 With "\cf3 %D%^%<\cf0 ", Symbols="=-." and Length heading="20,0,0" you can obtain something like:\par
 
 \pard\li720\sb80\f6 Heading level 1\par
 
@@ -8331,7 +8345,7 @@ If the header is 30 characters and the calculated length is 70, the token will b
 \pard\li720 ....................\par
 \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li720\f0 With "\cf3 %>%D%>\cf0 " and Symbols="=" you can obtain:\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720\f0 With "\cf3 %>%D%>\cf0 " and Symbols="=" you can obtain:\par
 
 \pard\li720\sb120\f6 =Heading level 1=\par
 
@@ -8345,7 +8359,7 @@ If the header is 30 characters and the calculated length is 70, the token will b
 \pard\par
 \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 You cannot use these tokens to get specific html tag to when exporting to HTML.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 You cannot use these tokens to get specific html tag to when exporting to HTML.\par
 
 \pard\li360\sb40 For example, although you could use custom \b nodehead.rtf \b0 files (see below) to obtain headings like the following, it woudn't work:\par
 
@@ -8371,7 +8385,7 @@ If the header is 30 characters and the calculated length is 70, the token will b
 \pard\cf0\fs20 Besides tokens, you have several \b options\b0  that allows you to control how those headings will be formatted.\par
 \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 Using \b notehead.rtf\b0  and \b nodehead.rtf \b0 files\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 Using \b notehead.rtf\b0  and \b nodehead.rtf \b0 files\par
 
 \pard\li360 The formatting of the heading text depends on the contents of these RTF files: "\ul notehead.rtf\ulnone " is used to format \ul folder\ulnone  headings, and "\ul nodehead.rtf\ulnone " to format node headings.\par
 
@@ -8391,16 +8405,16 @@ Since version 1.8.1 this files are specific to the profile configuration. It is 
 
 \pard\li360\sb40\fs20\lang1033 Note:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li720 This files will be used only when exporting to RTF and HTML.\par
-{\pntext\f7\'B7\tab}Make sure that the token %HEADING is formatted consistently\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720 This files will be used only when exporting to RTF and HTML.\par
+{\pntext\f8\'B7\tab}Make sure that the token %HEADING is formatted consistently\par
 
 \pard\li720 (i.e., do not make it half-bold or half-blue; the whole word, including the % character, must be formatted in the same way). \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40 You can add any additional text besides %HEADING. It will be inserted as part of the heading.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb40 You can add any additional text besides %HEADING. It will be inserted as part of the heading.\par
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Level templates\b0\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Level templates\b0\par
 
 \pard\li360 Enable the use of node templates based on level, of the form 'nodehead_1.rtf', 'nodehead_2.rtf', etc.\par
 
@@ -8408,9 +8422,9 @@ Since version 1.8.1 this files are specific to the profile configuration. It is 
 
 \pard\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\b\f2\lang3082 Auto font sizes\b0  in headings\line Enables setting the font size of node and folder headings automatically, from the following option:\fs24\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\b\f2\lang3082 Auto font sizes\b0  in headings\line Enables setting the font size of node and folder headings automatically, from the following option:\fs24\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa60\b\fs20 Font sizes\b0  in headings\b  \b0  (max., decr., min.)\line Text string that determines the font size to use in a heading according to its level (also considering the folder), using a maximum value, a decrement and a minimum value\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa60\b\fs20 Font sizes\b0  in headings\b  \b0  (max., decr., min.)\line Text string that determines the font size to use in a heading according to its level (also considering the folder), using a maximum value, a decrement and a minimum value\par
 
 \pard\li360\sa20 Example:\par
 
@@ -8424,9 +8438,9 @@ Since version 1.8.1 this files are specific to the profile configuration. It is 
 \cf0\b0\f0\fs20 Since version 1.8.3 you can indent the whole content of the tree nodes of a folder based on their level, while exporting to RTF, HTML or plain text.\par
 There are \f2\lang3082 two general export options dedicated to indenting:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\b Indent nodes\b0\line Enable the indentation of nested nodes\fs24\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\b Indent nodes\b0\line Enable the indentation of nested nodes\fs24\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\b\fs20 Indents by\b0\line Value to be used, incrementally, with each new level.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\b\fs20 Indents by\b0\line Value to be used, incrementally, with each new level.\par
 
 \pard\li360\sb60\sa60 This value is similar to the one used in \b Increment indents by\b0  general option (in {{\field{\*\fldinst{HYPERLINK "file:///<89|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Configuration Options...|Rich Text editor}}}}\f2\fs20 ), also defined in points.\par
 
@@ -8434,9 +8448,9 @@ There are \f2\lang3082 two general export options dedicated to indenting:\par
 
 \pard\f0\lang1033 This two options are used when indenting nested nodes in \b plain text\b0 :\f2\lang3082\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\b Tab. Indent using tabs\b0\line If checked, the indentation will be done with the TAB characters. If unchecked, multiple spaces will be used for each level of indentation. The number of spaces to use if not checked will be the one defined in \b Tab size\b0  (in {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folder properties}}}}\f2\fs20 ).\fs24\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa100\b Tab. Indent using tabs\b0\line If checked, the indentation will be done with the TAB characters. If unchecked, multiple spaces will be used for each level of indentation. The number of spaces to use if not checked will be the one defined in \b Tab size\b0  (in {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folder properties}}}}\f2\fs20 ).\fs24\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa20\b\fs20 NumbTabInPlainText\b0  [only editable in .INI file]\line Allows replacing the TAB character always used when pasting numbering lists as plain text (system conversion) by an alternative string. \fs24\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\sa20\b\fs20 NumbTabInPlainText\b0  [only editable in .INI file]\line Allows replacing the TAB character always used when pasting numbering lists as plain text (system conversion) by an alternative string. \fs24\par
 
 \pard\li360\sa100\fs20 By default a space " " is defined.\fs24\par
 
@@ -8474,9 +8488,9 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<58|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Op
 
 \pard\sb100\sa100\cf5\b\v\f2\fs24\'11B16\'12\v0 Other formatting options\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\cf0\fs20\lang3082 Insert Page Numbers as Footer\b0\line It is available for RTF export and for printing. All pages will be numbered, starting with the first page, which may include a table of contents.\par
-{\pntext\f7\'B7\tab}\b Start each Note o a new Page\b0\line Allows all notes to start on a new page. This option is only available for RTF export and printing, and can be activated independently of using sections or the "Save each Folder to a new File" option.\par
-{\pntext\f7\'B7\tab}\b Body Font\b0\line Allows you to customize the font of the entire exported document (name and size, without changing the font style such as bold or italics). With this option you can generate a document with a uniform and neat appearance.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent360{\pntxtb\'B7}}\fi-360\li360\sb100\cf0\fs20\lang3082 Insert Page Numbers as Footer\b0\line It is available for RTF export and for printing. All pages will be numbered, starting with the first page, which may include a table of contents.\par
+{\pntext\f8\'B7\tab}\b Start each Note o a new Page\b0\line Allows all notes to start on a new page. This option is only available for RTF export and printing, and can be activated independently of using sections or the "Save each Folder to a new File" option.\par
+{\pntext\f8\'B7\tab}\b Body Font\b0\line Allows you to customize the font of the entire exported document (name and size, without changing the font style such as bold or italics). With this option you can generate a document with a uniform and neat appearance.\par
 
 \pard\li360\sb60 Note that the font of the optional headings (folder and/or node) is not affected and can be controlled with their own options.\par
 
@@ -8535,25 +8549,72 @@ blah..\par
 When exporting to HTML you can select one of this converters:\par
 \par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Use Microsoft HTML Converter\b0  (html.iec) \par
-{\pntext\f7\'B7\tab}\b Use MS Word Converter\b0\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Use Microsoft HTML Converter\b0  (html.iec) \par
+{\pntext\f8\'B7\tab}\b Use MS Word Converter\b0\par
 
 \pard\par
 Note:\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360 The first option is based on 'html.iec', always present. \par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360 The first option is based on 'html.iec', always present. \par
 
 \pard\li360 Currently, in W10 you will see included: "\cf12 <META NAME="Generator" CONTENT="Internet Assistant for Word Version 3.0">\cf0 "\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 To use the second option, you need to have \ul Microsoft Word\ulnone  installed. This converter could generate a more accurate conversion, although it is \ul much more\ulnone  verbose and therefore the generated .html file will be much larger.\par
-{\pntext\f7\'B7\tab}If you use Export... from tree context menu to export current node, the first option will be used automatically.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 To use the second option, you need to have \ul Microsoft Word\ulnone  installed. This converter could generate a more accurate conversion, although it is \ul much more\ulnone  verbose and therefore the generated .html file will be much larger.\par
+{\pntext\f8\'B7\tab}If you use Export... from tree context menu to export current node, the first option will be used automatically.\par
 
-\pard{\pntext\f7\'B7\tab}{\*\pn\pnlvlblt\pnf7\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb160 Since version 1.7.9 KeyNote uses html.iec to export, instead of MS Office Shared HTML Text Converter (html32.cnv + msconv97.dll). Those converters were not always present, needed to be correctly registered, and indeed html.iec behaves better.\par
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb160 Since version 1.7.9 KeyNote uses html.iec to export, instead of MS Office Shared HTML Text Converter (html32.cnv + msconv97.dll). Those converters were not always present, needed to be correctly registered, and indeed html.iec behaves better.\par
 
 \pard\li360\sb80 In topic {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/298"}}{\fldrslt{\ul\cf2\cf2\ul 298}}}}\f0\fs20  I described the options considered for exporting/importing to and from HTML.\par
 
 \pard\par
 \par
+\par
+
+\pard\sb100\sa180\cf5\b\v\f2\fs26\'11B19\'12\v0 Exporting notes to OPML format\par
+
+\pard\sb80\cf0\b0\f0\fs20 Since version 2.1.2 KeyNote NF allows to export to OPML format. The OPML (Outline Processor Markup Language) format is XML and represents hierarchical note structures. OPML was originally designed for hierarchical structures of plain text, not for rich content like RTF or HTML. The required or most common attribute is text, which defines the visible title or label of the node. The standard (OPML 2.0) does not support meaningful inner text (although some programs use it).\par
+
+\pard\sb120 The format generated by KeyNote NF is initially designed for compatibility with the \b Scrivener\b0  application (see issue #802)\par
+
+\pard\sb160 Scrivener doesn't expect complex formats (such as RTF with styles, images, etc.) within OPML. Content imported as a "note" or "text" is treated as plain text. Scrivener also supports the "\b _note\b0 " attribute as an extension, which can be used in a variety of ways, depending on the "Import notes into..." option:\par
+
+\pard\li360\sb120\i\'ab \f3 Import notes into\'85: this lets you choose whether the \ldblquote notes\rdblquote  from the outliner get added to the Synopsis, Main Text, or Notes.\f0\'bb\f3\par
+
+\pard\sb200\i0\f0 Therefore, KeyNote NF makes use of the "_note" attribute to include the content of the notes (nodes). The export will consider only the folder and node titles and their contents, all exported as plain text and encoded in UTF8. All rich formats, as well as any links, images, etc., would be lost.\par
+
+\pard\sb80\par
+\b Note:\b0\par
+
+\pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 An option is available (Use '_note' attribute) to allow to include or not the content of the notes\par
+{\pntext\f8\'B7\tab}The use of sections is not permitted, but the options available in the "Source: What to export?" section are. For example, it is possible to filter the nodes to be considered based on criteria established according to the TAGS group, as well as to indicate how each of the folded blocks should be used ("Folded text" option").\par
+{\pntext\f8\'B7\tab}If the content of a note includes bullets and/or numbered lists, these will be converted to plain text using the \cf4\b BulletsInPlainText\cf0\b0  and \cf4\b NumbTabInPlainText\cf0\b0  \lang3082 INI {{\field{\*\fldinst{HYPERLINK "file:///<104|17457|0|14"}}{\fldrslt{\ul\cf2\cf2\ul options}}}}\f0\fs20  \lang1033 .\par
+{\pntext\f8\'B7\tab}If multiple folders are selected, an .opml file is generated for each folder (the "Save each folder to a new file" option is disabled and checked).\par
+{\pntext\f8\'B7\tab}The following characteres,  \cf9 & < > "\cf0    will be "escaped" using  \cf9 &amp; &lt; &gt; &quot;\cf0\par
+
+\pard\sb80\par
+Example of output:\par
+\par
+
+\pard\li360\cf9 <?xml version="1.0" encoding="UTF-8"?>\par
+<opml version="2.0">\par
+<head>\par
+<title>Folder name</title>\par
+</head>\par
+<body>\par
+<outline text="Node 1" _note="">\par
+  <outline text="Node 1.1" _note="Content of Node 1.1">\par
+  </outline>\par
+</outline>\par
+<outline text="\f7\'83\'6d\'81\'5b\'83\'68\f0  2" _note="Content of Node 2">\par
+  <outline text="Node 2.1" _note="1. First line (numbered list) in Node 2.1\par
+- Second line (bullet list)\par
+Third line with &quot;text in quotation marks&quot; and &lt;bounded text&gt; ">\par
+  </outline>\par
+</outline>\par
+</body>\par
+</opml>\par
+
+\pard\cf0\par
 \par
 \par
 
@@ -11866,7 +11927,8 @@ LM=1304252023
 %*
 GI=89
 ND=Rich Text Editor
-LM=0405251307
+LM=1910251808
+SS=35
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -11877,7 +11939,7 @@ LM=0405251307
 
 \pard\sa100\cf0\b0\fs22\par
 
-\pard\li360\sa100\v\'11I226\'12\v0{\field{\*\fldinst{HYPERLINK "img:226,341,366"}}{\fldrslt {226_Clipb_04may.png}}}\par
+\pard\li360\sa100\v\'11I236\'12\v0{\field{\*\fldinst{HYPERLINK "img:236,381,373"}}{\fldrslt {236_Clipb_19oct.png}}}\par
 
 \pard\fs20\par
 See also {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20  \par
@@ -11979,6 +12041,8 @@ You can see {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf
 %*
 GI=90
 ND=Images
+LM=1910251811
+SS=183
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -11988,7 +12052,7 @@ ND=Images
 \cf1\b\fs36 Options: Images\par
 \cf0\b0\fs26\par
 
-\pard\li360\sa100\b\v\fs20\'11I110\'12\b0\v0{\field{\*\fldinst{HYPERLINK "img:110,358,375"}}{\fldrslt {110_Clipb_03ene.png}}}\b\par
+\pard\li360\sa100\b\v\fs20\'11I237\'12\v0{\field{\*\fldinst{HYPERLINK "img:237,382,371"}}{\fldrslt {237_Clipb_19oct.png}}}\par
 
 \pard\sb80\sa100\b0 See also {{\field{\*\fldinst{HYPERLINK "file:///<41|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Image management in KeyNote NF}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20  \par
 
@@ -12181,6 +12245,8 @@ Note: The option doesn't affect to linked images previously inserted.\par
 %*
 GI=91
 ND=Tree Panel
+LM=1910251812
+SS=29
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12190,7 +12256,7 @@ ND=Tree Panel
 \cf1\b\fs36 Options: Tree panel\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I111\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:111,343,332"}}{\fldrslt {111_Clipb_03ene.png}}}\fs26\par
+\pard\li360\v\'11I238\'12\v0{\field{\*\fldinst{HYPERLINK "img:238,370,370"}}{\fldrslt {238_Clipb_19oct.png}}}\par
 
 \pard\par
 \fs20 See also {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf1\cf1\ul Keynote.ini additional settings}}}}\f0\fs20  \par
@@ -12538,6 +12604,8 @@ ND=Backup Options
 %*
 GI=95
 ND=Actions
+LM=1910251814
+SS=25
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12547,7 +12615,7 @@ ND=Actions
 \cf1\b\fs36 Options: Actions\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I134\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:134,359,367"}}{\fldrslt {134_Clipb_17ene.png}}}\fs26\par
+\pard\li360\v\'11I239\'12\v0{\field{\*\fldinst{HYPERLINK "img:239,380,371"}}{\fldrslt {239_Clipb_19oct.png}}}\par
 
 \pard\par
 \fs20 See also {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20  \par
@@ -12651,6 +12719,8 @@ Also remember:\par
 %*
 GI=96
 ND=Confirmations
+LM=1910251815
+SS=32
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12660,7 +12730,7 @@ ND=Confirmations
 \cf1\b\fs36 Options: Confirmations\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I189\'12\v0{\field{\*\fldinst{HYPERLINK "img:189,339,342"}}{\fldrslt {189_Clipb_31mar.png}}}\par
+\pard\li360\v\'11I240\'12\v0{\field{\*\fldinst{HYPERLINK "img:240,337,347"}}{\fldrslt {240_Clipb_19oct.png}}}\par
 
 \pard\par
 
@@ -12758,7 +12828,8 @@ See notes in \b Confirm before transferring nodes\b0 , above, on possible asked 
 %*
 GI=97
 ND=Chrome
-LM=0710251943
+LM=1910251816
+SS=24
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12768,7 +12839,7 @@ LM=0710251943
 \cf1\b\fs36 Options: Chrome\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\fs20\'11I227\'12\v0{\field{\*\fldinst{HYPERLINK "img:227,359,369"}}{\fldrslt {227_Clipb_07oct.png}}}\par
+\pard\li360\v\fs20\'11I241\'12\v0{\field{\*\fldinst{HYPERLINK "img:241,380,371"}}{\fldrslt {241_Clipb_19oct.png}}}\par
 
 \pard\par
 See {{\field{\*\fldinst{HYPERLINK "file:///<104|7096|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20\par
@@ -12890,6 +12961,8 @@ Remember, from {{\field{\*\fldinst{HYPERLINK "file:///<48|0|0"}}{\fldrslt{\ul\cf
 %*
 GI=99
 ND=Advanced
+LM=1910251817
+SS=26
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12899,7 +12972,7 @@ ND=Advanced
 \cf1\b\fs36 Options: Advanced\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I137\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:137,355,366"}}{\fldrslt {137_Clipb_17ene.png}}}\fs26\par
+\pard\li360\v\'11I242\'12\v0{\field{\*\fldinst{HYPERLINK "img:242,322,374"}}{\fldrslt {242_Clipb_19oct.png}}}\par
 
 \pard\b\fs20\par
 
@@ -13314,10 +13387,11 @@ Use the following web browser\par
 %*
 GI=104
 ND=KeyNote.ini Settings
-LM=1304251953
+LM=1910251539
+SS=18340
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset204 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset204 Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue128;\red128\green0\blue0;\red144\green144\blue144;\red0\green128\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
@@ -13463,8 +13537,8 @@ If disabled (0, default), they will not be URL-encoded. Specifically, spaces wil
 
 \pard\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li460 If disabled (0, default), links to file will always created as hyperlinks if possible (in plain text notes it isn't)\par
-{\pntext\f3\'B7\tab}If enabled (1), when inserting a link to a file or directory with {{\field{\*\fldinst{HYPERLINK "file:///<112|2194|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Insert | Link to File...}}}}\f0\fs20  or with drag and drop, the link will not use hyperlinks. It will insert the path adding "{{\field{\*\fldinst{HYPERLINK file:/// }}{\fldrslt{file:///\ul0\cf0}}}}\f0\fs20 " and enclosing with < and > if necessary.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li460 If disabled (0, default), links to file will always created as hyperlinks if possible (in plain text notes it isn't)\par
+{\pntext\f4\'B7\tab}If enabled (1), when inserting a link to a file or directory with {{\field{\*\fldinst{HYPERLINK "file:///<112|2194|0|8"}}{\fldrslt{\ul\cf2\cf2\ul Insert | Link to File...}}}}\f0\fs20  or with drag and drop, the link will not use hyperlinks. It will insert the path adding "{{\field{\*\fldinst{HYPERLINK file:/// }}{\fldrslt{file:///\ul0\cf0}}}}\f0\fs20 " and enclosing with < and > if necessary.\par
 
 \pard\li460\sb80 What you see in the Editor is then the URL, that you can modify directly.\par
 
@@ -13535,11 +13609,11 @@ When using {{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf
 \pard\li100\sb60\b0 In order to make the images visible in the editor, in RTF, the formats currently available in the RichEdit control that can be used are: \\wmetafile8, \\emfblip, \\pngblip or \\jpegblip\par
 When inserting the image programmatically, the format that KeyNote NF will used depends on this option:\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifWmetafile8 [0] \par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifWmetafile8 [0] \par
 
 \pard\li460\sa100 All images will be embedded in RTF with the format \\wmetafile8. It will be the only option offered on systems with an older version of RichEdit (<= 4 ).\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifAccordingImage [1]\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li460\sa60 ifAccordingImage [1]\par
 
 \pard\li460\sa100 The application will use jpegblip for JPG images, emfblip for images that come from EMF \i files\i0 , wmetafile8 for those that come from WMF \i files\i0 , and pngblip for the rest: PNG, GIF, TIF, BMP and ICO.\par
 
@@ -13647,14 +13721,33 @@ See this {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/is
 \pard\li100\sb60 When set to 0, it will prevent you from modifying text formatted as "protected". This formatting property cannot be set inside KeyNote, but can be linked to text pasted from Word, for example. When text is protected, it cannot be deleted or modified, unless this option is set to 1 (default).\par
 \par
 
-\pard\b BulletsInPlainText\b0 ="- "\par
-\lang3082  Allows you to replace \lang1033 bullets by an alternative string when pasting as plain text.\par
+\pard\b\v\'11B14\'12\v0 BulletsInPlainText\b0 ="- "\par
 
-\pard\sb80  See also {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<20|16135|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Bullets and plain text}}}}\f0\fs20\par
+\pard\li100\sb60\lang3082 Allows you to replace \lang1033 bullets by an alternative string when pasting as plain text.\par
+
+\pard\li100\sb80 See also {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<20|16135|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Bullets and plain text}}}}\f0\fs20\par
 
 \pard\li100\sb60\par
 
+\pard\b NumbTabInPlainText\b0 =" "\par
+
+\pard\li100\sb60\lang3082 Allows replacing the TAB character always used when pasting numbering lists as plain text (system conversion) by an alternative string. \f3 By default a space " " is defined.\f0\lang1033\par
+
 \pard\li100\par
+
+\pard\b FixEmojisProblem\b0 =1\par
+
+\pard\li100\sb60\f3\lang3082 When set to 1, it will avoid the problem caused by certain Unicode sequences used as modifiers in Emojis [See issue #896]\f0\lang1033\par
+
+\pard\li100\sb80\fs18\lang3082 When enabled, KeyNote will try to identify and remove the presence of certain special characters that can cause problems in the RichEdit control due to a limitation of the RTF parser:\par
+
+\pard\li360\sb80 U+FE0E (\\u-498?)\tab Variation Selector-15        \tab\ldblquote Force text mode\rdblquote\par
+
+\pard\li360 U+FE0F (\\u-497?)\tab Variation Selector-16        \tab\ldblquote Force emoji mode\rdblquote\par
+U+20E3 (\\u8419?)\tab Combining Enclosing Keycap\tab\ldblquote Key box\rdblquote\par
+
+\pard\li100\fs20\lang1033\par
+\par
 
 \pard\cf3\b\v\fs26\'11B5\'12\v0 [TreeOptions]\par
 \cf0\b0\fs20\par
@@ -13875,7 +13968,7 @@ To reset the toolbar state to factory defaults, simply delete the \b toolbar.ini
 %*
 GI=107
 ND=Configuring user interface Language
-LM=0801252217
+LM=1910251549
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
@@ -13891,7 +13984,10 @@ LM=0801252217
 {{\field{\*\fldinst{HYPERLINK "file:///<107|8457|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Translation to RTL languages}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<107|2718|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Creating or updating language files}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<107|3988|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Language files and Beta versions}}}}\f0\fs20\par
-\par
+
+\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<107|11688|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Using Artificial Intelligence (AI) to assist in translation}}}}\f0\fs20\par
+
+\pard\par
 \par
 KeyNote NF allows you to adapt the user interface to multiple languages by translating a configuration file. The translation is based on the utility 'Kryvich Delphi Localizer' ({{\field{\*\fldinst{HYPERLINK https://sites.google.com/site/kryvich/localizer }}{\fldrslt{https://sites.google.com/site/kryvich/localizer\ul0\cf0}}}}\f0\fs20 )\par
 \par
@@ -13910,7 +14006,7 @@ Name=Dutch\par
 LangFile=Keynote.dutch.lng\par
 TipFile=Keynote.dutch.tip\par
 RTL=0\par
-Translator=http://forum.goeiedageven.nl/\cf0\par
+Translator={{\field{\*\fldinst{HYPERLINK http://forum.goeiedageven.nl/ }}{\fldrslt{http://forum.goeiedageven.nl/\ul0\cf0}}}}\cf0\f0\fs20\par
 \par
 \par
 
@@ -14147,6 +14243,12 @@ or modifying \b keynote.ini\b0 : \par
 
 \pard\par
 \par
+
+\pard\sa120\cf3\b\v\f1\fs24\'11B6\'12\v0 Using Artificial Intelligence (AI) to assist in translation\par
+
+\pard\cf0\b0\f0\fs20 Since AI text translation has advanced tremendously these days, I encourage you to try using any of the available AI to aid in the translation process.\par
+
+\pard\sb80\f1\fs18\lang3082 I recommend reading the comment I titled "\b Translate the interface with the help of AI (Gemini, Claude, ChatGPT, ...)\b0 " in the issue {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/discussions/752#discussioncomment-14658164"}}{\fldrslt{\ul\cf2\cf2\ul #752}}}}\f1\fs18 . There I described my own experience (very positive) translating the entire interface into my language: Spanish. I also showed the prompt I used.\f0\fs20\lang1033\par
 }
 %*
 GI=108
@@ -16824,7 +16926,8 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=0710251940
+LM=1910251441
+SS=1570
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -16848,6 +16951,12 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.1.2\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Added OPML format to File - Export\par
+{\pntext\f3\'B7\tab}The design of several forms and dialogs has been revised to facilitate translation into other languages.\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.1.1\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Folding/Unfolding can now be used with tables\par
@@ -17833,7 +17942,7 @@ FN=Tahoma
 FS=10
 LN=1033
 ST=
-FL=111110000000100001000000
+FL=111110000000100000000000
 SN=0
 TW=239
 TM=0
@@ -18050,6 +18159,7 @@ LV=1
 %-
 gi=57
 DI=313
+ns=0400
 %-
 gi=58
 DI=590
@@ -18165,9 +18275,11 @@ LV=1
 %-
 gi=87
 DI=295
+ns=0400
 %-
 gi=88
 DI=238
+ns=0400
 LV=2
 %-
 gi=89
@@ -18182,6 +18294,7 @@ DI=240
 %-
 gi=92
 DI=241
+ns=0400
 LV=2
 %-
 gi=93
@@ -18193,6 +18306,7 @@ DI=243
 %-
 gi=95
 DI=244
+ns=0400
 LV=2
 %-
 gi=96
@@ -18201,6 +18315,7 @@ LV=3
 %-
 gi=97
 DI=246
+ns=0400
 LV=2
 %-
 gi=98
@@ -18209,6 +18324,7 @@ LV=3
 %-
 gi=99
 DI=248
+ns=0400
 LV=2
 %-
 gi=100
@@ -18288,7 +18404,7 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=111110000000100001000000
+FL=111110000000100000000000
 SN=0
 TW=182
 TM=0
@@ -18325,7 +18441,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=232
+II=243
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -18414,8 +18530,6 @@ PD=103||103_Clipb_02ene.png|1|843|374|4019961967||1|1||0
 PD=104||104_Clipb_03ene.png|1|163|101|244405219||1|2||0
 PD=105||105_Clipb_03ene.png|1|147|102|2223406620||1|1||0
 PD=106||106_Clipb_03ene.png|1|149|46|3523751802||1|1||0
-PD=110||110_Clipb_03ene.png|1|358|375|3763404517||1|1||0
-PD=111||111_Clipb_03ene.png|1|343|332|1945380963||1|1||0
 PD=113||113_Clipb_04ene.png|1|526|80|2991040271||1|1||0
 PD=114||114_Clipb_04ene.png|1|360|247|630860667||1|1||0
 PD=116||116_Clipboard_05ene.png|1|74|35|1464027792||1|1||0
@@ -18431,13 +18545,10 @@ PD=130||130_Clipboard_17ene.png|1|213|31|1555017293||1|1||0
 PD=131||131_Clipb_17ene.png|1|360|317|1354413043||1|1||0
 PD=132||132_Clipb_17ene.png|1|358|342|314395984||1|1||0
 PD=133||133_Clipb_17ene.png|1|356|366|928829736||1|2||0
-PD=134||134_Clipb_17ene.png|1|359|367|3850117507||1|1||0
-PD=137||137_Clipb_17ene.png|1|355|366|1372921879||1|1||0
 PD=139||139_Clipb_17ene.png|1|333|369|2331528855||1|1||0
 PD=140||140_Clipb_17ene.png|1|359|366|1088923935||1|1||0
 PD=141||141_Clipb_18ene.png|1|21|19|2802262753||1|1||0
 PD=142||142_Clipb_18ene.png|1|284|166|3671234682||1|1||0
-PD=143||143_Clipb_19ene.png|1|537|330|93519370||1|1||0
 PD=146||146_Clipb_19ene.png|1|537|331|3837106390||1|1||0
 PD=148||148_Clipb_20ene.png|1|510|262|3469532081||1|1||0
 PD=149||149_Clipb_20ene.png|1|510|263|2525683181||1|1||0
@@ -18456,13 +18567,11 @@ PD=171||171_Clipb_22feb.png|1|359|282|3285222098||1|1||0
 PD=173||173_Clipb_24feb.png|1|88|31|231898908||1|1||0
 PD=174||174_Clipb_06mar.png|1|532|330|3305557142||1|1||0
 PD=178||178_Clipb_31mar.png|1|402|46|2296713539||1|1||0
-PD=180||180_Clipb_31mar.png|1|532|330|2016695059||1|1||0
 PD=181||181_Clipb_31mar.png|1|335|279|3220090320||1|1||0
 PD=184||184_Clipb_31mar.png|1|326|285|2196688151||1|1||0
 PD=185||185_Clipb_31mar.png|1|297|152|2996717648||1|1||0
 PD=186||186_Clipb_31mar.png|1|293|152|190736701||1|1||0
 PD=187||187_Clipb_31mar.png|1|286|150|594474843||1|1||0
-PD=189||189_Clipb_31mar.png|1|339|342|4218597864||1|1||0
 PD=192||192_Clipb_31mar.png|1|411|28|2464087388||1|1||0
 PD=193||193_Clipb_31mar.png|1|202|232|2195227359||1|1||0
 PD=194||194_Clipb_24nov.png|1|198|233|788728395||1|1||0
@@ -18472,7 +18581,6 @@ PD=197||197_Clipb_25nov.png|1|407|283|3780025982||1|1||0
 PD=202||202_Clipb_25nov.png|1|594|295|3724386940||1|1||0
 PD=203||203_Clipb_25nov.png|1|594|295|1371154350||1|1||0
 PD=204||204_Clipb_07dic.png|1|489|198|245941648||1|1||0
-PD=208||208_Clipb_06ene.png|1|334|411|2637135484||1|1||0
 PD=209||209_Clipb_06ene.png|1|279|109|3349534461||1|1||0
 PD=212||212_Clipb_08ene.png|1|387|530|136024720||1|1||0
 PD=216||216_Clipb_20ene.png|1|312|600|784430773||1|1||0
@@ -18482,12 +18590,20 @@ PD=221||221_Clipb_13abr.png|1|209|355|3096465394||1|1||0
 PD=222||222_Clipb_13abr.png|1|216|73|3778486667||1|1||0
 PD=223||223_Clipb_13abr.png|1|389|97|240801985||1|1||0
 PD=224||224_Clipb_13abr.png|1|722|205|3960901167||1|2||0
-PD=225||225_Clipb_15abr.png|1|668|496|2159485143||1|1||0
-PD=226||226_Clipb_04may.png|1|341|366|2163406170||1|1||0
-PD=227||227_Clipb_07oct.png|1|359|369|1162371342||1|1||0
 PD=228||228_Clipb_07oct.png|1|505|536|372918343||1|3||0
 PD=229||229_Clipb_07oct.png|1|385|532|2396441486||1|1||0
 PD=230||230_Clipb_07oct.png|1|385|532|2063594020||1|1||0
 PD=231||231_Clipb_07oct.png|1|349|368|3670992723||1|1||0
+PD=232||232_Clipb_19oct.png|1|678|495|3925350657||1|1||0
+PD=233||233_Clipb_19oct.png|1|654|318|4192914063||1|1||0
+PD=234||234_Clipb_19oct.png|1|532|390|1433871927||1|1||0
+PD=235||235_Clipb_19oct.png|1|532|390|764013386||1|1||0
+PD=236||236_Clipb_19oct.png|1|381|373|269675315||1|1||0
+PD=237||237_Clipb_19oct.png|1|382|371|1932103461||1|1||0
+PD=238||238_Clipb_19oct.png|1|370|370|3919544723||1|1||0
+PD=239||239_Clipb_19oct.png|1|380|371|3204302766||1|1||0
+PD=240||240_Clipb_19oct.png|1|337|347|3051443956||1|1||0
+PD=241||241_Clipb_19oct.png|1|380|371|1231395502||1|1||0
+PD=242||242_Clipb_19oct.png|1|322|374|468339261||1|1||0
 %EI
 %%

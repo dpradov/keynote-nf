@@ -6,7 +6,7 @@ object Form_Template: TForm_Template
   BorderStyle = bsDialog
   Caption = 'Create template'
   ClientHeight = 190
-  ClientWidth = 213
+  ClientWidth = 232
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -42,22 +42,22 @@ object Form_Template: TForm_Template
   object GroupBox1: TGroupBox
     Left = 5
     Top = 0
-    Width = 206
+    Width = 227
     Height = 153
     TabOrder = 2
     object Label1: TLabel
       Left = 10
-      Top = 15
+      Top = 12
       Width = 31
       Height = 13
       Caption = '&Name:'
       FocusControl = Edit_Name
     end
     object RG_Source: TRadioGroup
-      Left = 10
-      Top = 87
-      Width = 185
-      Height = 57
+      Left = 12
+      Top = 84
+      Width = 206
+      Height = 61
       Caption = ' &Create from... '
       ItemIndex = 0
       Items.Strings = (
@@ -67,7 +67,7 @@ object Form_Template: TForm_Template
     end
     object Edit_Name: TEdit
       Left = 10
-      Top = 30
+      Top = 27
       Width = 181
       Height = 21
       Font.Charset = DEFAULT_CHARSET
@@ -83,7 +83,7 @@ object Form_Template: TForm_Template
     end
     object CB_Formatted: TCheckBox
       Left = 20
-      Top = 60
+      Top = 57
       Width = 165
       Height = 17
       Caption = '&Formatted text'

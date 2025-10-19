@@ -1,5 +1,5 @@
 ﻿[Japanese]
-Comment=v2.1.0.04    (new texts in 2.1.1.01 in english. Details in Keynote.japanese_WRK.lng)
+Comment=v2.1.1.01
 Name=Japanese
 LangFile=Keynote.japanese.lng
 TipFile=Keynote.japanese.tip
@@ -21,4 +21,12 @@ Name=English
 LangFile=Keynote.english.lng
 TipFile=Keynote.english.tip
 Translator=
+RTL=0
+
+[Spanish]
+Comment=v2.1.1.01
+Name=Spanish (Español-Castellano)
+LangFile=Keynote.spanish.lng
+TipFile=Keynote.spanish.tip
+Translator=dprado.keynote@gmail.com
 RTL=0

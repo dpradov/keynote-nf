@@ -5,7 +5,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'File properties'
-  ClientHeight = 297
+  ClientHeight = 358
   ClientWidth = 530
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -38,7 +38,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
   end
   object Button_OK: TButton
     Left = 38
-    Top = 264
+    Top = 325
     Width = 79
     Height = 25
     Hint = 'Accept changes and close dialog box'
@@ -50,7 +50,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
   end
   object Button_Cancel: TButton
     Left = 122
-    Top = 264
+    Top = 325
     Width = 75
     Height = 25
     Hint = 'Discard changes and close dialog box'
@@ -63,7 +63,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
     Left = 5
     Top = 5
     Width = 522
-    Height = 246
+    Height = 308
     HelpContext = 45
     ActivePage = Tab_Main
     TabOrder = 0
@@ -72,46 +72,46 @@ object Form_KntFileInfo: TForm_KntFileInfo
       Caption = 'Information'
       object GroupBox1: TGroupBox
         Left = 5
-        Top = 0
+        Top = 3
         Width = 505
-        Height = 211
+        Height = 273
         TabOrder = 0
         object Label1: TLabel
-          Left = 23
-          Top = 15
-          Width = 108
+          Left = 24
+          Top = 14
+          Width = 453
           Height = 13
           AutoSize = False
           Caption = 'Filename:'
         end
         object Label2: TLabel
           Left = 23
-          Top = 75
-          Width = 73
+          Top = 107
+          Width = 454
           Height = 13
           AutoSize = False
           Caption = '&Comment:'
           FocusControl = Edit_Comment
         end
         object Label3: TLabel
-          Left = 35
-          Top = 158
-          Width = 66
+          Left = 24
+          Top = 226
+          Width = 77
           Height = 13
           AutoSize = False
           Caption = 'Created:'
         end
         object Label4: TLabel
-          Left = 35
-          Top = 173
-          Width = 66
+          Left = 24
+          Top = 247
+          Width = 77
           Height = 13
           AutoSize = False
           Caption = 'Modified:'
         end
         object Label_Created: TLabel
           Left = 101
-          Top = 158
+          Top = 226
           Width = 218
           Height = 13
           AutoSize = False
@@ -119,23 +119,23 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Label_Modified: TLabel
           Left = 101
-          Top = 173
+          Top = 247
           Width = 218
           Height = 13
           AutoSize = False
           Caption = '(...)'
         end
         object Label5: TLabel
-          Left = 350
-          Top = 158
-          Width = 56
+          Left = 344
+          Top = 226
+          Width = 62
           Height = 13
           AutoSize = False
           Caption = 'Notes:'
         end
         object Label_Count: TLabel
-          Left = 410
-          Top = 158
+          Left = 412
+          Top = 226
           Width = 7
           Height = 13
           Caption = '0'
@@ -147,24 +147,24 @@ object Form_KntFileInfo: TForm_KntFileInfo
           ParentFont = False
         end
         object Label7: TLabel
-          Left = 350
-          Top = 173
-          Width = 56
+          Left = 344
+          Top = 247
+          Width = 62
           Height = 13
           AutoSize = False
           Caption = 'File size:'
         end
         object Label_FileSize: TLabel
-          Left = 410
-          Top = 173
-          Width = 79
+          Left = 412
+          Top = 247
+          Width = 77
           Height = 13
           AutoSize = False
           Caption = '(...)'
         end
         object Label_FileNotFound: TLabel
           Left = 104
-          Top = 15
+          Top = 36
           Width = 148
           Height = 13
           Caption = ' FILE HAS NOT BEEN SAVED '
@@ -180,8 +180,8 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Label6: TLabel
           Left = 23
-          Top = 45
-          Width = 73
+          Top = 60
+          Width = 454
           Height = 13
           AutoSize = False
           Caption = '&Description:'
@@ -189,16 +189,16 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Label8: TLabel
           Left = 23
-          Top = 105
-          Width = 73
+          Top = 159
+          Width = 454
           Height = 13
           AutoSize = False
           Caption = '&Format:'
           FocusControl = Combo_Format
         end
         object LB_RTF3: TLabel
-          Left = 332
-          Top = 173
+          Left = 325
+          Top = 247
           Width = 14
           Height = 13
           Caption = '(3)'
@@ -206,10 +206,10 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Visible = False
         end
         object Edit_FileName: TEdit
-          Left = 101
-          Top = 15
-          Width = 380
-          Height = 17
+          Left = 23
+          Top = 33
+          Width = 454
+          Height = 20
           TabStop = False
           BorderStyle = bsNone
           Color = clBtnFace
@@ -223,9 +223,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 3
         end
         object Edit_Comment: TEdit
-          Left = 101
-          Top = 70
-          Width = 380
+          Left = 23
+          Top = 126
+          Width = 454
           Height = 21
           Hint = 'Enter optional comment for the file'
           Font.Charset = DEFAULT_CHARSET
@@ -238,9 +238,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 1
         end
         object Edit_Description: TEdit
-          Left = 101
-          Top = 40
-          Width = 380
+          Left = 23
+          Top = 79
+          Width = 454
           Height = 21
           Hint = 'Enter optional description for the file'
           Font.Charset = DEFAULT_CHARSET
@@ -253,9 +253,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 0
         end
         object Combo_Format: TComboBox
-          Left = 101
-          Top = 100
-          Width = 380
+          Left = 23
+          Top = 178
+          Width = 228
           Height = 21
           Hint = 'Choose format used when saving the file'
           Style = csDropDownList
@@ -276,20 +276,20 @@ object Form_KntFileInfo: TForm_KntFileInfo
         Left = 5
         Top = 1
         Width = 505
-        Height = 214
+        Height = 275
         TabOrder = 0
         object Label9: TLabel
-          Left = 297
-          Top = 44
-          Width = 96
+          Left = 15
+          Top = 69
+          Width = 150
           Height = 13
           AutoSize = False
           Caption = '&Compress Level:'
           FocusControl = Combo_CompressLevel
         end
         object Label_IsReadOnly: TLabel
-          Left = 280
-          Top = 16
+          Left = 287
+          Top = 13
           Width = 211
           Height = 15
           Alignment = taCenter
@@ -306,12 +306,12 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Transparent = False
         end
         object Label26: TLabel
-          Left = 13
-          Top = 82
-          Width = 99
-          Height = 13
+          Left = 15
+          Top = 120
+          Width = 226
+          Height = 14
           AutoSize = False
-          Caption = 'Image storage'
+          Caption = 'Image storage:'
           FocusControl = cbImgStorageMode
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -322,9 +322,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           StyleElements = [seClient, seBorder]
         end
         object lblImgWarning: TLabel
-          Left = 300
-          Top = 80
-          Width = 194
+          Left = 264
+          Top = 141
+          Width = 230
           Height = 26
           AutoSize = False
           FocusControl = cbImgStorageMode
@@ -339,9 +339,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           StyleElements = [seClient, seBorder]
         end
         object CB_AsReadOnly: TCheckBox
-          Left = 9
-          Top = 15
-          Width = 254
+          Left = 15
+          Top = 12
+          Width = 270
           Height = 17
           Hint = 'In future, open this file as Read-only'
           Caption = 'Open this file in &Read-Only Mode'
@@ -354,9 +354,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 0
         end
         object CB_NoMultiBackup: TCheckBox
-          Left = 9
-          Top = 43
-          Width = 282
+          Left = 15
+          Top = 37
+          Width = 483
           Height = 17
           Hint = 'Ignore global backup level setting for this file'
           Caption = 'Do not keep &multiple backups of this file'
@@ -369,9 +369,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 1
         end
         object Combo_CompressLevel: TComboBox
-          Left = 399
-          Top = 41
-          Width = 92
+          Left = 15
+          Top = 88
+          Width = 138
           Height = 21
           Hint = 'Choose level of compression used when saving the file'
           Style = csDropDownList
@@ -385,9 +385,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 2
         end
         object cbImgStorageMode: TComboBox
-          Left = 116
-          Top = 81
-          Width = 173
+          Left = 15
+          Top = 140
+          Width = 226
           Height = 21
           Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
@@ -401,15 +401,15 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object gbExternalStorage: TGroupBox
           Left = 15
-          Top = 109
+          Top = 170
           Width = 478
           Height = 94
           Caption = '  External storage  '
           TabOrder = 4
           object Label22: TLabel
             Left = 13
-            Top = 38
-            Width = 50
+            Top = 44
+            Width = 75
             Height = 13
             AutoSize = False
             Caption = 'Type'
@@ -423,7 +423,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
           end
           object btnOpenDlgExternalPath: TToolbarButton97
             Left = 443
-            Top = 57
+            Top = 63
             Width = 25
             Height = 21
             AllowAllUp = True
@@ -438,8 +438,8 @@ object Form_KntFileInfo: TForm_KntFileInfo
           end
           object Label10: TLabel
             Left = 103
-            Top = 37
-            Width = 159
+            Top = 43
+            Width = 334
             Height = 13
             AutoSize = False
             Caption = 'Location folder or file (zip)'
@@ -447,7 +447,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
           end
           object cbImgExtStorageType: TComboBox
             Left = 13
-            Top = 57
+            Top = 63
             Width = 75
             Height = 21
             Style = csDropDownList
@@ -463,7 +463,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
           end
           object txtExtStorageLocation: TEdit
             Left = 101
-            Top = 57
+            Top = 63
             Width = 336
             Height = 21
             Enabled = False
@@ -482,7 +482,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
             Left = 391
             Top = 19
             Width = 81
-            Height = 17
+            Height = 15
             Caption = 'Relocated'
             TabOrder = 1
             OnClick = rbImagesStRelocateClick
@@ -491,16 +491,16 @@ object Form_KntFileInfo: TForm_KntFileInfo
             Left = 300
             Top = 19
             Width = 85
-            Height = 17
+            Height = 15
             Caption = 'Change'
             TabOrder = 0
             OnClick = rbImagesStChangeClick
           end
         end
         object btnRecalcNextID: TButton
-          Left = 394
-          Top = 81
-          Width = 98
+          Left = 376
+          Top = 141
+          Width = 115
           Height = 25
           Hint = 
             'Reconsider next image ID ignoring deleted images'#13#10#13#10'(Only enable' +
@@ -523,19 +523,19 @@ object Form_KntFileInfo: TForm_KntFileInfo
       Caption = 'File Icons'
       object GroupBox4: TGroupBox
         Left = 5
-        Top = 0
+        Top = 4
         Width = 503
-        Height = 213
+        Height = 273
         TabOrder = 0
         object Image_TrayIcon: TImage
-          Left = 434
+          Left = 440
           Top = 149
           Width = 38
           Height = 38
           AutoSize = True
         end
         object TB_OpenDlgTrayIcon: TToolbarButton97
-          Left = 384
+          Left = 394
           Top = 162
           Width = 29
           Height = 21
@@ -549,7 +549,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
           OnClick = TB_OpenDlgTrayIconClick
         end
         object TB_OpenDlgTabImg: TToolbarButton97
-          Left = 384
+          Left = 394
           Top = 78
           Width = 29
           Height = 21
@@ -565,16 +565,16 @@ object Form_KntFileInfo: TForm_KntFileInfo
         object CB_ShowTabIcons: TCheckBox
           Left = 24
           Top = 24
-          Width = 306
+          Width = 362
           Height = 17
           Hint = 'Display or hide tab images for this file'
           Caption = '&Show icon images on tabs'
           TabOrder = 0
         end
         object CB_TrayIcon: TCheckBox
-          Left = 24
+          Left = 25
           Top = 134
-          Width = 353
+          Width = 371
           Height = 17
           Caption = 'Use custom icon for this file (system tray / taskbar)'
           TabOrder = 1
@@ -611,7 +611,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         object Edit_TrayIcon: TEdit
           Left = 25
           Top = 162
-          Width = 361
+          Width = 371
           Height = 21
           Enabled = False
           Font.Charset = DEFAULT_CHARSET
@@ -625,7 +625,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         object Edit_TabImg: TEdit
           Left = 25
           Top = 78
-          Width = 361
+          Width = 371
           Height = 21
           Enabled = False
           Font.Charset = DEFAULT_CHARSET
@@ -645,30 +645,30 @@ object Form_KntFileInfo: TForm_KntFileInfo
         Left = 5
         Top = 3
         Width = 506
-        Height = 209
+        Height = 274
         TabOrder = 0
         object Label_Confirm: TLabel
-          Left = 22
-          Top = 99
-          Width = 79
+          Left = 34
+          Top = 113
+          Width = 431
           Height = 13
           AutoSize = False
-          Caption = '&Confirm pass.:'
+          Caption = '&Confirm Passphrase:'
           FocusControl = Edit_Confirm
         end
         object Label_Pass: TLabel
-          Left = 22
-          Top = 69
-          Width = 79
+          Left = 34
+          Top = 58
+          Width = 431
           Height = 13
           AutoSize = False
           Caption = '&Passphrase:'
           FocusControl = Edit_Pass
         end
         object Label_Method: TLabel
-          Left = 22
-          Top = 164
-          Width = 79
+          Left = 34
+          Top = 211
+          Width = 223
           Height = 13
           AutoSize = False
           Caption = '&Algorithm:'
@@ -690,9 +690,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           ParentFont = False
         end
         object Edit_Confirm: TEdit
-          Left = 108
-          Top = 94
-          Width = 341
+          Left = 34
+          Top = 132
+          Width = 431
           Height = 21
           Hint = 'Carefully re-enter the access passphrase'
           MaxLength = 255
@@ -700,9 +700,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 1
         end
         object Edit_Pass: TEdit
-          Left = 108
-          Top = 64
-          Width = 341
+          Left = 34
+          Top = 77
+          Width = 431
           Height = 21
           Hint = 'Enter access passphrase for this file'
           MaxLength = 255
@@ -710,16 +710,16 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 0
         end
         object Combo_Method: TComboBox
-          Left = 108
-          Top = 159
-          Width = 341
+          Left = 34
+          Top = 230
+          Width = 223
           Height = 21
           Hint = 'Select which encryption algorithm to use'
           Style = csDropDownList
           TabOrder = 2
         end
         object Button_SetPass: TButton
-          Left = 22
+          Left = 284
           Top = 15
           Width = 181
           Height = 25
@@ -729,9 +729,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           OnClick = Button_SetPassClick
         end
         object CB_HidePass: TCheckBox
-          Left = 108
-          Top = 124
-          Width = 268
+          Left = 34
+          Top = 164
+          Width = 431
           Height = 17
           Hint = 'Obscure passphrase with asterisks'
           Caption = '&Hide passphrase while typing'
@@ -743,8 +743,8 @@ object Form_KntFileInfo: TForm_KntFileInfo
     end
   end
   object Button_System: TButton
-    Left = 393
-    Top = 264
+    Left = 409
+    Top = 325
     Width = 82
     Height = 25
     Hint = 'Displays system File Properties dialog box'
@@ -754,7 +754,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
   end
   object Button_Help: TButton
     Left = 202
-    Top = 264
+    Top = 325
     Width = 75
     Height = 25
     Caption = '&Help'
@@ -765,6 +765,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
     IniSection = 'InfoDlg'
     Options = [fpPosition]
     Left = 285
-    Top = 259
+    Top = 320
   end
 end

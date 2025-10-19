@@ -28,9 +28,9 @@ object Form_Alarm: TForm_Alarm
     540)
   TextHeight = 13
   object lblFilter: TLabel
-    Left = 601
+    Left = 576
     Top = 8
-    Width = 67
+    Width = 92
     Height = 13
     Alignment = taRightJustify
     Anchors = [akTop, akRight]
@@ -42,7 +42,6 @@ object Form_Alarm: TForm_Alarm
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
-    ExplicitLeft = 635
   end
   object Button_ClearFilter: TToolbarButton97
     Left = 850
@@ -65,7 +64,7 @@ object Form_Alarm: TForm_Alarm
   object TntLabel2: TLabel
     Left = 10
     Top = 9
-    Width = 93
+    Width = 100
     Height = 13
     AutoSize = False
     Caption = 'Show mode:'
@@ -494,8 +493,9 @@ object Form_Alarm: TForm_Alarm
       object TntLabel3: TLabel
         Left = 12
         Top = 219
-        Width = 114
+        Width = 153
         Height = 13
+        AutoSize = False
         Caption = 'Proposed Reminder:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = cl3DDkShadow
@@ -505,7 +505,7 @@ object Form_Alarm: TForm_Alarm
         ParentFont = False
       end
       object lblProposedReminder: TLabel
-        Left = 138
+        Left = 171
         Top = 219
         Width = 249
         Height = 13
@@ -593,27 +593,27 @@ object Form_Alarm: TForm_Alarm
         OnExit = CB_ProposedIntervalReminderExit
       end
       object rb_Before: TRadioButton
-        Left = 156
+        Left = 167
         Top = 242
-        Width = 100
+        Width = 114
         Height = 26
         Caption = 'Before event'
         TabOrder = 6
         OnClick = rb_FromNowClick
       end
       object rb_FromNow: TRadioButton
-        Left = 263
+        Left = 284
         Top = 242
-        Width = 116
+        Width = 130
         Height = 26
         Caption = 'From now'
         TabOrder = 7
         OnClick = rb_FromNowClick
       end
       object Button_Apply: TButton
-        Left = 626
+        Left = 616
         Top = 172
-        Width = 84
+        Width = 94
         Height = 25
         Anchors = [akTop, akRight]
         Caption = '&Apply'
@@ -627,9 +627,9 @@ object Form_Alarm: TForm_Alarm
         OnClick = Button_ApplyClick
       end
       object chk_ApplyOnExitChange: TCheckBox
-        Left = 633
+        Left = 616
         Top = 202
-        Width = 85
+        Width = 102
         Height = 27
         Hint = 
           'Automatically apply pending changes on exit (ex. pressing ESC) a' +
@@ -832,7 +832,7 @@ object Form_Alarm: TForm_Alarm
       object Button_Show: TButton
         Left = 5
         Top = 2
-        Width = 84
+        Width = 82
         Height = 25
         Hint = 'Show location of alarm'
         Caption = '&Show'
@@ -840,9 +840,9 @@ object Form_Alarm: TForm_Alarm
         OnClick = Button_ShowClick
       end
       object Button_New: TButton
-        Left = 192
+        Left = 186
         Top = 2
-        Width = 84
+        Width = 82
         Height = 25
         Hint = 
           'Create new alarm (in the same node/folder that the item selected' +
@@ -858,9 +858,9 @@ object Form_Alarm: TForm_Alarm
         OnClick = Button_NewClick
       end
       object Button_Discard: TButton
-        Left = 98
+        Left = 95
         Top = 2
-        Width = 84
+        Width = 82
         Height = 25
         Hint = 'Discard selected alarms  (remove on empty alarms)'
         Caption = '&Discard'
@@ -874,9 +874,9 @@ object Form_Alarm: TForm_Alarm
         OnClick = Button_DiscardClick
       end
       object Button_SelectAll: TButton
-        Left = 294
+        Left = 281
         Top = 2
-        Width = 84
+        Width = 97
         Height = 25
         Caption = '&Select All'
         TabOrder = 3
@@ -970,9 +970,9 @@ object Form_Alarm: TForm_Alarm
     OnExit = cFilterExit
   end
   object CB_ShowMode: TComboBox
-    Left = 103
+    Left = 113
     Top = 6
-    Width = 146
+    Width = 158
     Height = 21
     Style = csDropDownList
     TabOrder = 0
