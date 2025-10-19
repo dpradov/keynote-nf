@@ -57,7 +57,7 @@ object Form_ExportNew: TForm_ExportNew
     Top = 5
     Width = 663
     Height = 417
-    ActivePage = Tab_Options
+    ActivePage = Tab_Main
     HotTrack = False
     TabInactiveColor = clBtnFace
     TabInactiveFont.Charset = DEFAULT_CHARSET
@@ -74,7 +74,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitWidth = 646
       object GroupBox_Source: TGroupBox
         Left = 5
         Top = 8
@@ -211,7 +210,6 @@ object Form_ExportNew: TForm_ExportNew
             'Unfold'
             'Remove "tagged"'
             'Remove All')
-          ExplicitLeft = 130
         end
         object PnlTags: TPanel
           Left = 9
@@ -321,6 +319,18 @@ object Form_ExportNew: TForm_ExportNew
               'ALL'
               'ANY')
           end
+        end
+        object CB_UseNote: TCheckBox
+          Left = 9
+          Top = 353
+          Width = 260
+          Height = 17
+          Hint = 'Include notes'#39'content as plain text in "_note" attribute'
+          HelpType = htKeyword
+          Caption = 'Use '#39'_note'#39' attribute'
+          Checked = True
+          State = cbChecked
+          TabOrder = 11
         end
       end
       object GroupBox_Target: TGroupBox
@@ -520,7 +530,7 @@ object Form_ExportNew: TForm_ExportNew
         object lblSymbols: TLabel
           Left = 25
           Top = 210
-          Width = 148
+          Width = 39
           Height = 13
           Caption = 'Symbols'
           FocusControl = Edit_Folder
@@ -528,7 +538,7 @@ object Form_ExportNew: TForm_ExportNew
         object lblLength: TLabel
           Left = 25
           Top = 186
-          Width = 148
+          Width = 74
           Height = 13
           Caption = 'Length heading'
           FocusControl = Edit_Folder

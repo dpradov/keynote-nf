@@ -131,6 +131,7 @@ type
     chkTagsMetad: TCheckBox;
     txtTagsExcl: TEdit;
     cbTagFindMode: TComboBox;
+    CB_UseNote: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -188,6 +189,9 @@ type
     FindTagsExcl: TFindTags;
     FindTagsIncl_NotRegistered: string;
     FindTagsExcl_NotRegistered: string;
+
+    LastOPMLLevel: integer;
+    UseNoteAttr: boolean;
 
     procedure WriteConfig;
     procedure PerformExport;
@@ -256,6 +260,30 @@ uses
    knt.App,
    knt.RS
    ;
+
+{
+Example of OPML output:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+<head>
+<title>Folder name</title>
+</head>
+<body>
+<outline text="Node 1">
+  <outline text="Node 1.1" _note="Content of Node 1.1">
+  </outline>
+</outline>
+<outline text="Node 2" _note="Content of Node 2">
+  <outline text="Node 2.1" _note="1. First line (numbered list) in Node 2.1
+- Second line (bullet list)
+Third line with &quot;text in quotation marks&quot; and &lt;bounded text&gt; ">
+  </outline>
+</outline>
+</body>
+</opml>
+}
+
 
 var
   LengthsHeading_Max, LengthsHeading_Inc, LengthsHeading_Min: integer;
@@ -601,7 +629,7 @@ end;
 procedure TForm_ExportNew.CheckDependencies;
 var
    format: TExportFmt;
-   TreePadFmt, PrinterFmt, RtfFmt, NoPlainText, KntOrTreePadFmt, RtfOrPrinterFmt: boolean;
+   TreePadFmt, PrinterFmt, RtfFmt, NoPlainText, KntOrTreePadOrOPMLFmt, RtfOrPrinterFmt, OPMLFmt: boolean;
    NodeHeadingEnabled, IndentNodesChecked: boolean;
 begin
   if ChangingFromCode then exit;
@@ -613,14 +641,15 @@ begin
   PrinterFmt:=  (format = xfPrinter);
   RtfFmt:=      (format = xfRTF);
   NoPlainText:= not (format = xfPlainText);
-  KntOrTreePadFmt:= format in [xfTreePad, xfKeyNote];
+  OPMLFmt := (format = xfOPML);
+  KntOrTreePadOrOPMLFmt:= format in [xfTreePad, xfKeyNote, xfOPML];
   RtfOrPrinterFmt:= (format in [xfPrinter, xfRTF]);
 
   Combo_TreeSelection.Enabled:= RB_CurrentNote.Checked and not TreePadFmt;
   Button_Select.Enabled := RB_SelectedNotes.Checked;
 
   Tab_TreePad.TabVisible:=  TreePadFmt;
-  Tab_Options.TabVisible := not KntOrTreePadFmt;
+  Tab_Options.TabVisible := not KntOrTreePadOrOPMLFmt;
 
   IgnorePrinterOffset:= not PrinterFmt;
 
@@ -637,8 +666,8 @@ begin
      Button_Ok.ImageIndex:= -1;
   end;
 
-  CB_TableCont.Enabled := not KntOrTreePadFmt;
-  Spin_TblMaxDepth.Enabled:= not KntOrTreePadFmt and CB_TableCont.Checked;
+  CB_TableCont.Enabled := not KntOrTreePadOrOPMLFmt;
+  Spin_TblMaxDepth.Enabled:= not KntOrTreePadOrOPMLFmt and CB_TableCont.Checked;
   if CB_TableCont.Checked then begin
      if Spin_TblMaxDepth.Value = 0 then
         Spin_TblMaxDepth.Value := 9;
@@ -653,11 +682,11 @@ begin
   TB_OpenDlgDir.Enabled:= not PrinterFmt;
   Edit_Folder.Enabled:=   not PrinterFmt;
 
-  CB_Section.Enabled := not KntOrTreePadFmt;
+  CB_Section.Enabled := not KntOrTreePadOrOPMLFmt;
   Spin_SectDepth.Enabled:= CB_Section.Checked;
   CB_SectionToFile.Enabled := RtfFmt and CB_Section.Checked;
   CB_SectionNewPg.Enabled :=  RtfFmt and CB_Section.Checked;
-  if KntOrTreePadFmt then
+  if KntOrTreePadOrOPMLFmt then
      CB_Section.Checked:= False;
 
   if CB_Section.Checked then begin
@@ -684,10 +713,13 @@ begin
   end;
 
   CB_NoteNewPg.Enabled := RtfOrPrinterFmt;
-  CB_FolderNewFile.Enabled := (not CB_Section.Checked or not CB_SectionToFile.Checked) and not (format in [xfPrinter, xfTreePad, xfKeyNote]);
+  CB_FolderNewFile.Enabled := (not CB_Section.Checked or not CB_SectionToFile.Checked) and not (format in [xfPrinter, xfTreePad, xfKeyNote, xfOPML]);
   if CB_Section.Checked and CB_SectionToFile.Checked then
      CB_FolderNewFile.Checked:= False;
+  if format = xfOPML then
+     CB_FolderNewFile.Checked:= True;
 
+  CB_UseNote.Visible:= (format = xfOPML);
 
   CB_SaveImgDefWP.Enabled := RtfFmt;
 
@@ -1115,6 +1147,7 @@ var
   NumFoldersExported: integer;
   FormatCommnd: string;
   PageHeader: string;
+  S: String;
 
   iNode: integer;
   NoteFragments: TNoteFragments;
@@ -1201,8 +1234,33 @@ var
      RTFAux.SetSelection(SS+SL, SS+SL, true);
   end;
 
+  procedure ClosePrevOPMLitems;
+  var
+     L: integer;
+  begin
+     if UseNoteAttr and (LastOPMLLevel >= 0) then
+        RTFAux.AddText('">'+ #13);
+     if Level <= LastOPMLLevel then begin
+        for L:= LastOPMLLevel downto Level do
+           RTFAux.AddText((StringOfChar (' ', L*2) + '</outline>' + #13));
+     end;
+  end;
+
   procedure InsertNodeHeading;
   begin
+     if ExportOptions.TargetFormat = xfOPML then begin
+        ClosePrevOPMLitems;
+        S:= EscapeXMLspecialCharacters(NNode.NodeName(TreeUI));
+        S:= StringOfChar (' ', Level*2) + '<outline text="' + S;
+        if UseNoteAttr then
+           S:= S + '" _note="'
+        else
+           S:= S + '">'+ #13;
+
+        RTFAux.AddText(S);
+        LastOPMLLevel:= Level;
+     end
+     else
      if ( ExportOptions.IncludeNodeHeadings and ( NodeHeadingRTF <> '' )) then begin
         var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
         var StrAux: string;
@@ -1213,10 +1271,35 @@ var
 
   procedure InsertFolderHeading;
   begin
+     if ExportOptions.TargetFormat = xfOPML then begin
+        S:= '<?xml version="1.0" encoding="UTF-8"?>' + #13 +
+            '<opml version="2.0">' + #13 + '<head>'  + #13 +
+            '<title>' + EscapeXMLspecialCharacters(myFolder.Name) + '</title>' + #13 +
+            '</head>' + #13 + '<body>' + #13;
+        RTFAux.AddText(S);
+     end
+     else
      if ( ExportOptions.IncludeFolderHeadings and ( FolderHeadingRTF <> '' )) then begin
        var ApplyAutoFontSizes: boolean := ExportOptions.AutoFontSizesInHeading and (FontSizes_Max > 0);
        RTFAux.PutRtfText(FolderHeadingRTF, true, true, ApplyAutoFontSizes);   // Keep selected if ApplyAutoFontSizes
        ApplyFontSizes (True);
+     end;
+  end;
+
+  procedure EscapeXMLspecialCharactersInEditor;
+  var
+     SS, i, p: integer;
+  begin
+     SS:= RTFAux.SelStart;
+     for i:= 0 to High(CharsXML) do begin
+         p:= SS-1;
+         repeat
+            p:= RTFAux.FindText(CharsXML[i], p+1, -1, []);
+            if p >= 0 then begin
+               RTFAux.SetSelection(p, p+1, false);
+               RTFAux.SelText := EscapeCharsXML[i];
+            end;
+         until (p < 0);
      end;
   end;
 
@@ -1375,6 +1458,12 @@ var
   procedure FlushNotesToFile;
   begin
       assert((tmpExportedNodes = Length(InfoExportedNotes)) or not (ExportOptions.TargetFormat in [xfRTF, xfPrinter]));
+
+      if (ExportOptions.TargetFormat = xfOPML) then begin
+         ClosePrevOPMLitems;
+         RTFAux.AddText('</body>' + #13 + '</opml>');
+      end;
+
       if FlushExportFile( RTFAux, myFolder, FN, PageHeader) then
          inc(ExportedNotes, tmpExportedNodes );
       tmpExportedNodes:= 0;
@@ -1497,6 +1586,7 @@ begin
   PageHeader:= '';
   if ExportOptions.TableContMaxDepth = 0 then
      IndexOfExportedFile:= 1;
+  UseNoteAttr:= CB_UseNote.Checked;
 
   RTFAux:= CreateAuxRichEdit;
   RTFAux.BeginUpdate;
@@ -1598,7 +1688,7 @@ begin
           end;
 
           case ExportOptions.TargetFormat of
-            xfPlainText, xfRTF, xfHTML, xfPrinter : begin                                // =============================    xfPlainText, xfRTF, xfHTML, xfPrinter
+            xfPlainText, xfRTF, xfHTML, xfPrinter, xfOPML : begin                                // =============================    xfPlainText, xfRTF, xfHTML, xfPrinter, xfOPML
 
               myFolder.SaveEditorToDataModel; // must flush contents of Note editor to active model object's internal stream
 
@@ -1610,6 +1700,7 @@ begin
 
               StartTreeNode := myTreeNode;
               ThisNodeIndex := 0;
+              LastOPMLLevel:= -1;
 
               if assigned( myTreeNode ) then begin
                 StartLevel := TreeUI.TV.GetNodeLevel(myTreeNode);
@@ -1734,6 +1825,10 @@ begin
                      InfoExportedNotes[tmpExportedNodes-1].NNodeGID:= NNode.GID;
                   end;
 
+                  if (ExportOptions.TargetFormat = xfOPML) and not UseNoteAttr then
+                      NodeTextSize:= 0;
+
+
                   if NodeTextSize > 0 then begin
                     ExportWholeNoteText:= True;
 
@@ -1800,6 +1895,19 @@ begin
                                                                     // Append to end of existing data
                     end;
 
+                    if ExportOptions.TargetFormat = xfOPML then begin
+                       L:= RTFAux.TextLength;
+                       if RTFAux.TextPlain[L] = #13 then begin
+                          RTFAux.SelStart:= L;
+                          RTFAux.SetSelection(L-1, L, False);
+                          RTFAux.SelText:= '';
+                       end;
+
+                       RTFAux.SelStart:= SSNodeContent;
+                       EscapeXMLspecialCharactersInEditor;
+                       RTFAux.SelStart:= RTFAux.TextLength;
+                    end;
+
                     ChangeFont;
                   end;
 
@@ -1846,7 +1954,7 @@ begin
               if DoAbort then break;
 
               // we need to create a new file if no file has been created yet,
-              // or if each note is saved to a separate TreePad file
+              // or if each folder is saved to a separate TreePad file
               if (( TreePadFN = '' ) or ( not ExportOptions.TreePadSingleFile )) then begin
                 if ( ExportOptions.TreePadSingleFile and ( ExportOptions.ExportSource <> expCurrentFolder )) then
                    TreePadFN := GetExportFilename( ExtractFilename( myKntFile.FileName )) // use file name
@@ -2121,6 +2229,11 @@ begin
       ext := '.knt';
     end;
 
+    xfOPML : begin
+      SaveDlg.Filter := FILTER_OPMLFILES;
+      ext := '.opml';
+    end;
+
     else begin
       SaveDlg.Filter := GetRS(FILTER_ALLFILES);
       ext := '.txt';
@@ -2214,6 +2327,26 @@ begin
         result := true;
       end;
 
+      xfOPML : begin
+        if ( ext = '' ) then FN := FN + ext_OPML;
+
+        if UseNoteAttr then
+           PrepareRTFforPlainText(RTF, myFolder.TabSize, EditorOptions.IndentInc);
+
+        Txt:= RTF.Text;
+        Encoding:= TEncoding.UTF8;
+        if Pos(KNT_RTF_HIDDEN_MARK_EndLink_CHAR, Txt) = 0 then begin
+           RTF.StreamFormat := sfPlainText;
+           RTF.Lines.SaveToFile( FN, Encoding );
+        end
+        else begin
+           Txt:= RemoveKNTHiddenCharactersInText(Txt);
+           Txt:= StringReplace(Txt, KNT_RTF_HIDDEN_MARK_EndLink_CHAR, '[]', [rfReplaceAll]);
+           TFile.WriteAllText(FN, Txt, Encoding);
+        end;
+        result := true;
+      end;
+
       xfPrinter : begin
         if RTF.TextLength <> 0 then begin
            DPI:= -1;
@@ -2291,7 +2424,8 @@ var
   StringIndent: string;
   NumTabs: integer;
   ParaAttrib: TRxParaAttributes;
-  BulletsPT: string;
+  BulletsPT, NumbStr: string;
+  p: integer;
 
 begin
    RTFAux.SuspendUndo;
@@ -2309,7 +2443,7 @@ begin
       LI:= ParaAttrib.LeftIndent;
       LIndent:= FI + LI;
 
-      if LIndent > 0 then begin
+      if (LIndent > 0) and (ExportOptions.TargetFormat = xfPlainText) then begin
          NumTabs:= LIndent div RTFIndentValue;
 
          if ParaAttrib.Numbering <> nsNone then
@@ -2324,9 +2458,17 @@ begin
             RTFAux.SelText := StringIndent;
       end;
 
+      p:= 0;
+      if (ExportOptions.TargetFormat = xfOPML) and (ParaAttrib.Numbering <> nsNone) then begin
+         p:= pos('</', RTFAux.Lines[L], 1);
+         if p > 0 then continue;                           // </outline> or </body> or </opml>
+         p:= pos(' _note="', RTFAux.Lines[L], 1);
+         if p > 0 then
+            inc(p, Length(' _note="')-1);
+      end;
 
       if ParaAttrib.Numbering = nsBullet then begin
-         RTFAux.SelStart:= SS + RTFAux.SelLength;
+         RTFAux.SelStart:= SS + RTFAux.SelLength  + p;
          RTFAux.SelText := BulletsPT;
       end
       else
@@ -2339,12 +2481,21 @@ begin
          if ExportOptions.NumbTabInPlainText <> '' then begin
             STab:= RTFAux.FindText(#9, SS, 5, []);
             if (STab >= 0) then begin
-               RTFAux.SetSelection(STab, STab+1, false);
-               RTFAux.SelText := ExportOptions.NumbTabInPlainText;
+               if (ExportOptions.TargetFormat = xfOPML) and (p > 0) then begin
+                   NumbStr:= Copy(RTFAux.Lines[L], 1, STab-SS);
+                   RTFAux.SetSelection(SS, STab+1, false);
+                   RTFAux.SelText := '';
+                   RTFAux.SelStart:= SS + p;
+                   RTFAux.SelText := NumbStr + ExportOptions.NumbTabInPlainText;
+               end
+               else begin
+                  RTFAux.SetSelection(STab, STab+1, false);
+                  RTFAux.SelText := ExportOptions.NumbTabInPlainText;
+               end;
             end;
          end;
 
-         if LIndent > 0 then begin
+         if (LIndent > 0) and (ExportOptions.TargetFormat = xfPlainText) then begin
             RTFAux.SelStart:= SS;
             RTFAux.SelText := StringIndent;
          end;

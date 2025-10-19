@@ -88,10 +88,16 @@ function PosFirstNonAlphaNumeric(const S: string): integer;
 function ConvertHTMLAsciiCharacters(const S: string): string;
 function DecodeURLWebUTF8Characters(const S: string): string;
 
+function EscapeXMLspecialCharacters(const S: string): string;
+
 const
   WordDelimiters = [#9, #10, #13, #32];
   UTF16_LE_BOM = AnsiString(#$FF#$FE);
   UTF16_BE_BOM = AnsiString(#$FE#$FF);
+
+const
+  CharsXML: array[0..3] of Char = ('&','<','>','"');
+  EscapeCharsXML: array[0..3] of String = ('&amp;','&lt;','&gt;','&quot;');
 
 
 function GetWordCount( const t : string ) : longint;
@@ -1042,6 +1048,18 @@ begin
     Result:= S;
   end;
 
+end;
+
+
+function EscapeXMLspecialCharacters(const S: string): string;
+var
+  i: integer;
+begin
+  if S='' then exit;
+
+  Result:= S;
+  for i:= 0 to High(CharsXML) do
+     Result:= StringReplace(Result, CharsXML[i], EscapeCharsXML[i],   [rfReplaceAll]);
 end;
 
 

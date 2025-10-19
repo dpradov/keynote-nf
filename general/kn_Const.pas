@@ -468,7 +468,8 @@ type
     xfPlainText, xfRTF, xfHTML,
     xfKeyNote,
     xfTreePad,
-    xfPrinter
+    xfPrinter,
+    xfOPML
   );
 
 type
@@ -1096,6 +1097,7 @@ begin
   EXPORT_FORMAT_NAMES[xfKeyNote]:=   GetRS(sINFExptFrmt3);
   EXPORT_FORMAT_NAMES[xfTreePad]:=   'TreePad';
   EXPORT_FORMAT_NAMES[xfPrinter]:=   GetRS(sINFExptFrmt4);
+  EXPORT_FORMAT_NAMES[xfOPML]:=   'OPML';
 
   NODE_ICON_KINDS[niNone]:=       GetRS(sINFIconKind1);
   NODE_ICON_KINDS[niStandard]:=   GetRS(sINFIconKind2);

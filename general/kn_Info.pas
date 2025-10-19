@@ -69,6 +69,7 @@ const
   ext_CNV        = '.cnv'; // code page conversion table
   ext_Shortcut   = '.lnk'; // Windows shortcuts
   ext_LAN        = '.lan'; // Languages available
+  ext_OPML       = '.opml';
 
   KeyboardFileName = 'keyboard.ini'; // custom keyboard config
   ToolbarFileName  = 'toolbar.ini'; // custom toolbar config
@@ -115,6 +116,7 @@ const
 
   FILTER_HJTFILES    = 'TreePad files (*' + ext_TreePad + ')|*' + ext_TreePad;
   FILTER_HTMLFILES   = 'HTML files (*' + ext_html + ')|*' + ext_html;
+  FILTER_OPMLFILES   = 'OPML files (*' + ext_opml + ')|*' + ext_opml;
   FILTER_PROGRAMS    = 'Programs (*.exe;*.com)|*.exe;*.com;*.bat';
   FILTER_NOTEFILES   = 'Keynote files (*' + ext_KeyNote + ')|*' + ext_KeyNote + ';*' + ext_Encrypted;
 {$IFDEF WITH_DART}
