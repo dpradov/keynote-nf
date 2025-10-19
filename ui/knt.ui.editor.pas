@@ -323,7 +323,7 @@ type
   function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit; ConsiderAlsoLinkedStyle: boolean = False): TInsideOrPartialSelection;
 
   procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
-  function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false): integer;
+  function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false; KeepVisibleText: boolean = false): integer;
   function IsTaggedFolded(pI, pF: integer; TextPlain: string): boolean;
   procedure RemoveTags(Editor: TRxRichEdit);
 
@@ -3220,7 +3220,7 @@ begin
       end;
 end;
 
-function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false): integer;
+function RemoveFoldedBlock (Editor: TRxRichEdit; TxtPlain: String; SS: integer; OnlyIfTaggedFolded: boolean = false; KeepVisibleText: boolean = false): integer;
 var
   pI, pF: integer;
   i, L: integer;
@@ -3236,7 +3236,10 @@ begin
             inc(pF);
 
          SetSelection(pI, pF, false);
-         SelText:= '';
+         if KeepVisibleText then
+            SelText:= SelVisibleText
+         else
+            SelText:= '';
          exit(SS);
       end
       else

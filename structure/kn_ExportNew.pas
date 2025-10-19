@@ -222,7 +222,7 @@ type
 
     procedure RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
     procedure ExpandFoldedText(RTF : TAuxRichEdit);
-    procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean);
+    procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
   end;
 
 
@@ -2272,6 +2272,9 @@ var
 begin
 
   case cbFoldedText.ItemIndex of
+     0: if ExportOptions.TargetFormat in [xfPlainText, xfOPML, xfHTML] then                // 0: Keep unchanged
+           RemoveFoldedText(RTF, false, true);   // Remove all, but keep visible text
+
      1: ExpandFoldedText(RTF);            // Unfold
      2: RemoveFoldedText(RTF, true);      // Remove "tagged"
      3: RemoveFoldedText(RTF, false);     // Remove all
@@ -2986,7 +2989,7 @@ begin
 end;
 
 
-procedure TForm_ExportNew.RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean);
+procedure TForm_ExportNew.RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
 var
   TxtPlain: string;
   SS: integer;
@@ -2996,7 +2999,7 @@ begin
      TxtPlain:= RTF.TextPlain;
      SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
      if SS > 0 then
-        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS, OnlyIfTaggedFolded);
+        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS, OnlyIfTaggedFolded, KeepVisibleText);
   until SS = 0;
 end;
 
