@@ -1568,7 +1568,7 @@ begin
       writeFloat( section, EditorOptionsIniStr.BulletSepFactor, EditorOptions.BulletSepFactor);
 
       section := ClipOptionsIniStr.Section;
-      writestring( section, ClipOptionsIniStr.WCDivider, ClipOptions.WCDivider );
+      writestring( section, ClipOptionsIniStr.WCDivider, '"' + ClipOptions.WCDivider + '"' );
 
       writebool( section, ClipOptionsIniStr.URLOnly, ClipOptions.URLOnly );
       writeinteger( section, ClipOptionsIniStr.MaxSize, ClipOptions.MaxSize );
@@ -1583,7 +1583,7 @@ begin
       writebool( section, ClipOptionsIniStr.SwitchIcon, ClipOptions.SwitchIcon );
       writebool( section, ClipOptionsIniStr.TestDupClips, ClipOptions.TestDupClips );
       writebool( section, ClipOptionsIniStr.TreeClipConfirm, ClipOptions.TreeClipConfirm );
-      writestring( section, ClipOptionsIniStr.Divider, ClipOptions.Divider );
+      writestring( section, ClipOptionsIniStr.Divider, '"' + ClipOptions.Divider + '"');
       writebool( section, ClipOptionsIniStr.IgnoreSelf, ClipOptions.IgnoreSelf );
       writebool( section, ClipOptionsIniStr.InsertSourceURL, ClipOptions.InsertSourceURL );
 
