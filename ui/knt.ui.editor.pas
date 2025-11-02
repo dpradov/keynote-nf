@@ -6472,76 +6472,102 @@ procedure TKntRichEdit.CompressWhiteSpace;
 const
   WhiteSpace : set of AnsiChar = [#9, #32];
 var
-  WasWhite : boolean;
-  i, l : integer;
-  s : string;
+  TxtPlain, S, RTF: string;
+  SSBak, SL: integer;
+  pE, p, i: integer;
+  RTFAux : TAuxRichEdit;
+  Plain, KeepEndCR, Modif: boolean;
+
 
 begin
   if CheckReadOnly then exit;
   if ( Lines.Count < 1 ) then exit;
 
-  if ( SelLength = 0 ) then begin
+  SL:= SelLength;
+  if ( SL = 0 ) then begin
      if ( App.DoMessageBox(GetRS(sEdt15), mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then
          exit;
   end;
 
-  BeginUpdate;
+
   Screen.Cursor := crHourGlass;
-  WasWhite := false;
+  RTFAux:= CreateAuxRichEdit;
 
   try
-    if ( SelLength = 0 ) then begin
+     Plain:= PlainText;
+     SSBak:= SelStart;
+     if (SL <> 0) then begin
+        if Plain then
+           RTF:= SelText
+        else begin
+           RTF:= RtfSelText;
+           S:= SelText;
+           KeepEndCR:= (S[Length(S)] = #13);
+        end;
+     end
+     else begin
+        if Plain then
+           RTF:= Text
+        else
+           RTF:= RtfText;
+        SSBak:= 0;
+        KeepEndCR:= False;
+     end;
 
-       for l := 0 to Lines.Count-1 do begin
-         if (Lines[l] = '') then continue;
 
-         WasWhite := false;
-         i := 1;
-         s := Lines[l];
+     with RTFAux do begin
+        BeginUpdate;
 
-         while ( i <= length( s )) do begin
-            if ( AnsiChar(s[i]) in WhiteSpace ) then begin
-               if WasWhite then
-                  delete( s, i, 1 )
-               else
-                  inc(i);
-               WasWhite := true;
+        if Plain then
+           Text:= RTF
+        else
+           RtfText:= RTF;
+        TxtPlain:= TextPlain;
+        pE:= Length(TxtPlain);
+
+        p:= 0;
+        i:= 0;
+        Modif:= False;
+        while (i < pE) do begin
+            inc(i);
+            if (i > 1) and (AnsiChar(TxtPlain[i]) in WhiteSpace) and (AnsiChar(TxtPlain[i-1]) in WhiteSpace) then begin
+                SetSelection(p, p+1, False);
+                if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
+                   SelText:= '';
+                   Modif:= True;
+                end;
             end
-            else begin
-               WasWhite := false;
-               inc(i);
-            end;
-         end;
-         Lines[l] := s;
-         HideKNTHiddenMarks(true);
-       end;
-       SelStart := 0;
+            else
+               inc(p);
+        end;
+     end;
 
-    end
-    else begin
-       s := SelText;
-       i := 1;
-       while ( i <= length( s )) do begin
-          if ( AnsiChar(s[i]) in WhiteSpace ) then begin
-             if WasWhite then
-                delete( s, i, 1 )
-             else
-                inc(i);
-             WasWhite := true;
-          end
-          else begin
-             WasWhite := false;
-             inc(i);
-          end;
-       end;
-       SelText := s;
-       HideKNTHiddenMarks(true);
-       SelLength := 0;
-    end;
+     if Modif then begin
+        BeginUpdate;
+        try
+           if (SL = 0) then
+              SelectAll;
+
+           if Plain then
+              SelText:= RTFAux.Text
+           else begin
+              RTF:= RTFAux.RtfText;
+              if not KeepEndCR then
+                 delete(RTF, Length(RTF) - Length('\par'+#$D#$A+'}'+#$D#$A), Length('\par'));
+              RtfSelText:= RTF;
+           end;
+           SelStart:= SSBak;
+           SelLength := 0;
+
+        finally
+          EndUpdate;
+        end;
+
+     end;
 
 
   finally
-     EndUpdate;
+     RTFAux.Free;
      Screen.Cursor := crDefault;
      ActiveEditor.Change;
   end;
