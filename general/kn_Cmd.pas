@@ -112,7 +112,11 @@ type
     ecToUpperCase,
     ecUnderline,
     ecUndo,
-    ecWordWrap
+    ecWordWrap,
+    ecTrimLeft,
+    ecTrimRight,
+    ecTrimBoth,
+    ecComprWhiteSpace
   );
 
 const
@@ -200,7 +204,11 @@ const
     'Uppercase',
     'Underline',
     'Undo',
-    'Word Wrap'
+    'Word Wrap',
+    'Trim Left',
+    'Trim Right',
+    'Trim Both',
+    'Compress White Space'
   );
 
 type
@@ -254,7 +262,9 @@ const
     ecSpaceBeforeInc, ecSpaceBeforeDec,
     ecSpaceAfterInc, ecSpaceAfterDec,
     ecSpace1, ecSpace15, ecSpace2,
-    ecReverseText, ecROT13, ecNoHighlight
+    ecReverseText, ecROT13, ecNoHighlight,
+    ecTrimLeft, ecTrimRight, ecTrimBoth,
+    ecComprWhiteSpace
   ];
 
 const
@@ -352,7 +362,11 @@ const
     ecToUpperCase,
     ecUnderline,
     ecUndo,
-    ecWordWrap
+    ecWordWrap,
+    ecTrimLeft,
+    ecTrimRight,
+    ecTrimBoth,
+    ecComprWhiteSpace
   ];
 
 const
@@ -453,7 +467,11 @@ const
     'uppercase',
     'underline',
     'undo',
-    'wordwrap'
+    'wordwrap',
+    'trimleft',
+    'trimright',
+    'trim',
+    'compresswspace'
   );
 
 

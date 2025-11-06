@@ -4971,15 +4971,26 @@ end;
 
 
 procedure TForm_Main.MMEditTrimLeftClick(Sender: TObject);
+var
+  aCmd : TEditCmd;
 begin
-  if (sender is TMenuItem) and App.CheckActiveEditor then
-     ActiveEditor.TrimBlanks((Sender as TMenuItem).Tag );
+  if (sender is TMenuItem) and App.CheckActiveEditor then begin
+      case (Sender as TMenuItem).Tag of
+        ITEM_TAG_TRIMLEFT :
+            aCmd:= ecTrimLeft;
+        ITEM_TAG_TRIMRIGHT :
+            aCmd:= ecTrimRight;
+        ITEM_TAG_TRIMBOTH :
+           aCmd:= ecTrimBoth;
+      end;
+
+     PerformCmd( aCmd );
+  end;
 end;
 
 procedure TForm_Main.MMEditCompressClick(Sender: TObject);
 begin
-  if App.CheckActiveEditor then
-     ActiveEditor.CompressWhiteSpace;
+  PerformCmd( ecComprWhiteSpace );
 end;
 
 procedure TForm_Main.MMEditInvertCaseClick(Sender: TObject);

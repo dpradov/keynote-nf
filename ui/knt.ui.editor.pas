@@ -41,6 +41,7 @@ uses
    VirtualTrees, VirtualTrees.Types, VirtualTrees.BaseTree, VirtualTrees.BaseAncestorVCL, VirtualTrees.AncestorVCL,
    kn_Info,
    kn_Const,
+   kn_Cmd,
    knt.model.note,
    knt.ui.Selector
 ;
@@ -252,8 +253,8 @@ type
     procedure RomanToArabic;
 
     procedure MatchBracket;
-    procedure TrimBlanks( const TrimWhat : integer );
-    procedure CompressWhiteSpace;
+
+    procedure PerformCmdUsingAuxEditor(aCmd : TEditCmd);     // TrimBlanks, CompressWhiteSpace
 
     procedure EvaluateExpression;
 
@@ -374,7 +375,6 @@ uses
    kn_MacroMng,
    kn_NoteFileMng,
    kn_KntFolder,
-   kn_Cmd,
    kn_StyleObj,
    kn_CharsNew,
    kn_Glossary,
@@ -6393,90 +6393,19 @@ begin
 end; // MatchBracket
 
 
-procedure TKntRichEdit.TrimBlanks( const TrimWhat : integer );
-var
-  i : integer;
-  tempList : TStringList;
-  s: string;
-  wholeNote: boolean;
 
-  function TrimString(const str: string): string;
-  begin
-      case TrimWhat of
-        ITEM_TAG_TRIMLEFT :
-            Result := trimLeft(str);
-        ITEM_TAG_TRIMRIGHT :
-            Result := trimRight(str);
-        ITEM_TAG_TRIMBOTH :
-           Result := trim(str);
-      end;
-  end;
+// TrimBlanks, CompressWhiteSpace
 
-
-begin
-  if CheckReadOnly then exit;
-
-
-  if ( Lines.Count < 1 ) then exit;
-
-  wholeNote:= false;
-  if ( SelLength = 0 ) then begin
-    wholeNote:= true;
-    if App.DoMessageBox(GetRS(sEdt14), mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes then exit;
-  end;
-
-  BeginUpdate;
-  Screen.Cursor := crHourGlass;
-
-  try
-      if wholeNote then
-         s:= GetTextRange(0, TextLength)
-      else
-         s := SelText;
-
-      if Length(s) = 0 then Exit;
-
-      if Pos(#13, s, 1) = 0 then
-         s:= TrimString(s)
-
-      else begin
-         tempList := TStringList.Create;
-         try
-            tempList.Text := s;
-            for i := 0 to tempList.Count-1 do
-               tempList[i]:= TrimString(tempList[i]);
-            s:= tempList.Text;
-         finally
-            tempList.Free;
-         end;
-      end;
-
-      if wholeNote then
-         Text := s
-      else
-         SelText := s;
-
-      HideKNTHiddenMarks(true);
-
-  finally
-    EndUpdate;
-    Screen.Cursor := crDefault;
-    Change;
-  end;
-
-
-end; // TrimBlanks
-
-
-procedure TKntRichEdit.CompressWhiteSpace;
+procedure TKntRichEdit.PerformCmdUsingAuxEditor(aCmd : TEditCmd);
 const
   WhiteSpace : set of AnsiChar = [#9, #32];
 var
   TxtPlain, S, RTF: string;
   SSBak, SL: integer;
-  pE, p, i: integer;
   RTFAux : TAuxRichEdit;
   Plain, KeepEndCR, Modif: boolean;
+  pE, p, i: integer;
+  pLastCR, pCR, Offset: integer;
 
 
 begin
@@ -6484,8 +6413,15 @@ begin
   if ( Lines.Count < 1 ) then exit;
 
   SL:= SelLength;
-  if ( SL = 0 ) then begin
-     if ( App.DoMessageBox(GetRS(sEdt15), mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then
+  if ( SL = 0 ) and not IsRunningMacro then begin
+     case aCmd of
+        ecTrimLeft, ecTrimRight, ecTrimBoth:
+           S:= GetRS(sEdt14);
+
+        ecComprWhiteSpace:
+           S:= GetRS(sEdt15);
+     end;
+     if ( App.DoMessageBox(S, mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then
          exit;
   end;
 
@@ -6496,13 +6432,15 @@ begin
   try
      Plain:= PlainText;
      SSBak:= SelStart;
+     KeepEndCR:= False;
      if (SL <> 0) then begin
         if Plain then
            RTF:= SelText
         else begin
            RTF:= RtfSelText;
            S:= SelText;
-           KeepEndCR:= (S[Length(S)] = #13);
+           if (SSBak + SL) <= TextLength then
+              KeepEndCR:= (S[Length(S)] = #13);
         end;
      end
      else begin
@@ -6511,9 +6449,9 @@ begin
         else
            RTF:= RtfText;
         SSBak:= 0;
-        KeepEndCR:= False;
      end;
 
+     Modif:= False;
 
      with RTFAux do begin
         BeginUpdate;
@@ -6525,22 +6463,84 @@ begin
         TxtPlain:= TextPlain;
         pE:= Length(TxtPlain);
 
-        p:= 0;
-        i:= 0;
-        Modif:= False;
-        while (i < pE) do begin
-            inc(i);
-            if (i > 1) and (AnsiChar(TxtPlain[i]) in WhiteSpace) and (AnsiChar(TxtPlain[i-1]) in WhiteSpace) then begin
-                SetSelection(p, p+1, False);
-                if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
-                   SelText:= '';
-                   Modif:= True;
-                end;
-            end
-            else
-               inc(p);
+
+        case aCmd of
+            ecTrimLeft, ecTrimRight, ecTrimBoth: begin
+               pLastCR:= 0;
+               Offset:= 0;
+               repeat
+                   pCR:= Pos(#13, TxtPlain, pLastCR + 1);
+                   if aCmd in [ecTrimLeft, ecTrimBoth] then begin
+                       pE:= pCR;
+                       if pCR = 0 then
+                          pE:= Length(TxtPlain);
+                       i:= pLastCR;
+                       p:= i - Offset;
+                       while True do begin
+                           inc(i);
+                           if (i < pE) and (AnsiChar(TxtPlain[i]) in WhiteSpace) then begin
+                               SetSelection(p, p+1, False);
+                               if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
+                                  SelText:= '';
+                                  inc(Offset);
+                               end
+                               else
+                                  break;
+                           end
+                           else
+                              break;
+                       end;
+                   end;
+                   if aCmd in [ecTrimRight, ecTrimBoth] then begin
+                       pE:= pCR - 1;
+                       if pCR = 0 then
+                          pE:= Length(TxtPlain);
+                       i:= pE;
+                       p:= i - Offset -1;
+                       while True do begin
+                           if (i > pLastCR) and (AnsiChar(TxtPlain[i]) in WhiteSpace) then begin
+                               SetSelection(p, p+1, False);
+                               if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
+                                  SelText:= '';
+                                  dec(p);
+                                  dec(i);
+                                  inc(Offset);
+                               end
+                               else
+                                  break;
+                           end
+                           else
+                              break;
+                       end;
+                   end;
+                   pLastCR:= pCR;
+               until pCR = 0;
+
+               if Offset > 0 then
+                  Modif:= True;
+            end;
+
+            ecComprWhiteSpace: begin
+               p:= 0;
+               i:= 0;
+               while (i < pE) do begin
+                   inc(i);
+                   if (i > 1) and (AnsiChar(TxtPlain[i]) in WhiteSpace) and (AnsiChar(TxtPlain[i-1]) in WhiteSpace) then begin
+                       SetSelection(p, p+1, False);
+                       if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
+                          SelText:= '';
+                          Modif:= True;
+                       end;
+                   end
+                   else
+                      inc(p);
+               end;
+
+            end;
         end;
+
      end;
+
 
      if Modif then begin
         BeginUpdate;
@@ -6572,7 +6572,8 @@ begin
      ActiveEditor.Change;
   end;
 
-end; // CompressWhiteSpace
+end;   // PerformCmdUsingAuxEditor
+
 
 
 //---------------------------------------------------

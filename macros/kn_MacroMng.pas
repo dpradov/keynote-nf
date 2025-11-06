@@ -2215,6 +2215,10 @@ begin
             else
               ErrNoTextSelected:= True;
 
+          ecTrimLeft, ecTrimRight, ecTrimBoth, ecComprWhiteSpace:
+             PerformCmdUsingAuxEditor(aCmd);
+
+
           ecReverseText : begin
             if ( SelLength > 0 ) then begin
               txt := SelText;
