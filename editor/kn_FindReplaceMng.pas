@@ -2403,7 +2403,7 @@ type
                 P[NextTextIntervalToConsider.PosF] := CharBAK;
              end
              else
-                AddLocation(False, lsNormal, TextToFind, NextTextIntervalToConsider.PosI -1, nil, -1, NextTextIntervalToConsider.PosF -1);
+                AddLocation(False, lsNormal, TextToFind, NextTextIntervalToConsider.PosI - 1, nil, -1, NextTextIntervalToConsider.PosF);
 
           until false;
 

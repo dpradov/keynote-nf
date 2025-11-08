@@ -2432,6 +2432,7 @@ begin
     end;
 
     if (IntroducingTagsState = itNoTags) and (FRestoreFocusInEditor = 0) and (ActiveEditor <> nil) and ((ActiveControl = ActiveEditor) or ActiveEditor.Focused)
+       and not ExportingFormVisible
        and (GetAsyncKeyState(VK_LEFT) = 0) and (GetAsyncKeyState(VK_RIGHT) = 0)
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;

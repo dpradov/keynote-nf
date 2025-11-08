@@ -549,9 +549,12 @@ end;
 procedure TForm_ExportNew.FormActivate(Sender: TObject);
 begin
   OnActivate := nil;
+  App.SetTopMost(Handle, True);
+
   App.HideNestedFloatingEditors;
   if FloatingEditorCannotBeSaved then exit;
 
+  ExportingFormVisible:= true;
 
   ReadConfig (ExportOptions, myINIFN, PrinterMode);
   OptionsToForm;
@@ -592,8 +595,10 @@ begin
   if IsBusy then
      CanClose := ConfirmAbort;
 
-  if CanClose then
+  if CanClose then begin
      Button_Cancel.SetFocus;
+     ExportingFormVisible:= false;
+  end;
 end; // CloseQuery
 
 
@@ -1156,6 +1161,7 @@ var
   ExportWholeNoteText: boolean;
   FoldedMode: TSearchFoldedMode;
   L: integer;
+  pFLastExportedFragm, Offset: integer;
 
 
   procedure LoadNodeLevelTemplates;
@@ -1854,27 +1860,38 @@ begin
                              RTFAux.AddText(#13)
 
                           else begin
+                             pFLastExportedFragm:= 0;
+                             Offset:= 0;
                              for i:= 0 to NoteFragments.NumFrag - 1 do begin
-                                RTFAuxFrag.SelStart:=  NoteFragments.Fragments[i].PosI;
-                                RTFAuxFrag.SelLength:= NoteFragments.Fragments[i].PosF - NoteFragments.Fragments[i].PosI + 2;
-                                RTFFrag:= RTFAuxFrag.RtfSelText;
-
-                                RTFwithImages:= '';
-                                if NodeStreamIsRTF then
-                                   RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
-
-                                if RTFwithImages <> '' then
-                                   RTFFrag:= RTFwithImages;
-
-                                if ExportOptions.TargetFormat = xfRTF then
-                                   GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
-
-                                RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
-
-                                L:= RTFAux.TextLength;
-                                if RTFAux.GetTextRange(L-1, L) <> #13 then
-                                   RTFAux.AddText(#13);
+                                if NoteFragments.Fragments[i].PosI > pFLastExportedFragm +1 then begin
+                                   RTFAuxFrag.SelStart:=  pFLastExportedFragm - Offset;
+                                   if i = 0 then
+                                      pFLastExportedFragm:= -1;
+                                   RTFAuxFrag.SelLength:= NoteFragments.Fragments[i].PosI - pFLastExportedFragm -1;
+                                   inc(Offset, RTFAuxFrag.SelLength);
+                                   RTFAuxFrag.SelText:= '';
+                                end;
+                                pFLastExportedFragm:= NoteFragments.Fragments[i].PosF;
                              end;
+                             RTFAuxFrag.SetSelection(0, pFLastExportedFragm - Offset, False);
+
+                             RTFFrag:= RTFAuxFrag.RtfSelText;
+
+                             RTFwithImages:= '';
+                             if NodeStreamIsRTF then
+                                RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
+
+                             if RTFwithImages <> '' then
+                                RTFFrag:= RTFwithImages;
+
+                             if ExportOptions.TargetFormat = xfRTF then
+                                GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
+
+                             RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
+
+                             L:= RTFAux.TextLength;
+                             if RTFAux.GetTextRange(L-1, L) <> #13 then
+                                RTFAux.AddText(#13);
                           end;
                        end;
                     end;

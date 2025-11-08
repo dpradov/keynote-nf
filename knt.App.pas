@@ -229,6 +229,8 @@ var
    IgnoringEditorChanges: boolean;
    FloatingEditorCannotBeSaved: boolean;
 
+   ExportingFormVisible: boolean;
+
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas
    KeyOptions : TKeyOptions; // general program config
@@ -357,6 +359,7 @@ begin
    HandlingTimerTick:= false;
    UpdatingTextPlain:= false;
    fTagsState:= tsPendingUpdate;
+   ExportingFormVisible:= false;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
