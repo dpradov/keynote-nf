@@ -6417,8 +6417,8 @@ begin
   if ( Lines.Count < 1 ) then exit;
 
   SL:= SelLength;
+  S:= '';
   if ( SL = 0 ) and not IsRunningMacro then begin
-     S:= '';
      case aCmd of
         ecTrimLeft, ecTrimRight, ecTrimBoth:
            S:= GetRS(sEdt14);
@@ -6543,16 +6543,49 @@ begin
             end;
 
             ecJoinLines: begin
-                 pCR:= 0;
+               { *2
+                    If the first line contains quoted text of no more than 15 characters, including the quotes,
+                    its content will be used to separate the lines to be joined, instead of the default space.
+                    This allows for use in scenarios such as the following:
+
+                    ", "
+                    11
+                    22
+                    33
+                    ----> 11, 22, 33,
+                    For example to be used in SQLSelects, like:   SELECT ... FROM ... WHERE X IN (11, 22, 33);
+
+                    "', '"
+                    A
+                    B
+                    C
+                    ----> A', 'B', 'C          Then, manually, it is easy --> 'A', 'B', 'C'
+               }
+
+                 S:= ' ';
+                 pCR:= Pos(#13, TxtPlain, 1);
+                 if pCR > 0 then begin
+                    S:= GetTextRange(0, pCR-1);
+                    if (Length(S) <= 15) and (S[1]='"') and (S[Length(S)]='"') then
+                       S:= Copy(S,2,Length(S)-2)
+                    else begin
+                       S:= ' ';
+                       pCR:= 0;
+                    end;
+                 end;
+                 Offset:= 0;
+                 J:= Length(S)-1;
+
                  while True do begin
                     pCR:= Pos(#13, TxtPlain, pCR + 1);
                     if pCR = 0 then break;
-                    SetSelection(pCR-1, pCR, False);
+                    SetSelection(pCR-1 + Offset, pCR + Offset, False);
                     if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
                        SelText:= '';
-                       SelText:= ' ';
+                       SelText:= S;
                        Modif:= True;
                     end;
+                    inc(Offset, J);
                  end;
             end;
 
