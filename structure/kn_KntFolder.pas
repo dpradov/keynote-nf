@@ -1168,10 +1168,10 @@ begin
       NNode.NodeColor :=     InheritFromNNode.NodeColor;
       NNode.NodeBGColor :=   InheritFromNNode.NodeBGColor;
       NNode.EditorBGColor := InheritFromNNode.EditorBGColor;
-      NNode.Note.Entries[0].IsPlainTXT := InheritFromNNode.Note.SelEntry.IsPlainTXT;
-   end
-   else
-      NNode.Note.Entries[0].IsPlainTXT := Self.DefaultPlainText;
+   end;
+
+   if (CopyFromNNode = nil) then
+       NNode.Note.Entries[0].IsPlainTXT := Self.DefaultPlainText;
 
    Result:= NNode;
 end;
