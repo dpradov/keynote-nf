@@ -857,6 +857,7 @@ end;
 procedure UpdateResPanelContents (ChangedVisibility: boolean);
 var
    SS, SL: integer;
+   IsShowingOptions: boolean;
 begin
   // General idea: do not load all resource panel information
   // when KeyNote starts. Instead, load data only when
@@ -885,8 +886,11 @@ begin
 
         if ( Pages_Res.ActivePage = ResTab_Find ) then begin
           // Make sure the labels are interpreted according to this file
-           CheckTagsField(txtTagsIncl, FindTagsIncl);
-           CheckTagsField(txtTagsExcl, FindTagsExcl);
+           IsShowingOptions:= (Ntbk_ResFind.PageIndex = 1);
+           if IsShowingOptions then begin
+              CheckTagsField(txtTagsIncl, FindTagsIncl);
+              CheckTagsField(txtTagsExcl, FindTagsExcl);
+           end;
         end
         else
         if ( Pages_Res.ActivePage = ResTab_RTF ) then begin
