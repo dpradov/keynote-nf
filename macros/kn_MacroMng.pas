@@ -2177,18 +2177,8 @@ begin
               end;
 
           ecSort :
-            if ( SelLength > 1 ) then begin
-               templist := TStringList.Create;
-               try
-                 templist.Sorted := true;
-                 templist.Duplicates := dupAccept;
-                 templist.Text := SelText;
-                 SelText := templist.Text;
-                 HideKNTHiddenMarks(true);
-               finally
-                 templist.Free;
-               end;
-            end
+            if ( SelLength > 1 ) then
+               PerformCmdUsingAuxEditor(aCmd)
             else
               ErrNoTextSelected:= True;
 

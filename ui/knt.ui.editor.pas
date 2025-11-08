@@ -254,7 +254,7 @@ type
 
     procedure MatchBracket;
 
-    procedure PerformCmdUsingAuxEditor(aCmd : TEditCmd);     // TrimBlanks, CompressWhiteSpace
+    procedure PerformCmdUsingAuxEditor(aCmd : TEditCmd);     // TrimBlanks, CompressWhiteSpace, SortLines
 
     procedure EvaluateExpression;
 
@@ -3633,7 +3633,7 @@ end;
 
 function InsideOrPartiallySelectedProtectedBlock (Editor: TKntRichEdit; ConsiderAlsoLinkedStyle: boolean = False): TInsideOrPartialSelection;
 var
-   SS, SL, EndPos: integer;
+   SSBak, SS, SL, EndPos: integer;
    pI, pF: integer;
    NProtectedEdges, TL: integer;
 begin
@@ -3650,7 +3650,8 @@ begin
      end;
 
      NProtectedEdges:= 0;
-     SS:= SelStart;
+     SSBak:= SelStart;
+     SS:= SSBak;
      EndPos:= SS + SL;
      if SL > 0 then begin
         if ConsiderAlsoLinkedStyle and ((SelAttributes.LinkStyle = lsMixed) or ((SelAttributes.LinkStyle = lsLink) and SelAttributes.Hidden)) then
@@ -3673,7 +3674,7 @@ begin
         if (SS > 0) and PositionInFoldedBlock(TextPlain, SS, nil, pI, pF) and (SS > pI) then
            Result:= ipsFolded;
      end;
-     SetSelection(SS, EndPos, False);
+     SetSelection(SSBak, EndPos, False);
   end;
 
 end;
@@ -6394,7 +6395,7 @@ end; // MatchBracket
 
 
 
-// TrimBlanks, CompressWhiteSpace
+// TrimBlanks, CompressWhiteSpace, SortLines
 
 procedure TKntRichEdit.PerformCmdUsingAuxEditor(aCmd : TEditCmd);
 const
@@ -6406,6 +6407,9 @@ var
   Plain, KeepEndCR, Modif: boolean;
   pE, p, i: integer;
   pLastCR, pCR, Offset: integer;
+  Templist : TStringList;
+  j, NewI: integer;
+  AddCR: boolean;
 
 
 begin
@@ -6414,6 +6418,7 @@ begin
 
   SL:= SelLength;
   if ( SL = 0 ) and not IsRunningMacro then begin
+     S:= '';
      case aCmd of
         ecTrimLeft, ecTrimRight, ecTrimBoth:
            S:= GetRS(sEdt14);
@@ -6421,7 +6426,7 @@ begin
         ecComprWhiteSpace:
            S:= GetRS(sEdt15);
      end;
-     if ( App.DoMessageBox(S, mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then
+     if (S <> '') and ( App.DoMessageBox(S, mtConfirmation, [mbYes,mbNo], Def2 ) <> mrYes ) then
          exit;
   end;
 
@@ -6434,14 +6439,13 @@ begin
      SSBak:= SelStart;
      KeepEndCR:= False;
      if (SL <> 0) then begin
+        S:= SelText;
         if Plain then
-           RTF:= SelText
-        else begin
+           RTF:= S
+        else
            RTF:= RtfSelText;
-           S:= SelText;
-           if (SSBak + SL) <= TextLength then
-              KeepEndCR:= (S[Length(S)] = #13);
-        end;
+        if (SSBak + SL) <= TextLength then
+           KeepEndCR:= (S[Length(S)] = #13);
      end
      else begin
         if Plain then
@@ -6530,11 +6534,84 @@ begin
                        if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
                           SelText:= '';
                           Modif:= True;
+                          continue;
                        end;
-                   end
-                   else
-                      inc(p);
+                   end;
+                   inc(p);
                end;
+
+            end;
+
+            ecSort: begin
+              if ( SL > 1 ) then begin
+                 if InsideOrPartiallySelectedProtectedBlock(Self) <> ipsNone then
+                    exit;
+
+                 // *1 Text folded block will be sorted considering the visible extract (ignoring the ➕ character).
+                 //    Its content will not be modified (while it is folded/hidden).
+
+                 Templist := TStringList.Create;
+                 try
+                   Templist.Sorted := False;
+                   Templist.Duplicates := dupAccept;
+                   S:= VisibleText;
+                   S:= StringReplace(S, '➕ ', '', [rfReplaceAll]);     // *1
+                   Templist.Text := S;
+                   for i := 0 to Templist.Count-1 do
+                      Templist.Objects[i]:= TObject(i);
+                   Templist.Sorted := True;
+
+                   for i := 0 to Templist.Count-1 do begin
+                       NewI:= Integer(Templist.Objects[i]);
+                       if i <> NewI then
+                          Modif:= True;
+
+                       p:= 0;
+                       pCR:= 0;
+                       j:= 0;
+                       AddCR:= False;
+                       repeat
+                          pLastCR:= pCR;
+                          p:= Pos(#13, TxtPlain, p + 1);
+                          if p = 0 then begin
+                             p:= pE;
+                             AddCR:= True;
+                          end;
+                          if Plain or AddCR then begin
+                             pCR:= p;
+                             inc(j);
+                          end
+                          else begin
+                             SetSelection(p -1, p, False);
+                             if not SelAttributes.Hidden then begin
+                                pCR:= p;
+                                inc(j);
+                             end;
+                          end;
+                       until AddCR or (j > NewI);
+
+                       SetSelection(pLastCR, pCR, False);
+                       RTFAux.CopyToClipboard;
+                       SelStart:= TextLength;
+                       RTFAux.PasteFromClipboard;
+                       if AddCR then
+                          RTFAux.SelText:= #13;
+                   end;
+
+                   if Modif then begin
+                      SetSelection(0, pE, False);
+                      SelText:= '';
+                      if not Plain or not KeepEndCR then begin
+                         pE:= TextLength;
+                         SetSelection(pE-1, pE, False);
+                         SelText:= '';
+                      end;
+                   end;
+
+                 finally
+                   Templist.Free;
+                 end;
+              end;
 
             end;
         end;
