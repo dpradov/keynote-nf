@@ -2176,7 +2176,7 @@ begin
                 SelText := '';
               end;
 
-          ecSort :
+          ecSort, ecJoinLines :
             if ( SelLength > 1 ) then
                PerformCmdUsingAuxEditor(aCmd)
             else
@@ -2184,26 +2184,6 @@ begin
 
           ecReformat :
             ErrNotImplemented:= True;
-
-          ecJoinLines :
-            if ( SelLength > 1 ) then begin
-              screen.cursor := crHourGlass;
-              try
-                txt := SelText;
-                CharToChar( txt, #13, #32 );
-                p := pos( #32#32, txt );
-                while ( p > 0 ) do begin
-                  delete( txt, p, 1 );
-                  p := pos( #32#32, txt );
-                end;
-                SelText := txt;
-                HideKNTHiddenMarks(true);
-              finally
-                screen.cursor := crDefault;
-              end;
-            end
-            else
-              ErrNoTextSelected:= True;
 
           ecTrimLeft, ecTrimRight, ecTrimBoth, ecComprWhiteSpace:
              PerformCmdUsingAuxEditor(aCmd);

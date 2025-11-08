@@ -254,7 +254,7 @@ type
 
     procedure MatchBracket;
 
-    procedure PerformCmdUsingAuxEditor(aCmd : TEditCmd);     // TrimBlanks, CompressWhiteSpace, SortLines
+    procedure PerformCmdUsingAuxEditor(aCmd : TEditCmd);     // TrimBlanks, CompressWhiteSpace, SortLines, JoinLines
 
     procedure EvaluateExpression;
 
@@ -6395,7 +6395,7 @@ end; // MatchBracket
 
 
 
-// TrimBlanks, CompressWhiteSpace, SortLines
+// TrimBlanks, CompressWhiteSpace, SortLines, JoinLines
 
 procedure TKntRichEdit.PerformCmdUsingAuxEditor(aCmd : TEditCmd);
 const
@@ -6540,6 +6540,20 @@ begin
                    inc(p);
                end;
 
+            end;
+
+            ecJoinLines: begin
+                 pCR:= 0;
+                 while True do begin
+                    pCR:= Pos(#13, TxtPlain, pCR + 1);
+                    if pCR = 0 then break;
+                    SetSelection(pCR-1, pCR, False);
+                    if Plain or not (SelAttributes.Protected or SelAttributes.Hidden) then begin
+                       SelText:= '';
+                       SelText:= ' ';
+                       Modif:= True;
+                    end;
+                 end;
             end;
 
             ecSort: begin
