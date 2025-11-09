@@ -2869,7 +2869,7 @@ end;
 procedure TForm_ExportNew.ChangeFindInclToModeOR;
 begin
    FindTagsIncl:= FindTagsGetModeOR(FindTagsIncl);
-   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, FindTagsIncl, FindTagsIncl_NotRegistered);
+   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, FindTagsIncl, FindTagsIncl_NotRegistered, True);
 end;
 
 procedure TForm_ExportNew.cbTagFindModeChange(Sender: TObject);
@@ -2950,7 +2950,7 @@ procedure TForm_ExportNew.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTa
 begin
    FindTagsExcl:= FindTagsGetModeOR(FindTags);
    FindTagsExcl_NotRegistered:= Trim(FindTagsNotRegistered);
-   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, FindTagsExcl, FindTagsExcl_NotRegistered);
+   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, FindTagsExcl, FindTagsExcl_NotRegistered, True);
 end;
 
 

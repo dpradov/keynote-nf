@@ -2460,14 +2460,28 @@ type
           end;
           if (myFindOptions.FindTagsInclNotReg <> '') then begin
              SplitString(Strs, myFindOptions.FindTagsInclNotReg, ' ', False);
-             j:= Length(FindTags);
-             SetLength(SearchTagsInclInfo, j + Strs.Count);
-             for i:= 0 to Strs.Count - 1 do begin
-                SetLength(SearchTagsInclInfo[i+j].TagsORinfo.TagsInfo, 1);
-                SearchTagsInclInfo[i+j].TagsOR:= nil;
-                SearchTagsInclInfo[i+j].TagsORinfo.TagsInfo[0].TagName:= '#' + Strs[i].ToUpper;
+             if not myFindOptions.TagsModeOR then begin
+                 j:= Length(FindTags);
+                 SetLength(SearchTagsInclInfo, j + Strs.Count);
+                 for i:= 0 to Strs.Count - 1 do begin
+                    SetLength(SearchTagsInclInfo[i+j].TagsORinfo.TagsInfo, 1);
+                    SearchTagsInclInfo[i+j].TagsOR:= nil;
+                    SearchTagsInclInfo[i+j].TagsORinfo.TagsInfo[0].TagName:= '#' + Strs[i].ToUpper;
+                 end;
+             end
+             else begin
+                if Length(FindTags) = 0 then
+                   SetLength(SearchTagsInclInfo, 1);
+                j:= Length(SearchTagsInclInfo[0].TagsORinfo.TagsInfo);
+                SetLength(SearchTagsInclInfo[0].TagsOR, j + Strs.Count);
+                SetLength(SearchTagsInclInfo[0].TagsORinfo.TagsInfo, j + Strs.Count);
+                for i:= 0 to Strs.Count - 1 do begin
+                   SearchTagsInclInfo[0].TagsOR[i+j]:= nil;
+                   SearchTagsInclInfo[0].TagsORinfo.TagsInfo[i+j].TagName:= '#' + Strs[i].ToUpper;
+                end;
              end;
           end;
+
 
           Strs.Clear;
           FindTags:= myFindOptions.FindTagsExcl;

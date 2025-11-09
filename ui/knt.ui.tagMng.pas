@@ -67,7 +67,7 @@ type
     procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod; AllowNotRegTags:boolean);
     procedure EndedTxtTagIntrod(PressedReturn: boolean);
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
-    procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string);
+    procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string; TagsNotRegModeOR: boolean);
 
     function GetSearchedIntroducedTags(txtFindTags: TEdit; var FindTagsNotReg: string): TFindTags;
 
@@ -869,7 +869,7 @@ begin
          Result:= FindTags;
          if Ending then begin
             txtTags.Text:=  ConsideredWords;
-            UpdateTxtFindTagsHint(txtTags, ConsideredWords, FindTags, FindTagsNotReg);
+            UpdateTxtFindTagsHint(txtTags, ConsideredWords, FindTags, FindTagsNotReg, False);
          end;
       end;
 
@@ -902,12 +902,12 @@ begin
 end;
 
 
-procedure TTagMng.UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string);
+procedure TTagMng.UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string; TagsNotRegModeOR: boolean);
 var
   Hint: string;
   i, j: integer;
   TagsOR: TTagsOR;
-  SepOR, SepAND: string;
+  SepOR, SepAND, Sep: string;
   IncludesORs: boolean;
 begin
     IncludesORs:= false;
@@ -932,8 +932,15 @@ begin
          SepAND:= ' & ';
       end;
     end;
-    if FindTagsNotReg <> '' then
-       FindTagsNotReg:= ' +¿' +  Trim(FindTagsNotReg) + '?';
+    if FindTagsNotReg <> '' then begin
+       Sep:= '';
+       if FindTags <> nil then
+         if TagsNotRegModeOR then
+            Sep:= '│'
+         else
+            Sep:= ' & ';
+       FindTagsNotReg:= Sep + '¿' +  Trim(FindTagsNotReg) + '?';
+    end;
     if (IncludesORs or (FindTagsNotReg <> '')) and (ConsideredWords <> '') then
        Hint:= '"' + ConsideredWords + '": ' + #13 + Hint + FindTagsNotReg;
     txtEdit.Hint:= Hint;
