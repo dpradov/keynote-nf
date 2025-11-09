@@ -1760,8 +1760,6 @@ type
 
            TagsInfo:= TagsORInfo.TagsInfo;
 
-           if IgnoreWithoutTagsInText then exit;
-
          { Although .sF will initially capture the end of the scope of a found tag, we can modify that value
            during the interval "sum" operation. Therefore, we will also save the initial scope in .sFtag, which we will not modify there.
            This will allow us to use it to perform subsequent searches for occurrences of that tag, instead of having to search from the
@@ -1918,7 +1916,8 @@ type
 
        procedure IdentifyNextExcludingTextFrag;
        begin
-          IdentifyNextORTextFrag(SearchTagsExclInfo);
+          if not IgnoreWithoutTagsInText then
+             IdentifyNextORTextFrag(SearchTagsExclInfo);
        end;
 
 
@@ -2442,12 +2441,11 @@ type
        begin
           SearchTagsInclInfo:= nil;
           SearchTagsExclInfo.TagsInfo:= nil;
+          IgnoreWithoutTagsInText:= True;
 
           if not SearchTagsInText then exit;
 
-          Strs:= nil;
-          if (myFindOptions.FindTagsInclNotReg <> '') or (myFindOptions.FindTagsExclNotReg <> '') then
-             Strs:= TStringList.Create;
+          Strs:= TStringList.Create;
 
 
           FindTags:= myFindOptions.FindTagsIncl;
@@ -2471,8 +2469,9 @@ type
              end;
           end;
 
+          Strs.Clear;
           FindTags:= myFindOptions.FindTagsExcl;
-          if FindTags <> nil then begin
+          if (FindTags <> nil) then begin
              IgnoreWithoutTagsInText:= False;
              SetLength(SearchTagsExclInfo.TagsInfo, Length(FindTags[0]));
              for i:= 0 to High(FindTags[0]) do
@@ -2488,8 +2487,7 @@ type
           end;
 
 
-          if Strs <> nil then
-             Strs.Free;
+          Strs.Free;
        end;
 
        procedure CleanTagsTextFoundInfo;
@@ -2762,18 +2760,27 @@ begin
                             ConsiderAllTextInNode:= False;    // Fragments that may have the tags to be excluded should be ignored.
                       end;
 
-                      IgnoreWithTagsInText:= (myFindOptions.FindTagsInclNotReg = '');
-                      if ConsiderNode and (myFindOptions.FindTagsIncl <> nil) then begin
+                      IgnoreWithTagsInText:= True;
+                      if ConsiderNode and ((myFindOptions.FindTagsInclNotReg <> '') or (myFindOptions.FindTagsIncl <> nil)) then begin
+                         IgnoreWithTagsInText:= False;
                          ConsiderNode:= myNNode.MatchesTags(myFindOptions.FindTagsIncl, InheritedTags);
-                         if ConsiderNode and (myFindOptions.FindTagsInclNotReg = '') then
-                            IgnoreWithTagsInText:= True       // The condition is met with the metadata. It is sufficient.
-                         else
-                         if SearchTagsInText then begin
-                            ConsiderNode:= True;
-                            ConsiderAllTextInNode:= False;
-                            IgnoreWithTagsInText:= False;     // We will have to try to meet the condition by looking at the metadata
+                         if ConsiderNode and ((myFindOptions.FindTagsInclNotReg = '') or
+                                              (myFindOptions.TagsModeOR and (myFindOptions.FindTagsIncl <> nil)) ) then
+                            IgnoreWithTagsInText:= True       // The WITH condition is met with the metadata. It is sufficient.
+                         else begin
+                            // Unregistered tags cannot be linked to notes. If having an unregistered tag is a requirement,
+                            // it can only be fulfilled through some fragment
+                            ConsiderNode:= False;
+                            if SearchTagsInText then begin
+                               ConsiderNode:= True;
+                               ConsiderAllTextInNode:= False;
+                               IgnoreWithTagsInText:= False;     // We will have to try to meet the condition by looking at the metadata
+                            end
                          end;
                       end;
+
+                      if ConsiderNode and SearchTagsInText and not IgnoreWithoutTagsInText then     // IgnoreWithoutTagsInText is set in PrepareTagsTextFoundInfo
+                         ConsiderAllTextInNode:= False;
 
                    end
                    else begin

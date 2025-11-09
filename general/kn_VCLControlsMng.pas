@@ -885,6 +885,7 @@ begin
         MMToolsMacroRun.Enabled := ResTab_Macro.TabVisible;
 
         if ( Pages_Res.ActivePage = ResTab_Find ) then begin
+           CheckFindTagsRecalc;
           // Make sure the labels are interpreted according to this file
            IsShowingOptions:= (Ntbk_ResFind.PageIndex = 1);
            if IsShowingOptions then begin

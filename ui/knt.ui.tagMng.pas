@@ -69,6 +69,8 @@ type
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
     procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string);
 
+    function GetSearchedIntroducedTags(txtFindTags: TEdit; var FindTagsNotReg: string): TFindTags;
+
     procedure OfferTagSelectorInExport(InExport: boolean);
     procedure CreateTagSelector(Form: TForm);
     procedure FreeTagSelector;
@@ -683,6 +685,23 @@ begin
 
 end;
 
+function TTagMng.GetSearchedIntroducedTags(txtFindTags: TEdit; var FindTagsNotReg: string): TFindTags;
+var
+  txtTagsBAK: TEdit;
+  TagsModeBAK: TTagsMode;
+begin
+    txtTagsBAK:= txtTags;
+    TagsModeBAK:= FTagsMode;
+    try
+      txtTags:= txtFindTags;
+      FTagsMode := tmSearch;
+      Result:= CommitIntroducedTags(True, FindTagsNotReg);
+
+    finally
+      FTagsMode:= TagsModeBAK;
+      txtTags:= txtTagsBAK;
+    end;
+end;
 
 function TTagMng.CommitIntroducedTags(Ending: boolean; var FindTagsNotReg: string): TFindTags;
 var
@@ -824,6 +843,7 @@ begin
             if TagsAssigned[i] = nil then begin
                NTag:= ActiveFile.AddNTag(TagsNames[i], '');
                TagsAssigned[i]:= NTag;
+               Form_Main.ClearFindTags;
             end;
         end;
         App.TagsState := TagsStateBAK;
@@ -833,6 +853,7 @@ begin
         if not NEntry.HaveSameTags(TagsAssigned) then begin
            NEntry.Tags:= TagsAssigned;
            App.NEntryModified(NEntry, FNote, TKntFolder(FFolder));
+           Form_Main.ClearFindTags;
            if TKntFolder(FFolder).TreeUI.ShowUseOfTags then
               Form_Main.RefreshFilterOnTags;
         end;
