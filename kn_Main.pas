@@ -4170,7 +4170,10 @@ begin
 
   try
      PageSetupDlg.Options:= [psoMargins];
-     PageSetupDlg.Execute;
+     PreloadPageSetup (PageSetupDlg);
+
+     if PageSetupDlg.Execute then
+        SavePageSetup (PageSetupDlg);
 
    except
      On E : Exception do
