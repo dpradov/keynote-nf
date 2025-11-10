@@ -1,0 +1,182 @@
+
+Changes in 2.1.3 .01    (10 nov 2025)
+====================
+
+* Fixed: Spaces at the end (or beginning) of the clipboard capture divider are not preserved in the .ini file (#917 #918)
+
+* Fixed: Text formatting is lost after applying "Compress White Space"  (#920)
+
+* Fixed: Text formatting is lost after applying "Trim Left", "Trim Right" or "Trim Both"  (#920)
+
+* Fixed: Text formatting is lost after applying "Sort Lines"  (#920)
+  This command can now be also be used to sort blocks of text with the help of folding:
+  Text folded block will be sorted considering the visible extract (ignoring the ➕ character).
+  The content of the folded text will not be modified (while it is folded/hidden).
+
+* Fixed: Text formatting is lost after applying "Join Lines"  (#920)
+
+* New: commands "Trim Left", "Trim Right", "Trim Both" and "Compress White Space" can also be repeated (Edit | Repeat)
+  or recorded in a Macro
+  >> Note: No confirmation will be requested if these commands are executed while a macro file is running, when no text is
+           selected and so the command will be applied to the entire note.
+
+* New: "Join Lines" can use custom string to join, instead of the default space, allowing (eg.): 'L1', 'L2', ...
+  If the first of the selected lines contains quoted text of no more than 15 characters, including the quotes,
+  its content will be used to separate the lines to be joined, instead of the default space.
+  This allows for use in scenarios such as the following:
+   ", "
+   11
+   22
+   33
+       ----> 11, 22, 33,
+             It can be used, for example in SQL Selects:   SELECT ... FROM ... WHERE X IN (11, 22, 33);
+  
+   "', '"
+   A
+   B
+   C
+      ----> A', 'B', 'C
+	  Then, manually, it is easy --> 'A', 'B', 'C'
+
+
+- - - -
+
+* Fixed: It is now possible to switch between 'Plain Text' and RTF in empty notes
+
+- - - - 
+
+* Find All: Fixed searches using unregistered tags
+
+* Find All: Fixed: Changes in tags (global or applied to a note) while Find All had set WITH or WITHOUT tag criteria
+
+* Find All: Fixed: Consider ALL/ANY mode when using non registered tags from WITH tag criteria
+
+* Fixed: Possible exception in certain (rare) situation when focusing on Find tab in the Resource Panel
+
+- - - -
+
+* Export/Print: The last settings used in current session, page orientation (portrait or landscape) and page margins, are now saved to .ini file (in profile)
+
+* File|Export: Improvements when using 'Consider extracts from notes'
+
+ The removal of fragments to be excluded has been improved, taking into account the With and Without options (together with 'Consider extracts from notes'),
+ so that they do not alter line breaks where they are located, and therefore any bullet points.
+ Now, if we have auxiliary tagged text inside the bullet list, we can exclude them in the export, while maintaining the bullet style:
+
+  * Requirement 1 to be validated from user #Tec: Internal or technical info that we don't waht to show to the final user##
+  * Requirement 2
+  * Requirement 3
+
+ With [Without: Tec] the export will be:
+
+  * Requirement 1 to be validated from user
+  * Requirement 2
+  * Requirement 3
+
+ Note: "Remove" check is only needed, optionally, to remove the tags from the fragments considered (not excluded) after processing.
+ The fragments identified and excluded because of the "Without" field will be removed in the processing, including its tag. 
+ So, in the following text
+   <<
+   Line 1
+   Line 2 #Tec: Bla,bla ##Final
+   Line 3
+   >>
+
+ If we indicate [Without: Tec] the exported text will be:
+   <<
+   Line 1
+   Line 2 Final
+   Line 3
+   >>
+
+  alhough "Remove" is unchecked.
+
+* Fixed possible exception if active editor was showing the tag selector when opening File|Export and entering in With or Without fields
+
+
+- - - - -
+
+* Fixed - IMPORTANT!: It was possible for new nodes to be created with an incorrect RTF/Plain state
+
+  If the option "Inherit properties from active node" (in General Settings | Tree Panel) is checked, the new nodes were created with the same
+  RTF/Plain state as the inherited node, independently of the "Default plain text only" option of the folder.
+  It shouldn't, as it is confused.
+  This behaviour, now fixed, it is not dangerous, only confusing. But there is other situation that it could lead to lose data, and so it is IMPORTANT:
+
+  When a node is created copying from another node, using Copy (or Cut) and Paste or drag and drop, and the source node is RTF
+  and "Default plain text only" is True in the target folder (or node is Plain and the option if False), then the content of the node will be
+  incorrectly saved.
+  Depending on it is created as RTF or Plain, and on it is the last created node before saving the file, it can cause the whole first folder to be
+  hidden (*) or only the next created node (after the problematic node) to be hidden (*)
+
+  Depending on whether it was created as RTF or plain text, and whether it was the last node created before saving the file, it could cause the entire
+  first folder to be hidden (*) or only the next node created (after the problematic node) to be hidden (*)
+
+  (*) The saved .knt still contains all the information hidden and it is easy to recover, BUT if the file is saved again (while the node or folder is hidden),
+  then that information will be lost, and it will necessary to use a backup to restore that information.
+
+  To correct this problem if you were affected you only have to remove an incorrect semicolon (if .knt is saved in a native format --not compressed nor encrypted):
+
+  A node will be hidden in this situation:
+  
+%*
+GI=25
+ND=IT IS RTF!!...
+LM=0811251147
+%.
+DC=0811251147
+NS=0002
+%>
+;{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang3082{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
+;{\*\generator Riched20 10.0.22621}\viewkind4\uc1
+;\pard\f0\fs20 Hello WORLD!\par
+;}
+;%*                              <--- Remove ";"
+GI=4
+ND=Node HIDDEN...°
+
+  The first whole folder will be hidden in this situation:
+
+%*
+GI=25
+ND=IT IS RTF!!...
+LM=0811251147
+%.
+DC=0811251147
+NS=0002
+%>
+;{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang3082{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
+;{\*\generator Riched20 10.0.22621}\viewkind4\uc1
+;\pard\f0\fs20 Hello WORLD!\par
+;}
+;%+                               <--- Remove ";"
+NN=Folder HIDDEN
+
+  If the node was Plain copied to a RTF default folder, it could cause no problem depending on the content of the note.
+  If nothing incorrect happened then, when the node is modified it will correctly be saved to a normal RTF node.
+  But if it was causing problems, then it is safer to save the content of the note to other file, and remove the content in the node:
+
+%*
+GI=28
+ND=IT'S PLAIN!
+LM=0811251255
+%.
+DC=0811251255
+%:
+Hello World
+Line 2
+%+
+NN=Example
+
+  ===>
+
+%*
+GI=28
+ND=IT'S PLAIN! - TO BE REMOVED
+LM=0811251255
+%.
+DC=0811251255
+%:
+%+
+NN=Example
+
