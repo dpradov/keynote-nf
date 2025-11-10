@@ -1953,16 +1953,16 @@ begin
       try
          NEntry:= NNode.Note.Entries[0];         // %%%%
          Stream:= nEntry.Stream;
-         if Stream.Size = 0 then exit;
 
-         if TargetFormat = sfPlainText then begin
-            ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
-            if Length(ImagesIDs) > 0 then
-               ImageMng.RemoveImagesReferences (ImagesIDs);
+         if Stream.Size <> 0 then begin
+            if TargetFormat = sfPlainText then begin
+               ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+               if Length(ImagesIDs) > 0 then
+                  ImageMng.RemoveImagesReferences (ImagesIDs);
+            end;
+            Stream.Position:= 0;
+            ConvertStreamContent(Stream, SourceFormat, TargetFormat, RTFAux, TKntFolder(NoteUI.GetFolder));
          end;
-
-         Stream.Position:= 0;
-         ConvertStreamContent(Stream, SourceFormat, TargetFormat, RTFAux, TKntFolder(NoteUI.GetFolder));
 
          if TargetFormat = sfPlainText then
             NoteUI.ResetImagesReferenceCount;

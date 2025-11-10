@@ -1350,6 +1350,7 @@ type
     procedure TagsMExportClick(Sender: TObject);
     procedure TagsMImportClick(Sender: TObject);
     procedure RTFMExpandClick(Sender: TObject);
+    procedure Pages_ResEnter(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1501,6 +1502,8 @@ type
     procedure CheckFilterOnTags(RecoveringTagsSituation: boolean);
     procedure RefreshFilterOnTags;
 
+    procedure ClearFindTags;
+    procedure CheckFindTagsRecalc;
     procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
     procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
     procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
@@ -2432,6 +2435,7 @@ begin
     end;
 
     if (IntroducingTagsState = itNoTags) and (FRestoreFocusInEditor = 0) and (ActiveEditor <> nil) and ((ActiveControl = ActiveEditor) or ActiveEditor.Focused)
+       and not ExportingFormVisible
        and (GetAsyncKeyState(VK_LEFT) = 0) and (GetAsyncKeyState(VK_RIGHT) = 0)
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;
@@ -4166,7 +4170,10 @@ begin
 
   try
      PageSetupDlg.Options:= [psoMargins];
-     PageSetupDlg.Execute;
+     PreloadPageSetup (PageSetupDlg);
+
+     if PageSetupDlg.Execute then
+        SavePageSetup (PageSetupDlg);
 
    except
      On E : Exception do
@@ -4971,15 +4978,26 @@ end;
 
 
 procedure TForm_Main.MMEditTrimLeftClick(Sender: TObject);
+var
+  aCmd : TEditCmd;
 begin
-  if (sender is TMenuItem) and App.CheckActiveEditor then
-     ActiveEditor.TrimBlanks((Sender as TMenuItem).Tag );
+  if (sender is TMenuItem) and App.CheckActiveEditor then begin
+      case (Sender as TMenuItem).Tag of
+        ITEM_TAG_TRIMLEFT :
+            aCmd:= ecTrimLeft;
+        ITEM_TAG_TRIMRIGHT :
+            aCmd:= ecTrimRight;
+        ITEM_TAG_TRIMBOTH :
+           aCmd:= ecTrimBoth;
+      end;
+
+     PerformCmd( aCmd );
+  end;
 end;
 
 procedure TForm_Main.MMEditCompressClick(Sender: TObject);
 begin
-  if App.CheckActiveEditor then
-     ActiveEditor.CompressWhiteSpace;
+  PerformCmd( ecComprWhiteSpace );
 end;
 
 procedure TForm_Main.MMEditInvertCaseClick(Sender: TObject);
@@ -5552,6 +5570,14 @@ begin
     FocusResourcePanel;
 end; // Pages_ResChange
 
+
+procedure TForm_Main.Pages_ResEnter(Sender: TObject);
+begin
+  if ( Pages_Res.ActivePage = ResTab_Find ) then
+      CheckFindTagsRecalc;
+end;
+
+
 procedure TForm_Main.PLM_ReloadPluginsClick(Sender: TObject);
 begin
   ListBox_ResPlugins.Items.Clear;
@@ -5807,6 +5833,7 @@ begin
       TagName := trim(TagName);
       if TagMng.IsValidTagName(TagName) then begin
          ActiveFile.AddNTag(TagName, '');
+         ClearFindTags;
          for Node in TVTags.Nodes() do begin
             NTag:= ActiveFile.NoteTagsSorted [Node.Index];
             if NTag.Name = TagName then begin
@@ -5879,6 +5906,8 @@ begin
      ActiveFile.DeleteNTagsReferences(SelectedTags, (RemoveRefInNotesText=mrYes));
      for i := High(SelectedTags) downto 0 do
         ActiveFile.DeleteNTag(SelectedTags[i]);
+
+     ClearFindTags;
 
   finally
      App.TagsState := tsVisible;
@@ -5995,6 +6024,7 @@ begin
         ProcessNode(Node);
   end;
 
+  ClearFindTags;
   ActiveFolder.NoteUI.RefreshTags;
 end;
 
@@ -6244,7 +6274,8 @@ begin
   Node:= TVTags.FocusedNode;
   if Node = nil then exit;
 
-  TVTags.EditNode(Node, TVTags.FocusedColumn)
+  TVTags.EditNode(Node, TVTags.FocusedColumn);
+  ClearFindTags;
 end;
 
 function TForm_Main.CheckRenameTagInNotes(const OldName, NewName: string): boolean;
@@ -6918,7 +6949,7 @@ end;
 procedure TForm_Main.ChangeFindInclToModeOR;
 begin
    FindTagsIncl:= FindTagsGetModeOR(FindTagsIncl);
-   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, FindTagsIncl, FindTagsIncl_NotRegistered);
+   TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, FindTagsIncl, FindTagsIncl_NotRegistered, True);
 end;
 
 procedure TForm_Main.cbTagFindModeChange(Sender: TObject);
@@ -6944,12 +6975,36 @@ begin
    TagMng.StartTxtFindTagIntrod(txtTagsIncl, OnEndFindTagsInclIntrod, OnChangeFindTagsInclIntrod, true);
 end;
 
+procedure TForm_Main.ClearFindTags;
+begin
+   FindTagsIncl:= nil;
+   FindTagsExcl:= nil;
+   FindTagsIncl_NotRegistered:= '';
+   FindTagsExcl_NotRegistered:= '';
+end;
+
+procedure TForm_Main.CheckFindTagsRecalc;
+var
+   FindTagsNotRegistered: string;
+   FindTags: TFindTags;
+begin
+    if (FindTagsIncl = nil) and (FindTagsIncl_NotRegistered = '') and (txtTagsIncl.Text <> '') and (txtTagsIncl.Text <> EMPTY_TAGS) then begin
+       FindTags:= TagMng.GetSearchedIntroducedTags(txtTagsIncl, FindTagsNotRegistered);
+       OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+    end;
+
+    if (FindTagsExcl = nil) and (FindTagsExcl_NotRegistered = '') and (txtTagsExcl.Text <> '') and (txtTagsExcl.Text <> EMPTY_TAGS) then begin
+       FindTags:= TagMng.GetSearchedIntroducedTags(txtTagsExcl, FindTagsNotRegistered);
+       OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+    end;
+end;
+
+
 procedure TForm_Main.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
 begin
+   FindTagsIncl:= FindTags;
    if cbTagFindMode.ItemIndex = 1 then
-      ChangeFindInclToModeOR
-   else
-      FindTagsIncl:= FindTags;
+      ChangeFindInclToModeOR;
 
    FindTagsIncl_NotRegistered:= Trim(FindTagsNotRegistered);
    CheckFindAllEnabled;
@@ -6981,7 +7036,7 @@ procedure TForm_Main.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNot
 begin
    FindTagsExcl:= FindTagsGetModeOR(FindTags);
    FindTagsExcl_NotRegistered:= Trim(FindTagsNotRegistered);
-   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, FindTagsExcl, FindTagsExcl_NotRegistered);
+   TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, FindTagsExcl, FindTagsExcl_NotRegistered, True);
    CheckFindAllEnabled;
 end;
 

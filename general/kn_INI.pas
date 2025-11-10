@@ -347,6 +347,7 @@ type
     LastExportPath,
     LastExportFormat,
     //LastExportAsk,           // Not used
+    LastPgPrintSettings,
     LastFile,
     LastImportPath,
     LastNumbering,
@@ -532,6 +533,7 @@ const
     LastExportPath : 'LastExportPath';
     LastExportFormat : 'LastExportFormat';
     //LastExportAsk : 'LastExportAsk';
+    LastPgPrintSettings: 'LastPgPrntSettings';
     LastFile : 'LastFile';
     LastImportPath : 'LastImportPath';
     LastNumbering : 'LastNumbering';
@@ -1099,6 +1101,7 @@ begin
     LastExportPath := '';
     LastExportFormat := 1; // RTF;   // low( TExportFmt );
     //LastExportAsk := false;
+    LastPgPrintSettings:= '';
     LastFile := '';
     LastImportPath := '';
     LastNumbering := nsArabicNumbers;
@@ -1424,6 +1427,7 @@ begin
       writestring( section, KeyOptionsIniStr.LastExportPath, KeyOptions.LastExportPath );
       writeinteger( section, KeyOptionsIniStr.LastExportFormat, ord( KeyOptions.LastExportFormat ));
       //writebool( section, KeyOptionsIniStr.LastExportAsk, KeyOptions.LastExportAsk );
+      writestring( section, KeyOptionsIniStr.LastPgPrintSettings, KeyOptions.LastPgPrintSettings);
       writestring( section, KeyOptionsIniStr.LastFile, ExtractRelativePath(Application.ExeName, KeyOptions.LastFile) );
       writestring( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );
       writeinteger( section, KeyOptionsIniStr.LastNumbering, ord( KeyOptions.LastNumbering ));
@@ -1568,7 +1572,7 @@ begin
       writeFloat( section, EditorOptionsIniStr.BulletSepFactor, EditorOptions.BulletSepFactor);
 
       section := ClipOptionsIniStr.Section;
-      writestring( section, ClipOptionsIniStr.WCDivider, ClipOptions.WCDivider );
+      writestring( section, ClipOptionsIniStr.WCDivider, '"' + ClipOptions.WCDivider + '"' );
 
       writebool( section, ClipOptionsIniStr.URLOnly, ClipOptions.URLOnly );
       writeinteger( section, ClipOptionsIniStr.MaxSize, ClipOptions.MaxSize );
@@ -1583,7 +1587,7 @@ begin
       writebool( section, ClipOptionsIniStr.SwitchIcon, ClipOptions.SwitchIcon );
       writebool( section, ClipOptionsIniStr.TestDupClips, ClipOptions.TestDupClips );
       writebool( section, ClipOptionsIniStr.TreeClipConfirm, ClipOptions.TreeClipConfirm );
-      writestring( section, ClipOptionsIniStr.Divider, ClipOptions.Divider );
+      writestring( section, ClipOptionsIniStr.Divider, '"' + ClipOptions.Divider + '"');
       writebool( section, ClipOptionsIniStr.IgnoreSelf, ClipOptions.IgnoreSelf );
       writebool( section, ClipOptionsIniStr.InsertSourceURL, ClipOptions.InsertSourceURL );
 
@@ -1785,6 +1789,7 @@ begin
       if (i < 1 ) or ( i > 3) then
         KeyOptions.LastExportFormat := 1; // RTF
 
+      KeyOptions.LastPgPrintSettings := readstring( section, KeyOptionsIniStr.LastPgPrintSettings, KeyOptions.LastPgPrintSettings );
 
       KeyOptions.LastFile := NormalFN( readstring( section, KeyOptionsIniStr.LastFile, KeyOptions.LastFile ));
       KeyOptions.LastImportPath := readstring( section, KeyOptionsIniStr.LastImportPath, KeyOptions.LastImportPath );

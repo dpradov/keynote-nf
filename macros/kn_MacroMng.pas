@@ -2176,44 +2176,18 @@ begin
                 SelText := '';
               end;
 
-          ecSort :
-            if ( SelLength > 1 ) then begin
-               templist := TStringList.Create;
-               try
-                 templist.Sorted := true;
-                 templist.Duplicates := dupAccept;
-                 templist.Text := SelText;
-                 SelText := templist.Text;
-                 HideKNTHiddenMarks(true);
-               finally
-                 templist.Free;
-               end;
-            end
+          ecSort, ecJoinLines :
+            if ( SelLength > 1 ) then
+               PerformCmdUsingAuxEditor(aCmd)
             else
               ErrNoTextSelected:= True;
 
           ecReformat :
             ErrNotImplemented:= True;
 
-          ecJoinLines :
-            if ( SelLength > 1 ) then begin
-              screen.cursor := crHourGlass;
-              try
-                txt := SelText;
-                CharToChar( txt, #13, #32 );
-                p := pos( #32#32, txt );
-                while ( p > 0 ) do begin
-                  delete( txt, p, 1 );
-                  p := pos( #32#32, txt );
-                end;
-                SelText := txt;
-                HideKNTHiddenMarks(true);
-              finally
-                screen.cursor := crDefault;
-              end;
-            end
-            else
-              ErrNoTextSelected:= True;
+          ecTrimLeft, ecTrimRight, ecTrimBoth, ecComprWhiteSpace:
+             PerformCmdUsingAuxEditor(aCmd);
+
 
           ecReverseText : begin
             if ( SelLength > 0 ) then begin

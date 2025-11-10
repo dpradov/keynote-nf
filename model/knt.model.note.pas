@@ -1042,6 +1042,9 @@ var
   i, j, N: integer;
   FindOR: TNoteTagArray;
 begin
+   if FindTags = nil then
+      exit(nil);
+
    SetLength(Result, 1);                      // All tags be OR operands
    SetLength(FindOR, MAX_SEARCHED_TAGS);
 

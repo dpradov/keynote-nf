@@ -3,6 +3,28 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.3.1  (10 nov 2025)
+--------------------------
+* IMPORTANT! - Fixed: It was possible for new nodes to be created with an incorrect RTF/Plain state
+--
+* Fixed: Text formatting is lost after applying (#920):
+  "Compress White Space", "Trim Left", "Trim Right", "Trim Both", "Sort Lines", "Join Lines"
+* New: Trim commands and "Compress White Space" can also be repeated (Edit | Repeat) or recorded in a Macro
+* New: "Join Lines" can use custom string to join, instead of the default space, allowing (eg.): 'L1', 'L2', ...
+--
+* Fixed: Spaces at the end (or beginning) of the clipboard capture divider are not preserved in the .ini file (#917 #918)
+* Fixed: It is now possible to switch between 'Plain Text' and RTF in empty notes
+--
+* Find All: Fixed searches using unregistered tags
+* Find All: Fixed: Changes in tags (global or applied to a note) while Find All had set WITH or WITHOUT tag criteria
+* Find All: Fixed: Consider ALL/ANY mode when using non registered tags from WITH tag criteria
+* Fixed: Possible exception in certain (rare) situation when focusing on Find tab in the Resource Panel
+--
+* Export/Print: The last settings used in page orientation and page margins, are now saved to .ini file (in profile)
+* File|Export: Improvements when using 'Consider extracts from notes'
+* Fixed exception if editor was showing the tag selector when opening File|Export and entering in With or Without fields
+
+
 v 2.1.2.1  (19 oct 2025)
 --------------------------
 * The design of several forms and dialogs has been revised to facilitate translation into other languages.

@@ -538,6 +538,7 @@ type
     //LastExportFormat : TExportFmt;
     LastExportFormat : integer;
     //LastExportAsk : boolean;          // unused
+    LastPgPrintSettings : string;       // "Orientation,MarginTop,MarginLeft,MarginBottom,MarginRight"  (Orientation: 0=Portrait 1=Landscape)
     LastFile : string;
     LastImportPath : string;
     LastNumbering : TRxNumbering;

@@ -54,6 +54,8 @@ procedure GetPrintDimensionsInPixels (var mLeft, mTop, mRight, mBottom: Integer;
                                      var OffsetX, OffsetY: Integer;
                                      var DPIx, DPIy: Double;
                                      ScreenDPI: Double = -1);
+procedure PreloadPageSetup (PageSetupDlg: TPageSetupDialog);
+procedure SavePageSetup (PageSetupDlg: TPageSetupDialog);
 procedure PrintRtfFolder (PrintPreview: boolean = false);
 procedure ShowPrintPreview (PrnPreviews: TList; DPI: Integer = 96);
 procedure EnableOrDisableUAS;
@@ -939,6 +941,40 @@ begin
 end;
 
 
+procedure PreloadPageSetup(PageSetupDlg: TPageSetupDialog);
+var
+  p1,p2,p3,p4: integer;
+  S: String;
+begin
+     if KeyOptions.LastPgPrintSettings <> '' then begin
+        try
+           // "Orientation, MarginTop, MarginLeft, MarginBottom, MarginRight"
+           // Orientation: 0: Portrait 1: Landscape
+
+           S:= Trim(KeyOptions.LastPgPrintSettings);
+           p1:= Pos(',', S);
+           p2:= Pos(',', S, p1+1);
+           p3:= Pos(',', S, p2+1);
+           p4:= Pos(',', S, p3+1);
+
+           Printer.Orientation       := TPrinterOrientation(StrToInt(Copy(S, 1, p1- 1)));
+           PageSetupDlg.MarginTop    := StrToInt(Copy(S, p1 + 1, p2- p1-1));
+           PageSetupDlg.MarginLeft   := StrToInt(Copy(S, p2 + 1, p3- p2-1));
+           PageSetupDlg.MarginBottom := StrToInt(Copy(S, p3 + 1, p4- p3-1));
+           PageSetupDlg.MarginRight  := StrToInt(Copy(S, p4 + 1));
+        except
+        end;
+     end;
+end;
+
+procedure SavePageSetup(PageSetupDlg: TPageSetupDialog);
+begin
+    KeyOptions.LastPgPrintSettings:= Format('%d,%d,%d,%d,%d',
+           [Integer(Printer.Orientation),
+           PageSetupDlg.MarginTop, PageSetupDlg.MarginLeft, PageSetupDlg.MarginBottom, PageSetupDlg.MarginRight]);
+end;
+
+
 procedure GetPrintDimensionsInPixels (var mLeft, mTop, mRight, mBottom: Integer;
                                       var PageWidth, PageHeight: Integer;
                                       var OffsetX, OffsetY: Integer;
@@ -1016,8 +1052,10 @@ begin
     // If the user is entering values in millimeters, MarginBottom expresses the margin in hundredths of a millimeter.
 
     // Converting margins from millimeters (or inches) to pixels
-   if Form_Main.PageSetupDlg = nil then
-      Form_Main.PageSetupDlg := TPageSetupDialog.Create(Form_Main);
+    if Form_Main.PageSetupDlg = nil then
+       Form_Main.PageSetupDlg := TPageSetupDialog.Create(Form_Main);
+
+    PreloadPageSetup (Form_Main.PageSetupDlg);
 
     with Form_Main.PageSetupDlg do begin
        if (Units = pmMillimeters ) or ((Units = pmDefault) and IsMetricSystem) then begin
