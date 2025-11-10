@@ -11,7 +11,6 @@ N:=124
 GI=1
 ND=Welcome to KeyNote NF
 LM=1304252206
-SS=2153
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
@@ -643,7 +642,6 @@ You may add additional accurate notices of copyright ownership.\par
 GI=10
 ND=Features
 LM=1910251550
-SS=911
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -1576,8 +1574,7 @@ ND=Using KeyNote NF
 %*
 GI=20
 ND=KeyNote Editor
-LM=1910251523
-SS=8949
+LM=1011252002
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
@@ -1613,6 +1610,7 @@ To be productive when editing, it is also advisable to have a minimum knowledge 
 {{\field{\*\fldinst{HYPERLINK "file:///<20|9698|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Holding Ctrl+up/down}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|26323|0|15"}}{\fldrslt{\ul\cf2\cf2\ul Holding Ctrl+Shift+up/down}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|5441|0|4"}}{\fldrslt{\ul\cf2\cf2\ul TAB multiple lines}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<20|30336|0|17"}}{\fldrslt{\ul\cf2\cf2\ul Joining multiple lines using a custom string as separator}}}}\f0\fs20\par
 \par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|29330|0|16"}}{\fldrslt{\ul\cf2\cf2\ul Scratchpad editor}}}}\f0\fs20\par
 
@@ -2309,6 +2307,34 @@ Note:\par
 
 \pard\par
 \par
+\b\v\fs24\'11B17\'12\v0 Joining multiple lines using a custom string as separator\ul\par
+\ulnone\b0\fs20\par
+With Edit|Lines|\b Join Lines\b0  it is possible to concatenate the content of selected lines replacing carriage returns with a custom string, instead of the default space:\par
+
+\pard\sb40 If the first of the selected lines contains quoted text of no more than 15 characters, including the quotes, its content will be used to separate the lines to be joined, instead of the default space. \par
+This allows for use in scenarios such as the following:\par
+
+\pard\li720\sb80\cf4 ", "\par
+
+\pard\li720 11\par
+22\par
+33\par
+\cf0        - - - -> 11, 22, 33\par
+
+\pard\li720\sb40        It can be used, for example in SQL Selects:   SELECT ... FROM ... WHERE X IN (11, 22, 33);\par
+
+\pard\li720\sb80\cf4 "', '"\par
+
+\pard\li720 A\par
+B\par
+C\par
+\cf0       - - - -> A', 'B', 'C\par
+
+\pard\li720\sb80\tab   Then, manually, it is easy --> 'A', 'B', 'C'\par
+
+\pard\par
+\par
+\par
 \b\v\fs24\'11B16\'12\v0 Scratchpad editor\ul\par
 \ulnone\b0\fs20\par
 The scratch tab, in {{\field{\*\fldinst{HYPERLINK "file:///<12|448|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Resource panel}}}}\f0\fs20 , is associated with the \b scratch.rtf\b0  file, one of the files specific to a KeyNote {{\field{\*\fldinst{HYPERLINK "file:///<86|0|0"}}{\fldrslt{\ul\cf2\cf2\ul profile}}}}\f0\fs20 .\par
@@ -2690,7 +2716,6 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 GI=27
 ND=Folders as note trees
 LM=1304252133
-SS=23285
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
@@ -5432,8 +5457,7 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=0710252012
-SS=1218
+LM=1011251948
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset2 Symbol;}}
@@ -5714,8 +5738,10 @@ Checks related:\par
 
 \pard\par
 The introduction of tags to use in the With and Without fields will be done with the help of a tag selector (See {{\field{\*\fldinst{HYPERLINK "file:///<122|7939|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Using the Tag Selector}}}}\f0\fs20 ) \par
-\par
-\par
+
+\pard\li360\sb80\b Tip\b0 : You can clear the content of With or Without controls with \cf5 Ctrl+Click\cf0  in its text.\par
+
+\pard\par
 \b Note\b0 : Tags entered in With and/or Without controls will be ignored if both "Consider metadata of notes" and "Consider text of notes" are unchecked\par
 \par
 We can \ul restrict the search to text fragments\ulnone  that do not include any of certain selected tags:\par
@@ -6038,7 +6064,6 @@ The number of results may vary slightly depending on whether or not the word w3 
 GI=41
 ND=Image management in KeyNote
 LM=1910251533
-SS=19212
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\froman\fcharset0 Tahoma;}{\f4\froman Tahoma;}{\f5\fnil\fcharset0 Cambria Math;}{\f6\fnil\fcharset2 Symbol;}}
@@ -6801,7 +6826,6 @@ File properties:\par
 GI=46
 ND=Information
 LM=1910251602
-SS=369
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}}
@@ -6862,7 +6886,6 @@ Below, more information is displayed about the currently open file, including th
 GI=47
 ND=Settings
 LM=1910251758
-SS=34
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
@@ -7818,7 +7841,6 @@ Note:\par
 GI=57
 ND=Exporting or Printing Notes
 LM=1910251556
-SS=12523
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Arial;}{\f4\fnil Arial;}{\f5\fnil Tahoma;}{\f6\fnil\fcharset0 Courier New;}{\f7\fnil\fcharset128 Yu Gothic;}{\f8\fnil\fcharset2 Symbol;}}
@@ -11928,7 +11950,6 @@ LM=1304252023
 GI=89
 ND=Rich Text Editor
 LM=1910251808
-SS=35
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12042,7 +12063,6 @@ You can see {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf
 GI=90
 ND=Images
 LM=1910251811
-SS=183
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12246,7 +12266,6 @@ Note: The option doesn't affect to linked images previously inserted.\par
 GI=91
 ND=Tree Panel
 LM=1910251812
-SS=29
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12605,7 +12624,6 @@ ND=Backup Options
 GI=95
 ND=Actions
 LM=1910251814
-SS=25
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12720,7 +12738,6 @@ Also remember:\par
 GI=96
 ND=Confirmations
 LM=1910251815
-SS=32
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12829,7 +12846,6 @@ See notes in \b Confirm before transferring nodes\b0 , above, on possible asked 
 GI=97
 ND=Chrome
 LM=1910251816
-SS=24
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -12962,7 +12978,6 @@ Remember, from {{\field{\*\fldinst{HYPERLINK "file:///<48|0|0"}}{\fldrslt{\ul\cf
 GI=99
 ND=Advanced
 LM=1910251817
-SS=26
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
@@ -13388,7 +13403,6 @@ Use the following web browser\par
 GI=104
 ND=KeyNote.ini Settings
 LM=1910251539
-SS=18340
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset204 Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
@@ -14492,9 +14506,10 @@ Depending on the file name extension, you can:\par
 %*
 GI=110
 ND=Edit Menu
+LM=1011251942
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset0 Times New Roman;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset1 Segoe UI Symbol;}{\f4\fnil\fcharset0 Times New Roman;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
 {\*\generator Riched20 10.0.22621}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
@@ -14550,7 +14565,7 @@ ND=Edit Menu
 The Options dialog box allows you to specify the "Undo level", i.e. the number of editing operations that can be undone (see {{\field{\*\fldinst{HYPERLINK "file:///<89|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Options: Rich Text editor}}}}\f0\fs20 ).\par
 \par
 
-\pard\li240\v\'11I7\'12\v0{\field{\*\fldinst{HYPERLINK "img:7,16,16"}}{\fldrslt {7_Main_07.png}}} \cf4\f2\lang3082 TB_EditUndo\tab\tab\cf5\b\f0\fs18\lang1033 Alt+BkSp\f2\fs20  \cf0\b0 / \cf4 MMEditUndo\cf5\b\par
+\pard\li240\v\'11I7\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:7,16,16"}}{\fldrslt {7_Main_07.png}}}\lang1033  \cf4\f2\lang3082 TB_EditUndo\tab\tab\cf5\b\f0\fs18\lang1033 Alt+BkSp\f2\fs20  \cf0\b0 / \cf4 MMEditUndo\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \par
@@ -14558,7 +14573,7 @@ The Options dialog box allows you to specify the "Undo level", i.e. the number o
 \cf0\b0 Reverses the last Undo command.\par
 \par
 
-\pard\li240\v\'11I14\'12\v0{\field{\*\fldinst{HYPERLINK "img:14,16,16"}}{\fldrslt {14_Main_14.png}}} \cf4\f2\lang3082 TB_EditRedo\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+Enter\f2\fs20  \cf0\b0 / \cf4 MMEditRedo\cf5\b\par
+\pard\li240\v\'11I14\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:14,16,16"}}{\fldrslt {14_Main_14.png}}}\lang1033  \cf4\f2\lang3082 TB_EditRedo\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+Enter\f2\fs20  \cf0\b0 / \cf4 MMEditRedo\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \par
@@ -14570,7 +14585,7 @@ Next to the menu command, KeyNote displays the command which will be repeated, e
 
 \pard\par
 
-\pard\li240\v\'11I41\'12\v0{\field{\*\fldinst{HYPERLINK "img:41,16,16"}}{\fldrslt {41_Main_41.png}}} \cf4\f2\lang3082 TB_Repeat\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+\'c7\f2\fs20  \cf0\b0 / \cf4 MMEditRepeat\cf5\b\par
+\pard\li240\v\'11I41\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:41,16,16"}}{\fldrslt {41_Main_41.png}}}\lang1033  \cf4\f2\lang3082 TB_Repeat\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+\'c7\f2\fs20  \cf0\b0 / \cf4 MMEditRepeat\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \par
@@ -14578,7 +14593,7 @@ Next to the menu command, KeyNote displays the command which will be repeated, e
 \cf0\b0 Cuts selected text and places it on the Clipboard.\par
 \par
 
-\pard\li240\v\'11I4\'12\v0{\field{\*\fldinst{HYPERLINK "img:4,16,16"}}{\fldrslt {4_Main_04.png}}} \cf4\f2\lang3082 TB_EditCut\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+X\cf0\b0  or \cf5\b Shift+Delete\f2\fs20  \cf0\b0 / \cf4 MMEditCut\cf5\b\par
+\pard\li240\v\'11I4\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:4,16,16"}}{\fldrslt {4_Main_04.png}}}\lang1033  \cf4\f2\lang3082 TB_EditCut\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+X\cf0\b0  or \cf5\b Shift+Delete\f2\fs20  \cf0\b0 / \cf4 MMEditCut\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \par
@@ -14586,7 +14601,7 @@ Next to the menu command, KeyNote displays the command which will be repeated, e
 \cf0\b0 Copies selected text and places it on the Clipboard.\par
 \par
 
-\pard\li240\v\'11I5\'12\v0{\field{\*\fldinst{HYPERLINK "img:5,16,16"}}{\fldrslt {5_Main_05.png}}} \cf4\f2\lang3082 TB_EditCopy\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+C\f2\fs20  \cf0\b0 / \cf4 MMEditCopy\cf5\b\par
+\pard\li240\v\'11I5\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:5,16,16"}}{\fldrslt {5_Main_05.png}}}\lang1033  \cf4\f2\lang3082 TB_EditCopy\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+C\f2\fs20  \cf0\b0 / \cf4 MMEditCopy\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \par
@@ -14594,7 +14609,7 @@ Next to the menu command, KeyNote displays the command which will be repeated, e
 \cf0\b0 Pastes data from clipboard. Note that you can not only paste text, but also other data formats which the Windows Clipboard can contain, e.g. pictures.\par
 \par
 
-\pard\li240\v\'11I6\'12\v0{\field{\*\fldinst{HYPERLINK "img:6,16,16"}}{\fldrslt {6_Main_06.png}}} \cf4\f2\lang3082 TB_EditPaste\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+V\cf0\b0  or \cf5\b Shift+Insert\f2\fs20  \cf0\b0 / \cf4 MMEditPaste\cf5\b\par
+\pard\li240\v\'11I6\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:6,16,16"}}{\fldrslt {6_Main_06.png}}}\lang1033  \cf4\f2\lang3082 TB_EditPaste\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+V\cf0\b0  or \cf5\b Shift+Insert\f2\fs20  \cf0\b0 / \cf4 MMEditPaste\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \par
@@ -14685,20 +14700,24 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf3\cf3\
 
 \pard\li240\cf5\b\fs18 Shift+Ctrl+S\f2\fs20  \cf0\b0 / \cf4 MMEditSort\cf5\b\par
 
-\pard\cf0\b0\f0\par
-\par
+\pard\li360\sb120\cf0\f0 Tip\b0 : This command can also be used to sort blocks of text with the help of folding. Text folded block will be sorted considering the visible extract (ignoring the \f3\u10133?\f0  character). The content of the folded text will not be modified (while it is folded/hidden).\par
+
+\pard\par
 \cf1\b\v\fs26\'11B17\'12\v0 Join Lines\cf3\fs20\par
 \cf0\b0 Remove carriage returns in the selected lines, joining them into a single line.\par
 \par
 
 \pard\li240\cf5\b\fs18 Ctrl+J\f2\fs20  \cf0\b0 / \cf4 MMEditJoin\cf5\b\par
 
-\pard\cf0\b0\f0\par
-\par
-\par
-\cf1\ul\b\v\fs26\'11B18\'12\v0 Change Case\cf3\ulnone\fs20\par
+\pard\li360\sb80\cf0\f0 Tip\b0 : This command can use custom string to join, instead of the default space, allowing (eg.): 'L1', 'L2', ...\par
+
+\pard\li720 See {{\field{\*\fldinst{HYPERLINK "file:///<20|30336|0|17"}}{\fldrslt{\ul\cf3\cf3\ul Joining multiple lines using a custom string as separator}}}}\f0\fs20\par
+
+\pard\sb40\par
+
+\pard\cf1\ul\b\v\fs26\'11B18\'12\v0 Change Case\cf3\ulnone\fs20\par
 \cf0\b0 Displays a submenu with commands to change the case of selected text.\par
-\cf3\b\f3\fs26\par
+\cf3\b\f4\fs26\par
 \cf1\v\f0\'11B19\'12\v0 To UPPERCASE\cf3\fs20\par
 \cf0\b0 Change the selected text to all uppercase letters.\par
 \par
@@ -16927,7 +16946,6 @@ ND=Help Menu
 GI=119
 ND=What's New
 LM=1910251441
-SS=1570
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -17208,7 +17226,7 @@ NS=0002
 %*
 GI=122
 ND=Tags in KeyNote
-LM=1504251750
+LM=1011251955
 %.
 DC=1204251150
 %:
@@ -17430,6 +17448,8 @@ We can also select an option and press \cf5\b Tab\cf0\b0 . This will introduce t
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 The use of the selector, with the help of \cf5\b Esc\cf0\b0  (or by adding the "*" character) allows us to \b partially introduce a tag\b0  to facilitate filtering or searching considering all the tags in which the name matches. Thus, we can search with "Err" or "Err" for both "Error" and "Error.Low" and "Error.High". But if we enter only "Err", press \cf5 Esc\cf0  and leave the editor or the metadata field, we will be adding a new tag called "Err". See clarification below.\par
 
+\pard\li720\sb40 * Note that this kind of search/filter is only valid with registered tags. If "NoReg1" and "NoReg2" are two unregistered tags, used in the text, you need to find "NoReg1" and "NoReg2", explicitely; "NoReg*" won't be recognized.\par
+
 \pard\par
 \par
 \par
@@ -17646,7 +17666,7 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<57|4834|0|18"}}{\fldrslt{\ul\cf2\cf2
 %*
 GI=123
 ND=Folding and unfolding
-LM=0710252159
+LM=1011251958
 %.
 DC=1204251504
 %:
@@ -17890,6 +17910,8 @@ A floating editor will remain visible as long as the focus is not returned to th
 \par
 \b Tip\b0 : It you prefer editing in the normal editor you can use "\b Expand (with markers)\b0 ", modify the content of the block, and then fold it again placing the cursor inside the block (between the added markers) and selecting "\b Unfold\b0 " in the editor's context menu.\par
 \par
+\par
+\b Tip\b0 : The command Edit|Lines|\b Sort Lines\b0  can also be used to sort blocks of text with the help of folding. Text folded block will be sorted considering the visible extract (ignoring the \f2\u10133?\f0  character). The content of the folded text will not be modified (while it is folded/hidden).\par
 }
 %*
 GI=124
@@ -17943,7 +17965,7 @@ FS=10
 LN=1033
 ST=
 FL=111110000000100000000000
-SN=0
+SN=19
 TW=239
 TM=0
 EN=New node
@@ -18027,6 +18049,7 @@ LV=0
 %-
 gi=20
 DI=282
+ns=0400
 LV=1
 %-
 gi=21
@@ -18159,7 +18182,6 @@ LV=1
 %-
 gi=57
 DI=313
-ns=0400
 %-
 gi=58
 DI=590
@@ -18275,11 +18297,9 @@ LV=1
 %-
 gi=87
 DI=295
-ns=0400
 %-
 gi=88
 DI=238
-ns=0400
 LV=2
 %-
 gi=89
@@ -18294,7 +18314,6 @@ DI=240
 %-
 gi=92
 DI=241
-ns=0400
 LV=2
 %-
 gi=93
@@ -18306,7 +18325,6 @@ DI=243
 %-
 gi=95
 DI=244
-ns=0400
 LV=2
 %-
 gi=96
@@ -18315,7 +18333,6 @@ LV=3
 %-
 gi=97
 DI=246
-ns=0400
 LV=2
 %-
 gi=98
@@ -18324,7 +18341,6 @@ LV=3
 %-
 gi=99
 DI=248
-ns=0400
 LV=2
 %-
 gi=100
