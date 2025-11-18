@@ -136,6 +136,7 @@ uses
   knt.ui.tree in 'ui\knt.ui.tree.pas' {KntTreeUI: TFrame},
   knt.model.note in 'model\knt.model.note.pas',
   knt.ui.note in 'ui\knt.ui.note.pas' {KntNoteUI: TFrame},
+  knt.ui.noteEntries in 'ui\knt.ui.noteEntries.pas' {KntNoteEntriesUI: TFrame}, 
   knt.ui.info in 'ui\knt.ui.info.pas',
   VirtualTrees.Accessibility_MOD in 'ui\VirtualTrees.Accessibility_MOD.pas',
   kn_FoldBlockDef in 'editor\kn_FoldBlockDef.pas' {Form_FoldBlockDef},

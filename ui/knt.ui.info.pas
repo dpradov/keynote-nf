@@ -45,7 +45,7 @@ type
      procedure ReloadFromDataModel;
      function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
      procedure ReloadNoteName;
-     function  SaveToDataModel: TMemoryStream;
+     procedure SaveToDataModel;
 
      procedure SetImagesMode(ImagesMode: TImagesMode);
      procedure ResetImagesReferenceCount;
@@ -56,10 +56,10 @@ type
      procedure EditTags;
      procedure RefreshTags;
      procedure SetInfoPanelHidden(value: boolean);
-     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
 
      procedure SetReadOnly( AReadOnly : boolean );
      procedure NNodeDeleted;
+     function GetNNodeDeleted: boolean;
 
      procedure SetOnEnter(AEvent: TNotifyEvent);
      procedure SetOnMouseUpOnNote(AEvent: TNotifyEvent);

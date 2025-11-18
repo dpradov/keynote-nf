@@ -345,6 +345,11 @@
             <Form>KntNoteUI</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="ui\knt.ui.noteEntries.pas">
+            <Form>KntNoteEntriesUI</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="ui\knt.ui.info.pas"/>
         <DCCReference Include="ui\VirtualTrees.Accessibility_MOD.pas"/>
         <DCCReference Include="editor\kn_FoldBlockDef.pas">

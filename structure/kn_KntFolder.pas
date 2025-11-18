@@ -230,7 +230,7 @@ type
 
     procedure LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
     procedure ReloadEditorFromDataModel(SavePreviousContent: boolean= true);
-    function  SaveEditorToDataModel: TMemoryStream;
+    procedure SaveEditorToDataModel;
     procedure SetEditorProperties( const aProps : TFolderEditorProperties );
     procedure GetEditorProperties( var aProps : TFolderEditorProperties );
     procedure SetFocusOnNoteEditor;
@@ -1669,12 +1669,9 @@ begin
 end;
 
 
-{
-  If Editor was modified then it will return the Stream associated to the node that will be updated
-}
-function TKntFolder.SaveEditorToDataModel: TMemoryStream;
+procedure TKntFolder.SaveEditorToDataModel;
 begin
-  Result:= NoteUI.SaveToDataModel;
+  NoteUI.SaveToDataModel;
 end;
 
 
