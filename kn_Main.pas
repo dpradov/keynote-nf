@@ -3960,6 +3960,9 @@ end;
 
 procedure TForm_Main.TB_CopyFormatClick(Sender: TObject);
 begin
+  //ActiveFolder.NoteUI.TestPanels;                 // %%%
+  //exit;
+
   FormatCopyClick(True);
 end;
 

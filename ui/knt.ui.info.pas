@@ -64,6 +64,8 @@ type
      procedure SetOnEnter(AEvent: TNotifyEvent);
      procedure SetOnMouseUpOnNote(AEvent: TNotifyEvent);
      procedure SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
+
+     //procedure TestPanels;
   end;
 
 implementation
