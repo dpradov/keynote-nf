@@ -1217,6 +1217,10 @@ begin
 
    NNode:= TreeUI.GetNNode(Node);
 
+   {$IFDEF KNT_DEBUG}
+    Log_StoreTick('TKntFolder.NodeSelected (' + NNode.NoteName + ') - BEGIN', 3, +1);
+   {$ENDIF}
+
    LastNNodeFocused:= nil;
    if LastNodeSelected <> nil then
       LastNNodeFocused:= TreeUI.GetNNode(LastNodeSelected);
@@ -1233,6 +1237,8 @@ begin
    end;
 
   LoadEditorFromNNode(NNode, true);
+
+  Log_StoreTick('TKntFolder.NodeSelected - END', 3, -1);
 
 end; // NodeSelected
 
@@ -1620,6 +1626,8 @@ var
 begin
   if NNode = nil then exit;
 
+  Log_StoreTick('TKntNoteFolder.LoadEditorFromNNode - BEGIN', 3, +1);
+
   with Form_Main do begin
       try
         NoteUI.LoadFromNNode(NNode, SavePreviousContent);
@@ -1649,10 +1657,11 @@ begin
             HintStatusBar:= '';
 
         App.ShowInfoInStatusBar(HintStatusBar);
+        Log_StoreTick('TKntNoteFolder.LoadEditorFromNNode - END', 3, -1);
 
       except
         On E : Exception do begin
-          App.ErrorPopup(E.Message);
+          App.ErrorPopup(E);
           exit;
         end;
       end;

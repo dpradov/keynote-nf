@@ -1625,6 +1625,8 @@ procedure TKntTreeUI.TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNod
 begin
   if (not assigned(Node)) then exit;
 
+  Log_StoreTick('TV_FocusChanged - BEGIN', 3, +1);
+
   TV.ScrollIntoView(Node, false);
 
   if (Node <> fLastNodeSelected) then begin
@@ -1640,6 +1642,8 @@ begin
         TV.Selected[TV.FocusedNode]:= True;
      end;
   end;
+
+  Log_StoreTick('TV_FocusChanged - END', 3, -1);
 end;
 
 
@@ -2838,7 +2842,7 @@ begin
 
     except
       on E : Exception do begin
-        App.ErrorPopup(GetRS(sTree01) + E.Message);
+        App.ErrorPopup(GetRS(sTree01) + E.Message, E);
         // if assigned(myTreeNode) then myTreeNode.Free;
         // if assigned(myNote) then myNote.Free;
       end;

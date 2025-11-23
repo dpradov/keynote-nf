@@ -488,7 +488,7 @@ begin
     except
       on E : Exception do begin
         App.ShowInfoInStatusBar(GetRS(sMacM13));
-        App.ErrorPopup( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ));
+        App.ErrorPopup( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ), E);
         ActiveMacro.Free;
       end;
     end;

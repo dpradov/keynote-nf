@@ -4599,7 +4599,10 @@ begin
     if smSelection in Mode then
       TextType := TextType or SFF_SELECTION;
 
-    {$IFDEF KNT_DEBUG} Log.Add(string.format('RichEdit_LoadFromStream.  TextType: %s Encoding_CodePage: %d', [TextType.ToString, Encoding.CodePage]),  4 );  {$ENDIF}
+    {$IFDEF KNT_DEBUG}
+       if Log.MaxDbgLevel >= 5 then
+          Log.Add(string.format('RichEdit_LoadFromStream.  TextType: %s Encoding_CodePage: %d', [TextType.ToString, Encoding.CodePage]),  4 );
+    {$ENDIF}
 
 {                  // [dpv]   See comment *5
     list.Clear;

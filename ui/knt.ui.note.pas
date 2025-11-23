@@ -513,7 +513,7 @@ begin
 
      except
        On E : Exception do begin
-         App.ErrorPopup(E.Message);
+         App.ErrorPopup(E);
          exit;
        end;
      end;
@@ -640,7 +640,7 @@ begin
 
      Log_StoreTick('TKntNoteUI.LoadFromDataModel - BEGIN', 4, +1);
     {$IFDEF KNT_DEBUG}
-     if log.Active and  (log.MaxDbgLevel >= 4) then begin
+     if log.Active and  (log.MaxDbgLevel >= 5) then begin
         dataSize:= NEntry.Stream.Size;
         if dataSize > 0 then
            str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 250)
@@ -720,6 +720,8 @@ begin
   Encoding:= nil;
 
   if assigned(NNode) then begin
+     Log_StoreTick('TKntNoteUI.SaveToDataModel - BEGIN', 4, +1);
+
      if FEditor.FloatingEditor <> nil then
         FEditor.DoSaveChangesInFloatingEditor;
 
@@ -784,6 +786,7 @@ begin
        if (NEntry.TextPlain = '') then
           InitializeTextPlain(NEntry, RTFAux_Note);
 
+    Log_StoreTick('TKntNoteUI.SaveToDataModel - END', 4, -1);
   end;
 end;
 

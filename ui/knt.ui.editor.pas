@@ -1643,6 +1643,7 @@ begin
   Result:= False;
   if RTFIn='' then Exit;
 
+  Log_StoreTick('PrepareRTFtoBeFolded - BEGIN', 4, +1);
 
   ReconsiderImageDimensionsGoalBAK:= ImageMng.ReconsiderImageDimensionsGoal;
   try
@@ -1724,6 +1725,8 @@ begin
      RTFAux.SelAttributes.Hidden:= False;
 
      RTFIn:= RTFAux.RtfText;
+
+     Log_StoreTick('PrepareRTFtoBeFolded - END', 4, -1);
 
   finally
      RTFAux.Free;
@@ -2222,6 +2225,7 @@ begin
 
   if RTFIn='' then Exit;
 
+  Log_StoreTick('PrepareRTFtoBeExpanded - BEGIN', 4, +1);
 
   ProcessedTables:= ProcessTablesInRTFBeforeExpanded(RTFIn);
 
@@ -2482,6 +2486,8 @@ begin
 
   KeepEndCR:= (FoldedMarkerPos(RTFOut) > 0);
 
+
+  Log_StoreTick('PrepareRTFtoBeExpanded - END', 4, -1);
 
   if ActiveFolder = nil then exit;
 

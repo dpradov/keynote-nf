@@ -112,7 +112,7 @@ begin
 
   except
     on E : Exception do
-        App.ErrorPopup( 'Error while converting text: ' + E.Message);
+        App.ErrorPopup( 'Error while converting text: ' + E.Message, E);
   end;
 end; // MSWordConvert
 
@@ -137,7 +137,7 @@ begin
 
   except
     on E : Exception do
-        App.ErrorPopup( 'Error while converting text: ' + E.Message);
+        App.ErrorPopup( 'Error while converting text: ' + E.Message, E);
   end;
 
 end; // MSWordConvertHTMLToRTF
@@ -170,7 +170,7 @@ begin
 
   except
     on E : Exception do
-        App.ErrorPopup( 'Error while converting text: ' + E.Message);
+        App.ErrorPopup( 'Error while converting text: ' + E.Message, E);
   end;
 end; // MSWordConvertRTFtoHTML
 

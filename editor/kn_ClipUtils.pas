@@ -564,7 +564,7 @@ begin
         CalculateCRC32( addr(ClpStr[1]), length(ClpStr) * SizeOf(Char), thisClipCRC32 );
       except
         on E : Exception do begin
-          App.ErrorPopup( GetRS(sEdt50) + E.Message);
+          App.ErrorPopup( GetRS(sEdt50) + E.Message, E);
           ClipOptions.TestDupClips := false;
           exit;
         end;

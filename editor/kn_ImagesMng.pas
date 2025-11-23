@@ -2288,6 +2288,8 @@ begin
    T:= IncMinute(Now, -NUM_MIN_TO_FREE_ImageStreamsNotRecentlyUsed);
    if fLastCleanUpImgStreams > T then exit;
 
+   Log_StoreTick('CheckFreeImageStreamsNotRecentlyUsed - BEGIN', 4, +1);
+
    try
       for i := 0 to fImages.Count-1 do begin
          Img:= TKntImage(fImages[i]);
@@ -2298,6 +2300,8 @@ begin
 
          Img.FreeImageStream;
       end;
+
+      Log_StoreTick('CheckFreeImageStreamsNotRecentlyUsed - END', 4, -1);
 
    finally
       fLastCleanUpImgStreams:= Now;
@@ -2814,6 +2818,9 @@ const
 
 
 begin
+
+   Log_StoreTick('ProcessImagesInRTF - BEGIN', 4, +1);
+
 {
 *2 Using PosPAnsiChar() instead of Pos()
     Note, it is important to use the PosPAnsiChar method, added to gf_streams and built from System.AnsiStrings.StrPos, compared to using
@@ -3338,6 +3345,8 @@ begin
          end;
 
          Result:= RTFTextOut;
+
+         Log_StoreTick('ProcessImagesInRTF - END', 4, -1);
 
       except
         on E: Exception do

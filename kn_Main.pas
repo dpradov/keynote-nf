@@ -1635,7 +1635,7 @@ begin
     On E : Exception do
     begin
       App.Kbd.HotKeySuccess := false;
-      App.ErrorPopup(Format(GetRS(sMain02), [TOGGLEARRAY[TurnOn], ShortCutToText( KeyOptions.HotKey ), E.Message]));
+      App.ErrorPopup(Format(GetRS(sMain02), [TOGGLEARRAY[TurnOn], ShortCutToText( KeyOptions.HotKey ), E.Message]), E);
 
     end;
   end;
@@ -2181,8 +2181,7 @@ begin
       // at this stage, we can only swallow all exceptions (and pride)
      {$IFDEF KNT_DEBUG}
         on E : Exception do begin
-          App.ErrorPopup( 'Exception in OnDestroy: ' + #13#13 +E.Message );
-          if assigned( Log ) then Log.Add( 'Exception in OnDestroy: ' + E.Message );
+          App.ErrorPopup( 'Exception in OnDestroy: ' + #13#13 +E.Message, E );
         end;
      {$ENDIF}
     end;
@@ -2707,17 +2706,17 @@ begin
 end; // WndProc
 
 procedure TForm_Main.ShowException( Sender : TObject; E : Exception );
+var
+  msg: string;
 begin
   {$IFDEF KNT_DEBUG}
   if assigned( Log ) then
-  begin
-    Log.Add( '!! Unhandled exception: ' + e.message );
-    Log.Flush( true );
-  end;
+     Log.LogException(E, 'Unhandled exception!!');
   {$ENDIF}
 
+  msg:= Format('%s  [Base Address: %p]', [E.Message, GetImageBaseAddress]);
   If Application.MessageBox(
-    PChar(format(GetRS(sMain08), [E.Message, URL_Issues])), PChar(GetRS(sMain09)),
+    PChar(format(GetRS(sMain08), [msg, URL_Issues])), PChar(GetRS(sMain09)),
     MB_YESNO+MB_SYSTEMMODAL+MB_ICONHAND+MB_DEFBUTTON2) = ID_YES Then
   begin
     ClosedByWindows := true; // means: don't display exit confirmation dialog

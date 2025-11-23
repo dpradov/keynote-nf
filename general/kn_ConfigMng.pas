@@ -390,7 +390,7 @@ begin
   except
     on E : Exception do
     begin
-      App.ErrorPopup( Format(GetRS(sCfg05) , [E.Message]) );
+      App.ErrorPopup( Format(GetRS(sCfg05) , [E.Message]), E);
     end;
   end;
 end; // LoadDefaults
@@ -594,7 +594,7 @@ begin
 
     except
       on E : Exception do
-        App.ErrorPopup(Format(GetRS(sCfg04), [Keyboard_FN, E.Message] ));
+        App.ErrorPopup(Format(GetRS(sCfg04), [Keyboard_FN, E.Message] ), E);
     end;
 
   finally
@@ -695,7 +695,7 @@ begin
 
     except
       on E : Exception do
-        App.ErrorPopup( GetRS(sCfg01) + E.Message);
+        App.ErrorPopup( GetRS(sCfg01) + E.Message, E);
     end;
 
   finally

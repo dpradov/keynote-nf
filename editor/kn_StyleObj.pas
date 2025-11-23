@@ -198,7 +198,7 @@ begin
     except
       on E : Exception do
       begin
-        App.ErrorPopup(E.Message);
+        App.ErrorPopup(E);
         exit;
       end;
     end;
