@@ -1,3 +1,6 @@
 [submodule "3rd_party/Virtual-TreeView"]
 	path = 3rd_party/Virtual-TreeView
 	url = https://github.com/JAM-Software/Virtual-TreeView.git
+[submodule "3rd_party/JCL"]
+	path = 3rd_party/JCL
+	url = https://github.com/project-jedi/jcl.git

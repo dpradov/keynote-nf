@@ -73,7 +73,7 @@
         <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_ExeOutput>..\Output\bin</DCC_ExeOutput>
         <DCC_DcuOutput>..\Output\Dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\unRxLib\units;.\3rd_party\Kryvich Delphi Localizer;.\3rd_party\Virtual-TreeView\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\unRxLib\units;.\3rd_party\Kryvich Delphi Localizer;.\3rd_party\Virtual-TreeView\Source;.\3rd_party\JCL\jcl\source\common;.\3rd_party\JCL\jcl\source\windows;.\3rd_party\JCL\jcl\source\vcl;.\3rd_party\JCL\jcl\source\include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>keynote</SanitizedProjectName>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;DUnitX.CommandLine;System.Win;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -128,6 +128,7 @@
         <VerInfo_Build>1</VerInfo_Build>
         <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.1.3 .01 (x64);FileVersion=2.1.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.1.3.1;Comments=</VerInfo_Keys>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <DCC_MapFile>3</DCC_MapFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;KNT_DEBUG;$(DCC_Define)</DCC_Define>
@@ -144,12 +145,15 @@
         <UsePackages>true</UsePackages>
         <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>keynote_Icon.ico</UWP_DelphiLogo150>
-        <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
         <DCC_DebugInformation>2</DCC_DebugInformation>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <VerInfo_Build>1</VerInfo_Build>
+        <DCC_MapFile>3</DCC_MapFile>
+        <PostBuildEvent><![CDATA[cmd /c "cd /d "$(OUTPUTDIR)" 
+ "$(PROJECTDIR)\MakeJclDbg.exe" -E "$(PROJECTNAME).map""
+$(PostBuildEvent)]]></PostBuildEvent>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
@@ -159,11 +163,13 @@
         <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.1.3 .01 (x64);FileVersion=2.1.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.1.3.1;Comments=</VerInfo_Keys>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>2</DCC_DebugInformation>
-        <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
         <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <UsePackages>true</UsePackages>
-        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <DCC_MapFile>3</DCC_MapFile>
+        <PostBuildEvent><![CDATA[cmd /c "cd /d "$(OUTPUTDIR)" 
+ "$(PROJECTDIR)\MakeJclDbg.exe" -E "$(PROJECTNAME).map""
+$(PostBuildEvent)]]></PostBuildEvent>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -1295,4 +1301,20 @@
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
+        <PreBuildEvent/>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>cmd /c &quot;cd /d &quot;$(OUTPUTDIR)&quot; &amp;&amp; &quot;$(PROJECTDIR)\MakeJclDbg.exe&quot; -E &quot;$(PROJECTNAME).map&quot;&quot;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
+        <PreBuildEvent/>
+        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
+        <PreLinkEvent/>
+        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
+        <PostBuildEvent>cmd /c &quot;cd /d &quot;$(OUTPUTDIR)&quot; &amp;&amp; &quot;$(PROJECTDIR)\MakeJclDbg.exe&quot; -E &quot;$(PROJECTNAME).map&quot;&quot;</PostBuildEvent>
+        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
+    </PropertyGroup>
 </Project>
