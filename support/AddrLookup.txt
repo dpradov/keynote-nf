@@ -1,0 +1,27 @@
+  AddrLookup - Post-mortem address analyzer
+  Usage: AddrLookup <mapfile> <baseaddr> <erroraddr>
+
+    <mapfile>   : Path to .MAP file (generated with Detailed mode)
+    <baseaddr>  : Module base address (hex, without $)
+    <erroraddr> : Exception address (hex, without $)
+
+  Example: AddrLookup MyApp.map 880000 D35D1E
+
+* Based on JCL: JEDI Code Library (https://github.com/project-jedi/jcl)
+
+It allows you to locate the method and line that generated an exception if the executable did not contain specific code for it
+(for example, using JCL) but you do have the associated .map file (in verbose mode) for the corresponding executable.
+
+- - - - - - - - - - - - - - - - - - 
+The base address can be displayed alongside the error message (E.Message), which already includes the error address, using, for example:
+
+   function GetImageBaseAddress: Pointer;
+   begin
+     // -> Obtain the actual base address of the EXE loaded by the operating system during the specific execution (with ASLR applied).  
+     Result := Pointer(HInstance);
+   end;
+
+ E: TException;
+ MsgTxt:= Format('[%s] %s (Base Addr:%p)', [E.ClassName, E.Message, GetImageBaseAddress]);
+
+- - - - - - - - - - - - - - - - - - 
