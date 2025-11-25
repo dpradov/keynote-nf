@@ -2818,8 +2818,10 @@ const
 
 
 begin
-
-   Log_StoreTick('ProcessImagesInRTF - BEGIN', 4, +1);
+ {$IFDEF KNT_DEBUG}
+  Log_StoreTick('ProcessImagesInRTF - BEGIN', 4, +1);
+  try
+ {$ENDIF}
 
 {
 *2 Using PosPAnsiChar() instead of Pos()
@@ -3346,8 +3348,6 @@ begin
 
          Result:= RTFTextOut;
 
-         Log_StoreTick('ProcessImagesInRTF - END', 4, -1);
-
       except
         on E: Exception do
            App.ErrorPopup(E, GetRS(sImg20));
@@ -3361,6 +3361,12 @@ begin
      if (not StreamRegistered) and (Stream <> nil) then
         Stream.Free;
    end;
+
+ {$IFDEF KNT_DEBUG}
+  finally
+     Log_StoreTick('ProcessImagesInRTF - END', 4, -1);
+  end
+ {$ENDIF}
 end;
 
 
