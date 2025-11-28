@@ -4531,7 +4531,22 @@ var
 {$IFDEF RX_D12}
   PlainText: Boolean;
 {$ENDIF}
+{$IFDEF KNT_DEBUG}
+  StartTick: Cardinal;
+  ElapsedMs: Cardinal;
+  MemInfoBefore, MemInfoAfter: TMemoryInfo;
+{$ENDIF}
 begin
+
+ {$IFDEF KNT_DEBUG}
+  StartTick := GetTickCount;
+  if Log.MaxDbgLevel >= 5 then begin
+    MemInfoBefore := GetMemoryInfo;
+    Log.Add(string.Format('LoadFromStream BEGIN - %s', [GetMemoryInfoShort(MemInfoBefore)]), 4);
+  end;
+ {$ENDIF}
+
+
 {$IFDEF RX_D12}
   if Encoding = nil then
   begin
@@ -4611,6 +4626,30 @@ begin
 }
 
     SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, LPARAM(@EditStream));
+
+
+
+  {$IFDEF KNT_DEBUG}
+    ElapsedMs := GetTickCount - StartTick;
+    if (ElapsedMs > 1000) or (Log.MaxDbgLevel >= 5) then begin
+      Log.Add(string.Format('RichEdit_LoadFromStream COMPLETED - Elapsed: %d ms', [ElapsedMs]), 4);
+
+      if ElapsedMs > 3000 then begin
+         MemInfoAfter := GetMemoryInfo;
+         Log.Add('!!! SLOW LOAD DETECTED !!!', 4);
+
+         Log.Add('MEMORY BEFORE:' + GetMemoryInfoShort(MemInfoBefore), 4);
+
+         Log.Add('MEMORY AFTER:', 4);
+         Log.Add(FormatMemoryInfo(MemInfoAfter), 4);
+
+         Log.Add('', 4);
+         Log.Add(GetCurrentStackTrace, 4);
+         Log.Add('========================================', 4);
+         Log.Add('', 4);
+      end;
+    end;
+  {$ENDIF}
 
 
 //                                                                            [dpv] *1

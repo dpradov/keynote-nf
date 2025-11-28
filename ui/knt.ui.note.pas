@@ -643,7 +643,7 @@ begin
      if log.Active and  (log.MaxDbgLevel >= 5) then begin
         dataSize:= NEntry.Stream.Size;
         if dataSize > 0 then
-           str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 250)
+           str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 90)
         else
            str:= '';
         Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );

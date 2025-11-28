@@ -103,6 +103,35 @@ type
     property OnAdded : TGFLogOnAdded read fOnAdded write fOnAdded;
   end;
 
+{$IFDEF KNT_DEBUG}
+type
+  TMemoryInfo = record
+    // System-wide memory
+    TotalPhysicalMB: Int64;
+    AvailPhysicalMB: Int64;
+    MemoryLoad: DWORD;           // Percentage of memory in use
+    TotalPageFileMB: Int64;
+    AvailPageFileMB: Int64;
+
+    // Process-specific memory
+    ProcessWorkingSetMB: Int64;   // Current physical memory used by process
+    ProcessPeakWorkingSetMB: Int64;
+    ProcessPrivateBytesMB: Int64; // Committed memory for this process
+    ProcessPageFaultCount: DWORD;
+
+    // Useful calculated values
+    IsPageFilePresent: Boolean;
+    MemoryFragmentation: Double;  // Rough estimate
+  end;
+
+  function GetMemoryInfo: TMemoryInfo;
+  function GetMemoryInfoShort: string; overload;
+  function GetMemoryInfoShort (Info: TMemoryInfo): string; overload;
+  function FormatMemoryInfo(const Info: TMemoryInfo): string;
+
+  function GetCurrentStackTrace: string;
+{$ENDIF}
+
 
 procedure Register;
 
@@ -111,6 +140,7 @@ implementation
 uses
 {$IFDEF KNT_DEBUG}
   JclDebug,
+  PsAPI,
 {$ENDIF}
   knt.App;
 
@@ -390,6 +420,125 @@ begin
   end;
  {$ENDIF}
 end;
+
+
+{$IFDEF KNT_DEBUG}
+function GetMemoryInfo: TMemoryInfo;
+var
+  MemStatusEx: TMemoryStatusEx;
+  ProcessMemCounters: TProcessMemoryCounters;
+begin
+  // Initialize
+  FillChar(Result, SizeOf(Result), 0);
+
+  // Get system-wide memory status
+  MemStatusEx.dwLength := SizeOf(MemStatusEx);
+  if GlobalMemoryStatusEx(MemStatusEx) then begin
+    Result.TotalPhysicalMB := MemStatusEx.ullTotalPhys div (1024 * 1024);
+    Result.AvailPhysicalMB := MemStatusEx.ullAvailPhys div (1024 * 1024);
+    Result.MemoryLoad := MemStatusEx.dwMemoryLoad;
+    Result.TotalPageFileMB := MemStatusEx.ullTotalPageFile div (1024 * 1024);
+    Result.AvailPageFileMB := MemStatusEx.ullAvailPageFile div (1024 * 1024);
+
+    // Check if pagefile is present (TotalPageFile should be > TotalPhys if pagefile exists)
+    Result.IsPageFilePresent := MemStatusEx.ullTotalPageFile > MemStatusEx.ullTotalPhys;
+  end;
+
+  // Get process-specific memory info
+  ProcessMemCounters.cb := SizeOf(ProcessMemCounters);
+  if GetProcessMemoryInfo(GetCurrentProcess, @ProcessMemCounters, SizeOf(ProcessMemCounters)) then begin
+    Result.ProcessWorkingSetMB := ProcessMemCounters.WorkingSetSize div (1024 * 1024);
+    Result.ProcessPeakWorkingSetMB := ProcessMemCounters.PeakWorkingSetSize div (1024 * 1024);
+    Result.ProcessPrivateBytesMB := ProcessMemCounters.PagefileUsage div (1024 * 1024);
+    Result.ProcessPageFaultCount := ProcessMemCounters.PageFaultCount;
+  end;
+
+  // Calculate approximate fragmentation indicator
+  // If we have little available memory but low memory load, it suggests fragmentation
+  if Result.MemoryLoad < 50 then
+    Result.MemoryFragmentation := 0.0
+  else if Result.AvailPhysicalMB < 1024 then  // Less than 1GB available
+    Result.MemoryFragmentation := (100 - Result.MemoryLoad) / 100.0
+  else
+    Result.MemoryFragmentation := 0.0;
+end;
+
+function FormatMemoryInfo(const Info: TMemoryInfo): string;
+begin
+  Result := Format(
+    'MEMORY STATUS:' + sLineBreak +
+    '  System Memory Load: %d%%' + sLineBreak +
+    '  Total Physical: %d MB' + sLineBreak +
+    '  Available Physical: %d MB' + sLineBreak +
+    '  Total PageFile: %d MB (Present: %s)' + sLineBreak +
+    '  Available PageFile: %d MB' + sLineBreak +
+    '  ---' + sLineBreak +
+    '  Process Working Set: %d MB (Peak: %d MB)' + sLineBreak +
+    '  Process Private Bytes: %d MB' + sLineBreak +
+    '  Process Page Faults: %d' + sLineBreak +
+    '  Fragmentation Indicator: %.2f',
+    [
+      Info.MemoryLoad,
+      Info.TotalPhysicalMB,
+      Info.AvailPhysicalMB,
+      Info.TotalPageFileMB,
+      BoolToStr(Info.IsPageFilePresent),
+      Info.AvailPageFileMB,
+      Info.ProcessWorkingSetMB,
+      Info.ProcessPeakWorkingSetMB,
+      Info.ProcessPrivateBytesMB,
+      Info.ProcessPageFaultCount,
+      Info.MemoryFragmentation
+    ]
+  );
+end;
+
+function GetMemoryInfoShort: string;
+var
+  Info: TMemoryInfo;
+begin
+  Info := GetMemoryInfo;
+  Result:= GetMemoryInfoShort(Info);
+end;
+
+function GetMemoryInfoShort (Info: TMemoryInfo): string;
+begin
+  Info := GetMemoryInfo;
+  Result := Format(
+    'Mem: %d%% | Avail: %dMB | Process WS: %dMB (Priv: %dMB) | PF: %s',
+    [
+      Info.MemoryLoad,
+      Info.AvailPhysicalMB,
+      Info.ProcessWorkingSetMB,
+      Info.ProcessPrivateBytesMB,
+      BoolToStr(Info.IsPageFilePresent)
+    ]
+  );
+end;
+
+
+
+function GetCurrentStackTrace: string;
+var
+  StackList: TJclStackInfoList;
+  i: Integer;
+  Item: TJclStackInfoItem;
+  Addr: Pointer;
+begin
+  Result := 'STACK TRACE:';
+  StackList := TJclStackInfoList.Create(True, 4, nil, False);
+  try
+    for i := 0 to StackList.Count - 1 do begin
+      Item := TJclStackInfoItem(StackList.Items[i]);
+      Addr := Item.CallerAddr;
+      Result := Result + sLineBreak + JclDebug.GetLocationInfoStr(Addr, True, False, True, False)
+    end;
+  finally
+    StackList.Free;
+  end;
+end;
+
+{$ENDIF}
 
 
 procedure Register;
