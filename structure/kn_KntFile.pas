@@ -559,6 +559,8 @@ begin
   if FTextPlainVariablesInitialized then Exit;
   if UpdatingTextPlain then Exit;
 
+  Log_StoreTick('UpdateTextPlainVariables - BEGIN', 2, +1);
+
   UpdatingTextPlain:= True;
   RTFAux:= CreateAuxRichEdit;
   RTFAux.BeginUpdate;             // This instruction reduces the times obtained (See InitializeTextPlain_Compare_RTF, in kn_KntFolder)
@@ -588,6 +590,13 @@ begin
   finally
     RTFAux.Free;
     UpdatingTextPlain:= False;
+    Log_StoreTick('UpdateTextPlainVariables - END', 2, -1);
+   {$IFDEF KNT_DEBUG}
+     if FTextPlainVariablesInitialized then
+        Log.Add( '* UpdateTextPlainVariables FINISHED' );
+   {$ENDIF}
+
+
   end;
 
 end;
@@ -1980,7 +1989,7 @@ begin
       end;
 
    except on E: Exception do begin
-     App.ErrorPopup( GetRS(sFile19) + E.Message);
+     App.ErrorPopup( GetRS(sFile19) + E.Message, E);
      Result:= false;
      end
    end;

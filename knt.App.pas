@@ -189,7 +189,7 @@ type
                             const HelpCtx: integer= 0): word;
       procedure InfoPopup(const aStr: string);
       procedure WarningPopup(const aStr: string);
-      procedure ErrorPopup(const aStr: string); overload;
+      procedure ErrorPopup(const aStr: string; const E: Exception = nil); overload;
       procedure ErrorPopup(const E: Exception = nil; const Str: string = ''); overload;
       procedure WarnFunctionNotImplemented(const aStr: string);
       procedure WarnCommandNotImplemented(const aStr: string);
@@ -254,6 +254,7 @@ var
 implementation
 uses
    GFTipDlg,
+   GFLog,
    gf_Lang,
    kn_MacroMng,
    kn_VCLControlsMng,
@@ -596,6 +597,8 @@ var
    OldNNode: TNoteNode;
    OldFolder: TKntFolder;
 begin
+    Log_StoreTick('TKntApp.EditorSelected - BEGIN', 4, +1);
+
     EnsureContentEditorUpdated (Editor);
 
     ActiveEditor:= Editor;
@@ -631,6 +634,8 @@ begin
        if OldNNode <> ActiveNNode then
           NNodeSelected(ActiveNNode);
     end;
+
+    Log_StoreTick('TKntApp.EditorSelected - END', 4, -1);
 end;
 
 procedure TKntApp.EditorAvailable (Editor: TKntRichEdit);
@@ -662,6 +667,8 @@ begin
 
    if NoteSavedEditor.NumNNodes <= 1 then exit;
 
+   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, +1);
+
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
       if (E = Editor) then continue;
@@ -678,6 +685,8 @@ begin
          E.SetScrollPosInEditor(SP);
       end;
    end;
+
+   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, -1);
 
 end;
 
@@ -697,6 +706,8 @@ begin
 
    if NoteSelecEditor.NumNNodes <= 1 then exit;
 
+   Log_StoreTick('TKntApp.EnsureContentEditorUpdated - BEGIN', 4, +1);
+
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
       if (E = Editor) or (not E.Modified) then continue;
@@ -708,6 +719,8 @@ begin
          exit;
       end;
    end;
+
+   Log_StoreTick('TKntApp.EnsureContentEditorUpdated - END', 4, -1);
 
 end;
 
@@ -780,6 +793,8 @@ procedure TKntApp.TreeFocused (Tree: TKntTreeUI);
 var
   PrevFolder: TKntFolder;
 begin
+  Log_StoreTick('TKntApp.TreeFocused', 4);
+
   if Tree <> ActiveTreeUI then begin
      PrevFolder:= ActiveFolder;
      ActiveTreeUI:= Tree;
@@ -811,6 +826,8 @@ var
 begin
    try
       if assigned(Folder) then begin
+
+         Log_StoreTick('TKntApp.FolderSelected', 4);
 
          if assigned(PrevFolder) then begin
             Form_Main.CheckRestoreAppWindowWidth (true);
@@ -938,9 +955,11 @@ begin
       Form_Main.TVTags.PopupMenu:= Form_Main.Menu_Tags;
 
    if App.TagsState = tsVisible then begin
+      Log_StoreTick('TKntApp.TagsUpdated - BEGIN', 4, +1);
       ActiveFile.SortNoteTags;
       Form_Main.TVTags.RootNodeCount:= ActiveFile.NoteTags.Count;
       Form_Main.CheckFilterTags;
+      Log_StoreTick('TKntApp.TagsUpdated - END', 4, -1);
    end
    else
       App.TagsState := tsPendingUpdate;
@@ -1009,9 +1028,21 @@ begin
   PopupMessage(aStr, TMsgDlgType.mtWarning, [mbOK]);
 end;
 
-procedure TKntApp.ErrorPopup(const aStr: string);
+procedure TKntApp.ErrorPopup(const aStr: string; const E: Exception = nil);
+var
+  msg: string;
 begin
-  PopupMessage(aStr, TMsgDlgType.mtError, [mbOK]);
+  msg:= aStr;
+  if (E <> nil) then
+     msg:= msg + #13 + Format('[ Base Address: %p ]', [GetImageBaseAddress]);
+
+  PopupMessage(msg, TMsgDlgType.mtError, [mbOK]);
+
+ {$IFDEF KNT_DEBUG}
+  if assigned(Log) and (E <> nil) then
+     Log.LogException(E, aStr);
+ {$ENDIF}
+
 end;
 
 
@@ -1033,9 +1064,15 @@ begin
      msg:= Str;
 
   if E <> nil then
-     msg:= msg + #13 + E.Message;
+     msg:= msg + #13 + E.Message + #13 + Format('[ Base Address: %p ]', [GetImageBaseAddress]);
 
   ErrorPopup(msg);
+
+ {$IFDEF KNT_DEBUG}
+  if assigned(Log) and (E <> nil) then
+     Log.LogException(E, Str);
+ {$ENDIF}
+
 end;
 
 procedure TKntApp.WarnCommandNotImplemented(const aStr: string);

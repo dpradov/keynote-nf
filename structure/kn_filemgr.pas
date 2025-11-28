@@ -190,7 +190,7 @@ begin
 
     except
       on E : Exception do begin
-        App.ErrorPopup(E.Message);
+        App.ErrorPopup(E);
         exit;
       end;
     end;
@@ -330,7 +330,7 @@ begin
       begin
         if assigned( Info ) then Info.Free;
       end;
-      App.ErrorPopup(E.Message);
+      App.ErrorPopup(E);
     end;
   end;
 
@@ -378,7 +378,7 @@ begin
       TV.SortTree(-1, sdAscending);
     except
       on E : Exception do begin
-        App.ErrorPopup(GetRS(sFmg02) + E.Message);
+        App.ErrorPopup(GetRS(sFmg02) + E.Message, E);
         ModalResult := mrCancel;
       end;
     end;

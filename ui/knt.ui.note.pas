@@ -534,7 +534,11 @@ end;
 
 procedure TKntNoteUI.SaveToDataModel;
 begin
+   Log_StoreTick('TKntNoteUI.SaveToDataModel - BEGIN', 4, +1);
+   
    FNEntriesUI.SaveToDataModel;
+   
+   Log_StoreTick('TKntNoteUI.SaveToDataModel - END', 4, -1);
 end;
 
 procedure TKntNoteUI.ReloadNoteName;

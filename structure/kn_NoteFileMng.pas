@@ -2708,6 +2708,8 @@ begin
   if (( ActiveFile.FileFormat = nffEncrypted ) or ( not KeyOptions.TimerCloseEncOnly )) then begin
     // only under these conditions do we try to autoclose...
 
+    Log_StoreTick('AutoCloseKntFile', 0);
+
     // First, do our own forms
     if ( Screen.FormCount > 1 ) then begin
       if KeyOptions.TimerCloseDialogs then begin

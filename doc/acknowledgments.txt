@@ -19,6 +19,13 @@ New libraries and components are used in KeyNote NF. Thanks to its authors:
 
 * Jordan Russell, for Inno Setup (https://jrsoftware.org/isinfo.php)
 
+* RxLib authors (Fedor Koshevnikov, Igor Pavluk, Serge Korolev) and Jaro Benes for unRxLib, Unofficial version Rx library for Delphi 2005
+ (https://www.micrel.cz/RxLib/dfiles.htm)
+ 
+* Mike Lischke, Joachim Marder and all other contributors, for Virtual-TreeView (https://github.com/JAM-Software/Virtual-TreeView.git)
+ 
+* Developers of the Project JEDI for JCL (JEDI Code Library) (https://github.com/project-jedi/jcl)
+
 
 * And of course thanks to Marek Jedlinski for KeyNote  (http://www.tranglos.com/free/keynote.html)   :) 
   This program, KeyNote NF, is just a simple evolution of KeyNote, with a few of enhancements on that.

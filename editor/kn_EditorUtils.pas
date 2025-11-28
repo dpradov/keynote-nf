@@ -241,7 +241,7 @@ begin
 
         except
           on e : exception do begin
-            App.ErrorPopup(E.Message);
+            App.ErrorPopup(E);
             ToggleOff;
           end;
         end;
@@ -267,7 +267,7 @@ begin
             SetClipCapState( false );
         except
           on e : exception do
-			App.ErrorPopup(E.Message);
+			App.ErrorPopup(E);
         end;
 
       finally

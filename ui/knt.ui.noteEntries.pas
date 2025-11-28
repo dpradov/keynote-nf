@@ -528,7 +528,7 @@ begin
 
      except
        On E : Exception do begin
-         App.ErrorPopup(E.Message);
+         App.ErrorPopup(E);
          exit;
        end;
      end;
@@ -629,10 +629,10 @@ begin
 
      Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - BEGIN', 4, +1);
     {$IFDEF KNT_DEBUG}
-     if log.Active and  (log.MaxDbgLevel >= 4) then begin
+     if log.Active and  (log.MaxDbgLevel >= 5) then begin
         dataSize:= NEntry.Stream.Size;
         if dataSize > 0 then
-           str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 250)
+           str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 90)
         else
            str:= '';
         Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );

@@ -553,7 +553,7 @@ begin
       shellexecute( 0, 'open', PChar( kbdlist_fn ), nil, nil, SW_NORMAL );
     except
       on E : Exception do
-        App.ErrorPopup(E.Message);
+        App.ErrorPopup(E);
     end;
 
   finally

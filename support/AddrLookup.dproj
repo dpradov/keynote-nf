@@ -1,15 +1,15 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{D8BB21C7-F08A-4EC5-AA3A-B61205ECD2B8}</ProjectGuid>
-        <MainSource>keynote.dpr</MainSource>
-        <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
-        <TargetedPlatforms>3</TargetedPlatforms>
-        <AppType>Application</AppType>
-        <FrameworkType>VCL</FrameworkType>
+        <ProjectGuid>{1063418A-68C1-42BC-87C6-03DF0CDC5DA7}</ProjectGuid>
         <ProjectVersion>20.1</ProjectVersion>
+        <FrameworkType>None</FrameworkType>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
-        <ProjectName Condition="'$(ProjectName)'==''">keynote</ProjectName>
+        <ProjectName Condition="'$(ProjectName)'==''">AddrLookup</ProjectName>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Console</AppType>
+        <MainSource>AddrLookup.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -24,7 +24,7 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
@@ -35,13 +35,7 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
-        <Cfg_1_Win64>true</Cfg_1_Win64>
-        <CfgParent>Cfg_1</CfgParent>
-        <Cfg_1>true</Cfg_1>
-        <Base>true</Base>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
@@ -52,402 +46,126 @@
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
     </PropertyGroup>
-    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
-        <Cfg_2_Win64>true</Cfg_2_Win64>
-        <CfgParent>Cfg_2</CfgParent>
-        <Cfg_2>true</Cfg_2>
-        <Base>true</Base>
-    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_Alignment>1</DCC_Alignment>
-        <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
-        <DCC_DebugInformation>1</DCC_DebugInformation>
+        <DCC_DcuOutput>.\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_ExeOutput>.\$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_E>false</DCC_E>
-        <DCC_F>false</DCC_F>
-        <DCC_WriteableConstants>true</DCC_WriteableConstants>
-        <DCC_K>false</DCC_K>
-        <DCC_N>true</DCC_N>
+        <DCC_N>false</DCC_N>
         <DCC_S>false</DCC_S>
-        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
-        <DCC_Hints>false</DCC_Hints>
-        <DCC_ImageBase>00400000</DCC_ImageBase>
-        <DCC_ExeOutput>..\Output\bin</DCC_ExeOutput>
-        <DCC_DcuOutput>..\Output\Dcu</DCC_DcuOutput>
-        <DCC_UnitSearchPath>$(BDS)\source\ToolsAPI;.\3rd_party\DcpCrypt-1_3;.\3rd_party\tb97_178a\Source;.\3rd_party\RichPrint;.\3rd_party\unRxLib\units;.\3rd_party\Kryvich Delphi Localizer;.\3rd_party\Virtual-TreeView\Source;.\3rd_party\JCL\jcl\source\common;.\3rd_party\JCL\jcl\source\windows;.\3rd_party\JCL\jcl\source\vcl;.\3rd_party\JCL\jcl\source\include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <SanitizedProjectName>keynote</SanitizedProjectName>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;DUnitX.CommandLine;System.Win;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_MinorVer>7</VerInfo_MinorVer>
-        <VerInfo_Release>9</VerInfo_Release>
-        <VerInfo_Build>8</VerInfo_Build>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF (New Features);FileVersion=1.7.9.8;InternalName=KeyNote NF;LegalCopyright=(c) Daniel Prado 2007-17  (c) Marek Jedlinski, 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF;ProductVersion=1.7.9 Beta 8 (30/04/17);Comments=Improvements over version 1.6.5 of Marek&apos;s KeyNote;X-Fnord=;X-URL=http://code.google.com/p/keynote-nf/;X-MAILTO=dprado.keynote@gmail.com</VerInfo_Keys>
-        <DCC_Define>VCL;TREENT_NO_LOADFROM;TREENT_NO_PRINT;EXCLUDEEMAIL;EMBED_UTILS_DLL;$(DCC_Define)</DCC_Define>
+        <DCC_F>false</DCC_F>
+        <DCC_K>false</DCC_K>
+        <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <SanitizedProjectName>AddrLookup</SanitizedProjectName>
+        <DCC_UnitSearchPath>..\3rd_party\JCL\jcl\source\common;..\3rd_party\JCL\jcl\source\windows;..\3rd_party\JCL\jcl\source\vcl;..\3rd_party\JCL\jcl\source\include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_UsePackage>vclwinx;fmx;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;Skia.Package.RTL;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;bindcompfmx;inetdb;FireDACSqliteDriver;DbxClientDriver;soapmidas;vclactnband;fmxFireDAC;dbexpress;Components;DBXMySQLDriver;VclSmp;inet;vcltouch;fmxase;dbrtl;Skia.Package.FMX;fmxdae;FireDACMSAccDriver;CustomIPTransport;vcldsnap;DBXInterBaseDriver;IndySystem;Skia.Package.VCL;vcldb;VirtualTreesR;vclFireDAC;bindcomp;FireDACCommon;RtmRxCtl280;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;adortl;vclimg;FireDACPgDriver;FireDAC;inetdbxpress;xmlrtl;tethering;bindcompvcl;dsnap;CloudService;fmxobj;bindcompvclsmp;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.7.9.8;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <Icon_MainIcon>keynote_Icon.ico</Icon_MainIcon>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <Icon_MainIcon>keynote_Icon.ico</Icon_MainIcon>
+        <DCC_UsePackage>vclwinx;fmx;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;FireDACCommonODBC;FireDACCommonDriver;appanalytics;IndyProtocols;vclx;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;bindcompfmx;inetdb;FireDACSqliteDriver;DbxClientDriver;soapmidas;vclactnband;fmxFireDAC;dbexpress;DBXMySQLDriver;VclSmp;inet;vcltouch;fmxase;dbrtl;fmxdae;FireDACMSAccDriver;CustomIPTransport;vcldsnap;DBXInterBaseDriver;IndySystem;Skia.Package.VCL;vcldb;VirtualTreesR;vclFireDAC;bindcomp;FireDACCommon;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;adortl;vclimg;FireDACPgDriver;FireDAC;inetdbxpress;xmlrtl;tethering;bindcompvcl;dsnap;CloudService;fmxobj;bindcompvclsmp;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_ConsoleTarget>true</DCC_ConsoleTarget>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <DCC_Namespace>Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <VerInfo_MinorVer>0</VerInfo_MinorVer>
-        <VerInfo_Release>0</VerInfo_Release>
-        <VerInfo_Build>0</VerInfo_Build>
-        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
-        <DCC_DebugInformation>0</DCC_DebugInformation>
-        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
-        <VerInfo_MinorVer>1</VerInfo_MinorVer>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.1.3 .01 (x86);FileVersion=2.1.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.1.3.1;Comments=;ProgramID=</VerInfo_Keys>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <DCC_MapFile>3</DCC_MapFile>
-        <VerInfo_Build>1</VerInfo_Build>
-        <DCC_OutputDRCFile>true</DCC_OutputDRCFile>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
-        <VerInfo_MinorVer>1</VerInfo_MinorVer>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.1.3 .01 (x64);FileVersion=2.1.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.1.3.1;Comments=</VerInfo_Keys>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <DCC_MapFile>3</DCC_MapFile>
-        <DCC_OutputDRCFile>true</DCC_OutputDRCFile>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2)'!=''">
-        <DCC_Define>DEBUG;KNT_DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+        <DCC_DebugDCUs>true</DCC_DebugDCUs>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_RangeChecking>true</DCC_RangeChecking>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
         <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+        <DCC_RangeChecking>true</DCC_RangeChecking>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <DCC_RemoteDebug>false</DCC_RemoteDebug>
+        <DCC_ExeOutput>.</DCC_ExeOutput>
+        <DCC_DcpOutput>.</DCC_DcpOutput>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>(None)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=AddrLookup (Post-mortem address analyzer);FileVersion=1.0.0.0;InternalName=;LegalCopyright=(c) Daniel Prado Velasco 2025;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=AddrLookup.exe;ProgramID=;ProductName=AddrLookup;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
+        <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
-        <VerInfo_MinorVer>1</VerInfo_MinorVer>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.1.3 .01 (x86);FileVersion=2.1.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProductName=KeyNote NF (New Features);ProductVersion=2.1.3.1;Comments=;ProgramID=</VerInfo_Keys>
-        <UsePackages>true</UsePackages>
-        <UWP_DelphiLogo44>keynote_Icon.ico</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>keynote_Icon.ico</UWP_DelphiLogo150>
-        <DCC_DebugInformation>2</DCC_DebugInformation>
-        <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_Build>1</VerInfo_Build>
-        <DCC_MapFile>3</DCC_MapFile>
-        <PostBuildEvent><![CDATA[cmd /c "cd /d "$(OUTPUTDIR)" 
- "$(PROJECTDIR)\MakeJclDbg.exe" -E "$(PROJECTNAME).map"
-$(PostBuildEvent)]]></PostBuildEvent>
-        <Debugger_RunParams>-debug3</Debugger_RunParams>
-        <PostBuildEventExecuteWhen>TargetOutOfDate</PostBuildEventExecuteWhen>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <AppDPIAwarenessMode>gdiScaling</AppDPIAwarenessMode>
-        <VerInfo_MinorVer>1</VerInfo_MinorVer>
-        <VerInfo_Release>3</VerInfo_Release>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileDescription=KeyNote NF 2.1.3 .01 (x64);FileVersion=2.1.3.1;InternalName=;LegalCopyright=(c) Daniel Prado 2007-25 (c) Marek Jedlinski 2000-05;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=keynote.exe;ProgramID=;ProductName=KeyNote NF (New Features);ProductVersion=2.1.3.1;Comments=</VerInfo_Keys>
-        <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
-        <DCC_DebugInformation>2</DCC_DebugInformation>
-        <DCC_DebugDCUs>true</DCC_DebugDCUs>
-        <UsePackages>true</UsePackages>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <DCC_MapFile>3</DCC_MapFile>
-        <PostBuildEvent><![CDATA[cmd /c "cd /d "$(OUTPUTDIR)" 
- "$(PROJECTDIR)\MakeJclDbg.exe" -E "$(PROJECTNAME).map"
-$(PostBuildEvent)]]></PostBuildEvent>
-        <PostBuildEventExecuteWhen>TargetOutOfDate</PostBuildEventExecuteWhen>
+        <DCC_ExeOutput>.</DCC_ExeOutput>
+        <DCC_DcpOutput>.</DCC_DcpOutput>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Manifest_File>(None)</Manifest_File>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=AddrLookup (Post-mortem address analyzer);FileVersion=1.0.0.0;InternalName=;LegalCopyright=(c) Daniel Prado Velasco 2025;LegalTrademarks=Free software, MPL 2.0;OriginalFilename=AddrLookup.exe;ProgramID=;ProductName=AddrLookup;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="3rd_party\Kryvich Delphi Localizer\KDL.Localizer.pas"/>
-        <DCCReference Include="Lang\knt.RS.pas"/>
-        <DCCReference Include="3rd_party\unRxLib\units\RxRichEd.pas"/>
-        <DCCReference Include="3rd_party\unRxLib\units\RxPlacemnt.pas"/>
-        <DCCReference Include="3rd_party\tb97_178a\Source\TB97Ctls.pas"/>
-        <DCCReference Include="3rd_party\colorpicker\ColorPicker.pas"/>
-        <DCCReference Include="3rd_party\ComCtrls95\ComCtrls95.pas"/>
-        <DCCReference Include="3rd_party\gfxlbcb\cmpGFXListBox.pas"/>
-        <DCCReference Include="3rd_party\gfxlbcb\cmpGFXComboBox.pas"/>
-        <DCCReference Include="3rd_party\sysimglist\SystemImageList.pas"/>
-        <DCCReference Include="3rd_party\langcombo\Langs.pas"/>
-        <DCCReference Include="3rd_party\langcombo\LCCombo.pas"/>
-        <DCCReference Include="3rd_party\topmostwindow\TopWnd.pas"/>
-        <DCCReference Include="3rd_party\browsedr\BrowseDr.pas"/>
-        <DCCReference Include="3rd_party\mruflist\MRUFList.pas"/>
-        <DCCReference Include="3rd_party\Delphi Fast Zlib 1.2.3\ZLIBEX.PAS"/>
-        <DCCReference Include="3rd_party\UWebBrowserWrapper\UWebBrowserWrapper.pas"/>
-        <DCCReference Include="3rd_party\wordweb\FreeWordWeb.pas"/>
-        <DCCReference Include="3rd_party\UAS\TestUAS\UAS.pas"/>
-        <DCCReference Include="3rd_party\ajbspeller\AJBSpeller.pas"/>
-        <DCCReference Include="3rd_party\expression_evaluator\Parser.pas"/>
-        <DCCReference Include="3rd_party\CRCDelphi\crc32.pas"/>
-        <DCCReference Include="3rd_party\dcpcrypt-1_3\DCPcrypt.pas"/>
-        <DCCReference Include="3rd_party\SynGdiPlus\SynGdiPlus.pas"/>
-        <DCCReference Include="support\gf_Bits.pas"/>
-        <DCCReference Include="support\gf_fileassoc.pas"/>
-        <DCCReference Include="support\gf_Files.pas"/>
-        <DCCReference Include="support\gf_Lang.pas"/>
-        <DCCReference Include="support\gf_LangCombo.pas"/>
-        <DCCReference Include="support\gf_misc.pas"/>
-        <DCCReference Include="support\gf_miscvcl.pas"/>
-        <DCCReference Include="support\gf_streams.pas"/>
-        <DCCReference Include="support\gf_strings.pas"/>
-        <DCCReference Include="support\GFLog.pas"/>
-        <DCCReference Include="general\GFTipDlg.pas"/>
-        <DCCReference Include="general\GFTipDlgForm.pas">
-            <Form>GFTipForm</Form>
-        </DCCReference>
-        <DCCReference Include="general\kn_about.pas">
-            <Form>AboutBox</Form>
-        </DCCReference>
-        <DCCReference Include="general\kn_Chest.pas">
-            <Form>Chest</Form>
-            <DesignClass>TDataModule</DesignClass>
-        </DCCReference>
-        <DCCReference Include="general\kn_Cmd.pas"/>
-        <DCCReference Include="general\kn_ConfigMng.pas"/>
-        <DCCReference Include="general\kn_Const.pas"/>
-        <DCCReference Include="general\kn_DateTime.pas"/>
-        <DCCReference Include="general\kn_Defaults.pas">
-            <Form>Form_Defaults</Form>
-        </DCCReference>
-        <DCCReference Include="general\kn_Global.pas"/>
-        <DCCReference Include="general\kn_Info.pas"/>
-        <DCCReference Include="general\kn_INI.pas"/>
-        <DCCReference Include="general\kn_KBD.pas"/>
-        <DCCReference Include="general\kn_Msgs.pas"/>
-        <DCCReference Include="general\kn_OptionsNew.pas">
-            <Form>Form_OptionsNew</Form>
-        </DCCReference>
-        <DCCReference Include="general\kn_VCLControlsMng.pas"/>
-        <DCCReference Include="general\dll_Keyboard.pas"/>
-        <DCCReference Include="editor\kn_BookmarksMng.pas"/>
-        <DCCReference Include="editor\kn_CharsNew.pas">
-            <Form>Form_CharsNew</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_ClipUtils.pas"/>
-        <DCCReference Include="editor\kn_EditorUtils.pas"/>
-        <DCCReference Include="editor\kn_ExpTermDef.pas">
-            <Form>Form_TermDef</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_FindReplace.pas">
-            <Form>Form_FindReplace</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_FindReplaceMng.pas"/>
-        <DCCReference Include="editor\kn_Glossary.pas">
-            <Form>Form_Glossary</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_LanguageSel.pas">
-            <Form>Form_Lang</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_LinksMng.pas"/>
-        <DCCReference Include="editor\kn_NewTemplate.pas">
-            <Form>Form_Template</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_Paragraph.pas">
-            <Form>Form_Para</Form>
-        </DCCReference>
-        <DCCReference Include="editor\kn_RTFUtils.pas"/>
-        <DCCReference Include="editor\kn_StyleMng.pas"/>
-        <DCCReference Include="editor\kn_StyleObj.pas"/>
-        <DCCReference Include="editor\kn_TemplateMng.pas"/>
-        <DCCReference Include="editor\kn_URL.pas">
-            <Form>Form_URLAction</Form>
-        </DCCReference>
-        <DCCReference Include="editor\MSOfficeConverters.pas"/>
-        <DCCReference Include="editor\MSWordConverter.pas"/>
-        <DCCReference Include="Lang\kn_LanguagesMng.pas"/>
-        <DCCReference Include="ui\knt.ui.editor.pas"/>
-        <DCCReference Include="macros\kn_MacroMng.pas"/>
-        <DCCReference Include="macros\kn_Macro.pas"/>
-        <DCCReference Include="macros\kn_MacroCmd.pas"/>
-        <DCCReference Include="macros\kn_MacroCmdSelect.pas">
-            <Form>Form_MacroCmd</Form>
-        </DCCReference>
-        <DCCReference Include="macros\kn_MacroEdit.pas">
-            <Form>Form_Macro</Form>
-        </DCCReference>
-        <DCCReference Include="plugins\kn_PluginsMng.pas"/>
-        <DCCReference Include="plugins\kn_PluginBase.pas"/>
-        <DCCReference Include="plugins\kn_Plugins.pas"/>
-        <DCCReference Include="structure\kn_ExportImport.pas"/>
-        <DCCReference Include="structure\kn_ExportNew.pas">
-            <Form>Form_ExportNew</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_FileDropAction.pas">
-            <Form>Form_DropFile</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_FileInfo.pas">
-            <Form>Form_KntFileInfo</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_filemgr.pas">
-            <Form>Form_FileMgr</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_KntFile.pas"/>
-        <DCCReference Include="structure\kn_History.pas"/>
-        <DCCReference Include="structure\kn_ImagePicker.pas">
-            <Form>Form_ImgPick</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_LocationObj.pas"/>
-        <DCCReference Include="structure\kn_KntFolder_New.pas">
-            <Form>Form_NewKntFolder</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_NodeNum.pas">
-            <Form>Form_NodeNum</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_NoteFileMng.pas"/>
-        <DCCReference Include="structure\kn_KntFolder.pas"/>
-        <DCCReference Include="structure\kn_pass.pas">
-            <Form>Form_Password</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_TabSelect.pas">
-            <Form>Form_SelectTab</Form>
-        </DCCReference>
-        <DCCReference Include="structure\kn_VirtualNodeForm.pas">
-            <Form>Form_VNode</Form>
-        </DCCReference>
-        <DCCReference Include="various\kn_SendMail.pas"/>
-        <DCCReference Include="various\kn_AlertMng.pas">
-            <Form>Form_Alarm</Form>
-        </DCCReference>
-        <DCCReference Include="various\kn_FavExtDlg.pas">
-            <Form>Form_FavExt</Form>
-        </DCCReference>
-        <DCCReference Include="various\kn_FavoritesMng.pas"/>
-        <DCCReference Include="editor\kn_ImagesUtils.pas"/>
-        <DCCReference Include="editor\kn_ImagesMng.pas"/>
-        <DCCReference Include="editor\kn_ImageForm.pas">
-            <Form>Form_Image</Form>
-        </DCCReference>
-        <DCCReference Include="various\tom_TLB.pas"/>
-        <DCCReference Include="general\kn_UpdateVersion.pas">
-            <Form>UpdateVersion</Form>
-        </DCCReference>
-        <DCCReference Include="kn_Main.pas">
-            <Form>Form_Main</Form>
-        </DCCReference>
-        <DCCReference Include="ui\knt.ui.tree.pas">
-            <Form>KntTreeUI</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="model\knt.model.note.pas"/>
-        <DCCReference Include="ui\knt.ui.note.pas">
-            <Form>KntNoteUI</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="ui\knt.ui.noteEntries.pas">
-            <Form>KntNoteEntriesUI</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="ui\knt.ui.info.pas"/>
-        <DCCReference Include="ui\VirtualTrees.Accessibility_MOD.pas"/>
-        <DCCReference Include="editor\kn_FoldBlockDef.pas">
-            <Form>Form_FoldBlockDef</Form>
-        </DCCReference>
-        <DCCReference Include="ui\knt.ui.tagSelector.pas">
-            <Form>$IFDEF EMBED_UTILS_DLL</Form>
-        </DCCReference>
-        <DCCReference Include="ui\knt.ui.Selector.pas">
-            <Form>$IFDEF EMBED_UTILS_DLL</Form>
-        </DCCReference>
-        <DCCReference Include="ui\knt.ui.TagMng.pas"/>
-        <DCCReference Include="ui\knt.ui.floatingEditor.pas"/>
-        <DCCReference Include="general\dll_Hotkey.pas"/>
-        <DCCReference Include="general\dll_KBD.pas"/>
-        <DCCReference Include="general\dll_Main.pas"/>
-        <DCCReference Include="kn_DLLinterface.pas"/>
-        <DCCReference Include="support\kn_DLLmng.pas"/>
-        <DCCReference Include="knt.App.pas">
-            <Form>$R *.RES</Form>
-        </DCCReference>
-        <None Include="support\gf_base.inc">
-            <ContainerId>File</ContainerId>
-        </None>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
-        <BuildConfiguration Include="Release">
+        <BuildConfiguration Include="Debug">
             <Key>Cfg_1</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
-        <BuildConfiguration Include="Debug">
+        <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
         </BuildConfiguration>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Delphi.Personality.12</Borland.Personality>
-        <Borland.ProjectType>VCLApplication</Borland.ProjectType>
+        <Borland.ProjectType>Application</Borland.ProjectType>
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">keynote.dpr</Source>
+                    <Source Name="MainSource">AddrLookup.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
-            <Platforms>
-                <Platform value="Win32">True</Platform>
-                <Platform value="Win64">True</Platform>
-            </Platforms>
             <Deployment Version="4">
-                <DeployFile LocalName="E:\Output\bin\keynote.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>keynote.exe</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="E:\Output\bin\keynote.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>keynote.exe</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\iossimulator\libpcre.dylib" Class="DependencyModule">
+                    <Platform Name="iOSSimulator">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="keynote_Icon.ico" Configuration="Debug" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
+                <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
+                    <Platform Name="OSX32">
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="support\gf_base.inc" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="Win32\Debug\AddrLookup.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="support\gf_base.inc" Configuration="Release" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
+                        <RemoteName>AddrLookup.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
+                    <Platform Name="iOSSimulator">
+                        <Operation>1</Operation>
+                    </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -471,12 +189,6 @@ $(PostBuildEvent)]]></PostBuildEvent>
                     </Platform>
                     <Platform Name="Android64">
                         <RemoteDir>res\xml</RemoteDir>
-                        <Operation>1</Operation>
-                    </Platform>
-                </DeployClass>
-                <DeployClass Name="AndroidGDBServer">
-                    <Platform Name="Android">
-                        <RemoteDir>library\lib\armeabi-v7a</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
@@ -867,6 +579,7 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -875,14 +588,17 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 </DeployClass>
                 <DeployClass Name="DependencyFramework">
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.framework</Extensions>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.framework</Extensions>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.framework</Extensions>
                     </Platform>
@@ -891,15 +607,30 @@ $(PostBuildEvent)]]></PostBuildEvent>
                     </Platform>
                 </DeployClass>
                 <DeployClass Name="DependencyModule">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                        <Extensions>.dylib</Extensions>
+                    </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -922,14 +653,17 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                         <Extensions>.dylib</Extensions>
                     </Platform>
@@ -955,12 +689,15 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\Resources\StartUp\</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\Resources\StartUp\</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\Resources\StartUp\</RemoteDir>
                         <Operation>0</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -975,9 +712,44 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectOSXDebug"/>
-                <DeployClass Name="ProjectOSXEntitlements"/>
-                <DeployClass Name="ProjectOSXInfoPList"/>
+                <DeployClass Name="ProjectOSXDebug">
+                    <Platform Name="OSX64">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>..\$(PROJECTNAME).app.dSYM\Contents\Resources\DWARF</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXEntitlements">
+                    <Platform Name="OSX32">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectOSXInfoPList">
+                    <Platform Name="OSX32">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSX64">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="OSXARM64">
+                        <RemoteDir>Contents</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectOSXResource">
                     <Platform Name="OSX32">
                         <RemoteDir>Contents\Resources</RemoteDir>
@@ -1014,12 +786,15 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX32">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSX64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="OSXARM64">
+                        <RemoteDir>Contents\MacOS</RemoteDir>
                         <Operation>1</Operation>
                     </Platform>
                     <Platform Name="Win32">
@@ -1057,9 +832,41 @@ $(PostBuildEvent)]]></PostBuildEvent>
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <DeployClass Name="ProjectiOSEntitlements"/>
-                <DeployClass Name="ProjectiOSInfoPList"/>
-                <DeployClass Name="ProjectiOSLaunchScreen"/>
+                <DeployClass Name="ProjectiOSEntitlements">
+                    <Platform Name="iOSDevice32">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\</RemoteDir>
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSInfoPList">
+                    <Platform Name="iOSDevice32">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSDevice64">
+                        <Operation>1</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <Operation>1</Operation>
+                    </Platform>
+                </DeployClass>
+                <DeployClass Name="ProjectiOSLaunchScreen">
+                    <Platform Name="iOSDevice64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
+                    <Platform Name="iOSSimARM64">
+                        <RemoteDir>..\$(PROJECTNAME).launchscreen</RemoteDir>
+                        <Operation>64</Operation>
+                    </Platform>
+                </DeployClass>
                 <DeployClass Name="ProjectiOSResource">
                     <Platform Name="iOSDevice32">
                         <Operation>1</Operation>
@@ -1297,36 +1104,21 @@ $(PostBuildEvent)]]></PostBuildEvent>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="iOSSimARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Linux64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME)"/>
-                <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSX64" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="OSXARM64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win64x" Name="$(PROJECTNAME)"/>
             </Deployment>
-            <ModelSupport>False</ModelSupport>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">False</Platform>
+            </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>
     </ProjectExtensions>
     <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
     <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
     <Import Project="$(MSBuildProjectName).deployproj" Condition="Exists('$(MSBuildProjectName).deployproj')"/>
-    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win32'">
-        <PreBuildEvent/>
-        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
-        <PreLinkEvent/>
-        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>cmd /c &quot;cd /d &quot;$(OUTPUTDIR)&quot; &amp;&amp; &quot;$(PROJECTDIR)\MakeJclDbg.exe&quot; -E &quot;$(PROJECTNAME).map&quot;</PostBuildEvent>
-        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
-        <PostBuildEventExecuteWhen>TargetOutOfDate</PostBuildEventExecuteWhen>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Config)'=='Debug' And '$(Platform)'=='Win64'">
-        <PreBuildEvent/>
-        <PreBuildEventIgnoreExitCode>False</PreBuildEventIgnoreExitCode>
-        <PreLinkEvent/>
-        <PreLinkEventIgnoreExitCode>False</PreLinkEventIgnoreExitCode>
-        <PostBuildEvent>cmd /c &quot;cd /d &quot;$(OUTPUTDIR)&quot; &amp;&amp; &quot;$(PROJECTDIR)\MakeJclDbg.exe&quot; -E &quot;$(PROJECTNAME).map&quot;</PostBuildEvent>
-        <PostBuildEventIgnoreExitCode>False</PostBuildEventIgnoreExitCode>
-        <PostBuildEventExecuteWhen>TargetOutOfDate</PostBuildEventExecuteWhen>
-    </PropertyGroup>
 </Project>

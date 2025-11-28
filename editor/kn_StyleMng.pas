@@ -180,7 +180,7 @@ begin
 
     except
       on E : Exception do begin
-        App.ErrorPopup( GetRS(sStyM11) + E.Message);
+        App.ErrorPopup( GetRS(sStyM11) + E.Message, E);
         exit;
       end;
     end;

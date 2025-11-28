@@ -165,6 +165,7 @@ const
 
 function MillisecondsIdle: DWord;
 function RunsOnWindowsNT : boolean;
+function GetImageBaseAddress: Pointer;
 function GetCommandInterpreter : string;
 function TranslateShellExecuteError( const ErrCode : integer ) : string;
 function IsIE4Installed : Boolean;
@@ -1377,6 +1378,15 @@ begin
   end;
 
 end; // RunsOnWindowsNT
+
+
+function GetImageBaseAddress: Pointer;
+begin
+{ This global HInstance variable contains the actual base address of the EXE loaded
+  by the operating system in this specific execution (with ASLR applied).
+  The THandle type supports Pointer/Integer for this purpose.}
+  Result := Pointer(HInstance);
+end;
 
 
 function DecToRoman( Decimal: Longint): string;
