@@ -43,6 +43,11 @@ type
   TBeforeEditorLoadedEvent = procedure(Note: TNote) of object;
   TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
 
+  TModeEntriesUI = (
+    meMultipleEntries,
+    meSingleEntry
+  );
+
 type
   TKntNoteEntriesUI = class(TFrame)
     pnlEntries: TPanel;
@@ -67,9 +72,14 @@ type
     FKntFolder: TKntFolder;
     FEditor: TKntRichEdit;
     FNoteUI: INoteUI;
+    FModeEntriesUI: TModeEntriesUI;
+
+    RTFAux: TAuxRichEdit;
 
     FInfoPanelHidden: boolean;
     fImagesReferenceCount: TImageIDs;
+
+    FLastEditorUIWidth: string;
 
     fChangingInCode: boolean;
 
@@ -92,7 +102,7 @@ type
     property Folder: TKntFolder read FKntFolder;
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
-    procedure LoadFromNNode (NNode: TNoteNode; NEntryID: Word; SavePreviousContent: boolean);
+    procedure LoadFromNNode (NNode: TNoteNode; ModeEntriesUI: TModeEntriesUI; NEntryID: Word; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
     function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
     procedure SaveToDataModel;
@@ -100,6 +110,8 @@ type
     procedure ConfigureEditor;
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
+    function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
+    procedure UpdateEntriesHeaderWidth;
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
@@ -147,6 +159,7 @@ implementation
 
 uses
   System.DateUtils,
+  gf_miscvcl,
   kn_LinksMng,
   kn_EditorUtils,
   knt.ui.TagMng,
@@ -211,6 +224,7 @@ begin
 
    SetReadOnly(FKntFolder.ReadOnly);
    fChangingInCode:= false;
+   FLastEditorUIWidth:= '';
 
    UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
 
@@ -456,8 +470,10 @@ end;
 
 procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
 begin
-   if Note <> nil then
+   if Note <> nil then begin
       AdjustTxtTagsWidth(txtTags.Focused);
+      UpdateEntriesHeaderWidth;
+   end;
 end;
 
 
@@ -479,7 +495,7 @@ begin
    Result:= FKntFolder;
 end;
 
-procedure TKntNoteEntriesUI.LoadFromNNode(NNode: TNoteNode; NEntryID: Word; SavePreviousContent: boolean);
+procedure TKntNoteEntriesUI.LoadFromNNode(NNode: TNoteNode; ModeEntriesUI: TModeEntriesUI; NEntryID: Word; SavePreviousContent: boolean);
 var
   NEntry: TNoteEntry;
   KeepModified: boolean;
@@ -495,13 +511,17 @@ begin
           SaveToDataModel();
 
        FNNode:= NNode;
-       FNEntryID:= NEntryID;
        //FNNodeDeleted:= false;    //##
 
        Editor.Clear;
        Editor.ClearUndo;
 
        if assigned(NNode) then begin
+          FModeEntriesUI:= ModeEntriesUI;
+          if FNNode.Note.NumEntries = 1 then
+             FModeEntriesUI:= meSingleEntry;
+          FNEntryID:= NEntryID;
+
           FNote:= NNode.Note;
 
           case NNode.WordWrap of
@@ -570,6 +590,7 @@ begin
    end;
 end;
 
+
 procedure TKntNoteEntriesUI.ReloadFromDataModel;
 var
   ReadOnlyBAK: boolean;
@@ -586,78 +607,125 @@ var
  OnEnterBak: TNotifyEvent;
  NEntry: TNoteEntry;
 
+ cEditor: TRxRichEdit;
+ Editor_SupportsRegisteredImages: boolean;
+ i: integer;
+
 begin
    NEntry:= ReloadMetadataFromDataModel;
    if NEntry = nil then exit;
 
    ConfigureEditor;
 
-   FEditor.BeginUpdate;                   // -> It will also ignore Enter and Change events
+   Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
-   ReadOnlyBAK:= FEditor.ReadOnly;
+   if FModeEntriesUI = meMultipleEntries then begin
+      SetReadOnly(true);
+      RTFAux:= CreateAuxRichEdit();
+      cEditor:= RTFAux;
+      cEditor.BeginUpdate;
+      Editor_SupportsRegisteredImages:= False;
+      if (ImageMng.StorageMode <> smEmbRTF) and not NNode.IsVirtual then
+        for i:= 0 to Note.NumEntries do
+            if Note.Entries[i].IsRTF then begin
+               Editor_SupportsRegisteredImages:= True;
+               break;
+            end;
+   end
+   else begin
+      cEditor:= FEditor;
+      Editor_SupportsRegisteredImages:= FEditor.SupportsRegisteredImages;
+   end;
+
+
+   ReadOnlyBAK:= Editor.ReadOnly;
    ContainsImgIDsRemoved:= false;
    try
-     FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
-     FEditor.Clear;
+     Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
+     Editor.Clear;
 
-     NEntry.Stream.Position := 0;
-     strRTF:= '';
+     i:= 0;
+     repeat                            // ====================================================== Load each entry, depending on mode
+         if FModeEntriesUI = meMultipleEntries then begin
+            cEditor.Clear;
+            NEntry:= Note.Entries[i];
+         end;
 
-     if not NEntry.IsRTF then
-        UpdateEditor (FEditor, FKntFolder, False);
 
-     // *1 For newly created, empty notes, this must be ensured (when the note is not intended to be created as plain text. See call to ConfigureEditor).
-     //    If we don't do this, we may encounter with an exception when calling LoadFromStream while working with the note, before it
-     //    is persisted to the model (for example, when selecting another note from the tree). This can occur if in that situation
-     //    we select several lines and press Shift+TAB (to tab multiple lines, decreasing indentation)
+         NEntry.Stream.Position := 0;
+         strRTF:= '';
 
-     fImagesReferenceCount:= nil;
-     if (not FEditor.PlainText) and (NEntry.Stream.Size = 0) then
-        FEditor.StreamFormat:= sfRichText                             // *1
+         if not NEntry.IsRTF then
+            UpdateEditor (cEditor, FKntFolder, False);
 
-     else begin
-       if NodeStreamIsRTF (NEntry.Stream) then begin
-          FEditor.StreamFormat:= sfRichText;
-          if FEditor.SupportsRegisteredImages then begin
-             GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
-             strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
-          end;
-       end
-       else
-          FEditor.StreamFormat:= sfPlainText;
-     end;
+         // *1 For newly created, empty notes, this must be ensured (when the note is not intended to be created as plain text. See call to ConfigureEditor).
+         //    If we don't do this, we may encounter with an exception when calling LoadFromStream while working with the note, before it
+         //    is persisted to the model (for example, when selecting another note from the tree). This can occur if in that situation
+         //    we select several lines and press Shift+TAB (to tab multiple lines, decreasing indentation)
 
-     Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - BEGIN', 4, +1);
-    {$IFDEF KNT_DEBUG}
-     if log.Active and  (log.MaxDbgLevel >= 5) then begin
-        dataSize:= NEntry.Stream.Size;
-        if dataSize > 0 then
-           str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 90)
-        else
-           str:= '';
-        Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(FEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
-     end;
-    {$ENDIF}
+         fImagesReferenceCount:= nil;
+         if (not cEditor.PlainText) and (NEntry.Stream.Size = 0) then
+            cEditor.StreamFormat:= sfRichText                             // *1
 
-     if StrRTF <> '' then begin
-        FEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
-        FEditor.ClearUndo;
-     end
-     else
-     if NEntry.Stream.Size > 0 then
-        FEditor.Lines.LoadFromStream( NEntry.Stream );
+         else begin
+           if NodeStreamIsRTF (NEntry.Stream) then begin
+              cEditor.StreamFormat:= sfRichText;
+              if Editor_SupportsRegisteredImages then begin
+                 GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
+                 strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+              end;
+           end
+           else
+              cEditor.StreamFormat:= sfPlainText;
+         end;
+
+         Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - BEGIN', 4, +1);
+        {$IFDEF KNT_DEBUG}
+         if log.Active and  (log.MaxDbgLevel >= 5) then begin
+            dataSize:= NEntry.Stream.Size;
+            if dataSize > 0 then
+               str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 90)
+            else
+               str:= '';
+            Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(cEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
+         end;
+        {$ENDIF}
+
+        
+         if StrRTF <> '' then begin
+            if FModeEntriesUI <> meMultipleEntries then begin
+               cEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
+               cEditor.ClearUndo;
+            end;
+         end
+         else
+         if NEntry.Stream.Size > 0 then
+            cEditor.Lines.LoadFromStream( NEntry.Stream );
+
+         if FModeEntriesUI = meMultipleEntries then begin
+            if StrRTF = '' then
+               strRTF:= cEditor.RtfText;
+            Editor.PutRtfText(GetEntryHeader(FNote, NEntry, (i = 0)), True,True);
+            Editor.PutRtfText(strRTF,True,True);
+         end;
+
+         inc(i);
+
+     until (FModeEntriesUI = meSingleEntry) or (i >= Note.NumEntries);         //===========================================
+
+
 
      Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - END', 4, -1);
 
-     FEditor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
-     FEditor.SelStart := Note.SelStart;
-     FEditor.SelLength := Note.SelLength;
+     Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
+     Editor.SelStart := Note.SelStart;
+     Editor.SelLength := Note.SelLength;
 
      if NEntry.Stream.Size = 0 then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
-        UpdateEditor (FEditor, FKntFolder, false);
+        UpdateEditor (cEditor, FKntFolder, false);
 
    finally
-     FEditor.ReadOnly:= ReadOnlyBAK;
+     Editor.ReadOnly:= ReadOnlyBAK;
 
      Editor.RestoreZoomGoal;
 
@@ -666,24 +734,116 @@ begin
      if assigned(NNode) and (NNode.Note.ScrollPosInEditor.Y > 0) then
         Editor.SetScrollPosInEditor(NNode.Note.ScrollPosInEditor);
 
-     FEditor.SetLangOptions(False);
-     FEditor.EndUpdate;
+     Editor.SetLangOptions(False);
+     Editor.EndUpdate;
 
      if not ContainsImgIDsRemoved then
-        FEditor.Modified := false;
+        Editor.Modified := false;
 
      Editor.CheckWordCount(true);
 
      Editor.ChangedSelection;
      Editor.Change;
 
+     if RTFAux <> nil then
+        FreeAndNil(RTFAux);
+
      if not ClipCapMng.IsBusy then
         App.EditorReloaded(Editor, Editor.Focused);
    end;
 
 
-  FEditor.Enabled:= true;
+  Editor.Enabled:= true;
   txtName.Enabled:= True;
+end;
+
+
+function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
+var
+  str, strFontSize, strHiddenMarkB: AnsiString;
+  widthTwips: integer;
+  s, strDate, strEntrID: string;
+  strEntryID: string;
+
+begin
+   if FLastEditorUIWidth = '' then begin
+      widthTwips := DotsToTwips(Editor.Width) - 250;
+      FLastEditorUIWidth:= '\cellx' + widthTwips.ToString;
+   end;
+
+   strFontSize:= (2 * 10).ToString + ' ';
+   strEntryID:= Format('%d.%d', [Note.GID, NEntry.ID]);
+   if NEntry.Created <> 0  then begin
+      if (NEntry.Created).GetTime <> 0 then
+         S:= ' - ' + FormatSettings.ShortTimeFormat;
+      strDate:=  ' - ' + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created) + ' - ';
+   end
+   else
+      strDate:= '';
+
+   s:= '';
+   if not FirstHeader then
+      s:= '\par';
+
+   strHiddenMarkB:= '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA + strEntryID + KNT_RTF_HIDDEN_MARK_R + '\v0';
+
+   str:= str + Format('{\rtf1\ansi\fs5\sb30\par%s\sa30\trowd\trgaph0%s \intbl\qr{\fs%s %s%s}\cell\row\pard\fs4\sb30\par}',
+                       [s, FLastEditorUIWidth, strFontSize, strHiddenMarkB, strDate]);
+
+   Result:= str;
+end;
+
+
+procedure TKntNoteEntriesUI.UpdateEntriesHeaderWidth;
+var
+  widthTwips: integer;
+  sRTF, cellWidth: string;
+  strPlain: string;
+  strHeader: string;
+  strHiddenMark: AnsiString;
+  p, pE, L,L2: integer;
+  incOffset, Offset: integer;
+  SSBak, SSLen: integer;
+
+begin
+   if FLastEditorUIWidth <> '' then begin
+      widthTwips := DotsToTwips(Editor.Width) - 250;
+      cellWidth:= '\cellx' + widthTwips.ToString;
+      L:= cellwidth.Length;
+      if FLastEditorUIWidth = cellWidth then exit;
+
+      Offset:= 0;
+      incOffset:= L - Length(FLastEditorUIWidth);
+
+      strHiddenMark:= KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_DATA;
+      L2:= Length(strHiddenMark);
+      with Editor do begin
+          ReadOnly:= False;
+          strPlain:= TextPlain;
+          p:= Pos(strHiddenMark, strPlain);
+          BeginUpdate;
+          SSBak:= SelStart;
+          SSLen:= SelLength;
+          while p > 0 do begin
+             pE:= Pos(#13, strPlain, p + Offset);
+             if pE = 0 then break;
+
+             Editor.SetSelection(p, pE+1, False);
+             sRTF:= Editor.RtfSelText;
+             sRTF:= StringReplace(sRTF, FLastEditorUIWidth, cellWidth, []);
+
+             Editor.RtfSelText:= sRTF;
+             p:= Pos(strHiddenMark, strPlain, p+1 + Offset);
+             inc(Offset, incOffset);
+          end;
+          SelStart:= SSBak;
+          SelLength:= SSLen;
+          EndUpdate;
+
+          ReadOnly:= True;
+      end;
+      FLastEditorUIWidth:= cellWidth;
+   end;
 end;
 
 
@@ -700,6 +860,8 @@ var
    NEntry: TNoteEntry;
 
 begin
+  if FModeEntriesUI = meMultipleEntries then exit;
+
   Encoding:= nil;
 
   if assigned(NNode) then begin
@@ -780,7 +942,6 @@ var
    plainTxt: boolean;
    NEntry: TNoteEntry;
 begin
-
   if NNode = nil then begin
      FEditor.SupportsRegisteredImages:= false;
      FEditor.SupportsImages:= false;

@@ -516,8 +516,20 @@ begin
 end;
 
 procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+var
+   Mode: TModeEntriesUI;
+   ShowPanels: boolean;
 begin
-   FNEntriesUI.LoadFromNNode(NNode, 0, SavePreviousContent);
+   Mode:= meSingleEntry;
+   if assigned(NNode) and (NNode.Note.NumEntries > 1) then
+      Mode:= meMultipleEntries;
+
+   FNEntriesUI.LoadFromNNode(NNode, Mode, 0, SavePreviousContent);
+   ShowPanels:= (Mode = meMultipleEntries);
+
+   ShowLeftPanel(False);
+   ShowTopPanels(ShowPanels);
+   ShowBottomPanels(ShowPanels);
 
    FNNodeDeleted:= false;
 end;
