@@ -2512,6 +2512,7 @@ var
     RTF: PAnsiChar;
     Location: TLocation;
     Link: AnsiString;
+    NNode: TNoteNode;
 
   begin
     Result:= '';
@@ -2538,17 +2539,26 @@ var
 
         Link:= Copy(RTF, pIni +i, PosLinkEnd-pIni-1 -i);
         Location:= BuildLocationFromKntURL(Link);
-        if assigned(NoteGIDs) and (Location.NNodeGID <> 0 ) then begin
-            Location.NNodeGID:= NoteGIDs.GetNewGID(Location.NNodeGID);
-            if Location.NNodeGID = NoteGID_NotConverted then
-               inc(GIDsNotConverted);
-        end;
-
         try
-           if Location <> nil then begin
-              Result:= '"' + BuildKNTURL(Location) + '"}}';
-              Result:= Copy(RTF, 1+LinkOffset, pIni - LinkOffset-1) + Result;
-           end;
+          if Location = nil then exit;
+
+          if assigned(NoteGIDs) then begin
+             if assigned(NoteGIDs) and (Location.NNodeGID <> 0 ) then begin
+                 Location.NNodeGID:= NoteGIDs.GetNewGID(Location.NNodeGID);
+                 if Location.NNodeGID = NoteGID_NotConverted then
+                    inc(GIDsNotConverted);
+             end;
+          end
+          else
+          if Location.Folder <> nil then begin
+             NNode:= Location.Folder.GetNNodeByID(Location.NNodeID);
+             if NNode <> nil then
+                Location.NNodeGID:= NNode.GID;
+          end;
+
+          Result:= '"' + BuildKNTURL(Location) + '"}}';
+          Result:= Copy(RTF, 1+LinkOffset, pIni - LinkOffset-1) + Result;
+
         finally
            if Location <> nil then
               Location.Free;
