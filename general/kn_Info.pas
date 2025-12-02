@@ -877,6 +877,13 @@ type
   end;
 
 type
+   TMergeFolders = record
+       oldID: Cardinal;
+       newID: Cardinal;
+       newFolder: boolean;
+   end;
+
+type
   TMirrorAction = (
     maMovingToTarget,                 // Moving node to targetNode
     maChangingChkState,               // Changed checked state of node
@@ -1074,7 +1081,7 @@ function TMergedNotes.GetNewGID (GID: Cardinal): Cardinal;
    i: integer;
 begin
   Result:= NoteGID_NotConverted;
-  for i := 0 to High(NoteGIDs) - 1 do
+  for i := 0 to High(NoteGIDs) do
      if NoteGIDs[i].oldGID = GID then begin
         Result:= NoteGIDs[i].newGID;
         exit;

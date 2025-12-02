@@ -350,7 +350,8 @@ begin
 
             if App.opt_ConvKNTLinks then begin
                var GIDsNotConverted: integer:= 0;
-               linksModified:= KntFile.ConvertKNTLinksToNewFormatInNotes(nil, GIDsNotConverted);
+               var FolderIDs: array of TMergeFolders;
+               linksModified:= KntFile.ConvertKNTLinksToNewFormatInNotes(FolderIDs, nil, GIDsNotConverted);
                Log_StoreTick( 'After convert KntLinks to new format', 1 );
             end;
 
@@ -1201,14 +1202,6 @@ end; // KntFileCopy
 //=================================================================
 
 procedure MergeFromKNTFile( MergeFN : string );
-
-type
-   TMergeFolders = record
-       oldID: Cardinal;
-       newID: Cardinal;
-       newFolder: boolean;
-   end;
-
 var
   MergeFile : TKntFile;
   ImgManagerMF: TImageMng;
@@ -1467,7 +1460,7 @@ begin
               of including several linked nodes has already been managed above, with the help of MergeNotesMultiNNodes
               and NewNotesMultiMergeNNodes }
 
-            ActiveFile.ConvertKNTLinksToNewFormatInNotes(NoteGIDs, GIDsNotConverted);      // only on selected folders (with .Info=1)
+            ActiveFile.ConvertKNTLinksToNewFormatInNotes(FolderIDs, NoteGIDs, GIDsNotConverted);      // only on selected folders (with .Info=1)
             if GIDsNotConverted > 0 then
                App.WarningPopup( Format(GetRS(sFileM83), [GIDsNotConverted, NoteGID_NotConverted]));
 

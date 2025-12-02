@@ -183,7 +183,7 @@ type
     procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string; List: TStringList);
-    function  ConvertKNTLinksToNewFormatInNotes(NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
+    function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
   private
@@ -2816,7 +2816,7 @@ begin
 end;
 
 
-function TKntFile.ConvertKNTLinksToNewFormatInNotes (NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
+function TKntFile.ConvertKNTLinksToNewFormatInNotes (FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
 var
   i, j: integer;
   NNode: TNoteNode;
@@ -2836,7 +2836,7 @@ begin
         NEntry:= NNode.Note.Entries[0];          // %%%
         if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
 
-        NewRTF:= ConvertKNTLinksToNewFormat(NEntry.Stream.Memory, NEntry.Stream.Size, NoteGIDs, GIDsNotConverted);
+        NewRTF:= ConvertKNTLinksToNewFormat(NEntry.Stream.Memory, NEntry.Stream.Size, NoteGIDs, FolderIDs, GIDsNotConverted);
         if NewRTF <> '' then begin
            NEntry.Stream.SetSize(Length(NewRTF));
            NEntry.Stream.Position:= 0;
