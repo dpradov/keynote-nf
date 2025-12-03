@@ -1221,8 +1221,14 @@ begin
     Log_StoreTick('TKntFolder.NodeSelected (' + NNode.NoteName + ') - BEGIN', 3, +1);
    {$ENDIF}
 
+   // *1 
+   // We need to make sure the node belongs to the tree, as it could have moved to another tree.
+   // We can check this with 'and TreeUI.TV.NodeBelongsToTree(LastNodeSelected)'
+   // This won't be necessary because we're already ensuring, from TKntTreeUI.MoveSubtrees, 
+   // that SourceFolder.TreeUI.fLastNodeSelected := nil in that case
+
    LastNNodeFocused:= nil;
-   if LastNodeSelected <> nil then
+   if (LastNodeSelected <> nil) then    // *1
       LastNNodeFocused:= TreeUI.GetNNode(LastNodeSelected);
 
    if (not _Executing_History_Jump) and (not _Executing_JumpToKNTLocation_ToOtherNote) then begin
