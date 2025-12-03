@@ -432,7 +432,7 @@ begin
         end;
   end;
 
-  Log_StoreTick( 'CreateVCLControlsForFolder - End', 3, -1 );
+  Log_StoreTick( 'CreateVCLControlsForFolder - End', 2, -1 );
 
 end; // CreateVCLControlsForFolder
 
