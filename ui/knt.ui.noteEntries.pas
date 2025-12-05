@@ -108,10 +108,11 @@ type
     procedure SaveToDataModel;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
+    procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
+    function GetHeaderCellx: AnsiString;
     function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
-    procedure UpdateEntriesHeaderWidth;
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
@@ -402,7 +403,7 @@ var
    S: string;
    NEntry: TNoteEntry;
 begin
-   NEntry:= Note.Entries[FNEntryID];       // %%%%
+   NEntry:= Note.GetEntry(FNEntryID);       // %%%%
    S:= NEntry.TagsNames;
    txtTags.Text:= S;
    TagMng.UpdateTxtTagsHint(txtTags);
@@ -472,7 +473,8 @@ procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
 begin
    if Note <> nil then begin
       AdjustTxtTagsWidth(txtTags.Focused);
-      UpdateEntriesHeaderWidth;
+      if FModeEntriesUI = meMultipleEntries then
+         UpdateEntriesHeaderWidth(False);
    end;
 end;
 
@@ -571,7 +573,7 @@ begin
    ActiveFileIsBusyBAK:= ActiveFileIsBusy;
    ActiveFileIsBusy:= True;                   // To avoid txtNameChange => Modified:True
    try
-      Result:= Note.Entries[FNEntryID];       // %%%%
+      Result:= Note.GetEntry(FNEntryID);       // %%%%
       txtName.Text:= FNote.Name;
 
       if Result.Created <> 0  then begin
@@ -626,13 +628,14 @@ begin
       cEditor.BeginUpdate;
       Editor_SupportsRegisteredImages:= False;
       if (ImageMng.StorageMode <> smEmbRTF) and not NNode.IsVirtual then
-        for i:= 0 to Note.NumEntries do
+        for i:= 0 to Note.NumEntries -1 do
             if Note.Entries[i].IsRTF then begin
                Editor_SupportsRegisteredImages:= True;
                break;
             end;
    end
    else begin
+      SetReadOnly(FKntFolder.ReadOnly);
       cEditor:= FEditor;
       Editor_SupportsRegisteredImages:= FEditor.SupportsRegisteredImages;
    end;
@@ -758,45 +761,53 @@ begin
 end;
 
 
+function TKntNoteEntriesUI.GetHeaderCellx: AnsiString;
+var
+  w, widthTwips: integer;
+begin
+      w:= Editor.Width;
+      if KeyOptions.AltMargins then
+         w:= w - KeyOptions.MarginAltLeft - KeyOptions.MarginAltRight;
+
+      widthTwips := DotsToTwips(w - 33);
+      //widthTwips := 999999;
+      Result:= '\cellx' + widthTwips.ToString;
+end;
+
 function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
 var
   str, strFontSize, strHiddenMarkB: AnsiString;
-  widthTwips: integer;
   s, strDate, strEntrID: string;
   strEntryID: string;
 
 begin
-   if FLastEditorUIWidth = '' then begin
-      widthTwips := DotsToTwips(Editor.Width) - 250;
-      FLastEditorUIWidth:= '\cellx' + widthTwips.ToString;
-   end;
+   if FLastEditorUIWidth = '' then
+      FLastEditorUIWidth:= GetHeaderCellx;
 
    strFontSize:= (2 * 10).ToString + ' ';
    strEntryID:= Format('%d.%d', [Note.GID, NEntry.ID]);
    if NEntry.Created <> 0  then begin
       if (NEntry.Created).GetTime <> 0 then
          S:= ' - ' + FormatSettings.ShortTimeFormat;
-      strDate:=  ' - ' + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created) + ' - ';
+      strDate:= FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created) + '  .';
    end
    else
       strDate:= '';
 
-   s:= '';
-   if not FirstHeader then
-      s:= '\par';
-
    strHiddenMarkB:= '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA + strEntryID + KNT_RTF_HIDDEN_MARK_R + '\v0';
 
-   str:= str + Format('{\rtf1\ansi\fs5\sb30\par%s\sa30\trowd\trgaph0%s \intbl\qr{\fs%s %s%s}\cell\row\pard\fs4\sb30\par}',
-                       [s, FLastEditorUIWidth, strFontSize, strHiddenMarkB, strDate]);
-
+   str:= '{\rtf1\ansi{\colortbl ;\red102\green102\blue102;}';
+   if FirstHeader then
+      str:= str + Format('\qr\cf1\fs%s %s\sa40\par}', [strFontSize, strDate])
+   else
+      str:= str + Format('\fs5\par\par\trowd\trgaph0%s \intbl\fs1%s\cell\row\pard\qr\cf1\fs%s %s\sa40\par}',
+                          [FLastEditorUIWidth, strHiddenMarkB, strFontSize, strDate]);
    Result:= str;
 end;
 
 
-procedure TKntNoteEntriesUI.UpdateEntriesHeaderWidth;
+procedure TKntNoteEntriesUI.UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
 var
-  widthTwips: integer;
   sRTF, cellWidth: string;
   strPlain: string;
   strHeader: string;
@@ -807,8 +818,7 @@ var
 
 begin
    if FLastEditorUIWidth <> '' then begin
-      widthTwips := DotsToTwips(Editor.Width) - 250;
-      cellWidth:= '\cellx' + widthTwips.ToString;
+      cellWidth:= GetHeaderCellx;
       L:= cellwidth.Length;
       if FLastEditorUIWidth = cellWidth then exit;
 
@@ -825,15 +835,14 @@ begin
           SSBak:= SelStart;
           SSLen:= SelLength;
           while p > 0 do begin
-             pE:= Pos(#13, strPlain, p + Offset);
+             pE:= Pos(#13, strPlain, p + 1);
              if pE = 0 then break;
 
-             Editor.SetSelection(p, pE+1, False);
+             Editor.SetSelection(p-1 + Offset, pE + Offset, False);
              sRTF:= Editor.RtfSelText;
              sRTF:= StringReplace(sRTF, FLastEditorUIWidth, cellWidth, []);
-
              Editor.RtfSelText:= sRTF;
-             p:= Pos(strHiddenMark, strPlain, p+1 + Offset);
+             p:= Pos(strHiddenMark, strPlain, p+1);
              inc(Offset, incOffset);
           end;
           SelStart:= SSBak;
@@ -843,7 +852,10 @@ begin
           ReadOnly:= True;
       end;
       FLastEditorUIWidth:= cellWidth;
-   end;
+   end
+   else
+   if EnsureRefreshOnEditor then
+      Editor.Refresh;
 end;
 
 
@@ -868,7 +880,7 @@ begin
      if FEditor.FloatingEditor <> nil then
         FEditor.DoSaveChangesInFloatingEditor;
 
-     NEntry:= Note.Entries[FNEntryID];        // %%%%
+     NEntry:= Note.GetEntry(FNEntryID);        // %%%%
 
      Note.ScrollPosInEditor:= FEditor.GetScrollPosInEditor;
      Note.SelStart  := FEditor.SelStart;
@@ -950,7 +962,7 @@ begin
      txtName.Enabled:= False;
   end
   else begin
-     NEntry:= NNode.Note.Entries[FNEntryID];    // %%%%
+     NEntry:= NNode.Note.GetEntry(FNEntryID);    // %%%%
      plainTxt:= NEntry.IsPlainTXT;
      FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, NNode, NEntry);
      FEditor.PlainText:= plainTxt;

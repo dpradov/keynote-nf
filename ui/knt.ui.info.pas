@@ -46,6 +46,8 @@ type
      function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
      procedure ReloadNoteName;
      procedure SaveToDataModel;
+     procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit);
+     procedure Refresh;
 
      procedure SetImagesMode(ImagesMode: TImagesMode);
      procedure ResetImagesReferenceCount;

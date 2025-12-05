@@ -20,6 +20,7 @@ object KntNoteUI: TKntNoteUI
     Left = 97
     Top = 0
     Height = 480
+    OnMoved = splLMoved
     ExplicitLeft = 191
     ExplicitTop = -3
   end

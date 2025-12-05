@@ -3020,7 +3020,7 @@ end;
 
 procedure TForm_Main.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
-  ShiftPressed: boolean;
+  ShiftPressed, CtrlPressed: boolean;
   ShortCut: TShortCut;
   ShortCutItem: TMenuItem;
 begin
@@ -3032,7 +3032,8 @@ begin
        Handled:= true;
    end;
 
-   if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) then begin
+   CtrlPressed:= GetKeyState(VK_CONTROL) < 0;
+   if CtrlPressed and not (GetKeyState(VK_MENU) < 0) then begin
       ShiftPressed:= (GetKeyState(VK_SHIFT) < 0);
 
 
@@ -3109,7 +3110,16 @@ begin
            end;
         end;
 
+      end
+      else begin
+        if Msg.CharCode = VK_RETURN then begin
+           if (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) then begin
+              ActiveFolder.NoteUI.CreateNewEntry(ActiveEditor);
+              Handled:= true;
+           end;
+        end;
       end;
+
 
       if (not Handled) and KeyOptions.UseCtrlHideTreePanel then begin
           // Check if the keys combination, without Ctrl, is a shortcut to MMViewTree
@@ -5519,7 +5529,7 @@ begin
      Res_RTF.Refresh;
 
   if KeyOptions.AltMargins and assigned(ActiveFolder) then
-      ActiveFolder.Editor.Refresh;
+      ActiveFolder.NoteUI.Refresh;
 end;
 
 procedure TForm_Main.VisibilityControlsFindAllResults (Visible: boolean);
@@ -7373,7 +7383,7 @@ begin
 
   if assigned(ActiveFolder) then begin
      EnsureNodeAndCaretVisibleInFolders;
-     ActiveFolder.Editor.Refresh;
+     ActiveFolder.NoteUI.Refresh;
   end;
 end;
 

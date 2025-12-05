@@ -33,6 +33,8 @@ uses
   knt.App
   ;
 
+type
+  TPanelEntry = (pnCenter, pnTL, pnTR, pnBL, pnBR);
 
 type
   TKntNoteUI = class(TFrame, INoteUI)
@@ -58,6 +60,7 @@ type
     procedure splBMoved(Sender: TObject);
     procedure splTMoved(Sender: TObject);
     procedure splTCanResize(Sender: TObject; var NewSize: Integer; var Accept: Boolean);
+    procedure splLMoved(Sender: TObject);
 
   private class var
     FColorTxts: TColor;
@@ -68,7 +71,7 @@ type
     FKntFolder: TKntFolder;
     FNNodeDeleted: boolean;
 
-    FNEntriesUI: TKntNoteEntriesUI;
+    FNEntryUI: array[TPanelEntry] of TKntNoteEntriesUI;
 
     FTopOther_Ratio: Single;
     FBottomOther_Ratio: Single;
@@ -106,16 +109,25 @@ type
     procedure SaveToDataModel;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
+    procedure ClearUnusedEditors;
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
 
-public
+  protected
+    function GetNEntryUI (Panel: TPanelEntry): TKntNoteEntriesUI; overload;
+    function GetNEntryUI (Editor: TKntRichEdit): TKntNoteEntriesUI; overload;
+    procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit); overload;
+    procedure CreateNewEntry(RequestedFromNEntryUI: TKntNoteEntriesUI); overload;
+ public
+    procedure Refresh;
+  public
     procedure ShowLeftPanel(value: boolean);
     procedure ShowTopPanels(value: boolean);
     procedure ShowBottomPanels(value: boolean);
     procedure ShowPanelsTop(TL, TR: boolean);
     procedure ShowPanelsBottom(BL, BR: boolean);
+    function GetPanel (Panel: TPanelEntry): TPanel;
     //procedure TestPanels;
 
   protected
@@ -159,12 +171,18 @@ uses
 {$REGION Create / Destroy}
 
 constructor TKntNoteUI.Create(AOwner: TComponent; KntFolder: TKntFolder);
+var
+  p: TPanelEntry;
 begin
    inherited Create(AOwner);
 
    FKntFolder:= KntFolder;
-   FNEntriesUI:= TKntNoteEntriesUI.Create( PnlCenter, Self );
-   FNEntriesUI.Parent:= PnlCenter;
+
+   for p := pnTL to High(TPanelEntry) do
+      FNEntryUI[p]:= nil;
+
+   FNEntryUI[pnCenter]:= TKntNoteEntriesUI.Create( PnlCenter, Self );
+   FNEntryUI[pnCenter].Parent:= PnlCenter;
 
    TestCreatePanel;
 
@@ -178,9 +196,12 @@ end;
 
 
 destructor TKntNoteUI.Destroy;
+var
+  p: TPanelEntry;
 begin
-   if assigned(FNEntriesUI) then
-      FreeAndNil(FNEntriesUI);
+   for p := Low(TPanelEntry) to High(TPanelEntry) do
+      if FNEntryUI[p] <> nil then
+         FreeAndNil(FNEntryUI[p]);
 
    inherited;
 end;
@@ -214,46 +235,46 @@ end;
 
 function TKntNoteUI.GetEditor: TKntRichEdit;
 begin
-  Result:= FNEntriesUI.Editor;
+  Result:= FNEntryUI[pnCenter].Editor;
 end;
 
 
 function TKntNoteUI.GetReadOnly: boolean;
 begin
-   Result:= FNEntriesUI.ReadOnly;
+   Result:= FNEntryUI[pnCenter].ReadOnly;
 end;
 
 procedure TKntNoteUI.SetReadOnly( AReadOnly : boolean );
 begin
-   FNEntriesUI.ReadOnly:= AReadOnly;
+   FNEntryUI[pnCenter].ReadOnly:= AReadOnly;
 end;
 
 
 procedure TKntNoteUI.SetOnEnter(AEvent: TNotifyEvent);
 begin
-  FNEntriesUI.SetOnEnter(AEvent);
+  FNEntryUI[pnCenter].SetOnEnter(AEvent);
 end;
 
 procedure TKntNoteUI.SetOnMouseUpOnNote(AEvent: TNotifyEvent);
 begin
-   FNEntriesUI.SetOnMouseUpOnNote(AEvent);
+   FNEntryUI[pnCenter].SetOnMouseUpOnNote(AEvent);
 end;
 
 procedure TKntNoteUI.SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
 begin
-   FNEntriesUI.SetOnMouseMoveOnNote(AEvent);
+   FNEntryUI[pnCenter].SetOnMouseMoveOnNote(AEvent);
 end;
 
 
 procedure TKntNoteUI.SetInfoPanelHidden(value: boolean);
 begin
-   FNEntriesUI.InfoPanelHidden:= value;
+   FNEntryUI[pnCenter].InfoPanelHidden:= value;
 end;
 
 
 procedure TKntNoteUI.SetFocusOnEditor;
 begin
-   FNEntriesUI.SetFocus;
+   FNEntryUI[pnCenter].SetFocus;
 end;
 
 
@@ -272,6 +293,8 @@ begin
    splL.Visible:= value;
    pnlBL.Width:= Round(pnlBottom.Width * FBLBR_Ratio);
    pnlTL.Width:= Round(pnlTop.Width * FTLTR_Ratio);
+   if value then
+      splL.Left:= pnlLeft.Width;
 end;
 
 procedure TKntNoteUI.ShowTopPanels(value: boolean);
@@ -305,6 +328,12 @@ begin
    FBottomOther_Ratio:= pnlBottom.Height / Self.Height;
 end;
 
+procedure TKntNoteUI.splLMoved(Sender: TObject);
+begin
+   pnlBL.Width:= Round(pnlBottom.Width * FBLBR_Ratio);
+   pnlTL.Width:= Round(pnlTop.Width * FTLTR_Ratio);
+end;
+
 procedure TKntNoteUI.splTCMoved(Sender: TObject);
 begin
    FTLTR_Ratio:= pnlTL.Width / pnlTop.Width;
@@ -314,7 +343,7 @@ procedure TKntNoteUI.splTCanResize(Sender: TObject; var NewSize: Integer; var Ac
 begin
   IncResize:= (NewSize - pnlTop.Height);
   if not FUpdatingOnResize then begin
-    FNEntriesUI.Editor.BeginUpdate;
+    FNEntryUI[pnCenter].Editor.BeginUpdate;
     FEditorBL.BeginUpdate;
     FEditorBR.BeginUpdate;
     FUpdatingOnResize:= True;
@@ -334,7 +363,7 @@ begin
   FTopOther_Ratio:= pnlTop.Height / Self.Height;
 
   pnlCenter.Height:= pnlCenter.Height - IncResize;
-  FNEntriesUI.Editor.EndUpdate;
+  FNEntryUI[pnCenter].Editor.EndUpdate;
   FEditorBL.EndUpdate;
   FEditorBR.EndUpdate;
   FUpdatingOnResize:= False;
@@ -376,6 +405,7 @@ begin
          pnlTR.Align:= alClient;
          pnlTL.Width:= Round(pnlTop.Width * FTLTR_Ratio);
          splTC.Visible:= True;
+         splTC.Left:= pnlTL.Width;
       end
       else begin
         splTC.Visible:= False;
@@ -404,6 +434,7 @@ begin
          pnlBR.Align:= alClient;
          pnlBL.Width:= Round(pnlBottom.Width * FBLBR_Ratio);
          splBC.Visible:= True;
+         splBC.Left:= pnlBL.Width;
       end
       else begin
         splBC.Visible:= False;
@@ -418,10 +449,24 @@ end;
 
 procedure TKntNoteUI.FrameResize(Sender: TObject);
 begin
-   pnlBL.Width:= Round(pnlBottom.Width * FBLBR_Ratio);
-   pnlTL.Width:= Round(pnlTop.Width * FTLTR_Ratio);
+   if pnlBL.Visible and pnlBR.Visible then
+      pnlBL.Width:= Round(pnlBottom.Width * FBLBR_Ratio);
+   if pnlTL.Visible and pnlTR.Visible then
+      pnlTL.Width:= Round(pnlTop.Width * FTLTR_Ratio);
    pnlTop.Height:= Round(Self.Height * FTopOther_Ratio);
    pnlCenter.Height:= pnlAuxC3.Height - Round(Self.Height * FBottomOther_Ratio) - 3;
+end;
+
+
+function TKntNoteUI.GetPanel (Panel: TPanelEntry): TPanel;
+begin
+   case Panel of
+     pnCenter: Result:= pnlCenter;
+     pnTL: Result:= pnlTL;
+     pnTR: Result:= pnlTR;
+     pnBL: Result:= pnlBL;
+     pnBR: Result:= pnlBR;
+   end;
 end;
 
 {
@@ -459,6 +504,7 @@ begin
   Application.ProcessMessages;
   ShowPanelsBottom(False, False);
   Application.ProcessMessages;
+  ShowBottomPanels(True);
 
 
   ShowTopPanels(False);
@@ -471,6 +517,8 @@ begin
   Application.ProcessMessages;
   ShowPanelsTop(False, True);
   Application.ProcessMessages;
+  ShowTopPanels(True);
+  Application.ProcessMessages;
 
   ShowPanelsBottom(True, True);
   Application.ProcessMessages;
@@ -481,18 +529,84 @@ end;
 
 {$ENDREGION}
 
+
+// Entries =========================================
+
+{$REGION Entries }
+
+function TKntNoteUI.GetNEntryUI (Panel: TPanelEntry): TKntNoteEntriesUI;
+var
+  pnl: TPanel;
+begin
+   pnl:= GetPanel(panel);
+   if FNEntryUI[Panel] =  nil then begin
+      FNEntryUI[Panel]:= TKntNoteEntriesUI.Create(pnl, Self );
+      FNEntryUI[Panel].Parent:= pnl;
+   end;
+
+   Result:= FNEntryUI[Panel];
+end;
+
+
+function TKntNoteUI.GetNEntryUI (Editor: TKntRichEdit): TKntNoteEntriesUI;
+var
+  p: TPanelEntry;
+begin
+   for p := Low(TPanelEntry) to High(TPanelEntry) do
+      if (FNEntryUI[p] <> nil) and (FNEntryUI[p].Editor = Editor) then
+         exit (FNEntryUI[p]);
+
+   Result:= nil;
+end;
+
+procedure TKntNoteUI.Refresh;
+var
+  p: TPanelEntry;
+begin
+   for p := Low(TPanelEntry) to High(TPanelEntry) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].UpdateEntriesHeaderWidth(True);
+end;
+
+procedure TKntNoteUI.CreateNewEntry(RequestedFromEditor: TKntRichEdit);
+begin
+   CreateNewEntry(GetNEntryUI(RequestedFromEditor));
+end;
+
+procedure TKntNoteUI.CreateNewEntry(RequestedFromNEntryUI: TKntNoteEntriesUI);
+var
+  NEntry: TNoteEntry;
+  NEntriesUI: TKntNoteEntriesUI;
+
+begin
+   if (RequestedFromNEntryUI = nil) or (Note = nil) then exit;
+
+   NEntry:= Note.AddNewEntry;
+   Folder.Modified:= True;
+
+   NEntriesUI:= GetNEntryUI(pnBL);
+   NEntriesUI.LoadFromNNode(NNode, meSingleEntry, NEntry.ID, True);
+
+   ShowPanelsBottom(True, False);
+   FNNodeDeleted:= false;
+
+   NEntriesUI.SetFocusOnEditor;
+end;
+
+{$ENDREGION}
+
 // Tags =========================================
 
 {$REGION Tags }
 
 procedure TKntNoteUI.RefreshTags;
 begin
-   FNEntriesUI.RefreshTags;
+   FNEntryUI[pnCenter].RefreshTags;
 end;
 
 procedure TKntNoteUI.EditTags;
 begin
-   FNEntriesUI.EditTags;
+   FNEntryUI[pnCenter].EditTags;
 end;
 
 
@@ -520,11 +634,20 @@ var
    Mode: TModeEntriesUI;
    ShowPanels: boolean;
 begin
-   Mode:= meSingleEntry;
-   if assigned(NNode) and (NNode.Note.NumEntries > 1) then
-      Mode:= meMultipleEntries;
+   if SavePreviousContent and (FNNode <> nil) then
+      SaveToDataModel;
 
-   FNEntriesUI.LoadFromNNode(NNode, Mode, 0, SavePreviousContent);
+   FNNode:= NNode;
+   Mode:= meSingleEntry;
+   if assigned(NNode) then begin
+     FNote:= NNode.Note;
+     if (NNode.Note.NumEntries > 1) then
+         Mode:= meMultipleEntries;
+   end;
+
+   ClearUnusedEditors;
+
+   FNEntryUI[pnCenter].LoadFromNNode(NNode, Mode, 0, False);
    ShowPanels:= (Mode = meMultipleEntries);
 
    ShowLeftPanel(False);
@@ -536,26 +659,44 @@ end;
 
 function TKntNoteUI.ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
 begin
-   Result:= FNEntriesUI.ReloadMetadataFromDataModel(ReloadTags);
+   Result:= FNEntryUI[pnCenter].ReloadMetadataFromDataModel(ReloadTags);
+end;
+
+procedure TKntNoteUI.ClearUnusedEditors;
+var
+  p: TPanelEntry;
+begin
+   // ToDO
+   for p := Low(TPanelEntry) to High(TPanelEntry) do
+      if (FNEntryUI[p] <> nil) then
+         FNEntryUI[p].Editor.Clear;
 end;
 
 procedure TKntNoteUI.ReloadFromDataModel;
+var
+  p: TPanelEntry;
 begin
-   FNEntriesUI.ReloadFromDataModel;
+   for p := Low(TPanelEntry) to High(TPanelEntry) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].ReloadFromDataModel;
 end;
 
 procedure TKntNoteUI.SaveToDataModel;
+var
+  p: TPanelEntry;
 begin
    Log_StoreTick('TKntNoteUI.SaveToDataModel - BEGIN', 4, +1);
-   
-   FNEntriesUI.SaveToDataModel;
-   
+
+   for p := Low(TPanelEntry) to High(TPanelEntry) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].SaveToDataModel;
+
    Log_StoreTick('TKntNoteUI.SaveToDataModel - END', 4, -1);
 end;
 
 procedure TKntNoteUI.ReloadNoteName;
 begin
-   FNEntriesUI.ReloadNoteName;
+   FNEntryUI[pnCenter].ReloadNoteName;
 end;
 
 
@@ -571,7 +712,7 @@ end;
 
 procedure TKntNoteUI.ConfigureEditor;
 begin
-  FNEntriesUI.ConfigureEditor;
+  FNEntryUI[pnCenter].ConfigureEditor;
 end;
 
 
@@ -585,36 +726,36 @@ end;
 function TKntNoteUI.GetImagesInstances: TImageIDs;
 begin
 //##...
-   Result:= FNEntriesUI.ImagesInstances;
+   Result:= FNEntryUI[pnCenter].ImagesInstances;
 end;
 
 procedure TKntNoteUI.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
 begin
 //##...
-   FNEntriesUI.GetImagesIDInstances(Stream, TextPlain);
+   FNEntryUI[pnCenter].GetImagesIDInstances(Stream, TextPlain);
 end;
 
 
 procedure TKntNoteUI.ResetImagesReferenceCount;
 begin
-    FNEntriesUI.ResetImagesReferenceCount;
+    FNEntryUI[pnCenter].ResetImagesReferenceCount;
 end;
 
 procedure TKntNoteUI.ReloadImagesOnEditor;
 begin
-   FNEntriesUI.ReloadImagesOnEditor;
+   FNEntryUI[pnCenter].ReloadImagesOnEditor;
 end;
 
 
 procedure TKntNoteUI.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
 begin
-   FNEntriesUI.ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
+   FNEntryUI[pnCenter].ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
 end;
 
 
 procedure TKntNoteUI.SetImagesMode(ImagesMode: TImagesMode);
 begin
-   FNEntriesUI.SetImagesMode(ImagesMode);
+   FNEntryUI[pnCenter].SetImagesMode(ImagesMode);
 end;
 
 {$ENDREGION}
