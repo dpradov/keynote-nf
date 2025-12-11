@@ -972,6 +972,7 @@ const
   _NodeFontFace = 'FF';
   _NodeImageIndex = 'IX';
   _NodeAlarm = 'NA';        // [dpv]
+  _NodeUIConfig = 'UI';     // [dpv]
 
   _VirtualNode = 'VN';      // Replaced by normal "linked" nodes (TNoteNode) since NFILEVERSION_MAJOR >= 3
   _NodeFlags = 'NF';        // => NFILEVERSION_MAJOR < 3

@@ -851,7 +851,29 @@ type
     TagsModeOR: boolean;       // Tags include, ¿mode OR? (vs ALL)
     TagsMetadata: boolean;     // Tags will be searched for in the notes' metadata
     TagsText: boolean;         // Tags will be searched for in the notes' text
+    DefaultTagsExcl: TNoteTagArray;    // Saved in .ini as string: "TagID1,TagID2,..."
   end;
+
+
+type
+  TNEntriesPanel = (pnCenter, pnLeft, pnTL, pnTR, pnBL, pnBR);   // pnR1, pnR2...
+
+type
+   TNoteAdvancedOptions = packed record
+     EditCentralPanelEntriesIn: TNEntriesPanel;      // Possible values: pnCenter, pnTL, pnBL
+     ShowPanelTLInNewNotes: boolean;
+     ShowPanelTRInNewNotes: boolean;
+     ShowPanelBLInNewNotes: boolean;
+     ShowPanelBRInNewNotes: boolean;
+     DefaultTagsInPanels: array[TNEntriesPanel] of TNoteTagArray;   // Saved in .ini as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
+     DefaultTagsOrder: TNoteTagArray;                             // Ex: Summary,Req,ToDO,...    Saved in .ini as string
+
+     PnlTopRatio:    Single;   // Ratio Top vs Other (Center+Bottom) [*]
+     PnlBottomRatio: Single;   // Ratio Bottom vs Other (Center+Top) [*]
+     PnlTLTRRatio:   Single;   // Ratio TL vs TR                     [*]
+     PnlBLBRRatio:   Single;   // Ratio BL vs BR                     [*]
+  end;
+
 
 const
    NoteGID_NotConverted = 9999999;

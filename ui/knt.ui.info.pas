@@ -70,6 +70,69 @@ type
      //procedure TestPanels;
   end;
 
+
+type
+  TModeEntriesUI = (
+    meMultipleEntries,
+    meSingleEntry
+  );
+
+  TScopeInEntriesPanel = (
+    fsCurrentNode,
+    fsSelectedNode,
+    fsCurrentNodeAndSubtree,
+    fsCurrentNodeAndAncestors,
+    fsFolder,
+    fsFile
+  );
+
+  TContentInMultipleMode = (
+    cmOnlyHeaders,
+    cmWholeEntries,
+    cmOnlyFirstLines
+  );
+
+  TOrderInEntriesInPanel = (
+    eoDateCreation,
+    eoHierarchyAndDateCreation,       // Use hierarchy in tree + DataCreation
+    eoTagsAndDateCreation             // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
+  );
+
+  TFilterOptionsInPanel = packed record
+    TagsIncl: TNoteTagArray;          // Consider notes/entries with ALL of the selected tags in its metadata (TagsModeOR=False) (TagsText=False)
+    InheritedTags: boolean;           // Each node will be considered as having its own tags and the tags of its ancestors
+    ExcludeTaggedToIgnore: boolean;   // Use TFindOptions.DefaultTagsExcl  ("i")
+    TextFilter : string;              // Entry to consider must include the pattern
+    MatchCase : boolean;              // case-sensitive ("c")
+    WholeWordsOnly : boolean;         // only match whole words ("w")
+    SearchMode : TSearchMode;         // "e":Exact phrase, "&":All the words, "|":Any of the words
+    ShowExcerpts: boolean;            // (when using TextFilter) "x"
+  end;
+
+
+  //*1 In most cases, it will not be necessary to save anything in the .knt file, and the current node will be considered.
+  //   However, it will be possible to display a list of possible explicitly selected nodes on a specific panel.
+  //   It will be saved in the .knt file as NNode1.GID,NNode2.GID,...  (NNode.GID.ToString)
+
+
+  TPanelConfiguration = record
+    Panel: TNEntriesPanel;
+    Auxiliar: boolean;
+    Visible: boolean;
+    Scope : TScopeInEntriesPanel;
+    Mode: TModeEntriesUI;
+    NNodes: TNoteNodeList;             // *1
+    SelectedNNode: TNoteNode;          // *1
+    NEntryID: Word;
+    MMContent: TContentInMultipleMode;
+    MMShowDateInHeader: boolean;
+    MMShowTagsInHeader: boolean;
+    Order: TOrderInEntriesInPanel;
+    DescendingOrder: boolean;
+    Filter: TFilterOptionsInPanel;
+  end;
+
+
 implementation
 
 end.

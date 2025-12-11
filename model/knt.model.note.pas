@@ -265,6 +265,8 @@ type
      class function HasTag(Tags: TNoteTagArray; TagName: string): boolean; overload;
      class function HasTag(Tags: TNoteTagArray; Tag: TNoteTag): boolean; overload;
      class procedure AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
+     class function ToString(Tags: TNoteTagArray): string;
+     class function StringToTags(Str: string): TNoteTagArray;
    end;
 
 
@@ -1036,6 +1038,49 @@ begin
 
 end;
 
+class function TNoteTagArrayUtils.ToString(Tags: TNoteTagArray): string;
+var
+   i: integer;
+begin
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         Result:= Result + Tags[i].ID.ToString + ',';
+      delete(Result, Length(Result),1);           // Remove last ','
+   end;
+end;
+
+class function TNoteTagArrayUtils.StringToTags(Str: string): TNoteTagArray;
+var
+   i, pI: integer;
+   N: integer;
+   IDTag: Cardinal;
+   NTag: TNoteTag;
+begin
+   if Str = '' then begin
+      Result:= nil;
+      exit;
+   end;
+
+   N:= 0;
+   Str:= Str + ',';
+   pI:= 1;
+   for i:= 1 to Length(Str) do begin
+      if Str[i] = ',' then begin
+         IDTag:= StrToUIntDef(Copy(Str, pI, i-pI), 0);
+         if (IDTag <> 0) then begin
+            NTag:= ActiveFile.GetNTagByID(IDTag);
+            if (NTag <> nil) then begin
+               inc(N);
+               SetLength(Result, N);
+               Result[N-1]:= NTag;
+            end;
+         end;
+         pI:= i+1;
+      end;
+   end;
+end;
+
+
 
 function FindTagsGetModeOR(FindTags: TFindTags): TFindTags;
 var
@@ -1253,45 +1298,13 @@ begin
 end;
 
 function TNoteEntry.TagsToString: string;
-var
-   i: integer;
 begin
-   if Tags <> nil then begin
-      for i:= 0 to High(Tags) do
-         Result:= Result + Tags[i].ID.ToString + ',';
-      delete(Result, Length(Result),1);           // Remove last ','
-   end;
+  Result:= TNoteTagArrayUtils.ToString(Tags);
 end;
 
 procedure TNoteEntry.StringToTags(Str: string);
-var
-   i, pI: integer;
-   N: integer;
-   IDTag: Cardinal;
-   NTag: TNoteTag;
 begin
-   if Str = '' then begin
-      fTags:= nil;
-      exit;
-   end;
-
-   N:= 0;
-   Str:= Str + ',';
-   pI:= 1;
-   for i:= 1 to Length(Str) do begin
-      if Str[i] = ',' then begin
-         IDTag:= StrToUIntDef(Copy(Str, pI, i-pI), 0);
-         if (IDTag <> 0) then begin
-            NTag:= ActiveFile.GetNTagByID(IDTag);
-            if (NTag <> nil) then begin
-               inc(N);
-               SetLength(fTags, N);
-               fTags[N-1]:= NTag;
-            end;
-         end;
-         pI:= i+1;
-      end;
-   end;
+  fTags:= TNoteTagArrayUtils.StringToTags(Str);
 end;
 
 // Consider also the order of tags

@@ -236,6 +236,7 @@ procedure InitializeEditorOptions( var Struct : TEditorOptions );
 procedure InitializeResPanelOptions( var Struct : TResPanelOptions );
 procedure InitializeExportOptions( var Struct : TExportOptions );
 procedure InitializeTreeOptions( var Struct : TKntTreeOptions );
+procedure InitializeNoteAdvancedOptions( var Struct : TNoteAdvancedOptions );
 
 type
   TClipOptionsIniStr = packed record
@@ -811,7 +812,8 @@ type
     SearchPathInNodeNames,
     ShowChildren,
     InheritedTags,
-    FoldedMode: string;
+    FoldedMode,
+    DefaultTagsExcl: string;
   end;
 
 const
@@ -849,7 +851,43 @@ const
     ShowChildren: 'ShowChildren';
     InheritedTags: 'InheritedTags';
     FoldedMode: 'FoldedMode';
+    DefaultTagsExcl: 'DefTagsExcl';
   );
+
+
+type
+  TNoteAdvancedOptionsIniStr = packed record
+    Section,
+    EditCPnelInPnl,
+    PnTLInNewNote,
+    PnTRInNewNote,
+    PnBLInNewNote,
+    PnBRInNewNote,
+    DefTagsInPanels,
+    DefTagsOrder,
+    PnlTRatio,
+    PnlBRatio,
+    PnlTLTRRatio,
+    PnlBLBRRatio: string;
+  end;
+
+const
+  NoteAdvancedOptionsIniStr : TNoteAdvancedOptionsIniStr = (
+    Section : 'NoteAdvOptions';
+    EditCPnelInPnl : 'EditCPnelInPnl';
+    PnTLInNewNote: 'PnTLInNewNote';
+    PnTRInNewNote: 'PnTRInNewNote';
+    PnBLInNewNote: 'PnBLInNewNote';
+    PnBRInNewNote: 'PnBRInNewNote';
+    DefTagsInPanels: 'DefTagsInPanels';
+    DefTagsOrder: 'DefTagsOrder';
+    PnlTRatio: 'PnlTRatio';
+    PnlBRatio: 'PnlBRatio';
+    PnlTLTRRatio: 'PnlTLTRRatio';
+    PnlBLBRRatio: 'PnlBLTRRatio';
+  );
+
+
 
 type
   TResPanelOptionsIniStr = record
@@ -974,6 +1012,7 @@ uses
   kn_KntFolder,
   kn_Const,
   kn_Main,
+  knt.model.note,
   knt.ui.editor,
   knt.RS;
 
@@ -1286,6 +1325,7 @@ begin
     WordAtCursor := true;
     Wrap := false;
     FoldedMode:= sfAll;
+    DefaultTagsExcl:= nil;
   end;
 end; // InitializeFindOptions
 
@@ -1340,6 +1380,30 @@ begin
     TopLevelCheck := false;
   end;
 end; // InitializeTreeOptions
+
+
+procedure InitializeNoteAdvancedOptions( var Struct : TNoteAdvancedOptions );
+var
+  p: TNEntriesPanel;
+begin
+  with Struct do begin
+    EditCentralPanelEntriesIn:= pnBL;
+
+    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+       DefaultTagsInPanels[p] := nil;
+
+    ShowPanelTLInNewNotes:= false;
+    ShowPanelTRInNewNotes:= false;
+    ShowPanelBLInNewNotes:= false;
+    ShowPanelBRInNewNotes:= false;
+    DefaultTagsOrder:= nil;
+
+    PnlTLTRRatio:= 0.5;
+    PnlBLBRRatio:= 0.5;
+    PnlTopRatio:= 0.1354;
+    PnlBottomRatio:= 0.15;
+  end;
+end;
 
 
 procedure SaveKeyNoteOptions(
@@ -1657,6 +1721,7 @@ begin
       writebool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       writebool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
       writebool( section, FindOptionsIniStr.InheritedTags, FindOptions.InheritedTags );
+      writestring( section, FindOptionsIniStr.DefaultTagsExcl, TNoteTagArrayUtils.ToString(FindOptions.DefaultTagsExcl) );
 
       section := ResPanelOptionsIniStr.section;
       //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
@@ -2066,6 +2131,8 @@ begin
       FindOptions.SearchPathInNodeNames := readbool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       FindOptions.ShowChildren := readbool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
       FindOptions.InheritedTags := readbool( section, FindOptionsIniStr.InheritedTags, FindOptions.InheritedTags );
+      FindOptions.DefaultTagsExcl := TNoteTagArrayUtils.StringToTags(readstring( section, FindOptionsIniStr.DefaultTagsExcl,
+                                                                                  TNoteTagArrayUtils.ToString(FindOptions.DefaultTagsExcl) )   );
 
       section := ResPanelOptionsIniStr.section;
       {

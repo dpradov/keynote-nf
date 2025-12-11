@@ -240,6 +240,7 @@ var
    ResPanelOptions : TResPanelOptions;
    KntTreeOptions : TKntTreeOptions;
    FindOptions : TFindOptions;
+   NoteAdvOptions: TNoteAdvancedOptions;
 
    //================================================== DEFAULT PROPERTIES
    DefaultEditorProperties : TFolderEditorProperties;

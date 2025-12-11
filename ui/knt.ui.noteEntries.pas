@@ -43,11 +43,6 @@ type
   TBeforeEditorLoadedEvent = procedure(Note: TNote) of object;
   TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
 
-  TModeEntriesUI = (
-    meMultipleEntries,
-    meSingleEntry
-  );
-
 type
   TKntNoteEntriesUI = class(TFrame)
     pnlEntries: TPanel;
@@ -73,6 +68,8 @@ type
     FEditor: TKntRichEdit;
     FNoteUI: INoteUI;
     FModeEntriesUI: TModeEntriesUI;
+    FPanelConfig: TPanelConfiguration;
+    FOnUse: boolean;
 
     RTFAux: TAuxRichEdit;
 
@@ -102,7 +99,7 @@ type
     property Folder: TKntFolder read FKntFolder;
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
-    procedure LoadFromNNode (NNode: TNoteNode; ModeEntriesUI: TModeEntriesUI; NEntryID: Word; SavePreviousContent: boolean);
+    procedure LoadFromNNode (NNode: TNoteNode; PanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
     function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
     procedure SaveToDataModel;
@@ -113,6 +110,8 @@ type
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     function GetHeaderCellx: AnsiString;
     function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
+  public
+    property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;      // SetPanelConfig...
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
@@ -122,6 +121,7 @@ type
   public
     procedure EditTags;
     procedure RefreshTags;
+    procedure HideTemporarilyInfoPanel;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
 
   protected
@@ -129,6 +129,8 @@ type
     procedure SetReadOnly( AReadOnly : boolean );
   public
     property ReadOnly : boolean read GetReadOnly write SetReadOnly;
+    property OnUse: boolean read FOnUse;
+    procedure SetAsUnused;
 
   protected
     function GetImagesInstances: TImageIDs;
@@ -143,8 +145,11 @@ type
 
   protected
     procedure NoteEntriesUIEnter(Sender: TObject);
+    procedure NoteEntriesUIExit(Sender: TObject);
     procedure EditorMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure EditorMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+  public
+    function HideNestedFloatingEditor: boolean;
   public
     procedure SetOnEnter(AEvent: TNotifyEvent);
     procedure SetOnMouseUpOnNote(AEvent: TNotifyEvent);
@@ -164,6 +169,7 @@ uses
   kn_LinksMng,
   kn_EditorUtils,
   knt.ui.TagMng,
+  knt.ui.note,
   knt.RS;
 
 
@@ -210,6 +216,7 @@ begin
    end;
 
    OnEnter:= NoteEntriesUIEnter;
+   OnExit:= NoteEntriesUIExit;
    OnResize:= FrameResize;
 
    FColorTxts:= RGB(248,248,248);
@@ -226,6 +233,7 @@ begin
    SetReadOnly(FKntFolder.ReadOnly);
    fChangingInCode:= false;
    FLastEditorUIWidth:= '';
+   FOnUse:= False;
 
    UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
 
@@ -272,6 +280,12 @@ begin
    ConfigureEditor;
 end;
 
+procedure TKntNoteEntriesUI.SetAsUnused;
+begin
+  FOnUse:= False;
+  Editor.Clear;
+end;
+
 
 procedure TKntNoteEntriesUI.SetOnEnter(AEvent: TNotifyEvent);
 begin
@@ -300,6 +314,30 @@ begin
 
   if FloatingEditorCannotBeSaved then
      Editor.ActivateFloatingEditor;
+
+  if not FInfoPanelHidden and FPanelConfig.Auxiliar then
+     pnlIdentif.Visible := True;
+
+  TKntNoteUI(FNoteUI).NEntryUIEditorEnter(Self);
+end;
+
+
+function TKntNoteEntriesUI.HideNestedFloatingEditor: boolean;
+begin
+  Result:= True;
+  FloatingEditorCannotBeSaved:= False;
+  Editor.HideNestedFloatingEditor;
+
+  if FloatingEditorCannotBeSaved then begin
+     Editor.ActivateFloatingEditor;
+     Result:= False;
+  end;
+end;
+
+
+procedure TKntNoteEntriesUI.NoteEntriesUIExit(Sender: TObject);
+begin
+   HideTemporarilyInfoPanel;
 end;
 
 procedure TKntNoteEntriesUI.EditorMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -319,6 +357,13 @@ begin
    FInfoPanelHidden:= value;
    pnlIdentif.Visible := not value;
 end;
+
+procedure TKntNoteEntriesUI.HideTemporarilyInfoPanel;
+begin
+  if not FInfoPanelHidden and FPanelConfig.Auxiliar then
+     pnlIdentif.Visible := False;
+end;
+
 
 procedure TKntNoteEntriesUI.txtNameChange(Sender: TObject);
 begin
@@ -497,7 +542,7 @@ begin
    Result:= FKntFolder;
 end;
 
-procedure TKntNoteEntriesUI.LoadFromNNode(NNode: TNoteNode; ModeEntriesUI: TModeEntriesUI; NEntryID: Word; SavePreviousContent: boolean);
+procedure TKntNoteEntriesUI.LoadFromNNode(NNode: TNoteNode; PanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
 var
   NEntry: TNoteEntry;
   KeepModified: boolean;
@@ -514,17 +559,24 @@ begin
 
        FNNode:= NNode;
        //FNNodeDeleted:= false;    //##
+       FPanelConfig:= PanelConfig;
 
        Editor.Clear;
        Editor.ClearUndo;
 
+       HideTemporarilyInfoPanel;
+
        if assigned(NNode) then begin
-          FModeEntriesUI:= ModeEntriesUI;
+          FModeEntriesUI:= PanelConfig.Mode;
           if FNNode.Note.NumEntries = 1 then
              FModeEntriesUI:= meSingleEntry;
-          FNEntryID:= NEntryID;
+          FNEntryID:= PanelConfig.NEntryID;
 
           FNote:= NNode.Note;
+          FOnUse:= True;
+
+          txtName.Visible := not FPanelConfig.Auxiliar;
+
 
           case NNode.WordWrap of
             wwAsFolder : Editor.WordWrap := FKntFolder.WordWrap;

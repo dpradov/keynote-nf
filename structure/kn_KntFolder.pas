@@ -66,6 +66,47 @@ type
   TBeforeEditorLoadedEvent = procedure(Note: TNote) of object;
   TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
 
+type
+  TNNodeUIConfiguration = class
+
+    private
+      FNNodeGID: Cardinal;
+
+      FTop_Ratio: Single;
+      FBottom_Ratio: Single;
+      FTLTR_Ratio: Single;
+      FBLBR_Ratio: Single;
+
+    protected
+      function GetTop_Ratio: Single;
+      function GetBottom_Ratio: Single;
+      function GetTLTR_Ratio: Single;
+      function GetBLBR_Ratio: Single;
+
+    protected
+      constructor Create (NNodeGID: Cardinal);
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; EntryID: Word = 0): TPanelConfiguration;
+
+    public
+      PanelsConfig: array of TPanelConfiguration;
+
+
+      class function CreateDefault (NNode : TNoteNode): TNNodeUIConfiguration;
+      class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
+      function SaveToString: string;
+
+      property NNodeGID: Cardinal read FNNodeGID;
+      function PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+
+      property Top_Ratio: Single read GetTop_Ratio write FTop_Ratio;
+      property Bottom_Ratio: Single read GetBottom_Ratio write FBottom_Ratio;
+      property TLTR_Ratio: Single read GetTLTR_Ratio write FTLTR_Ratio;
+      property BLBR_Ratio: Single read GetBLBR_Ratio write FBLBR_Ratio;
+  end;
+
+  TNNodeUIConfigList = TSimpleObjList<TNNodeUIConfiguration>;   // TList<TNNodeUIConfiguration>;
+
+
   TKntFolder = class;
   TFolderList = TSimpleObjList<TKntFolder>;
   TKNTHistoryObj = TObject;            // To avoid circular references
@@ -80,6 +121,7 @@ type
     FID : Cardinal;               // [*] unique folder ID
     FKntFile: TObject;
     fNNodes: TNoteNodeList;
+    fNNodesUIConfig: TNNodeUIConfigList;
 
     FEditorChrome : TChrome;      // [*] user-defined fonts, colors etc.
     FName : TNoteNameStr;         // [*] user-defined name for the folder object
@@ -177,6 +219,7 @@ type
     property ID : Cardinal read FID write SetID;
     property Name : string read fName write SetName;
     property NNodes: TNoteNodeList read fNNodes;
+    property NNodesUIConfig: TNNodeUIConfigList read fNNodesUIConfig;
 
     property EditorChrome : TChrome read FEditorChrome write SetEditorChrome;
     property ImageIndex : integer read FImageIndex write SetImageIndex;
@@ -257,6 +300,9 @@ type
     procedure NodeSelected(const Node : PVirtualNode; const LastNodeSelected: PVirtualNode);
     function GetFocusedNNode : TNoteNode;
     property FocusedNNode : TNoteNode read GetFocusedNNode;
+
+    function GetNNodeUIConfig(NNode : TNoteNode): TNNodeUIConfiguration;
+    function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
 
     procedure NoteNameModified(NNode: TNoteNode);
 
@@ -819,6 +865,7 @@ begin
   InitializeChrome( FTreeChrome );
   FDefaultNoteName := DEFAULT_NEW_NOTE_NAME;
   fNNodes := TNoteNodeList.Create;
+  fNNodesUIConfig := TNNodeUIConfigList.Create;
   FLoadingLevels:= TIntegerList.Create;
   FEditorInfoPanelHidden:= false;
 
@@ -1255,6 +1302,31 @@ end;
 
 {$ENDREGION}
 
+
+// NNodes UI Config  =========================================
+
+{$REGION NNodes UI Config }
+
+function TKntFolder.GetNNodeUIConfig(NNode : TNoteNode): TNNodeUIConfiguration;
+var
+  i: integer;
+  GID: Cardinal;
+begin
+  GID:= NNode.GID;
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     Result:= NNodesUIConfig[i];
+     if Result.NNodeGID = GID then exit;
+  end;
+  Result:= nil;
+end;
+
+function TKntFolder.AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
+begin
+  Result:= NNodesUIConfig.Add(NNodeUIConfig);
+end;
+
+
+{$ENDREGION}
 
 
 // Virtual Notes  =========================================
@@ -2398,6 +2470,7 @@ var
 
   Note: TNote;
   NNode: TNoteNode;
+  NNodeUIConfig: TNNodeUIConfiguration;
   GID: Cardinal;
   VirtualFN, RelativeVirtualFN: string;
   C: TColor;
@@ -2750,7 +2823,13 @@ begin
                 end
                 else
                 if ( key = _NodeAlarm ) then
-                    AlarmMng.ProcessAlarm(s, NNode, Self);
+                    AlarmMng.ProcessAlarm(s, NNode, Self)
+                else
+                if ( key = _NodeUIConfig ) then begin
+                   NNodeUIConfig:= TNNodeUIConfiguration.CreateFromString (NNode.GID, s);
+                   if NNodeUIConfig <> nil then
+                      AddNNodeUIConfig(NNodeUIConfig);
+                end;
 
                 continue;
              end; // if InNoteNode ...
@@ -3049,6 +3128,138 @@ begin
 end;
 
 {$ENDREGION }
+
+
+// TNNodeUIConfiguration =========================================
+
+{$REGION TNNodeUIConfiguration}
+
+//=====  TNNodeUIConfiguration ================
+
+constructor TNNodeUIConfiguration.Create (NNodeGID: Cardinal);
+begin
+  FNNodeGID:= NNodeGID;
+  FTop_Ratio:= 0;
+  FBottom_Ratio:= 0;
+  FTLTR_Ratio:= 0;
+  FBLBR_Ratio:= 0;
+end;
+
+
+function TNNodeUIConfiguration.GetTop_Ratio: Single;
+begin
+   Result:= FTop_Ratio;
+      if Result = 0 then
+      Result:= NoteAdvOptions.PnlTopRatio;
+end;
+
+function TNNodeUIConfiguration.GetBottom_Ratio: Single;
+begin
+   Result:= FBottom_Ratio;
+   if Result = 0 then
+      Result:= NoteAdvOptions.PnlBottomRatio;
+end;
+
+function TNNodeUIConfiguration.GetTLTR_Ratio: Single;
+begin
+   Result:= FTLTR_Ratio;
+   if Result = 0 then
+      Result:= NoteAdvOptions.PnlTLTRRatio;
+end;
+
+function TNNodeUIConfiguration.GetBLBR_Ratio: Single;
+begin
+   Result:= FBLBR_Ratio;
+   if Result = 0 then
+      Result:= NoteAdvOptions.PnlBLBRRatio;
+end;
+
+function TNNodeUIConfiguration.PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+var
+  i: integer;
+begin
+   for i := 0 to High(PanelsConfig) do begin
+       if PanelsConfig[i].Panel = Panel then
+          exit(PanelsConfig[i]);
+   end;
+
+   exit( CreateDefaultPanelConfig(Panel, meMultipleEntries) );
+end;
+
+
+function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; EntryID: Word = 0): TPanelConfiguration;
+var
+   L: integer;
+begin
+    L:= Length(PanelsConfig);
+    SetLength(PanelsConfig, L + 1);
+
+    with Result do begin
+       with PanelsConfig[L] do begin
+          Panel:= aPanel;
+          Auxiliar:= (aPanel <> pnCenter);
+          Visible:= True;
+          Scope:= fsCurrentNode;
+          Mode:= meSingleEntry;
+          NNodes:= nil;
+          SelectedNNode:= nil;
+          NEntryID:= EntryID;
+
+          if aMode = meMultipleEntries then begin
+            Mode:= meMultipleEntries;
+            MMContent:= cmWholeEntries;
+            MMShowDateInHeader:= not Auxiliar;
+            MMShowTagsInHeader:= not Auxiliar;
+            Order:= eoDateCreation;
+            DescendingOrder:= True;
+            with Filter do begin
+              TagsIncl:= [];
+              InheritedTags:= false;
+              ExcludeTaggedToIgnore:= false;
+              TextFilter := '';
+              MatchCase := false;
+              WholeWordsOnly := false;
+              SearchMode := smPhrase;
+              ShowExcerpts:= false;
+            end;
+          end;
+       end;
+    end;
+
+end;
+
+
+class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode): TNNodeUIConfiguration;
+var
+   PnlEdit: TNEntriesPanel;
+   Mode: TModeEntriesUI;
+begin
+    Result:= TNNodeUIConfiguration.Create(NNode.GID);
+
+    Mode:= meSingleEntry;
+    PnlEdit:= pnCenter;
+    if NNode.Note.NumEntries > 1 then begin
+       Mode:= meMultipleEntries;
+       PnlEdit:= NoteAdvOptions.EditCentralPanelEntriesIn;
+    end;
+
+    Result.CreateDefaultPanelConfig (PnlEdit, meSingleEntry, NNode.Note.NumEntries-1);
+    if (Mode = meMultipleEntries) and (PnlEdit <> pnCenter) then
+       Result.CreateDefaultPanelConfig (pnCenter, meMultipleEntries);
+end;
+
+class function TNNodeUIConfiguration.CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
+begin
+
+end;
+
+function TNNodeUIConfiguration.SaveToString: string;
+begin
+
+end;
+
+
+{$ENDREGION}
 
 
 
