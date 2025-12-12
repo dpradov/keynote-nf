@@ -633,10 +633,11 @@ procedure TKntNoteUI.NEntryUIEditorEnter(Sender: TObject);
 var
   p: TNEntriesPanel;
 begin
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         if not FNEntryUI[p].HideNestedFloatingEditor then
-            exit;
+   if not FloatingEditorCannotBeSaved then
+      for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+        if FNEntryUI[p] <> nil then
+           if not FNEntryUI[p].HideNestedFloatingEditor then
+              exit;
 
   Timer.Enabled:= True;
 end;
@@ -700,6 +701,8 @@ begin
    if SavePreviousContent and (FNNode <> nil) then
       SaveToDataModel;
 
+   if FloatingEditorCannotBeSaved then exit;
+
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
 
@@ -713,8 +716,11 @@ begin
      end;
    end;
 
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       ShowPanel[p]:= false;
+      if (FNEntryUI[p] <> nil) and not FNEntryUI[p].HideNestedFloatingEditor then
+         exit;
+   end;
 
    for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
        PanelConfig:= FNNodeUIConfig.PanelsConfig[i];

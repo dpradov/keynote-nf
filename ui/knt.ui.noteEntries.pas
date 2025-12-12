@@ -312,13 +312,13 @@ begin
   if Assigned(FOnEnterOnEditor) then
     FOnEnterOnEditor(Self);
 
+  TKntNoteUI(FNoteUI).NEntryUIEditorEnter(Self);
+
   if FloatingEditorCannotBeSaved then
      Editor.ActivateFloatingEditor;
 
   if not FInfoPanelHidden and FPanelConfig.Auxiliar then
      pnlIdentif.Visible := True;
-
-  TKntNoteUI(FNoteUI).NEntryUIEditorEnter(Self);
 end;
 
 
@@ -554,8 +554,10 @@ begin
 
    try
      try
-       if SavePreviousContent and not FNoteUI.GetNNodeDeleted then
+       if SavePreviousContent and not FNoteUI.GetNNodeDeleted then begin
           SaveToDataModel();
+          Editor.HideNestedFloatingEditor;
+       end;
 
        FNNode:= NNode;
        //FNNodeDeleted:= false;    //##

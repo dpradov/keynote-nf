@@ -1637,7 +1637,6 @@ begin
      end
      else begin
         TV.FocusedNode:= fLastNodeSelected;
-        TKntFolder(Folder).NodeSelected(fLastNodeSelected, nil);
         TV.Selected[Node]:= False;
         TV.Selected[TV.FocusedNode]:= True;
      end;
