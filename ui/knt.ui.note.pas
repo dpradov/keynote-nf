@@ -73,6 +73,7 @@ type
     FNEntryUI: array[TNEntriesPanel] of TKntNoteEntriesUI;
     FNNodeUIConfig: TNNodeUIConfiguration;
     FNewNNodeUIConfig: boolean;
+    FSelectedNEntryUI: TKntNoteEntriesUI;
 
     fSplitterNoteMoving: boolean;
     FUpdatingOnResize: boolean;
@@ -91,6 +92,7 @@ type
     function GetEditor: TKntRichEdit;
     function GetNNode: TNoteNode;
     function GetFolder: TObject;
+    function GetSelectedNEntry: TNoteEntry;
 
   public
     constructor Create(AOwner: TComponent; KntFolder: TKntFolder);
@@ -103,6 +105,7 @@ type
     property Folder: TKntFolder read FKntFolder;
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
+    property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
     function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
@@ -166,6 +169,7 @@ implementation
 
 uses
   kn_ImagesUtils,
+  kn_VCLControlsMng,
   knt.RS;
 
 
@@ -186,6 +190,7 @@ begin
 
    FNEntryUI[pnCenter]:= TKntNoteEntriesUI.Create( PnlCenter, Self );
    FNEntryUI[pnCenter].Parent:= PnlCenter;
+   FSelectedNEntryUI:= FNEntryUI[pnCenter];
 
    //TestCreatePanel;
 
@@ -246,7 +251,7 @@ end;
 
 function TKntNoteUI.GetEditor: TKntRichEdit;
 begin
-  Result:= FNEntryUI[pnCenter].Editor;
+  Result:= FSelectedNEntryUI.Editor;
 end;
 
 
@@ -262,18 +267,30 @@ end;
 
 
 procedure TKntNoteUI.SetOnEnter(AEvent: TNotifyEvent);
+var
+  p: TNEntriesPanel;
 begin
-  FNEntryUI[pnCenter].SetOnEnter(AEvent);
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].SetOnEnter(AEvent);
 end;
 
 procedure TKntNoteUI.SetOnMouseUpOnNote(AEvent: TNotifyEvent);
+var
+  p: TNEntriesPanel;
 begin
-   FNEntryUI[pnCenter].SetOnMouseUpOnNote(AEvent);
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].SetOnMouseUpOnNote(AEvent);
 end;
 
 procedure TKntNoteUI.SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
+var
+  p: TNEntriesPanel;
 begin
-   FNEntryUI[pnCenter].SetOnMouseMoveOnNote(AEvent);
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].SetOnMouseMoveOnNote(AEvent);
 end;
 
 
@@ -285,7 +302,7 @@ end;
 
 procedure TKntNoteUI.SetFocusOnEditor;
 begin
-   FNEntryUI[pnCenter].SetFocus;
+   FSelectedNEntryUI.SetFocusOnEditor;
 end;
 
 
@@ -561,6 +578,7 @@ begin
    pnl:= GetPanel(panel);
    if FNEntryUI[Panel] =  nil then begin
       FNEntryUI[Panel]:= TKntNoteEntriesUI.Create(pnl, Self );
+      SetUpEditor(FNEntryUI[Panel].Editor, FNEntryUI[pnCenter].Editor.ZoomGoal);
       FNEntryUI[Panel].Parent:= pnl;
    end;
 
@@ -639,6 +657,7 @@ begin
            if not FNEntryUI[p].HideNestedFloatingEditor then
               exit;
 
+  FSelectedNEntryUI:= TKntNoteEntriesUI(Sender);
   Timer.Enabled:= True;
 end;
 
@@ -690,6 +709,11 @@ end;
 function TKntNoteUI.GetFolder: TObject;
 begin
    Result:= FKntFolder;
+end;
+
+function TKntNoteUI.GetSelectedNEntry: TNoteEntry;
+begin
+   Result:= FSelectedNEntryUI.SelectedNEntry;
 end;
 
 procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
@@ -850,12 +874,8 @@ begin
 end;
 
 procedure TKntNoteUI.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
-var
-  p: TNEntriesPanel;
 begin
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
+   FSelectedNEntryUI.ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
 end;
 
 procedure TKntNoteUI.SetImagesMode(ImagesMode: TImagesMode);

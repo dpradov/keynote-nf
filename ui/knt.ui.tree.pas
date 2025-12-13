@@ -516,6 +516,7 @@ begin
    with TV do begin
      DefaultText := DEFAULT_NEW_NOTE_NAME;
      HelpContext:= 27;  // Tree-type Notes
+     WantTabs:= True;
    end;
 
    TB_HideChecked.Hint := Form_Main.MMViewHideCheckedNodes.Hint;    // [dpv]
@@ -1690,7 +1691,13 @@ begin
   if TV.IsEditing then begin
      if ( key = KNTLINK_SEPARATOR ) then
         key := #0; // disallow | character in node name, because it breaks KNT links (which use | as delimiter)
-  end;
+  end
+  else
+  if (Key = #9) and not ShiftDown then begin
+     Key := #0;
+     TKntFolder(Folder).SetFocusOnNoteEditor;
+  end
+
 end; // TVKeyPress
 
 {

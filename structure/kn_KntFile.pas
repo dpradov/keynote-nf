@@ -1960,7 +1960,7 @@ begin
    try
       RTFAux:= CreateAuxRichEdit;
       try
-         NEntry:= NNode.Note.Entries[0];         // %%%%
+         NEntry:= NoteUI.SelectedNEntry;
          Stream:= nEntry.Stream;
 
          if Stream.Size <> 0 then begin

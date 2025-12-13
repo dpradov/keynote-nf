@@ -38,8 +38,10 @@ type
      function GetEditor: TKntRichEdit;
      function GetNNode: TNoteNode;
      function GetFolder: TObject;
+     function GetSelectedNEntry: TNoteEntry;
      property Editor: TKntRichEdit read GetEditor;
      property NNode: TNoteNode read GetNNode;
+     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
      procedure ReloadFromDataModel;

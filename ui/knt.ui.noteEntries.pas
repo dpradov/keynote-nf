@@ -88,6 +88,7 @@ type
     function GetEditor: TKntRichEdit;
     function GetNNode: TNoteNode;
     function GetFolder: TObject;
+    function GetSelectedNEntry: TNoteEntry;
 
 
   public
@@ -100,6 +101,7 @@ type
     property Folder: TKntFolder read FKntFolder;
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
+    property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
     procedure LoadFromNNode (NNode: TNoteNode; PanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
     function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
@@ -548,6 +550,14 @@ function TKntNoteEntriesUI.GetFolder: TObject;
 begin
    Result:= FKntFolder;
 end;
+
+function TKntNoteEntriesUI.GetSelectedNEntry: TNoteEntry;
+begin
+   Result:= nil;
+   if assigned(NNode) then
+      Result:= Note.GetEntry(FNEntryID);
+end;
+
 
 procedure TKntNoteEntriesUI.LoadFromNNode(NNode: TNoteNode; PanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
 var
