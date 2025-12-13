@@ -75,6 +75,7 @@ type
 
     FInfoPanelHidden: boolean;
     fImagesReferenceCount: TImageIDs;
+    FEditor_SupportsRegisteredImages: boolean;       // For use with meMultipleEntries
 
     FLastEditorUIWidth: string;
 
@@ -121,7 +122,7 @@ type
   public
     procedure EditTags;
     procedure RefreshTags;
-    procedure HideTemporarilyInfoPanel;
+    function HideTemporarilyInfoPanel: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
 
   protected
@@ -137,7 +138,7 @@ type
     property ImagesReferenceCount: TImageIDs read fImagesReferenceCount write fImagesReferenceCount;
   public
     property ImagesInstances: TImageIDs read GetImagesInstances;
-    procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
+    function GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String): TImageIDs;
     procedure ResetImagesReferenceCount;
     procedure ReloadImagesOnEditor;
     procedure ReconsiderImageDimensionGoalsOnEditor (Selection: boolean; ImagesMode: TImagesMode);
@@ -168,6 +169,7 @@ uses
   gf_miscvcl,
   kn_LinksMng,
   kn_EditorUtils,
+  kn_ImagesUtils,
   knt.ui.TagMng,
   knt.ui.note,
   knt.RS;
@@ -358,10 +360,15 @@ begin
    pnlIdentif.Visible := not value;
 end;
 
-procedure TKntNoteEntriesUI.HideTemporarilyInfoPanel;
+function TKntNoteEntriesUI.HideTemporarilyInfoPanel: boolean;
+var
+  wasFocused: boolean;
 begin
-  if not FInfoPanelHidden and FPanelConfig.Auxiliar then
+  wasFocused:= (txtTags.Focused or txtName.Focused);
+  if not FInfoPanelHidden and FPanelConfig.Auxiliar and not wasFocused then
      pnlIdentif.Visible := False;
+
+  Result:= not wasFocused;
 end;
 
 
@@ -664,8 +671,8 @@ var
  NEntry: TNoteEntry;
 
  cEditor: TRxRichEdit;
- Editor_SupportsRegisteredImages: boolean;
  i: integer;
+ ImagesAux: TImageIDs;
 
 begin
    NEntry:= ReloadMetadataFromDataModel;
@@ -680,18 +687,18 @@ begin
       RTFAux:= CreateAuxRichEdit();
       cEditor:= RTFAux;
       cEditor.BeginUpdate;
-      Editor_SupportsRegisteredImages:= False;
+      FEditor_SupportsRegisteredImages:= False;
       if (ImageMng.StorageMode <> smEmbRTF) and not NNode.IsVirtual then
         for i:= 0 to Note.NumEntries -1 do
             if Note.Entries[i].IsRTF then begin
-               Editor_SupportsRegisteredImages:= True;
+               FEditor_SupportsRegisteredImages:= True;
                break;
             end;
    end
    else begin
       SetReadOnly(FKntFolder.ReadOnly);
       cEditor:= FEditor;
-      Editor_SupportsRegisteredImages:= FEditor.SupportsRegisteredImages;
+      FEditor_SupportsRegisteredImages:= FEditor.SupportsRegisteredImages;
    end;
 
 
@@ -700,6 +707,7 @@ begin
    try
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
      Editor.Clear;
+     fImagesReferenceCount:= nil;
 
      i:= 0;
      repeat                            // ====================================================== Load each entry, depending on mode
@@ -720,16 +728,19 @@ begin
          //    is persisted to the model (for example, when selecting another note from the tree). This can occur if in that situation
          //    we select several lines and press Shift+TAB (to tab multiple lines, decreasing indentation)
 
-         fImagesReferenceCount:= nil;
          if (not cEditor.PlainText) and (NEntry.Stream.Size = 0) then
             cEditor.StreamFormat:= sfRichText                             // *1
 
          else begin
            if NodeStreamIsRTF (NEntry.Stream) then begin
               cEditor.StreamFormat:= sfRichText;
-              if Editor_SupportsRegisteredImages then begin
-                 GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
+              if FEditor_SupportsRegisteredImages then begin
+                 ImagesAux:= GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
                  strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+                 if FModeEntriesUI = meSingleEntry then
+                    fImagesReferenceCount:= ImagesAux
+                 else
+                    CombineImagesInstances(ImagesAux, fImagesReferenceCount);
               end;
            end
            else
@@ -748,7 +759,7 @@ begin
          end;
         {$ENDIF}
 
-        
+
          if StrRTF <> '' then begin
             if FModeEntriesUI <> meMultipleEntries then begin
                cEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
@@ -823,7 +834,7 @@ begin
       if KeyOptions.AltMargins then
          w:= w - KeyOptions.MarginAltLeft - KeyOptions.MarginAltRight;
 
-      widthTwips := DotsToTwips(w - 33);
+      widthTwips := DotsToTwips(w - 30);
       //widthTwips := 999999;
       Result:= '\cellx' + widthTwips.ToString;
 end;
@@ -831,7 +842,7 @@ end;
 function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
 var
   str, strFontSize, strHiddenMarkB: AnsiString;
-  s, strDate, strEntrID: string;
+  s, strInfo, strEntrID: string;
   strEntryID: string;
 
 begin
@@ -840,22 +851,25 @@ begin
 
    strFontSize:= (2 * 10).ToString + ' ';
    strEntryID:= Format('%d.%d', [Note.GID, NEntry.ID]);
-   if NEntry.Created <> 0  then begin
+   strInfo:= '';
+   if PanelConfig.MMShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
+      strInfo:= ' #[' + Trim(NEntry.TagsNames) + ']     ';
+   end;
+   if PanelConfig.MMShowDateInHeader and (NEntry.Created <> 0) then begin
       if (NEntry.Created).GetTime <> 0 then
          S:= ' - ' + FormatSettings.ShortTimeFormat;
-      strDate:= FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created) + '  .';
-   end
-   else
-      strDate:= '';
+      strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
+   end;
+   strInfo := strInfo + '   \u8203.';                      // '\u200B'  Zero-Width Space  (invisible)
 
    strHiddenMarkB:= '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA + strEntryID + KNT_RTF_HIDDEN_MARK_R + '\v0';
 
    str:= '{\rtf1\ansi{\colortbl ;\red102\green102\blue102;}';
    if FirstHeader then
-      str:= str + Format('\qr\cf1\fs%s %s\sa40\par}', [strFontSize, strDate])
+      str:= str + Format('\qr\cf1\fs%s %s\sa40\par}', [strFontSize, strInfo])
    else
       str:= str + Format('\fs5\par\par\trowd\trgaph0%s \intbl\fs1%s\cell\row\pard\qr\cf1\fs%s %s\sa40\par}',
-                          [FLastEditorUIWidth, strHiddenMarkB, strFontSize, strDate]);
+                          [FLastEditorUIWidth, strHiddenMarkB, strFontSize, strInfo]);
    Result:= str;
 end;
 
@@ -904,6 +918,7 @@ begin
           EndUpdate;
 
           ReadOnly:= True;
+          Modified:= False;
       end;
       FLastEditorUIWidth:= cellWidth;
    end
@@ -1049,16 +1064,19 @@ end;
 
 function TKntNoteEntriesUI.GetImagesInstances: TImageIDs;
 begin
+   if FEditor_SupportsRegisteredImages and FEditor.Modified then
+      fImagesReferenceCount:= GetImagesIDInstances (nil, FEditor.TextPlain);
+
    Result:= fImagesReferenceCount;
 end;
 
 
-procedure TKntNoteEntriesUI.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
+function TKntNoteEntriesUI.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String): TImageIDs;
 begin
    if (TextPlain <> '') then
-      fImagesReferenceCount:= ImageMng.GetImagesIDInstancesFromTextPlain (TextPlain)
+      Result:= ImageMng.GetImagesIDInstancesFromTextPlain (TextPlain)
    else
-      fImagesReferenceCount:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+      Result:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
 end;
 
 

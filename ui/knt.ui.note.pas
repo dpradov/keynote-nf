@@ -140,7 +140,6 @@ type
   protected
     function GetImagesInstances: TImageIDs;
     property ImagesInstances: TImageIDs read GetImagesInstances;
-    procedure GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
     procedure ResetImagesReferenceCount;
     procedure ReloadImagesOnEditor;
     procedure ReconsiderImageDimensionGoalsOnEditor (Selection: boolean; ImagesMode: TImagesMode);
@@ -166,6 +165,7 @@ implementation
 {$R *.dfm}
 
 uses
+  kn_ImagesUtils,
   knt.RS;
 
 
@@ -645,12 +645,14 @@ end;
 procedure TKntNoteUI.TimerTimer(Sender: TObject);
 var
   p: TNEntriesPanel;
+  KeepEnabled: boolean;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if (p <> pnCenter) and (FNEntryUI[p] <> nil)  then
-         FNEntryUI[p].HideTemporarilyInfoPanel;
+         KeepEnabled:= not FNEntryUI[p].HideTemporarilyInfoPanel;
 
-   Timer.Enabled:= False;
+   if not KeepEnabled then
+      Timer.Enabled:= False;
 end;
 
 
@@ -819,39 +821,52 @@ end;
 {$REGION Images }
 
 function TKntNoteUI.GetImagesInstances: TImageIDs;
+var
+  p: TNEntriesPanel;
 begin
-//##...
-   Result:= FNEntryUI[pnCenter].ImagesInstances;
-end;
-
-procedure TKntNoteUI.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String);
-begin
-//##...
-   FNEntryUI[pnCenter].GetImagesIDInstances(Stream, TextPlain);
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         CombineImagesInstances(FNEntryUI[p].ImagesInstances, Result);
 end;
 
 
 procedure TKntNoteUI.ResetImagesReferenceCount;
+var
+  p: TNEntriesPanel;
 begin
-    FNEntryUI[pnCenter].ResetImagesReferenceCount;
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].ResetImagesReferenceCount;
 end;
+
 
 procedure TKntNoteUI.ReloadImagesOnEditor;
+var
+  p: TNEntriesPanel;
 begin
-   FNEntryUI[pnCenter].ReloadImagesOnEditor;
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].ReloadImagesOnEditor;
 end;
-
 
 procedure TKntNoteUI.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
+var
+  p: TNEntriesPanel;
 begin
-   FNEntryUI[pnCenter].ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
 end;
-
 
 procedure TKntNoteUI.SetImagesMode(ImagesMode: TImagesMode);
+var
+  p: TNEntriesPanel;
 begin
-   FNEntryUI[pnCenter].SetImagesMode(ImagesMode);
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].SetImagesMode(ImagesMode);
 end;
+
 
 {$ENDREGION}
 

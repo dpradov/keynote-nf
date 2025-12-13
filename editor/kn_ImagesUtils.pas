@@ -104,7 +104,7 @@ uses
                            var PosRTFImageEnd: integer;
                            GetStream: boolean= true
                            ): boolean;
-  
+
   function RTFLinkToImage (Buffer: Pointer;
                            PictOffset: integer;
                            var WidthGoal, HeightGoal: integer;
@@ -122,6 +122,8 @@ uses
                                          const ImgFormat: TImageFormat;
                                          var ImgFormatDest: TImageFormat );
 
+
+  procedure CombineImagesInstances(Src: TImageIDs; var Dest: TImageIDs);
 
 
 implementation
@@ -1292,6 +1294,21 @@ begin
   end;
 
 
+end;
+
+
+procedure CombineImagesInstances(Src: TImageIDs; var Dest: TImageIDs);
+var
+  CurrentLen, L: Integer;
+begin
+   if Src <> nil then begin
+      CurrentLen := Length(Dest);
+      L := Length(Src);
+      if L > 0 then begin
+         SetLength(Dest, CurrentLen + L);
+         Move(Src[0], Dest[CurrentLen], L * SizeOf(Integer));
+      end;
+   end;
 end;
 
 
