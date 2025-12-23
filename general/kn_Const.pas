@@ -617,6 +617,8 @@ const
   DEFAULT_USE_ON_EXPAND_OPENING = '(➖)';  // '«:';
   DEFAULT_USE_ON_EXPAND_CLOSING = '(□)';   // ':»';
 
+  KNT_AUX_MARK     = Chr(16)+'K'+ Chr(16) + 'nT' + Chr(16);                 // 16 ($10): DLE: Data Link Escape
+
 
   EMPTY_TAGS = '#';
   MAX_SEARCHED_TAGS = 15;                         // Nobody will type more than 15 tags...

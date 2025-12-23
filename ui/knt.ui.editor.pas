@@ -3341,10 +3341,10 @@ end;
 procedure TKntRichEdit.Unfold (ExpandWithMarkers: boolean);
 var
   RTFIn, RTFOut: AnsiString;
-  SS: integer;
+  SS, SL, p: integer;
   pI, pF: integer;
   AdjustHglt: boolean;
-  KeepEndCR: boolean;
+  KeepEndCR, InsertedAuxMark: boolean;
   TxtPlain: string;
 begin
    if CheckReadOnly then exit;
@@ -3362,6 +3362,30 @@ begin
 
     Note: Although SelStart+SelLength = TextLengh will not cause an error, TxtPlain[SelStart+SelLength+1] will return #0.  }
 
+    { *2:
+    This allows to protect itself from what appears to be a bug in the RichEdit control:
+    If a collapsed text block contains an image and is immediately followed (or separated by a single line break) by another collapsed
+    block or a regular hyperlink, the image is hidden. This is because the `\v0` tag, which delimits the end of the hidden marker with
+    the image ID and should be positioned just before the image, is shifted to the right of the image itself, thereby hiding it.
+    This doesn't happen in the RTF returned by PrepareRTFtoBeExpanded, where the image displays correctly. However, when inserted right
+    next to these elements, it undergoes this transformation.
+    To avoid this, if this situation is detected, some 'normal' characters are inserted just after the end of the text to be expanded,
+    thus preventing this bug. Once the replacement is made, these characters are searched for and removed. An auxiliary string, 'rare',
+    which cannot be present, is used to search for it with `Editor.Find`. This method seems safer and possibly faster than calculating
+    the length (using TextPlain) of the new text block and thus determining the position where to insert at least a simple space.
+
+      <FoldeBlock1>
+      <FoldeBlock2>
+
+      <FoldeBlock1>
+      <Hyperlink>
+
+      <FoldeBlock1><Hyperlink>
+
+      <FoldeBlock1><FoldeBlock2>
+    }
+
+
    TxtPlain:= Self.TextPlain;
    if PositionInFoldedBlock(TxtPlain, Self.SelStart, Self, pI, pF) then begin
       BeginUpdate;
@@ -3374,11 +3398,32 @@ begin
          if AdjustHglt then
             SetSelection(pI, pF+1, false);
 
-         if KeepEndCR and (TxtPlain[SelStart+SelLength+1] = #13) then   // *1
-            SelLength:= SelLength+1;
+         SS:= pI;
+         SL:= SelLength;
 
+         if KeepEndCR and (TxtPlain[SelStart+SelLength+1] = #13) then  // *1
+            inc(SL);
+
+         // -------------------------------------------- *2
+         InsertedAuxMark:= False;
+         SetSelection(SS+SL, SS+SL+1, False);
+         if SelAttributes.Protected or (SelAttributes.LinkStyle <> lsNone) then begin
+            SelStart:= SS+SL;
+            SelText:= KNT_AUX_MARK;
+            InsertedAuxMark:= True;
+         end;
+
+         SetSelection(SS, SS+SL, False);
          RemoveFoldedMarker(RTFOut);
          RtfSelText:= RTFOut;
+
+         if InsertedAuxMark then begin          // ------ *2
+            p := FindText(KNT_AUX_MARK, pI, -1, []);
+            if p > 0 then begin
+               SetSelection(p, p+Length(KNT_AUX_MARK), False);
+               SelText:= '';
+            end;
+         end;
 
          FUnfolding:= False;
          SelStart:= pI;
