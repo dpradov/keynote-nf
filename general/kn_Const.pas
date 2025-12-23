@@ -21,6 +21,7 @@ uses
    Winapi.Windows,
    Winapi.ShellAPI,
    Winapi.Messages,
+   System.SysUtils,
    System.Zip,
    Vcl.Graphics,
    ZLibEx,
@@ -329,6 +330,8 @@ const
   _COMPACT_DATETIME_TOFILE = 'ddMMyyHHmm';
 
   _CRLF          = #13#10;
+  _CRLF_BYTES: TBytes = [$0D, $0A];
+
 
 
 const

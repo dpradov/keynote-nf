@@ -1845,8 +1845,7 @@ begin
                     itText, itRTF : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Folder. (TXT or RTF)  FN:' + FN,  1 ); {$ENDIF}
                       LoadTxtOrRTFFromFile(NEntry.Stream, FN);
-                      if ImportFileType = itRTF then
-                         NEntry.IsRTF:= true;              // Otherwise it will be IsPlainTXT=True
+                      NEntry.IsRTF:= (ImportFileType = itRTF);
                       end;
                     itHTML : begin
                      {$IFDEF KNT_DEBUG}Log.Add('Import As Folder. (HTML)  FN:' + FN,  1 ); {$ENDIF}

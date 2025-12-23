@@ -182,7 +182,7 @@ type
     function  Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
     procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
-    procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string; List: TStringList);
+    procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
     function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
@@ -250,7 +250,7 @@ type
 
   end;
 
-  procedure TransferNEntryText(ListTextStr : TStringList; StreamText: TMemoryStream; var IsRTF: boolean);
+  procedure TransferedNEntryText(NEntry: TNoteEntry);
 
 const
   Scratch_TabIdX = 999;
@@ -1438,12 +1438,7 @@ begin
    Note.LastModified:= CopyFromNote.LastModified;
    NNode.WordWrap:= CopyFromNNode.WordWrap;
 
-   List:= TStringList.Create;
-   try
-      LoadVirtualNote(Note, CopyFromNote.VirtualFN, '', List);
-   finally
-      List.Free;
-   end;
+   LoadVirtualNote(Note, CopyFromNote.VirtualFN, '');
 
    if UpdateImagesCountRef then
       ActiveFile.UpdateImagesCountReferences(Note);
@@ -2464,21 +2459,19 @@ begin
 end; // Load
 
 
-procedure TKntFile.LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string; List: TStringList);
+procedure TKntFile.LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
 var
-   IsRTF: boolean;
+   str: AnsiString;
 begin
    try
      Note.SetVirtualFN(VirtFN, RelativeVirtFN, File_Path);
      Note.LoadVirtualFile;
    except
      on E : Exception do begin
-       List.Add( GetRS(sFile10) );
-       List.Add( Note.VirtualFN );
-       List.Add( E.Message );
+       str:= GetRS(sFld39) + _CRLF + Note.VirtualFN + _CRLF + E.Message;
+       Note.Entries[0].Stream.WriteBuffer(str[1], Length(str));
        Note.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + Note.VirtualFN;
        Note.Entries[0].IsRTF:= False;
-       TransferNEntryText(List, Note.Entries[0].Stream, IsRTF);
      end;
    end;
 end;
@@ -2487,7 +2480,6 @@ end;
 procedure TKntFile.LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
 var
   InNote, InNoteEntry, InEntryContent, RTFContent : boolean;
-  List : TStringList;
   s, key : AnsiString;
   p, linecount : integer;
 
@@ -2500,7 +2492,6 @@ var
 
     procedure AddTextToNewNEntry (ClosingNote: boolean = true);
     var
-      IsRTF: boolean;
       NSelEntry: TNoteEntry;
     begin
       InEntryContent := false;
@@ -2513,12 +2504,11 @@ var
       Note.AddEntry(NEntry, NEntryID);
 
       if (VirtualFN <> '') or (RelativeVirtualFN <> '') then
-         LoadVirtualNote (Note, VirtualFN, RelativeVirtualFN, List)
+         LoadVirtualNote (Note, VirtualFN, RelativeVirtualFN)
 
       else begin
-         TransferNEntryText(List, NEntry.Stream, IsRTF);      // transfer Text data (RTF or plain text) from list to Note Entry
-         assert((IsRTF = RTFContent) or (NEntry.Stream.Size=0));
-         NEntry.IsRTF:= RTFContent;
+         TransferedNEntryText(NEntry);
+         assert((NEntry.IsRTF = RTFContent) or (NEntry.Stream.Size=0));
       end;
 
       if ClosingNote then begin
@@ -2526,7 +2516,6 @@ var
          Note.SelEntry:= NSelEntry;
       end;
 
-      List.Clear;
       VirtualFN:= '';
       RelativeVirtualFN:= '';
     end;
@@ -2537,138 +2526,136 @@ begin
   InNoteEntry := false;
   InEntryContent := false;
 
-  List := TStringList.Create;
-  List.BeginUpdate;
-  try
-    while (not tf.eof()) do begin
-       s:= tf.readln();
+  while (not tf.eof()) do begin
+     s:= tf.readln();
 
-       if (s = _NF_TxtContent) then begin
-         // Entry content (plain Txt) begins
-         InEntryContent := true;
-         RTFContent := false;
-         continue;
+     if (s = _NF_TxtContent) then begin
+       // Entry content (plain Txt) begins
+       InEntryContent := true;
+       RTFContent := false;
+       continue;
+     end;
+     if (s = _NF_RTFContent) then begin
+       // Entry content (RTF) begins
+       InEntryContent := true;
+       RTFContent := true;
+       continue;
+     end;
+     if ( s = _NF_Note) then begin
+       // new TNote begins
+       if ( InNote ) then AddTextToNewNEntry;
+       InNote := true;
+       InNoteEntry := false;
+
+       Note:= TNote.Create;
+       fNotes.Add(Note);
+       NoteSelEntryID:= 0;
+       NEntry:= nil;
+       continue;
+     end;
+     if ( s = _NF_NEntry) or (s = _NF_NEntry_Beta) then begin
+       // new TNoteEntry begins
+       if ( InEntryContent ) then AddTextToNewNEntry (false);
+       InNoteEntry := true;
+       NEntry:= TNoteEntry.Create;
+       NEntryID:= 0;                    // By default
+       continue;
+     end;
+     if ( s = _NF_Folder ) then begin
+       NextBlock:= nbTree;
+       if assigned(NEntry) then AddTextToNewNEntry;
+       break; // New TreeNote begins
+     end;
+     if ( s = _NF_StoragesDEF ) then begin
+       NextBlock:= nbImages;
+       if assigned(NEntry) then AddTextToNewNEntry;
+       break; // Images definition begins
+     end;
+     if ( s = _NF_Bookmarks ) then begin
+       NextBlock:= nbBookmarks;
+       if assigned(NEntry) then AddTextToNewNEntry;
+       break; // Bookmarks begins
+     end;
+     if ( s = _NF_EOF ) then begin
+       FileExhausted := true;
+       if assigned(NEntry) then AddTextToNewNEntry;
+       break; // END OF FILE
+     end;
+
+
+     if InEntryContent then begin
+       if not RTFContent then
+          delete( s, 1, 1 ); // strip _NF_PLAINTEXTLEADER
+
+       if assigned(NEntry) then begin
+          if s <> '' then
+             NEntry.Stream.WriteBuffer(s[1], Length(s));
+          NEntry.Stream.WriteBuffer(_CRLF_BYTES, Length(_CRLF_BYTES));
        end;
-       if (s = _NF_RTFContent) then begin
-         // Entry content (RTF) begins
-         InEntryContent := true;
-         RTFContent := true;
-         continue;
-       end;
-       if ( s = _NF_Note) then begin
-         // new TNote begins
-         if ( InNote ) then AddTextToNewNEntry;
-         InNote := true;
-         InNoteEntry := false;
-
-         Note:= TNote.Create;
-         fNotes.Add(Note);
-         NoteSelEntryID:= 0;
-         NEntry:= nil;
-         continue;
-       end;
-       if ( s = _NF_NEntry) or (s = _NF_NEntry_Beta) then begin
-         // new TNoteEntry begins
-         if ( InEntryContent ) then AddTextToNewNEntry (false);
-         InNoteEntry := true;
-         NEntry:= TNoteEntry.Create;
-         NEntryID:= 0;                    // By default
-         continue;
-       end;
-       if ( s = _NF_Folder ) then begin
-         NextBlock:= nbTree;
-         if assigned(NEntry) then AddTextToNewNEntry;
-         break; // New TreeNote begins
-       end;
-       if ( s = _NF_StoragesDEF ) then begin
-         NextBlock:= nbImages;
-         if assigned(NEntry) then AddTextToNewNEntry;
-         break; // Images definition begins
-       end;
-       if ( s = _NF_Bookmarks ) then begin
-         NextBlock:= nbBookmarks;
-         if assigned(NEntry) then AddTextToNewNEntry;
-         break; // Bookmarks begins
-       end;
-       if ( s = _NF_EOF ) then begin
-         FileExhausted := true;
-         if assigned(NEntry) then AddTextToNewNEntry;
-         break; // END OF FILE
-       end;
+       continue;
+     end;
 
 
-       if InEntryContent then begin
-         if not RTFContent then
-            delete( s, 1, 1 ); // strip _NF_PLAINTEXTLEADER
-         List.Add( s );
-         continue;
-       end;
+     p := pos('=', s);
+     if ( p <> 3 ) then continue; // not a valid key=value format
+     key := copy(s, 1, 2);
+     delete(s, 1, 3);
 
 
-       p := pos('=', s);
-       if ( p <> 3 ) then continue; // not a valid key=value format
-       key := copy(s, 1, 2);
-       delete(s, 1, 3);
+     if InNoteEntry then begin
+        if ( key = _NEntryID ) then
+            NEntryID := StrToUIntDef(s, 0)
+        else
+        if ( key = _NEntryState ) then
+           NEntry.StringToStates(s)
+        else
+        if ( key = _DateCreated ) then
+           NEntry.Created:= StrToDate_Compact(s)
+        else
+        if ( key = _NEntryTags ) then
+           NEntry.StringToTags(s)
+     end;
+
+     if InNote then begin
+        if ( key = _NoteName ) then
+          Note.Name:= TryUTF8ToUnicodeString(s)
+        else
+        if ( key = _NoteAlias ) then
+          Note.Alias:= TryUTF8ToUnicodeString(s)
+        else
+        if ( key = _NoteGID ) then
+            Note.GID:= StrToUIntDef(s, 0)
+        else
+        if ( key = _NoteState ) then
+            Note.StringToStates(s)
+        else
+        if ( key = _LastModified ) then
+            Note.LastModified:= StrToDate_Compact(s)
+        else
+        if ( key = _VirtualFN ) then
+          VirtualFN := TryUTF8ToUnicodeString(s)
+        else
+        if ( key = _RelativeVirtualFN ) then
+          RelativeVirtualFN := TryUTF8ToUnicodeString(s)
+        else
+        if ( key = _NoteSelEntry ) then
+           NoteSelEntryID:= StrToUIntDef(s, 0)
+        else
+        if ( key = _NEntrySelStart ) then begin
+            if _SAVE_RESTORE_CARETPOS then
+               Note.SelStart := StrToIntDef( s, 0 )
+            else
+               Note.SelStart := 0;
+        end;
+
+        //	ToDO:     fResources: TResourceList;  _NoteResources = 'NR';
+
+        continue;
+     end; // if InNoteNode ...
 
 
-       if InNoteEntry then begin
-          if ( key = _NEntryID ) then
-              NEntryID := StrToUIntDef(s, 0)
-          else
-          if ( key = _NEntryState ) then
-             NEntry.StringToStates(s)
-          else
-          if ( key = _DateCreated ) then
-             NEntry.Created:= StrToDate_Compact(s)
-          else
-          if ( key = _NEntryTags ) then
-             NEntry.StringToTags(s)
-       end;
+  end; { while not eof( tf ) }
 
-       if InNote then begin
-          if ( key = _NoteName ) then
-            Note.Name:= TryUTF8ToUnicodeString(s)
-          else
-          if ( key = _NoteAlias ) then
-            Note.Alias:= TryUTF8ToUnicodeString(s)
-          else
-          if ( key = _NoteGID ) then
-              Note.GID:= StrToUIntDef(s, 0)
-          else
-          if ( key = _NoteState ) then
-              Note.StringToStates(s)
-          else
-          if ( key = _LastModified ) then
-              Note.LastModified:= StrToDate_Compact(s)
-          else
-          if ( key = _VirtualFN ) then
-            VirtualFN := TryUTF8ToUnicodeString(s)
-          else
-          if ( key = _RelativeVirtualFN ) then
-            RelativeVirtualFN := TryUTF8ToUnicodeString(s)
-          else
-          if ( key = _NoteSelEntry ) then
-             NoteSelEntryID:= StrToUIntDef(s, 0)
-          else
-          if ( key = _NEntrySelStart ) then begin
-              if _SAVE_RESTORE_CARETPOS then
-                 Note.SelStart := StrToIntDef( s, 0 )
-              else
-                 Note.SelStart := 0;
-          end;
-
-          //	ToDO:     fResources: TResourceList;  _NoteResources = 'NR';
-
-          continue;
-       end; // if InNoteNode ...
-
-
-    end; { while not eof( tf ) }
-
-  finally
-    List.EndUpdate;
-    List.Free;
-  end;
 
   CheckNotesSorted;
   if not fNotesSorted then
@@ -2735,28 +2722,31 @@ begin
 end;
 
 
-procedure TransferNEntryText(ListTextStr : TStringList; StreamText: TMemoryStream; var IsRTF: boolean);
+procedure TransferedNEntryText(NEntry: TNoteEntry);
 var
-   NewRTF: string;
+   RTF, NewRTF: string;
+   IsRTF: boolean;
 begin
+    if (NEntry = nil) or (NEntry.Stream.Size = 0) then exit;
+
     IsRTF:= false;
-    if (ListTextStr.Count = 0) then exit;
 
     if App.opt_Clean then begin
-       if CleanRTF(ListTextStr.Text, NewRTF) then begin
-          StreamText.LoadFromStream(TStringStream.Create(NewRTF));
-          exit;
+       RTF:= MemoryStreamToString(NEntry.Stream);
+       if CleanRTF(RTF, NewRTF) then begin
+          NEntry.Stream.Clear;
+          NEntry.Stream.LoadFromStream(TStringStream.Create(NewRTF));
        end;
     end;
 
-    ListTextStr.WriteBOM:= False;
-    ListTextStr.SaveToStream(StreamText);
-    if NodeStreamIsRTF(StreamText) then begin
+    if NodeStreamIsRTF(NEntry.Stream) then begin
       IsRTF:= true;
       // In notes/nodes with RTF content we are interested in the buffer ending in #0 to be able to treat it as a string (accessing .Memory)
-      assert((PByte(StreamText.Memory)[StreamText.Size-1] <> 0), 'The Stream already ends at 0');
-      StreamText.WriteData(0);
+      assert((PByte(NEntry.Stream.Memory)[NEntry.Stream.Size-1] <> 0), 'The Stream already ends at 0');
+      NEntry.Stream.WriteData(0);
     end;
+
+    NEntry.IsRTF:= IsRTF;
 end;
 
 

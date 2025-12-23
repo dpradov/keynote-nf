@@ -5534,8 +5534,8 @@ begin
        if SelectionOnly then
           aSTE.flags:= ST_SELECTION;
        aSTE.flags:= aSTE.flags or ST_KEEPUNDO;
-       aSTE.codepage:= CP_ACP;          // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
-       //aSTE.codepage:= StringCodePage(sRTF);
+       //aSTE.codepage:= CP_ACP;                 // CP_ACP= ANSI codepage => use the currently set default Windows ANSI codepage.
+       aSTE.codepage:= StringCodePage(sRTF);     // Normally => CP_ACP
        {$IFDEF KNT_DEBUG} Log.Add('PutRtfText [RawByteString] / RichEdtVer >= 3   Codepage:' + aSTE.Codepage.ToString, 4 );  {$ENDIF}
        SendMessage(Handle, EM_SETTEXTEX, WPARAM(@aSTE), LPARAM(PAnsiChar(sRTF)));
     end;

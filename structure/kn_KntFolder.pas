@@ -1,4 +1,4 @@
-unit kn_KntFolder;
+ï»¿unit kn_KntFolder;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -1482,7 +1482,7 @@ begin
 
       // any given file can be linked to a virtual node only once per KNT file. So we must check if the selected file already
       // exists as a virtual node in the currently open KNT file.
-      // Sí es posible crear uno o varios nodos enlazados a ese nodo virtual
+      // Yes, it is possible to create one or more nodes linked to that virtual node
       if ActiveFile.GetVirtualNoteByFileName( Note, VirtFN ) <> nil then begin
         App.ErrorPopup(GetRS(sFld38));
         exit;
@@ -1992,7 +1992,7 @@ begin
       many unnecessary messages are generated whose management by the system can give rise to these variations.
 
       As an example (Stream size in Bytes -> Times in seconds (several attempts measured)
-      Tamaño                   Without BeginUpdate                           WITH BeginUpdate
+      Size               Without BeginUpdate                              WITH BeginUpdate
       172                0,015                                            0,016
       1735               0,422 0,406  0,39    (-> x 1,78)                 0,25 0,234  0,2189
       5045               0,5                  (-> x 1,52)                 0,328
@@ -2401,12 +2401,12 @@ procedure TKntFolder.LoadFromFile( var tf : TTextFile; var FileExhausted : boole
 var
   InRichText : boolean;
   InNoteNode : boolean;
-  List : TStringList;
   s, key : AnsiString;
   p, linecount : integer;
 
   Note: TNote;
   NNode: TNoteNode;
+  NEntry: TNoteEntry;
   GID: Cardinal;
   VirtualFN, RelativeVirtualFN: string;
   C: TColor;
@@ -2424,20 +2424,14 @@ var
     end;
 
     procedure AddTextToNewNode;          // => KntFile.Version.Major < 3
-    var
-      IsRTF: boolean;
     begin
       InRichText := false;
 
       if (VirtualFN <> '') or (RelativeVirtualFN <> '') then
-         TKntFile(KntFile).LoadVirtualNote (Note, VirtualFN, RelativeVirtualFN, List)
+         TKntFile(KntFile).LoadVirtualNote (Note, VirtualFN, RelativeVirtualFN)
+      else
+         TransferedNEntryText(NEntry);
 
-      else begin
-         TransferNEntryText(List, Note.Entries[0].Stream, IsRTF);       // transfer Text data (RTF or plain text) from list to Note Entry
-         Note.Entries[0].IsRTF:= IsRTF;
-      end;
-
-      List.Clear;
       VirtualFN:= '';
       RelativeVirtualFN:= '';
     end;
@@ -2491,385 +2485,382 @@ begin
 
   clWindowIsNotWhite:= not (ColorToRGB(clWindow) = ColorToRGB(clWhite));
 
-  List := TStringList.Create;
-  List.BeginUpdate;
-  try
-    while (not tf.eof()) do begin
-       s:= tf.readln();
+  while (not tf.eof()) do begin
+     s:= tf.readln();
 
-       if KntFile.Version.Major < '3' then begin
-             if ( s = _NF_RTF ) then begin
-               // RTF data begins
-               InRichText := true;
-               if LoadOldSimpleNote then begin
-                  InNoteNode := true;
-                  FTreeHidden:= true;
-                  FIconKind := niCustom;
-                  NNode:= TKntFile(KntFile).AddLoadedNote(Self);    // create a new blank node (=> TNote, TNoteEntry, TNoteNode)
-                  Note:= NNode.Note;
-                  Note.Name:= FName;
-                  LoadingLevels.Add(0);
-                  inc(iNNode);
-               end;
-               continue;
+     if KntFile.Version.Major < '3' then begin
+           if ( s = _NF_RTF ) then begin
+             // RTF data begins
+             InRichText := true;
+             if LoadOldSimpleNote then begin
+                InNoteNode := true;
+                FTreeHidden:= true;
+                FIconKind := niCustom;
+                NNode:= TKntFile(KntFile).AddLoadedNote(Self);    // create a new blank node (=> TNote, TNoteEntry, TNoteNode)
+                Note:= NNode.Note;
+                NEntry:= Note.Entries[0];
+                Note.Name:= FName;
+                LoadingLevels.Add(0);
+                inc(iNNode);
              end;
-             if ( s = _NF_TRN ) then begin
-               // new NoteNode begins
-               if ( InNoteNode ) then AddTextToNewNode; // we were here previously, i.e. there a node to be added
-               InNoteNode := true;
-               NNode:= TKntFile(KntFile).AddLoadedNote(Self);
-               Note:= NNode.Note;
-               LoadingLevels.Add(0);
-               inc(iNNode);
-               continue;
-             end;
-             if ( s = _NF_TabFolder ) then begin
-               NextBlock:= nbRTF;
-               if assigned(NNode) then AddTextToNewNode;
-               break; // New TabNote begins
-             end;
-             if ( s = _NF_TreeFolder ) then begin
-               NextBlock:= nbTree;
-               if assigned(NNode) then AddTextToNewNode;
-               break; // New TreeNote begins
-             end;
-             if ( s = _NF_StoragesDEF ) then begin
-               NextBlock:= nbImages;
-               if assigned(NNode) then AddTextToNewNode;
-               break; // Images definition begins
-             end;
-             if ( s = _NF_Bookmarks ) then begin
-               NextBlock:= nbBookmarks;
-               if assigned(NNode) then AddTextToNewNode;
-               break; // Bookmarks begins
-             end;
-             if ( s = _NF_EOF ) then begin
-               FileExhausted := true;
-               if assigned(NNode) then AddTextToNewNode;
-               break; // END OF FILE
-             end;
+             continue;
+           end;
+           if ( s = _NF_TRN ) then begin
+             // new NoteNode begins
+             if ( InNoteNode ) then AddTextToNewNode; // we were here previously, i.e. there a node to be added
+             InNoteNode := true;
+             NNode:= TKntFile(KntFile).AddLoadedNote(Self);
+             Note:= NNode.Note;
+             NEntry:= Note.Entries[0];
+             LoadingLevels.Add(0);
+             inc(iNNode);
+             continue;
+           end;
+           if ( s = _NF_TabFolder ) then begin
+             NextBlock:= nbRTF;
+             if assigned(NNode) then AddTextToNewNode;
+             break; // New TabNote begins
+           end;
+           if ( s = _NF_TreeFolder ) then begin
+             NextBlock:= nbTree;
+             if assigned(NNode) then AddTextToNewNode;
+             break; // New TreeNote begins
+           end;
+           if ( s = _NF_StoragesDEF ) then begin
+             NextBlock:= nbImages;
+             if assigned(NNode) then AddTextToNewNode;
+             break; // Images definition begins
+           end;
+           if ( s = _NF_Bookmarks ) then begin
+             NextBlock:= nbBookmarks;
+             if assigned(NNode) then AddTextToNewNode;
+             break; // Bookmarks begins
+           end;
+           if ( s = _NF_EOF ) then begin
+             FileExhausted := true;
+             if assigned(NNode) then AddTextToNewNode;
+             break; // END OF FILE
+           end;
 
-             if InRichText then begin
-               { can only be TRUE if the file uses the new "LI-less" format,
-                 because we got the _NF_EOH token, above. Old format doesn't
-                 have this token, so InRichText is never true }
-               if FDefaultPlainText then
-                 delete( s, 1, 1 ); // strip _NF_PLAINTEXTLEADER
-               List.Add( s );
-               continue;
+           if InRichText then begin
+             { can only be TRUE if the file uses the new "LI-less" format,
+               because we got the _NF_EOH token, above. Old format doesn't
+               have this token, so InRichText is never true }
+             if FDefaultPlainText then
+               delete( s, 1, 1 ); // strip _NF_PLAINTEXTLEADER
+             if assigned(NEntry) then begin
+                if s <> '' then
+                   NEntry.Stream.WriteBuffer(s[1], Length(s));
+                NEntry.Stream.WriteBuffer(_CRLF_BYTES, Length(_CRLF_BYTES));
              end;
-
-
-             p := pos( '=', s );
-             if ( p <> 3 ) then continue; // not a valid key=value format
-             key := copy( s, 1, 2 );
-             delete( s, 1, 3 );
+             continue;
+           end;
 
 
-             if InNoteNode and (not LoadOldSimpleNote) then begin
-                if ( key = _NoteName ) then
-                  Note.Name:= TryUTF8ToUnicodeString(s)
-                else
-                if ( key = _NoteGID ) then
-                    Note.GID:= StrToUIntDef(s, 0)
-                else
-                if ( key = _NodeID ) then
-                    NNode.ID := StrToUIntDef(s, 0)
-                else
-                if ( key = _NodeLevel ) then
-                    LoadingLevels[iNNode]:= StrToIntDef(s, 0)
-                else
-                if ( key = _NodeFlags ) then
-                    NoteFlagsStringToProperties(s, NNode)
-                else
-                if ( key = _NodeEditorBGColor ) then begin
-                  try
-                    { The default value that has been saved in Note.FRTFBGColor has been clWindow (a value that has always been persisted,
-                      when when setting the color, it has never been possible to set clWindow but rather clWhite, because it has been set via RGB) }
-                    C:= StringToColor(s);
-                    if (C <> EditorChrome.BGColor) and (clWindowIsNotWhite or not ((C = clWindow) and (EditorChrome.BGColor = clWhite))) then
-                       NNode.EditorBGColor:= C;
-                  except
-                  end;
-                end
-                else
-                if ( key = _VirtualNode ) then
-                   Note.SetLoadingAsOldMirror(s)
-                else
-                if ( key = _RelativeVirtualFN ) then
-                  RelativeVirtualFN := TryUTF8ToUnicodeString(s)
-                else
-                if ( key = _VirtualFN ) then
-                  VirtualFN := TryUTF8ToUnicodeString(s)
-                else
-                if ( key = _NEntrySelStart ) then begin
-                    if _SAVE_RESTORE_CARETPOS then
-                       Note.SelStart := StrToIntDef( s, 0 )
-                    else
-                       Note.SelStart := 0;
-                end
-                else
-                if ( key = _NodeImageIndex ) then
-                    NNode.ImageIndex:= StrToIntDef( s, -1 )
-                else
-                if ( key = _NodeColor ) then begin
-                  try
-                    C:= StringToColor(s);
-                    if C <> TreeChrome.Font.Color then
-                       NNode.NodeColor:= C;
-                  except
-                  end;
-                end
-                else
-                if ( key = _NodeBGColor ) then begin
-                  try
-                    C:= StringToColor(s);
-                    if (C <> TreeChrome.BGColor) then
-                       NNode.NodeBGColor:= C;
-                  except
-                  end;
-                end
-                else
-                if ( key = _NodeFontFace ) then begin
-                  if s <> TreeChrome.Font.Name then
-                     NNode.NodeFontFace:= s;
-                end
-                else
-                if ( key = _NodeAlarm ) then
-                    AlarmMng.ProcessAlarm(s, NNode, Self)
-                else
-                if ( key = _NodeDC_DM ) then begin
-                    var DC,DM: TDateTime;
-                    if OldCreationAndModificationDates( s, DC, DM) then begin
-                       Note.Entries[0].Created:= DC;
-                       Note.LastModified:= DM;
-                    end;
+           p := pos( '=', s );
+           if ( p <> 3 ) then continue; // not a valid key=value format
+           key := copy( s, 1, 2 );
+           delete( s, 1, 3 );
+
+
+           if InNoteNode and (not LoadOldSimpleNote) then begin
+              if ( key = _NoteName ) then
+                Note.Name:= TryUTF8ToUnicodeString(s)
+              else
+              if ( key = _NoteGID ) then
+                  Note.GID:= StrToUIntDef(s, 0)
+              else
+              if ( key = _NodeID ) then
+                  NNode.ID := StrToUIntDef(s, 0)
+              else
+              if ( key = _NodeLevel ) then
+                  LoadingLevels[iNNode]:= StrToIntDef(s, 0)
+              else
+              if ( key = _NodeFlags ) then
+                  NoteFlagsStringToProperties(s, NNode)
+              else
+              if ( key = _NodeEditorBGColor ) then begin
+                try
+                  { The default value that has been saved in Note.FRTFBGColor has been clWindow (a value that has always been persisted,
+                    when when setting the color, it has never been possible to set clWindow but rather clWhite, because it has been set via RGB) }
+                  C:= StringToColor(s);
+                  if (C <> EditorChrome.BGColor) and (clWindowIsNotWhite or not ((C = clWindow) and (EditorChrome.BGColor = clWhite))) then
+                     NNode.EditorBGColor:= C;
+                except
                 end;
-
-                continue;
-             end; // if InNoteNode ...
-
-       end
-       else begin
-          // ---------------------   KntFile.Version.Major >= '3'
-
-             if ( s = _NF_NNode ) then begin
-               // new TNoteNode begins
-               InNoteNode := true;
-               NNode:= nil;
-               Note:= nil;
-               continue;
-             end;
-
-             if ( s = _NF_Folder ) then begin
-               NextBlock:= nbTree;
-               break; // New Folder begins
-             end;
-             if ( s = _NF_StoragesDEF ) then begin
-               NextBlock:= nbImages;
-               break; // Images definition begins
-             end;
-             if ( s = _NF_Bookmarks ) then begin
-               NextBlock:= nbBookmarks;
-               break; // Bookmarks begins
-             end;
-             if ( s = _NF_EOF ) then begin
-               FileExhausted := true;
-               break; // END OF FILE
-             end;
-
-
-             p := pos( '=', s );
-             if ( p <> 3 ) then continue; // not a valid key=value format
-             key := copy( s, 1, 2 );
-             delete( s, 1, 3 );
-
-             if Copy(s,1,2) = _NumNNodes then begin
-                NumNNodes:= StrToIntDef(Copy(s,4), 0);
-                fNNodes.Capacity:= NumNNodes;
-                LoadingLevels.Capacity:= NumNNodes;
-                continue;
-             end;
-
-
-             if InNoteNode  then begin
-                if ( key = _NoteGID ) then begin
-                    Note:= KntFile.GetNoteByGID(StrToUIntDef(s, 0));
-                end
-                else
-                if ( key = _NodeGID ) then begin
-                    GID:= StrToUIntDef(s, 0);
-                    if Note = nil then
-                       Note:= KntFile.GetNoteByGID(GID);
-
-                    if Note <> nil then begin
-                       NNode:= KntFile.AddLoadedNNode(Note, Self, GID);
-                       LoadingLevels.Add(LastLoadedLevel);   // By default
-                       inc(iNNode);
-                    end;
-                end
-             end;
-
-             if InNoteNode and (NNode <> nil) then begin
-                if ( key = _NodeID ) then
-                    NNode.ID := StrToUIntDef(s, 0)
-                else
-                if ( key = _NodeLevel ) then begin
-                    Level:= StrToIntDef(s,0);
-                    LoadingLevels[iNNode]:= Level;
-                    LastLoadedLevel:= Level;
-                end
-                else
-                if ( key = _NodeState ) then
-                    NNode.StringToStates(s)
-                else
-                if ( key = _NodeEditorBGColor ) then begin
-                  try
-                    C:= StringToColor(s);
-                    if (C <> EditorChrome.BGColor) and (clWindowIsNotWhite or not ((C = clWindow) and (EditorChrome.BGColor = clWhite))) then
-                       NNode.EditorBGColor:= C;
-                  except
+              end
+              else
+              if ( key = _VirtualNode ) then
+                 Note.SetLoadingAsOldMirror(s)
+              else
+              if ( key = _RelativeVirtualFN ) then
+                RelativeVirtualFN := TryUTF8ToUnicodeString(s)
+              else
+              if ( key = _VirtualFN ) then
+                VirtualFN := TryUTF8ToUnicodeString(s)
+              else
+              if ( key = _NEntrySelStart ) then begin
+                  if _SAVE_RESTORE_CARETPOS then
+                     Note.SelStart := StrToIntDef( s, 0 )
+                  else
+                     Note.SelStart := 0;
+              end
+              else
+              if ( key = _NodeImageIndex ) then
+                  NNode.ImageIndex:= StrToIntDef( s, -1 )
+              else
+              if ( key = _NodeColor ) then begin
+                try
+                  C:= StringToColor(s);
+                  if C <> TreeChrome.Font.Color then
+                     NNode.NodeColor:= C;
+                except
+                end;
+              end
+              else
+              if ( key = _NodeBGColor ) then begin
+                try
+                  C:= StringToColor(s);
+                  if (C <> TreeChrome.BGColor) then
+                     NNode.NodeBGColor:= C;
+                except
+                end;
+              end
+              else
+              if ( key = _NodeFontFace ) then begin
+                if s <> TreeChrome.Font.Name then
+                   NNode.NodeFontFace:= s;
+              end
+              else
+              if ( key = _NodeAlarm ) then
+                  AlarmMng.ProcessAlarm(s, NNode, Self)
+              else
+              if ( key = _NodeDC_DM ) then begin
+                  var DC,DM: TDateTime;
+                  if OldCreationAndModificationDates( s, DC, DM) then begin
+                     Note.Entries[0].Created:= DC;
+                     Note.LastModified:= DM;
                   end;
-                end
-                else
-                if ( key = _NodeImageIndex ) then
-                    NNode.ImageIndex:= StrToIntDef( s, -1 )
-                else
-                if ( key = _NodeColor ) then begin
-                  try
-                    C:= StringToColor(s);
-                    if C <> TreeChrome.Font.Color then
-                       NNode.NodeColor:= C;
-                  except
+              end;
+
+              continue;
+           end; // if InNoteNode ...
+
+     end
+     else begin
+        // ---------------------   KntFile.Version.Major >= '3'
+
+           if ( s = _NF_NNode ) then begin
+             // new TNoteNode begins
+             InNoteNode := true;
+             NNode:= nil;
+             Note:= nil;
+             continue;
+           end;
+
+           if ( s = _NF_Folder ) then begin
+             NextBlock:= nbTree;
+             break; // New Folder begins
+           end;
+           if ( s = _NF_StoragesDEF ) then begin
+             NextBlock:= nbImages;
+             break; // Images definition begins
+           end;
+           if ( s = _NF_Bookmarks ) then begin
+             NextBlock:= nbBookmarks;
+             break; // Bookmarks begins
+           end;
+           if ( s = _NF_EOF ) then begin
+             FileExhausted := true;
+             break; // END OF FILE
+           end;
+
+
+           p := pos( '=', s );
+           if ( p <> 3 ) then continue; // not a valid key=value format
+           key := copy( s, 1, 2 );
+           delete( s, 1, 3 );
+
+           if Copy(s,1,2) = _NumNNodes then begin
+              NumNNodes:= StrToIntDef(Copy(s,4), 0);
+              fNNodes.Capacity:= NumNNodes;
+              LoadingLevels.Capacity:= NumNNodes;
+              continue;
+           end;
+
+
+           if InNoteNode  then begin
+              if ( key = _NoteGID ) then begin
+                  Note:= KntFile.GetNoteByGID(StrToUIntDef(s, 0));
+              end
+              else
+              if ( key = _NodeGID ) then begin
+                  GID:= StrToUIntDef(s, 0);
+                  if Note = nil then
+                     Note:= KntFile.GetNoteByGID(GID);
+
+                  if Note <> nil then begin
+                     NNode:= KntFile.AddLoadedNNode(Note, Self, GID);
+                     LoadingLevels.Add(LastLoadedLevel);   // By default
+                     inc(iNNode);
                   end;
-                end
-                else
-                if ( key = _NodeBGColor ) then begin
-                  try
-                    C:= StringToColor(s);
-                    if (C <> TreeChrome.BGColor) then
-                       NNode.NodeBGColor:= C;
-                  except
-                  end;
-                end
-                else
-                if ( key = _NodeFontFace ) then begin
-                  if s <> TreeChrome.Font.Name then
-                     NNode.NodeFontFace:= s;
-                end
-                else
-                if ( key = _NodeAlarm ) then
-                    AlarmMng.ProcessAlarm(s, NNode, Self);
-
-                continue;
-             end; // if InNoteNode ...
-
-
-       end;
-
-
-
-       if ( key = _SelectedNode ) then
-             FSavedSelectedIndex := StrToIntDef( s, -1 )
-       else
-       if ( key = _TreeWidth ) then
-          FTreeWidth := StrToIntDef( s, 0)
-       else
-       if ( key = _TreeMaxWidth ) then
-          FTreeMaxWidth := StrToIntDef( s, 0)
-       else
-       if ( key = _DefaultNoteName ) then begin
-           if ( s <> '' ) then
-              FDefaultNoteName := TryUTF8ToUnicodeString(s);
-       end
-       else
-       if ( key = _CHTRBGColor ) then begin
-           try
-             FTreeChrome.BGColor := StringToColor( s );
-           except
+              end
            end;
-       end
-       else
-       if ( key = _CHTRFontCharset ) then
-          FTreeChrome.Font.Charset := StrToIntDef( s, DEFAULT_CHARSET)
-       else
-       if ( key = _CHTRFontColor ) then
-           FTreeChrome.Font.Color := StringToColor( s )
-       else
-       if ( key = _CHTRFontName ) then
-           FTreeChrome.Font.Name := s
-       else
-       if ( key = _CHTRFontSize ) then
-           FTreeChrome.Font.Size := StrToIntDef( s, 10)
-       else
-       if ( key = _CHTRFontStyle ) then
-           FTreeChrome.Font.Style := StrToFontStyle( s )
-       else
-       if ( key = _CHBGColor ) then begin
-           try
-             FEditorChrome.BGColor := StringToColor( s );
-           except
-           end;
-       end
-       else
-       if ( key = _CHFontCharset ) then
-           FEditorChrome.Font.Charset := StrToIntDef( s, DEFAULT_CHARSET )
-       else
-       if ( key = _CHFontColor ) then
-           FEditorChrome.Font.Color := StringToColor( s )
-       else
-       if ( key = _CHFontName ) then
-           FEditorChrome.Font.Name := s
-       else
-       if ( key = _CHFontSize ) then
-             FEditorChrome.Font.Size := StrtoIntDef( s, 10 )
-       else
-       if ( key = _CHFontStyle ) then
-           FEditorChrome.Font.Style := StrToFontStyle( s )
-       else
-       if ( key = _CHLanguage ) then begin
-           try
-             FEditorChrome.Language := StrToInt( s );
-           except
-           end;
-       end
-       else
-       if ( key = _DateCreated ) then
-           FDateCreated := StrToDateTimeDef( s, Now, LongDateToFileSettings)
-       else
-       if ( key = _ImageIndex ) then
-             FImageIndex := StrToIntDef( s, 0 )
-       else
-       if ( key = _LineCount ) then begin
-          linecount := StrToIntDef( s, DEFAULT_CAPACITY );
-          if ( List.Capacity < linecount ) then
-             List.Capacity := succ( linecount );
-       end
-       else
-       if ( key = _FolderName ) then
-           FName := TryUTF8ToUnicodeString(s)
-       else
-       if ( key = _FolderID ) then
-           FID := StrToUIntDef( s, 0 )        // 0 -> owning file will generate new ID when note is added
-       else
-       if ( key = _Flags ) then
-           FlagsStringToProperties( s )
-       else
-       if ( key = _TabIndex ) then
-           FSavedTabIndex := StrToIntDef( s, 0 )
-       else
-       if ( key = _TabSize ) then
-          FTabSize := StrToIntDef( s, DEF_TAB_SIZE )
-       else
-       if ( key = _NodeAlarm ) then
-           AlarmMng.ProcessAlarm(s, nil, Self);
 
-    end; { while not eof( tf ) }
+           if InNoteNode and (NNode <> nil) then begin
+              if ( key = _NodeID ) then
+                  NNode.ID := StrToUIntDef(s, 0)
+              else
+              if ( key = _NodeLevel ) then begin
+                  Level:= StrToIntDef(s,0);
+                  LoadingLevels[iNNode]:= Level;
+                  LastLoadedLevel:= Level;
+              end
+              else
+              if ( key = _NodeState ) then
+                  NNode.StringToStates(s)
+              else
+              if ( key = _NodeEditorBGColor ) then begin
+                try
+                  C:= StringToColor(s);
+                  if (C <> EditorChrome.BGColor) and (clWindowIsNotWhite or not ((C = clWindow) and (EditorChrome.BGColor = clWhite))) then
+                     NNode.EditorBGColor:= C;
+                except
+                end;
+              end
+              else
+              if ( key = _NodeImageIndex ) then
+                  NNode.ImageIndex:= StrToIntDef( s, -1 )
+              else
+              if ( key = _NodeColor ) then begin
+                try
+                  C:= StringToColor(s);
+                  if C <> TreeChrome.Font.Color then
+                     NNode.NodeColor:= C;
+                except
+                end;
+              end
+              else
+              if ( key = _NodeBGColor ) then begin
+                try
+                  C:= StringToColor(s);
+                  if (C <> TreeChrome.BGColor) then
+                     NNode.NodeBGColor:= C;
+                except
+                end;
+              end
+              else
+              if ( key = _NodeFontFace ) then begin
+                if s <> TreeChrome.Font.Name then
+                   NNode.NodeFontFace:= s;
+              end
+              else
+              if ( key = _NodeAlarm ) then
+                  AlarmMng.ProcessAlarm(s, NNode, Self);
 
-  finally
-    List.EndUpdate;
-    List.Free;
-  end;
+              continue;
+           end; // if InNoteNode ...
+
+
+     end;
+
+
+
+     if ( key = _SelectedNode ) then
+           FSavedSelectedIndex := StrToIntDef( s, -1 )
+     else
+     if ( key = _TreeWidth ) then
+        FTreeWidth := StrToIntDef( s, 0)
+     else
+     if ( key = _TreeMaxWidth ) then
+        FTreeMaxWidth := StrToIntDef( s, 0)
+     else
+     if ( key = _DefaultNoteName ) then begin
+         if ( s <> '' ) then
+            FDefaultNoteName := TryUTF8ToUnicodeString(s);
+     end
+     else
+     if ( key = _CHTRBGColor ) then begin
+         try
+           FTreeChrome.BGColor := StringToColor( s );
+         except
+         end;
+     end
+     else
+     if ( key = _CHTRFontCharset ) then
+        FTreeChrome.Font.Charset := StrToIntDef( s, DEFAULT_CHARSET)
+     else
+     if ( key = _CHTRFontColor ) then
+         FTreeChrome.Font.Color := StringToColor( s )
+     else
+     if ( key = _CHTRFontName ) then
+         FTreeChrome.Font.Name := s
+     else
+     if ( key = _CHTRFontSize ) then
+         FTreeChrome.Font.Size := StrToIntDef( s, 10)
+     else
+     if ( key = _CHTRFontStyle ) then
+         FTreeChrome.Font.Style := StrToFontStyle( s )
+     else
+     if ( key = _CHBGColor ) then begin
+         try
+           FEditorChrome.BGColor := StringToColor( s );
+         except
+         end;
+     end
+     else
+     if ( key = _CHFontCharset ) then
+         FEditorChrome.Font.Charset := StrToIntDef( s, DEFAULT_CHARSET )
+     else
+     if ( key = _CHFontColor ) then
+         FEditorChrome.Font.Color := StringToColor( s )
+     else
+     if ( key = _CHFontName ) then
+         FEditorChrome.Font.Name := s
+     else
+     if ( key = _CHFontSize ) then
+           FEditorChrome.Font.Size := StrtoIntDef( s, 10 )
+     else
+     if ( key = _CHFontStyle ) then
+         FEditorChrome.Font.Style := StrToFontStyle( s )
+     else
+     if ( key = _CHLanguage ) then begin
+         try
+           FEditorChrome.Language := StrToInt( s );
+         except
+         end;
+     end
+     else
+     if ( key = _DateCreated ) then
+         FDateCreated := StrToDateTimeDef( s, Now, LongDateToFileSettings)
+     else
+     if ( key = _ImageIndex ) then
+           FImageIndex := StrToIntDef( s, 0 )
+     else
+     if ( key = _LineCount ) then begin
+        linecount := StrToIntDef( s, DEFAULT_CAPACITY );
+     end
+     else
+     if ( key = _FolderName ) then
+         FName := TryUTF8ToUnicodeString(s)
+     else
+     if ( key = _FolderID ) then
+         FID := StrToUIntDef( s, 0 )        // 0 -> owning file will generate new ID when note is added
+     else
+     if ( key = _Flags ) then
+         FlagsStringToProperties( s )
+     else
+     if ( key = _TabIndex ) then
+         FSavedTabIndex := StrToIntDef( s, 0 )
+     else
+     if ( key = _TabSize ) then
+        FTabSize := StrToIntDef( s, DEF_TAB_SIZE )
+     else
+     if ( key = _NodeAlarm ) then
+         AlarmMng.ProcessAlarm(s, nil, Self);
+
+  end; { while not eof( tf ) }
+
 
   FModified := false;
 
@@ -2885,17 +2876,11 @@ var
   myNote : TNote;
   NNode: TNoteNode;
   Note: TNote;
-  List : TStringList;
+  NEntry: TNoteEntry;
 
     procedure AddNewNode;
-    var
-      IsRTF: boolean;
     begin
-      // transfer Text data (RTF or plain text) from list to Note Entry
-      TransferNEntryText(List, Note.Entries[0].Stream, IsRTF);
-      Note.Entries[0].IsRTF:= IsRTF;
-      List.Clear;
-
+      TransferedNEntryText(NEntry);
       Note:= nil;
     end;
 
@@ -2915,8 +2900,6 @@ begin
   end;
 
 
-  List := TStringList.Create;
-
   try
 
     while ( not tf.Eof) do begin
@@ -2933,6 +2916,7 @@ begin
                 level := StrToIntDef(s, 0);
                 NNode:= TKntFile(KntFile).AddLoadedNote(Self);
                 Note:= NNode.Note;
+                NEntry:= Note.Entries[0];
                 Note.Name:= nodeName;
                 LoadingLevels.Add(level);
 
@@ -2949,7 +2933,11 @@ begin
                AddNewNode;
                Continue;
             end;
-            List.Add( s );
+            if assigned(NEntry) then begin
+              if s <> '' then
+                 NEntry.Stream.WriteBuffer(s[1], Length(s));
+              NEntry.Stream.WriteBuffer(_CRLF_BYTES, Length(_CRLF_BYTES));
+            end;
         end;
 
       end;
@@ -2958,7 +2946,6 @@ begin
 
   finally
     TKntFile(KntFile).VerifyNoteGIDs;
-    List.Free;
     tf.CloseFile;
   end;
 
