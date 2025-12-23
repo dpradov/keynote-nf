@@ -3759,7 +3759,9 @@ begin
              SelAttributes.Hidden:= Hide;
              p:= pF + 1;
              Result:= true;
-          end;
+          end
+          else
+            inc(p);
           p:= Pos(KNT_RTF_HIDDEN_MARK_L_CHAR, Str, p);
        end;
     until p = 0;
