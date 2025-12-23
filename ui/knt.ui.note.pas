@@ -480,6 +480,8 @@ begin
        if SavePreviousContent and not FNNodeDeleted then
           SaveToDataModel();
 
+       Editor.HideNestedFloatingEditor;
+
        FNNode:= NNode;
        FNNodeDeleted:= false;
 
