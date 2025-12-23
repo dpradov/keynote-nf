@@ -1628,6 +1628,7 @@ procedure TKntFolder.LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: 
 var
   Node: PVirtualNode;
   HintStatusBar: string;
+  EnableInsertImg: boolean;
 
 begin
   if NNode = nil then exit;
@@ -1655,6 +1656,10 @@ begin
              TVCheckNode.Checked := Node.CheckState.IsChecked;
              TVBoldNode.Checked :=  NNode.Bold;
              TVChildrenCheckbox.Checked:= NNode.ChildrenCheckbox;
+
+             EnableInsertImg:= not NoteUI.Editor.ReadOnly and NoteUI.Editor.SupportsImages;
+             MMInsertPicture.Enabled:= EnableInsertImg;
+             MMInsertObject.Enabled:= EnableInsertImg;
 
              UpdateAlarmStatus;
              UpdateShowImagesState;

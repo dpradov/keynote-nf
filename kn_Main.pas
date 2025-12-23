@@ -8392,13 +8392,12 @@ end;
 procedure TForm_Main.EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
 var
   i: integer;
-
+  EnableInsertImg: boolean;
 begin
     for i := 0 to Toolbar_Format.ControlCount - 1 do begin
        with Toolbar_Format.Controls[i] do begin
           if (Copy(Name,1,5) = 'TB_Go') then continue;
-          if ReadOnly then
-             Enabled:= false
+          Enabled:= false;
        end;
     end;
 
@@ -8422,6 +8421,9 @@ begin
        MMFormatHighlight.Enabled:= true;
        MMFormatNoHighlight.Enabled:= true;
     end;
+    EnableInsertImg:= (ActiveEditor <> nil) and (ActiveEditor.SupportsImages) and (not ActiveEditor.ReadOnly);
+    MMInsertPicture.Enabled:= EnableInsertImg;
+    MMInsertObject.Enabled:= EnableInsertImg;
 
     ShowNodeChromeState (TreeUI);
 end;
