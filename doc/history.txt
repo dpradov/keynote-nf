@@ -3,6 +3,20 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.4.1  (24 dec 2025)
+--------------------------
+* Fixed: MBCS languages and plain text notes [#936]
+* New: Insert | Line
+* New: Insert | Table...
+* Fixed: Command line option (-clnks) is not converting old (file:///*) links
+* Fixed: KNT links in previous format (file:///*) in Merged notes must be converted to new format based on GIDs
+* Fixed: Possible exception when moving a node or subtree to another folder (when trying to update the navigation history)
+* Fixed: KeyNote NF does not respond...  when pasting in a very specific situation
+* Fixed: Enabled state of format toolbar buttons and Insert|Image/Object menu entries when focus is moved to the tree [#885]
+* Fixed: Floating editor should be closed when selected another node in the same folder
+* Fixed: When unfolding a block with images, these could remain hidden, if it is contiguous with another block or hyperlink
+
+
 v 2.1.3.1  (10 nov 2025)
 --------------------------
 * IMPORTANT! - Fixed: It was possible for new nodes to be created with an incorrect RTF/Plain state
