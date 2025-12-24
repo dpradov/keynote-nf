@@ -337,6 +337,7 @@ type
     BulletsInPlainText: string;  // [*] Replace bullets in plain text by the text indicated. Default: ''. Could be something like: ' - '
     CtrlUpDownMode: TCtrlUpDownMode;
     BulletSepFactor: Single;            // Factor (F) used to calculate spacing between bullet and text for all list types: S = 10 * FontSize / F   (See #876)
+    LineWidthEditor: boolean;
   end;
      // *2: TClipOptions.PlainTextMode will determine how to show it.
      // *3: Not for Web Clip nor Clipboard Capture, as they have its own options.

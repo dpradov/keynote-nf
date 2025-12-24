@@ -2335,6 +2335,30 @@ begin
             SelStart := SelStart + SelLength;
           end;
 
+          ecInsLine: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= '{\rtf1\ansi\trowd' + GetCellxEditorWidth(Editor) + ' \pard\intbl\fs1\cell\row \pard}';
+                SelStart:= SelStartOrig + 5;
+             end;
+          end;
+
+          ecInsPrintLine: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:=
+                        '{\rtf1\ansi{\colortbl ;\red255\green255\blue255;}' +
+                        '\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3'+
+                        '\clbrdrt\brdrw10'+
+                        '\clbrdrb\brdrw1\brdrcf1'+
+                        '\clbrdrl\brdrw1\brdrcf1'+
+                        '\clbrdrr\brdrw1\brdrcf1'+
+                        GetCellxEditorWidth(Editor) +
+                        ' \pard\intbl\fs1\cell\row \pard}';
+                SelStart:= SelStartOrig + 5;
+             end;
+          end;
+
           ecExpandTerm :
             ExpandTermProc;
 

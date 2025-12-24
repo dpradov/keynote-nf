@@ -63,6 +63,7 @@ procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
 procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
 function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
+function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
 
 type
    TClipCapMng = class
@@ -1535,6 +1536,22 @@ begin
       Result:= ColorIfNone;
 end;
 
+
+function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
+var
+  w, widthTwips: integer;
+begin
+   if EditorOptions.LineWidthEditor then begin
+      w:= Editor.Width;
+      if KeyOptions.AltMargins then
+         w:= w - KeyOptions.MarginAltLeft - KeyOptions.MarginAltRight;
+
+      widthTwips := DotsToTwips(w - 18);
+   end
+   else
+      widthTwips := 999999;
+   Result:= '\cellx' + widthTwips.ToString;
+end;
 
 
 initialization

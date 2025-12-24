@@ -1660,6 +1660,7 @@ begin
              EnableInsertImg:= not NoteUI.Editor.ReadOnly and NoteUI.Editor.SupportsImages;
              MMInsertPicture.Enabled:= EnableInsertImg;
              MMInsertObject.Enabled:= EnableInsertImg;
+             MMInsertLine.Enabled:= EnableInsertImg;
 
              UpdateAlarmStatus;
              UpdateShowImagesState;

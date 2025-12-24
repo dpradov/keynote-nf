@@ -925,6 +925,7 @@ type
     TagsMExport: TMenuItem;
     TagsMImport: TMenuItem;
     RTFMExpand: TMenuItem;
+    MMInsertLine: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1351,6 +1352,7 @@ type
     procedure TagsMImportClick(Sender: TObject);
     procedure RTFMExpandClick(Sender: TObject);
     procedure Pages_ResEnter(Sender: TObject);
+    procedure MMInsertLineClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -3116,6 +3118,15 @@ begin
           ShortCutItem := Menu.FindItem(ShortCut - scCtrl, fkShortCut);
           if ShortCutItem = MMViewTree then begin
              MMViewTreeClick(nil);
+             Handled:= true;
+          end;
+      end;
+
+      if (not Handled) and (ActiveEditor <> nil) and (ActiveEditor.SupportsImages) then begin
+          // Check if the keys combination, without Shift, is a shortcut to MMInsertLine
+          ShortCutItem := Menu.FindItem(ShortCut - scShift, fkShortCut);
+          if (ShortCutItem = MMInsertLine) then begin
+             MMInsertLineClick(nil);
              Handled:= true;
           end;
       end;
@@ -5059,6 +5070,14 @@ procedure TForm_Main.MMInsertURLClick(Sender: TObject);
 begin
   InsertURL('', '', ActiveEditor);   // Ask the user
 end; // Insert URL
+
+procedure TForm_Main.MMInsertLineClick(Sender: TObject);
+begin
+  if ShiftDown then
+     PerformCmd( ecInsPrintLine )
+  else
+     PerformCmd( ecInsLine );
+end;
 
 
 procedure TForm_Main.MMInsertLinkToFileClick(Sender: TObject);
@@ -8358,6 +8377,7 @@ begin
 
     MMInsertPicture.Enabled:= RTFandEnabled;
     MMInsertObject.Enabled:= RTFandEnabled;
+    MMInsertLine.Enabled:= RTFandEnabled;
 
     RTFMPlainText.Checked:= not SupportsRTF;
     RTFMPlainText.Enabled:= EditEnabled;
@@ -8424,6 +8444,7 @@ begin
     EnableInsertImg:= (ActiveEditor <> nil) and (ActiveEditor.SupportsImages) and (not ActiveEditor.ReadOnly);
     MMInsertPicture.Enabled:= EnableInsertImg;
     MMInsertObject.Enabled:= EnableInsertImg;
+    MMInsertLine.Enabled:= EnableInsertImg;
 
     ShowNodeChromeState (TreeUI);
 end;
