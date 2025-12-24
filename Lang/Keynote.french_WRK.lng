@@ -1007,6 +1007,8 @@ Menu_Main.MMInsert_.MMInsertFileContents.Caption=Contenu de fichier...
 Menu_Main.MMInsert_.MMInsertFileContents.Hint=Insère le contenu d'un fichier texte
 (!)Menu_Main.MMInsert_.MMInsertLine.Caption=Li&ne
 (!)Menu_Main.MMInsert_.MMInsertLine.Hint=Insert a line (Shift: printable)
+(!)Menu_Main.MMInsert_.MMInsertTable.Caption=Ta&ble...
+(!)Menu_Main.MMInsert_.MMInsertTable.Hint=Insert a basic table (Shift: printable)
 Menu_Main.MMInsert_.MMInsertURL.Caption=URL...
 Menu_Main.MMInsert_.MMInsertURL.Hint=Insère une adresse web
 Menu_Main.MMInsert_.MMInsertLinkToFile.Caption=Lien vers un fichier...
@@ -2989,5 +2991,6 @@ Button_Cancel.Caption=Annuler
 (!)55126_knt_RS_sExpFrm23=Nothing to export
 (!)55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
 (!)55128_knt_RS_sFoldBl5=Markers to be used when expanding already exist (uncheck them first)
+(!)55129_knt_RS_sEdt51=Insert basic Table with R rows and C columns
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

@@ -926,6 +926,7 @@ type
     TagsMImport: TMenuItem;
     RTFMExpand: TMenuItem;
     MMInsertLine: TMenuItem;
+    MMInsertTable: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1353,6 +1354,7 @@ type
     procedure RTFMExpandClick(Sender: TObject);
     procedure Pages_ResEnter(Sender: TObject);
     procedure MMInsertLineClick(Sender: TObject);
+    procedure MMInsertTableClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5079,6 +5081,33 @@ begin
      PerformCmd( ecInsLine );
 end;
 
+procedure TForm_Main.MMInsertTableClick(Sender: TObject);
+var
+  RowsAndCols: string;
+  p, R,C: integer;
+  Printable: boolean;
+begin
+  R:= 0;
+  Printable:= ShiftDown;
+
+  if InputQuery( GetRS(sEdt51), 'R,C:', RowsAndCols ) then begin
+     RowsAndCols:= RowsAndCols.Trim;
+     p:= Pos(',', RowsAndCols);
+     R:= StrToIntDef(Copy(RowsAndCols,1,p-1), 0);
+     C:= StrToIntDef(Copy(RowsAndCols,p+1), 0);
+  end;
+  if (R = 0) or (C=0) then
+     exit;
+
+  LastInsertTable_NRows:= R;
+  LastInsertTable_NCols:= C;
+
+  if Printable then
+     PerformCmd( ecInsPrintTable )
+  else
+     PerformCmd( ecInsTable );
+end;
+
 
 procedure TForm_Main.MMInsertLinkToFileClick(Sender: TObject);
 begin
@@ -8378,6 +8407,7 @@ begin
     MMInsertPicture.Enabled:= RTFandEnabled;
     MMInsertObject.Enabled:= RTFandEnabled;
     MMInsertLine.Enabled:= RTFandEnabled;
+    MMInsertTable.Enabled:= RTFandEnabled;
 
     RTFMPlainText.Checked:= not SupportsRTF;
     RTFMPlainText.Enabled:= EditEnabled;
@@ -8445,6 +8475,7 @@ begin
     MMInsertPicture.Enabled:= EnableInsertImg;
     MMInsertObject.Enabled:= EnableInsertImg;
     MMInsertLine.Enabled:= EnableInsertImg;
+    MMInsertTable.Enabled:= EnableInsertImg;
 
     ShowNodeChromeState (TreeUI);
 end;

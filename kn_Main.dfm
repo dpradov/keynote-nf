@@ -2900,6 +2900,11 @@ object Form_Main: TForm_Main
         ShortCut = 16493
         OnClick = MMInsertLineClick
       end
+      object MMInsertTable: TMenuItem
+        Caption = 'Ta&ble...'
+        Hint = 'Insert a basic table (Shift: printable)'
+        OnClick = MMInsertTableClick
+      end
       object N65: TMenuItem
         Caption = '-'
       end

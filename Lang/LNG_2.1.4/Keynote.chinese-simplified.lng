@@ -902,6 +902,8 @@ Menu_Main.MMInsert_.MMInsertFileContents.Caption=插入文件内容(&F)...
 Menu_Main.MMInsert_.MMInsertFileContents.Hint=插入文本文件的内容
 Menu_Main.MMInsert_.MMInsertLine.Caption=Li&ne
 Menu_Main.MMInsert_.MMInsertLine.Hint=Insert a line (Shift: printable)
+Menu_Main.MMInsert_.MMInsertTable.Caption=Ta&ble...
+Menu_Main.MMInsert_.MMInsertTable.Hint=Insert a basic table (Shift: printable)
 Menu_Main.MMInsert_.MMInsertURL.Caption=插入网址(&U)...
 Menu_Main.MMInsert_.MMInsertURL.Hint=插入一个互联网网址
 Menu_Main.MMInsert_.MMInsertLinkToFile.Caption=插入文件链接(&L)...
@@ -2820,5 +2822,6 @@ Button_OK.Caption=(&C)关闭
 55126_knt_RS_sExpFrm23=Nothing to export
 55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
 55128_knt_RS_sFoldBl5=Markers to be used when expanding already exist (uncheck them first)
+55129_knt_RS_sEdt51=Insert basic Table with R rows and C columns
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

@@ -903,6 +903,8 @@ Menu_Main.MMInsert_.MMInsertFileContents.Caption=ファイルの内容(&F)...
 Menu_Main.MMInsert_.MMInsertFileContents.Hint=テキストファイルの内容を挿入する
 Menu_Main.MMInsert_.MMInsertLine.Caption=Li&ne
 Menu_Main.MMInsert_.MMInsertLine.Hint=Insert a line (Shift: printable)
+Menu_Main.MMInsert_.MMInsertTable.Caption=Ta&ble...
+Menu_Main.MMInsert_.MMInsertTable.Hint=Insert a basic table (Shift: printable)
 Menu_Main.MMInsert_.MMInsertURL.Caption=&URLの挿入(&U)...
 Menu_Main.MMInsert_.MMInsertURL.Hint=インターネットURLを挿入
 Menu_Main.MMInsert_.MMInsertLinkToFile.Caption=ファイルへのリンク(&L)...
@@ -2821,5 +2823,6 @@ Button_OK.Caption=閉じる(&C)
 55126_knt_RS_sExpFrm23=エクスポートするものがありません
 55127_knt_RS_sFold1=ネストされたセルを含む表で文字列を折り畳むことはできません\^使用可能なオプションについてはヘルプを参照してください
 55128_knt_RS_sFoldBl5=展開時に使用するマーカーがすでに存在します (最初にチェックを外してください)
+55129_knt_RS_sEdt51=Insert basic Table with R rows and C columns
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

@@ -1661,6 +1661,7 @@ begin
              MMInsertPicture.Enabled:= EnableInsertImg;
              MMInsertObject.Enabled:= EnableInsertImg;
              MMInsertLine.Enabled:= EnableInsertImg;
+             MMInsertTable.Enabled:= EnableInsertImg;
 
              UpdateAlarmStatus;
              UpdateShowImagesState;

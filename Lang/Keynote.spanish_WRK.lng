@@ -900,6 +900,8 @@ Menu_Main.MMInsert_.MMInsertFileContents.Caption=Contenido de &Archivo...
 Menu_Main.MMInsert_.MMInsertFileContents.Hint=Insertar contenido de un archivo de texto
 Menu_Main.MMInsert_.MMInsertLine.Caption=Lí&nea
 Menu_Main.MMInsert_.MMInsertLine.Hint=Insertar una línea (Shift: imprimible)
+Menu_Main.MMInsert_.MMInsertTable.Caption=Ta&bla...
+Menu_Main.MMInsert_.MMInsertTable.Hint=Insertar Tabla básica (Shift: imprimible)
 Menu_Main.MMInsert_.MMInsertURL.Caption=&URL...
 Menu_Main.MMInsert_.MMInsertURL.Hint=Insertar una URL de Internet
 Menu_Main.MMInsert_.MMInsertLinkToFile.Caption=&Enlace a Archivo...
@@ -2816,5 +2818,6 @@ Button_OK.Caption=&Cerrar
 55126_knt_RS_sExpFrm23=Nada que exportar
 55127_knt_RS_sFold1=No se puede plegar texto con una tabla que tiene celdas anidadas\^Consulte la ayuda para ver posibles opciones
 55128_knt_RS_sFoldBl5=Los marcadores a utilizar al expandir ya existen (desmárquelos primero)
+55129_knt_RS_sEdt51=Insertar Tabla básica con R filas y C columnas
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*
