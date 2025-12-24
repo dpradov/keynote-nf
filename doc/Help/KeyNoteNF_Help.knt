@@ -1574,12 +1574,12 @@ ND=Using KeyNote NF
 %*
 GI=20
 ND=KeyNote Editor
-LM=1011252002
+LM=2412251748
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red128\green128\blue0;\red0\green128\blue0;\red64\green64\blue64;\red255\green0\blue0;\red0\green0\blue0;\red96\green96\blue96;\red255\green255\blue0;\red255\green255\blue255;\red51\green51\blue153;\red192\green192\blue192;}
-{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 KeyNote editor\cf2\f0\fs32\lang1033\par
 \cf0\b0\fs20\par
@@ -1599,7 +1599,8 @@ To be productive when editing, it is also advisable to have a minimum knowledge 
 {{\field{\*\fldinst{HYPERLINK "file:///<20|12559|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Using bullets and numbered lists}}}}\f0\fs20\par
 {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<20|16135|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Bullets and plain text}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|18104|0|14"}}{\fldrslt{\ul\cf2\cf2\ul Using color selection buttons}}}}\f0\fs20\par
-{{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How can you insert tables in Keynote?}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How can you insert Tables in Keynote?}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<20|23301|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Inserting a line in the editor}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|20350|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Inserting custom date and time formats}}}}\f0\fs20\par
 \par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|7487|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Adjusting the Zoom in the folders}}}}\f0\fs20\par
@@ -1974,7 +1975,17 @@ Its use should not entail any mystery. However, it is not difficult to get confu
 \fs20\par
 There are several ways to create tables in KeyNote NF:\par
 \par
-\b 1. Using lines of the form "+---+--+-------+" and pressing ENTER\par
+\b 1. Using Insert|Tables...\par
+\b0\par
+
+\pard\li360 Since version 2.1.4 KeyNote NF includes a new command that allows you to insert a basic table into the active editor, if it is not a plain text editor. You will be asked to specify the number of rows and columns in the table in the format "R,C".\par
+
+\pard\li360\sb80 You can insert the table using the menu entry: \b Insert|Table...  \b0 Clicking this entry while holding down the \cf3\b Shift \cf0\b0 key will insert a table whose lines will be printable; otherwise, the lines of the table will be visible on screen but will not appear when printed.\par
+The two new commands (Insert Table and Insert Printable Table) can be repeated (Edit|Repeat...) and used within macros. When used in a macro, the command considers the last defined number of rows and columns in the session. If not yet defined, it will use 2 x 2.\par
+
+\pard\par
+\par
+\b 2. Using lines of the form "+---+--+-------+" and pressing ENTER\par
 \b0\par
 \trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5254 
@@ -1986,13 +1997,13 @@ There are several ways to create tables in KeyNote NF:\par
 \pard\intbl\itap2\fs20\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx295\nestrow}{\nonesttables\par}
 
-\pard\intbl\fs18\cell\trowd\trgaph30\trleft410\trrh223\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\pard\intbl\fs18\cell\trowd\trgaph30\trleft410\trrh223\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824\row\trowd\trgaph30\trleft410\trrh255\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824 
 \pard\intbl\fs20 +-+-+\fs18  [Enter]\cell\cell 
 \pard\intbl\itap2\fs20\nestcell\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx295\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx515\nestrow}{\nonesttables\par}
 
-\pard\intbl\fs18\cell\trowd\trgaph30\trleft410\trrh223\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824\row\trowd\trgaph30\trleft410\trrh330\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\pard\intbl\fs18\cell\trowd\trgaph30\trleft410\trrh255\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824\row\trowd\trgaph30\trleft410\trrh330\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824 
 \pard\intbl\cf0\fs20 +-----+-----+-----+\cf8\fs18  [Enter]\cell\cell 
 \pard\intbl\itap2\cf0\fs20\nestcell\nestcell\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
@@ -2033,7 +2044,7 @@ Note: The text line can not have leading whitespace to the left of the text\par
 \pard\li360\cf0\fs20\par
 
 \pard\par
-\b 2. By previously creating them in another application\par
+\b 3. By previously creating them in another application\par
 \b0\par
 
 \pard\li360 You can create a table in Word or Excel (or any other application) and copy it to the clipboard. When you paste it into KeyNote, it will become an RTF table. Note that if you use Excel, any selection of cells makes up a table that you can paste.\par
@@ -2042,7 +2053,7 @@ You can also embedd a new or existing file object (like .docx Word or .xlsx, for
 
 \pard\par
 \par
-\b 3. Using templates\par
+\b 4. Using templates\par
 \b0\par
 
 \pard\li360 You can also prepare simple formats of empty tables and save them as {{\field{\*\fldinst{HYPERLINK "file:///<69|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Templates}}}}\f0\fs20 , for easy use when you need it. You can give each template a name (e.g. Table2x3).\par
@@ -2130,6 +2141,46 @@ You can also embedd a new or existing file object (like .docx Word or .xlsx, for
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1562\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2714\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3866 
 \pard\intbl A2\cell B2\cell C2\cell\row 
 \pard\cf0\f0\fs20\par
+\par
+\par
+\b\v\fs24\'11B18\'12\v0 Inserting a line in the editor\b0\par
+\fs20\par
+You can insert a line in a RTF editor using the menu entry: \b Insert|Line\b0 .\par
+\par
+Clicking this entry while holding down the \cf3\b Shift\cf0\b0  key will insert a printable line; otherwise, the inserted line will be visible on screen but will not appear when printed.\par
+
+\pard\sb80 The default keyboard shortcuts are:\par
+
+\pard    \cf3\b Ctrl+Numpad -\cf0\b0\tab\tab  Insert line\par
+   \cf3\b Ctrl+Shift+Numpad -\cf0\b0\tab  Insert printable line\par
+\par
+As with most commands, it's possible to change the keyboard shortcut for Insert Line. Pressing \cf3 Shift\cf0  at the same time will insert a printable line.\par
+\fs18\lang3082 The two new commands (Insert Line and Insert Printable Line) can be repeated (Edit|Repeat...) and used within macros.\par
+\fs20\lang1033\par
+An \b option\b0  has been added to Configuration Options (F5) -> Rich Text Editor: "\ul Insert | Line: Limit to editor width on creation.\ulnone "\par
+If selected, the line will be created with the current \b editor width\b0 ; otherwise, it will be created with a very large width, extending beyond any possible page width. In the first case (option selected), the right end of the line will be accessible, and you can drag the cursor over it to change the width.\par
+\par
+This is a non printable line:\par
+\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\cellx2865 
+\pard\intbl\fs1\lang3082\cell\row 
+\pard\fs20\lang1033\par
+This is a printable line:\par
+\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\brdrcf11\clbrdrt\brdrw10\brdrs\clbrdrr\brdrw1\brdrs\brdrcf11\clbrdrb\brdrw1\brdrs\brdrcf11 \cellx2865 
+\pard\intbl\fs1\lang3082\cell\row 
+\pard\fs20\par
+\lang1033\par
+Note:    \par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 The RichEdit control does not allow to insert lines exclusively; it does not recognize the specific RTF command for that purpose. The line inserted here is constructed using a cell, adjusted to appear as a line. This implies two limitations:\par
+
+\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li720 The width is not dynamic; it is fixed and is set when the line is created.\par
+{\pntext\f9\'B7\tab}To achieve the line effect, the font size inside the cell is set to 1. This means that if you apply a font size change to a selection that includes a line, the cell will become visible.\par
+
+\pard\li360\sb120 The fact that the font size used within the cell is almost zero (it appears as 0 in the font size dropdown) offers a simple way to delete a line: you can press the cursor keys until the font size displays 0. If you then press the down arrow key while holding down the \cf3 Shift\cf0  key, you will select the entire line. We can then delete it.\par
+
+\pard\par
 \par
 \par
 \b\v\fs24\'11B12\'12\v0 Inserting custom date and time formats\par
@@ -11171,11 +11222,12 @@ ND=General Shortcut Keys
 %*
 GI=80
 ND=Editor shortcut keys
+LM=2412251742
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Editor shortcut keys\cf2\f0\lang1033\par
 \cf0\b0\fs26\par
@@ -11277,6 +11329,10 @@ Alt+`\cf0\b0\tab\tab\tab Increase left \b indent\b0\par
 \pard\cf3\b Ctrl+Shift+D\cf0\b0\tab\tab Insert current date \par
 \cf3\b Ctrl+Shift+T\cf0\b0\tab\tab Insert current time \par
 
+\pard\sb120\cf3\b Ctrl+Numpad -\cf0\b0\tab\tab Insert \b line\b0\par
+
+\pard\cf3\b Ctrl+Shift+Numpad -\cf0\b0\tab Insert printable line\par
+
 \pard\sb160\cf3\b Ctrl+Y\cf0\b0\tab\tab\tab Delete selected \b line\b0  \par
 
 \pard\cf3\b Ctrl+J\cf0\b0\tab\tab\tab Join selected lines (reformat lines into a single paragraph) \tab\tab\tab\par
@@ -11339,11 +11395,12 @@ For example, I use a lot of \i Increase \i0 and \i decrease left indent\i0  comm
 %*
 GI=81
 ND=Tree Shortcut Keys
+LM=2412251740
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Tree Shortcut Keys\cf2\f0\lang1033\par
 \cf0\b0\fs20\par
@@ -11376,9 +11433,9 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<27|4545|0|6"}}{\fldrslt{\ul\cf2
 \pard\cf3\b Left arrow    \cf0\b0 or \cf3\b Numpad -\cf0\b0\tab Collapse selected node/branch\par
 \cf3\b Right arrow \cf0\b0 or \cf3\b Numpad + \cf0\b0  \tab Expand selected node/branch (also \cf3\b Numpad *\cf0\b0 )\par
 
-\pard\sb80\cf3\b Shift+ Numpad -\tab\cf0\b0\tab Collapse all nodes in tree \par
+\pard\sb80\cf3\b Shift+Numpad -\tab\cf0\b0\tab Collapse all nodes in tree \par
 
-\pard\cf3\b Shift+ Numpad +\tab\cf0\b0\tab Expand all nodes in tree \par
+\pard\cf3\b Shift+Numpad +\tab\cf0\b0\tab Expand all nodes in tree \par
 
 \pard\sb120\par
 
@@ -11949,18 +12006,18 @@ LM=1304252023
 %*
 GI=89
 ND=Rich Text Editor
-LM=1910251808
+LM=2412251755
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 Options: Rich Text editor\par
 
 \pard\sa100\cf0\b0\fs22\par
 
-\pard\li360\sa100\v\'11I236\'12\v0{\field{\*\fldinst{HYPERLINK "img:236,381,373"}}{\fldrslt {236_Clipb_19oct.png}}}\par
+\pard\li360\sa100\v\'11I243\'12\v0{\field{\*\fldinst{HYPERLINK "img:243,379,366"}}{\fldrslt {243_Clipb_24dic.png}}}\par
 
 \pard\fs20\par
 See also {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20  \par
@@ -12025,9 +12082,18 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf2\cf2
 \pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf0\b0\fs20 If enabled, a new note uses the same background color in the Editor panel as the active node.\par
 {\pntext\f1\'B7\tab}If disabled, the new note uses the default background color (\b Tools | Default Settings\b0 ).\par
 
+\pard\sb120 See also {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folder Properties: Folder settings}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<21|0|0"}}{\fldrslt{\ul\cf2\cf2\ul About initial fonts and colors in KeyNote}}}}\f0\fs20 .\par
+
 \pard\par
-See also {{\field{\*\fldinst{HYPERLINK "file:///<31|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folder Properties: Folder settings}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<21|0|0"}}{\fldrslt{\ul\cf2\cf2\ul About initial fonts and colors in KeyNote}}}}\f0\fs20 .\par
-\par
+
+\pard\sa80\cf1\b\fs22 Insert | Line: Limit to editor width on creation\cf0\fs20\tab\tab\b0 Default: NO\cf1\b\fs22\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf0\b0\fs20 If selected, the line will be created with the current editor width; \par
+{\pntext\f1\'B7\tab}if disabled, it will be created with a very large width, extending beyond any possible page width. \par
+
+\pard\sb120 See also {{\field{\*\fldinst{HYPERLINK "file:///<20|23301|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Inserting a line in the editor}}}}\f0\fs20\lang3082\par
+
+\pard\lang1033\par
 
 \pard\sa80\cf1\b\fs22 Undo buffer limit\tab\tab\tab\cf0\fs20\tab\tab\tab\tab\b0 Default: 32\cf1\b\fs22\par
 
@@ -15252,11 +15318,12 @@ See {{\field{\*\fldinst{HYPERLINK "file:///<39|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Na
 %*
 GI=112
 ND=Insert Menu
+LM=2412251739
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Comic Sans MS;}{\f3\fnil\fcharset0 Courier New;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue160;\red0\green0\blue255;\red128\green128\blue0;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 I\f0\lang3082 nsert\f1\lang1045  Menu\cf2\par
 \cf3\f0\fs26\lang1033\par
@@ -15265,6 +15332,8 @@ ND=Insert Menu
 {{\field{\*\fldinst{HYPERLINK "file:///<112|1283|0|4"}}{\fldrslt{\ul\cf3\cf3\ul Insert Time}}}}\f0\fs20\tab Insert the current time into the Editor panel at the cursor\par
 {{\field{\*\fldinst{HYPERLINK "file:///<112|1603|0|5"}}{\fldrslt{\ul\cf3\cf3\ul Character}}}}\f0\fs20\tab Insert a selected character into Editor panel at the cursor\par
 {{\field{\*\fldinst{HYPERLINK "file:///<112|1758|0|6"}}{\fldrslt{\ul\cf3\cf3\ul File Contents...}}}}\f0\fs20\tab Insert the contents of the selected file into the Editor panel at the cursor\par
+{{\field{\*\fldinst{HYPERLINK "file:///<112|2299|0|13"}}{\fldrslt{\ul\cf3\cf3\ul Line}}}}\f0\fs20\tab Insert a line into the Editor panel at the cursor\par
+{{\field{\*\fldinst{HYPERLINK "file:///<112|2668|0|14"}}{\fldrslt{\ul\cf3\cf3\ul Table...}}}}\f0\fs20\tab Insert a basic table into the Editor panel at the cursor, with any number of rows and columns\par
 {{\field{\*\fldinst{HYPERLINK "file:///<112|1913|0|7"}}{\fldrslt{\ul\cf3\cf3\ul URL...}}}}\f0\fs20\tab Display a dialog box to enter a URL (Internet link) into the Editor panel at the cursor\par
 {{\field{\*\fldinst{HYPERLINK "file:///<112|2194|0|8"}}{\fldrslt{\ul\cf3\cf3\ul Link to File...}}}}\f0\fs20\tab Creates a link to a selected file in the Editor panel at the cursor\par
 {{\field{\*\fldinst{HYPERLINK "file:///<112|2396|0|2"}}{\fldrslt{\ul\cf3\cf3\ul Mark KeyNote Location}}}}\f0\fs20\tab Temporarily mark the current node or note\par
@@ -15282,7 +15351,7 @@ ND=Insert Menu
 Use \b Tools| Configuration Options\b0  command, \b Formats\b0  setting to set the default date format. See the \ldblquote\b dateformats.txt\b0\rdblquote  file for information on how to customize the date.\par
 \par
 
-\pard\li240\v\f2\'11I47\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:47,16,16"}}{\fldrslt {47_Main_47.png}}}\f2  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Shift+Ctrl+D\f3\fs20  \cf0\b0 / \cf4 MMInsertDate\cf5\b\par
+\pard\li240\v\f2\'11I47\'12\v0\f0\lang3082{\field{\*\fldinst{HYPERLINK "img:47,16,16"}}{\fldrslt {47_Main_47.png}}}\f2\lang1033  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Shift+Ctrl+D\f3\fs20  \cf0\b0 / \cf4 MMInsertDate\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \lang3082\par
@@ -15292,7 +15361,7 @@ Use \b Tools| Configuration Options\b0  command, \b Formats\b0  setting to set t
 Use \b Tools | Configuration Options\b0  command, \b Formats\b0  setting to set the default time format. See the \ldblquote\b timeformats.txt\b0\rdblquote  file for information on how to customize the time.\par
 \par
 
-\pard\li240\v\f2\'11I48\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:48,16,16"}}{\fldrslt {48_Main_48.png}}}\f2  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Shift+Ctrl+T\f3\fs20  \cf0\b0 / \cf4 MMInsertTime\cf5\b\par
+\pard\li240\v\f2\'11I48\'12\v0\f0\lang3082{\field{\*\fldinst{HYPERLINK "img:48,16,16"}}{\fldrslt {48_Main_48.png}}}\f2\lang1033  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Shift+Ctrl+T\f3\fs20  \cf0\b0 / \cf4 MMInsertTime\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \lang3082\par
@@ -15300,7 +15369,7 @@ Use \b Tools | Configuration Options\b0  command, \b Formats\b0  setting to set 
 \cf0\b0 Insert a selected character into Editor panel at the cursor. (See {{\field{\*\fldinst{HYPERLINK "file:///<23|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Insert Character Dialog Box}}}}\f0\fs20 )\par
 \par
 
-\pard\li240\v\f2\'11I49\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:49,16,16"}}{\fldrslt {49_Main_49.png}}}\f2  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Shift+Ctrl+C\f3\fs20  \cf0\b0 / \cf4 MMInsertCharacter\cf5\b\par
+\pard\li240\v\f2\'11I49\'12\v0\f0\lang3082{\field{\*\fldinst{HYPERLINK "img:49,16,16"}}{\fldrslt {49_Main_49.png}}}\f2\lang1033  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Shift+Ctrl+C\f3\fs20  \cf0\b0 / \cf4 MMInsertCharacter\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \lang3082\par
@@ -15309,6 +15378,22 @@ Use \b Tools | Configuration Options\b0  command, \b Formats\b0  setting to set 
 \par
 
 \pard\li240\cf4\f3 MMInsertFileContents\cf5\b\par
+
+\pard\cf0\b0\f0\par
+\lang3082\par
+\cf1\b\v\fs26\lang1033\'11B13\'12\v0 Line\cf3\fs20\par
+\cf0\b0 Insert a line into the Editor panel at the cursor. (See also {{\field{\*\fldinst{HYPERLINK "file:///<20|23301|0|18"}}{\fldrslt{\ul\cf3\cf3\ul Inserting a line in the editor}}}}\f0\fs20 )\par
+\par
+
+\pard\li240\cf4\f3 MMInsertLine\cf5\b\par
+
+\pard\cf0\b0\f0\par
+\lang3082\par
+\cf1\b\v\fs26\lang1033\'11B14\'12\v0 Table...\cf3\fs20\par
+\cf0\b0 Insert a basic table into the Editor panel at the cursor, with any number of rows and columns. (See also {{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf3\cf3\ul How can you insert Tables in Keynote?}}}}\f0\fs20 )\par
+\par
+
+\pard\li240\cf4\f3 MMInsertTable\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \lang3082\par
@@ -15379,7 +15464,7 @@ KeyNote expands the term if the characters are selected in the Editor panel, or 
 \cf0\b0 Look up the selected word in the WordWeb dictionary/thesaurus. See {{\field{\*\fldinst{HYPERLINK "file:///<26|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Integration with WordWeb thesaurus}}}}\f0\fs20  for more information.\par
 \par
 
-\pard\li240\v\f2\'11I25\'12\v0\f0{\field{\*\fldinst{HYPERLINK "img:25,16,16"}}{\fldrslt {25_Main_25.png}}}\f2  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+F11\f3\fs20  \cf0\b0 / \cf4 MMInsertWordWeb\cf5\b\par
+\pard\li240\v\f2\'11I25\'12\v0\f0\lang3082{\field{\*\fldinst{HYPERLINK "img:25,16,16"}}{\fldrslt {25_Main_25.png}}}\f2\lang1033  \cf4\f3\lang3082\tab\tab\cf5\b\f0\fs18\lang1033 Ctrl+F11\f3\fs20  \cf0\b0 / \cf4 MMInsertWordWeb\cf5\b\par
 
 \pard\cf0\b0\f0\par
 \lang3082\par
@@ -16945,12 +17030,12 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=1910251441
+LM=2412251717
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green255\blue255;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 What's New\cf2\f0\lang1033\par
 \cf0\b0\fs26\par
@@ -16969,6 +17054,12 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.1.4\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Fixed: MBCS languages and plain text notes [#936]\par
+{\pntext\f3\'B7\tab}Added: Insert|Line  Insert|Table...\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.1.2\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Added OPML format to File - Export\par
@@ -17965,7 +18056,7 @@ FS=10
 LN=1033
 ST=
 FL=111110000000100000000000
-SN=19
+SN=0
 TW=239
 TM=0
 EN=New node
@@ -18049,7 +18140,6 @@ LV=0
 %-
 gi=20
 DI=282
-ns=0400
 LV=1
 %-
 gi=21
@@ -18297,9 +18387,11 @@ LV=1
 %-
 gi=87
 DI=295
+ns=0400
 %-
 gi=88
 DI=238
+ns=0400
 LV=2
 %-
 gi=89
@@ -18457,7 +18549,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=243
+II=244
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -18614,12 +18706,12 @@ PD=232||232_Clipb_19oct.png|1|678|495|3925350657||1|1||0
 PD=233||233_Clipb_19oct.png|1|654|318|4192914063||1|1||0
 PD=234||234_Clipb_19oct.png|1|532|390|1433871927||1|1||0
 PD=235||235_Clipb_19oct.png|1|532|390|764013386||1|1||0
-PD=236||236_Clipb_19oct.png|1|381|373|269675315||1|1||0
 PD=237||237_Clipb_19oct.png|1|382|371|1932103461||1|1||0
 PD=238||238_Clipb_19oct.png|1|370|370|3919544723||1|1||0
 PD=239||239_Clipb_19oct.png|1|380|371|3204302766||1|1||0
 PD=240||240_Clipb_19oct.png|1|337|347|3051443956||1|1||0
 PD=241||241_Clipb_19oct.png|1|380|371|1231395502||1|1||0
 PD=242||242_Clipb_19oct.png|1|322|374|468339261||1|1||0
+PD=243||243_Clipb_24dic.png|1|379|366|2323966770||1|1||0
 %EI
 %%
