@@ -384,7 +384,7 @@ begin
     except
       On E : Exception do
         if DoWarn then
-           App.ErrorPopup( Format(GetRS(sMac04), [DirInfo.Name, E.Message] ));
+           App.ErrorPopup( Format(GetRS(sMac04), [DirInfo.Name, E.Message] ), E);
     end;
 
   finally

@@ -105,7 +105,7 @@ begin
 
   except
     on E : Exception do
-        App.ErrorPopup(GetRS(sExp01) + E.Message);
+        App.ErrorPopup(GetRS(sExp01) + E.Message, E);
   end;
 end; // ConvertHTMLToRTF
 
@@ -194,7 +194,7 @@ begin
 
   except
     on E : Exception do
-        App.ErrorPopup(GetRS(sExp02) + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message);
+        App.ErrorPopup(GetRS(sExp02) + HTMLExportMethods[HTMLExpMethod] + ') : ' + E.Message, E);
   end;
 end; // ConvertRTFToHTML
 

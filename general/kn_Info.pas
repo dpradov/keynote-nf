@@ -337,6 +337,7 @@ type
     BulletsInPlainText: string;  // [*] Replace bullets in plain text by the text indicated. Default: ''. Could be something like: ' - '
     CtrlUpDownMode: TCtrlUpDownMode;
     BulletSepFactor: Single;            // Factor (F) used to calculate spacing between bullet and text for all list types: S = 10 * FontSize / F   (See #876)
+    LineWidthEditor: boolean;
   end;
      // *2: TClipOptions.PlainTextMode will determine how to show it.
      // *3: Not for Web Clip nor Clipboard Capture, as they have its own options.
@@ -877,6 +878,13 @@ type
   end;
 
 type
+   TMergeFolders = record
+       oldID: Cardinal;
+       newID: Cardinal;
+       newFolder: boolean;
+   end;
+
+type
   TMirrorAction = (
     maMovingToTarget,                 // Moving node to targetNode
     maChangingChkState,               // Changed checked state of node
@@ -1074,7 +1082,7 @@ function TMergedNotes.GetNewGID (GID: Cardinal): Cardinal;
    i: integer;
 begin
   Result:= NoteGID_NotConverted;
-  for i := 0 to High(NoteGIDs) - 1 do
+  for i := 0 to High(NoteGIDs) do
      if NoteGIDs[i].oldGID = GID then begin
         Result:= NoteGIDs[i].newGID;
         exit;

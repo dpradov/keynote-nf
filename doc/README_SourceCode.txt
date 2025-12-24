@@ -83,9 +83,37 @@ install most of them (Components.dpk). The rest must be installed separately:
      Do this for both Win32 and Win64 platform, which you can choose in the dropdown box.
   => Close the RAD Studio Options dialog by clicking "Save".
 
-             
+6 - JEDI Code Library (JCL)
+  => Configure include files:
+   Copy "3rd_party\JCL\jcl\source\include\jcl.template.inc" "3rd_party\JCL\jcl\source\include\jcld29win32.inc"
+   Copy "3rd_party\JCL\jcl\source\include\jcl.template.inc" "3rd_party\JCL\jcl\source\include\jcld29win64.inc"
+
+   Extract \3rd_party\_Add-ons\MakeJclDbg.zip to \src
+   - - - 
+   Note:
+	 MakeJclDbg.exe can be generated compiling the project:
+          3rd_party\JCL\jcl\examples\windows\debug\tools\MakeJclDbg.dpr
+		  
+	 In JCL (JEDI Code Library) (https://github.com/project-jedi/jcl, in "How to install":
+       Start the jcl\install.bat
+       Installation notes
+
+       As the installer uses the command line compiler of the installed Delphi version, the installer will only function 
+	   with Delphi versions/editions that have the command line compile (ddc32).
+       Neither the community version, nor the trial version provide the command line compiler.		  
+	
+     As the version I use is Delphi CE 12.1 (community version) I had to manually add the following paths to "Search Path":
+      .\3rd_party\JCL\jcl\source\common
+	  .\3rd_party\JCL\jcl\source\windows
+	  .\3rd_party\JCL\jcl\source\vcl
+	  .\3rd_party\JCL\jcl\source\include
+	  
+     And also had to compile MakeJclDbg.dpr (to convert .map files to .jdbg, or embed that info in .exe)
+	- - - 
+
+  
 KeyNote NF:
-6 - Open the project "KeyNote.dpr", that generates "keynote.exe"
+7 - Open the project "KeyNote.dpr", that generates "keynote.exe"
 
 
     

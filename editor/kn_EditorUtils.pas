@@ -63,6 +63,10 @@ procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
 procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
 function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
+function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
+function GetRTFLine(Editor: TRxRichEdit): AnsiString;
+function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
+function GetRTFTable(Editor: TRxRichEdit; Printable: boolean): AnsiString;
 
 type
    TClipCapMng = class
@@ -116,6 +120,9 @@ type
       procedure CleanCacheURLs (OnlyWithoutTitle: boolean);
    end;
 
+var
+   LastInsertTable_NRows: integer;
+   LastInsertTable_NCols: integer;
 
 
 implementation
@@ -241,7 +248,7 @@ begin
 
         except
           on e : exception do begin
-            App.ErrorPopup(E.Message);
+            App.ErrorPopup(E);
             ToggleOff;
           end;
         end;
@@ -267,7 +274,7 @@ begin
             SetClipCapState( false );
         except
           on e : exception do
-			App.ErrorPopup(E.Message);
+			App.ErrorPopup(E);
         end;
 
       finally
@@ -1536,7 +1543,99 @@ begin
 end;
 
 
+function GetEditorWidthInTwips(Editor: TRxRichEdit): integer;
+var
+  w: integer;
+begin
+   w:= Editor.Width;
+   if KeyOptions.AltMargins then
+      w:= w - KeyOptions.MarginAltLeft - KeyOptions.MarginAltRight;
+
+   Result:= DotsToTwips(w - 18);
+end;
+
+
+function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
+var
+  widthTwips: integer;
+begin
+   if EditorOptions.LineWidthEditor then
+      widthTwips := GetEditorWidthInTwips(Editor)
+   else
+      widthTwips := 999999;
+   Result:= '\cellx' + widthTwips.ToString;
+end;
+
+
+function GetRTFLine(Editor: TRxRichEdit): AnsiString;
+begin
+  Result:= '{\rtf1\ansi\trowd' + GetCellxEditorWidth(Editor) + ' \pard\intbl\fs1\cell\row \pard}';
+end;
+
+
+function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
+begin
+  Result:=
+      '{\rtf1\ansi{\colortbl ;\red255\green255\blue255;}' +
+      '\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3'+
+      '\clbrdrt\brdrw10'+
+      '\clbrdrb\brdrw1\brdrcf1'+
+      '\clbrdrl\brdrw1\brdrcf1'+
+      '\clbrdrr\brdrw1\brdrcf1'+
+      GetCellxEditorWidth(Editor) +
+      ' \pard\intbl\fs1\cell\row \pard}';
+end;
+
+
+function GetRTFTable(Editor: TRxRichEdit; Printable: boolean): AnsiString;
+var
+  nR, nC: integer;
+  widthTwips: integer;
+  i, CellWidth, IncWidth: integer;
+  rowStr, cells, cellsConfig: AnsiString;
+begin
+
+(*
+
+{\rtf1\ansi\trowd\cellx1000\cellx2000 \pard\intbl\cell\cell\row \pard}
+
+{\rtf1\ansi
+\trowd
+\clbrdrl\brdrw1\clbrdrt\brdrw1\clbrdrr\brdrw1\clbrdrb\brdrw1\cellx780\clbrdrl\brdrw1\clbrdrt\brdrw1\clbrdrr\brdrw1\clbrdrb\brdrw1\cellx1500
+\pard\intbl\f1\lang1033\cell\cell\row
+\trowd
+\clbrdrl\brdrw1\clbrdrt\brdrw1\clbrdrr\brdrw1\clbrdrb\brdrw1\cellx780\clbrdrl\brdrw1\clbrdrt\brdrw1\clbrdrr\brdrw1\clbrdrb\brdrw1\cellx1500
+\pard\intbl\cell\cell\row
+\pard\par}
+*)
+
+  nR:= LastInsertTable_NRows;
+  nC:= LastInsertTable_NCols;
+  widthTwips := GetEditorWidthInTwips(Editor);
+  IncWidth:= widthTwips div nC;
+  if Printable then
+     cellsConfig := '\clbrdrl\brdrw1\clbrdrt\brdrw1\clbrdrr\brdrw1\clbrdrb\brdrw1';
+
+  CellWidth:= 0;
+  for i := 1 to nC do begin
+      inc(CellWidth, IncWidth);
+      rowStr:= rowStr + cellsConfig + '\cellx' + CellWidth.ToString;
+      cells:= cells + '\cell';
+  end;
+  rowStr:= '\trowd' + rowStr + ' \pard\intbl' + cells + '\row\pard';
+  Result:= '{\rtf1\ansi';
+  for i := 1 to nR do begin
+      Result:= Result + rowStr;
+  end;
+
+  Result:= Result + '}';
+end;
+
+
 
 initialization
+
+  LastInsertTable_NRows:= 2;
+  LastInsertTable_NCols:= 2;
 
 end.

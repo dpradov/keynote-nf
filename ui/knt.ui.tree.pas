@@ -51,6 +51,7 @@ type
      function GetNextNotChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
      function IsVerticalScrollBarVisible: boolean;
+     function NodeBelongsToTree(ANode: PVirtualNode): Boolean;
    end;
 
 
@@ -1625,6 +1626,8 @@ procedure TKntTreeUI.TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNod
 begin
   if (not assigned(Node)) then exit;
 
+  Log_StoreTick('TV_FocusChanged - BEGIN', 3, +1);
+
   TV.ScrollIntoView(Node, false);
 
   if (Node <> fLastNodeSelected) then begin
@@ -1640,6 +1643,8 @@ begin
         TV.Selected[TV.FocusedNode]:= True;
      end;
   end;
+
+  Log_StoreTick('TV_FocusChanged - END', 3, -1);
 end;
 
 
@@ -2838,7 +2843,7 @@ begin
 
     except
       on E : Exception do begin
-        App.ErrorPopup(GetRS(sTree01) + E.Message);
+        App.ErrorPopup(GetRS(sTree01) + E.Message, E);
         // if assigned(myTreeNode) then myTreeNode.Free;
         // if assigned(myNote) then myNote.Free;
       end;
@@ -3374,6 +3379,9 @@ begin
 
   fMovingToOtherTree:= (SourceTV <> TV);
   fTargetFolder:= Folder;
+
+  if fMovingToOtherTree then
+     SourceFolder.TreeUI.fLastNodeSelected:= nil;    // To avoid a possible exception in TKntFolder.NodeSelected when trying to add the location of the previous node to history
 
   for i := 0 to High(fSourceTVSelectedNodes) do begin
      SourceNode:= fSourceTVSelectedNodes[i];
@@ -5001,6 +5009,22 @@ end;
 function TVirtualStringTreeHelper.IsVerticalScrollBarVisible: boolean;
 begin
    Result:= inherited RangeY > ClientHeight;
+end;
+
+
+function TVirtualStringTreeHelper.NodeBelongsToTree(ANode: PVirtualNode): Boolean;
+begin
+  Result := False;
+  if ANode = nil then Exit;
+
+  try
+    // If the node belongs to the tree, GetNodeLevel should not fail
+    GetNodeLevel(ANode);
+    Result := True;
+  except
+    // If it throws an exception, the node does not belong to this tree
+    Result := False;
+  end;
 end;
 
 

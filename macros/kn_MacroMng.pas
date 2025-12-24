@@ -488,7 +488,7 @@ begin
     except
       on E : Exception do begin
         App.ShowInfoInStatusBar(GetRS(sMacM13));
-        App.ErrorPopup( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ));
+        App.ErrorPopup( Format(GetRS(sMacM14), [ActiveMacro.Name,E.Message] ), E);
         ActiveMacro.Free;
       end;
     end;
@@ -2334,6 +2334,39 @@ begin
               SelText := FormatDateTime( KeyOptions.TimeFmt, now ) + #32;
             SelStart := SelStart + SelLength;
           end;
+
+          ecInsLine: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFLine(Editor);
+                SelStart:= SelStartOrig + 5;
+             end;
+          end;
+
+          ecInsPrintLine: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFPrintableLine(Editor);
+                SelStart:= SelStartOrig + 5;
+             end;
+          end;
+
+          ecInsTable: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFTable(Editor,False);
+                SelStart:= SelStartOrig;
+             end;
+          end;
+
+          ecInsPrintTable: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFTable(Editor,True);
+                SelStart:= SelStartOrig;
+             end;
+          end;
+
 
           ecExpandTerm :
             ExpandTermProc;

@@ -282,6 +282,7 @@ const
    sEdt48 = 54526;   //  Clipboard capture done
    sEdt49 = 54527;   // Print all nodes in folder?\^\^0: Only selected node\^1: All, contiguous\^2: All, starting on new page 
    sEdt50 = 54496;   // CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message:
+   sEdt51 = 55129;   // Insert basic Table with R rows and C columns
 
    sExp01 = 54274;   // Error while importing HTML text:
    sExp02 = 54275;   // Error while exporting to HTML (method=

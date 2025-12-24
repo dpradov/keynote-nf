@@ -237,6 +237,8 @@ begin
   if ShowOnlyIfNewVersionToNotify and (KeyOptions.VersionLastChecked >= Today()) then
      exit;
 
+  Log_StoreTick('CheckForUpdate - BEGIN', 1, +1);
+
   LastInformedVersion:= '';
   if ShowOnlyIfNewVersionToNotify then
      LastInformedVersion:= KeyOptions.LastInformedVersion;
@@ -268,13 +270,15 @@ begin
         KeyOptions.LastInformedVersion:= CurrentVersion;
         KeyOptions.VersionLastChecked := Today();
 
+        Log_StoreTick('CheckForUpdate - END', 1, -1);
+
      finally
        FreeAndNil(UV);
      end;
 
   except
     On E : Exception do
-      App.ErrorPopup( E.Message);
+      App.ErrorPopup( E);
   end;
 end;
 

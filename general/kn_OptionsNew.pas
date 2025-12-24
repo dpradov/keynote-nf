@@ -317,6 +317,7 @@ type
     txtSepInLists: TEdit;
     lblTab: TLabel;
     lbl2: TLabel;
+    CB_LineEdWidth: TCheckBox;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -1132,6 +1133,7 @@ begin
     PlainDefaultPaste := CB_PlainDefaultPaste.Checked;
     CtrlUpDownMode:= TCtrlUpDownMode(cbCtrlUpDownMode.ItemIndex);
     BulletSepFactor:= StrToFloatDef( txtSepInLists.Text, 5.7);
+    LineWidthEditor:= CB_LineEdWidth.Checked;
   end;
 
   with myTreeOptions do
@@ -1390,6 +1392,7 @@ begin
     CB_PlainDefaultPaste.Checked := PlainDefaultPaste;
     cbCtrlUpDownMode.ItemIndex:= Ord(CtrlUpDownMode);
     txtSepInLists.Text:=  BulletSepFactor.ToString(ffGeneral,3,2);
+    CB_LineEdWidth.Checked:= LineWidthEditor;
   end;
 
   with myTreeOptions do

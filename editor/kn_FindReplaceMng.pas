@@ -291,7 +291,7 @@ begin
 
   except
      on E : Exception do
-        App.ErrorPopup(E.Message);
+        App.ErrorPopup(E);
   end;
 
 end;
@@ -2963,7 +2963,7 @@ begin
 
     except
       on E : Exception do
-         App.ErrorPopup(E.Message);
+         App.ErrorPopup(E);
     end;
 
   finally
