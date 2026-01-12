@@ -2335,6 +2335,39 @@ begin
             SelStart := SelStart + SelLength;
           end;
 
+          ecInsLine: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFLine(Editor);
+                SelStart:= SelStartOrig + 5;
+             end;
+          end;
+
+          ecInsPrintLine: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFPrintableLine(Editor);
+                SelStart:= SelStartOrig + 5;
+             end;
+          end;
+
+          ecInsTable: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFTable(Editor,False);
+                SelStart:= SelStartOrig;
+             end;
+          end;
+
+          ecInsPrintTable: begin
+             if (Editor.SupportsImages) then begin
+                SelStartOrig:= SelStart;
+                RtfSelText:= GetRTFTable(Editor,True);
+                SelStart:= SelStartOrig;
+             end;
+          end;
+
+
           ecExpandTerm :
             ExpandTermProc;
 

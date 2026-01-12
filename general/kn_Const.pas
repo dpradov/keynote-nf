@@ -21,6 +21,7 @@ uses
    Winapi.Windows,
    Winapi.ShellAPI,
    Winapi.Messages,
+   System.SysUtils,
    System.Zip,
    Vcl.Graphics,
    ZLibEx,
@@ -32,9 +33,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.3 .01';
-  Program_Version_Number  = '2.1.3.1';
-  Program_Version_Date    = '10/11/2025';
+  Program_Version  = '2.1.4 .01';
+  Program_Version_Number  = '2.1.4.1';
+  Program_Version_Date    = '24/12/2025';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -329,6 +330,8 @@ const
   _COMPACT_DATETIME_TOFILE = 'ddMMyyHHmm';
 
   _CRLF          = #13#10;
+  _CRLF_BYTES: TBytes = [$0D, $0A];
+
 
 
 const
@@ -613,6 +616,8 @@ const
 
   DEFAULT_USE_ON_EXPAND_OPENING = '(➖)';  // '«:';
   DEFAULT_USE_ON_EXPAND_CLOSING = '(□)';   // ':»';
+
+  KNT_AUX_MARK     = Chr(16)+'K'+ Chr(16) + 'nT' + Chr(16);                 // 16 ($10): DLE: Data Link Escape
 
 
   EMPTY_TAGS = '#';

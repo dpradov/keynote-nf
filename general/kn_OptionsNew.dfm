@@ -49,14 +49,13 @@ object Form_OptionsNew: TForm_OptionsNew
     Top = 6
     Width = 385
     Height = 377
-    PageIndex = 2
+    PageIndex = 1
     TabOrder = 1
     object PG_Interface: TPage
       Left = 0
       Top = 0
       HelpContext = 88
       Caption = 'PG_Interface'
-      ExplicitWidth = 364
       object GroupBox_General1: TGroupBox
         Left = 5
         Top = 5
@@ -221,7 +220,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 89
       Caption = 'PG_Editor'
-      ExplicitWidth = 364
       object GroupBox_RTFEdit1: TGroupBox
         Left = 5
         Top = 5
@@ -243,7 +241,7 @@ object Form_OptionsNew: TForm_OptionsNew
         TabOrder = 0
         object Label34: TLabel
           Left = 12
-          Top = 168
+          Top = 180
           Width = 349
           Height = 25
           AutoSize = False
@@ -253,7 +251,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_WordSelect: TCheckBox
           Left = 10
-          Top = 26
+          Top = 23
           Width = 360
           Height = 17
           Hint = 'Double-click select whole word'
@@ -262,7 +260,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_SaveCaretPos: TCheckBox
           Left = 10
-          Top = 91
+          Top = 88
           Width = 360
           Height = 17
           Hint = 'Restore caret positions in notes when the file is opened'
@@ -271,7 +269,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_TrackCaretPos: TCheckBox
           Left = 10
-          Top = 51
+          Top = 48
           Width = 360
           Height = 17
           Hint = 'Display cursor row and column in status bar'
@@ -281,7 +279,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_AutoIndent: TCheckBox
           Left = 10
-          Top = 118
+          Top = 112
           Width = 360
           Height = 17
           Hint = 'Indent new line to match previous'
@@ -290,7 +288,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_TrackWordCount: TCheckBox
           Left = 10
-          Top = 71
+          Top = 68
           Width = 360
           Height = 17
           Hint = 'Display word and page counts in status bar'
@@ -300,7 +298,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_InheritBGColor: TCheckBox
           Left = 10
-          Top = 140
+          Top = 133
           Width = 360
           Height = 17
           Hint = 
@@ -311,7 +309,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object cbCtrlUpDownMode: TComboBox
           Left = 12
-          Top = 187
+          Top = 199
           Width = 349
           Height = 21
           Style = csDropDownList
@@ -321,18 +319,29 @@ object Form_OptionsNew: TForm_OptionsNew
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          TabOrder = 7
+        end
+        object CB_LineEdWidth: TCheckBox
+          Left = 10
+          Top = 156
+          Width = 360
+          Height = 17
+          Hint = 
+            'If not selected, the line width will be set to a very high value' +
+            '.'
+          Caption = 'Insert | Line: Limit to editor width on creation'
           TabOrder = 6
         end
       end
       object GroupBox_RTFEdit2: TGroupBox
         Left = 5
-        Top = 220
+        Top = 230
         Width = 374
-        Height = 149
+        Height = 137
         TabOrder = 1
         object Label12: TLabel
           Left = 12
-          Top = 98
+          Top = 90
           Width = 260
           Height = 13
           AutoSize = False
@@ -341,7 +350,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label11: TLabel
           Left = 12
-          Top = 70
+          Top = 64
           Width = 260
           Height = 13
           AutoSize = False
@@ -350,7 +359,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label1: TLabel
           Left = 12
-          Top = 42
+          Top = 39
           Width = 260
           Height = 13
           AutoSize = False
@@ -359,7 +368,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label_UndoLimit: TLabel
           Left = 12
-          Top = 13
+          Top = 14
           Width = 260
           Height = 12
           AutoSize = False
@@ -368,7 +377,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object lbl1: TLabel
           Left = 12
-          Top = 126
+          Top = 116
           Width = 260
           Height = 13
           AutoSize = False
@@ -377,7 +386,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_UndoLimit: TSpinEdit
           Left = 281
-          Top = 10
+          Top = 11
           Width = 56
           Height = 22
           Hint = 'Number of editing operations that can be undone'
@@ -389,7 +398,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_IndentInc: TSpinEdit
           Left = 281
-          Top = 39
+          Top = 36
           Width = 56
           Height = 22
           Hint = 'Increment line indents by this value'
@@ -401,7 +410,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_FontSizeInc: TSpinEdit
           Left = 281
-          Top = 67
+          Top = 61
           Width = 56
           Height = 22
           Hint = 'Increment font size by this value'
@@ -413,7 +422,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Spin_ParaSpaceInc: TSpinEdit
           Left = 281
-          Top = 95
+          Top = 87
           Width = 56
           Height = 22
           Hint = 'Increment "space before/after paragraph" by this value'
@@ -425,7 +434,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object txtSepInLists: TEdit
           Left = 281
-          Top = 122
+          Top = 112
           Width = 56
           Height = 21
           Hint = 
@@ -441,7 +450,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 90
       Caption = 'PG_Images'
-      ExplicitWidth = 364
       object GroupBox_Images: TGroupBox
         Left = 5
         Top = 5
@@ -528,9 +536,9 @@ object Form_OptionsNew: TForm_OptionsNew
           WordWrap = True
         end
         object Label32: TLabel
-          Left = 16
+          Left = 157
           Top = 69
-          Width = 345
+          Width = 204
           Height = 13
           Alignment = taRightJustify
           Caption = '  Changes to current file:  File | Properties '
@@ -786,7 +794,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 91
       Caption = 'PG_Tree'
-      ExplicitWidth = 364
       object GBox_TreeGlobal: TGroupBox
         Left = 5
         Top = 5
@@ -926,7 +933,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 92
       Caption = 'PG_KNTFiles'
-      ExplicitWidth = 364
       object GroupBox_Files1: TGroupBox
         Left = 5
         Top = 5
@@ -1069,7 +1075,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 93
       Caption = 'PG_FileOptions'
-      ExplicitWidth = 364
       object GroupBox_FileOpt1: TGroupBox
         Left = 5
         Top = 5
@@ -1211,7 +1216,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 94
       Caption = 'PG_BackupOptions'
-      ExplicitWidth = 364
       object GroupBox_Back: TGroupBox
         Left = 4
         Top = 3
@@ -1380,7 +1384,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 95
       Caption = 'PG_Actions'
-      ExplicitWidth = 364
       object GroupBox_Actions1: TGroupBox
         Left = 5
         Top = 5
@@ -1571,7 +1574,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 96
       Caption = 'PG_Confirmations'
-      ExplicitWidth = 364
       object GroupBox_Conf: TGroupBox
         Left = 5
         Top = 5
@@ -1687,7 +1689,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 97
       Caption = 'PG_Chrome'
-      ExplicitWidth = 364
       object GroupBox_Chrome2: TGroupBox
         Left = 5
         Top = 184
@@ -1714,8 +1715,8 @@ object Form_OptionsNew: TForm_OptionsNew
         object lblTab: TLabel
           Left = 15
           Top = 162
-          Width = 356
-          Height = 20
+          Width = 217
+          Height = 13
           Caption = '(*) : Will take effect after restarting KeyNote'
         end
         object lbl2: TLabel
@@ -1851,7 +1852,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 98
       Caption = 'PG_Icons'
-      ExplicitWidth = 364
       object GroupBox_TabIcons: TGroupBox
         Left = 5
         Top = 5
@@ -1928,7 +1928,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 99
       Caption = 'PG_Advanced'
-      ExplicitWidth = 364
       object GroupBox_Adv: TGroupBox
         Left = 5
         Top = 5
@@ -1945,7 +1944,7 @@ object Form_OptionsNew: TForm_OptionsNew
         object Label16: TLabel
           Left = 12
           Top = 334
-          Width = 361
+          Width = 292
           Height = 13
           Caption = 'Settings marked (*) will take effect after restarting KeyNote.'
         end
@@ -2056,7 +2055,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 100
       Caption = 'PG_Formats'
-      ExplicitWidth = 364
       object GroupBox_Formats1: TGroupBox
         Left = 5
         Top = 5
@@ -2157,7 +2155,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 101
       Caption = 'PG_ClipCap'
-      ExplicitWidth = 364
       object Label_PlainTextMode: TLabel
         Left = 8
         Top = 348
@@ -2183,15 +2180,15 @@ object Form_OptionsNew: TForm_OptionsNew
         object Label7: TLabel
           Left = 11
           Top = 24
-          Width = 60
+          Width = 37
           Height = 13
           Caption = 'Divider:'
           FocusControl = Combo_ClipNodeNaming
         end
         object Label_MaxSize: TLabel
-          Left = 184
+          Left = 200
           Top = 228
-          Width = 75
+          Width = 59
           Height = 13
           Alignment = taRightJustify
           Caption = '&Limit size to:'
@@ -2394,7 +2391,7 @@ object Form_OptionsNew: TForm_OptionsNew
         object Label19: TLabel
           Left = 9
           Top = 23
-          Width = 65
+          Width = 54
           Height = 13
           Caption = 'Divider (*):'
           FocusControl = Combo_ClipNodeNaming
@@ -2451,7 +2448,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 102
       Caption = 'PG_FileTypes'
-      ExplicitWidth = 364
       object GroupBox_FileTypes: TGroupBox
         Left = 5
         Top = 5
@@ -2520,7 +2516,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 253
       Caption = 'PG_FoldedBl'
-      ExplicitWidth = 364
       object GroupBox_FoldingBl: TGroupBox
         Left = 5
         Top = 5
@@ -2601,7 +2596,6 @@ object Form_OptionsNew: TForm_OptionsNew
       Top = 0
       HelpContext = 103
       Caption = 'PG_Language'
-      ExplicitWidth = 364
       object GroupBox_Other1: TGroupBox
         Left = 5
         Top = 5

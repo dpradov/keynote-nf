@@ -51,6 +51,7 @@ type
      function GetNextNotChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
      function IsVerticalScrollBarVisible: boolean;
+     function NodeBelongsToTree(ANode: PVirtualNode): Boolean;
    end;
 
 
@@ -3385,6 +3386,9 @@ begin
   fMovingToOtherTree:= (SourceTV <> TV);
   fTargetFolder:= Folder;
 
+  if fMovingToOtherTree then
+     SourceFolder.TreeUI.fLastNodeSelected:= nil;    // To avoid a possible exception in TKntFolder.NodeSelected when trying to add the location of the previous node to history
+
   for i := 0 to High(fSourceTVSelectedNodes) do begin
      SourceNode:= fSourceTVSelectedNodes[i];
      SourceTV.MoveTo(SourceNode, TargetNode, AttachMode, False);
@@ -5011,6 +5015,22 @@ end;
 function TVirtualStringTreeHelper.IsVerticalScrollBarVisible: boolean;
 begin
    Result:= inherited RangeY > ClientHeight;
+end;
+
+
+function TVirtualStringTreeHelper.NodeBelongsToTree(ANode: PVirtualNode): Boolean;
+begin
+  Result := False;
+  if ANode = nil then Exit;
+
+  try
+    // If the node belongs to the tree, GetNodeLevel should not fail
+    GetNodeLevel(ANode);
+    Result := True;
+  except
+    // If it throws an exception, the node does not belong to this tree
+    Result := False;
+  end;
 end;
 
 

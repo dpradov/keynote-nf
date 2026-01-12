@@ -829,17 +829,48 @@ begin
 end;
 
 
+var
+  _isSBCS: Integer = -1; // -1 = not verified, 0 = MBCS, 1 = SBCS
+
 function CanSaveAsANSI(const cad: string): boolean;
 var
-   ch: Char;
+  cpACP: UINT;
+  cpInfo: TCPInfo;
+  i: Integer;
+  lenRequired: Integer;
+  defaultCharUsed: BOOL;
 begin
-  for ch in cad do
-    if Ord (ch) >= 256 then begin
-       Result:= false;
-       exit;
-     end;
+  if cad = '' then begin
+    Result := True;
+    Exit;
+  end;
 
-   Result:= true;
+  if _isSBCS = -1 then begin                        // Check codepage type only the first time
+    cpACP := TEncoding.Default.CodePage;
+    if GetCPInfo(cpACP, cpInfo) then
+      _isSBCS := Integer(cpInfo.MaxCharSize = 1)
+    else
+      _isSBCS := 0;                                 // For safety, assume MBCS if it fails
+  end;
+
+  if _isSBCS = 1 then begin
+    // Quick method for SBCS
+    Result := True;
+    for i := 1 to Length(cad) do begin
+       if Ord(cad[i]) >= 256 then begin
+         Result := False;
+         Exit;
+       end;
+    end;
+  end
+  else begin
+    // Robust method for MBCS
+    cpACP := TEncoding.Default.CodePage;
+    defaultCharUsed := False;
+    lenRequired := WideCharToMultiByte(cpACP, WC_NO_BEST_FIT_CHARS,
+                                       PWideChar(cad), Length(cad),  nil, 0, nil, @defaultCharUsed);
+    Result := (lenRequired > 0) and not defaultCharUsed;
+  end;
 end;
 
 

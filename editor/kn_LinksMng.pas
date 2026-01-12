@@ -72,7 +72,8 @@ type
     function BuildKntURL( const aLocation : TLocation) : string;
     function BuildLocationFromKntURL( KntURL : string): TLocation;
     function GetTextURLFromKntLocation (Loc : TLocation; RelativePath: boolean = false): string;
-    function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): AnsiString;
+    function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; FolderIDs: array of TMergeFolders;
+                                         var GIDsNotConverted: integer): AnsiString;
     function BuildBookmark09FromString( KntURL : AnsiString ): TLocation;
     procedure JumpToKNTLocation( LocationStr : string; myURLAction: TURLAction = urlOpen; OpenInCurrentFile: boolean= false);
     function JumpToLocation( Location: TLocation; IgnoreOtherFiles: boolean = true; AdjustVisiblePosition: boolean = true;
@@ -2489,7 +2490,8 @@ end; // Insert URL
 
 
 
-function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): AnsiString;
+function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; FolderIDs: array of TMergeFolders;
+                                    var GIDsNotConverted: integer): AnsiString;
 const
    KntLINK_PREFIX_2 = 'file:///*';
    KntLINK_PREFIX_1 = '"' + KntLINK_PREFIX_2;
@@ -2506,12 +2508,26 @@ var
   i, L: integer;
 
 
+  function GetNewFolderID(FolderID: Cardinal): Cardinal;
+   var
+     i: integer;
+  begin
+    Result:= 0;
+    for i := 0 to High(FolderIDs) do
+       if FolderID = FolderIDs[i].oldID then begin
+          Result := FolderIDs[i].newID;
+          exit;
+       end;
+  end;
+
   function RTFLinkToNewFormat(Buffer: Pointer; LinkOffset: integer; var PosLinkEnd: integer): string;
   var
     pf, pIni, i: integer;
     RTF: PAnsiChar;
     Location: TLocation;
     Link: AnsiString;
+    NNode: TNoteNode;
+    NewFolderID: Cardinal;
 
   begin
     Result:= '';
@@ -2538,17 +2554,33 @@ var
 
         Link:= Copy(RTF, pIni +i, PosLinkEnd-pIni-1 -i);
         Location:= BuildLocationFromKntURL(Link);
-        if assigned(NoteGIDs) and (Location.NNodeGID <> 0 ) then begin
-            Location.NNodeGID:= NoteGIDs.GetNewGID(Location.NNodeGID);
-            if Location.NNodeGID = NoteGID_NotConverted then
-               inc(GIDsNotConverted);
-        end;
-
         try
-           if Location <> nil then begin
-              Result:= '"' + BuildKNTURL(Location) + '"}}';
-              Result:= Copy(RTF, 1+LinkOffset, pIni - LinkOffset-1) + Result;
-           end;
+          if Location = nil then exit;
+
+          if assigned(NoteGIDs) then begin
+             if (Location.NNodeGID <> 0 ) then begin
+                 Location.NNodeGID:= NoteGIDs.GetNewGID(Location.NNodeGID);
+                 if Location.NNodeGID = NoteGID_NotConverted then
+                    inc(GIDsNotConverted);
+             end
+             else begin
+                 NewFolderID := GetNewFolderID(Location.FolderID);
+                 if NewFolderID > 0 then begin
+                    Location.FolderID:= NewFolderID;
+                    Location.Folder:= ActiveFile.GetFolderByID (NewFolderID);
+                 end;
+             end;
+          end;
+
+          if (Location.NNodeGID = 0) and (Location.Folder <> nil) then begin
+             NNode:= Location.Folder.GetNNodeByID(Location.NNodeID);
+             if NNode <> nil then
+                Location.NNodeGID:= NNode.GID;
+          end;
+
+          Result:= '"' + BuildKNTURL(Location) + '"}}';
+          Result:= Copy(RTF, 1+LinkOffset, pIni - LinkOffset-1) + Result;
+
         finally
            if Location <> nil then
               Location.Free;

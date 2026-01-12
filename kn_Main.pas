@@ -925,6 +925,8 @@ type
     TagsMExport: TMenuItem;
     TagsMImport: TMenuItem;
     RTFMExpand: TMenuItem;
+    MMInsertLine: TMenuItem;
+    MMInsertTable: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1351,6 +1353,8 @@ type
     procedure TagsMImportClick(Sender: TObject);
     procedure RTFMExpandClick(Sender: TObject);
     procedure Pages_ResEnter(Sender: TObject);
+    procedure MMInsertLineClick(Sender: TObject);
+    procedure MMInsertTableClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -3126,6 +3130,15 @@ begin
           ShortCutItem := Menu.FindItem(ShortCut - scCtrl, fkShortCut);
           if ShortCutItem = MMViewTree then begin
              MMViewTreeClick(nil);
+             Handled:= true;
+          end;
+      end;
+
+      if (not Handled) and (ActiveEditor <> nil) and (ActiveEditor.SupportsImages) then begin
+          // Check if the keys combination, without Shift, is a shortcut to MMInsertLine
+          ShortCutItem := Menu.FindItem(ShortCut - scShift, fkShortCut);
+          if (ShortCutItem = MMInsertLine) then begin
+             MMInsertLineClick(nil);
              Handled:= true;
           end;
       end;
@@ -5072,6 +5085,41 @@ procedure TForm_Main.MMInsertURLClick(Sender: TObject);
 begin
   InsertURL('', '', ActiveEditor);   // Ask the user
 end; // Insert URL
+
+procedure TForm_Main.MMInsertLineClick(Sender: TObject);
+begin
+  if ShiftDown then
+     PerformCmd( ecInsPrintLine )
+  else
+     PerformCmd( ecInsLine );
+end;
+
+procedure TForm_Main.MMInsertTableClick(Sender: TObject);
+var
+  RowsAndCols: string;
+  p, R,C: integer;
+  Printable: boolean;
+begin
+  R:= 0;
+  Printable:= ShiftDown;
+
+  if InputQuery( GetRS(sEdt51), 'R,C:', RowsAndCols ) then begin
+     RowsAndCols:= RowsAndCols.Trim;
+     p:= Pos(',', RowsAndCols);
+     R:= StrToIntDef(Copy(RowsAndCols,1,p-1), 0);
+     C:= StrToIntDef(Copy(RowsAndCols,p+1), 0);
+  end;
+  if (R = 0) or (C=0) then
+     exit;
+
+  LastInsertTable_NRows:= R;
+  LastInsertTable_NCols:= C;
+
+  if Printable then
+     PerformCmd( ecInsPrintTable )
+  else
+     PerformCmd( ecInsTable );
+end;
 
 
 procedure TForm_Main.MMInsertLinkToFileClick(Sender: TObject);
@@ -8371,6 +8419,8 @@ begin
 
     MMInsertPicture.Enabled:= RTFandEnabled;
     MMInsertObject.Enabled:= RTFandEnabled;
+    MMInsertLine.Enabled:= RTFandEnabled;
+    MMInsertTable.Enabled:= RTFandEnabled;
 
     RTFMPlainText.Checked:= not SupportsRTF;
     RTFMPlainText.Enabled:= EditEnabled;
@@ -8405,13 +8455,12 @@ end;
 procedure TForm_Main.EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
 var
   i: integer;
-
+  EnableInsertImg: boolean;
 begin
     for i := 0 to Toolbar_Format.ControlCount - 1 do begin
        with Toolbar_Format.Controls[i] do begin
           if (Copy(Name,1,5) = 'TB_Go') then continue;
-          if ReadOnly then
-             Enabled:= false
+          Enabled:= false;
        end;
     end;
 
@@ -8435,6 +8484,11 @@ begin
        MMFormatHighlight.Enabled:= true;
        MMFormatNoHighlight.Enabled:= true;
     end;
+    EnableInsertImg:= (ActiveEditor <> nil) and (ActiveEditor.SupportsImages) and (not ActiveEditor.ReadOnly);
+    MMInsertPicture.Enabled:= EnableInsertImg;
+    MMInsertObject.Enabled:= EnableInsertImg;
+    MMInsertLine.Enabled:= EnableInsertImg;
+    MMInsertTable.Enabled:= EnableInsertImg;
 
     ShowNodeChromeState (TreeUI);
 end;
