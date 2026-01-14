@@ -2967,13 +2967,11 @@ begin
    end;
 
    if Loaded then begin
-      if (Node.CheckType = ctCheckBox) then begin
-         NNode:= GetNNode(Node);
-         if nnsSaved_Checked in NNode.States then
-            Node.CheckState := csCheckedNormal
-         else
-            Node.CheckState := csUncheckedNormal;
-      end;
+      NNode:= GetNNode(Node);
+      if nnsSaved_Checked in NNode.States then
+         Node.CheckState := csCheckedNormal
+      else
+         Node.CheckState := csUncheckedNormal;
    end
    else begin
       // This NNode can be the result of a copy or move operation from other tree. The source node could be filtered.
