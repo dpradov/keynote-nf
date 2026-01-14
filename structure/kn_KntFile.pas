@@ -62,6 +62,7 @@ type
 
 type
   TBookmarks = array[0..MAX_BOOKMARKS] of TLocation;
+  THash = array[0..31] of byte;
 
 type
   TKntFile = class( TObject )
@@ -184,6 +185,7 @@ type
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
     function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
+    procedure CalculatePassphraseHashes (var EncryptionKey, VerificationHash : THash);
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
   private
@@ -3282,10 +3284,32 @@ begin
 end;
 
 
-procedure TKntFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
+procedure TKntFile.CalculatePassphraseHashes (var EncryptionKey, VerificationHash : THash);
 var
   Hash : TDCP_sha1;
-  HashDigest : array[0..31] of byte;
+begin
+   FillChar(EncryptionKey,    Sizeof( EncryptionKey ), $FF );
+   FillChar(VerificationHash, Sizeof( VerificationHash ), $FF );
+
+   Hash:= TDCP_sha1.Create( nil );
+   try
+     Hash.Init;
+     Hash.UpdateStr( FPassphrase + 'ENCRYPT_KEY_SALT');
+     Hash.Final( EncryptionKey );
+
+     Hash.Init;
+     Hash.UpdateStr( FPassphrase + 'VERIF_KEY_SALT');
+     Hash.Final( VerificationHash );
+
+   finally
+     Hash.Free;
+   end;
+end;
+
+
+procedure TKntFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
+var
+  EncryptionKey, VerificationHash : THash;
   Encrypt : TDCP_blockcipher;
   savefile : file;
   Info : TEncryptedFileInfo;
@@ -3324,27 +3348,16 @@ begin
   end;
 
   try
-    FillChar(HashDigest,Sizeof( HashDigest ), $FF );
-    Hash:= TDCP_sha1.Create( nil );
-    try
-      Hash.Init;
-      Hash.UpdateStr( FPassphrase );
-      Hash.Final( HashDigest );
-    finally
-      Hash.Free;
-    end;
+    CalculatePassphraseHashes (EncryptionKey, VerificationHash);
 
-    Encrypt.Init( HashDigest, Sizeof( HashDigest )*8, nil );
-    Encrypt.EncryptCBC( HashDigest, HashDigest, Sizeof( HashDigest ));
-    Encrypt.Reset;
-
-    wordsize := sizeof( HashDigest );
+    wordsize := sizeof( VerificationHash );
     F.WriteBuffer(wordSize, sizeof(wordsize));
-    F.WriteBuffer(HashDigest, sizeof(HashDigest));
+    F.WriteBuffer(VerificationHash, sizeof(VerificationHash));
 
     getmem( dataptr, streamsize );
 
     try
+      Encrypt.Init( EncryptionKey, Sizeof( EncryptionKey )*8, nil );
       Encrypt.EncryptCBC( cryptstream.memory^, dataptr^, streamsize );
       F.WriteBuffer(dataptr^, streamsize );
 
@@ -3370,8 +3383,7 @@ end;
 
 procedure TKntFile.DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
 var
-  Hash: TDCP_sha1;
-  HashDigest, HashRead: array[0..31] of byte;
+  EncryptionKey, VerificationHash, HashRead : THash;
   Decrypt: TDCP_blockcipher;
   readfile: TFileStream;
   Info : TEncryptedFileInfo;
@@ -3405,26 +3417,14 @@ begin
 
     try
 
-      FillChar( HashDigest, Sizeof( HashDigest ), $FF );
-      Hash:= TDCP_sha1.Create( nil );
-      try
-        Hash.Init;
-        Hash.UpdateStr( FPassphrase );
-        Hash.Final( HashDigest );
-      finally
-        Hash.Free;
-      end;
-
-      Decrypt.Init( HashDigest, Sizeof( HashDigest )*8, nil );
-      Decrypt.EncryptCBC( HashDigest, HashDigest, Sizeof( HashDigest ));
-      Decrypt.Reset;
+      CalculatePassphraseHashes (EncryptionKey, VerificationHash);
 
       readfile.Read(array32bits, sizeof(array32bits));
       chunksize := integer( array32bits );
       sizeread:= readfile.Read(HashRead, chunksize);
       if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
-      if ( not CompareMem( @HashRead, @HashDigest, Sizeof( HashRead ))) then
+      if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then
         raise EPassphraseError.Create( GetRS(sFile16) );
 
       getmem( dataptr, Info.DataSize );
@@ -3433,6 +3433,7 @@ begin
         sizeread:= readfile.Read(dataptr^, Info.DataSize);
         if ( sizeread <> Info.DataSize ) then RaiseStreamReadError;
 
+        Decrypt.Init( EncryptionKey, Sizeof( EncryptionKey )*8, nil );
         Decrypt.DecryptCBC( dataptr^, dataptr^, Info.DataSize );
 
         CryptStream.Position := 0;
