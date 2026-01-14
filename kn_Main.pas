@@ -2492,7 +2492,15 @@ procedure TForm_Main.Fix_DoNotLoseScrollPosInEditor;
 begin
    ActiveControl:= nil;
    Application.ProcessMessages;
-   ActiveControl:= ActiveEditor;
+   try
+      if not ActiveEditor.CanFocus then begin
+         Sleep(100);
+         Application.ProcessMessages;
+      end;
+      ActiveControl:= ActiveEditor;
+   except
+   end;
+
 end;
 
 
