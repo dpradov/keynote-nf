@@ -186,6 +186,7 @@ type
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
     function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
     procedure CalculatePassphraseHashes (var EncryptionKey, VerificationHash : THash);
+    procedure CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
   private
@@ -3306,6 +3307,27 @@ begin
    end;
 end;
 
+procedure TKntFile.CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
+var
+  Hash : TDCP_sha1;
+begin
+   FillChar(EncryptionKey,  Sizeof(EncryptionKey), $FF );
+
+   Hash:= TDCP_sha1.Create( nil );
+   try
+     Hash.Init;
+     Hash.UpdateStr(FPassphrase);
+     Hash.Final( EncryptionKey );
+
+   finally
+     Hash.Free;
+   end;
+
+   Decrypt.Init( EncryptionKey, Sizeof( EncryptionKey )*8, nil );
+   Decrypt.EncryptCBC( EncryptionKey, EncryptionKey, Sizeof(EncryptionKey));
+   Decrypt.Reset;
+end;
+
 
 procedure TKntFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
 var
@@ -3424,8 +3446,15 @@ begin
       sizeread:= readfile.Read(HashRead, chunksize);
       if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
-      if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then
-        raise EPassphraseError.Create( GetRS(sFile16) );
+      if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then begin
+        // We'll check if the hash works with the previous (weaker, see issue #545) mechanism, and if so, we'll use it.
+        // Once the file is saved, it will be saved using the new mechanism.
+        CalculateOldPassphraseHash(Decrypt, VerificationHash);                       // *1(b)
+        if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then
+           raise EPassphraseError.Create( GetRS(sFile16) );
+      end
+      else
+         Decrypt.Init( EncryptionKey, Sizeof( EncryptionKey )*8, nil );              // *1(a)
 
       getmem( dataptr, Info.DataSize );
 
@@ -3433,7 +3462,15 @@ begin
         sizeread:= readfile.Read(dataptr^, Info.DataSize);
         if ( sizeread <> Info.DataSize ) then RaiseStreamReadError;
 
-        Decrypt.Init( EncryptionKey, Sizeof( EncryptionKey )*8, nil );
+        { *1:
+         Decryption depends on the Hash value set in Decrypt.Init.
+         If the file was encrypted with the new mechanism (2.15+), we will have set it in *1(a), using 'EncryptionKey'.
+         If it uses the previous mechanism, it will already have been set in *1(b) using CalculateOldPassphraseHash,
+           since it was necessary to encrypt the Hash itself, as that encrypted value was saved to disk.
+         That is, the value saved to disk is not used (in either the new nor the previous mechanism)
+         to encrypt or decrypt the file.
+         }
+
         Decrypt.DecryptCBC( dataptr^, dataptr^, Info.DataSize );
 
         CryptStream.Position := 0;

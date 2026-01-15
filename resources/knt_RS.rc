@@ -185,7 +185,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 54372,  "Cannot open \"%s\": File not found"
 54373,  "Invalid file header in \"%s\" (not a KeyNote file)"
 54374,  "Access passphrase not specified: cannot open encrypted file."
-54375,  "The passphrase is invalid. Try again?\n\n(If it was encrypted with a version < 2.1.5, see issue #545)"
+54375,  "The passphrase is invalid. Try again?"
 54376,  "%s: This file was created with a version of KeyNote later than the version you are using. Expected version ID: \"%s.%s\" This file version ID: \"%s.%s\"  You need the latest version of KeyNote to open this file."
 54377,  ": This file was created with a version of KeyNote newer than the version you are using. The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. Would you like to open the file as Read-Only?"
 54378,  "%s: Invalid file header or version, or corrupt file."

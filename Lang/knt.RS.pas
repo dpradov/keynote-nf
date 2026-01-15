@@ -328,7 +328,7 @@ const
    sFile01 = 54372;   // Cannot open "%s": File not found
    sFile02 = 54373;   // Invalid file header in "%s" (not a KeyNote file)
    sFile03 = 54374;   // Access passphrase not specified: cannot open encrypted file.
-   sFile04 = 54375;   // The passphrase is invalid. Try again?\^(If encrypted with version < 2.1.5 see issue #545)
+   sFile04 = 54375;   // The passphrase is invalid. Try again?
    sFile05 = 54376;   // %s: This file was created with a version of KeyNote later than the version you are using. Expected version ID: "%s.%s" This file version ID: "%s.%s"  You need the latest version of KeyNote to open this file.
    sFile06 = 54377;   // : This file was created with a version of KeyNote newer than the version you are using. The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. Would you like to open the file as Read-Only?
    sFile07 = 54378;   // %s: Invalid file header or version, or corrupt file.
