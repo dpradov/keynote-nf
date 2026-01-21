@@ -346,6 +346,7 @@ const
    sFile22 = 54358;   // OK to remove date from note name?\^
    sFile23 = 54359;   // All (or selected) nodes will be considered
    sFile24 = 54360;   // \^\^Please read the help file before proceeding. Search for "Deduce Dates"
+   sFile25 = 55130;   // The key transformation took %u ms
 
    sFileM01 = 54361;   // Cannot create a new file:
    sFileM02 = 54362;   //  New KNT file created.

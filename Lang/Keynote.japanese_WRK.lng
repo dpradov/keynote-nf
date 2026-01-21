@@ -453,6 +453,10 @@ Pages.Tab_Pass.GroupBox2.Button_SetPass.Hint=クリックすると暗号化さ�
 Pages.Tab_Pass.GroupBox2.Button_SetPass.Caption=パスフレーズの設定(&S)
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Hint=アスタリスクを使ったわかりにくいパスフレーズ
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Caption=入力中にパスフレーズを非表示にする(&H)
+(!)Pages.Tab_Pass.GroupBox2.lblKeyTr.Caption=Key Transformation
+(!)Pages.Tab_Pass.GroupBox2.lblIter.Caption=Iterations:
+(!)Pages.Tab_Pass.GroupBox2.btnTestIter.Caption=Test
+(!)Pages.Tab_Pass.GroupBox2.btnTestIter.Hint=Verify the time needed to derive the key from the passphrase
 Button_System.Hint=システムファイルプロパティダイアログボックスを表示
 Button_System.Caption=システム(&Y)...
 Button_Help.Caption=ヘルプ(&H)
@@ -2824,5 +2828,6 @@ Button_OK.Caption=閉じる(&C)
 55127_knt_RS_sFold1=ネストされたセルを含む表で文字列を折り畳むことはできません\^使用可能なオプションについてはヘルプを参照してください
 55128_knt_RS_sFoldBl5=展開時に使用するマーカーがすでに存在します (最初にチェックを外してください)
 55129_knt_RS_sEdt51=R 行と C 列を含む基本的な表を挿入します
+(!)55130_knt_RS_sFile25=The key transformation took %u ms
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

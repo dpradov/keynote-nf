@@ -450,6 +450,10 @@ Pages.Tab_Pass.GroupBox2.Button_SetPass.Hint=Clic para cambiar contraseña de ac
 Pages.Tab_Pass.GroupBox2.Button_SetPass.Caption=&Establecer contraseña
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Hint=Ocultar contraseña con asteriscos
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Caption=&Ocultar contraseña al escribir
+Pages.Tab_Pass.GroupBox2.lblKeyTr.Caption=Transformación de clave
+Pages.Tab_Pass.GroupBox2.lblIter.Caption=Iteraciones:
+Pages.Tab_Pass.GroupBox2.btnTestIter.Caption=Test
+Pages.Tab_Pass.GroupBox2.btnTestIter.Hint=Verificar el tiempo necesario para derivar la clave a partir de la contraseña
 Button_System.Hint=Muestra el cuadro de diálogo de Propiedades de Archivo del sistema
 Button_System.Caption=&Sistema...
 Button_Help.Caption=&Ayuda
@@ -2819,5 +2823,6 @@ Button_OK.Caption=&Cerrar
 55127_knt_RS_sFold1=No se puede plegar texto con una tabla que tiene celdas anidadas\^Consulte la ayuda para ver posibles opciones
 55128_knt_RS_sFoldBl5=Los marcadores a utilizar al expandir ya existen (desmárquelos primero)
 55129_knt_RS_sEdt51=Insertar Tabla básica con R filas y C columnas
+55130_knt_RS_sFile25=La transformación de clave tardó %u ms
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

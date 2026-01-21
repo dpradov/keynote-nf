@@ -118,11 +118,13 @@ const
   NFHDR_ID_COMPRESSED = 'GFKNZ'; // compressed KeyNote file header ID
   NFILEVERSION_MAJOR = '3';     // and version numbers
   // NFILEVERSION_MAJOR = '1';     // non-tree version ID, obsolete
-  NFILEVERSION_MINOR = '1';
+  NFILEVERSION_MINOR = '2';
 
  // 2.1 : Since version 1.9.3.1: Use of GID as note identifier, with a new default internal Knt Links format, based on GIDs
  // 3.0 : New major version associated to an important rework: TNote, TNoteNode, TNoteEntry, ...
  // 3.1 : Added Tags
+ // 3.2 : Encrypted format uses a simplified PBKDF2 mechanism to derive keys from passwords using a configurable number of (SHA-1) iterations
+ //       PBKDF2: Password-Based Key Derivation Function 2
 
 const
   FLAGS_STRING_LENGTH  = 24; // can store up to 24 booleans
@@ -657,6 +659,10 @@ const
   CRYPT_METHOD_NAMES : array[TCryptMethod] of string = (
     'Blowfish', 'Idea'
   );
+
+  KEY_ITERATIONS_ENCRYP = 1000;
+  KEY_ITERATIONS_VERIF_DEFAULT = 100000;
+  KEY_ITERATIONS_VERIF_MAX = High(Cardinal);
 
 const
   ID_STR_LENGTH = 5; // GFKNT, GFKNX, GFKNE, GFKNZ, Notes

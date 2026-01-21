@@ -929,4 +929,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55127,  "Cannot fold text with a table that has nested cells\nSee help for possible options"
 55128,  "Markers to be used when expanding already exist (uncheck them first)"
 55129,  "Insert basic Table with R rows and C columns"
+55130,  "The key transformation took %u ms"
 }

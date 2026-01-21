@@ -83,8 +83,12 @@ type
     FTabIconsFN : string;
     FSavedWithRichEdit3 : boolean;
     FCryptMethod : TCryptMethod;
+    FKeyDerivIterations: Cardinal;
     FPassPhrase : UTF8String;
     FPassphraseFunc : TGetAccessPassphraseFunc;
+    FCachedEncryptionKey: THash;
+    FCachedVerificationHash: THash;
+    FKeysAreCached: Boolean;
     FSavedActiveFolderID : Cardinal;
 
     FPageCtrl : TPage95Control;
@@ -110,6 +114,7 @@ type
     procedure SetFileFormat( AFileFormat : TKntFileFormat );
     procedure SetModified( AModified : boolean );
     function GetPassphrase( const FN : string ) : boolean;
+    procedure EnsureKeysAreCached;
 
     procedure SetFilename( const Value : string );
     function GetBookmark(Index: integer): TLocation;
@@ -150,6 +155,7 @@ type
     property CryptMethod : TCryptMethod read FCryptMethod write FCryptMethod;
     property Passphrase : UTF8String read FPassphrase write FPassphrase;
     property PassphraseFunc : TGetAccessPassphraseFunc read FPassphraseFunc write FPassphraseFunc;
+    property KeyDerivIterations: Cardinal read FKeyDerivIterations write FKeyDerivIterations;
 
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
@@ -185,10 +191,12 @@ type
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
     function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
-    procedure CalculatePassphraseHashes (var EncryptionKey, VerificationHash : THash);
     procedure CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
+    procedure InvalidateKeyCache;
+    procedure ErasePassword;
+
   private
     function  PropertiesToFlagsString : TFlagsString; virtual;
     procedure FlagsStringToProperties( const FlagsStr : TFlagsString ); virtual;
@@ -254,6 +262,7 @@ type
   end;
 
   procedure TransferedNEntryText(NEntry: TNoteEntry);
+  procedure CalculatePassphraseHashes (Password: string; var EncryptionKey, VerificationHash : THash; IterationsOnVerif: Cardinal);
 
 const
   Scratch_TabIdX = 999;
@@ -308,6 +317,8 @@ begin
   FPassPhrase := '';
   FFileFormat := nffKeyNote;
   FCryptMethod := low( TCryptMethod );
+  FKeyDerivIterations := KEY_ITERATIONS_VERIF_DEFAULT;
+  InvalidateKeyCache;
   FReadOnly := false;
   FOpenAsReadOnly := false;
   FTrayIconFN := ''; // use default
@@ -3285,27 +3296,76 @@ begin
 end;
 
 
-procedure TKntFile.CalculatePassphraseHashes (var EncryptionKey, VerificationHash : THash);
+function DeriveKey(const Password: string; const Salt: string; Iterations: Integer): THash;
 var
   Hash : TDCP_sha1;
+  i: Integer;
+  TempStr: string;
 begin
-   FillChar(EncryptionKey,    Sizeof( EncryptionKey ), $FF );
-   FillChar(VerificationHash, Sizeof( VerificationHash ), $FF );
+  Hash := TDCP_sha1.Create(nil);
+  try
+    FillChar(Result, Sizeof(Result), $FF);
+    TempStr := Password + Salt;
 
-   Hash:= TDCP_sha1.Create( nil );
-   try
-     Hash.Init;
-     Hash.UpdateStr( FPassphrase + 'ENCRYPT_KEY_SALT');
-     Hash.Final( EncryptionKey );
+    Hash.Init;                               // First iteration
+    Hash.UpdateStr(TempStr);
+    Hash.Final(Result);
 
-     Hash.Init;
-     Hash.UpdateStr( FPassphrase + 'VERIF_KEY_SALT');
-     Hash.Final( VerificationHash );
+    for i := 2 to Iterations do begin       // Additional iterations
+      Hash.Init;
+      Hash.Update(Result, SizeOf(Result));
+      Hash.Final(Result);
+    end;
 
-   finally
-     Hash.Free;
-   end;
+  finally
+    Hash.Free;
+  end;
 end;
+
+
+procedure CalculatePassphraseHashes (Password: string; var EncryptionKey, VerificationHash : THash; IterationsOnVerif: Cardinal);
+begin
+  {
+   The attacker tests passwords against the VerificationHash (stored on disk). Only when a match is found does the attacker derive the EncryptionKey
+   (only once). The attacker then decrypts the file (only once).
+   Therefore:
+   The bottleneck of the attack is the VerificationHash. The EncryptionKey is only calculated once when the correct password is found.
+   It doesn't make sense for both to have the same number of iterations.
+   The user perceives the total time (both derivations). The attacker invests that same time for each attempt
+   Legitimate user: pays the cost once upon opening/saving; Attacker: pays the cost thousands/millions of times
+   The attacker cannot brute-force the EncryptionKey because: they have no way of knowing if they succeeded (they would have to decrypt
+   the entire file), decrypting large files is expensive, they cannot easily validate whether the decrypted result is correct
+   They must first crack the VerificationHash, which will have many iterations.
+   The KEY_ITERATIONS_ENCRYP (1000) iterations on EncryptKey provide a margin of safety.
+   }
+  EncryptionKey:=    DeriveKey(Password, 'ENCRYPTION_KEY_SALT', KEY_ITERATIONS_ENCRYP);
+  VerificationHash:= DeriveKey(Password, 'VERIFICATION_KEY_SALT', IterationsOnVerif);
+end;
+
+
+procedure TKntFile.InvalidateKeyCache;
+begin
+  FKeysAreCached := False;
+  FillChar(FCachedEncryptionKey, SizeOf(FCachedEncryptionKey), 0);
+  FillChar(FCachedVerificationHash, SizeOf(FCachedVerificationHash), 0);
+end;
+
+procedure TKntFile.EnsureKeysAreCached;
+begin
+  if not FKeysAreCached then begin
+     CalculatePassphraseHashes (FPassPhrase, FCachedEncryptionKey, FCachedVerificationHash, FKeyDerivIterations);
+     FKeysAreCached := True;
+  end;
+end;
+
+procedure TKntFile.ErasePassword;
+begin
+  if FPassphrase = '' then exit;
+
+  FillChar(FPassphrase[1], Length(FPassphrase) * SizeOf(Char), 0);
+end;
+
+
 
 procedure TKntFile.CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
 var
@@ -3331,7 +3391,6 @@ end;
 
 procedure TKntFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
 var
-  EncryptionKey, VerificationHash : THash;
   Encrypt : TDCP_blockcipher;
   savefile : file;
   Info : TEncryptedFileInfo;
@@ -3370,16 +3429,20 @@ begin
   end;
 
   try
-    CalculatePassphraseHashes (EncryptionKey, VerificationHash);
+    EnsureKeysAreCached;
 
-    wordsize := sizeof( VerificationHash );
+    wordsize := sizeof( FCachedVerificationHash );
     F.WriteBuffer(wordSize, sizeof(wordsize));
-    F.WriteBuffer(VerificationHash, sizeof(VerificationHash));
+    F.WriteBuffer(FCachedVerificationHash, sizeof(FCachedVerificationHash));
+
+    wordsize := sizeof( FKeyDerivIterations );
+    F.WriteBuffer(wordSize, sizeof(wordsize));
+    F.WriteBuffer(FKeyDerivIterations, sizeof(FKeyDerivIterations));
 
     getmem( dataptr, streamsize );
 
     try
-      Encrypt.Init( EncryptionKey, Sizeof( EncryptionKey )*8, nil );
+      Encrypt.Init( FCachedEncryptionKey, Sizeof( FCachedEncryptionKey )*8, nil );
       Encrypt.EncryptCBC( cryptstream.memory^, dataptr^, streamsize );
       F.WriteBuffer(dataptr^, streamsize );
 
@@ -3405,7 +3468,7 @@ end;
 
 procedure TKntFile.DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
 var
-  EncryptionKey, VerificationHash, HashRead : THash;
+  VerificationHash, HashRead : THash;
   Decrypt: TDCP_blockcipher;
   readfile: TFileStream;
   Info : TEncryptedFileInfo;
@@ -3439,22 +3502,33 @@ begin
 
     try
 
-      CalculatePassphraseHashes (EncryptionKey, VerificationHash);
-
       readfile.Read(array32bits, sizeof(array32bits));
       chunksize := integer( array32bits );
       sizeread:= readfile.Read(HashRead, chunksize);
       if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
-      if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then begin
-        // We'll check if the hash works with the previous (weaker, see issue #545) mechanism, and if so, we'll use it.
-        // Once the file is saved, it will be saved using the new mechanism.
-        CalculateOldPassphraseHash(Decrypt, VerificationHash);                       // *1(b)
-        if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then
-           raise EPassphraseError.Create( GetRS(sFile16) );
+      // Since file fomat version 3.2 -> Use simplified PBKDF2 mechanism to derive keys from passwords with a configurable number of iterations
+      if (Version.Major > '3') or ((Version.Major = '3') and (Version.Minor >= '2')) then begin
+         readfile.Read(array32bits, sizeof(array32bits));
+         chunksize := integer( array32bits );
+         sizeread:= readfile.Read(FKeyDerivIterations, chunksize);
+         if ( sizeread <> chunksize ) then RaiseStreamReadError;
+
+         EnsureKeysAreCached;
+         VerificationHash:= FCachedVerificationHash;
+         Decrypt.Init( FCachedEncryptionKey, Sizeof( FCachedEncryptionKey )*8, nil );              // *1(a)
       end
-      else
-         Decrypt.Init( EncryptionKey, Sizeof( EncryptionKey )*8, nil );              // *1(a)
+      else begin
+        // Check if the hash works with the previous (weaker, see issue #545) mechanism
+        // Once the file is saved, it will be using the new mechanism.
+         CalculateOldPassphraseHash(Decrypt, VerificationHash);                       // *1(b)
+      end;
+
+
+      if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then begin
+           InvalidateKeyCache;
+           raise EPassphraseError.Create( GetRS(sFile16) );
+      end;
 
       getmem( dataptr, Info.DataSize );
 

@@ -452,6 +452,10 @@ Pages.Tab_Pass.GroupBox2.Button_SetPass.Hint=点击更改加密文件的访问�
 Pages.Tab_Pass.GroupBox2.Button_SetPass.Caption=设置密码短语 (&S)
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Hint=用星号隐藏密码短语
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Caption=输入时隐藏密码短语 (&H)
+(!)Pages.Tab_Pass.GroupBox2.lblKeyTr.Caption=Key Transformation
+(!)Pages.Tab_Pass.GroupBox2.lblIter.Caption=Iterations:
+(!)Pages.Tab_Pass.GroupBox2.btnTestIter.Caption=Test
+(!)Pages.Tab_Pass.GroupBox2.btnTestIter.Hint=Verify the time needed to derive the key from the passphrase
 Button_System.Hint=显示系统文件属性对话框
 Button_System.Caption=系统 (&S)...
 Button_Help.Caption=帮助 (&H)
@@ -2823,5 +2827,6 @@ Button_OK.Caption=(&C)关闭
 (!)55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
 (!)55128_knt_RS_sFoldBl5=Markers to be used when expanding already exist (uncheck them first)
 (!)55129_knt_RS_sEdt51=Insert basic Table with R rows and C columns
+(!)55130_knt_RS_sFile25=The key transformation took %u ms
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

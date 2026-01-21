@@ -649,7 +649,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         TabOrder = 0
         object Label_Confirm: TLabel
           Left = 34
-          Top = 113
+          Top = 90
           Width = 431
           Height = 13
           AutoSize = False
@@ -658,7 +658,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Label_Pass: TLabel
           Left = 34
-          Top = 58
+          Top = 35
           Width = 431
           Height = 13
           AutoSize = False
@@ -667,7 +667,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Label_Method: TLabel
           Left = 34
-          Top = 211
+          Top = 169
           Width = 223
           Height = 13
           AutoSize = False
@@ -689,9 +689,26 @@ object Form_KntFileInfo: TForm_KntFileInfo
           ParentColor = False
           ParentFont = False
         end
+        object lblKeyTr: TLabel
+          Left = 34
+          Top = 225
+          Width = 431
+          Height = 13
+          AutoSize = False
+          Caption = 'Key Transformation'
+        end
+        object lblIter: TLabel
+          Left = 34
+          Top = 247
+          Width = 94
+          Height = 13
+          AutoSize = False
+          Caption = 'Iterations:'
+          FocusControl = txtIter
+        end
         object Edit_Confirm: TEdit
           Left = 34
-          Top = 132
+          Top = 109
           Width = 431
           Height = 21
           Hint = 'Carefully re-enter the access passphrase'
@@ -701,7 +718,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Edit_Pass: TEdit
           Left = 34
-          Top = 77
+          Top = 54
           Width = 431
           Height = 21
           Hint = 'Enter access passphrase for this file'
@@ -711,8 +728,8 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Combo_Method: TComboBox
           Left = 34
-          Top = 230
-          Width = 223
+          Top = 188
+          Width = 239
           Height = 21
           Hint = 'Select which encryption algorithm to use'
           Style = csDropDownList
@@ -730,7 +747,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object CB_HidePass: TCheckBox
           Left = 34
-          Top = 164
+          Top = 141
           Width = 431
           Height = 17
           Hint = 'Obscure passphrase with asterisks'
@@ -738,6 +755,25 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Checked = True
           State = cbChecked
           TabOrder = 4
+        end
+        object txtIter: TEdit
+          Left = 134
+          Top = 244
+          Width = 139
+          Height = 21
+          Alignment = taRightJustify
+          MaxLength = 255
+          TabOrder = 5
+        end
+        object btnTestIter: TButton
+          Left = 284
+          Top = 242
+          Width = 79
+          Height = 25
+          Hint = 'Verify the time needed to derive the key from the passphrase'
+          Caption = 'Test'
+          TabOrder = 6
+          OnClick = btnTestIterClick
         end
       end
     end

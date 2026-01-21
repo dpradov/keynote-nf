@@ -112,6 +112,10 @@ type
     rbImagesStChange: TRadioButton;
     lblImgWarning: TLabel;
     btnRecalcNextID: TButton;
+    lblKeyTr: TLabel;
+    txtIter: TEdit;
+    lblIter: TLabel;
+    btnTestIter: TButton;
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -143,6 +147,9 @@ type
       Shift: TShiftState);
     function FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
     procedure btnRecalcNextIDClick(Sender: TObject);
+    procedure txtIterKeyPress(Sender: TObject; var Key: Char);    
+    procedure txtIterExit(Sender: TObject);
+    procedure btnTestIterClick(Sender: TObject);
   private
     { Private declarations }
 
@@ -159,7 +166,7 @@ type
     ExtStorageLocationFake: boolean;
 
     function Verify : boolean;
-    procedure EnablePassControls;
+    procedure EnablePassControls(Enable: boolean= true);
   end;
 
 const
@@ -198,14 +205,7 @@ begin
   Tab_Pass.TabVisible := false; // [x] while not implemented
   HidePassText := true;
 
-  Label_Pass.Enabled := false;
-  Label_Confirm.Enabled := false;
-  Label_Method.Enabled := false;
-  Edit_Pass.Enabled := false;
-  Edit_Confirm.Enabled := false;
-  Combo_Method.Enabled := false;
-  CB_HidePass.Enabled := false;
-  Label_EnterPass.Visible := false;
+  EnablePassControls(False);
 
   Pages.ActivePage := Tab_Main;
   myKntFile := nil;
@@ -254,6 +254,7 @@ begin
     Edit_Description.Text := myKntFile.Description;
     label_Created.Caption := FormatDateTime( FormatSettings.LongDateFormat + #32 + FormatSettings.LongTimeFormat, myKntFile.DateCreated );
     Combo_Format.ItemIndex := ord( myKntFile.FileFormat );
+    txtIter.Text := myKntFile.KeyDerivIterations.ToString;
     if Fileexists( myKntFile.FileName ) then begin
       fs := GetFileSize( myKntFile.FileName );
       if ( fs < 1025 ) then
@@ -366,6 +367,8 @@ begin
   Combo_Format.OnChange := Combo_FormatChange;
   Edit_Pass.OnChange := Edit_PassChange;
   Edit_Confirm.OnChange := Edit_PassChange;
+  txtIter.OnKeyPress := txtIterKeyPress;
+  txtIter.OnExit := txtIterExit;
   CB_AsReadOnly.OnClick := CheckBox_AsReadOnlyClick;
 
   _FILE_TABIMAGES_SELECTION_CHANGED := false;
@@ -526,17 +529,61 @@ begin
   Edit_Confirm.PasswordChar := Edit_Pass.PasswordChar;
 end;
 
-procedure TForm_KntFileInfo.EnablePassControls;
+procedure TForm_KntFileInfo.EnablePassControls (Enable: boolean= true);
 begin
-  Label_Pass.Enabled := true;
-  Label_Confirm.Enabled := true;
-  Label_Method.Enabled := true;
-  Edit_Pass.Enabled := true;
-  Edit_Confirm.Enabled := true;
-  Combo_Method.Enabled := true;
-  CB_HidePass.Enabled := true;
-  Label_EnterPass.Visible := true;
+  Label_Pass.Enabled := Enable;
+  Label_Confirm.Enabled := Enable;
+  Label_Method.Enabled := Enable;
+  Edit_Pass.Enabled := Enable;
+  Edit_Confirm.Enabled := Enable;
+  Combo_Method.Enabled := Enable;
+  CB_HidePass.Enabled := Enable;
+  Label_EnterPass.Visible := Enable;
+  lblKeyTr.Enabled := Enable;
+  lblIter.Enabled := Enable;
+  btnTestIter.Enabled:= Enable;
+  txtIter.Enabled:= Enable;
 end; // EnablePassControls
+
+
+procedure TForm_KntFileInfo.txtIterKeyPress(Sender: TObject; var Key: Char);
+begin
+   if not (Key in ['0'..'9']) then
+      Key:= #0;
+end;
+
+
+procedure TForm_KntFileInfo.txtIterExit(Sender: TObject);
+var
+   L: UInt64;
+begin
+   if Trim(txtIter.Text) = '' then
+      L:= KEY_ITERATIONS_VERIF_DEFAULT
+
+   else begin
+     L:= StrToUInt64Def(txtIter.Text, KEY_ITERATIONS_VERIF_MAX);
+     if L > KEY_ITERATIONS_VERIF_MAX then
+        L:= KEY_ITERATIONS_VERIF_MAX;
+   end;
+
+   txtIter.Text:= L.ToString;
+end;
+
+
+procedure TForm_KntFileInfo.btnTestIterClick(Sender: TObject);
+var
+  StartTick: Cardinal;
+  ElapsedMs: Cardinal;
+  NIter: Cardinal;
+  EncryptionKey, VerificationHash: THash;
+begin
+  NIter:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
+  StartTick := GetTickCount;
+  CalculatePassphraseHashes (Edit_Pass.Text, EncryptionKey, VerificationHash, NIter);
+
+  ElapsedMs := GetTickCount - StartTick;
+  App.InfoPopup(Format(GetRS(sFile25), [ElapsedMs]));
+end;
 
 
 procedure TForm_KntFileInfo.CheckBox_TrayIconClick(Sender: TObject);

@@ -1053,6 +1053,8 @@ begin
           try
             try
               App.FileClosed(KntFile);
+              KntFile.InvalidateKeyCache;
+              KntFile.ErasePassword;
               KntFile.Free;
             except
               // showmessage( 'BUG: error in KntFile.Free' );
@@ -2528,6 +2530,7 @@ procedure KntFileProperties;
 var
   Form_FileInfo : TForm_KntFileInfo;
   KntFile: TKntFile;
+  KeyIter: Cardinal;
 begin
   KntFile:= ActiveFile;
 
@@ -2576,8 +2579,15 @@ begin
 
             if ( KntFile.FileFormat = nffEncrypted ) then begin
               KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
+              KeyIter:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
               if PassphraseChanged then
-                KntFile.Passphrase := Edit_Pass.Text;
+                 KntFile.Passphrase := Edit_Pass.Text;
+              if KeyIter <> KntFile.KeyDerivIterations then begin
+                 KntFile.KeyDerivIterations := KeyIter;
+                 PassphraseChanged:= True;
+              end;
+              if PassphraseChanged then
+                 KntFile.InvalidateKeyCache;
             end;
 
             if ( KntFile.FileName <> '' ) then

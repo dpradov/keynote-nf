@@ -542,6 +542,10 @@ Pages.Tab_Pass.GroupBox2.Button_SetPass.Hint=Klik voor wijzigen toegangs wachtwo
 Pages.Tab_Pass.GroupBox2.Button_SetPass.Caption=&Instellen wachtwoord
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Hint=Verberg wachtwoord met sterretjes
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Caption=&Verberg wachtwoord tijdens het typen
+(!)Pages.Tab_Pass.GroupBox2.lblKeyTr.Caption=Key Transformation
+(!)Pages.Tab_Pass.GroupBox2.lblIter.Caption=Iterations:
+(!)Pages.Tab_Pass.GroupBox2.btnTestIter.Caption=Test
+(!)Pages.Tab_Pass.GroupBox2.btnTestIter.Hint=Verify the time needed to derive the key from the passphrase
 Button_System.Hint=Het systeembestandseigenschappen-dialoogvenster weergeven
 Button_System.Caption=S&ysteem...
 Button_Help.Caption=&Help
@@ -3234,5 +3238,6 @@ Button_Prev.Caption=V&orige Tip
 (!)55127_knt_RS_sFold1=Cannot fold text with a table that has nested cells\^See help for possible options
 (!)55128_knt_RS_sFoldBl5=Markers to be used when expanding already exist (uncheck them first)
 (!)55129_knt_RS_sEdt51=Insert basic Table with R rows and C columns
+(!)55130_knt_RS_sFile25=The key transformation took %u ms
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*
