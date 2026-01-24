@@ -2947,12 +2947,12 @@ begin
        the one saved. In this case the RTF constructed in this procedure is the saved one.
        An image will be saved in the form:
 
-         \v\'11I9\'12\v0{\field{\*\fldinst{HYPERLINK "img:9,482,409"}}{\fldrslt{\ul\cf2\ul MAIN_NOTE\\9_sample.wmf}}}
+         \v\'11I9\'12\v0{\field{\*\fldinst{HYPERLINK "img:9,482,409"}}{\fldrslt{MAIN_NOTE\\9_sample.wmf}}}
 
        Notes/nodes edited in imLink mode (images not visible) will be saved exactly as those hyperlinks are interpreted by
        the editor. Thus, edited RTF expressions that include images will be saved as follows:
 
-         \v\'11I9\'12{\v0{\field{\*\fldinst{HYPERLINK "img:9,482,409"}}{\fldrslt{\ul\cf2\ul MAIN_NOTE\\9_sample.wmf}}}}\v0
+         \v\'11I9\'12{\v0{\field{\*\fldinst{HYPERLINK "img:9,482,409"}}{\fldrslt{MAIN_NOTE\\9_sample.wmf}}}}\v0
 
        Despite this alteration, subsequent conversion to imImage mode will be interpreted as expected:
          \v\'11I9\'12{\v0{\pict...}}\v0    ->    \v\'11I9\'12\v0{\pict..}
@@ -3245,7 +3245,7 @@ begin
                      end;
 
                   if not LinkImgFolded then     // We will not convert folded image links. We already have the link on ImgRTF
-                     ImgRTF:= Format(KNT_IMG_LINK, [ImgID, WidthGoal, HeightGoal, URLToRTF(ImgCaption, true)]);         // {\field{\*\fldinst{HYPERLINK "img:%d:%d,%d}"}}{\fldrslt{\ul\cf1 %s}}}
+                     ImgRTF:= Format(KNT_IMG_LINK, [ImgID, WidthGoal, HeightGoal, URLToRTF(ImgCaption, true)]);         // {\field{\*\fldinst{HYPERLINK "img:%d:%d,%d}"}}{\fldrslt{%s}}}
                   if (fStorageMode <> smEmbRTF) and (ImgID <> 0) then begin
                       if not ImgIDwasPresent then begin    // The tag with the image ID was incorrect and had to be re-registered, or we are converting from smEmbRTF
                          var LinkImg: AnsiString:= KNT_RTF_IMG_HIDDEN_MARK;
@@ -3709,8 +3709,8 @@ begin
        RTF    ->   \v\'11I2\'12\v0{\field{\*\fldinst{HYPERLINK "img:2,35,39"}}{\fldrslt {Image.png}}}
 
      Image insided folded text:
-        imLink ->  <L>I999999<R><L>"img:<ImgID>,<W>,<H>"@\cf1\ul Image.png<R>
-        RTF    ->  \'11I2\'12\'11L"img:<ImgID>,<W>,<H>"@\cf1\ul Image.png\'12
+        imLink ->  <L>I999999<R><L>"img:<ImgID>,<W>,<H>"@Image.png<R>
+        RTF    ->  \'11I2\'12\'11L"img:<ImgID>,<W>,<H>"@Image.png\'12
 
      *)
 

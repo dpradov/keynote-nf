@@ -98,6 +98,7 @@ type
       opt_Title: string; // Title to use in main window (mainly for its use with kntLauncher)
       opt_Clean : boolean; // Clean the file, actually looking for invalid hyperlinks (see issue #59: http://code.google.com/p/keynote-nf/issues/detail?id=59
       opt_ConvKNTLinks: boolean;  // Convert Knt Links to the new format (using GID)
+      opt_ConvLinksForColor: boolean;  // Convert links to allow for proper text color management (see issue #923)
 
       ShowingImageOnTrack: boolean;
 

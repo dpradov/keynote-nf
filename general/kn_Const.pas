@@ -583,8 +583,8 @@ const
   KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT = 15;
 
   LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
-  LINK_RTF    = '{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{\cf1\ul %s}}}';
-  LINK_RTF_2  = '{\field{\*\fldinst{HYPERLINK %s}}{\fldrslt{%s}}}';
+  LINK_RTF    = '{\ul{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{%s}}}}';
+  LINK_RTF_2  = '{\ul{\field{\*\fldinst{HYPERLINK %s}}{\fldrslt{%s}}}}';
 
   KNT_IMG_LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK "img:';
   //KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt{\ul\cf0 %s}}}';    // {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
@@ -594,15 +594,15 @@ const
   // See https://github.com/dpradov/keynote-nf/discussions/852#discussioncomment-12914739
 
   KNT_RTF_FOLDED_LINK_PREFIX =       KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK;                                             //  \'11L
-  KNT_RTF_FOLDED_LINK =        '{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}'; //  {\'11L%s@%s\'12}
+  KNT_RTF_FOLDED_LINK =    '{\ul{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}}'; //  {\'11L%s@%s\'12}
   KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '"FOLD:"@';                                //  \''11L"FOLD:"@
 //KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
   KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@➕ ' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
 
   KNT_IMG_FOLDED_PREFIX =  KNT_RTF_HIDDEN_MARK_L_CHAR + 'L"img:';
 
-//KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 +}}}';
-  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 \u10133+ }}}';
+//KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{+}}}';
+  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\u10133+ }}}';
   KNT_RTF_BEGIN_FOLDED_URL = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}';
 
 //KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"+';

@@ -191,6 +191,7 @@ type
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
     function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
+    function  ConvertLinksForColorInNotes: boolean;
     procedure CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
@@ -2738,7 +2739,7 @@ end;
 
 procedure TransferedNEntryText(NEntry: TNoteEntry);
 var
-   RTF, NewRTF: string;
+   RTF, NewRTF: AnsiString;
    IsRTF: boolean;
 begin
     if (NEntry = nil) or (NEntry.Stream.Size = 0) then exit;
@@ -2851,6 +2852,41 @@ begin
   end;
 
 end;
+
+
+// Convert links to allow for proper text color management (see issue #923)
+
+function TKntFile.ConvertLinksForColorInNotes: boolean;
+var
+  i, j: integer;
+  NNode: TNoteNode;
+  NEntry: TNoteEntry;
+  Folder: TKntFolder;
+  RTF, NewRTF: AnsiString;
+
+begin
+  Result:= false;
+
+  for i := 0 to FFolders.Count-1 do begin
+     Folder := FFolders[i];
+
+     for j := 0 to Folder.NNodes.Count-1 do begin
+        NNode := Folder.NNodes[j];
+        NEntry:= NNode.Note.Entries[0];          // %%%
+        if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
+
+        RTF:= MemoryStreamToString(NEntry.Stream);
+        if AdaptLinksForColor(RTF, NewRTF) then begin
+           NEntry.Stream.SetSize(Length(NewRTF));
+           NEntry.Stream.Position:= 0;
+           StringToMemoryStream(NewRTF, NEntry.Stream);
+           Result:= true;
+        end;
+     end;
+  end;
+
+end;
+
 
 
 {FN:   Where to create and save the file.

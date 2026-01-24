@@ -1167,9 +1167,9 @@ begin
   (*
 	   {\field{\*\fldinst{HYPERLINK xxxx}}{\fldrslt{yyyy}}}  ===> {\'11Lxxxx@yyyy\'12}
 
-	   Ex: {\field{\*\fldinst{HYPERLINK "img:22,33,44"}}{\fldrslt{\ul\cf1 ABC}}}
+	   Ex: {\field{\*\fldinst{HYPERLINK "img:22,33,44"}}{\fldrslt{\cf2 ABC}}}
 	        ===>
-  		   {\'11L"img:22,33,44"@\ul\cf1 ABC\'12}
+  		   {\'11L"img:22,33,44"@\cf2 ABC\'12}
 
      LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
      KNT_RTF_FOLDED_LINK = {\'11L%s@%s\'12}
@@ -1217,9 +1217,16 @@ begin
      KNT_RTF_FOLDED_LINK_PREFIX = \'11L
 
      PosRTFLinkEnd points to \'12
+
+     Note that we must also consider something like:
+      \'11Lmailto:myEmail@gmail.com @mailto:myEmail@gmail.com\'12\par
   *)
 
    p1:= Pos('@', RTFLinkFolded, Offset);
+
+   if not (RTFLinkFolded[p1-1] in [' ', '"']) then
+       p1:= Pos('@', RTFLinkFolded, p1+1);
+
    URL:= Copy(RTFLinkFolded, Offset + Length(KNT_RTF_FOLDED_LINK_PREFIX), p1 - Offset - Length(KNT_RTF_FOLDED_LINK_PREFIX));
 
    p2:= Pos(KNT_RTF_HIDDEN_MARK_R, RTFLinkFolded, p1);
@@ -1702,15 +1709,15 @@ begin
         InsertMarker(RTFAux, 'f', 1);               // f: Folded inf. 1 -> Keep end carriage return        //'\v\'11f0\'12\v0'
      end;
 
-     // We need to make sure that \cf1=>Blue :   {\colortbl ;\red0\green0\blue255;.....}
+     // We need to make sure that \cf1=>Blue :   {\colortbl ;\red0\green0\blue255;.....}  <= Not necessary now *N
      RTFAux.SelStart:= 0;
      RTFAux.SelText:= NFHDR_ID;
      RTFAux.SelLength:= Length(NFHDR_ID);
-     RTFAux.SelAttributes.Color:= clBlue;
+     //RTFAux.SelAttributes.Color:= clBlue;      // *N
      RTFAux.SelAttributes.Name:= 'Tahoma';       // Ensure \f0 -> Tahoma, to apply to "...[]"
      RTFAux.SelAttributes.Size:= 4;              // To make sure that the size of the following text has it own \fsN command and it will not deleted together with the aux NFHDR_ID word
      RTFAux.SelStart:= Length(NFHDR_ID);
-     RTFAux.SelAttributes.Color:= clBlack;
+     //RTFAux.SelAttributes.Color:= clBlack;     // *N
 
      if ContainsTables then begin
         RTFIn:= RTFAux.RtfText;
@@ -1741,10 +1748,10 @@ begin
 
   pI:= Pos('\protect', RTFIn, 1);
 
-  // Remove the mark used to ensure that \cf1=>Blue
+  // Remove the mark used to ensure that \cf1=>Blue (not necessary for blue color, although yes for ensure fixed size of + character )
   p:= Pos(NFHDR_ID, RTFIn, pI);
   Len:= p - pI + Length(NFHDR_ID);                          // Length to be replaced
-  RemoveReplace(pI, '\protect' + KNT_RTF_BEGIN_FOLDED);    // Eg: \protect\f0\fs8 GFKNT\cf0\fs18... -> \protect\<KNT_RTF_BEGIN_FOLDED>\cf0\fs18
+  RemoveReplace(pI, '\protect\ul' + KNT_RTF_BEGIN_FOLDED + '\ulnone');    // Eg: \protect\f0\fs8 GFKNT\cf0\fs18... -> \protect\ul\<KNT_RTF_BEGIN_FOLDED>\ulnone\cf0\fs18
 
   // We need to make sure that the hidden internal markers ($11...$12) remain hidden in the part we serve as a visible extract.
   // We use as help the #$14 mark we inserted from MarkEndVisibleExtract
@@ -3596,7 +3603,8 @@ begin
          FE.Editor.FZoomGoal:= FZoomGoal;
          FE.Editor.FZoomCurrent:= FZoomCurrent;
          FE.Editor.RestoreZoomGoal;
-         FE.Editor.Color:= LightenColor(Color, 20);
+         //FE.Editor.Color:= LightenColor(Color, 20);             // If we do that, it could affect the color of the links, and that would be confusing
+         FE.Editor.Color:= Color;
          TagMng.CreateTagSelector(TForm(FloatingEditor));
 
       finally

@@ -425,8 +425,12 @@ procedure InsertRtfHyperlink(const URLStr: string; const TextURL: string;
                              const sepL: string = '';
                              const sepR: string = '');
 begin
-     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
+     //Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
+     //                                [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
+
+     Editor.PutRtfText(Format('{\rtf1\ansi %s' + LINK_RTF + '%s}',
                                      [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
+
 end;
 
 
@@ -831,9 +835,9 @@ const
    PrefixData = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
 
 (*
-   {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{Introduction}}}}\f0\fs20\par
      ->
-   {{\field{\*\fldinst{HYPERLINK \\l "41_B11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK \\l "41_B11"}}{\fldrslt{Introduction}}}}\f0\fs20\par
 *)
 
 function ReplaceHyperlinksWithStandardBookmarks(const S: AnsiString): AnsiString;

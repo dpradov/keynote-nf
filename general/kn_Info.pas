@@ -103,6 +103,7 @@ const
   swDoNotDisturb = 'dnd';  // Ignore for purposes of "SingleInstance"
   swTitle        = 'title';  // Sets the title of the instance
   swConvKNTLinks = 'clnks';  // Convert Knt Links to the new format (using GID)
+  swConvLinksForColor = 'clnkc';  // Convert links to allow for proper text color management (see issue #923)
 
 const
   // Filters for open/save dialogs

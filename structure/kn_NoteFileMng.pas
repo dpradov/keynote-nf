@@ -355,6 +355,11 @@ begin
                Log_StoreTick( 'After convert KntLinks to new format', 1 );
             end;
 
+            if App.opt_ConvLinksForColor then begin
+               linksModified:= KntFile.ConvertLinksForColorInNotes;
+               Log_StoreTick( 'After convert links to allow for proper text color management', 1 );
+            end;
+
             SetupAndShowVCLControls;
             EnsureNodeAndCaretVisibleInFolders;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
