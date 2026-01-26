@@ -176,7 +176,7 @@ begin
   R := GetRValue (Color); {red}
   G := GetGValue (Color); {green}
   B := GetBValue (Color); {blue}
-  Result:= '\red' + IntToStr(R) + '\green' + IntToStr(G) + '\blue' + IntToStr(B) + ';';
+  Result:= '\red' + IntToStr(R) + '\green' + IntToStr(G) + '\blue' + IntToStr(B);
 end;
 
 

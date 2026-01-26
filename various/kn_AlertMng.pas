@@ -3193,7 +3193,7 @@ var
                end;
             ColorsTbl[iColorsTbl]:= Color;
             iColorsTbl:= iColorsTbl + 1;
-            rtfColorsTbl:= rtfColorsTbl + GetRTFColor(Color);
+            rtfColorsTbl:= rtfColorsTbl + GetRTFColor(Color) + ';';
          end;
      end;
   end;
