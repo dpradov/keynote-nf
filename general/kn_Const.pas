@@ -1012,6 +1012,12 @@ const
 
 
 const
+  _TEMPLATE_NOTE_COLOR  = '%NCOLOR%';     // To allow referencing the background color of the note in a template
+  _TEMPLATE_TEXT_SCOLOR = '%TSCOLOR%';    //      ,,              the text color of the selection ,,
+  _TEMPLATE_TEXT_COLOR  = '%TCOLOR%';     //      ,,              Text color (Format|Text Color,  Ctrl+R)
+  _TEMPLATE_TEXT_HCOLOR = '%THCOLOR%';    //      ,,              Text Highlight color (Format|Apply HighLight Color,  Ctrl+H)
+
+const
   alph13 = AnsiString('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz');
   alph13UP = AnsiString('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
