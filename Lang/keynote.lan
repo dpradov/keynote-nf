@@ -22,6 +22,15 @@ TipFile=Keynote.chinese-simplified.tip
 Translator=xbeta (http://xbeta.info)
 RTL=0
 
+[Russian]
+Comment=Русский перевод интерфейса для версии 2.1.4.01
+Name=Русский
+LangFile=Keynote.russian.lng
+TipFile=Keynote.english.tip
+Translator=https://forum.ru-board.com/topic.cgi?forum=5&topic=2649
+RTL=0
+
+
 [Spanish]
 Comment=v2.1.4.01
 Name=Spanish (Español-Castellano)
