@@ -4815,7 +4815,10 @@ begin
    if CtrlDown then begin
       Fold (false, false);
       FLastFoldingTime:= Now();
-   end;
+   end
+   else
+   if (SL > 1) and (txt[SL] in [' ', #9]) then   // See issue #951
+       SelLength:= SL-1;
 
    inherited;
 end;
