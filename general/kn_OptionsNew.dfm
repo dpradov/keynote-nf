@@ -2439,7 +2439,7 @@ object Form_OptionsNew: TForm_OptionsNew
           'Default paste (CTR+V or equivalent) as plain text when copied fr' +
           'om outside KN.'#13#10'How text is shown is determined by '#39'Plain text m' +
           'ode'#39
-        Caption = 'Paste external as plain &text'
+        Caption = 'Paste External using '#39'Plain text mode'#39
         TabOrder = 3
       end
     end

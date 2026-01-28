@@ -2423,7 +2423,7 @@ object Form_Main: TForm_Main
           Caption = '-'
         end
         object MMEditPlainDefaultPaste: TMenuItem
-          Caption = 'Paste &External as Plain text'
+          Caption = 'Paste &External using '#39'Plain text mode'#39
           Hint = 
             'Default paste as plain text when copied from outside KN, accordi' +
             'ng to '#39'Plain text mode'#39
@@ -4862,7 +4862,7 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object MMP_PlainDefaultPaste: TMenuItem
-      Caption = 'Paste &external as Plain text'
+      Caption = 'Paste &External using '#39'Plain text mode'#39
       OnClick = MMP_PlainDefaultPasteClick
     end
     object N107: TMenuItem
