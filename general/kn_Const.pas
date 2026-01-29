@@ -675,12 +675,23 @@ type
   end;
 
 type
+  THash = array[0..31] of byte;
+
+type
   // In encrypted files, this is saved in cleartext
-  TEncryptedFileInfo = packed record
+  TEncryptedFileInfo = packed record     // Used in file versions < 3.2
     Method : TCryptMethod;
     DataSize : integer;
-    NoteCount : integer;
+    NoteCount : integer;                // No used
   end;
+
+  TEncryptionInfo = packed record
+    Method : TCryptMethod;
+    KeyDerivIterations: Cardinal;
+    Hash : THash;                      // Verification hash
+    DataSize : integer;
+  end;
+
 
 type
   TCommentStr = String;

@@ -62,7 +62,6 @@ type
 
 type
   TBookmarks = array[0..MAX_BOOKMARKS] of TLocation;
-  THash = array[0..31] of byte;
 
 type
   TKntFile = class( TObject )
@@ -194,9 +193,8 @@ type
     function  ConvertLinksForColorInNotes: boolean;
     procedure CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
-    procedure DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
+    procedure DecryptStream( EncrypInfo: TEncryptionInfo; const InputStream: TStream; const OutputStream : TMemoryStream );
     procedure InvalidateKeyCache;
-    procedure ErasePassword;
 
   private
     function  PropertiesToFlagsString : TFlagsString; virtual;
@@ -2087,6 +2085,12 @@ end;
 
 {$REGION Load / Save }
 
+procedure RaiseStreamReadError;
+begin
+  raise EKeyKntFileError.Create( GetRS(sFile15) );
+end;
+
+
 function TKntFile.Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
 var
   Folder : TKntFolder;
@@ -2109,6 +2113,11 @@ var
   TestString : string[12];
   VerID : TKntFileVersion;
   NextBlock: TNextBlock;
+
+  chunksize, sizeread : integer;
+  wordsize : integer;                      // 4 bytes
+  EncrypFileInfo: TEncryptedFileInfo;
+  EncrypInfo: TEncryptionInfo;
 
 
 begin
@@ -2193,22 +2202,52 @@ begin
     try
       if ( FFileFormat = nffEncrypted ) then begin
         MemStream := TMemoryStream.Create;
+        Stream := TFileStream.Create(FN, fmOpenRead);
+        try
+          Stream.Read(chunksize, sizeof(integer));
+          sizeread:= Stream.Read(FVersion, sizeof(FVersion));
+          if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
-        repeat // repeatedly prompt for passphrase, unless other action chosen
-            if ( not GetPassphrase( FN )) then
-              raise EKeyKntFileError.Create( GetRS(sFile03) );
+          if (FVersion.Major > '3') or ((FVersion.Major = '3') and (FVersion.Minor >= '2')) then begin
+             Stream.Read(chunksize, sizeof(integer));
+             sizeread:= Stream.Read(EncrypInfo, sizeof(EncrypInfo));
+             if (sizeread <> chunksize) then RaiseStreamReadError;
+          end
+          else begin
+             Stream.Read(chunksize, sizeof(integer));
+             sizeread:= Stream.Read(EncrypFileInfo, sizeof(EncrypFileInfo));
+             if ( sizeread <> chunksize ) then RaiseStreamReadError;
+             Stream.Read(chunksize, sizeof(integer));
+             sizeread:= Stream.Read(EncrypInfo.Hash, sizeof(THash));
+             if ( sizeread <> chunksize ) then RaiseStreamReadError;
 
-            try
-              DecryptFileToStream( FN, MemStream );
-              break; // no error, so exit this loop
-            except
-              On e : EPassphraseError do begin
-                HasLoadError := false;
-                if ( App.DoMessageBox(GetRS(sFile04), mtError, [mbYes,mbNo]) <> mrYes ) then raise;
-              end;
-            end;
+             EncrypInfo.Method:= EncrypFileInfo.Method;
+             EncrypInfo.DataSize:= EncrypFileInfo.DataSize;
+             EncrypInfo.KeyDerivIterations:= 0;
+          end;
 
-        until false;
+          FCryptMethod:= EncrypInfo.Method;
+          FKeyDerivIterations:= EncrypInfo.KeyDerivIterations;
+
+          repeat // repeatedly prompt for passphrase, unless other action chosen
+              if ( not GetPassphrase( FN )) then
+                raise EKeyKntFileError.Create( GetRS(sFile03) );
+
+                try
+                  DecryptStream( EncrypInfo, Stream, MemStream );
+                  break; // no error, so exit this loop
+                except
+                  On e : EPassphraseError do begin
+                    HasLoadError := false;
+                    if ( App.DoMessageBox(GetRS(sFile04), mtError, [mbYes,mbNo]) <> mrYes ) then raise;
+                  end;
+                end;
+
+          until false;
+        finally
+          Stream.Free;
+          Stream := nil;
+        end;
 
         TestString := FVersion.ID + #32 + FVersion.Major + '.' + FVersion.Minor;
 
@@ -3394,14 +3433,6 @@ begin
   end;
 end;
 
-procedure TKntFile.ErasePassword;
-begin
-  if FPassphrase = '' then exit;
-
-  FillChar(FPassphrase[1], Length(FPassphrase) * SizeOf(Char), 0);
-end;
-
-
 
 procedure TKntFile.CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
 var
@@ -3428,8 +3459,7 @@ end;
 procedure TKntFile.EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
 var
   Encrypt : TDCP_blockcipher;
-  savefile : file;
-  Info : TEncryptedFileInfo;
+  EncrypInfo: TEncryptionInfo;
   wordsize : integer;
   dataptr : pointer;
   streamsize : integer;
@@ -3441,20 +3471,9 @@ begin
 
   F:= TFileStream.Create( FN, ( fmCreate or fmShareExclusive ));
 
-
-  with Info do begin
-    Method := FCryptMethod;
-    DataSize := streamsize;
-    NoteCount := FFolders.Count;
-  end;
-
   wordsize := sizeof( FVersion );
   F.WriteBuffer(wordSize, sizeof(wordsize));
   F.WriteBuffer(FVersion, sizeof(FVersion));
-
-  wordsize := sizeof( Info );
-  F.WriteBuffer(wordSize, sizeof(wordsize));
-  F.WriteBuffer(Info, sizeof(Info));
 
   case FCryptMethod of
     tcmBlowfish : begin
@@ -3467,13 +3486,15 @@ begin
   try
     EnsureKeysAreCached;
 
-    wordsize := sizeof( FCachedVerificationHash );
+    with EncrypInfo do begin
+      Method := FCryptMethod;
+      KeyDerivIterations:= FKeyDerivIterations;
+      Hash:= FCachedVerificationHash;
+      DataSize := streamsize;
+    end;
+    wordsize := sizeof( EncrypInfo );
     F.WriteBuffer(wordSize, sizeof(wordsize));
-    F.WriteBuffer(FCachedVerificationHash, sizeof(FCachedVerificationHash));
-
-    wordsize := sizeof( FKeyDerivIterations );
-    F.WriteBuffer(wordSize, sizeof(wordsize));
-    F.WriteBuffer(FKeyDerivIterations, sizeof(FKeyDerivIterations));
+    F.WriteBuffer(EncrypInfo, sizeof(EncrypInfo));
 
     getmem( dataptr, streamsize );
 
@@ -3496,39 +3517,16 @@ begin
 end;
 
 
-procedure RaiseStreamReadError;
-begin
-  raise EKeyKntFileError.Create( GetRS(sFile15) );
-end;
 
-
-procedure TKntFile.DecryptFileToStream( const FN : string; const CryptStream : TMemoryStream );
+procedure TKntFile.DecryptStream( EncrypInfo: TEncryptionInfo; const InputStream: TStream; const OutputStream : TMemoryStream );
 var
-  VerificationHash, HashRead : THash;
+  VerificationHash : THash;
   Decrypt: TDCP_blockcipher;
-  readfile: TFileStream;
-  Info : TEncryptedFileInfo;
-  chunksize, sizeread : integer; // MUST be 32-bit value, i.e. 4 bytes
-  array32bits : array[0..3] of byte;
+  sizeread: integer;
   dataptr : pointer;
 begin
-  readfile:= TFileStream.Create( FN, ( fmOpenRead ));
 
-  try
-    readfile.Read(array32bits, sizeof(array32bits));
-
-    chunksize := integer( array32bits );
-    sizeread:= readfile.Read(FVersion, chunksize);
-    if ( sizeread <> chunksize ) then RaiseStreamReadError;
-
-    readfile.Read(array32bits, sizeof(array32bits));
-    chunksize := integer( array32bits );
-    sizeread:= readfile.Read(Info, chunksize);
-    if ( sizeread <> chunksize ) then RaiseStreamReadError;
-
-    FCryptMethod := Info.Method;
-
-    case FCryptMethod of
+    case EncrypInfo.Method of
       tcmBlowfish : begin
         Decrypt := TDCP_Blowfish.Create( nil );
       end;
@@ -3537,19 +3535,8 @@ begin
     end;
 
     try
-
-      readfile.Read(array32bits, sizeof(array32bits));
-      chunksize := integer( array32bits );
-      sizeread:= readfile.Read(HashRead, chunksize);
-      if ( sizeread <> chunksize ) then RaiseStreamReadError;
-
       // Since file fomat version 3.2 -> Use simplified PBKDF2 mechanism to derive keys from passwords with a configurable number of iterations
       if (Version.Major > '3') or ((Version.Major = '3') and (Version.Minor >= '2')) then begin
-         readfile.Read(array32bits, sizeof(array32bits));
-         chunksize := integer( array32bits );
-         sizeread:= readfile.Read(FKeyDerivIterations, chunksize);
-         if ( sizeread <> chunksize ) then RaiseStreamReadError;
-
          EnsureKeysAreCached;
          VerificationHash:= FCachedVerificationHash;
          Decrypt.Init( FCachedEncryptionKey, Sizeof( FCachedEncryptionKey )*8, nil );              // *1(a)
@@ -3561,16 +3548,21 @@ begin
       end;
 
 
-      if ( not CompareMem( @HashRead, @VerificationHash, Sizeof( HashRead ))) then begin
+      if ( not CompareMem( @EncrypInfo.Hash, @VerificationHash, Sizeof( THash ))) then begin
            InvalidateKeyCache;
            raise EPassphraseError.Create( GetRS(sFile16) );
       end;
 
-      getmem( dataptr, Info.DataSize );
+      if EncrypInfo.KeyDerivIterations = 0 then begin
+         InvalidateKeyCache;                                       // To use new mechanism when saving
+         FKeyDerivIterations:= KEY_ITERATIONS_VERIF_DEFAULT;
+      end;
+
+      getmem( dataptr, EncrypInfo.DataSize );
 
       try
-        sizeread:= readfile.Read(dataptr^, Info.DataSize);
-        if ( sizeread <> Info.DataSize ) then RaiseStreamReadError;
+        sizeread:= InputStream.Read(dataptr^, EncrypInfo.DataSize);
+        if ( sizeread <> EncrypInfo.DataSize ) then RaiseStreamReadError;
 
         { *1:
          Decryption depends on the Hash value set in Decrypt.Init.
@@ -3581,24 +3573,20 @@ begin
          to encrypt or decrypt the file.
          }
 
-        Decrypt.DecryptCBC( dataptr^, dataptr^, Info.DataSize );
+        Decrypt.DecryptCBC( dataptr^, dataptr^, EncrypInfo.DataSize );
 
-        CryptStream.Position := 0;
-        CryptStream.Write( dataptr^, Info.DataSize );
-        CryptStream.Position := 0;
+        OutputStream.Position := 0;
+        OutputStream.Write( dataptr^, EncrypInfo.DataSize );
+        OutputStream.Position := 0;
 
       finally
-        freemem( dataptr, Info.DataSize );
+        freemem( dataptr, EncrypInfo.DataSize );
       end;
 
     finally
       Decrypt.Burn;
       Decrypt.Free;
     end;
-
-  finally
-    readFile.Free;
-  end;
 
 end;
 

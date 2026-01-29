@@ -564,6 +564,8 @@ begin
      L:= StrToUInt64Def(txtIter.Text, KEY_ITERATIONS_VERIF_MAX);
      if L > KEY_ITERATIONS_VERIF_MAX then
         L:= KEY_ITERATIONS_VERIF_MAX;
+     if L = 0 then
+        L:= KEY_ITERATIONS_VERIF_DEFAULT;
    end;
 
    txtIter.Text:= L.ToString;

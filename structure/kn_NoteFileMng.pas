@@ -1059,7 +1059,6 @@ begin
             try
               App.FileClosed(KntFile);
               KntFile.InvalidateKeyCache;
-              KntFile.ErasePassword;
               KntFile.Free;
             except
               // showmessage( 'BUG: error in KntFile.Free' );
