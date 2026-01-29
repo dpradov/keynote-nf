@@ -92,6 +92,7 @@ type
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
+    function GetURLfromClipboard: string;
 
     function PathOfKntLink (myTreeNode: PVirtualNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
@@ -131,6 +132,7 @@ uses
    kn_Main,
    kn_URL,
    kn_EditorUtils,
+   kn_ClipUtils,
    kn_RTFUtils,
    kn_ImagesMng,
    kn_ImageForm,
@@ -2460,8 +2462,13 @@ begin
 
       Form_URLAction := TForm_URLAction.Create( Form_Main );
       try
+        if URLStr = '' then
+           URLStr:= GetURLfromClipboard;
+
         if URLType = urlFILE then
            AdaptURLFileWithParams(URLStr, false);
+        if TextURL = '' then
+           TextURL:= URLStr;
         Form_URLAction.Edit_URL.Text := URLStr;
         Form_URLAction.Edit_TextURL.Text := TextURL;
         Form_URLAction.URLAction:= urlCreateOrModify;   // Mode: Create. Only will show buttons Ok and Cancel
@@ -2491,6 +2498,27 @@ begin
   end;
 
 end; // Insert URL
+
+
+
+function GetURLfromClipboard: string;
+var
+  URL: string;
+  KNTlocation: boolean;
+  URLType: TKNTURL;
+
+begin
+   URL:= Clipboard.TryAsText;
+   URLType:= TypeURL(URL, KNTlocation);
+
+   case URLType of
+      urlHTTP, urlHTTPS: URL:= DecodeURLWebUTF8Characters(URL);
+      urlFile: if pos('file:', URL) <> 1 then URL:= '';
+      else
+         URL:= '';
+   end;
+   Result:= URL;
+end;
 
 
 

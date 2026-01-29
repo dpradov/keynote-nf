@@ -1526,6 +1526,7 @@ uses
    gf_misc,
    gf_miscvcl,
    gf_Lang,
+   gf_strings,
    kn_Global,
    kn_Pass,
    kn_Macro,
@@ -5077,8 +5078,15 @@ end;
 
 
 procedure TForm_Main.MMInsertURLClick(Sender: TObject);
+var
+  URL, TextURL: string;
 begin
-  InsertURL('', '', ActiveEditor);   // Ask the user
+  TextURL:= Trim(ActiveEditor.SelVisibleText);
+  if TextURL <> '' then
+     URL:= GetURLfromClipboard;
+  if URL = TextURL then
+     URL:= '';
+  InsertURL(URL, TextURL, ActiveEditor);   // If URL='' -> Ask the user
 end; // Insert URL
 
 procedure TForm_Main.MMInsertLineClick(Sender: TObject);
