@@ -361,6 +361,14 @@ begin
      With this method we make sure to obtain the real DPI
    }
 
+   {  *1  See issue 726 (https://github.com/dpradov/keynote-nf/issues/726#issuecomment-3677551236)
+          Windows 8.1: Major=6, Minor=3
+          Windows 10: Major=10, Minor=0
+          Windows 11: Major=10, Minor=0      }
+   if Win32MajorVersion < 10 then                // *1
+      exit(Screen.PixelsPerInch);
+
+
    try
       previousDpiContext := SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
       DC := GetDC(0);
