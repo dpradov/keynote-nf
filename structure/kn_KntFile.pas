@@ -81,13 +81,20 @@ type
     FTrayIconFN : string;
     FTabIconsFN : string;
     FSavedWithRichEdit3 : boolean;
+
     FCryptMethod : TCryptMethod;
     FKeyDerivIterations: Cardinal;
     FPassPhrase : UTF8String;
+    FLoadedVerificationHash: THash;                // To be used with encryption of notes / entries
+    FLoadedEncryptedContent: TMemoryStream;        // ,,
+    FEncryptedContentEnabled: Boolean;             // ,,
+    FEncryptedContentOpened: Boolean;              // ,,
+    FHideEncryptedNodes : Boolean;                 // ,,
     FPassphraseFunc : TGetAccessPassphraseFunc;
     FCachedEncryptionKey: THash;
     FCachedVerificationHash: THash;
     FKeysAreCached: Boolean;
+
     FSavedActiveFolderID : Cardinal;
 
     FPageCtrl : TPage95Control;
@@ -112,7 +119,9 @@ type
     procedure SetComment( AComment : TCommentStr );
     procedure SetFileFormat( AFileFormat : TKntFileFormat );
     procedure SetModified( AModified : boolean );
-    function GetPassphrase( const FN : string ) : boolean;
+    procedure SetEncryptedContentEnabled(Value: boolean);
+    procedure SetEncryptedContentOpened(Value: boolean);
+    procedure SetHideEncryptedNodes(Value: boolean);
     procedure EnsureKeysAreCached;
 
     procedure SetFilename( const Value : string );
@@ -153,8 +162,13 @@ type
 
     property CryptMethod : TCryptMethod read FCryptMethod write FCryptMethod;
     property Passphrase : UTF8String read FPassphrase write FPassphrase;
+    property LoadedVerificationHash: THash read FLoadedVerificationHash;
     property PassphraseFunc : TGetAccessPassphraseFunc read FPassphraseFunc write FPassphraseFunc;
     property KeyDerivIterations: Cardinal read FKeyDerivIterations write FKeyDerivIterations;
+    property EncryptedContentEnabled: boolean read FEncryptedContentEnabled write SetEncryptedContentEnabled;
+    property HideEncryptedNodes : Boolean read FHideEncryptedNodes write SetHideEncryptedNodes;
+    property EncryptedContentOpened: boolean read FEncryptedContentOpened write SetEncryptedContentOpened;
+    property KeysAreCached: Boolean read FKeysAreCached;
 
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
@@ -191,10 +205,18 @@ type
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
     function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
     function  ConvertLinksForColorInNotes: boolean;
+
+    function  GetPassphrase( const FN : string ) : boolean;
+    function  GetEncryptionInfo: TEncryptionInfo;
+    function  CheckPassword( EncrypInfo: TEncryptionInfo; Decrypt: TDCP_blockcipher = nil): boolean;
     procedure CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptStream( EncrypInfo: TEncryptionInfo; const InputStream: TStream; const OutputStream : TMemoryStream );
+    procedure OnPassphraseChanged;
     procedure InvalidateKeyCache;
+    function  CheckAuthorized(ShowDetail: boolean): boolean;
+    procedure LoadEncryptedContent;
+    procedure ProcessLoadedEncryptedContent;
 
   private
     function  PropertiesToFlagsString : TFlagsString; virtual;
@@ -317,6 +339,7 @@ begin
   FFileFormat := nffKeyNote;
   FCryptMethod := low( TCryptMethod );
   FKeyDerivIterations := KEY_ITERATIONS_VERIF_DEFAULT;
+  FEncryptedContentOpened:= False;
   InvalidateKeyCache;
   FReadOnly := false;
   FOpenAsReadOnly := false;
@@ -497,6 +520,12 @@ procedure TKntFile.SetFileFormat( AFileFormat : TKntFileFormat );
 begin
   if ( FFileFormat = AFileFormat ) then exit;
   FFileFormat := AFileFormat;
+  if FFileFormat = nffEncrypted then begin
+     EncryptedContentEnabled:= False;
+     EncryptedContentOpened:= False;
+  end
+  else
+     InvalidateKeyCache;
 end;
 
 
@@ -2231,17 +2260,17 @@ begin
 
           repeat // repeatedly prompt for passphrase, unless other action chosen
               if ( not GetPassphrase( FN )) then
-                raise EKeyKntFileError.Create( GetRS(sFile03) );
+                raise EKeyKntFileError.Create(GetRS(sFile03) + GetRS(sFile26));
 
-                try
-                  DecryptStream( EncrypInfo, Stream, MemStream );
-                  break; // no error, so exit this loop
-                except
-                  On e : EPassphraseError do begin
-                    HasLoadError := false;
-                    if ( App.DoMessageBox(GetRS(sFile04), mtError, [mbYes,mbNo]) <> mrYes ) then raise;
-                  end;
+              try
+                DecryptStream( EncrypInfo, Stream, MemStream );
+                break; // no error, so exit this loop
+              except
+                On e : EPassphraseError do begin
+                  HasLoadError := false;
+                  if ( App.DoMessageBox(GetRS(sFile04), mtError, [mbYes,mbNo]) <> mrYes ) then raise;
                 end;
+              end;
 
           until false;
         finally
@@ -3433,6 +3462,100 @@ begin
   end;
 end;
 
+procedure TKntFile.OnPassphraseChanged;
+begin
+   InvalidateKeyCache;
+   EnsureKeysAreCached;
+   if FEncryptedContentEnabled then
+      FLoadedVerificationHash:= FCachedVerificationHash;
+end;
+
+
+procedure TKntFile.SetEncryptedContentEnabled(Value: boolean);
+begin
+   if FEncryptedContentEnabled <> Value then begin
+      FEncryptedContentEnabled:= Value;
+      Form_Main.MMViewEncryptedCont.Enabled:= FEncryptedContentEnabled;
+
+      if FEncryptedContentEnabled then
+         //***
+      else begin
+         //***
+      end;
+   end;
+
+   EncryptedContentOpened:= True;
+   if not FEncryptedContentEnabled then
+      FillChar(FLoadedVerificationHash, SizeOf(FLoadedVerificationHash), 0);
+end;
+
+procedure TKntFile.SetEncryptedContentOpened(Value: boolean);
+begin
+   if FEncryptedContentOpened <> Value then begin
+      FEncryptedContentOpened:= Value;
+      Form_Main.MMViewEncryptedCont.Checked:= Value;
+
+      if FEncryptedContentOpened then
+         //***
+      else begin
+         InvalidateKeyCache;
+         //***
+      end;
+   end;
+end;
+
+procedure TKntFile.SetHideEncryptedNodes(Value: boolean);
+begin
+   if FHideEncryptedNodes <> Value then begin
+      FHideEncryptedNodes:= Value;
+      //***
+      if FHideEncryptedNodes then
+         //***
+      else begin
+         //***
+      end;
+   end;
+end;
+
+
+function TKntFile.CheckAuthorized(ShowDetail: boolean): boolean;
+begin
+  Result:= False;
+  if not FEncryptedContentEnabled or KeysAreCached then exit (True);
+
+  repeat
+    try
+      if not GetPassphrase(FFileName) then begin
+         if ShowDetail then
+            App.ErrorPopup(GetRS(sFile03) + GetRS(sFile27));
+         exit;
+      end;
+
+      if CheckPassword(GetEncryptionInfo) then
+         exit (True);
+
+    except
+       On e : EPassphraseError do begin
+         if ( App.DoMessageBox(GetRS(sFile04), mtError, [mbYes,mbNo]) <> mrYes ) then begin
+            if ShowDetail then
+               App.ErrorPopup(E.Message);
+            exit;
+         end;
+       end;
+    end;
+  until False;
+end;
+
+
+procedure TKntFile.LoadEncryptedContent;
+begin
+  //****
+end;
+
+procedure TKntFile.ProcessLoadedEncryptedContent;
+begin
+  //****
+end;
 
 procedure TKntFile.CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
 var
@@ -3516,6 +3639,77 @@ begin
 
 end;
 
+function TKntFile.GetEncryptionInfo: TEncryptionInfo;
+begin
+    with Result do begin
+      Method := FCryptMethod;
+      KeyDerivIterations:= FKeyDerivIterations;
+      Hash := FLoadedVerificationHash;
+      HideEncryptedNodes:= FHideEncryptedNodes;
+    end;
+end;
+
+
+function TKntFile.CheckPassword( EncrypInfo: TEncryptionInfo; Decrypt: TDCP_blockcipher = nil): boolean;
+var
+  VerificationHash : THash;
+  FreeDecrypt: Boolean;
+  str: string;
+
+begin
+    Result:= False;
+    FreeDecrypt:= False;
+
+    if Decrypt = nil then begin
+       case EncrypInfo.Method of
+         tcmBlowfish : begin
+           Decrypt := TDCP_Blowfish.Create( nil );
+         end;
+         else
+           Decrypt := TDCP_Idea.Create( nil );
+       end;
+       FreeDecrypt:= True;
+    end;
+
+    try
+      // Since file fomat version 3.2 -> Use simplified PBKDF2 mechanism to derive keys from passwords with a configurable number of iterations
+      if (Version.Major > '3') or ((Version.Major = '3') and (Version.Minor >= '2')) then begin
+         EnsureKeysAreCached;
+         VerificationHash:= FCachedVerificationHash;
+         Decrypt.Init( FCachedEncryptionKey, Sizeof( FCachedEncryptionKey )*8, nil );              // *1(a)
+      end
+      else begin
+        // Check if the hash works with the previous (weaker, see issue #545) mechanism
+        // Once the file is saved, it will be using the new mechanism.
+         CalculateOldPassphraseHash(Decrypt, VerificationHash);                       // *1(b)
+      end;
+
+
+      if ( not CompareMem( @EncrypInfo.Hash, @VerificationHash, Sizeof( THash ))) then begin
+          InvalidateKeyCache;
+          str:= GetRS(sFile16);
+          if FFileFormat = nffEncrypted then
+             str:= str + GetRS(sFile26)
+          else
+             str:= str + GetRS(sFile27);
+          raise EPassphraseError.Create(str);
+      end;
+
+      Result:= True;
+
+      if EncrypInfo.KeyDerivIterations = 0 then begin
+         InvalidateKeyCache;                                       // To use new mechanism when saving
+         FKeyDerivIterations:= KEY_ITERATIONS_VERIF_DEFAULT;
+      end;
+
+    finally
+      if FreeDecrypt then begin
+         Decrypt.Burn;
+         Decrypt.Free;
+      end;
+    end;
+
+end;
 
 
 procedure TKntFile.DecryptStream( EncrypInfo: TEncryptionInfo; const InputStream: TStream; const OutputStream : TMemoryStream );
@@ -3535,28 +3729,7 @@ begin
     end;
 
     try
-      // Since file fomat version 3.2 -> Use simplified PBKDF2 mechanism to derive keys from passwords with a configurable number of iterations
-      if (Version.Major > '3') or ((Version.Major = '3') and (Version.Minor >= '2')) then begin
-         EnsureKeysAreCached;
-         VerificationHash:= FCachedVerificationHash;
-         Decrypt.Init( FCachedEncryptionKey, Sizeof( FCachedEncryptionKey )*8, nil );              // *1(a)
-      end
-      else begin
-        // Check if the hash works with the previous (weaker, see issue #545) mechanism
-        // Once the file is saved, it will be using the new mechanism.
-         CalculateOldPassphraseHash(Decrypt, VerificationHash);                       // *1(b)
-      end;
-
-
-      if ( not CompareMem( @EncrypInfo.Hash, @VerificationHash, Sizeof( THash ))) then begin
-           InvalidateKeyCache;
-           raise EPassphraseError.Create( GetRS(sFile16) );
-      end;
-
-      if EncrypInfo.KeyDerivIterations = 0 then begin
-         InvalidateKeyCache;                                       // To use new mechanism when saving
-         FKeyDerivIterations:= KEY_ITERATIONS_VERIF_DEFAULT;
-      end;
+      CheckPassword(EncrypInfo, Decrypt);       // Can raise EPassphraseError
 
       getmem( dataptr, EncrypInfo.DataSize );
 

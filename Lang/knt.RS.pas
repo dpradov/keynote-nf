@@ -327,7 +327,7 @@ const
 
    sFile01 = 54372;   // Cannot open "%s": File not found
    sFile02 = 54373;   // Invalid file header in "%s" (not a KeyNote file)
-   sFile03 = 54374;   // Access passphrase not specified: cannot open encrypted file.
+   sFile03 = 54374;   // Access passphrase not specified
    sFile04 = 54375;   // The passphrase is invalid. Try again?
    sFile05 = 54376;   // %s: This file was created with a version of KeyNote later than the version you are using. Expected version ID: "%s.%s" This file version ID: "%s.%s"  You need the latest version of KeyNote to open this file.
    sFile06 = 54377;   // : This file was created with a version of KeyNote newer than the version you are using. The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. Would you like to open the file as Read-Only?
@@ -338,7 +338,7 @@ const
    sFile13 = 54382;   // Error while saving folder "%s": %s
    sFile14 = 54383;   // Cannot save: Passphrase not set
    sFile15 = 54352;   // Stream size error: Encrypted file is invalid or corrupt.
-   sFile16 = 54353;   // Invalid passphrase: Cannot open encrypted file.
+   sFile16 = 54353;   // Invalid passphrase
    sFile18 = 54354;   // OK to convert to PLAIN TEXT current note?\^\^ALL IMAGES and FORMATTING will be REMOVED !!
    sFile19 = 54355;   // Exception trying to ensure plain text and removing of images:
    sFile20 = 54356;   // Virtual note "%s" cannot write file
@@ -347,6 +347,8 @@ const
    sFile23 = 54359;   // All (or selected) nodes will be considered
    sFile24 = 54360;   // \^\^Please read the help file before proceeding. Search for "Deduce Dates"
    sFile25 = 55130;   // The key transformation took %u ms
+   sFile26 = 55132;   // : Cannot open encrypted file
+   sFile27 = 55133;   // : Cannot show encrypted content
 
    sFileM01 = 54361;   // Cannot create a new file:
    sFileM02 = 54362;   //  New KNT file created.
@@ -442,6 +444,7 @@ const
    sFInf19 = 54395;   // Current Next ID (%d) cannot be reduced\^(Max ID in image list is %d)
    sFInf20 = 54396;   // Max ID in image list is %d and Next ID is %d\^\^Do you want the NEXT image to be saved with ID = %d \^\^* YOU MUST MAKE SURE there are no images with larger IDs on the external storage, perhaps referenced by other knt files (New images could override existing files)\^\^CONTINUE?
    sFInf21 = 54397;   // Next ID was changed ok
+   sFInf22 = 55131;   // All notes will be saved unencrypted. CONTINUE?
 
    sFld01 = 54263;   //  Virtual:
    sFld05 = 54264;   // Problem while saving folder "%s": Note count mismatch (Folder: %d  Internal: %d) The note may not be saved correctly. Continue?
@@ -882,7 +885,7 @@ const
    sOptS16 = 55106;   // Folding Blocks
 
    sPass01 = 54873;   // Passphrase cannot be blank.
-   sPass02 = 54874;   // File "%s" is encrypted
+   sPass02 = 54874;   // File "%s" has content encrypted
 
    sPlg01 = 54875;   // StatusOK
    sPlg02 = 54876;   // Gets data

@@ -927,6 +927,7 @@ type
     RTFMExpand: TMenuItem;
     MMInsertLine: TMenuItem;
     MMInsertTable: TMenuItem;
+    MMViewEncryptedCont: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1355,6 +1356,7 @@ type
     procedure Pages_ResEnter(Sender: TObject);
     procedure MMInsertLineClick(Sender: TObject);
     procedure MMInsertTableClick(Sender: TObject);
+    procedure MMViewEncryptedContClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -2493,7 +2495,7 @@ begin
    ActiveControl:= nil;
    Application.ProcessMessages;
    try
-      if not ActiveEditor.CanFocus then begin
+      if (ActiveEditor = nil) or not ActiveEditor.CanFocus then begin
          Sleep(100);
          Application.ProcessMessages;
       end;
@@ -3607,6 +3609,14 @@ begin
    if ActiveTreeUI <> nil then
       ActiveTreeUI.TB_FilterTreeClick(nil);
 end;
+
+procedure TForm_Main.MMViewEncryptedContClick(Sender: TObject);
+begin
+   if not ActiveFile.CheckAuthorized(True) then exit;
+
+   ActiveFile.EncryptedContentOpened:= not ActiveFile.EncryptedContentOpened;
+end;
+
 
 procedure TForm_Main.MMViewFormatNoneClick(Sender: TObject);
 begin

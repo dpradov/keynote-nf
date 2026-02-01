@@ -1047,6 +1047,9 @@ begin
         UpdateLastCommand( ecNone );
         BookmarkInitializeAll;
         UpdateAlarmStatus;
+        MMViewEncryptedCont.Enabled:= False;
+        MMViewEncryptedCont.Checked:= False;
+
 
         if assigned( KntFile ) then begin
           try
@@ -2590,9 +2593,18 @@ begin
                  KntFile.KeyDerivIterations := KeyIter;
                  PassphraseChanged:= True;
               end;
-              if PassphraseChanged then
-                 KntFile.InvalidateKeyCache;
+            end
+            else begin
+              if KntFile.EncryptedContentEnabled <> cbEnableEncrCont.Checked then begin
+                 KntFile.EncryptedContentEnabled:= cbEnableEncrCont.Checked;
+                 PassphraseChanged:= True;
+              end;
+              KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
             end;
+
+            if PassphraseChanged then
+               KntFile.OnPassphraseChanged;
+
 
             if ( KntFile.FileName <> '' ) then
                case KntFile.FileFormat of

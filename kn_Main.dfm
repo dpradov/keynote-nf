@@ -2776,6 +2776,12 @@ object Form_Main: TForm_Main
         ImageIndex = 49
         OnClick = MMViewFilterTreeClick
       end
+      object MMViewEncryptedCont: TMenuItem
+        Caption = 'Encrypted content'
+        Enabled = False
+        Hint = 'Show or hide nodes and entries with encrypted content'
+        OnClick = MMViewEncryptedContClick
+      end
       object N106: TMenuItem
         Caption = '-'
       end

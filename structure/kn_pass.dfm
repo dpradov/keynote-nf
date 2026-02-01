@@ -5,13 +5,13 @@ object Form_Password: TForm_Password
   ActiveControl = Edit_Pass
   BorderStyle = bsDialog
   Caption = 'File access passphrase'
-  ClientHeight = 113
+  ClientHeight = 129
   ClientWidth = 440
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -13
+  Font.Name = 'Tahoma'
   Font.Style = []
   KeyPreview = True
   Position = poScreenCenter
@@ -21,10 +21,10 @@ object Form_Password: TForm_Password
   OnCreate = FormCreate
   OnHelp = FormHelp
   OnKeyDown = FormKeyDown
-  TextHeight = 13
+  TextHeight = 16
   object Button_OK: TButton
     Left = 151
-    Top = 82
+    Top = 96
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -35,7 +35,7 @@ object Form_Password: TForm_Password
   end
   object Button_Cancel: TButton
     Left = 239
-    Top = 82
+    Top = 96
     Width = 75
     Height = 25
     Caption = 'Cancel'
@@ -45,16 +45,17 @@ object Form_Password: TForm_Password
   end
   object GroupBox1: TGroupBox
     Left = 5
-    Top = 5
+    Top = 7
     Width = 435
-    Height = 66
-    Caption = ' Enter access passphrase to open the file : '
+    Height = 81
+    Caption = ' Enter access passphrase: '
     TabOrder = 2
     object Label_FileName: TLabel
-      Left = 10
-      Top = 15
+      Left = 402
+      Top = 22
       Width = 12
       Height = 13
+      Alignment = taRightJustify
       Caption = '...'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clHighlight
@@ -64,8 +65,8 @@ object Form_Password: TForm_Password
       ParentFont = False
     end
     object Label2: TLabel
-      Left = 10
-      Top = 40
+      Left = 15
+      Top = 50
       Width = 82
       Height = 13
       AutoSize = False
@@ -73,11 +74,10 @@ object Form_Password: TForm_Password
       FocusControl = Edit_Pass
     end
     object Edit_Pass: TEdit
-      Left = 96
-      Top = 35
+      Left = 101
+      Top = 45
       Width = 313
-      Height = 21
-      Hint = 'Enter access passphrase for the file you wish to open'
+      Height = 24
       PasswordChar = '*'
       TabOrder = 0
     end
