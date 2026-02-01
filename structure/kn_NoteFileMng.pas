@@ -2588,7 +2588,7 @@ begin
               KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
               KeyIter:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
               if PassphraseChanged then
-                 KntFile.Passphrase := Edit_Pass.Text;
+                 KntFile.Passphrase := Edit_Pass.GetSecureText;
               if KeyIter <> KntFile.KeyDerivIterations then begin
                  KntFile.KeyDerivIterations := KeyIter;
                  PassphraseChanged:= True;

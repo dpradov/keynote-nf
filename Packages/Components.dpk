@@ -8,32 +8,30 @@ package Components;
 {$R '..\3rd_party\tb97_178a\Source\TB97Reg.dcr'}
 {$R '..\3rd_party\topmostwindow\TopWnd.dcr'}
 {$R '..\3rd_party\wordweb\FreeWordWeb.dcr'}
-//{$R '..\3rd_party\richprint\RichPrint.dcr'}
-//{$R '..\support\GFLog.dcr'}
 {$R '..\3rd_party\ComCtrls95\ComCtrls95.dcr'}
 {$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
 {$ALIGN 8}
 {$ASSERTIONS OFF}
 {$BOOLEVAL OFF}
-{$DEBUGINFO ON}
+{$DEBUGINFO OFF}
 {$EXTENDEDSYNTAX ON}
 {$IMPORTEDDATA ON}
 {$IOCHECKS ON}
-{$LOCALSYMBOLS ON}
+{$LOCALSYMBOLS OFF}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
-{$OVERFLOWCHECKS ON}
-{$RANGECHECKS ON}
-{$REFERENCEINFO ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
+{$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE DEBUG}
+{$DEFINE RELEASE}
 {$ENDIF IMPLICITBUILDING}
 {$DESCRIPTION '3rd Party Components'}
 {$IMPLICITBUILD ON}
@@ -42,7 +40,7 @@ requires
   rtl,
   vcl,
   DesignIDE,
-  vclx,  
+  vclx,
   vclactnband,
   vcldb,
   dbrtl;
@@ -118,6 +116,7 @@ contains
   FreeWordWeb in '..\3rd_party\wordweb\FreeWordWeb.pas',
 
   ComCtrls95 in '..\3rd_party\ComCtrls95\ComCtrls95.pas',
-  CC95_Register in '..\3rd_party\ComCtrls95\CC95_Register.pas'
+  CC95_Register in '..\3rd_party\ComCtrls95\CC95_Register.pas',
+  knt.ui.secureEdit in '..\ui\knt.ui.secureEdit.pas'
   ;
 end.

@@ -73,7 +73,7 @@ object Form_Password: TForm_Password
       Caption = '&Passphrase:'
       FocusControl = Edit_Pass
     end
-    object Edit_Pass: TEdit
+    object Edit_Pass: TSecureEdit
       Left = 101
       Top = 45
       Width = 313

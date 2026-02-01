@@ -1591,7 +1591,7 @@ begin
   try
     PassForm.myFileName := FN;
     if ( PassForm.ShowModal = mrOK ) then
-      result := PassForm.Edit_Pass.Text;
+      result := PassForm.Edit_Pass.GetSecureText;
   finally
     PassForm.Free;
   end;

@@ -643,7 +643,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Caption = 'Key Transformation. &Iterations:'
           FocusControl = txtIter
         end
-        object Edit_Confirm: TEdit
+        object Edit_Confirm: TSecureEdit
           Left = 134
           Top = 87
           Width = 331
@@ -653,7 +653,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
           PasswordChar = '*'
           TabOrder = 1
         end
-        object Edit_Pass: TEdit
+        object Edit_Pass: TSecureEdit
           Left = 134
           Top = 56
           Width = 331

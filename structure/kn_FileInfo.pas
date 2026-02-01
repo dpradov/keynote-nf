@@ -35,6 +35,7 @@ uses
    Vcl.Mask,
    RxPlacemnt,
    TB97Ctls,
+   knt.ui.secureEdit,
 
    kn_KntFile
    ;
@@ -70,8 +71,8 @@ type
     Label_Confirm: TLabel;
     Label_Pass: TLabel;
     Label_Method: TLabel;
-    Edit_Confirm: TEdit;
-    Edit_Pass: TEdit;
+    Edit_Confirm: TSecureEdit;
+    Edit_Pass: TSecureEdit;
     Combo_Method: TComboBox;
     Button_SetPass: TButton;
     Label_EnterPass: TLabel;
@@ -120,13 +121,13 @@ type
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure Combo_MethodChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure Button_OKClick(Sender: TObject);
     procedure Button_CancelClick(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Combo_FormatChange(Sender: TObject);
     procedure cbEnableEncrCont_Click(Sender: TObject);
     procedure Button_SetPassClick(Sender: TObject);
@@ -241,6 +242,14 @@ begin
 
   OK_Click := false;
 end; // CREATE
+
+
+procedure TForm_KntFileInfo.FormDestroy(Sender: TObject);
+begin
+   Edit_Pass.ClearSecure;
+   Edit_Confirm.ClearSecure;
+end;
+
 
 procedure TForm_KntFileInfo.FormActivate(Sender: TObject);
 var
@@ -414,13 +423,13 @@ begin
 
   s := '';
 
-  if length( Edit_Pass.Text ) < MinPassLen then begin
+  if length( Edit_Pass.GetSecureText ) < MinPassLen then begin
     s := Format( GetRS(sFInf09), [MinPassLen] );
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end
   else
-  if ( Edit_Pass.Text <> Edit_Confirm.Text ) then begin
+  if ( Edit_Pass.GetSecureText <> Edit_Confirm.GetSecureText ) then begin
     s := GetRS(sFInf10);
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
@@ -590,10 +599,10 @@ procedure TForm_KntFileInfo.CheckBox_HidePassClick(Sender: TObject);
 begin
   HidePassText := CB_HidePass.Checked;
   if HidePassText then
-    Edit_Pass.PasswordChar := '*'
+    Edit_Pass.SecureMode:= True
   else
-    Edit_Pass.PasswordChar := #0;
-  Edit_Confirm.PasswordChar := Edit_Pass.PasswordChar;
+    Edit_Pass.SecureMode:= False;
+  Edit_Confirm.SecureMode:= Edit_Pass.SecureMode;
 end;
 
 procedure TForm_KntFileInfo.EnablePassControls (Enable: boolean= true);
@@ -648,7 +657,7 @@ var
 begin
   NIter:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
   StartTick := GetTickCount;
-  CalculatePassphraseHashes (Edit_Pass.Text, EncryptionKey, VerificationHash, NIter);
+  CalculatePassphraseHashes (Edit_Pass.GetSecureText, EncryptionKey, VerificationHash, NIter);
 
   ElapsedMs := GetTickCount - StartTick;
   App.InfoPopup(Format(GetRS(sFile25), [ElapsedMs]));
