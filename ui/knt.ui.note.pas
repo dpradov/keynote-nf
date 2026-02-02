@@ -71,6 +71,7 @@ type
     fImagesReferenceCount: TImageIDs;
 
     fChangingInCode: boolean;
+    FReadOnly: boolean;
 
     FOnEnterOnEditor: TNotifyEvent;
     FOnMouseUpOnNote: TNotifyEvent;
@@ -113,6 +114,7 @@ type
   protected
     function GetReadOnly: boolean;
     procedure SetReadOnly( AReadOnly : boolean );
+    procedure ForceTempReadOnly( AReadOnly : boolean );
   public
     property ReadOnly : boolean read GetReadOnly write SetReadOnly;
 
@@ -256,11 +258,19 @@ end;
 
 procedure TKntNoteUI.SetReadOnly( AReadOnly : boolean );
 begin
+   FReadOnly:= AReadOnly;
    Editor.ReadOnly:= AReadOnly;
    txtName.ReadOnly:= AReadOnly;
    txtTags.ReadOnly:= AReadOnly;
 
    ConfigureEditor;
+end;
+
+procedure TKntNoteUI.ForceTempReadOnly( AReadOnly : boolean );
+begin
+   Editor.ReadOnly:= AReadOnly;
+   txtName.ReadOnly:= AReadOnly;
+   txtTags.ReadOnly:= AReadOnly;
 end;
 
 
@@ -584,9 +594,9 @@ end;
 procedure TKntNoteUI.ReloadFromDataModel;
 var
   ReadOnlyBAK: boolean;
+  str: String;
 
 {$IFDEF KNT_DEBUG}
- str: String;
  dataSize: integer;
 {$ENDIF}
 
@@ -607,11 +617,19 @@ begin
 
    FEditor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
-   ReadOnlyBAK:= FEditor.ReadOnly;
+   ReadOnlyBAK:= FReadOnly;
    ContainsImgIDsRemoved:= false;
    try
      FEditor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
      FEditor.Clear;
+
+
+     if ActiveFile.EncryptedContentMustBeHidden and Note.IsEncrypted then begin
+        FEditor.AddText(GetRS(sEdt52));
+        ReadOnlyBAK:= True;
+        exit;
+     end;
+
 
      NEntry.Stream.Position := 0;
      strRTF:= '';
@@ -670,7 +688,7 @@ begin
         UpdateEditor (FEditor, FKntFolder, false);
 
    finally
-     FEditor.ReadOnly:= ReadOnlyBAK;
+     ForceTempReadOnly(ReadOnlyBAK);
 
      Editor.RestoreZoomGoal;
 

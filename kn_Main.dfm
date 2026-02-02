@@ -2242,6 +2242,13 @@ object Form_Main: TForm_Main
       ImageIndex = 6
       OnExecute = actTVVirtualNodeExecute
     end
+    object actTVEncrypNode: TAction
+      Caption = 'Encrypted'
+      Hint = 
+        'The content of the note, and optionally its name, will be saved ' +
+        'encrypted in the file'
+      OnExecute = actTVEncrypNodeExecute
+    end
   end
   object Menu_Main: TMainMenu
     Images = IMG_Toolbar
@@ -5257,6 +5264,10 @@ object Form_Main: TForm_Main
     end
     object TVFlaggedNode: TMenuItem
       Action = actTVFlaggedNode
+    end
+    object TVEncrypNode: TMenuItem
+      Action = actTVEncrypNode
+      Visible = False
     end
     object N80: TMenuItem
       Caption = '-'

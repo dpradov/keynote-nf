@@ -1731,6 +1731,14 @@ begin
       myFolder:= Location.Folder;
       myTreeNode:= Location.Node;
 
+
+      if ActiveFile.EncryptedNodesMustBeHidden and myFolder.GetNNode(myTreeNode).Note.IsEncrypted then begin
+         Location.CaretPos:= 0;
+         Location.SelLength:= 0;
+         exit;
+      end;
+
+
       _Executing_JumpToKNTLocation_ToOtherNote:= false;
       try
          // if not current folder, switch to it

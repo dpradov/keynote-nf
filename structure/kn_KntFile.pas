@@ -94,6 +94,7 @@ type
     FCachedEncryptionKey: THash;
     FCachedVerificationHash: THash;
     FKeysAreCached: Boolean;
+    FHidingEncryptedNodes : Boolean;
 
     FSavedActiveFolderID : Cardinal;
 
@@ -122,7 +123,11 @@ type
     procedure SetEncryptedContentEnabled(Value: boolean);
     procedure SetEncryptedContentOpened(Value: boolean);
     procedure SetHideEncryptedNodes(Value: boolean);
+    function  GetEncryptedContentMustBeHidden: boolean;
+    function  GetEncryptedNodesMustBeHidden: boolean;
     procedure EnsureKeysAreCached;
+    procedure ShowOrHideEncryptedNodes;
+    procedure ReloadFocusedEncryptedNodes;
 
     procedure SetFilename( const Value : string );
     function GetBookmark(Index: integer): TLocation;
@@ -168,6 +173,8 @@ type
     property EncryptedContentEnabled: boolean read FEncryptedContentEnabled write SetEncryptedContentEnabled;
     property HideEncryptedNodes : Boolean read FHideEncryptedNodes write SetHideEncryptedNodes;
     property EncryptedContentOpened: boolean read FEncryptedContentOpened write SetEncryptedContentOpened;
+    property EncryptedContentMustBeHidden: boolean read GetEncryptedContentMustBeHidden;
+    property EncryptedNodesMustBeHidden: boolean read GetEncryptedNodesMustBeHidden;
     property KeysAreCached: Boolean read FKeysAreCached;
 
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
@@ -340,6 +347,8 @@ begin
   FCryptMethod := low( TCryptMethod );
   FKeyDerivIterations := KEY_ITERATIONS_VERIF_DEFAULT;
   FEncryptedContentOpened:= False;
+  FHideEncryptedNodes:= False;
+  FHidingEncryptedNodes:= False;
   InvalidateKeyCache;
   FReadOnly := false;
   FOpenAsReadOnly := false;
@@ -3476,12 +3485,7 @@ begin
    if FEncryptedContentEnabled <> Value then begin
       FEncryptedContentEnabled:= Value;
       Form_Main.MMViewEncryptedCont.Enabled:= FEncryptedContentEnabled;
-
-      if FEncryptedContentEnabled then
-         //***
-      else begin
-         //***
-      end;
+      Form_Main.TVEncrypNode.Visible:= FEncryptedContentEnabled;
    end;
 
    EncryptedContentOpened:= True;
@@ -3495,12 +3499,13 @@ begin
       FEncryptedContentOpened:= Value;
       Form_Main.MMViewEncryptedCont.Checked:= Value;
 
-      if FEncryptedContentOpened then
-         //***
-      else begin
+      if not FEncryptedContentOpened then
          InvalidateKeyCache;
-         //***
-      end;
+
+      ReloadFocusedEncryptedNodes;
+
+      if FHideEncryptedNodes then
+         ShowOrHideEncryptedNodes;
    end;
 end;
 
@@ -3508,14 +3513,56 @@ procedure TKntFile.SetHideEncryptedNodes(Value: boolean);
 begin
    if FHideEncryptedNodes <> Value then begin
       FHideEncryptedNodes:= Value;
-      //***
-      if FHideEncryptedNodes then
-         //***
-      else begin
-         //***
-      end;
+
+      ShowOrHideEncryptedNodes;
    end;
 end;
+
+
+function TKntFile.GetEncryptedContentMustBeHidden: boolean;
+begin
+   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened;
+end;
+
+
+function TKntFile.GetEncryptedNodesMustBeHidden: boolean;
+begin
+   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened and FHideEncryptedNodes;
+end;
+
+
+procedure TKntFile.ShowOrHideEncryptedNodes;
+var
+  i: Cardinal;
+  myFolder : TKntFolder;
+  Hide: boolean;
+begin
+  Hide:= not FEncryptedContentOpened and FHideEncryptedNodes;
+  if FHidingEncryptedNodes = Hide then exit;
+
+  for i := 0 to FFolders.Count-1 do begin
+     myFolder := FFolders[i];
+     myFolder.TreeUI.ShowEncryptedNodes(not Hide);
+  end;
+
+  FHidingEncryptedNodes:= Hide;
+end;
+
+
+procedure TKntFile.ReloadFocusedEncryptedNodes;
+var
+  i: Cardinal;
+  myFolder : TKntFolder;
+  NNode: TNoteNode;
+begin
+  for i := 0 to FFolders.Count-1 do begin
+     myFolder := FFolders[i];
+     NNode:= myFolder.FocusedNNode;
+     if (NNode <> nil) and (NNode.Note.IsEncrypted) then
+        myFolder.NoteUI.ReloadFromDataModel;
+  end;
+end;
+
 
 
 function TKntFile.CheckAuthorized(ShowDetail: boolean): boolean;
@@ -3531,8 +3578,10 @@ begin
          exit;
       end;
 
-      if CheckPassword(GetEncryptionInfo) then
+      if CheckPassword(GetEncryptionInfo) then begin
+         EncryptedContentOpened:= True;
          exit (True);
+      end;
 
     except
        On e : EPassphraseError do begin

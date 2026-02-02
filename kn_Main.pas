@@ -928,6 +928,8 @@ type
     MMInsertLine: TMenuItem;
     MMInsertTable: TMenuItem;
     MMViewEncryptedCont: TMenuItem;
+    TVEncrypNode: TMenuItem;
+    actTVEncrypNode: TAction;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1357,6 +1359,7 @@ type
     procedure MMInsertLineClick(Sender: TObject);
     procedure MMInsertTableClick(Sender: TObject);
     procedure MMViewEncryptedContClick(Sender: TObject);
+    procedure actTVEncrypNodeExecute(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -3612,9 +3615,10 @@ end;
 
 procedure TForm_Main.MMViewEncryptedContClick(Sender: TObject);
 begin
-   if not ActiveFile.CheckAuthorized(True) then exit;
-
-   ActiveFile.EncryptedContentOpened:= not ActiveFile.EncryptedContentOpened;
+   if ActiveFile.EncryptedContentOpened then
+      ActiveFile.EncryptedContentOpened:= False
+   else
+      ActiveFile.CheckAuthorized(True);
 end;
 
 
@@ -8218,6 +8222,22 @@ begin
   ActiveTreeUI.TreeTransferProc(ttPaste, KeyOptions.ConfirmTreePaste, true);
 end;
 
+procedure TForm_Main.actTVEncrypNodeExecute(Sender: TObject);
+var
+  WasClosed, MustReload: boolean;
+begin
+  WasClosed:= not ActiveFile.EncryptedContentOpened;
+
+  if not ActiveFile.CheckAuthorized(True) then exit;
+
+  MustReload:= WasClosed and ActiveFolder.FocusedNNode.Note.IsEncrypted;
+
+  ActiveTreeUI.SetNodeEncrypted(ShiftDown);
+
+  if MustReload then
+     ActiveFolder.NoteUI.ReloadFromDataModel;
+end;
+
 procedure TForm_Main.actTVEraseTreeMemExecute(Sender: TObject);
 begin
   ActiveTreeUI.TreeTransferProc(ttClear, false, false);
@@ -8532,6 +8552,7 @@ begin
       actTVChildrenCheckbox.Checked := NNode.ChildrenCheckbox;
       actTVBoldNode.Checked := NNode.Bold;
       actTVFlaggedNode.Checked := NNode.Flagged;
+      actTVEncrypNode.Checked := Note.IsEncrypted;
    end
    else
       actTVCheckNode.Checked := false;

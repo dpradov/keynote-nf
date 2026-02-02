@@ -1049,6 +1049,7 @@ begin
         UpdateAlarmStatus;
         MMViewEncryptedCont.Enabled:= False;
         MMViewEncryptedCont.Checked:= False;
+        TVEncrypNode.Visible:= False;
 
 
         if assigned( KntFile ) then begin
@@ -2595,6 +2596,8 @@ begin
               end;
             end
             else begin
+              if PassphraseChanged then
+                 KntFile.Passphrase := Edit_Pass.GetSecureText;
               if KntFile.EncryptedContentEnabled <> cbEnableEncrCont.Checked then begin
                  KntFile.EncryptedContentEnabled:= cbEnableEncrCont.Checked;
                  PassphraseChanged:= True;

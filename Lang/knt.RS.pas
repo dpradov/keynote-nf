@@ -283,6 +283,7 @@ const
    sEdt49 = 54527;   // Print all nodes in folder?\^\^0: Only selected node\^1: All, contiguous\^2: All, starting on new page 
    sEdt50 = 54496;   // CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message:
    sEdt51 = 55129;   // Insert basic Table with R rows and C columns
+   sEdt52 = 55134;   // ** UNAUTHORIZED CONTENT **   => View | Encrypted Content
 
    sExp01 = 54274;   // Error while importing HTML text:
    sExp02 = 54275;   // Error while exporting to HTML (method=
@@ -1011,6 +1012,7 @@ const
    sTree64 = 54198;   // Date
    sTree65 = 54199;   // Note creation date
    sTree66 = 54200;   // Flagged
+   sTree67 = 55135;   // Node (or its children) contains encrypted content! CONTINUE?
 
    sUInote01 = 54201;   // Created: %s  ==  Last modified: %s
 
