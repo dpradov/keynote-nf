@@ -350,6 +350,7 @@ const
    sFile25 = 55130;   // The key transformation took %u ms
    sFile26 = 55132;   // : Cannot open encrypted file
    sFile27 = 55133;   // : Cannot show encrypted content
+   sFile28 = 55136;   // Error loading encrypted content
 
    sFileM01 = 54361;   // Cannot create a new file:
    sFileM02 = 54362;   //  New KNT file created.

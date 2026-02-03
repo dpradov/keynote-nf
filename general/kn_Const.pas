@@ -310,6 +310,8 @@ const
   _NF_Bookmarks       = '%BK';
   _NF_Bookmark        = 'BK';
   _NF_Tags            = '%TG';
+  _NF_EncryptedContent= '%C';
+  _NF_EncryptedContentEND= '%CE';
 
 
 const
@@ -428,7 +430,8 @@ type
     nbTree,       // = ntTree                 (= Folder)
     nbImages,     // = Images Definition
     nbBookmarks,
-    nbTags
+    nbTags,
+    nbEncrypted
   );
   //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
   TNoteNameStr = string;

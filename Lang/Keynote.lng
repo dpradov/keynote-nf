@@ -2835,5 +2835,6 @@ Button_OK.Caption=&Close
 55133_knt_RS_sFile27=: Cannot show encrypted content
 55134_knt_RS_sEdt52=** UNAUTHORIZED CONTENT **   => View | Encrypted Content
 55135_knt_RS_sTree67=Node (or its children) contains encrypted content! CONTINUE?
+55136_knt_RS_sFile28=Error loading encrypted content
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

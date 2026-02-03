@@ -935,4 +935,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55133,  ": Cannot show encrypted content"
 55134,  "** UNAUTHORIZED CONTENT **   => View | Encrypted Content"
 55135,  "Node (or its children) contains encrypted content! CONTINUE?"
+55136,  "Error loading encrypted content"
 }

@@ -364,6 +364,7 @@ begin
             EnsureNodeAndCaretVisibleInFolders;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
 
+            KntFile.InitialConfigurationEncryptedContent;
 
             opensuccess := true;
 

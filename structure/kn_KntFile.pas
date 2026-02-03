@@ -209,6 +209,7 @@ type
     function  Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
     procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
+    function  LoadEncryptedContent(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock): boolean;
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
     function  ConvertKNTLinksToNewFormatInNotes(FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
     function  ConvertLinksForColorInNotes: boolean;
@@ -217,12 +218,13 @@ type
     function  GetEncryptionInfo: TEncryptionInfo;
     function  CheckPassword( EncrypInfo: TEncryptionInfo; Decrypt: TDCP_blockcipher = nil): boolean;
     procedure CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
+    procedure EncryptStream( EncrypInfo: TEncryptionInfo; const InputStream: TMemoryStream; const OutputStream : TMemoryStream );
     procedure EncryptFileInStream( const FN : string; const CryptStream : TMemoryStream );
     procedure DecryptStream( EncrypInfo: TEncryptionInfo; const InputStream: TStream; const OutputStream : TMemoryStream );
     procedure OnPassphraseChanged;
     procedure InvalidateKeyCache;
     function  CheckAuthorized(ShowDetail: boolean): boolean;
-    procedure LoadEncryptedContent;
+    procedure InitialConfigurationEncryptedContent;
     procedure ProcessLoadedEncryptedContent;
 
   private
@@ -416,6 +418,10 @@ begin
     fNotes := nil;
   end;
 
+  if FLoadedEncryptedContent <> nil then begin
+     FLoadedEncryptedContent.Free;
+     FLoadedEncryptedContent:= nil;
+  end;
 
   inherited Destroy;
 end; // DESTROY
@@ -2139,7 +2145,7 @@ var
   ch : AnsiChar;
   p, i : integer;
   HasLoadError, FileIDTestFailed : boolean;
-  tf: TTextFile;
+  tf, tfC : TTextFile;
   OldLongDateFormat,
   OldShortDateFormat : string;
   OldLongTimeFormat : string;
@@ -2471,6 +2477,12 @@ begin
                 break;
               end;
 
+              if ( ds = _NF_EncryptedContent ) then begin
+                InHead := false;
+                NextBlock:= nbEncrypted;         // Encrypted content
+                break;
+              end;
+
               if ( ds = _NF_EOF ) then begin
                 InHead := false;
                 FileExhausted := true;
@@ -2491,6 +2503,11 @@ begin
 
                else if NextBlock = nbTags then
                    LoadNoteTags(tf, FileExhausted, NextBlock)
+
+               else if NextBlock = nbEncrypted then begin
+                   if not LoadEncryptedContent(tf, FileExhausted, NextBlock) then
+                      HasLoadError:= True;
+               end
 
                else begin
                    case NextBlock of
@@ -2668,6 +2685,11 @@ begin
        if assigned(NEntry) then AddTextToNewNEntry;
        break; // Bookmarks begins
      end;
+     if ( s = _NF_EncryptedContent ) then begin
+       NextBlock:= nbEncrypted;       // Encrypted content begins
+       if assigned(NEntry) then AddTextToNewNEntry;
+       break;
+     end;
      if ( s = _NF_EOF ) then begin
        FileExhausted := true;
        if assigned(NEntry) then AddTextToNewNEntry;
@@ -2811,6 +2833,81 @@ begin
 
    if not CheckNTagsSorted then
       NoteTags.Sort(CompareNTagsByID);
+end;
+
+
+function TKntFile.LoadEncryptedContent(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock): boolean;
+var
+  s : AnsiString;
+  chunksize, sizeread : integer;
+  EncrypInfo: TEncryptionInfo;
+  Stream: TMemoryStream;
+  Error: boolean;
+
+begin
+  {
+    %C
+    <size of TEncryptionInfo><TEncryptionInfo (binary)>
+    <--Encrypted content (binary) -->
+    %CE
+  }
+  Result:= True;
+
+  try
+    FLoadedEncryptedContent:= TMemoryStream.Create;
+    Stream:= FLoadedEncryptedContent;
+
+    tf.ReadToStream(Stream, sizeof(chunksize));
+    Stream.Position := 0;
+    Stream.Read(chunksize, sizeof(chunksize));
+    Stream.Clear;
+
+    sizeread := tf.ReadToStream(Stream, sizeof(EncrypInfo));
+    if (sizeread <> chunksize) then RaiseStreamReadError;
+    Stream.Position := 0;
+    Stream.Read(EncrypInfo, sizeof(EncrypInfo));
+    Stream.Clear;
+
+    sizeread:= tf.ReadToStream(Stream, EncrypInfo.DataSize);
+    if ( sizeread <> EncrypInfo.DataSize ) then RaiseStreamReadError;
+
+    s:= tf.Readln;
+    s:= tf.Readln;
+    if s <> _NF_EncryptedContentEND then
+       Error:= True;
+
+
+    //FEncryptedContentEnabled:= True;                          // We will 'activate' at the end of KntFileOpen -> KntFile.InitialConfigurationEncryptedContent;
+    FHideEncryptedNodes:= EncrypInfo.HideEncryptedNodes;
+    FKeyDerivIterations:=  EncrypInfo.KeyDerivIterations;
+    FLoadedVerificationHash:= EncrypInfo.Hash;
+
+
+  except
+    On E : Exception do begin
+      Error:= True;
+    end;
+  end;
+
+  if Error then begin
+     App.ErrorPopup(GetRS(sFile28));
+     Result:= False;
+  end;
+
+  while ( not tf.eof()) do begin
+    s:= tf.readln();
+
+    if s = _NF_StoragesDEF then begin
+       NextBlock:= nbImages;
+       break;
+    end;
+    if ( s = _NF_EOF ) then begin
+      FileExhausted := true;
+      break; // END OF FILE
+    end;
+  end;
+
+
 end;
 
 
@@ -2992,13 +3089,20 @@ var
   Stream : TFileStream;
   myFolder : TKntFolder;
   ds : AnsiString;
-  tf : TTextFile;
+  tf, tfC : TTextFile;
   AuxStream : TMemoryStream;
   NotesToSave: TNoteList;
+  ToEncryptStream, EncryptedStream : TMemoryStream;
 
 
   procedure WriteNEntry (NEntry: TNoteEntry; Note: TNote);
   begin
+     if EncryptedContentEnabled and Note.IsEncrypted then begin
+        tfC.WriteLine(_NF_NEntry);                              // TNoteEntry begins
+        if NEntry.ID <> 0 then
+           tfC.WriteLine(_NEntryID + '=' + NEntry.ID.ToString );
+     end;
+
      tf.WriteLine(_NF_NEntry);                              // TNoteEntry begins
      if NEntry.ID <> 0 then
         tf.WriteLine(_NEntryID + '=' + NEntry.ID.ToString );
@@ -3012,7 +3116,10 @@ var
         tf.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);
 
      if not Note.IsVirtual then
-        SaveTextToFile(tf, NEntry.Stream, NEntry.IsPlainTXT);
+        if EncryptedContentEnabled and Note.IsEncrypted then
+           SaveTextToFile(tfC, NEntry.Stream, NEntry.IsPlainTXT)
+        else
+           SaveTextToFile(tf, NEntry.Stream, NEntry.IsPlainTXT);
   end;
 
 
@@ -3020,9 +3127,20 @@ var
   var
     i: integer;
   begin
+    if EncryptedContentEnabled and Note.IsEncrypted then begin
+       tfC.WriteLine(_NF_Note);              // TNote begins
+       tfC.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
+
+       if EncryptedNodesMustBeHidden then
+          tfC.WriteLine(_NoteName + '=' + Note.Name, True);
+    end;
+
     tf.WriteLine(_NF_Note);              // TNote begins
     tf.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
-    tf.WriteLine(_NoteName + '=' + Note.Name, True);
+
+    if not EncryptedNodesMustBeHidden then
+       tf.WriteLine(_NoteName + '=' + Note.Name, True);
+
     if Note.Alias <> '' then
        tf.WriteLine(_NoteAlias + '=' + Note.Alias, True);
     if Note.LastModified <> 0 then
@@ -3083,98 +3201,150 @@ var
      i: integer;
      ClipCapOnFolder: TKntFolder;
      NTag: TNoteTag;
+
+     EncrypInfo: TEncryptionInfo;
+     wordsize : integer;
+
   begin
-    //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
-    if FFileFormat = nffKeyNote then begin
-       tf.WriteLine( _NF_COMMENT + _NF_AID + FVersion.ID + ' ' + FVersion.Major + '.' + FVersion.Minor);
-       tf.WriteLine(_NF_WARNING);
-    end;
-    tf.WriteLine(_NF_COMMENT + _NF_FDE + FDescription, True );
-    tf.WriteLine(_NF_COMMENT + _NF_FCO + FComment, True );
 
-    tf.WriteLine(_NF_COMMENT + _NF_ACT + FSavedActiveFolderID.ToString );
+    ToEncryptStream:= nil;
+    EncryptedStream:= nil;
 
-    tf.WriteLine(_NF_COMMENT + _NF_DCR + FormatDateTime( _SHORTDATEFMT + ' ' + _LONGTIMEFMT, FDateCreated ) );
-    tf.WriteLine(_NF_COMMENT + _NF_FileFlags + PropertiesToFlagsString );
-    if ( TrayIconFN <> '' ) then
-      tf.WriteLine( _NF_COMMENT + _NF_TrayIconFile + TrayIconFN );
-    if ( FTabIconsFN <> '' ) then
-      tf.WriteLine( _NF_COMMENT + _NF_TabIconsFile + FTabIconsFN );
-    with ClipCapMng do begin
-       if ClipCapActive then begin
-          var Idx: integer;
-          ClipCapOnFolder:= ClipCapFolder;
-          if assigned(ClipCapOnFolder) then
-             Idx:= ClipCapOnFolder.TabIndex             //ClipCapOnFolder.TabSheet.PageIndex.ToString
-          else
-             Idx:= Scratch_TabIdX;
-          tf.WriteLine( _NF_COMMENT + _NF_ClipCapFolder + Idx.ToString );
-       end;
+    if ActiveFile.EncryptedContentEnabled then begin
+       ToEncryptStream     := TMemoryStream.Create;
+       EncryptedStream := TMemoryStream.Create;
+       tfC:= TTextFile.Create();
+       tfC.assignstream( ToEncryptStream );
+       tfC.rewrite;
     end;
 
+    try
+        //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
+        if FFileFormat = nffKeyNote then begin
+           tf.WriteLine( _NF_COMMENT + _NF_AID + FVersion.ID + ' ' + FVersion.Major + '.' + FVersion.Minor);
+           tf.WriteLine(_NF_WARNING);
+        end;
+        tf.WriteLine(_NF_COMMENT + _NF_FDE + FDescription, True );
+        tf.WriteLine(_NF_COMMENT + _NF_FCO + FComment, True );
 
-    // Save Tags
-    if NoteTags.Count > 0 then begin
-       tf.WriteLine(_NF_Tags);
-       for i := 0 to NoteTags.Count -1 do begin
-          NTag:= NoteTags[i];
-          tf.WriteLine(_TagID + '=' + NTag.ID.ToString);
-          tf.WriteLine(_TagName + '=' + NTag.Name, True);
-          if NTag.Description <> '' then
-             tf.WriteLine(_TagDescription + '=' + NTag.Description, True);
-       end;
-    end;
+        tf.WriteLine(_NF_COMMENT + _NF_ACT + FSavedActiveFolderID.ToString );
+
+        tf.WriteLine(_NF_COMMENT + _NF_DCR + FormatDateTime( _SHORTDATEFMT + ' ' + _LONGTIMEFMT, FDateCreated ) );
+        tf.WriteLine(_NF_COMMENT + _NF_FileFlags + PropertiesToFlagsString );
+        if ( TrayIconFN <> '' ) then
+          tf.WriteLine( _NF_COMMENT + _NF_TrayIconFile + TrayIconFN );
+        if ( FTabIconsFN <> '' ) then
+          tf.WriteLine( _NF_COMMENT + _NF_TabIconsFile + FTabIconsFN );
+        with ClipCapMng do begin
+           if ClipCapActive then begin
+              var Idx: integer;
+              ClipCapOnFolder:= ClipCapFolder;
+              if assigned(ClipCapOnFolder) then
+                 Idx:= ClipCapOnFolder.TabIndex             //ClipCapOnFolder.TabSheet.PageIndex.ToString
+              else
+                 Idx:= Scratch_TabIdX;
+              tf.WriteLine( _NF_COMMENT + _NF_ClipCapFolder + Idx.ToString );
+           end;
+        end;
 
 
-    if ExportingMode then begin
-       NotesToSave:= TNoteList.Create;
-       for i := 0 to FFolders.Count -1 do
-          if FFolders[i].Info > 0 then          // Folders to be exported are marked with Info=1
-             FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+        // Save Tags
+        if NoteTags.Count > 0 then begin
+           tf.WriteLine(_NF_Tags);
+           for i := 0 to NoteTags.Count -1 do begin
+              NTag:= NoteTags[i];
+              tf.WriteLine(_TagID + '=' + NTag.ID.ToString);
+              tf.WriteLine(_TagName + '=' + NTag.Name, True);
+              if NTag.Description <> '' then
+                 tf.WriteLine(_TagDescription + '=' + NTag.Description, True);
+           end;
+        end;
 
-       // Save Notes (TNote) with its Entries (TNoteEntry)
-       tf.WriteLine(_NumNotes + '=' + NotesToSave.Count.ToString);
-       for i := 0 to NotesToSave.Count -1 do
-          WriteNote(NotesToSave[i]);
-    end
-    else begin
-       // Save Notes (TNote) with its Entries (TNoteEntry)
-       tf.WriteLine(_NumNotes + '=' + FNotes.Count.ToString);
-       for i := 0 to FNotes.Count -1 do
-          WriteNote(FNotes[i]); 
-    end;
+
+        if ExportingMode then begin
+           NotesToSave:= TNoteList.Create;
+           for i := 0 to FFolders.Count -1 do
+              if FFolders[i].Info > 0 then          // Folders to be exported are marked with Info=1
+                 FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+
+           // Save Notes (TNote) with its Entries (TNoteEntry)
+           tf.WriteLine(_NumNotes + '=' + NotesToSave.Count.ToString);
+           for i := 0 to NotesToSave.Count -1 do begin
+              if EncryptedContentEnabled and NotesToSave[i].IsEncrypted then continue;       // TODO***
+              WriteNote(NotesToSave[i]);
+           end;
+        end
+        else begin
+           // Save Notes (TNote) with its Entries (TNoteEntry)
+           tf.WriteLine(_NumNotes + '=' + FNotes.Count.ToString);
+           for i := 0 to FNotes.Count -1 do
+              WriteNote(FNotes[i]);
+        end;
    
 
 
-    if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
-      // this is done so that we preserve the order of tabs.
-       for i := 0 to FPageCtrl.PageCount - 1 do begin
-          myFolder := TKntFolder(FPageCtrl.Pages[i].PrimaryObject);
-          WriteFolder(myFolder);
+        if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
+          // this is done so that we preserve the order of tabs.
+           for i := 0 to FPageCtrl.PageCount - 1 do begin
+              myFolder := TKntFolder(FPageCtrl.Pages[i].PrimaryObject);
+              WriteFolder(myFolder);
+           end;
+        end
+        else begin
+          // Go by FFolders instead of using FPageCtrl. This may cause folders to be saved in wrong order.
+          for i := 0 to FFolders.Count -1 do
+             WriteFolder(FFolders[i]);
+
+        end;
+
+        SerializeBookmarks(tf);
+
+        Log_StoreTick( 'After saving Folders and bookmarks', 1 );
+
+        if ActiveFile.EncryptedContentEnabled then begin
+           {
+            %C
+            <size of TEncryptionInfo><TEncryptionInfo (binary)>
+            <--Encrypted content (binary) -->
+            %CE
+           }
+           tfC.closefile();
+           ToEncryptStream.Position := 0;
+           EncryptStream(GetEncryptionInfo, ToEncryptStream, EncryptedStream);
+
+           tf.WriteLine(_NF_EncryptedContent);
+           EncrypInfo:= GetEncryptionInfo;
+           EncrypInfo.DataSize:= EncryptedStream.Size;
+           wordsize := sizeof( EncrypInfo );
+           tf.Write(wordSize, sizeof(wordsize));
+           tf.Write(EncrypInfo, sizeof(EncrypInfo));
+
+           tf.Write(EncryptedStream.Memory^, EncryptedStream.Size);
+           tf.Write(_CRLF);
+           tf.WriteLine(_NF_EncryptedContentEND);
+           Log_StoreTick( 'After saving Encrypted content', 1 );
+        end;
+
+
+
+        if SaveImages then begin
+           ImageMng.DeleteOrphanImages;
+           ImageMng.SaveState(tf);
+           ImageMng.SaveEmbeddedImages(tf);
+           Log_StoreTick( 'After saving state and embedded images', 1 );
+
+           tf.WriteLine( _NF_EOF );
+        end;
+
+        result := 0;
+
+    finally
+       if ToEncryptStream <> nil then begin
+          FreeAndNil(ToEncryptStream);
+          FreeAndNil(EncryptedStream);
+          tfC.Free;
        end;
-    end
-    else begin
-      // Go by FFolders instead of using FPageCtrl. This may cause folders to be saved in wrong order.
-      for i := 0 to FFolders.Count -1 do
-         WriteFolder(FFolders[i]);
-
     end;
-
-    SerializeBookmarks(tf);
-
-    Log_StoreTick( 'After saving Folders and bookmarks', 1 );
-
-
-    if SaveImages then begin
-       ImageMng.DeleteOrphanImages;
-       ImageMng.SaveState(tf);
-       ImageMng.SaveEmbeddedImages(tf);
-       Log_StoreTick( 'After saving state and embedded images', 1 );
-
-       tf.WriteLine( _NF_EOF );
-    end;
-
-    result := 0;
   end;
 
 begin
@@ -3518,6 +3688,14 @@ begin
    end;
 end;
 
+procedure TKntFile.InitialConfigurationEncryptedContent;
+begin
+   if (FLoadedEncryptedContent <> nil) and not FEncryptedContentEnabled then begin
+       EncryptedContentEnabled:= True;
+       EncryptedContentOpened:= False;
+   end;
+end;
+
 
 function TKntFile.GetEncryptedContentMustBeHidden: boolean;
 begin
@@ -3596,11 +3774,6 @@ begin
   until False;
 end;
 
-
-procedure TKntFile.LoadEncryptedContent;
-begin
-  //****
-end;
 
 procedure TKntFile.ProcessLoadedEncryptedContent;
 begin
@@ -3688,6 +3861,48 @@ begin
   end;
 
 end;
+
+
+procedure TKntFile.EncryptStream (EncrypInfo: TEncryptionInfo; const InputStream: TMemoryStream; const OutputStream : TMemoryStream );
+var
+  Encrypt : TDCP_blockcipher;
+  dataptr : pointer;
+  streamsize : integer;
+begin
+  InputStream.Position := 0;
+  streamsize := InputStream.Size;
+
+  case EncrypInfo.Method of
+    tcmBlowfish : begin
+      Encrypt := TDCP_Blowfish.Create( nil );
+    end;
+    else
+      Encrypt := TDCP_Idea.Create( nil );
+  end;
+
+  try
+    EnsureKeysAreCached;
+    getmem( dataptr, streamsize );
+
+    try
+      Encrypt.Init( FCachedEncryptionKey, Sizeof( FCachedEncryptionKey )*8, nil );
+      Encrypt.EncryptCBC( InputStream.memory^, dataptr^, streamsize );
+
+      OutputStream.Position := 0;
+      OutputStream.Write( dataptr^, streamsize );
+      OutputStream.Position := 0;
+
+    finally
+      freemem( dataptr, streamsize );
+    end;
+
+  finally
+    Encrypt.Burn;
+    Encrypt.Free;
+  end;
+
+end;
+
 
 function TKntFile.GetEncryptionInfo: TEncryptionInfo;
 begin
