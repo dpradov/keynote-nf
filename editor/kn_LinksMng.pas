@@ -1732,7 +1732,7 @@ begin
       myTreeNode:= Location.Node;
 
 
-      if ActiveFile.EncryptedNodesMustBeHidden and myFolder.GetNNode(myTreeNode).Note.IsEncrypted then begin
+      if ActiveFile.EncryptedContentMustBeHidden and myFolder.GetNNode(myTreeNode).Note.IsEncrypted then begin
          Location.CaretPos:= 0;
          Location.SelLength:= 0;
          exit;

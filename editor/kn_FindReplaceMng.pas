@@ -2632,7 +2632,7 @@ begin
   MatchCount := 0;
   FindDone := false;
   noteidx := 0;
-  HideEncrypted:= ActiveFile.EncryptedNodesMustBeHidden;
+  HideEncrypted:= ActiveFile.EncryptedContentMustBeHidden;
 
   LastResultCellWidth:= '';
   SearchInProgress := true;
@@ -3549,7 +3549,7 @@ begin
       end;
 
 
-      HideEncrypted:= ActiveFile.EncryptedNodesMustBeHidden;
+      HideEncrypted:= ActiveFile.EncryptedContentMustBeHidden;
 
       // Búsqueda del patrón iterando sobre los nodos / notas hasta encontrar uno -------------
       // Según las opciones establecidas así podrán recorrerse o no todos los nodos de una nota, todas las notas

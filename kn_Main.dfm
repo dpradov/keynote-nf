@@ -2246,7 +2246,7 @@ object Form_Main: TForm_Main
       Caption = 'Encrypted'
       Hint = 
         'The content of the note, and optionally its name, will be saved ' +
-        'encrypted in the file'
+        'encrypted in the file (Shift: also in children, recursive)'
       OnExecute = actTVEncrypNodeExecute
     end
   end

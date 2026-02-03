@@ -105,6 +105,7 @@ type
     fSplitterNoteMoving: boolean;
 
     fTempFilterTagApplying: boolean;
+    fChangingInCode: boolean;
 
   public
     class constructor Create;
@@ -245,8 +246,8 @@ type
     procedure SetNodeEncrypted(const DoChildren : boolean); overload;
     procedure SetNodeEncrypted(Node: PVirtualNode; Encrypted: boolean; const DoChildren : boolean); overload;
     procedure ShowEncryptedNodes (Show: boolean);
-    function  CheckNodeOrChildrenHaveEncryptedContent(Node: PVirtualNode): boolean;
-    function  NodeOrChildrenHaveEncryptedContent(Node: PVirtualNode): boolean;
+    function  CheckNodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
+    function  NodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
 
   public
     function GetNodePath(aNode: PVirtualNode; const aDelimiter: string; const TopToBottom: boolean) : string;
@@ -477,6 +478,7 @@ begin
   fDropTargetNodeInsMode:= tnAddLast;
 
   fTempFilterTagApplying:= false;
+  fChangingInCode:= false;
 end;
 
 
@@ -2239,10 +2241,10 @@ begin
 end;
 
 
-function TKntTreeUI.CheckNodeOrChildrenHaveEncryptedContent(Node: PVirtualNode): boolean;
+function TKntTreeUI.CheckNodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
 begin
   Result:= True;
-  if NodeOrChildrenHaveEncryptedContent (Node) then begin
+  if NodeOrChildrenHaveEncryptedContent (Node, OnlyChildren) then begin
      if (App.DoMessageBox (GetRS(sTree67), mtWarning, [mbYes,mbNo]) <> mrYes) then
         Result:= False
      else
@@ -2251,13 +2253,13 @@ begin
 end;
 
 
-function TKntTreeUI.NodeOrChildrenHaveEncryptedContent(Node: PVirtualNode): boolean;
+function TKntTreeUI.NodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
 var
   NNode : TNoteNode;
 begin
   Result:= False;
   NNode:= GetNNode(Node);
-  if NNode.Note.IsEncrypted then exit (True);
+  if not OnlyChildren and NNode.Note.IsEncrypted then exit (True);
 
   if (vsHasChildren in Node.States) then
      for Node in TV.ChildNodes(Node) do
@@ -2468,6 +2470,13 @@ end;
 procedure TKntTreeUI.TV_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
 begin
    Allowed := not CheckReadOnly;
+
+   if Allowed and (ActiveFile.EncryptedContentMustBeHidden and GetNNode(Node).Note.IsEncrypted) then begin
+     if (App.DoMessageBox (GetRS(sTree67), mtWarning, [mbYes,mbNo]) <> mrYes) then
+        Allowed:= False
+     else
+        Allowed:= ActiveFile.CheckAuthorized(false);
+   end;
 end;
 
 { Never called in VirtualTree...
@@ -3251,7 +3260,7 @@ begin
       myTreeParent := myTreeNode.Parent;
       Folder:= TKntFolder(Self.Folder);
 
-      if not CheckNodeOrChildrenHaveEncryptedContent(myTreeNode) then exit;
+      if not CheckNodeOrChildrenHaveEncryptedContent(myTreeNode, DeleteOnlyChildren) then exit;
 
       Result:= true;
 
@@ -4054,12 +4063,29 @@ procedure TKntTreeUI.ChangeCheckedState(Node: PVirtualNode; Checked: Boolean);
     end;
 
 begin
+    if fChangingInCode then exit;
+
+    if CheckReadOnly or (ActiveFile.EncryptedContentMustBeHidden and GetNNode(Node).Note.IsEncrypted) then begin
+       fChangingInCode:= true;
+        if Node.CheckState = csCheckedNormal then
+           Node.CheckState:= csUncheckedNormal
+        else
+           Node.CheckState:= csCheckedNormal;
+
+       fChangingInCode:= false;
+
+       if not ReadOnly then
+          ToggleCheckNode(Node);
+
+       exit;
+    end;
+
     try
       if (Shiftdown and (vsHasChildren in Node.States)) then
          CheckChildren(node);
 
       if HideCheckedNodes then begin
-          if Checked or not (ActiveFile.EncryptedNodesMustBeHidden and GetNNode(Node).Note.IsEncrypted) then begin
+          if Checked then begin
              TV.IsVisible[Node]:= not Checked;
              EnsureFocusedNode(True);
           end;
