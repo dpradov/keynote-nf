@@ -3559,7 +3559,8 @@ begin
      myFolder := FFolders[i];
      NNode:= myFolder.FocusedNNode;
      if (NNode <> nil) and (NNode.Note.IsEncrypted) then
-        myFolder.NoteUI.ReloadFromDataModel;
+        myFolder.NoteUI.LoadFromNNode(NNode, True);
+
   end;
 end;
 

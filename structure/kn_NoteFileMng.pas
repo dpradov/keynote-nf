@@ -2689,6 +2689,14 @@ begin
   TKntTreeUI.ClearGlobalData;
 
   if ActiveFileIsBusy then exit;
+
+  if (ActiveFile.EncryptedContentOpened and KeyOptions.TimerClose and KeyOptions.TimerCloseEncOnly) then begin
+     ActiveFile.EncryptedContentOpened:= False;
+     Log_StoreTick('AutoClose Encrypted Content', 0);
+     exit;
+  end;
+
+
   if ( not ( KeyOptions.TimerClose and
              Form_Main.HaveKntFolders( false, false ) and
              KeyOptions.AutoSave
