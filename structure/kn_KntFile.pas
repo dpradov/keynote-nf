@@ -208,7 +208,7 @@ type
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
     function  Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
-    procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
+    procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; FromEncryptedContent: boolean);
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
     function  LoadEncryptedContent(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock): boolean;
     procedure LoadVirtualNote (Note: TNote; const VirtFN, RelativeVirtFN: string);
@@ -2500,7 +2500,7 @@ begin
                    ImgManager.LoadState(tf, FileExhausted)
 
                else if NextBlock = nbNotes then
-                   LoadNotes(tf, FileExhausted, NextBlock)
+                   LoadNotes(tf, FileExhausted, NextBlock, False)
 
                else if NextBlock = nbTags then
                    LoadNoteTags(tf, FileExhausted, NextBlock)
@@ -2587,7 +2587,7 @@ begin
 end;
 
 
-procedure TKntFile.LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
+procedure TKntFile.LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; FromEncryptedContent: boolean);
 var
   InNote, InNoteEntry, InEntryContent, RTFContent : boolean;
   s, key : AnsiString;
@@ -2596,6 +2596,7 @@ var
   Note: TNote;
   NEntry: TNoteEntry;
   NEntryID, NoteSelEntryID: Word;
+  GID: Cardinal;
 
   VirtualFN, RelativeVirtualFN: string;
 
@@ -2606,28 +2607,36 @@ var
     begin
       InEntryContent := false;
 
-      // *1 See reason described in the notes of the commit ca19e28bfe:
-      //  (Fixed: Internally, the ID associated with each note entry is not being 0, as it should be.)
-      if not ((Version.Major > '3') or ((Version.Major = '3') and (Version.Minor > '0'))) then
-         NEntryID:= 0;           // *1
-
-      Note.AddEntry(NEntry, NEntryID);
-
-      if (VirtualFN <> '') or (RelativeVirtualFN <> '') then
-         LoadVirtualNote (Note, VirtualFN, RelativeVirtualFN)
-
+      if FromEncryptedContent then begin
+         if not ((VirtualFN <> '') or (RelativeVirtualFN <> '')) then begin
+            TransferedNEntryText(NEntry);
+            assert((NEntry.IsRTF = RTFContent) or (NEntry.Stream.Size=0));
+         end;
+      end
       else begin
-         TransferedNEntryText(NEntry);
-         assert((NEntry.IsRTF = RTFContent) or (NEntry.Stream.Size=0));
-      end;
+          // *1 See reason described in the notes of the commit ca19e28bfe:
+          //  (Fixed: Internally, the ID associated with each note entry is not being 0, as it should be.)
+          if not ((Version.Major > '3') or ((Version.Major = '3') and (Version.Minor > '0'))) then
+             NEntryID:= 0;           // *1
 
-      if ClosingNote then begin
-         NSelEntry:= Note.GetEntry(NoteSelEntryID);
-         Note.SelEntry:= NSelEntry;
-      end;
+          Note.AddEntry(NEntry, NEntryID);
 
-      VirtualFN:= '';
-      RelativeVirtualFN:= '';
+          if (VirtualFN <> '') or (RelativeVirtualFN <> '') then
+             LoadVirtualNote (Note, VirtualFN, RelativeVirtualFN)
+
+          else begin
+             TransferedNEntryText(NEntry);
+             assert((NEntry.IsRTF = RTFContent) or (NEntry.Stream.Size=0));
+          end;
+
+          if ClosingNote then begin
+             NSelEntry:= Note.GetEntry(NoteSelEntryID);
+             Note.SelEntry:= NSelEntry;
+          end;
+
+          VirtualFN:= '';
+          RelativeVirtualFN:= '';
+      end;
     end;
 
 begin
@@ -2656,19 +2665,24 @@ begin
        if ( InNote ) then AddTextToNewNEntry;
        InNote := true;
        InNoteEntry := false;
-
-       Note:= TNote.Create;
-       fNotes.Add(Note);
-       NoteSelEntryID:= 0;
-       NEntry:= nil;
+       if not FromEncryptedContent then begin
+          Note:= TNote.Create;
+          fNotes.Add(Note);
+          NoteSelEntryID:= 0;
+          NEntry:= nil;
+       end;
        continue;
      end;
      if ( s = _NF_NEntry) or (s = _NF_NEntry_Beta) then begin
        // new TNoteEntry begins
        if ( InEntryContent ) then AddTextToNewNEntry (false);
        InNoteEntry := true;
-       NEntry:= TNoteEntry.Create;
        NEntryID:= 0;                    // By default
+       if not FromEncryptedContent then
+          NEntry:= TNoteEntry.Create
+       else
+          NEntry:= Note.GetEntry(NEntryID);   // By default -> NEntry for ID=0
+
        continue;
      end;
      if ( s = _NF_Folder ) then begin
@@ -2718,8 +2732,11 @@ begin
 
 
      if InNoteEntry then begin
-        if ( key = _NEntryID ) then
-            NEntryID := StrToUIntDef(s, 0)
+        if ( key = _NEntryID ) then begin
+           NEntryID := StrToIntDef(s, 0);
+           if FromEncryptedContent then
+              NEntry:= Note.GetEntry(NEntryID);     // In from Encrypted content -> The note and Note entry will have created and added before
+        end
         else
         if ( key = _NEntryState ) then
            NEntry.StringToStates(s)
@@ -2738,8 +2755,13 @@ begin
         if ( key = _NoteAlias ) then
           Note.Alias:= TryUTF8ToUnicodeString(s)
         else
-        if ( key = _NoteGID ) then
-            Note.GID:= StrToUIntDef(s, 0)
+        if ( key = _NoteGID ) then begin
+            GID:= StrToUIntDef(s, 0);
+            if FromEncryptedContent then
+               Note:= GetNoteByGID(GID)
+            else
+               Note.GID:= GID;
+        end
         else
         if ( key = _NoteState ) then
             Note.StringToStates(s)
@@ -3311,6 +3333,7 @@ var
             %CE
            }
            if GetEncryptedContentMustBeGenerated then begin
+              tfC.WriteLine(_NF_EOF);
               tfC.closefile();
               ToEncryptStream.Position := 0;
               EncryptStream(GetEncryptionInfo, ToEncryptStream, EncryptedStream);
@@ -3677,6 +3700,7 @@ begin
       Form_Main.MMViewEncryptedCont.Checked:= Value;
 
       if FEncryptedContentOpened and (FLoadedEncryptedContent <> nil) then begin
+         ProcessLoadedEncryptedContent;
          FLoadedEncryptedContent.Free;
          FLoadedEncryptedContent:= nil;
       end;
@@ -3704,6 +3728,7 @@ procedure TKntFile.InitialConfigurationEncryptedContent;
 begin
    if (FLoadedEncryptedContent <> nil) and not FEncryptedContentEnabled then begin
        EncryptedContentEnabled:= True;
+       FEncryptedContentOpened:= True;       // To force actions to be executed when EncryptedContentOpened <- False
        EncryptedContentOpened:= False;
    end;
 end;
@@ -3794,9 +3819,50 @@ end;
 
 
 procedure TKntFile.ProcessLoadedEncryptedContent;
+var
+   DecryptedStream : TMemoryStream;
+   tf : TTextFile;
+   NextBlock: TNextBlock;
+   FileExhausted: boolean;
+   EncryptionInfo: TEncryptionInfo;
+
 begin
-  //****
+   if (FLoadedEncryptedContent = nil) or (FLoadedEncryptedContent.Size = 0) then exit;
+
+   tf:= nil;
+   DecryptedStream:= nil;
+
+   try
+
+     try
+       FLoadedEncryptedContent.Position := 0;
+       EncryptionInfo:= GetEncryptionInfo;
+       EncryptionInfo.DataSize:= FLoadedEncryptedContent.Size;
+       DecryptedStream:= TMemoryStream.Create;
+       DecryptStream(EncryptionInfo, FLoadedEncryptedContent, DecryptedStream);
+
+       tf:= TTextFile.Create();
+       tf.assignstream( DecryptedStream );
+       tf.reset;
+
+       LoadNotes(tf, FileExhausted, NextBlock, True);
+
+     except
+       On e : Exception do
+          App.ErrorPopup(E, GetRS(sFile28));
+     end;
+
+   finally
+       if DecryptedStream <> nil then
+          DecryptedStream.Free;
+       if tf <> nil then begin
+          tf.CloseFile;
+          tf.Free;
+       end;
+   end;
+
 end;
+
 
 procedure TKntFile.CalculateOldPassphraseHash (Decrypt: TDCP_blockcipher; var EncryptionKey : THash);
 var
