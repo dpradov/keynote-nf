@@ -125,6 +125,7 @@ type
     procedure SetHideEncryptedNodes(Value: boolean);
     function  GetEncryptedContentMustBeHidden: boolean;
     function  GetEncryptedNodesMustBeHidden: boolean;
+    function  GetEncryptedContentMustBeGenerated: boolean;
     procedure EnsureKeysAreCached;
     procedure ShowOrHideEncryptedNodes;
     procedure ReloadFocusedEncryptedNodes;
@@ -3097,7 +3098,7 @@ var
 
   procedure WriteNEntry (NEntry: TNoteEntry; Note: TNote);
   begin
-     if EncryptedContentEnabled and Note.IsEncrypted then begin
+     if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
         tfC.WriteLine(_NF_NEntry);                              // TNoteEntry begins
         if NEntry.ID <> 0 then
            tfC.WriteLine(_NEntryID + '=' + NEntry.ID.ToString );
@@ -3116,7 +3117,7 @@ var
         tf.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);
 
      if not Note.IsVirtual then
-        if EncryptedContentEnabled and Note.IsEncrypted then
+        if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then
            SaveTextToFile(tfC, NEntry.Stream, NEntry.IsPlainTXT)
         else
            SaveTextToFile(tf, NEntry.Stream, NEntry.IsPlainTXT);
@@ -3127,18 +3128,18 @@ var
   var
     i: integer;
   begin
-    if EncryptedContentEnabled and Note.IsEncrypted then begin
+    if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
        tfC.WriteLine(_NF_Note);              // TNote begins
        tfC.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
 
-       if EncryptedNodesMustBeHidden then
+       if FHideEncryptedNodes then
           tfC.WriteLine(_NoteName + '=' + Note.Name, True);
     end;
 
     tf.WriteLine(_NF_Note);              // TNote begins
     tf.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
 
-    if not EncryptedNodesMustBeHidden then
+    if not Note.IsEncrypted or not FHideEncryptedNodes then
        tf.WriteLine(_NoteName + '=' + Note.Name, True);
 
     if Note.Alias <> '' then
@@ -3209,8 +3210,9 @@ var
 
     ToEncryptStream:= nil;
     EncryptedStream:= nil;
+    tfC:= nil;
 
-    if ActiveFile.EncryptedContentEnabled then begin
+    if GetEncryptedContentMustBeGenerated then begin
        ToEncryptStream     := TMemoryStream.Create;
        EncryptedStream := TMemoryStream.Create;
        tfC:= TTextFile.Create();
@@ -3308,9 +3310,13 @@ var
             <--Encrypted content (binary) -->
             %CE
            }
-           tfC.closefile();
-           ToEncryptStream.Position := 0;
-           EncryptStream(GetEncryptionInfo, ToEncryptStream, EncryptedStream);
+           if GetEncryptedContentMustBeGenerated then begin
+              tfC.closefile();
+              ToEncryptStream.Position := 0;
+              EncryptStream(GetEncryptionInfo, ToEncryptStream, EncryptedStream);
+           end
+           else
+              EncryptedStream:= FLoadedEncryptedContent;
 
            tf.WriteLine(_NF_EncryptedContent);
            EncrypInfo:= GetEncryptionInfo;
@@ -3342,7 +3348,7 @@ var
        if ToEncryptStream <> nil then begin
           FreeAndNil(ToEncryptStream);
           FreeAndNil(EncryptedStream);
-          tfC.Free;
+          FreeAndNil(tfC);
        end;
     end;
   end;
@@ -3645,8 +3651,10 @@ procedure TKntFile.OnPassphraseChanged;
 begin
    InvalidateKeyCache;
    EnsureKeysAreCached;
-   if FEncryptedContentEnabled then
+   if FEncryptedContentEnabled then begin
       FLoadedVerificationHash:= FCachedVerificationHash;
+      EncryptedContentOpened:= True;
+   end;
 end;
 
 
@@ -3658,7 +3666,6 @@ begin
       Form_Main.TVEncrypNode.Visible:= FEncryptedContentEnabled;
    end;
 
-   EncryptedContentOpened:= True;
    if not FEncryptedContentEnabled then
       FillChar(FLoadedVerificationHash, SizeOf(FLoadedVerificationHash), 0);
 end;
@@ -3668,6 +3675,11 @@ begin
    if FEncryptedContentOpened <> Value then begin
       FEncryptedContentOpened:= Value;
       Form_Main.MMViewEncryptedCont.Checked:= Value;
+
+      if FEncryptedContentOpened and (FLoadedEncryptedContent <> nil) then begin
+         FLoadedEncryptedContent.Free;
+         FLoadedEncryptedContent:= nil;
+      end;
 
       if not FEncryptedContentOpened then
          InvalidateKeyCache;
@@ -3708,6 +3720,12 @@ begin
    Result:= FEncryptedContentEnabled and not FEncryptedContentOpened and FHideEncryptedNodes;
 end;
 
+function  TKntFile.GetEncryptedContentMustBeGenerated: boolean;
+begin
+   // If FLoadedEncryptedContent <> nil => The content loaded when opening the file have not been opened and so it is not modified
+
+   Result:= FEncryptedContentEnabled and (FLoadedEncryptedContent = nil);
+end;
 
 procedure TKntFile.ShowOrHideEncryptedNodes;
 var
