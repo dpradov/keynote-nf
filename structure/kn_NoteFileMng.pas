@@ -47,7 +47,8 @@ uses
                             ExportingMode: boolean= false;
                             OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                             OnlyNotHiddenNodes: boolean= false;
-                            OnlyCheckedNodes: boolean= false);
+                            OnlyCheckedNodes: boolean= false;
+                            ExportEncryptedContent: boolean = false);
 
     procedure EnsureNodeAndCaretVisibleInFolders;
 
@@ -1106,7 +1107,8 @@ procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false;
                         OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                         OnlyNotHiddenNodes: boolean= false;
-                        OnlyCheckedNodes: boolean= false);
+                        OnlyCheckedNodes: boolean= false;
+                        ExportEncryptedContent: boolean = false);
 var
   currentFN, newFN : string;
   cr : integer;
@@ -1168,7 +1170,7 @@ begin
             try
               ImageMng.ExportingMode:= true;
               try
-                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent);
               finally
                  ImageMng.ExportingMode:= false;
               end;

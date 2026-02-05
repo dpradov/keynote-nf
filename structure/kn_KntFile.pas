@@ -206,7 +206,8 @@ type
     function  Save(FN: string;
                   var SavedFolders: integer; var SavedNodes: integer;
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                  OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
+                  OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
+                  ExportEncryptedContent: boolean = false): integer;
     function  Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
     procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; FromEncryptedContent: boolean);
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
@@ -3106,7 +3107,8 @@ end;
 function TKntFile.Save(FN: string;
                         var SavedFolders: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                        OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
+                        OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
+                        ExportEncryptedContent: boolean = false): integer;
 var
   i : integer;
   Stream : TFileStream;
@@ -3234,7 +3236,7 @@ var
     EncryptedStream:= nil;
     tfC:= nil;
 
-    if GetEncryptedContentMustBeGenerated then begin
+    if not (ExportingMode and not ExportEncryptedContent) and GetEncryptedContentMustBeGenerated then begin
        ToEncryptStream     := TMemoryStream.Create;
        EncryptedStream := TMemoryStream.Create;
        tfC:= TTextFile.Create();
@@ -3294,7 +3296,7 @@ var
            // Save Notes (TNote) with its Entries (TNoteEntry)
            tf.WriteLine(_NumNotes + '=' + NotesToSave.Count.ToString);
            for i := 0 to NotesToSave.Count -1 do begin
-              if EncryptedContentEnabled and NotesToSave[i].IsEncrypted then continue;       // TODO***
+              if EncryptedContentEnabled and not ExportEncryptedContent and NotesToSave[i].IsEncrypted then continue;
               WriteNote(NotesToSave[i]);
            end;
         end
@@ -3325,7 +3327,7 @@ var
 
         Log_StoreTick( 'After saving Folders and bookmarks', 1 );
 
-        if ActiveFile.EncryptedContentEnabled then begin
+        if ActiveFile.EncryptedContentEnabled  and not (ExportingMode and not ExportEncryptedContent) then begin
            {
             %C
             <size of TEncryptionInfo><TEncryptionInfo (binary)>
