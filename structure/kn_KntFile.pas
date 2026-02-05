@@ -112,7 +112,7 @@ type
     FTextPlainVariablesInitialized: boolean;
 
     FIsBusy : boolean; // if TRUE, file is being saved, opened or closed, so we can't mess with it
-
+    FMergeFile : boolean;
 
     function GetFolderCount : integer;
     procedure SetVersion;
@@ -181,6 +181,7 @@ type
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
     property IsBusy: boolean read FIsBusy write SetIsBusy;
+    property IsMergeFile: boolean read FMergeFile write FMergeFile;
 
     constructor Create;
     destructor Destroy; override;
@@ -226,7 +227,7 @@ type
     procedure OnPassphraseChanged;
     procedure InvalidateKeyCache;
     function  CheckAuthorized(ShowDetail: boolean): boolean;
-    procedure InitialConfigurationEncryptedContent;
+    procedure InitialConfigEncryptedContent;
     procedure ProcessLoadedEncryptedContent;
 
   private
@@ -376,6 +377,7 @@ begin
      FBookmarks[i]:= nil;
 
   FIsBusy := true;
+  FMergeFile:= false;
 end; // CREATE
 
 
@@ -3687,8 +3689,10 @@ procedure TKntFile.SetEncryptedContentEnabled(Value: boolean);
 begin
    if FEncryptedContentEnabled <> Value then begin
       FEncryptedContentEnabled:= Value;
-      Form_Main.MMViewEncryptedCont.Enabled:= FEncryptedContentEnabled;
-      Form_Main.TVEncrypNode.Visible:= FEncryptedContentEnabled;
+      if not IsMergeFile then begin
+        Form_Main.MMViewEncryptedCont.Enabled:= FEncryptedContentEnabled;
+        Form_Main.TVEncrypNode.Visible:= FEncryptedContentEnabled;
+      end;
    end;
 
    if not FEncryptedContentEnabled then
@@ -3699,7 +3703,8 @@ procedure TKntFile.SetEncryptedContentOpened(Value: boolean);
 begin
    if FEncryptedContentOpened <> Value then begin
       FEncryptedContentOpened:= Value;
-      Form_Main.MMViewEncryptedCont.Checked:= Value;
+      if not IsMergeFile then
+         Form_Main.MMViewEncryptedCont.Checked:= Value;
 
       if FEncryptedContentOpened and (FLoadedEncryptedContent <> nil) then begin
          ProcessLoadedEncryptedContent;
@@ -3710,10 +3715,12 @@ begin
       if not FEncryptedContentOpened then
          InvalidateKeyCache;
 
-      ReloadFocusedEncryptedNodes;
+      if not IsMergeFile then begin
+         ReloadFocusedEncryptedNodes;
 
-      if FHideEncryptedNodes then
-         ShowOrHideEncryptedNodes;
+         if FHideEncryptedNodes then
+            ShowOrHideEncryptedNodes;
+      end;
    end;
 end;
 
@@ -3726,7 +3733,7 @@ begin
    end;
 end;
 
-procedure TKntFile.InitialConfigurationEncryptedContent;
+procedure TKntFile.InitialConfigEncryptedContent;
 begin
    if (FLoadedEncryptedContent <> nil) and not FEncryptedContentEnabled then begin
        EncryptedContentEnabled:= True;

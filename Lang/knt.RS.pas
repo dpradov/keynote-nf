@@ -425,6 +425,7 @@ const
    sFileM82 = 54273;   // The file must first be saved (with Save or Save As)
    sFileM83 = 54311;   // %d Links or Mirror nodes couldn't be adapted\^Links can be found searching for "file///<%d"
    sFileMInfSaving = 54350;   // * NOTE:\^  - The .knt file in disk must not have been modified from last correct save.\^  - You should have multiple backup files in the folder %s, specially if you selected the option "Backup at regular intervals" (highly recommended)
+   sFileM84 = 55137;   // Do you want to merge the ENCRYPTED CONTENT?\^\^It will remain protected with the password of the current file (or the one you set *before* saving)
 
    sFInf01 = 54410;   //  file
    sFInf02 = 54411;   // File properties:

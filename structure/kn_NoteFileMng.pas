@@ -365,7 +365,7 @@ begin
             EnsureNodeAndCaretVisibleInFolders;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
 
-            KntFile.InitialConfigurationEncryptedContent;
+            KntFile.InitialConfigEncryptedContent;
 
             opensuccess := true;
 
@@ -1277,6 +1277,7 @@ begin
         }
 
         MergeFile := TKntFile.Create;
+        MergeFile.IsMergeFile:= True;
         MergeFile.PassphraseFunc := GetFilePassphrase;
         mergecnt := 0;
 
@@ -1297,6 +1298,12 @@ begin
               App.InfoPopup( GetRS(sFileM41));
               exit;
             end;
+
+            MergeFile.InitialConfigEncryptedContent;
+            if ( MergeFile.EncryptedContentEnabled and
+                (App.DoMessageBox(GetRS(sFileM84), mtWarning, [mbYes,mbNo], def1) = mrYes) ) then
+                MergeFile.CheckAuthorized(True);
+
 
             for i := 0 to pred( MergeFile.FolderCount ) do begin
               // initially, UNMARK ALL notes (i.e. no merging)
