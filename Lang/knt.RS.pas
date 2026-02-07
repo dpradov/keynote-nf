@@ -535,6 +535,7 @@ const
    sImg20 = 54660;   // Exception processing image in RTF:
    sImg21 = 54661;   // Error saving image "%s" (ID:%d) :\^  Content lost\^  Will be removed from Images
    sImg22 = 54662;   // < Unregistered image >
+   sImg23 = 55138;   //Error decrypting image
    sImgF01 = 54699;   // Image no available. Change in caption will not saved
    sImgF02 = 54700;   // Save image file as
    sImgF03 = 54701;   // All image files

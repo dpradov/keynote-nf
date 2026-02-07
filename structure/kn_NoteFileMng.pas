@@ -2595,28 +2595,29 @@ begin
                 KntFile.TabIconsFN := '';
             end;
 
-            if ( KntFile.FileFormat = nffEncrypted ) then begin
-              KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
-              KeyIter:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
-              if PassphraseChanged then
-                 KntFile.Passphrase := Edit_Pass.GetSecureText;
-              if KeyIter <> KntFile.KeyDerivIterations then begin
-                 KntFile.KeyDerivIterations := KeyIter;
-                 PassphraseChanged:= True;
-              end;
+
+            if ( KntFile.FileFormat = nffEncrypted ) or cbEnableEncrCont.Checked then begin
+               if PassphraseChanged then begin
+                  KntFile.Passphrase := Edit_Pass.GetSecureText;
+                  assert(Length(Edit_Pass.GetSecureText) >= 5);
+                  KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
+                  KntFile.KeyDerivIterations:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
+                  KntFile.OnPassphraseChanged;
+               end;
+               if KntFile.FileFormat <> nffEncrypted then begin
+                  KntFile.EncryptedContentEnabled:= cbEnableEncrCont.Checked;
+                  KntFile.EncryptedContentOpened:= True;
+                  KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
+                  KntFile.UpdateLoadedVerificationHash;
+               end;
             end
             else begin
-              if PassphraseChanged then
-                 KntFile.Passphrase := Edit_Pass.GetSecureText;
-              if KntFile.EncryptedContentEnabled <> cbEnableEncrCont.Checked then begin
-                 KntFile.EncryptedContentEnabled:= cbEnableEncrCont.Checked;
-                 PassphraseChanged:= True;
-              end;
-              KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
+               KntFile.Passphrase := '';
+               KntFile.EncryptedContentEnabled:= False;
+               KntFile.EncryptedContentOpened:= False;
+               KntFile.InvalidateKeyCache;
+               KntFile.UpdateLoadedVerificationHash;
             end;
-
-            if PassphraseChanged then
-               KntFile.OnPassphraseChanged;
 
 
             if ( KntFile.FileName <> '' ) then

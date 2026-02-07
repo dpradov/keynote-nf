@@ -2839,5 +2839,6 @@ Button_OK.Caption=&Close
 55135_knt_RS_sTree67=Node (or its children) contains encrypted content! CONTINUE?
 55136_knt_RS_sFile28=Error loading encrypted content
 55137_knt_RS_sFileM84=Do you want to merge the ENCRYPTED CONTENT?\^\^It will remain protected with the password of the current file (or the one you set *before* saving)
+55138_knt_RS_sImg23=Error decrypting image
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

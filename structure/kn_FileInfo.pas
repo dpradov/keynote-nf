@@ -170,7 +170,7 @@ type
     ExtStorageLocationFake: boolean;
 
     function Verify : boolean;
-    procedure EnablePassControls(Enable: boolean= true);
+    procedure EnablePassControls(Enable: boolean);
   end;
 
 const
@@ -492,7 +492,7 @@ begin
  SelectedFormat:= TKntFileFormat(Combo_Format.ItemIndex);
 
  if cbEnableEncrCont.Checked and (SelectedFormat = nffEncrypted) then
-    if not (myKntFile.KeysAreCached or myKntFile.CheckAuthorized(false)) then begin
+    if not myKntFile.CheckAuthorized(false) then begin
        fChangingInCode:= True;
        Combo_Format.ItemIndex := ord(myKntFile.FileFormat);
        fChangingInCode:= False;
@@ -519,12 +519,11 @@ begin
 
   if ( Tab_Pass.TabVisible and (( myKntFile.FileFormat <> nffEncrypted ) and not myKntFile.EncryptedContentEnabled ) ) then begin
     // the file was NOT encrypted previously, so now passphrase must be entered.
-    EnablePassControls;
+    EnablePassControls(true);
     PassphraseChanged := true;
-    Button_SetPass.Enabled := false;
   end;
 
-  if cbEnableEncrCont.Checked and myKntFile.KeysAreCached then
+  if cbEnableEncrCont.Checked and not myKntFile.EncryptedContentMustBeHidden then
      cbHideEncrNodes.Visible:= True;
 
 end; // Combo_FormatChange
@@ -539,9 +538,8 @@ begin
        Tab_Pass.TabVisible:= True;
        cbHideEncrNodes.Visible:= True;
        if not myKntFile.KeysAreCached then begin
-          EnablePassControls;
+          EnablePassControls(true);
           PassphraseChanged := true;
-          Button_SetPass.Enabled := false;
        end;
     end
     else begin
@@ -569,9 +567,8 @@ begin
   if not myKntFile.CheckAuthorized(False) then exit;
 
   PassphraseChanged := true;
-  EnablePassControls;
+  EnablePassControls(true);
   try
-    Button_SetPass.Enabled := false;
     Edit_Pass.SetFocus;
   except
   end;
@@ -605,8 +602,9 @@ begin
   Edit_Confirm.SecureMode:= Edit_Pass.SecureMode;
 end;
 
-procedure TForm_KntFileInfo.EnablePassControls (Enable: boolean= true);
+procedure TForm_KntFileInfo.EnablePassControls (Enable: boolean);
 begin
+  Button_SetPass.Enabled := not Enable;
   Label_Pass.Enabled := Enable;
   Label_Confirm.Enabled := Enable;
   Label_Method.Enabled := Enable;

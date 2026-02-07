@@ -228,6 +228,7 @@ type
     procedure InvalidateKeyCache;
     function  CheckAuthorized(ShowDetail: boolean): boolean;
     procedure InitialConfigEncryptedContent;
+    procedure UpdateLoadedVerificationHash;
     procedure ProcessLoadedEncryptedContent;
 
   private
@@ -351,7 +352,8 @@ begin
   FFileFormat := nffKeyNote;
   FCryptMethod := low( TCryptMethod );
   FKeyDerivIterations := KEY_ITERATIONS_VERIF_DEFAULT;
-  FEncryptedContentOpened:= False;
+  FEncryptedContentEnabled:= False;
+  FEncryptedContentOpened:= True;
   FHideEncryptedNodes:= False;
   FHidingEncryptedNodes:= False;
   InvalidateKeyCache;
@@ -3305,10 +3307,13 @@ var
         else begin
            // Save Notes (TNote) with its Entries (TNoteEntry)
            tf.WriteLine(_NumNotes + '=' + FNotes.Count.ToString);
-           for i := 0 to FNotes.Count -1 do
+           for i := 0 to FNotes.Count -1 do begin
+              if not EncryptedContentEnabled and FNotes[i].IsEncrypted then
+                 FNotes[i].IsEncrypted:= False;
               WriteNote(FNotes[i]);
+           end;
         end;
-   
+
 
 
         if ( assigned( FPageCtrl ) and ( FPageCtrl.PageCount > 0 )) then begin
@@ -3668,7 +3673,7 @@ end;
 
 procedure TKntFile.EnsureKeysAreCached;
 begin
-  if not FKeysAreCached then begin
+  if not FKeysAreCached and (FPassPhrase <> '') then begin
      CalculatePassphraseHashes (FPassPhrase, FCachedEncryptionKey, FCachedVerificationHash, FKeyDerivIterations);
      FKeysAreCached := True;
   end;
@@ -3678,10 +3683,17 @@ procedure TKntFile.OnPassphraseChanged;
 begin
    InvalidateKeyCache;
    EnsureKeysAreCached;
+end;
+
+
+procedure TKntFile.UpdateLoadedVerificationHash;
+begin
    if FEncryptedContentEnabled then begin
+      EnsureKeysAreCached;
       FLoadedVerificationHash:= FCachedVerificationHash;
-      EncryptedContentOpened:= True;
-   end;
+   end
+   else
+      FillChar(FLoadedVerificationHash, SizeOf(FLoadedVerificationHash), 0);
 end;
 
 
@@ -3692,19 +3704,23 @@ begin
       if not IsMergeFile then begin
         Form_Main.MMViewEncryptedCont.Enabled:= FEncryptedContentEnabled;
         Form_Main.TVEncrypNode.Visible:= FEncryptedContentEnabled;
+        Form_Main.TVEncrypNode.Enabled:= FEncryptedContentEnabled;
       end;
    end;
 
-   if not FEncryptedContentEnabled then
-      FillChar(FLoadedVerificationHash, SizeOf(FLoadedVerificationHash), 0);
+   if FEncryptedContentEnabled then
+      EnsureKeysAreCached
+   else
+      UpdateLoadedVerificationHash;
 end;
 
 procedure TKntFile.SetEncryptedContentOpened(Value: boolean);
 begin
+   if not IsMergeFile then
+      Form_Main.MMViewEncryptedCont.Checked:= Value;
+
    if FEncryptedContentOpened <> Value then begin
       FEncryptedContentOpened:= Value;
-      if not IsMergeFile then
-         Form_Main.MMViewEncryptedCont.Checked:= Value;
 
       if FEncryptedContentOpened and (FLoadedEncryptedContent <> nil) then begin
          ProcessLoadedEncryptedContent;
@@ -3737,7 +3753,6 @@ procedure TKntFile.InitialConfigEncryptedContent;
 begin
    if (FLoadedEncryptedContent <> nil) and not FEncryptedContentEnabled then begin
        EncryptedContentEnabled:= True;
-       FEncryptedContentOpened:= True;       // To force actions to be executed when EncryptedContentOpened <- False
        EncryptedContentOpened:= False;
    end;
 end;
@@ -3790,7 +3805,6 @@ begin
      NNode:= myFolder.FocusedNNode;
      if (NNode <> nil) and (NNode.Note.IsEncrypted) then
         myFolder.NoteUI.LoadFromNNode(NNode, True);
-
   end;
 end;
 
@@ -3799,7 +3813,7 @@ end;
 function TKntFile.CheckAuthorized(ShowDetail: boolean): boolean;
 begin
   Result:= False;
-  if not FEncryptedContentEnabled or KeysAreCached then exit (True);
+  if not GetEncryptedContentMustBeHidden then exit(true);
 
   repeat
     try
