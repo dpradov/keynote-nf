@@ -212,10 +212,13 @@ type
     FOwned: boolean;
     FReferenceCount: Integer;
     FMustBeSavedExternally: Boolean;
+    FIsEncrypted: Boolean;
+    FStreamIsEncrypted: Boolean;
 
     procedure SetImageStream (Stream: TMemoryStream);
     procedure FreeImageStream;
     procedure SetAccessed;
+    procedure SetIsEncrypted (Value: boolean);
     function GetDetails: string;
 
   strict private
@@ -232,6 +235,7 @@ type
     function GetFileName: String;
     function GetImageStream: TMemoryStream; overload;
     function GetImageStreamAvailable: boolean;
+    procedure DecryptImageStream;
 
   public
     constructor Create(ID: Integer;
@@ -269,6 +273,8 @@ type
     property ReferenceCount: Integer read FReferenceCount;
     property LastAccessed: TDateTime read FLastAccessed;
     property MustBeSavedExternally: boolean read FMustBeSavedExternally write FMustBeSavedExternally;
+    property IsEncrypted: Boolean read FIsEncrypted write SetIsEncrypted;
+    property StreamIsEncrypted: Boolean read FStreamIsEncrypted write FStreamIsEncrypted;
 
     property Details: string read GetDetails;
     function ImageDefinition: String; inline;
@@ -358,6 +364,7 @@ type
     property ReconsiderImageDimensionsGoal: boolean read fReconsiderImageDimensionsGoal write fReconsiderImageDimensionsGoal;
     property DoNotRegisterNewImages: boolean read fDoNotRegisterNewImages write fDoNotRegisterNewImages;
 
+    procedure CheckToMarkSaveExternally(Img: TKntImage);
     function CheckUniqueName (var Name: string): boolean;
     function CheckRegisterImage (Stream: TMemoryStream; ImgFormat: TImageFormat;
                                  Width, Height: integer;
@@ -455,6 +462,10 @@ type
     procedure OpenImageFile(FilePath: string);
     procedure OpenImageViewer (ImgID: integer; ShowExternalViewer: boolean; SetLastFormImageOpened: boolean; Img: TKntImage = nil);
     procedure CheckBringToFrontLastImageViewer;
+
+    procedure ProcessEncryptedImages;
+    procedure DecryptAllImages;
+    procedure ToogleEncrypted(ImgID: integer);
   end;
 
 
@@ -1004,6 +1015,8 @@ begin
    inherited Create;
 
    FMustBeSavedExternally:= False;
+   FIsEncrypted:= False;
+   FStreamIsEncrypted:= False;
 
    FID:= ID;
    FImageFormat:= ImageFormat;
@@ -1124,16 +1137,16 @@ var
   path, name: string;
 begin
    { <IMG1>:
-     PD= IDImg|Path|Name|ImageFormat|Width|Height|crc32|OriginalPath|Owned|ReferenceCount|Caption|MustBeSavedExternally
+     PD= IDImg|Path|Name|ImageFormat|Width|Height|crc32|OriginalPath|Owned|ReferenceCount|Caption|MustBeSavedExternally|Encrypted
    }
    if fOwned then begin
       path:= Self.Path;
       name:= Self.Name;
    end;
 
-   Result:= Format('%s=%d|%s|%s|%d|%d|%d|%s|%s|%s|%d|%s|%s',
+   Result:= Format('%s=%d|%s|%s|%d|%d|%d|%s|%s|%s|%d|%s|%s|%s',
                [_ImageDEF,  ID, path, name, Ord(ImageFormat), FWidth, FHeight, FCRC32.ToString,
-                OriginalPath, BOOLEANSTR[FOwned], ReferenceCount, FCaption, BOOLEANSTR[FMustBeSavedExternally]]);
+                OriginalPath, BOOLEANSTR[FOwned], ReferenceCount, FCaption, BOOLEANSTR[FMustBeSavedExternally],BOOLEANSTR[FIsEncrypted]]);
 end;
 
 
@@ -1159,6 +1172,9 @@ begin
    else
       SizeKB:= '-- ';
 
+   if FIsEncrypted then
+      location:= '[*] ' + location;
+
    Result:= Format('%s | %s KB | %d x %d %s', [location, SizeKB, FWidth,FHeight,IMAGE_FORMATS[ImageFormat].ToUpper ]);
 
    if ReferenceCount <> 1 then
@@ -1172,6 +1188,32 @@ begin
    Result:= assigned(FImageStream);
 end;
 
+procedure TKntImage.DecryptImageStream;
+var
+   DecryptedStream: TMemoryStream;
+   EncryptionInfo: TEncryptionInfo;
+
+begin
+   if FImageStream = nil then exit;
+
+   try
+     EncryptionInfo:= TKntFile(ImageMng.KntFile).GetEncryptionInfo;
+     DecryptedStream:= TMemoryStream.Create;
+     EncryptionInfo.DataSize:= FImageStream.Size;
+     FImageStream.Position:= 0;
+     TKntFile(ImageMng.KntFile).DecryptStream(EncryptionInfo, FImageStream, DecryptedStream);
+     FImageStream.Clear;
+     FImageStream.Free;
+     FImageStream:= DecryptedStream;
+
+     FStreamIsEncrypted:= False;
+
+   except
+     on E: Exception do
+       App.ErrorPopup(E, GetRS(sImg23));
+   end;
+end;
+
 
 { Returns the image content in the original format.
 -> CALLER should not modify or release the stream }
@@ -1181,12 +1223,17 @@ begin
    if FImageStream = nil then
       ImageMng.ReloadImageStream(Self);
 
+   if FIsEncrypted and FStreamIsEncrypted and not AFileIsLoading and not TKntFile(ImageMng.KntFile).EncryptedContentMustBeHidden then
+      DecryptImageStream;
+
    Result:= FImageStream;
 end;
 
 procedure TKntImage.SetImageStream (Stream: TMemoryStream);
 begin
    FImageStream:= Stream;
+   if not AFileIsLoading then
+      FStreamIsEncrypted:= False;
 end;
 
 procedure TKntImage.SetAccessed;
@@ -1200,7 +1247,21 @@ begin
       FreeAndNil(FImageStream);
 end;
 
+procedure TKntImage.SetIsEncrypted (Value: boolean);
+begin
+   if FIsEncrypted = Value then exit;
+   if not TKntFile(ImageMng.KntFile).CheckAuthorized(True) then exit;
 
+   FIsEncrypted:= Value;
+   if FIsEncrypted then
+      MustBeSavedExternally:= False                 // TODO: Delete from external storage... (if it was saved externally without encryption)
+
+   else begin
+      ImageMng.CheckToMarkSaveExternally(Self);
+      if FStreamIsEncrypted then
+         DecryptImageStream;
+   end;
+end;
 
 
 //==========================================================================================
@@ -1343,8 +1404,10 @@ procedure TImageMng.SerializeEmbeddedImages(const tf: TTextFile);
 var
    Img: TKntImage;
    ImgStream: TMemoryStream;
+   EncryptedStream: TMemoryStream;
+   EncryptionInfo: TEncryptionInfo;
    i, NumImagesToBeSavedExternally: integer;
-   OnlyImagesToBeSavedExternally: boolean;
+   OnlySelectedImages: boolean;       // Couldn't be saved externally (temporarily problem with storage -> MustBeSavedExternally) or must be saved embedded (IsEncrypted)
    onlyStr: string;
 begin
 
@@ -1363,37 +1426,53 @@ begin
      we will not have their Stream }
    // TODO: nº of retries
 
-   OnlyImagesToBeSavedExternally:= true;
+   OnlySelectedImages:= true;
    if ExportingMode or (fStorageMode = smEmbKNT) or (fStorageMode = smExternalAndEmbKNT)  then
-      OnlyImagesToBeSavedExternally:= false;
+      OnlySelectedImages:= false;
 
 
-   for i := 0 to fImages.Count-1 do begin
-     Img:= TKntImage(fImages[i]);
-     if not Img.FOwned then continue;
-     if OnlyImagesToBeSavedExternally and not Img.MustBeSavedExternally  then continue;
-     if Img.ReferenceCount = 0 then continue;
+   EncryptionInfo:= TkntFile(KntFile).GetEncryptionInfo;
+   EncryptedStream:= TMemoryStream.Create;
+   try
 
-     if fExportingMode and (fImagesIDExported.IndexOf(Pointer(Img.ID)) < 0) then
-        continue;
+       for i := 0 to fImages.Count-1 do begin
+         Img:= TKntImage(fImages[i]);
+         if not Img.FOwned then continue;
+         if OnlySelectedImages and not (Img.MustBeSavedExternally or Img.IsEncrypted) then continue;
+         if Img.ReferenceCount = 0 then continue;
+
+         if fExportingMode and (fImagesIDExported.IndexOf(Pointer(Img.ID)) < 0) then
+            continue;
 
 
-     if Img.MustBeSavedExternally then
-        Inc(NumImagesToBeSavedExternally);
+         if Img.MustBeSavedExternally then
+            Inc(NumImagesToBeSavedExternally);
 
-     ImgStream:= Img.ImageStream;
-     if ImgStream = nil then continue;     // It could be an unavailable image, and are exporting the file with File | Copy To..
+         ImgStream:= Img.ImageStream;
+         if ImgStream = nil then continue;     // It could be an unavailable image, and are exporting the file with File | Copy To..
 
-     tf.WriteLine(Format('%s=%d|%s|%d', [_EmbeddedImage, Img.ID, Img.FileName, ImgStream.Size]), true);
-     ImgStream.Position := 0;
-     tf.Write(ImgStream.Memory^, ImgStream.Size);
-     tf.Write(_CRLF);
-     tf.WriteLine(_END_OF_EMBEDDED_IMAGE, False);
-   end;
+         tf.WriteLine(Format('%s=%d|%s|%d', [_EmbeddedImage, Img.ID, Img.FileName, ImgStream.Size]), true);
+         ImgStream.Position := 0;
+         if Img.IsEncrypted and not Img.StreamIsEncrypted then begin
+            EncryptionInfo.DataSize:= ImgStream.Size;
+            TKntFile(KntFile).EncryptStream(EncryptionInfo, ImgStream, EncryptedStream);
+            ImgStream:= EncryptedStream;
+         end;
 
-   if (not ExportingMode) and (NumImagesToBeSavedExternally > 0) and not fWasInformedOfStorageNotAvailable then begin
-      App.WarningPopup(GetRS(sImg05));
-      fWasInformedOfStorageNotAvailable:= true;
+         tf.Write(ImgStream.Memory^, ImgStream.Size);
+         tf.Write(_CRLF);
+         tf.WriteLine(_END_OF_EMBEDDED_IMAGE, False);
+
+         EncryptedStream.Clear;
+       end;
+
+       if (not ExportingMode) and (NumImagesToBeSavedExternally > 0) and not fWasInformedOfStorageNotAvailable then begin
+          App.WarningPopup(GetRS(sImg05));
+          fWasInformedOfStorageNotAvailable:= true;
+       end;
+
+   finally
+       EncryptedStream.Free;
    end;
 end;
 
@@ -1648,7 +1727,7 @@ begin
           else
           if key = _ImageDEF then begin
             {
-              <IMG>: PD= IDImg|Path|Name|ImageFormat|Width|Height|crc32|OriginalPath|Owned|ReferenceCount|Caption|MustBeSavedExternally
+              <IMG>: PD= IDImg|Path|Name|ImageFormat|Width|Height|crc32|OriginalPath|Owned|ReferenceCount|Caption|MustBeSavedExternally [|Encrypted]
             }
              try
                ws:= TryUTF8ToUnicodeString(s);
@@ -1673,6 +1752,11 @@ begin
                Img.FName:= Name;
                Img.FCaption:= Caption;
                Img.FMustBeSavedExternally:= MustBeSavedExternally;
+               Img.FIsEncrypted:= False;
+               if (Strs.Count > 12) and (Strs[12] = BOOLEANSTR[true]) then begin
+                  Img.FIsEncrypted:= True;
+                  Img.FStreamIsEncrypted:= True;
+               end;
 
                FImages.Add(Pointer(Img));
 
@@ -2399,12 +2483,17 @@ begin
    Img.GenerateName(FolderName, Source, ZipPathFormat, NameProposed);
 
    fImages.Add(Pointer(Img));
-   if Owned and ((fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT)) then
-      Img.MustBeSavedExternally:= true;
+   CheckToMarkSaveExternally(Img);
 
    Result:= Img;
 end;
 
+
+procedure TImageMng.CheckToMarkSaveExternally(Img: TKntImage);
+begin
+   if Img.FOwned and ((fStorageMode = smExternal) or (fStorageMode = smExternalAndEmbKNT)) then
+      Img.MustBeSavedExternally:= true;
+end;
 
 
 // Returns True if it has just been registered
@@ -3171,7 +3260,9 @@ begin
             end;
 
             if (fStorageMode <> smEmbRTF) then begin
-               if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0) then begin
+               if (ImgID = 0) and ((ImageMode = imImage) or UseExtenalImagesManager) and (Stream <> nil) and (Stream.Size > 0)
+                   and ((Img = nil) or not Img.StreamIsEncrypted)
+               then begin
                   {if FolderName = '' then begin
                      assert(FolderName <> '');
                      Exit('');       // It shouldn't happen, but if it does, we are exporting notes. We leave without processing anything
@@ -3211,7 +3302,9 @@ begin
                 Inc(pOut, NBytes);
             end
             else begin
-                if (ImagesModeDest = imImage) and (Stream <> nil) and (Stream.Size > 0) then begin
+                if (ImagesModeDest = imImage) and (Stream <> nil) and (Stream.Size > 0) and
+                   ((Img = nil) or not Img.IsEncrypted or not TkntFile(KntFile).EncryptedContentMustBeHidden)
+                then begin
                    if ImgIDwasPresent or (fStorageMode = smEmbRTF) then begin
                       ID:= 0;                                             // To not add the hidden tag from GetRTFforImageInsertion
                       if (fStorageMode <> smEmbRTF) then
@@ -3237,15 +3330,22 @@ begin
                   if Img = nil then                    // Image not included in the list of definitions (and we do not have its stream)
                      ImgCaption:= GetRS(sImg04) + '?'
                   else
-                     if (ImagesModeDest = imImage) then
-                        ImgCaption:= GetRS(sImg04) + Img.FileName
+                     if (ImagesModeDest = imImage) then begin
+                        if Img.IsEncrypted and TKntFile(KntFile).EncryptedContentMustBeHidden then
+                           ImgCaption:= '[*] ' + Img.FileName
+                        else
+                           ImgCaption:= GetRS(sImg04) + Img.FileName;
+                     end
                      else begin
                         ImgCaption:= Img.Caption;
                         if ImgCaption = '' then ImgCaption:= Img.FileName;
                      end;
 
-                  if not LinkImgFolded then     // We will not convert folded image links. We already have the link on ImgRTF
+                  if not LinkImgFolded then begin    // We will not convert folded image links. We already have the link on ImgRTF
+                     if (Img <> nil) and Img.IsEncrypted and not TKntFile(KntFile).EncryptedContentMustBeHidden then
+                        ImgCaption:= '[*] ' + ImgCaption;
                      ImgRTF:= Format(KNT_IMG_LINK, [ImgID, WidthGoal, HeightGoal, URLToRTF(ImgCaption, true)]);         // {\field{\*\fldinst{HYPERLINK "img:%d:%d,%d}"}}{\fldrslt{%s}}}
+                  end;
                   if (fStorageMode <> smEmbRTF) and (ImgID <> 0) then begin
                       if not ImgIDwasPresent then begin    // The tag with the image ID was incorrect and had to be re-registered, or we are converting from smEmbRTF
                          var LinkImg: AnsiString:= KNT_RTF_IMG_HIDDEN_MARK;
@@ -3835,6 +3935,44 @@ begin
 end;
 
 
+//-----------------------------------------
+//      ENCRYPTED IMAGES
+//-----------------------------------------
+
+procedure TImageMng.ProcessEncryptedImages;
+var
+  Img: TKntImage;
+  i: integer;
+  Stream: TMemoryStream;
+begin
+  if TKntFile(KntFile).EncryptedContentMustBeHidden then exit;
+
+  for i := 0 to fImages.Count-1 do begin
+    Img:= TKntImage(fImages[i]);
+    if Img.IsEncrypted then
+       Stream:= Img.ImageStream;
+  end;
+end;
+
+procedure TImageMng.DecryptAllImages;
+var
+   i: integer;
+begin
+   for i := 0 to fImages.Count-1 do
+     TKntImage(fImages[i]).IsEncrypted:= False;
+end;
+
+procedure TImageMng.ToogleEncrypted(ImgID: integer);
+var
+  Img: TKntImage;
+begin
+  Img:= GetImageFromID(ImgID);
+  if Img <> nil then begin
+     Img.IsEncrypted:= not Img.IsEncrypted;
+     TKntFile(KntFile).Modified:= True;
+  end;
+end;
+
 
 //-----------------------------------------
 //      IMAGE VIEWER
@@ -3911,6 +4049,8 @@ begin
       if not assigned(Img) then
          Img:= GetImageFromID(ImgID);
       if Img= nil then exit;
+
+      if Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and not ActiveFile.CheckAuthorized(True) then exit;
 
       if ShowExternalViewer then begin
          FilePath:= GetImagePath(Img);

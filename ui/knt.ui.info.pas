@@ -52,6 +52,7 @@ type
      function  GetImagesInstances: TImageIDs;
      procedure ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
      procedure ReloadImagesOnEditor;
+     procedure ToogleEncryptedImageOnEditor;
 
      procedure EditTags;
      procedure RefreshTags;

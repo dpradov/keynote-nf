@@ -930,6 +930,7 @@ type
     MMViewEncryptedCont: TMenuItem;
     TVEncrypNode: TMenuItem;
     actTVEncrypNode: TAction;
+    RTFMEncryptImg: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1360,6 +1361,7 @@ type
     procedure MMInsertTableClick(Sender: TObject);
     procedure MMViewEncryptedContClick(Sender: TObject);
     procedure actTVEncrypNodeExecute(Sender: TObject);
+    procedure RTFMEncryptImgClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -4671,6 +4673,13 @@ begin
    else
       ActiveEditor.ReconsiderImageDimensionGoals(true, imImage);        // Scratchpad
 end;
+
+
+procedure TForm_Main.RTFMEncryptImgClick(Sender: TObject);
+begin
+   ActiveFolder.ToogleEncryptedImageOnEditor;
+end;
+
 
 procedure TForm_Main.RTFMWordWebClick(Sender: TObject);
 begin
@@ -8464,6 +8473,7 @@ begin
     TB_Images.Enabled:=  SupportsRegImages and VinculatedToNote;
 
     RTFMTags.Enabled:= VinculatedToNote;
+    RTFMEncryptImg.Enabled:= VinculatedToNote and ActiveFile.EncryptedContentOpened;
     if (not VinculatedToNote) then
        RTFMTags.Hint:= '';
 end;

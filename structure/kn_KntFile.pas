@@ -3367,6 +3367,8 @@ var
 
         if SaveImages then begin
            ImageMng.DeleteOrphanImages;
+           if not EncryptedContentEnabled then
+              ImageMng.DecryptAllImages;
            ImageMng.SaveState(tf);
            ImageMng.SaveEmbeddedImages(tf);
            Log_StoreTick( 'After saving state and embedded images', 1 );
@@ -3705,6 +3707,8 @@ begin
         Form_Main.MMViewEncryptedCont.Enabled:= FEncryptedContentEnabled;
         Form_Main.TVEncrypNode.Visible:= FEncryptedContentEnabled;
         Form_Main.TVEncrypNode.Enabled:= FEncryptedContentEnabled;
+        Form_Main.RTFMEncryptImg.Visible:= FEncryptedContentEnabled;
+        Form_Main.RTFMEncryptImg.Enabled:= FEncryptedContentEnabled;
       end;
    end;
 
@@ -3716,8 +3720,10 @@ end;
 
 procedure TKntFile.SetEncryptedContentOpened(Value: boolean);
 begin
-   if not IsMergeFile then
+   if not IsMergeFile then begin
       Form_Main.MMViewEncryptedCont.Checked:= Value;
+      Form_Main.RTFMEncryptImg.Enabled:= Value;
+   end;
 
    if FEncryptedContentOpened <> Value then begin
       FEncryptedContentOpened:= Value;
@@ -3726,6 +3732,7 @@ begin
          ProcessLoadedEncryptedContent;
          FLoadedEncryptedContent.Free;
          FLoadedEncryptedContent:= nil;
+         ImageMng.ProcessEncryptedImages;
       end;
 
       if not FEncryptedContentOpened then

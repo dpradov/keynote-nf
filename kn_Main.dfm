@@ -4231,6 +4231,12 @@ object Form_Main: TForm_Main
         'image[s] (if no selection: all images in editor)'
       OnClick = RTFMRestoreProportionsClick
     end
+    object RTFMEncryptImg: TMenuItem
+      Caption = 'Encrypt image'
+      Hint = 'Mark selected image as encrypted'
+      Visible = False
+      OnClick = RTFMEncryptImgClick
+    end
   end
   object Menu_TAB: TPopupMenu
     AutoPopup = False
