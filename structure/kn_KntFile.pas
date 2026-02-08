@@ -3370,6 +3370,8 @@ var
            ImageMng.DeleteOrphanImages;
            if not EncryptedContentEnabled then
               ImageMng.DecryptAllImages;
+           if not KeyOptions.ImgAllowEncrExternal then
+              ImageMng.DeleteExternalImagesEncryptedInEmbeddedKNT;
            ImageMng.SaveState(tf);
            ImageMng.SaveEmbeddedImages(tf);
            Log_StoreTick( 'After saving state and embedded images', 1 );
@@ -3721,10 +3723,8 @@ end;
 
 procedure TKntFile.SetEncryptedContentOpened(Value: boolean);
 begin
-   if not IsMergeFile then begin
+   if not IsMergeFile then
       Form_Main.MMViewEncryptedCont.Checked:= Value;
-      Form_Main.RTFMEncryptImg.Enabled:= Value;
-   end;
 
    if FEncryptedContentOpened <> Value then begin
       FEncryptedContentOpened:= Value;

@@ -127,7 +127,6 @@ type
     procedure ReloadImagesOnEditor;
     procedure ReconsiderImageDimensionGoalsOnEditor (Selection: boolean; ImagesMode: TImagesMode);
     procedure SetImagesMode(ImagesMode: TImagesMode);
-    procedure ToogleEncryptedImageOnEditor;
 
   protected
     procedure BeforeEditorLoaded(Note: TNote); dynamic;
@@ -975,17 +974,6 @@ begin
          Editor.EndUpdate;
        end;
     end;
-end;
-
-
-procedure TKntNoteUI.ToogleEncryptedImageOnEditor;
-var
-  ImgID: integer;
-begin
-   ImgID:= FEditor.GetSelectedImageID;
-   if (ImgID = 0) then exit;
-
-   ImageMng.ToogleEncrypted(ImgID);
 end;
 
 

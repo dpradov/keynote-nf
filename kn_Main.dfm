@@ -4233,7 +4233,9 @@ object Form_Main: TForm_Main
     end
     object RTFMEncryptImg: TMenuItem
       Caption = 'Encrypt/Decrypt image'
-      Hint = 'Mark selected image as encrypted or decrypted'
+      Hint = 
+        'Selected image will be saved encrypted or decrypted (consider al' +
+        'so INI option '#39'ImgAllowEncrExternal'#39')'
       Visible = False
       OnClick = RTFMEncryptImgClick
     end

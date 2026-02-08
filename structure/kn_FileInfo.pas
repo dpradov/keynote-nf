@@ -118,6 +118,7 @@ type
     btnTestIter: TButton;
     cbEnableEncrCont: TCheckBox;
     cbHideEncrNodes: TCheckBox;
+    lblImgSetProtect: TLabel;
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -171,6 +172,7 @@ type
 
     function Verify : boolean;
     procedure EnablePassControls(Enable: boolean);
+    procedure EnableImageSettingControls(Value: boolean);
   end;
 
 const
@@ -210,7 +212,9 @@ begin
   HidePassText := true;
   fChangingInCode:= false;
 
+  lblImgSetProtect.Caption:= GetRS(sEdt52);
   EnablePassControls(False);
+  EnableImageSettingControls(False);
 
   Pages.ActivePage := Tab_Main;
   myKntFile := nil;
@@ -526,6 +530,8 @@ begin
   if cbEnableEncrCont.Checked and not myKntFile.EncryptedContentMustBeHidden then
      cbHideEncrNodes.Visible:= True;
 
+  EnableImageSettingControls(not cbEnableEncrCont.Checked or not myKntFile.EncryptedContentMustBeHidden);
+
 end; // Combo_FormatChange
 
 
@@ -555,6 +561,9 @@ begin
        end;
 
     end;
+
+    EnableImageSettingControls(not cbEnableEncrCont.Checked or not myKntFile.EncryptedContentMustBeHidden);
+
 
   finally
     fChangingInCode:= false;
@@ -900,5 +909,16 @@ begin
   end;
 
 end;
+
+
+procedure TForm_KntFileInfo.EnableImageSettingControls(Value: boolean);
+begin
+   Label26.Enabled:= Value;
+   btnRecalcNextID.Enabled:= Value;
+   cbImgStorageMode.Enabled:= Value;
+   gbExternalStorage.Enabled:= Value;
+   lblImgSetProtect.Visible:= not Value;
+end;
+
 
 end.

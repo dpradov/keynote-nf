@@ -266,7 +266,6 @@ type
     function CheckSavingImagesOnMode (ImagesMode: TImagesMode; Stream: TMemoryStream; ExitIfAllImagesInSameModeDest: boolean = true): TImageIDs;
     procedure ReconsiderImageDimensionGoalsOnEditor (Selection: boolean);
     procedure SetImagesMode(ImagesMode: TImagesMode; ForceMode: boolean); overload;
-    procedure ToogleEncryptedImageOnEditor;
 
 
     procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; LoadOldSimpleNote: boolean= false);
@@ -2169,12 +2168,6 @@ end;
 procedure TKntFolder.SetImagesMode(ImagesMode: TImagesMode);
 begin
    SetImagesMode(ImagesMode, false);
-end;
-
-
-procedure TKntFolder.ToogleEncryptedImageOnEditor;
-begin
-   NoteUI.ToogleEncryptedImageOnEditor;
 end;
 
 

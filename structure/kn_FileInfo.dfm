@@ -273,7 +273,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         TabOrder = 0
         object Label9: TLabel
           Left = 15
-          Top = 69
+          Top = 65
           Width = 150
           Height = 13
           AutoSize = False
@@ -320,7 +320,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Width = 230
           Height = 26
           AutoSize = False
-          FocusControl = cbImgStorageMode
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
           Font.Height = -11
@@ -329,6 +328,21 @@ object Form_KntFileInfo: TForm_KntFileInfo
           ParentFont = False
           Visible = False
           WordWrap = True
+          StyleElements = [seClient, seBorder]
+        end
+        object lblImgSetProtect: TLabel
+          Left = 152
+          Top = 119
+          Width = 339
+          Height = 26
+          AutoSize = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          Visible = False
           StyleElements = [seClient, seBorder]
         end
         object CB_AsReadOnly: TCheckBox
@@ -342,7 +356,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object CB_NoMultiBackup: TCheckBox
           Left = 15
-          Top = 37
+          Top = 35
           Width = 483
           Height = 17
           Hint = 'Ignore global backup level setting for this file'
@@ -351,7 +365,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Combo_CompressLevel: TComboBox
           Left = 15
-          Top = 88
+          Top = 84
           Width = 138
           Height = 21
           Hint = 'Choose level of compression used when saving the file'

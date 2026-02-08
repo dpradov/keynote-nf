@@ -99,7 +99,7 @@ type
 
     function SaveFile (const Stream: TMemoryStream; const Path: String; const Name: String; CompresionMethod: TZipCompression = zcStored): Boolean; virtual; abstract;
     function DeleteFile (const Path: String; const Name: String): Boolean; virtual; abstract;
-    function Save (SaveAllImages: boolean= false): integer;
+    function Save (KntFileObj: TObject; SaveAllImages: boolean= false): integer;
     procedure RegisterInLogFile (Strs: TStrings); virtual;
 
     function GetImageStream (const Path: String; const Name: String): TMemoryStream; virtual; abstract;          // Caller must free stream
@@ -214,6 +214,7 @@ type
     FMustBeSavedExternally: Boolean;
     FIsEncrypted: Boolean;
     FStreamIsEncrypted: Boolean;
+    FMustBeDeletedExternally: Boolean;
 
     procedure SetImageStream (Stream: TMemoryStream);
     procedure FreeImageStream;
@@ -450,6 +451,7 @@ type
     procedure DeleteOrphanImages();
     procedure SerializeImagesDefinition  (const tf: TTextFile);
     procedure SaveEmbeddedImages (const tf: TTextFile);
+    procedure DeleteExternalImagesEncryptedInEmbeddedKNT();
 
     property  ExportingMode: boolean read fExportingMode write SetExportingMode;
     procedure SaveStateInExportingMode (const tf: TTextFile);
@@ -548,7 +550,7 @@ begin
 end;
 
 
-function TFilesStorage.Save (SaveAllImages: boolean= false): integer;
+function TFilesStorage.Save (KntFileObj: TObject; SaveAllImages: boolean= false): integer;
 var
    i, j: Integer;
    Img: TKntImage;
@@ -557,6 +559,10 @@ var
    CompressionMethod: TZipCompression;
    ImgStream: TMemoryStream;
    MaxSavedImgID: integer;
+   EncryptionInfo: TEncryptionInfo;
+   EncryptedStream: TMemoryStream;
+   KntFile: TKntFile;
+
 begin
    { Browse all images added and not yet saved. Some of them may have subsequently been marked for deletion.
      At that time it is not removed from this list (FImagesToSave) in anticipation of it being rolled back based on the use of the UNDO mechanism.
@@ -565,8 +571,12 @@ begin
    Images:= ImageMng.Images;
 
    MaxSavedImgID:= 0;
+   KntFile:= TKntFile(KntFileObj);
 
    Strs:= TStringList.Create;
+   EncryptionInfo:= KntFile.GetEncryptionInfo;
+   EncryptedStream:= TMemoryStream.Create;
+
    OpenForWrite;
    try
       for i := 0 to Images.Count -1 do begin
@@ -592,6 +602,12 @@ begin
 
                 ImgStream:= Img.ImageStream;
                 if (ImgStream <> nil) then begin
+
+                   if Img.IsEncrypted and KeyOptions.ImgAllowEncrExternal and not Img.StreamIsEncrypted then begin
+                      EncryptionInfo.DataSize:= ImgStream.Size;
+                      KntFile.EncryptStream(EncryptionInfo, ImgStream, EncryptedStream);
+                      ImgStream:= EncryptedStream;
+                   end;
                    ImgStream.Position := 0;
                    if SaveFile(ImgStream, Img.Path, Img.Name, CompressionMethod) then begin
                       Img.MustBeSavedExternally:= False;
@@ -599,6 +615,7 @@ begin
                       if Img.ID > MaxSavedImgID then
                          MaxSavedImgID:= Img.ID;
                    end;
+                   EncryptedStream.Clear;
                 end
                 else begin
                    App.WarningPopup(Format(GetRS(sImg21), [Img.Name, Img.ID]));
@@ -625,6 +642,7 @@ begin
    finally
       Close;
       Strs.Free;
+      EncryptedStream.Free;
    end;
 
    Result:= MaxSavedImgID;
@@ -640,7 +658,7 @@ begin
    LogFN:= FAbsolutePath + IMG_LOG_FILE;
 
    if not FileExists(LogFN) then
-      TFile.WriteAllText(LogFN, 'PD= IDImg|Path|Name|Format(GIF,PNG,JPG,BMP,TIF,WMF,EMF)|Width|Height|crc32|OriginalPath|Owned|RefCount|Caption|MustBeSavedExt' + #13#10#13#10);
+      TFile.WriteAllText(LogFN, 'PD= IDImg|Path|Name|Format(GIF,PNG,JPG,BMP,TIF,WMF,EMF)|Width|Height|crc32|OriginalPath|Owned|RefCount|Caption|MustBeSavedExt|Encrypted' + #13#10#13#10);
 
    TFile.AppendAllText(LogFN, str, TEncoding.UTF8);
 end;
@@ -1020,6 +1038,7 @@ begin
    FMustBeSavedExternally:= False;
    FIsEncrypted:= False;
    FStreamIsEncrypted:= False;
+   FMustBeDeletedExternally:= False;
 
    FID:= ID;
    FImageFormat:= ImageFormat;
@@ -1256,10 +1275,16 @@ begin
    if not TKntFile(ImageMng.KntFile).CheckAuthorized(True) then exit;
 
    FIsEncrypted:= Value;
-   if FIsEncrypted then
-      MustBeSavedExternally:= False                 // TODO: Delete from external storage... (if it was saved externally without encryption)
-
+   if FIsEncrypted then begin
+      if KeyOptions.ImgAllowEncrExternal then
+         ImageMng.CheckToMarkSaveExternally(Self)
+      else begin
+         FMustBeDeletedExternally:= not FMustBeSavedExternally and FOwned;   // FMustBeSavedExternally=True => not saved yet
+         MustBeSavedExternally:= False;
+      end;
+   end
    else begin
+      FMustBeDeletedExternally:= False;
       ImageMng.CheckToMarkSaveExternally(Self);
       if FStreamIsEncrypted then
          DecryptImageStream;
@@ -1441,7 +1466,7 @@ begin
        for i := 0 to fImages.Count-1 do begin
          Img:= TKntImage(fImages[i]);
          if not Img.FOwned then continue;
-         if OnlySelectedImages and not (Img.MustBeSavedExternally or Img.IsEncrypted) then continue;
+         if OnlySelectedImages and not (Img.MustBeSavedExternally or (Img.IsEncrypted and not KeyOptions.ImgAllowEncrExternal)) then continue;
          if Img.ReferenceCount = 0 then continue;
 
          if fExportingMode and (fImagesIDExported.IndexOf(Pointer(Img.ID)) < 0) then
@@ -1513,7 +1538,7 @@ begin
    tf.WriteLine(_NF_StorageMode + '=' + IntToStr(Ord(fStorageMode)));
    if ModeUseExternalStorage and (fExternalStorageToSave <> nil) then begin
       tf.WriteLine(fExternalStorageToSave.GetStorageDefinition(), true);
-      MaxSavedImgID:= FExternalStorageToSave.Save (fSaveAllImagesToExtStorage);
+      MaxSavedImgID:= FExternalStorageToSave.Save (KntFile, fSaveAllImagesToExtStorage);
       if MaxSavedImgID + 1 > fNextImageID then
          fNextImageID:= MaxSavedImgID + 1;
       fNextTempImageID:= fNextImageID;
@@ -1623,6 +1648,51 @@ begin
    end;
 
 end;
+
+
+procedure TImageMng.DeleteExternalImagesEncryptedInEmbeddedKNT();
+var
+  Img: TKntImage;
+  i: integer;
+  Strs: TStrings;
+  ImgUseRecycleBinBAK: boolean;
+begin
+   if ExportingMode then exit;
+
+   // Delete the externally images now encrypted and saved embedded
+
+   ImgUseRecycleBinBAK:= KeyOptions.ImgUseRecycleBin;
+
+   Strs:= TStringList.Create;
+   try
+      KeyOptions.ImgUseRecycleBin:= False;
+
+      for i := fImages.Count-1 downto 0 do begin
+        Img:= TKntImage(fImages[i]);
+        if not Img.FMustBeDeletedExternally then continue;
+
+        if fExternalStorageToSave.OpenForWrite then begin
+           fExternalStorageToSave.DeleteFile(Img.Path, Img.Name);
+           // Delete might fail if the file no longer exists, but we'll ignore it. OpenForWrite has worked, then storage is available
+           Strs.Add(FormatDateTime('dd/MMM/yyyy HH:nn - ', Now) + 'Deleted image now encrypted: ' + Img.ImageDefinition);
+           Img.FMustBeDeletedExternally:= False;
+        end;
+        //else:  We keep the image with FMustBeDeletedExternally = True -> it will be deleted when external storage is available
+      end;
+
+      if Strs.Count > 0 then
+         fExternalStorageToSave.RegisterInLogFile (Strs);
+
+   finally
+      KeyOptions.ImgUseRecycleBin:= ImgUseRecycleBinBAK;
+      if assigned(fExternalStorageToSave) then
+         fExternalStorageToSave.Close;
+
+      Strs.Free;
+   end;
+
+end;
+
 
 
 //-----------------------------------------
@@ -1877,6 +1947,7 @@ var
    ZipPathFormat: boolean;
    ok, ModifyPathFormat, OnlyRelocated, CreateExternalStorage: boolean;
    ExternalStoreTypeChanged: boolean;
+   CurrentEditor: TKntRichEdit;
 
 
    function CheckNewExternalStorage: boolean;
@@ -2083,6 +2154,7 @@ begin
       fChangingImagesStorage:= true;
       screen.Cursor := crHourGlass;
       try
+         CurrentEditor:= ActiveFolder.Editor;
          if CreateExternalStorage then
             CreateNewExternalStorage;
 
@@ -2098,6 +2170,7 @@ begin
          end;
 
       finally
+         App.EditorFocused(CurrentEditor);
          screen.Cursor := crDefault;
       end;
 
@@ -3977,12 +4050,22 @@ end;
 procedure TImageMng.ToogleEncrypted(ImgID: integer);
 var
   Img: TKntImage;
+  Str: String;
 begin
   Img:= GetImageFromID(ImgID);
+  Str:= GetRS(sImg26);
+
   if Img <> nil then begin
      Img.IsEncrypted:= not Img.IsEncrypted;
      TKntFile(KntFile).Modified:= True;
+
+     if Img.IsEncrypted then
+        Str:= GetRS(sImg24)
+     else
+        Str:= GetRS(sImg25);
   end;
+
+  App.ShowInfoInStatusBar(Str);
 end;
 
 

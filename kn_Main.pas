@@ -4676,8 +4676,18 @@ end;
 
 
 procedure TForm_Main.RTFMEncryptImgClick(Sender: TObject);
+var
+  ImgID: integer;
 begin
-   ActiveFolder.ToogleEncryptedImageOnEditor;
+   if ActiveEditor = nil then exit;
+
+   ImgID:= ActiveEditor.GetSelectedImageID;
+
+   if ActiveFile.EncryptedContentMustBeHidden then
+      ActiveFile.CheckAuthorized(False);
+
+   if not ActiveFile.EncryptedContentMustBeHidden then
+      ImageMng.ToogleEncrypted(ImgID);
 end;
 
 
@@ -8473,7 +8483,6 @@ begin
     TB_Images.Enabled:=  SupportsRegImages and VinculatedToNote;
 
     RTFMTags.Enabled:= VinculatedToNote;
-    RTFMEncryptImg.Enabled:= VinculatedToNote and ActiveFile.EncryptedContentOpened;
     if (not VinculatedToNote) then
        RTFMTags.Hint:= '';
 end;
