@@ -466,6 +466,9 @@ type
     procedure ProcessEncryptedImages;
     procedure DecryptAllImages;
     procedure ToogleEncrypted(ImgID: integer);
+    function FileContainsEncryptedImages: boolean;
+    function ContainsEncryptedImages(const IDs: TImageIDs): boolean; overload;
+    function ContainsEncryptedImages(Note: TNote): boolean; overload;
   end;
 
 
@@ -2253,7 +2256,7 @@ begin
    repeat
       Inc(ImgID);
       Img:= GetImageFromID (ImgID);
-   until (Img <> nil) or (ImgID >= fNextTempImageID);
+   until ((Img <> nil) and not (Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden)) or (ImgID >= fNextTempImageID);
    Result:= Img;
 end;
 
@@ -2264,7 +2267,7 @@ begin
    repeat
       Dec(ImgID);
       Img:= GetImageFromID (ImgID);
-   until (Img <> nil) or (ImgID <= 1);
+   until ((Img <> nil) and not (Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden)) or (ImgID <= 1);
    Result:= Img;
 end;
 
@@ -2458,6 +2461,7 @@ var
    ImgID: integer;
    ZipPathFormat: boolean;
    StreamIMG: TMemoryStream;
+   NNode: TNoteNode;
 
 begin
    ImgID:= GetNewID();
@@ -2481,6 +2485,12 @@ begin
       ZipPathFormat:= true;
 
    Img.GenerateName(FolderName, Source, ZipPathFormat, NameProposed);
+
+   if Owned and ActiveFile.EncryptedContentEnabled then begin
+      NNode:= ActiveFolder.FocusedNNode;
+      if (NNode <> nil) and (NNode.Note.IsEncrypted) then
+         Img.IsEncrypted:= True;
+   end;
 
    fImages.Add(Pointer(Img));
    CheckToMarkSaveExternally(Img);
@@ -3954,6 +3964,7 @@ begin
   end;
 end;
 
+
 procedure TImageMng.DecryptAllImages;
 var
    i: integer;
@@ -3961,6 +3972,7 @@ begin
    for i := 0 to fImages.Count-1 do
      TKntImage(fImages[i]).IsEncrypted:= False;
 end;
+
 
 procedure TImageMng.ToogleEncrypted(ImgID: integer);
 var
@@ -3971,6 +3983,50 @@ begin
      Img.IsEncrypted:= not Img.IsEncrypted;
      TKntFile(KntFile).Modified:= True;
   end;
+end;
+
+
+function TImageMng.FileContainsEncryptedImages: boolean;
+var
+  i: integer;
+begin
+  Result:= False;
+  for i := 0 to fImages.Count-1 do
+    if TKntImage(fImages[i]).IsEncrypted then
+       exit(True);
+end;
+
+
+function TImageMng.ContainsEncryptedImages(const IDs: TImageIDs): boolean;
+var
+  i: integer;
+  Img: TKntImage;
+begin
+  Result:= False;
+  for i := Low(IDs) to High(IDs) do begin
+     Img:= GetImageFromID(IDs[i]);
+     if Img <> nil then
+        if Img.IsEncrypted then
+           exit(true);
+  end;
+end;
+
+
+function TImageMng.ContainsEncryptedImages(Note: TNote): boolean;
+var
+  NEntry: TNoteEntry;
+  IDs: TImageIDs;
+begin
+  Result:= False;
+  NEntry:= Note.Entries[0];               // ####
+  if not NEntry.IsRTF then exit;
+
+  if (NEntry.TextPlain <> '') then
+     IDs:= ImageMng.GetImagesIDInstancesFromTextPlain (NEntry.TextPlain)
+  else
+     IDs:= ImageMng.GetImagesIDInstancesFromRTF (NEntry.Stream);
+
+  Result:= ContainsEncryptedImages(IDs);
 end;
 
 
@@ -4050,7 +4106,12 @@ begin
          Img:= GetImageFromID(ImgID);
       if Img= nil then exit;
 
-      if Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and not ActiveFile.CheckAuthorized(True) then exit;
+      if Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
+         if ActiveFile.CheckAuthorized(True) then
+            ActiveFolder.NoteUI.LoadFromNNode(ActiveFolder.FocusedNNode, True)
+         else
+            exit;
+      end;
 
       if ShowExternalViewer then begin
          FilePath:= GetImagePath(Img);

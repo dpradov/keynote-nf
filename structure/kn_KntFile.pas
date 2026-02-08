@@ -128,7 +128,7 @@ type
     function  GetEncryptedContentMustBeGenerated: boolean;
     procedure EnsureKeysAreCached;
     procedure ShowOrHideEncryptedNodes;
-    procedure ReloadFocusedEncryptedNodes;
+    procedure ReloadFocusedNodesWithEncryptedContent;
 
     procedure SetFilename( const Value : string );
     function GetBookmark(Index: integer): TLocation;
@@ -3121,7 +3121,7 @@ var
   tf, tfC : TTextFile;
   AuxStream : TMemoryStream;
   NotesToSave: TNoteList;
-  ToEncryptStream, EncryptedStream : TMemoryStream;
+  ToEncryptStream, EncryptedStream, AuxEncryptStream : TMemoryStream;
 
 
   procedure WriteNEntry (NEntry: TNoteEntry; Note: TNote);
@@ -3346,18 +3346,19 @@ var
               tfC.closefile();
               ToEncryptStream.Position := 0;
               EncryptStream(GetEncryptionInfo, ToEncryptStream, EncryptedStream);
+              AuxEncryptStream:= EncryptedStream;
            end
            else
-              EncryptedStream:= FLoadedEncryptedContent;
+              AuxEncryptStream:= FLoadedEncryptedContent;
 
            tf.WriteLine(_NF_EncryptedContent);
            EncrypInfo:= GetEncryptionInfo;
-           EncrypInfo.DataSize:= EncryptedStream.Size;
+           EncrypInfo.DataSize:= AuxEncryptStream.Size;
            wordsize := sizeof( EncrypInfo );
            tf.Write(wordSize, sizeof(wordsize));
            tf.Write(EncrypInfo, sizeof(EncrypInfo));
 
-           tf.Write(EncryptedStream.Memory^, EncryptedStream.Size);
+           tf.Write(AuxEncryptStream.Memory^, AuxEncryptStream.Size);
            tf.Write(_CRLF);
            tf.WriteLine(_NF_EncryptedContentEND);
            Log_StoreTick( 'After saving Encrypted content', 1 );
@@ -3739,7 +3740,7 @@ begin
          InvalidateKeyCache;
 
       if not IsMergeFile then begin
-         ReloadFocusedEncryptedNodes;
+         ReloadFocusedNodesWithEncryptedContent;
 
          if FHideEncryptedNodes then
             ShowOrHideEncryptedNodes;
@@ -3801,18 +3802,25 @@ begin
 end;
 
 
-procedure TKntFile.ReloadFocusedEncryptedNodes;
+procedure TKntFile.ReloadFocusedNodesWithEncryptedContent;
 var
   i: Cardinal;
   myFolder : TKntFolder;
   NNode: TNoteNode;
+  ImgsEncr: boolean;
+  CurrentEditor: TKntRichEdit;
 begin
+  CurrentEditor:= ActiveFolder.Editor;
+  ImgsEncr:= ImageMng.FileContainsEncryptedImages;
+
   for i := 0 to FFolders.Count-1 do begin
      myFolder := FFolders[i];
      NNode:= myFolder.FocusedNNode;
-     if (NNode <> nil) and (NNode.Note.IsEncrypted) then
+     if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted) then
         myFolder.NoteUI.LoadFromNNode(NNode, True);
   end;
+
+  App.EditorFocused(CurrentEditor);
 end;
 
 

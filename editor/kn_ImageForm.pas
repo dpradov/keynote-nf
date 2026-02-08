@@ -769,7 +769,7 @@ begin
       end
       else
          Img:= ImageMng.GetImageFromID(ID);
-      if (Img <> nil) then begin
+      if (Img <> nil) and not (Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then begin
          CheckUpdateCaption;
          Image:= Img;
       end;

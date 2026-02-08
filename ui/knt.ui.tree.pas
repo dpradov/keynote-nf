@@ -2256,10 +2256,19 @@ end;
 function TKntTreeUI.NodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
 var
   NNode : TNoteNode;
+  ContainImg: boolean;
 begin
   Result:= False;
   NNode:= GetNNode(Node);
-  if not OnlyChildren and NNode.Note.IsEncrypted then exit (True);
+  ContainImg:= ImageMng.FileContainsEncryptedImages;
+
+  if not OnlyChildren then begin
+     if NNode.Note.IsEncrypted then exit (True);
+     if ContainImg then begin
+        if ImageMng.ContainsEncryptedImages(NNode.Note) then
+           exit (True);
+     end;
+  end;
 
   if (vsHasChildren in Node.States) then
      for Node in TV.ChildNodes(Node) do

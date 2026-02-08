@@ -4232,8 +4232,8 @@ object Form_Main: TForm_Main
       OnClick = RTFMRestoreProportionsClick
     end
     object RTFMEncryptImg: TMenuItem
-      Caption = 'Encrypt image'
-      Hint = 'Mark selected image as encrypted'
+      Caption = 'Encrypt/Decrypt image'
+      Hint = 'Mark selected image as encrypted or decrypted'
       Visible = False
       OnClick = RTFMEncryptImgClick
     end
