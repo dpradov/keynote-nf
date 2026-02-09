@@ -4232,10 +4232,11 @@ object Form_Main: TForm_Main
       OnClick = RTFMRestoreProportionsClick
     end
     object RTFMEncryptImg: TMenuItem
-      Caption = 'Encrypt/Decrypt image'
+      Caption = 'Encrypt/Decrypt image[s]'
       Hint = 
-        'Selected image will be saved encrypted or decrypted (consider al' +
-        'so INI option '#39'ImgAllowEncrExternal'#39')'
+        'Selected image[s] will be saved encrypted/decrypted (if no selec' +
+        'tion: all images in editor)  (Consider also INI option '#39'ImgAllow' +
+        'EncrExternal'#39') '
       Visible = False
       OnClick = RTFMEncryptImgClick
     end

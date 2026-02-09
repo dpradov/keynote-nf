@@ -536,8 +536,8 @@ const
    sImg21 = 54661;   // Error saving image "%s" (ID:%d) :\^  Content lost\^  Will be removed from Images
    sImg22 = 54662;   // < Unregistered image >
    sImg23 = 55138;   // Error decrypting image
-   sImg24 = 55139;   // Image will be saved encrypted
-   sImg25 = 55140;   // Image will be saved decrypted
+   sImg24 = 55139;   // %d image[s] will be saved encrypted
+   sImg25 = 55140;   // %d Image[s] will be saved decrypted
    sImg26 = 55141;   // No registered image is selected
    sImgF01 = 54699;   // Image no available. Change in caption will not saved
    sImgF02 = 54700;   // Save image file as

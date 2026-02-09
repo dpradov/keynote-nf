@@ -938,7 +938,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55136,  "Error loading encrypted content"
 55137,  "Do you want to merge the ENCRYPTED CONTENT?\n\nIt will remain protected with the password of the current file (or the one you set *before* saving)"
 55138,  "Error decrypting image"
-55139,  "Image will be saved encrypted"
-55140,  "Image will be saved decrypted"
+55139,  "%d image[s] will be saved encrypted"
+55140,  "%d image[s] will be saved decrypted"
 55141,  "No registered image is selected"
 }

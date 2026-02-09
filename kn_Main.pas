@@ -4687,7 +4687,7 @@ begin
       ActiveFile.CheckAuthorized(False);
 
    if not ActiveFile.EncryptedContentMustBeHidden then
-      ImageMng.ToogleEncrypted(ImgID);
+      ImageMng.ToogleEncryptedOnImages(ActiveEditor);
 end;
 
 

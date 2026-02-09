@@ -2949,6 +2949,11 @@ begin
       SetNNode(myTreeNode, NewNNode);
       NewNNode.Note.Name:= myName;
       SetNumberingMethod(myTreeNode);
+      if aInsMode = tnAddChild then begin
+         if GetNNode(OriginNode).Note.IsEncrypted and ActiveFile.EncryptedContentOpened then
+            NewNNode.Note.IsEncrypted:= True;
+      end;
+
 
       Result := NewNNode;
 

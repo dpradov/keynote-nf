@@ -1240,7 +1240,7 @@ Menu_RTF.RTFMWordwrap.Hint=Toggle wrapping at end of lines
 Menu_RTF.RTFMRestoreProportions.Caption=Restore &image[s] proportions
 Menu_RTF.RTFMRestoreProportions.Hint=Restore proportions and reconsider "Max.auto width" on selected image[s] (if no selection: all images in editor)
 Menu_RTF.RTFMEncryptImg.Caption=Encrypt/Decrypt image
-Menu_RTF.RTFMEncryptImg.Hint=Selected image will be saved encrypted or decrypted (consider also INI option 'ImgAllowEncrExternal')
+Menu_RTF.RTFMEncryptImg.Hint=Selected image[s] will be saved encrypted/decrypted (if no selection: all images in editor)  (Consider also INI option 'ImgAllowEncrExternal')
 Menu_TAB.TAM_ActiveName.Caption=(none)
 Menu_TAB.TAM_NewTab.Caption{1}=&New Folder (Tab) ...
 Menu_TAB.TAM_NewTab.Hint{1}=Create a new folder (Tab)
@@ -1828,10 +1828,8 @@ GB_List.CB_Bullets.Caption=&Bulleted list
 GB_List.CB_Numbers.Caption=&Numbered list
 
 [TForm_Password]
-Caption=File access passphrase
 Button_OK.Caption=OK
 Button_Cancel.Caption=Cancel
-GroupBox1.Caption= Enter access passphrase : 
 GroupBox1.Label2.Caption=&Passphrase:
 
 [TForm_SelectTab]
@@ -2842,8 +2840,8 @@ Button_OK.Caption=&Close
 55136_knt_RS_sFile28=Error loading encrypted content
 55137_knt_RS_sFileM84=Do you want to merge the ENCRYPTED CONTENT?\^\^It will remain protected with the password of the current file (or the one you set *before* saving)
 55138_knt_RS_sImg23=Error decrypting image
-55139_knt_RS_sImg24=Image will be saved encrypted
-55140_knt_RS_sImg25=Image will be saved decrypted
+55139_knt_RS_sImg24=%d image[s] will be saved encrypted
+55140_knt_RS_sImg25=%d image[s] will be saved decrypted
 55141_knt_RS_sImg26=No registered image is selected
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

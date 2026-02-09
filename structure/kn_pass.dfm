@@ -4,9 +4,8 @@ object Form_Password: TForm_Password
   HelpContext = 51
   ActiveControl = Edit_Pass
   BorderStyle = bsDialog
-  Caption = 'File access passphrase'
   ClientHeight = 129
-  ClientWidth = 440
+  ClientWidth = 481
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -24,7 +23,7 @@ object Form_Password: TForm_Password
   TextHeight = 16
   object Button_OK: TButton
     Left = 151
-    Top = 96
+    Top = 97
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -35,7 +34,7 @@ object Form_Password: TForm_Password
   end
   object Button_Cancel: TButton
     Left = 239
-    Top = 96
+    Top = 97
     Width = 75
     Height = 25
     Caption = 'Cancel'
@@ -44,15 +43,14 @@ object Form_Password: TForm_Password
     OnClick = Button_CancelClick
   end
   object GroupBox1: TGroupBox
-    Left = 5
+    Left = 10
     Top = 7
-    Width = 435
+    Width = 461
     Height = 81
-    Caption = ' Enter access passphrase: '
     TabOrder = 2
     object Label_FileName: TLabel
-      Left = 402
-      Top = 22
+      Left = 432
+      Top = 11
       Width = 12
       Height = 13
       Alignment = taRightJustify
@@ -65,17 +63,18 @@ object Form_Password: TForm_Password
       ParentFont = False
     end
     object Label2: TLabel
-      Left = 15
-      Top = 50
-      Width = 82
-      Height = 13
+      Left = 2
+      Top = 40
+      Width = 121
+      Height = 18
+      Alignment = taRightJustify
       AutoSize = False
       Caption = '&Passphrase:'
       FocusControl = Edit_Pass
     end
     object Edit_Pass: TSecureEdit
-      Left = 101
-      Top = 45
+      Left = 131
+      Top = 37
       Width = 313
       Height = 24
       PasswordChar = '*'

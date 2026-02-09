@@ -467,7 +467,7 @@ type
 
     procedure ProcessEncryptedImages;
     procedure DecryptAllImages;
-    procedure ToogleEncrypted(ImgID: integer);
+    procedure ToogleEncryptedOnImages(Editor: TKntRichEdit);
     function FileContainsEncryptedImages: boolean;
     function ContainsEncryptedImages(const IDs: TImageIDs): boolean; overload;
     function ContainsEncryptedImages(Note: TNote): boolean; overload;
@@ -3415,7 +3415,7 @@ begin
                   else
                      if (ImagesModeDest = imImage) then begin
                         if Img.IsEncrypted and TKntFile(KntFile).EncryptedContentMustBeHidden then
-                           ImgCaption:= '[*] ' + Img.FileName
+                           ImgCaption:= Img.FileName
                         else
                            ImgCaption:= GetRS(sImg04) + Img.FileName;
                      end
@@ -3424,11 +3424,8 @@ begin
                         if ImgCaption = '' then ImgCaption:= Img.FileName;
                      end;
 
-                  if not LinkImgFolded then begin    // We will not convert folded image links. We already have the link on ImgRTF
-                     if (Img <> nil) and Img.IsEncrypted and not TKntFile(KntFile).EncryptedContentMustBeHidden then
-                        ImgCaption:= '[*] ' + ImgCaption;
+                  if not LinkImgFolded then    // We will not convert folded image links. We already have the link on ImgRTF
                      ImgRTF:= Format(KNT_IMG_LINK, [ImgID, WidthGoal, HeightGoal, URLToRTF(ImgCaption, true)]);         // {\field{\*\fldinst{HYPERLINK "img:%d:%d,%d}"}}{\fldrslt{%s}}}
-                  end;
                   if (fStorageMode <> smEmbRTF) and (ImgID <> 0) then begin
                       if not ImgIDwasPresent then begin    // The tag with the image ID was incorrect and had to be re-registered, or we are converting from smEmbRTF
                          var LinkImg: AnsiString:= KNT_RTF_IMG_HIDDEN_MARK;
@@ -4047,25 +4044,64 @@ begin
 end;
 
 
-procedure TImageMng.ToogleEncrypted(ImgID: integer);
+procedure TImageMng.ToogleEncryptedOnImages(Editor: TKntRichEdit);
 var
   Img: TKntImage;
-  Str: String;
+  Msg: String;
+  sRTF: AnsiString;
+  ImgID, SL: integer;
+  Stream: TMemoryStream;
+  IDs: TImageIDs;
+  i, SelectedImgs: integer;
+  ToEncrypt: boolean;
 begin
-  Img:= GetImageFromID(ImgID);
-  Str:= GetRS(sImg26);
+  Img:= nil;
+  SelectedImgs:= 0;
 
-  if Img <> nil then begin
-     Img.IsEncrypted:= not Img.IsEncrypted;
-     TKntFile(KntFile).Modified:= True;
+  SL:= Editor.SelLength;
 
-     if Img.IsEncrypted then
-        Str:= GetRS(sImg24)
+  if SL = 1 then
+     ImgID:= ActiveEditor.GetSelectedImageID;
+
+  if ImgID > 0 then begin
+     SetLength(IDs, 1);
+     IDs[0]:= ImgID;
+  end
+  else begin
+     if SL = 0 then
+        sRTF:= Editor.RtfText
      else
-        Str:= GetRS(sImg25);
+        sRTF:= Editor.RtfSelText;
+
+     Stream:= TMemoryStream.Create;
+     try
+        StringToMemoryStream(sRTF, Stream);
+        IDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+     finally
+        Stream.Free;
+     end;
   end;
 
-  App.ShowInfoInStatusBar(Str);
+  Msg:= GetRS(sImg26);
+
+  for i := Low(IDs) to High(IDs) do begin
+     Img:= GetImageFromID(IDs[i]);
+     if Img <> nil then
+        if SelectedImgs = 0 then
+           ToEncrypt:= not Img.IsEncrypted;
+        inc(SelectedImgs);
+        Img.IsEncrypted:= ToEncrypt;
+  end;
+
+  if SelectedImgs > 0 then begin
+     TKntFile(KntFile).Modified:= True;
+     if ToEncrypt then
+        Msg:= GetRS(sImg24)
+     else
+        Msg:= GetRS(sImg25);
+  end;
+
+  App.ShowInfoInStatusBar(Format(Msg, [SelectedImgs]));
 end;
 
 
