@@ -931,6 +931,7 @@ type
     TVEncrypNode: TMenuItem;
     actTVEncrypNode: TAction;
     RTFMEncryptImg: TMenuItem;
+    MGRImages: TImageList;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1671,6 +1672,7 @@ begin
   LoadGifFromResource(IMG_Toolbar, 'TOOLBAR_MAIN');   //,  clFuchsia);
   LoadGifFromResource(IMG_Format, 'TOOLBAR_FORMAT');  //    ,,
   LoadGifFromResource(IMG_TV, 'TV_IMAGES');           //    ,,
+  LoadGifFromResource(MGRImages, 'MGRIMAGES');        //    ,,
   LoadGifFromResource(CheckImages, 'VTCHECKIMGS');
 
   { The name associated with the secondary icon as a resource must be after (alphabetically) the main one

@@ -5527,4 +5527,8 @@ object Form_Main: TForm_Main
     Left = 528
     Top = 360
   end
+  object MGRImages: TImageList
+    Left = 162
+    Top = 183
+  end
 end
