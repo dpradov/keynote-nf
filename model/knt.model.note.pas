@@ -52,9 +52,10 @@ type
 
 
  TNoteState = (
-  // TODO ------------ : 
+   nsEncrypted,     // Individual note (with all its entries) marked as encrypted
+  // TODO ------------ :
    nsReadOnly,      // Individual note marked as read-only
-   nsArchived,      // Individual note marked as archived. 
+   nsArchived,      // Individual note marked as archived.
                     // Its a way to mark a note as material that we do not want to appear by default in searches
    nsShowEmbedded,  // Show as embedded note when viewing the parent note (Ref: "pg.72")
    nsNoEmbeddable,  // Do not embed, if it is used a presentation mode that represents as embedded notes all or a selection
@@ -143,6 +144,9 @@ type
 
     function GetNumNNodes: integer; inline;
 
+    function GetIsEncrypted: boolean;
+    procedure SetIsEncrypted(value: boolean);
+
 
   public
     constructor Create;
@@ -161,6 +165,8 @@ type
     property SelStart : Cardinal read fSelStart write fSelStart;
     property SelLength : Cardinal read fSelLength write fSelLength;
     property ScrollPosInEditor: TPoint read fScrollPosInEditor write fScrollPosInEditor;
+
+    property IsEncrypted: boolean read GetIsEncrypted write SetIsEncrypted;
 
     procedure LoadStates(States: TNoteStates);
     function StatesToString: string;
@@ -214,12 +220,12 @@ type
     nesModified,
     nesPlainTXT,       // If assigned => content is Plain TXT | If not assigned => content is RTF
     nesHTML,           // If assigned => content is HTML
-    
- // TODO ------------ : 
- 
-    nesReadOnly,       // Entry marked as read-only
-  //--  
+
     nesEncrypted,      // Entry marked as encrypted
+
+ // TODO ------------ :
+    nesReadOnly,       // Entry marked as read-only
+  //--
     nesArchived,       // Entry that we do not want to appear by default in searches or complicate the display of notes
     nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself 
                        // (it is the 'first' entry of that one, or its Main entry, and that it may have other Entries)
@@ -321,10 +327,12 @@ type
     function GetIsRTF: boolean; inline;
     function GetIsPlainTXT: boolean; inline;
     function GetIsHTML: boolean; inline;
+    function GetIsEncrypted: boolean; inline;
     procedure SetModified_(value: boolean);
     procedure SetIsRTF(value: boolean);
     procedure SetIsPlainTXT(value: boolean);
     procedure SetIsHTML(value: boolean);
+    procedure SetIsEncrypted(value: boolean);
 
   public
     constructor Create (NumEntry: Word = 0);
@@ -344,6 +352,7 @@ type
     property IsRTF: boolean read GetIsRTF write SetIsRTF;
     property IsPlainTXT: boolean read GetIsPlainTXT write SetIsPlainTXT;
     property IsHTML: boolean read GetIsHTML write SetIsHTML;
+    property IsEncrypted: boolean read GetIsEncrypted write SetIsEncrypted;
 
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
@@ -948,6 +957,20 @@ begin
   Exclude(fStates, nsModified);       // Modified:= false;
 end;
 
+function TNote.GetIsEncrypted: boolean;
+begin
+  Result:= (nsEncrypted in fStates);
+end;
+
+procedure TNote.SetIsEncrypted(value: boolean);
+begin
+  if value then
+     Include(fStates, nsEncrypted)
+  else
+     Exclude(fStates, nsEncrypted);
+end;
+
+
 procedure TNote.LoadStates(States: TNoteStates);
 begin
    fStates:= States;
@@ -1145,6 +1168,11 @@ begin
   Result:= (nesHTML in fStates);
 end;
 
+function TNoteEntry.GetIsEncrypted: boolean;
+begin
+  Result:= (nesEncrypted in fStates);
+end;
+
 procedure TNoteEntry.SetIsRTF(value: boolean);
 begin
   if value then begin
@@ -1171,6 +1199,14 @@ begin
   end
   else
      Exclude(fStates, nesHTML);
+end;
+
+procedure TNoteEntry.SetIsEncrypted(value: boolean);
+begin
+  if value then
+     Include(fStates, nesEncrypted)
+  else
+     Exclude(fStates, nesEncrypted);
 end;
 
 

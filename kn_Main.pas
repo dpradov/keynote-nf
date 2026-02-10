@@ -927,6 +927,11 @@ type
     RTFMExpand: TMenuItem;
     MMInsertLine: TMenuItem;
     MMInsertTable: TMenuItem;
+    MMViewEncryptedCont: TMenuItem;
+    TVEncrypNode: TMenuItem;
+    actTVEncrypNode: TAction;
+    RTFMEncryptImg: TMenuItem;
+    MGRImages: TImageList;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1355,6 +1360,9 @@ type
     procedure Pages_ResEnter(Sender: TObject);
     procedure MMInsertLineClick(Sender: TObject);
     procedure MMInsertTableClick(Sender: TObject);
+    procedure MMViewEncryptedContClick(Sender: TObject);
+    procedure actTVEncrypNodeExecute(Sender: TObject);
+    procedure RTFMEncryptImgClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1590,7 +1598,7 @@ begin
   try
     PassForm.myFileName := FN;
     if ( PassForm.ShowModal = mrOK ) then
-      result := PassForm.Edit_Pass.Text;
+      result := PassForm.Edit_Pass.GetSecureText;
   finally
     PassForm.Free;
   end;
@@ -1665,6 +1673,7 @@ begin
   LoadGifFromResource(IMG_Toolbar, 'TOOLBAR_MAIN');   //,  clFuchsia);
   LoadGifFromResource(IMG_Format, 'TOOLBAR_FORMAT');  //    ,,
   LoadGifFromResource(IMG_TV, 'TV_IMAGES');           //    ,,
+  LoadGifFromResource(MGRImages, 'MGRIMAGES');        //    ,,
   LoadGifFromResource(CheckImages, 'VTCHECKIMGS');
 
   { The name associated with the secondary icon as a resource must be after (alphabetically) the main one
@@ -2494,7 +2503,7 @@ begin
    ActiveControl:= nil;
    Application.ProcessMessages;
    try
-      if not ActiveEditor.CanFocus then begin
+      if (ActiveEditor = nil) or not ActiveEditor.CanFocus then begin
          Sleep(100);
          Application.ProcessMessages;
       end;
@@ -3609,6 +3618,15 @@ begin
       ActiveTreeUI.TB_FilterTreeClick(nil);
 end;
 
+procedure TForm_Main.MMViewEncryptedContClick(Sender: TObject);
+begin
+   if ActiveFile.EncryptedContentOpened then
+      ActiveFile.EncryptedContentOpened:= False
+   else
+      ActiveFile.CheckAuthorized(True);
+end;
+
+
 procedure TForm_Main.MMViewFormatNoneClick(Sender: TObject);
 begin
   if ( sender is TMenuItem ) then
@@ -4658,6 +4676,23 @@ begin
    else
       ActiveEditor.ReconsiderImageDimensionGoals(true, imImage);        // Scratchpad
 end;
+
+
+procedure TForm_Main.RTFMEncryptImgClick(Sender: TObject);
+var
+  ImgID: integer;
+begin
+   if ActiveEditor = nil then exit;
+
+   ImgID:= ActiveEditor.GetSelectedImageID;
+
+   if ActiveFile.EncryptedContentMustBeHidden then
+      ActiveFile.CheckAuthorized(False);
+
+   if not ActiveFile.EncryptedContentMustBeHidden then
+      ImageMng.ToogleEncryptedOnImages(ActiveEditor);
+end;
+
 
 procedure TForm_Main.RTFMWordWebClick(Sender: TObject);
 begin
@@ -8216,6 +8251,22 @@ begin
   ActiveTreeUI.TreeTransferProc(ttPaste, KeyOptions.ConfirmTreePaste, true);
 end;
 
+procedure TForm_Main.actTVEncrypNodeExecute(Sender: TObject);
+var
+  WasClosed, MustReload: boolean;
+begin
+  WasClosed:= not ActiveFile.EncryptedContentOpened;
+
+  if not ActiveFile.CheckAuthorized(True) then exit;
+
+  MustReload:= WasClosed and ActiveFolder.FocusedNNode.Note.IsEncrypted;
+
+  ActiveTreeUI.SetNodeEncrypted(ShiftDown);
+
+  if MustReload then
+     ActiveFolder.NoteUI.ReloadFromDataModel;
+end;
+
 procedure TForm_Main.actTVEraseTreeMemExecute(Sender: TObject);
 begin
   ActiveTreeUI.TreeTransferProc(ttClear, false, false);
@@ -8530,6 +8581,7 @@ begin
       actTVChildrenCheckbox.Checked := NNode.ChildrenCheckbox;
       actTVBoldNode.Checked := NNode.Bold;
       actTVFlaggedNode.Checked := NNode.Flagged;
+      actTVEncrypNode.Checked := Note.IsEncrypted;
    end
    else
       actTVCheckNode.Checked := false;

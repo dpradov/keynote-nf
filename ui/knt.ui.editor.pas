@@ -176,6 +176,7 @@ type
     property OnChangedSelection: TChangedSelectionEvent read FChangedSelection write FChangedSelection;
     procedure ChangedSelection; virtual;
     procedure Change; override;
+    function GetSelectedImageID: integer;
 
     function FontInfoString : string;
     function ParaInfoString : string;
@@ -4668,20 +4669,8 @@ begin
 
   if KeyOptions.ImgHotTrackViewer then begin
      if ImageMng.ImgViewerIsOpen then begin
-        var ImgID, p: integer;
-        ImgID:= 0;
-
-        if (SelLength = 1) then
-           ImgID:= CheckToIdentifyImageID(p)
-
-        else
-        if (SelLength = 0) and SelAttributes.Link then begin
-            var URLText, TxtSel: string;
-            var chrg: TCharRange;
-            var L, R: integer;
-            GetLinkAtCursor(URLText, TxtSel, L, R, false);
-            ImgID:= GetImageIDinPlaintext(URLText);
-        end;
+        var ImgID: integer;
+        ImgID:= GetSelectedImageID;
 
         if (ImgID > 0) and (ImageMng.ImgIDinViewer <> ImgID) then begin
            ImageMng.OpenImageViewer(ImgID, false, false);
@@ -4695,6 +4684,28 @@ begin
 
   inherited;
 end; // Selection Change
+
+
+function TKntRichEdit.GetSelectedImageID: integer;
+var
+   ImgID, p: integer;
+begin
+  ImgID:= 0;
+
+  if (SelLength = 1) then
+     ImgID:= CheckToIdentifyImageID(p)
+
+  else
+  if (SelLength = 0) and SelAttributes.Link then begin
+      var URLText, TxtSel: string;
+      var chrg: TCharRange;
+      var L, R: integer;
+      GetLinkAtCursor(URLText, TxtSel, L, R, false);
+      ImgID:= GetImageIDinPlaintext(URLText);
+  end;
+
+  Result:= ImgID;
+end;
 
 
 procedure TKntRichEdit.Change;

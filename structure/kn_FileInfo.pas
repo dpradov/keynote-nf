@@ -35,6 +35,7 @@ uses
    Vcl.Mask,
    RxPlacemnt,
    TB97Ctls,
+   knt.ui.secureEdit,
 
    kn_KntFile
    ;
@@ -70,8 +71,8 @@ type
     Label_Confirm: TLabel;
     Label_Pass: TLabel;
     Label_Method: TLabel;
-    Edit_Confirm: TEdit;
-    Edit_Pass: TEdit;
+    Edit_Confirm: TSecureEdit;
+    Edit_Pass: TSecureEdit;
     Combo_Method: TComboBox;
     Button_SetPass: TButton;
     Label_EnterPass: TLabel;
@@ -114,19 +115,22 @@ type
     btnRecalcNextID: TButton;
     lblKeyTr: TLabel;
     txtIter: TEdit;
-    lblIter: TLabel;
     btnTestIter: TButton;
+    cbEnableEncrCont: TCheckBox;
+    cbHideEncrNodes: TCheckBox;
+    lblImgSetProtect: TLabel;
     procedure TB_OpenDlgTrayIconClick(Sender: TObject);
     procedure TB_OpenDlgTabImgClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure Combo_MethodChange(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure Button_OKClick(Sender: TObject);
     procedure Button_CancelClick(Sender: TObject);
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Combo_FormatChange(Sender: TObject);
+    procedure cbEnableEncrCont_Click(Sender: TObject);
     procedure Button_SetPassClick(Sender: TObject);
     procedure Edit_PassChange(Sender: TObject);
     procedure CheckBox_AsReadOnlyClick(Sender: TObject);
@@ -147,11 +151,12 @@ type
       Shift: TShiftState);
     function FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
     procedure btnRecalcNextIDClick(Sender: TObject);
-    procedure txtIterKeyPress(Sender: TObject; var Key: Char);    
+    procedure txtIterKeyPress(Sender: TObject; var Key: Char);
     procedure txtIterExit(Sender: TObject);
     procedure btnTestIterClick(Sender: TObject);
   private
     { Private declarations }
+    fChangingInCode: boolean;
 
     procedure CheckExternalStorageEnabled;
     procedure CheckExternalStorageLocation;
@@ -166,7 +171,8 @@ type
     ExtStorageLocationFake: boolean;
 
     function Verify : boolean;
-    procedure EnablePassControls(Enable: boolean= true);
+    procedure EnablePassControls(Enable: boolean);
+    procedure EnableImageSettingControls(Value: boolean);
   end;
 
 const
@@ -204,8 +210,11 @@ begin
 
   Tab_Pass.TabVisible := false; // [x] while not implemented
   HidePassText := true;
+  fChangingInCode:= false;
 
+  lblImgSetProtect.Caption:= GetRS(sEdt52);
   EnablePassControls(False);
+  EnableImageSettingControls(False);
 
   Pages.ActivePage := Tab_Main;
   myKntFile := nil;
@@ -237,6 +246,14 @@ begin
 
   OK_Click := false;
 end; // CREATE
+
+
+procedure TForm_KntFileInfo.FormDestroy(Sender: TObject);
+begin
+   Edit_Pass.ClearSecure;
+   Edit_Confirm.ClearSecure;
+end;
+
 
 procedure TForm_KntFileInfo.FormActivate(Sender: TObject);
 var
@@ -313,6 +330,10 @@ begin
     CheckBox_ShowTabIconsClick( CB_ShowTabIcons );
     RB_TabImgOtherClick( RB_TabImgOther );
     CB_ShowTabIcons.OnClick := CheckBox_ShowTabIconsClick;
+    cbEnableEncrCont.Enabled:= (myKntFile.FileFormat <> nffEncrypted);
+    cbEnableEncrCont.Checked:= myKntFile.EncryptedContentEnabled;
+    cbHideEncrNodes.Checked:= myKntFile.HideEncryptedNodes;
+    cbHideEncrNodes.Visible:= False;
   end
   else begin
     Edit_FileName.Text := GetRS(sFInf07);
@@ -369,6 +390,7 @@ begin
   Edit_Confirm.OnChange := Edit_PassChange;
   txtIter.OnKeyPress := txtIterKeyPress;
   txtIter.OnExit := txtIterExit;
+  cbEnableEncrCont.OnClick:= cbEnableEncrCont_Click;
   CB_AsReadOnly.OnClick := CheckBox_AsReadOnlyClick;
 
   _FILE_TABIMAGES_SELECTION_CHANGED := false;
@@ -401,17 +423,17 @@ begin
 {$ENDIF}
 
 
-  if ( not ( PassphraseChanged and ( Combo_Format.ItemIndex = ord( nffEncrypted )))) then exit;
+  if not ( PassphraseChanged and ((Combo_Format.ItemIndex = ord(nffEncrypted)) or cbEnableEncrCont.Checked )) then exit;
 
   s := '';
 
-  if length( Edit_Pass.Text ) < MinPassLen then begin
+  if length( Edit_Pass.GetSecureText ) < MinPassLen then begin
     s := Format( GetRS(sFInf09), [MinPassLen] );
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
   end
   else
-  if ( Edit_Pass.Text <> Edit_Confirm.Text ) then begin
+  if ( Edit_Pass.GetSecureText <> Edit_Confirm.GetSecureText ) then begin
     s := GetRS(sFInf10);
     Pages.ActivePage := Tab_Pass;
     Edit_Pass.SetFocus;
@@ -424,7 +446,7 @@ begin
     exit;
   end;
 
-  if myKntFile.HasVirtualNotes then begin
+  if (Combo_Format.ItemIndex = ord(nffEncrypted)) and myKntFile.HasVirtualNotes then begin
     result := ( App.DoMessageBox(GetRS(sFInf11), mtWarning, [mbYes,mbNo], Def2 ) = mrYes );
   end;
 
@@ -465,37 +487,97 @@ end; // KEY DOWN
 
 
 procedure TForm_KntFileInfo.Combo_FormatChange(Sender: TObject);
+var
+  SelectedFormat: TKntFileFormat;
+
 begin
+ if fChangingInCode then exit;
+
+ SelectedFormat:= TKntFileFormat(Combo_Format.ItemIndex);
+
+ if cbEnableEncrCont.Checked and (SelectedFormat = nffEncrypted) then
+    if not myKntFile.CheckAuthorized(false) then begin
+       fChangingInCode:= True;
+       Combo_Format.ItemIndex := ord(myKntFile.FileFormat);
+       fChangingInCode:= False;
+       exit;
+    end
+    else
+       cbEnableEncrCont.Checked:= False;
+
 {$IFDEF WITH_DART}
-  Edit_Description.Enabled := Combo_Format.ItemIndex <> ord( nffDartNotes );
+  Edit_Description.Enabled := SelectedFormat <> nffDartNotes;
 {$ELSE}
   Edit_Description.Enabled := True;
 {$ENDIF}
   Edit_Comment.Enabled := Edit_Description.Enabled;
-  Combo_CompressLevel.Enabled := Combo_Format.ItemIndex = ord( nffKeyNoteZip );
+  Combo_CompressLevel.Enabled := SelectedFormat = nffKeyNoteZip;
   if not Combo_CompressLevel.Enabled then
      Combo_CompressLevel.ItemIndex := ord( zcNone )
   else
      if (myKntFile.FileFormat <> nffKeyNoteZip) then
         Combo_CompressLevel.ItemIndex := ord( zcDefault );
 
-  Tab_Pass.TabVisible := ( Combo_Format.ItemIndex = ord( nffEncrypted ));
-  if ( Tab_Pass.TabVisible and ( myKntFile.FileFormat <> nffEncrypted )) then begin
-    // the file was NOT encrypted previously,
-    // so now passphrase must be entered.
-    EnablePassControls;
+  Tab_Pass.TabVisible := (SelectedFormat = nffEncrypted) or cbEnableEncrCont.Checked;
+  cbEnableEncrCont.Enabled:= (SelectedFormat <> nffEncrypted);
+
+  if ( Tab_Pass.TabVisible and (( myKntFile.FileFormat <> nffEncrypted ) and not myKntFile.EncryptedContentEnabled ) ) then begin
+    // the file was NOT encrypted previously, so now passphrase must be entered.
+    EnablePassControls(true);
     PassphraseChanged := true;
-    Button_SetPass.Enabled := false;
   end;
+
+  if cbEnableEncrCont.Checked and not myKntFile.EncryptedContentMustBeHidden then
+     cbHideEncrNodes.Visible:= True;
+
+  EnableImageSettingControls(not cbEnableEncrCont.Checked or not myKntFile.EncryptedContentMustBeHidden);
+
 end; // Combo_FormatChange
 
 
+procedure TForm_KntFileInfo.cbEnableEncrCont_Click(Sender: TObject);
+begin
+  if fChangingInCode then exit;
+
+  try
+    if cbEnableEncrCont.Checked then begin
+       Tab_Pass.TabVisible:= True;
+       cbHideEncrNodes.Visible:= True;
+       if not myKntFile.KeysAreCached then begin
+          EnablePassControls(true);
+          PassphraseChanged := true;
+       end;
+    end
+    else begin
+       if ( (TKntFileFormat(Combo_Format.ItemIndex) <> nffEncrypted) and myKntFile.EncryptedContentEnabled and
+            (App.DoMessageBox(GetRS(sFInf22), mtWarning, [mbYes,mbNo], def2) <> mrYes) ) or
+          not myKntFile.CheckAuthorized(True) then begin
+          fChangingInCode:= true;
+          cbEnableEncrCont.Checked:= True
+       end
+       else begin
+          Tab_Pass.TabVisible:= False;
+          EnablePassControls(false);
+       end;
+
+    end;
+
+    EnableImageSettingControls(not cbEnableEncrCont.Checked or not myKntFile.EncryptedContentMustBeHidden);
+
+
+  finally
+    fChangingInCode:= false;
+  end;
+
+end;
+
 procedure TForm_KntFileInfo.Button_SetPassClick(Sender: TObject);
 begin
+  if not myKntFile.CheckAuthorized(False) then exit;
+
   PassphraseChanged := true;
-  EnablePassControls;
+  EnablePassControls(true);
   try
-    Button_SetPass.Enabled := false;
     Edit_Pass.SetFocus;
   except
   end;
@@ -523,14 +605,15 @@ procedure TForm_KntFileInfo.CheckBox_HidePassClick(Sender: TObject);
 begin
   HidePassText := CB_HidePass.Checked;
   if HidePassText then
-    Edit_Pass.PasswordChar := '*'
+    Edit_Pass.SecureMode:= True
   else
-    Edit_Pass.PasswordChar := #0;
-  Edit_Confirm.PasswordChar := Edit_Pass.PasswordChar;
+    Edit_Pass.SecureMode:= False;
+  Edit_Confirm.SecureMode:= Edit_Pass.SecureMode;
 end;
 
-procedure TForm_KntFileInfo.EnablePassControls (Enable: boolean= true);
+procedure TForm_KntFileInfo.EnablePassControls (Enable: boolean);
 begin
+  Button_SetPass.Enabled := not Enable;
   Label_Pass.Enabled := Enable;
   Label_Confirm.Enabled := Enable;
   Label_Method.Enabled := Enable;
@@ -540,9 +623,9 @@ begin
   CB_HidePass.Enabled := Enable;
   Label_EnterPass.Visible := Enable;
   lblKeyTr.Enabled := Enable;
-  lblIter.Enabled := Enable;
   btnTestIter.Enabled:= Enable;
   txtIter.Enabled:= Enable;
+  cbHideEncrNodes.Visible:= (cbEnableEncrCont.Checked);
 end; // EnablePassControls
 
 
@@ -564,6 +647,8 @@ begin
      L:= StrToUInt64Def(txtIter.Text, KEY_ITERATIONS_VERIF_MAX);
      if L > KEY_ITERATIONS_VERIF_MAX then
         L:= KEY_ITERATIONS_VERIF_MAX;
+     if L = 0 then
+        L:= KEY_ITERATIONS_VERIF_DEFAULT;
    end;
 
    txtIter.Text:= L.ToString;
@@ -579,7 +664,7 @@ var
 begin
   NIter:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
   StartTick := GetTickCount;
-  CalculatePassphraseHashes (Edit_Pass.Text, EncryptionKey, VerificationHash, NIter);
+  CalculatePassphraseHashes (Edit_Pass.GetSecureText, EncryptionKey, VerificationHash, NIter);
 
   ElapsedMs := GetTickCount - StartTick;
   App.InfoPopup(Format(GetRS(sFile25), [ElapsedMs]));
@@ -824,5 +909,16 @@ begin
   end;
 
 end;
+
+
+procedure TForm_KntFileInfo.EnableImageSettingControls(Value: boolean);
+begin
+   Label26.Enabled:= Value;
+   btnRecalcNextID.Enabled:= Value;
+   cbImgStorageMode.Enabled:= Value;
+   gbExternalStorage.Enabled:= Value;
+   lblImgSetProtect.Visible:= not Value;
+end;
+
 
 end.

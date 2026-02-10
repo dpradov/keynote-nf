@@ -468,7 +468,8 @@ type
     ImgHotTrackViewer,
     ImgSaveInSubfolders,
     ImgKeepOrigName,
-    ImgViewerPath: string;
+    ImgViewerPath,
+    ImgAllowEncrExternal: string;
   end;
 
 const
@@ -655,6 +656,7 @@ const
     ImgSaveInSubfolders: 'ImgSaveInSubfolders';
     ImgKeepOrigName: 'ImgKeepOrigName';
     ImgViewerPath: 'ImgViewerPath';
+    ImgAllowEncrExternal: 'ImgAllowEncrExternal';
   );
 
 type
@@ -1231,6 +1233,7 @@ begin
     ImgSaveInSubfolders:= false;
     ImgKeepOrigName:= false;
     ImgViewerPath:= '';
+    ImgAllowEncrExternal:= false;
   end;
 end; // InitializeKeyOptions
 
@@ -1551,6 +1554,7 @@ begin
       writebool   ( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
       writebool   ( section, KeyOptionsIniStr.ImgKeepOrigName, KeyOptions.ImgKeepOrigName );
       writestring ( section, KeyOptionsIniStr.ImgViewerPath, KeyOptions.ImgViewerPath );
+      writebool   ( section, KeyOptionsIniStr.ImgAllowEncrExternal, KeyOptions.ImgAllowEncrExternal );
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1929,6 +1933,7 @@ begin
       KeyOptions.ImgSaveInSubfolders := readbool( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
       KeyOptions.ImgKeepOrigName := readbool( section, KeyOptionsIniStr.ImgKeepOrigName, KeyOptions.ImgKeepOrigName );
       KeyOptions.ImgViewerPath := readstring( section, KeyOptionsIniStr.ImgViewerPath, KeyOptions.ImgViewerPath );
+      KeyOptions.ImgAllowEncrExternal := readbool( section, KeyOptionsIniStr.ImgAllowEncrExternal, KeyOptions.ImgAllowEncrExternal );
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;
 

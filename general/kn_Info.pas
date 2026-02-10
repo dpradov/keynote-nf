@@ -724,6 +724,7 @@ type
     ImgSaveInSubfolders:       boolean;
     ImgKeepOrigName:           boolean;      // "Try to keep the original file name" -> If checked, a file named 'MyImage.jpg' will be saved (if possible) with that same name and will not be prefixed with the ID (such as 10_MyImage.jpg)
     ImgViewerPath:             string;       // [*]
+    ImgAllowEncrExternal:      boolean;      // [*]  An image marked as encrypted will be saved in configured storage, even if it is external (ZIP or Folder).
   end;
 
 

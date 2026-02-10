@@ -47,7 +47,8 @@ uses
                             ExportingMode: boolean= false;
                             OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                             OnlyNotHiddenNodes: boolean= false;
-                            OnlyCheckedNodes: boolean= false);
+                            OnlyCheckedNodes: boolean= false;
+                            ExportEncryptedContent: boolean = false);
 
     procedure EnsureNodeAndCaretVisibleInFolders;
 
@@ -364,6 +365,7 @@ begin
             EnsureNodeAndCaretVisibleInFolders;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
 
+            KntFile.InitialConfigEncryptedContent;
 
             opensuccess := true;
 
@@ -1047,6 +1049,10 @@ begin
         UpdateLastCommand( ecNone );
         BookmarkInitializeAll;
         UpdateAlarmStatus;
+        MMViewEncryptedCont.Enabled:= False;
+        MMViewEncryptedCont.Checked:= False;
+        TVEncrypNode.Visible:= False;
+
 
         if assigned( KntFile ) then begin
           try
@@ -1059,7 +1065,6 @@ begin
             try
               App.FileClosed(KntFile);
               KntFile.InvalidateKeyCache;
-              KntFile.ErasePassword;
               KntFile.Free;
             except
               // showmessage( 'BUG: error in KntFile.Free' );
@@ -1102,7 +1107,8 @@ procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false;
                         OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                         OnlyNotHiddenNodes: boolean= false;
-                        OnlyCheckedNodes: boolean= false);
+                        OnlyCheckedNodes: boolean= false;
+                        ExportEncryptedContent: boolean = false);
 var
   currentFN, newFN : string;
   cr : integer;
@@ -1164,7 +1170,7 @@ begin
             try
               ImageMng.ExportingMode:= true;
               try
-                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent);
               finally
                  ImageMng.ExportingMode:= false;
               end;
@@ -1271,6 +1277,7 @@ begin
         }
 
         MergeFile := TKntFile.Create;
+        MergeFile.IsMergeFile:= True;
         MergeFile.PassphraseFunc := GetFilePassphrase;
         mergecnt := 0;
 
@@ -1291,6 +1298,12 @@ begin
               App.InfoPopup( GetRS(sFileM41));
               exit;
             end;
+
+            MergeFile.InitialConfigEncryptedContent;
+            if ( MergeFile.EncryptedContentEnabled and
+                (App.DoMessageBox(GetRS(sFileM84), mtWarning, [mbYes,mbNo], def1) = mrYes) ) then
+                MergeFile.CheckAuthorized(True);
+
 
             for i := 0 to pred( MergeFile.FolderCount ) do begin
               // initially, UNMARK ALL notes (i.e. no merging)
@@ -2536,6 +2549,7 @@ var
   Form_FileInfo : TForm_KntFileInfo;
   KntFile: TKntFile;
   KeyIter: Cardinal;
+  HadEncryptedContentEnabled: boolean;
 begin
   KntFile:= ActiveFile;
 
@@ -2548,6 +2562,7 @@ begin
 
       try
         Form_FileInfo.myKntFile := KntFile;
+        HadEncryptedContentEnabled:= KntFile.EncryptedContentEnabled;
 
         if ( Form_FileInfo.ShowModal = mrOK ) then begin
           App.Virtual_UnEncrypt_Warning_Done := false;
@@ -2582,18 +2597,32 @@ begin
                 KntFile.TabIconsFN := '';
             end;
 
-            if ( KntFile.FileFormat = nffEncrypted ) then begin
-              KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
-              KeyIter:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
-              if PassphraseChanged then
-                 KntFile.Passphrase := Edit_Pass.Text;
-              if KeyIter <> KntFile.KeyDerivIterations then begin
-                 KntFile.KeyDerivIterations := KeyIter;
-                 PassphraseChanged:= True;
-              end;
-              if PassphraseChanged then
-                 KntFile.InvalidateKeyCache;
+
+            if ( KntFile.FileFormat = nffEncrypted ) or cbEnableEncrCont.Checked then begin
+               if PassphraseChanged then begin
+                  KntFile.Passphrase := Edit_Pass.GetSecureText;
+                  assert(Length(Edit_Pass.GetSecureText) >= 5);
+                  KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
+                  KntFile.KeyDerivIterations:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
+                  KntFile.OnPassphraseChanged;
+               end;
+               if KntFile.FileFormat <> nffEncrypted then begin
+                  if not HadEncryptedContentEnabled then begin
+                     KntFile.EncryptedContentEnabled:= True;
+                     KntFile.EncryptedContentOpened:= True;
+                     KntFile.UpdateLoadedVerificationHash;
+                  end;
+                  KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
+               end;
+            end
+            else begin
+               KntFile.Passphrase := '';
+               KntFile.EncryptedContentEnabled:= False;
+               KntFile.EncryptedContentOpened:= False;
+               KntFile.InvalidateKeyCache;
+               KntFile.UpdateLoadedVerificationHash;
             end;
+
 
             if ( KntFile.FileName <> '' ) then
                case KntFile.FileFormat of
@@ -2675,6 +2704,14 @@ begin
   TKntTreeUI.ClearGlobalData;
 
   if ActiveFileIsBusy then exit;
+
+  if (ActiveFile.EncryptedContentOpened and KeyOptions.TimerClose and KeyOptions.TimerCloseEncOnly) then begin
+     ActiveFile.EncryptedContentOpened:= False;
+     Log_StoreTick('AutoClose Encrypted Content', 0);
+     exit;
+  end;
+
+
   if ( not ( KeyOptions.TimerClose and
              Form_Main.HaveKntFolders( false, false ) and
              KeyOptions.AutoSave
