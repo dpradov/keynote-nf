@@ -346,7 +346,7 @@ btnZoomOut.Hint=Zoom Out  (numeric -)
 btnZoomIn.Hint=Zoom In   (numeric +)
 btnZoomReset.Hint=Show the image in 100%   (numeric *)
 lblLinked.Hint=Image is linked (not owned by KNT file)
-lblLinked.Caption=Linked
+lblLinked.Caption= Linked
 btnPrevImage.Hint=Previous image instance in node [Ctrl: prev.ID in file]
 btnNextImage.Hint=Next image instance in node [Ctrl: next ID in file]
 btnAlwaysVisible.Hint=Always visible
@@ -2843,5 +2843,6 @@ Button_OK.Caption=&Close
 55139_knt_RS_sImg24=%d image[s] will be saved encrypted
 55140_knt_RS_sImg25=%d image[s] will be saved decrypted
 55141_knt_RS_sImg26=No registered image is selected
+55142_knt_RS_sImg27=[IMAGE]
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

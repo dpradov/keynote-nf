@@ -234,6 +234,9 @@ type
     function GetName: String;
     function GetPath: String;
     function GetFileName: String;
+    function GetVisibleName: String;
+    function GetVisibleFileName: String;
+    function GetVisibleOriginalPath: String;
     function GetImageStream: TMemoryStream; overload;
     function GetImageStreamAvailable: boolean;
     procedure DecryptImageStream;
@@ -263,6 +266,9 @@ type
     property OriginalPath: String read FOriginalPath;
     property IsOwned: boolean read FOwned;
     property FileName: String read GetFileName;
+    property VisibleFileName: String read GetVisibleFileName;
+    property VisibleName: String read GetVisibleName;
+    property VisibleOriginalPath: String read GetVisibleOriginalPath;
 
     property Width: integer read FWidth;
     property Height: integer read FHeight;
@@ -1147,6 +1153,33 @@ begin
 end;
 
 
+function TKntImage.GetVisibleName: String;
+begin
+   if (FIsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+      Result:= GetRS(sImg27)                                              // "[IMAGE]"
+   else
+      Result:= GetName;
+end;
+
+
+function TKntImage.GetVisibleFileName: String;
+begin
+   if (FIsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+      Result:= GetRS(sImg27)                                              // "[IMAGE]"
+   else
+      Result:= GetFileName;
+end;
+
+
+function TKntImage.GetVisibleOriginalPath: String;
+begin
+   if (FIsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+      Result:= GetRS(sImg27)                                              // "[IMAGE]"
+   else
+      Result:= FOriginalPath;
+end;
+
+
 procedure TKntImage.SetDimensions(Width, Height: integer);
 begin
     FWidth:= Width;
@@ -1180,22 +1213,19 @@ begin
    //  MyFile.png | MyPath | 9.0 KB | 120x25 PNG ....
 
    if fOwned then begin
-      location:= Name;
+      location:= VisibleName;
       if Path <> '' then
          location:= location + ' | ' + Path;
       {if OriginalPath <> '' then
          location:= location + ' [ ' + OriginalPath + ' ]';}
    end
    else
-      location:= OriginalPath;
+      location:= VisibleOriginalPath;
 
    if ImageStream <> nil then
       SizeKB:= SimpleRoundTo(fImageStream.Size/1024, -1).ToString
    else
       SizeKB:= '-- ';
-
-   if FIsEncrypted then
-      location:= '[*] ' + location;
 
    Result:= Format('%s | %s KB | %d x %d %s', [location, SizeKB, FWidth,FHeight,IMAGE_FORMATS[ImageFormat].ToUpper ]);
 
@@ -1828,7 +1858,8 @@ begin
                Img.FIsEncrypted:= False;
                if (Strs.Count > 12) and (Strs[12] = BOOLEANSTR[true]) then begin
                   Img.FIsEncrypted:= True;
-                  Img.FStreamIsEncrypted:= True;
+                  if Owned then
+                     Img.FStreamIsEncrypted:= True;
                end;
 
                FImages.Add(Pointer(Img));
@@ -3415,13 +3446,13 @@ begin
                   else
                      if (ImagesModeDest = imImage) then begin
                         if Img.IsEncrypted and TKntFile(KntFile).EncryptedContentMustBeHidden then
-                           ImgCaption:= Img.FileName
+                           ImgCaption:= Img.VisibleFileName
                         else
-                           ImgCaption:= GetRS(sImg04) + Img.FileName;
+                           ImgCaption:= GetRS(sImg04) + Img.VisibleFileName;
                      end
                      else begin
                         ImgCaption:= Img.Caption;
-                        if ImgCaption = '' then ImgCaption:= Img.FileName;
+                        if ImgCaption = '' then ImgCaption:= Img.VisibleFileName;
                      end;
 
                   if not LinkImgFolded then    // We will not convert folded image links. We already have the link on ImgRTF

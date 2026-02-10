@@ -50,7 +50,7 @@ object Form_Image: TForm_Image
   object lblDetails: TLabel
     Left = 8
     Top = 4
-    Width = 314
+    Width = 341
     Height = 16
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
@@ -151,23 +151,6 @@ object Form_Image: TForm_Image
     Images = Form_Main.IMG_Toolbar
     OnClick = btnZoomResetClick
   end
-  object lblLinked: TLabel
-    Left = 328
-    Top = 6
-    Width = 56
-    Height = 13
-    Hint = 'Image is linked (not owned by KNT file)'
-    Anchors = [akTop, akRight]
-    AutoSize = False
-    Caption = 'Linked'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clBlue
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    Visible = False
-  end
   object btnPrevImage: TToolbarButton97
     Left = 3
     Top = 386
@@ -220,6 +203,37 @@ object Form_Image: TForm_Image
     ImageIndex = 4
     Images = Form_Main.IMG_Toolbar
     OnClick = btnCopyClick
+  end
+  object btnEncryp: TToolbarButton97
+    Left = 354
+    Top = 1
+    Width = 20
+    Height = 22
+    Hint = 'Toogle encrypted/decrypted'
+    AllowAllUp = True
+    Anchors = [akTop, akRight]
+    GroupIndex = 2
+    DropdownCombo = True
+    ImageIndex = 1
+    Images = Form_Main.MGRImages
+    OnClick = btnEncrypClick
+  end
+  object lblLinked: TLabel
+    Left = 298
+    Top = 6
+    Width = 56
+    Height = 13
+    Hint = 'Image is linked (not owned by KNT file)'
+    Anchors = [akTop, akRight]
+    AutoSize = False
+    Caption = ' Linked'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlue
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    Visible = False
   end
   object Button_Cancel: TButton
     Left = 315

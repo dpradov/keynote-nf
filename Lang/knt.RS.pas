@@ -539,6 +539,7 @@ const
    sImg24 = 55139;   // %d image[s] will be saved encrypted
    sImg25 = 55140;   // %d Image[s] will be saved decrypted
    sImg26 = 55141;   // No registered image is selected
+   sImg27 = 55142;   // [IMAGE]
    sImgF01 = 54699;   // Image no available. Change in caption will not saved
    sImgF02 = 54700;   // Save image file as
    sImgF03 = 54701;   // All image files

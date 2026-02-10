@@ -941,4 +941,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55139,  "%d image[s] will be saved encrypted"
 55140,  "%d image[s] will be saved decrypted"
 55141,  "No registered image is selected"
+55142,  "[IMAGE]"
 }
