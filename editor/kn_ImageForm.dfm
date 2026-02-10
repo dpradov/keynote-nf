@@ -233,6 +233,7 @@ object Form_Image: TForm_Image
     Font.Name = 'Tahoma'
     Font.Style = [fsBold]
     ParentFont = False
+    Transparent = False
     Visible = False
   end
   object Button_Cancel: TButton

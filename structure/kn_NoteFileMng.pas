@@ -2549,6 +2549,7 @@ var
   Form_FileInfo : TForm_KntFileInfo;
   KntFile: TKntFile;
   KeyIter: Cardinal;
+  HadEncryptedContentEnabled: boolean;
 begin
   KntFile:= ActiveFile;
 
@@ -2561,6 +2562,7 @@ begin
 
       try
         Form_FileInfo.myKntFile := KntFile;
+        HadEncryptedContentEnabled:= KntFile.EncryptedContentEnabled;
 
         if ( Form_FileInfo.ShowModal = mrOK ) then begin
           App.Virtual_UnEncrypt_Warning_Done := false;
@@ -2605,10 +2607,12 @@ begin
                   KntFile.OnPassphraseChanged;
                end;
                if KntFile.FileFormat <> nffEncrypted then begin
-                  KntFile.EncryptedContentEnabled:= cbEnableEncrCont.Checked;
-                  KntFile.EncryptedContentOpened:= True;
+                  if not HadEncryptedContentEnabled then begin
+                     KntFile.EncryptedContentEnabled:= True;
+                     KntFile.EncryptedContentOpened:= True;
+                     KntFile.UpdateLoadedVerificationHash;
+                  end;
                   KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
-                  KntFile.UpdateLoadedVerificationHash;
                end;
             end
             else begin
