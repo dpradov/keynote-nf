@@ -586,18 +586,18 @@ const
   KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT = 15;
 
   LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
-  LINK_RTF    = '{\ul{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{%s}}}}';
-  LINK_RTF_2  = '{\ul{\field{\*\fldinst{HYPERLINK %s}}{\fldrslt{%s}}}}';
+  LINK_RTF    = '{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{%s}}}}';
+  LINK_RTF_2  = '{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK %s}}{\fldrslt{%s}}}}';
 
   KNT_IMG_LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK "img:';
   //KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt{\ul\cf0 %s}}}';    // {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
-  KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt {%s}}}';    // If used {\fldrslt{\ul\cf0 %s} it ends up with something like {\fldrslt{\ul\cf0\cf0\ul %s}. (Idem with \ul\cf1 .. \cf1\ul etc)
+  KNT_IMG_LINK = '{\cf0\b0\highlight0\ul' + KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt {%s}}}}';    // If used {\fldrslt{\ul\cf0 %s} it ends up with something like {\fldrslt{\ul\cf0\cf0\ul %s}. (Idem with \ul\cf1 .. \cf1\ul etc)
 
   // Used ➕ a more clear character that help to mark the beginning of the folded block
   // See https://github.com/dpradov/keynote-nf/discussions/852#discussioncomment-12914739
 
   KNT_RTF_FOLDED_LINK_PREFIX =       KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK;                                             //  \'11L
-  KNT_RTF_FOLDED_LINK =    '{\ul{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}}'; //  {\'11L%s@%s\'12}
+  KNT_RTF_FOLDED_LINK =    '{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}'; //  {\'11L%s@%s\'12}
   KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '"FOLD:"@';                                //  \''11L"FOLD:"@
 //KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
   KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@➕ ' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12

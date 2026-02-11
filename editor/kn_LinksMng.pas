@@ -430,7 +430,7 @@ begin
      //Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
      //                                [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
 
-     Editor.PutRtfText(Format('{\rtf1\ansi %s' + LINK_RTF + '%s}',
+     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;}%s' + LINK_RTF + '%s}',
                                      [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
 
 end;
