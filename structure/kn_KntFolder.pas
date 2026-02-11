@@ -636,9 +636,9 @@ begin
             KeyOptions.TabNameHistory := myTabNameHistory;
             KeyOptions.NodeNameHistory := myNodeNameHistory;
 
-            TreeUI:= myFolder.TreeUI;
 
             if (PropertiesAction = propThisFolder) and not myNoteIsReadOnly  then begin
+                TreeUI:= myFolder.TreeUI;
                 myFolder.Modified:= True;
 
                 myFolder.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
@@ -729,12 +729,14 @@ begin
             end;
           end;
 
-     		  myFolder.Editor.RestoreZoomGoal;
+          if myFolder <> nil then
+             myFolder.Editor.RestoreZoomGoal;
 
         end;
 
       finally
-        myFolder.Editor.UpdateCursorPos;
+        if myFolder <> nil then
+           myFolder.Editor.UpdateCursorPos;
         UpdateFolderDisplay;
         Form_Defaults.Free;
       end;
