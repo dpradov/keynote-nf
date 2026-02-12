@@ -605,7 +605,7 @@ const
   KNT_IMG_FOLDED_PREFIX =  KNT_RTF_HIDDEN_MARK_L_CHAR + 'L"img:';
 
 //KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{+}}}';
-  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\u10133+ }}}';
+  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\b0\cf0\u10133+ }}}';
   KNT_RTF_BEGIN_FOLDED_URL = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}';
 
 //KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"+';

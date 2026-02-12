@@ -1710,15 +1710,15 @@ begin
         InsertMarker(RTFAux, 'f', 1);               // f: Folded inf. 1 -> Keep end carriage return        //'\v\'11f0\'12\v0'
      end;
 
-     // We need to make sure that \cf1=>Blue :   {\colortbl ;\red0\green0\blue255;.....}  <= Not necessary now *N
+     // We need to make sure that \cf1=>Blue :   {\colortbl ;\red0\green0\blue255;.....}
      RTFAux.SelStart:= 0;
      RTFAux.SelText:= NFHDR_ID;
      RTFAux.SelLength:= Length(NFHDR_ID);
-     //RTFAux.SelAttributes.Color:= clBlue;      // *N
+     RTFAux.SelAttributes.Color:= clWebMediumBlue;
      RTFAux.SelAttributes.Name:= 'Tahoma';       // Ensure \f0 -> Tahoma, to apply to "...[]"
      RTFAux.SelAttributes.Size:= 4;              // To make sure that the size of the following text has it own \fsN command and it will not deleted together with the aux NFHDR_ID word
      RTFAux.SelStart:= Length(NFHDR_ID);
-     //RTFAux.SelAttributes.Color:= clBlack;     // *N
+     RTFAux.SelAttributes.Color:= clBlack;
 
      if ContainsTables then begin
         RTFIn:= RTFAux.RtfText;
@@ -1752,7 +1752,7 @@ begin
   // Remove the mark used to ensure that \cf1=>Blue (not necessary for blue color, although yes for ensure fixed size of + character )
   p:= Pos(NFHDR_ID, RTFIn, pI);
   Len:= p - pI + Length(NFHDR_ID);                          // Length to be replaced
-  RemoveReplace(pI, '\protect\ul' + KNT_RTF_BEGIN_FOLDED + '\ulnone');    // Eg: \protect\f0\fs8 GFKNT\cf0\fs18... -> \protect\ul\<KNT_RTF_BEGIN_FOLDED>\ulnone\cf0\fs18
+  RemoveReplace(pI, '\protect' + KNT_RTF_BEGIN_FOLDED);    // Eg: \protect\f0\fs8 GFKNT\cf0\fs18... -> \protect\ul\<KNT_RTF_BEGIN_FOLDED>\ulnone\cf0\fs18
 
   // We need to make sure that the hidden internal markers ($11...$12) remain hidden in the part we serve as a visible extract.
   // We use as help the #$14 mark we inserted from MarkEndVisibleExtract
@@ -1784,10 +1784,11 @@ begin
   // Add \v0 ...\'13 before last }  (there will be no \protect0 because it is not necessary, since it applies to everything)
   // Remember: remove the extra line break that is being added in RTFAux.PutRtfTex
   // The end will be like this: ...\par'#$D#$A'}'#$D#$A#0
+  ReplaceWith:= '\v0{\f0\fs20\cf1\b0\highlight0' + KNT_RTF_END_FOLDED_WITHOUT_v0;
   if AddAdditionalEndCR then
-      ReplaceWith:= '\v0{\f0\fs20' + KNT_RTF_END_FOLDED_WITHOUT_v0 + '}\par}'
+      ReplaceWith:= ReplaceWith + '}\par}'
   else
-      ReplaceWith:= '\v0{\f0\fs20' + KNT_RTF_END_FOLDED_WITHOUT_v0 + '}}';
+      ReplaceWith:= ReplaceWith + '}}';
 
   if not KeepEndCR then begin
      pI := Lastpos( '}', RTFIn ) - Length('\par'+#$D#$A);
@@ -3195,11 +3196,35 @@ begin
 end;
 
 
+{ FOLD*1:
+
+ If the first line selected to be included in a folded block had the same colour and highlighting as the previous line,
+ the font colour of the lines in the folded block could be lost both when previewing (displaying in the floating editor)
+ and when unfolded.
+ The reason? The RTF commands that set the colour were fixed before the folded block and were not included in the RTF code
+ associated with the selection.
+ To avoid that problem now, before obtaining the RTF to be processed for previewing or displaying,
+ a blank character is inserted in front of the block, to which default colours are set. This ensures that the initial colours
+ are correctly specified in the selection. After that, this auxiliary character is removed.
+}
+
 function SelectTextToBeUnfolded(Editor: TRxRichEdit; pI, pF: integer): boolean;
 var
   IncHighlighted: integer;
 begin
    with Editor do begin
+      if pI > 0 then begin               // See FOLD*1
+         SetSelection(pI, pI, false);
+         SelText:= ' ';
+         with SelAttributes do begin
+           Style := [];
+           Color:= Editor.Font.Color;
+           BackColor := clWindow;
+         end;
+         inc(pI);
+         inc(pF);
+      end;
+
       SetSelection(pI, pI, false);
       IncHighlighted:= 0;
       if (pI > 0) and (SelAttributes.BackColor <> Color) then begin
@@ -3214,14 +3239,21 @@ end;
 procedure Unfold (Editor: TRxRichEdit; TxtPlain: String; SS: integer);
 var
   RTFIn, RTFOut: AnsiString;
-  pI, pF: integer;
+  pI, pF, SL: integer;
   AdjustHglt: boolean;
   KeepEndCR: boolean;
 begin
    with Editor do
       if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
          AdjustHglt:= SelectTextToBeUnfolded(Editor, pI, pF);
+         SL:= SelLength;
          RTFIn:= RtfSelText;
+         if pI > 0 then begin             // See comment FOLD*1, above
+            SetSelection(pI, pI+1, false);
+            SelText:= '';
+            SelLength:= SL;
+         end;
+
          PrepareRTFtoBeExpanded(RTFIn, RTFOut, nil, KeepEndCR, False);
          if AdjustHglt then
             SetSelection(pI, pF+1, false);
@@ -3399,7 +3431,15 @@ begin
       BeginUpdate;
       try
          AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
+         SL:= SelLength;
          RTFIn:= EnsureGetRtfSelText;
+
+         if pI > 0 then begin  // See comment FOLD*1, above
+            SetSelection(pI, pI+1, false);
+            SelText:= '';
+            SelLength:= SL;
+         end;
+
          PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR, ExpandWithMarkers);
          FUnfolding:= True;
 
@@ -3564,6 +3604,8 @@ begin
    if (NNodeObj <> nil) and (Copy(Result, 1, 6 ) <> '{\rtf1') then begin
       TKntFolder(FolderObj).SaveEditorToDataModel;
       Result:= RtfSelText;
+      if SelStart > 0 then
+         Self.Modified:= True;      // See comment FOLD*1, above
    end;
 end;
 
@@ -3576,17 +3618,28 @@ var
   FontHeight: integer;
   FE: TFloatingEditor;
   KeepEndCR: boolean;
+  SL: integer;
 begin
    if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
       try
+         SuspendUndo;
          SelectTextToBeUnfolded(Self, pI, pF);
+         SL:= SelLength;
          FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
          RTFIn:= EnsureGetRtfSelText;
+
+         if pI > 0 then begin                // See comment FOLD*1, above
+           SetSelection(pI, pI+1, false);
+           SelText:= '';
+           SelLength:= SL;
+         end;
+
          PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR, False);
          FKeepEndCR:= KeepEndCR;
          SelStart:= pI;
       finally
+         ResumeUndo;
          EndUpdate;
       end;
 
