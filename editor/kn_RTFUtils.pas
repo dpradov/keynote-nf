@@ -272,7 +272,7 @@ end;
 
      {\field{\*\fldinst{HYPERLINK ...}}{\fldrslt{\ul\cfX\cfX\ul Text...}}}
      ->
-     {\ul{\field{\*\fldinst{HYPERLINK ...}}{\fldrslt{Text...}}}}
+     {\cf0\ul{\field{\*\fldinst{HYPERLINK ...}}{\fldrslt{Text...}}}}
 
    Also consider the links included within folded text. A folded block with links inside might look like this:
      {\cf1\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1\ul\f1\u10133?\f0  \f1 }}}}
@@ -370,7 +370,7 @@ var
           end;
 
           if not DetectedUL then begin
-             insert('\ul', nRTF, p2);
+             insert('\cf0\ul', nRTF, p2);
              Result:= True;
              dec(offset, 4);
           end;
@@ -396,10 +396,10 @@ begin
              Result:= True;
        end
        else
-       if (p > 0) and (Copy(nRTF,p-9-Length('{\ul'),4) <> '{\ul') then begin
-          (* On p-9, must be located {\field{\* and on p 13 we will find {\ul{field{\* 
+       if (p > 0) then begin
+          (* On p-9, must be located {\field{\* and on p 13 we will find {\ul{field{\*
              if we have already made the adjustment.
-             If this command is being launched for the second time, and the link has subsequently been modified
+             If this command is being launched for the second time (not necessary), and the link has subsequently been modified
              by changing its color (of the entire link, not just the visible text), then the link might appear as:
                  {\cf5\ul{\field{\*\fldinst{HYPERLINK ...
              In any case, it's fine if we modify it to:
@@ -407,7 +407,7 @@ begin
              When saving, the control will automatically convert it to:
                  {\cf5\ul{\field{\*\fldinst{HYPERLINK ...
            *)
-          Insert('{\ul', nRTF, p-9);
+          Insert('{\cf0\ul', nRTF, p-9);
           Result:= true;
 
           p:= pos(AnsiString('{\fldrslt'), nRTF, p);
@@ -430,8 +430,8 @@ begin
        if p > 0 then begin
           repeat
              p:= posEx(KNT_RTF_FOLDED_LINK_PREFIX, nRTF, p+1);                   // Search for \'11L
-             if (p > 0) and (Copy(nRTF,p-4,4) <> '{\ul') then begin
-                Insert('{\ul', nRTF, p);
+             if (p > 0) then begin
+                Insert('{\cf0\ul', nRTF, p);
                 Result:= true;
 
                 p:= pos('@', nRTF, p);
