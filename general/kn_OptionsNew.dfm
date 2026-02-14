@@ -2186,9 +2186,9 @@ object Form_OptionsNew: TForm_OptionsNew
           FocusControl = Combo_ClipNodeNaming
         end
         object Label_MaxSize: TLabel
-          Left = 200
+          Left = 204
           Top = 228
-          Width = 59
+          Width = 78
           Height = 13
           Alignment = taRightJustify
           Caption = '&Limit size to:'
@@ -2200,7 +2200,7 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
         end
         object Combo_Size: TComboBox
-          Left = 266
+          Left = 286
           Top = 224
           Width = 58
           Height = 21
@@ -2242,12 +2242,12 @@ object Form_OptionsNew: TForm_OptionsNew
         object CB_AsText: TCheckBox
           Left = 18
           Top = 227
-          Width = 151
+          Width = 185
           Height = 16
           Hint = 
             'Paste text as defined by '#39'Plain text mode'#39'   (only for Clipboard' +
             ' Capture)'
-          Caption = '&Paste as plain text'
+          Caption = '&Paste using '#39'Plain text mode'#39
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
