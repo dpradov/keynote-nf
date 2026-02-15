@@ -327,7 +327,7 @@ type
 
 
     function GetNewID(): Integer;
-    procedure SerializeEmbeddedImages(const tf: TTextFile);
+    procedure SerializeEmbeddedImages(const tf: TTextFile; IncludeEncryptedImage: boolean);
     procedure SetExportingMode(Value: boolean);
 
     function GetExternalStorageType: TImagesExternalStorage;
@@ -453,14 +453,14 @@ type
 
 
     procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
-    procedure SaveState (const tf: TTextFile);
+    procedure SaveState (const tf: TTextFile; IncludeEncryptedImages: boolean = true);
     procedure DeleteOrphanImages();
-    procedure SerializeImagesDefinition  (const tf: TTextFile);
-    procedure SaveEmbeddedImages (const tf: TTextFile);
+    procedure SerializeImagesDefinition  (const tf: TTextFile; IncludeEncryptedImages: boolean);
+    procedure SaveEmbeddedImages (const tf: TTextFile; SaveEncryptedImages: boolean = true);
     procedure DeleteExternalImagesEncryptedInEmbeddedKNT();
 
     property  ExportingMode: boolean read fExportingMode write SetExportingMode;
-    procedure SaveStateInExportingMode (const tf: TTextFile);
+    procedure SaveStateInExportingMode (const tf: TTextFile; SaveEncryptedImages: boolean);
     procedure RegisterImagesReferencesExported (const IDs: TImageIDs);
 
     property ExternalImagesManager: TImageMng read fExternalImagesManager write fExternalImagesManager;
@@ -1432,7 +1432,7 @@ end;
 //-----------------------------------------
 
 
-procedure TImageMng.SerializeImagesDefinition(const tf: TTextFile);
+procedure TImageMng.SerializeImagesDefinition(const tf: TTextFile; IncludeEncryptedImages: boolean);
 var
    Img: TKntImage;
    i: integer;
@@ -1447,6 +1447,7 @@ begin
    for i := 0 to fImages.Count-1 do begin
      Img:= TKntImage(fImages[i]);
      //if Img.ReferenceCount > 0 then      // *1
+     if Img.IsEncrypted and not IncludeEncryptedImages then continue;
 
      if fExportingMode and (fImagesIDExported.IndexOf(Pointer(Img.ID)) < 0) then
         continue;
@@ -1458,7 +1459,7 @@ end;
 
 { Serializes the images that must remain embedded in the KNT file }
 
-procedure TImageMng.SerializeEmbeddedImages(const tf: TTextFile);
+procedure TImageMng.SerializeEmbeddedImages(const tf: TTextFile; IncludeEncryptedImage: boolean);
 var
    Img: TKntImage;
    ImgStream: TMemoryStream;
@@ -1497,6 +1498,8 @@ begin
          Img:= TKntImage(fImages[i]);
          if not Img.FOwned then continue;
          if OnlySelectedImages and not (Img.MustBeSavedExternally or (Img.IsEncrypted and not KeyOptions.ImgAllowEncrExternal)) then continue;
+         if img.IsEncrypted and not IncludeEncryptedImage then continue;
+
          if Img.ReferenceCount = 0 then continue;
 
          if fExportingMode and (fImagesIDExported.IndexOf(Pointer(Img.ID)) < 0) then
@@ -1535,7 +1538,7 @@ begin
 end;
 
 
-procedure TImageMng.SaveState(const tf: TTextFile);
+procedure TImageMng.SaveState(const tf: TTextFile; IncludeEncryptedImages: boolean = true);
 var
    MaxSavedImgID: integer;
    ModeUseExternalStorage: boolean;
@@ -1556,7 +1559,7 @@ var
 
 begin
    if ExportingMode then begin
-      SaveStateInExportingMode(tf);
+      SaveStateInExportingMode(tf, IncludeEncryptedImages);
       exit;
    end;
 
@@ -1583,18 +1586,18 @@ begin
    // Get the information to be saved about the images
    tf.WriteLine(_NF_ImagesDEF);
    tf.WriteLine(_NF_IDNextImage + '=' + IntToStr(fNextImageID));
-   SerializeImagesDefinition(tf);
+   SerializeImagesDefinition(tf, IncludeEncryptedImages);
 
 end;
 
 
-procedure TImageMng.SaveEmbeddedImages(const tf: TTextFile);
+procedure TImageMng.SaveEmbeddedImages(const tf: TTextFile; SaveEncryptedImages: boolean = true);
 begin
    if ExportingMode and (KeyOptions.ImgStorageModeOnExport <> smeEmbKNT) then exit;
 
    // Images that, due to some problem, could not be saved externally (as configured) will also be saved.
    tf.WriteLine(_NF_EmbeddedIMAGES);
-   SerializeEmbeddedImages(tf);
+   SerializeEmbeddedImages(tf, SaveEncryptedImages);
 
    if not ExportingMode then begin
      fFileIsNew:= false;
@@ -1603,7 +1606,7 @@ begin
 end;
 
 
-procedure TImageMng.SaveStateInExportingMode(const tf: TTextFile);
+procedure TImageMng.SaveStateInExportingMode(const tf: TTextFile; SaveEncryptedImages: boolean);
 var
    i: Integer;
    MaxSavedImgID: integer;
@@ -1618,7 +1621,7 @@ begin
    // Get the information to be saved about the images
    tf.WriteLine(_NF_ImagesDEF);
    tf.WriteLine(_NF_IDNextImage + '=' + IntToStr(fNextImageID));
-   SerializeImagesDefinition(tf);
+   SerializeImagesDefinition(tf, SaveEncryptedImages);
 end;
 
 

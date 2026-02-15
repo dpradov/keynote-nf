@@ -3244,6 +3244,7 @@ var
 
      EncrypInfo: TEncryptionInfo;
      wordsize : integer;
+     IncludeEncrypImage: boolean;
 
   begin
 
@@ -3378,13 +3379,14 @@ var
 
 
         if SaveImages then begin
+           IncludeEncrypImage:= not (ExportingMode and not ExportEncryptedContent);
            ImageMng.DeleteOrphanImages;
            if not EncryptedContentEnabled then
               ImageMng.DecryptAllImages;
            if not KeyOptions.ImgAllowEncrExternal then
               ImageMng.DeleteExternalImagesEncryptedInEmbeddedKNT;
-           ImageMng.SaveState(tf);
-           ImageMng.SaveEmbeddedImages(tf);
+           ImageMng.SaveState(tf, IncludeEncrypImage);
+           ImageMng.SaveEmbeddedImages(tf, IncludeEncrypImage);
            Log_StoreTick( 'After saving state and embedded images', 1 );
 
            tf.WriteLine( _NF_EOF );
