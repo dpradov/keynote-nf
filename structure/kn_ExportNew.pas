@@ -132,6 +132,7 @@ type
     txtTagsExcl: TEdit;
     cbTagFindMode: TComboBox;
     CB_UseNote: TCheckBox;
+    chkEncrypted: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -157,6 +158,7 @@ type
     procedure txtTagsInclEnter(Sender: TObject);
     procedure txtTagsExclEnter(Sender: TObject);
     procedure cbTagFindModeChange(Sender: TObject);
+    procedure chkEncryptedClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -169,6 +171,8 @@ type
     IndexOfExportedFile: integer;
     PrinterSelected: boolean;
     ChangingFromCode: boolean;
+    IncludeEncrypted: boolean;
+
 
   protected
     { Public declarations }
@@ -578,6 +582,8 @@ begin
 
   cbTagFindMode.ItemIndex:= 0;
   cbFoldedText.ItemIndex:= 0;        // 0:  Keep folded text unchanged
+  chkEncrypted.Visible:= ActiveFile.EncryptedContentEnabled;
+  IncludeEncrypted:= False;
 
 end; // ACTIVATE
 
@@ -1315,6 +1321,12 @@ var
      iNode: integer;
   begin
      Result:= False;
+
+     if ActiveFile.EncryptedContentEnabled and (Node <> nil) then begin
+        if not IncludeEncrypted and TreeUI.GetNNode(Node).Note.IsEncrypted then
+           exit;
+     end;
+
      with ExportOptions do begin
        if  (TreeUI.TV.IsVisible[Node] or not ExcludeHiddenNodes) and
            (( ExportSource <> expCurrentFolder ) or
@@ -1647,7 +1659,7 @@ begin
          if FN <> ''  then begin
             ext := Extractfileext( FN );
             if (ext = '') then FN := FN + ext_KeyNote;
-            KntFileCopy (ExportedFolders, ExportedNotes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes );
+            KntFileCopy (ExportedFolders, ExportedNotes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes, IncludeEncrypted );
          end;
 
          exit;                                                                    // ------------
@@ -2050,6 +2062,7 @@ begin
 
                  while assigned( myTreeNode ) do begin
                    NNode := TreeUI.GetNNode(myTreeNode);
+                   if not IncludeEncrypted and NNode.Note.IsEncrypted then continue;
                    NEntry:= NNode.Note.Entries[0];              //%%%
 
                    NodeTextSize := NEntry.Stream.Size;
@@ -3025,6 +3038,17 @@ begin
    AllowChange:= True
 end;
 
+procedure TForm_ExportNew.chkEncryptedClick(Sender: TObject);
+begin
+   if ChangingFromCode then exit;
+
+   if chkEncrypted.Checked and not ActiveFile.CheckAuthorized(True) then begin
+      ChangingFromCode:= true;
+      chkEncrypted.Checked:= False;
+      ChangingFromCode:= false;
+   end;
+   IncludeEncrypted:= chkEncrypted.Checked;
+end;
 
 
 initialization

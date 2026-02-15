@@ -36,7 +36,6 @@ uses
 type
   TChest = class(TDataModule)
     IMG_Categories : TImageList;
-    MGRImages: TImageList;
   private
     { Private declarations }
   public
@@ -96,6 +95,9 @@ begin
 
   IMGList:= Form_Main.IMG_TV;
   BmpFN:= 'TV.bmp';
+
+  IMGList:= Chest.MGRImages;
+  BmpFN:= 'MGRImages.bmp';
   }
 
   IMGList:= Chest.IMG_Categories;

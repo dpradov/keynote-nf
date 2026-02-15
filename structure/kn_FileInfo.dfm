@@ -131,7 +131,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Width = 62
           Height = 13
           AutoSize = False
-          Caption = 'Notes:'
+          Caption = 'Folders:'
         end
         object Label_Count: TLabel
           Left = 412
@@ -208,7 +208,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         object Edit_FileName: TEdit
           Left = 23
           Top = 33
-          Width = 454
+          Width = 465
           Height = 20
           TabStop = False
           BorderStyle = bsNone
@@ -225,31 +225,19 @@ object Form_KntFileInfo: TForm_KntFileInfo
         object Edit_Comment: TEdit
           Left = 23
           Top = 126
-          Width = 454
+          Width = 465
           Height = 21
           Hint = 'Enter optional comment for the file'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
           MaxLength = 255
-          ParentFont = False
           TabOrder = 1
         end
         object Edit_Description: TEdit
           Left = 23
           Top = 79
-          Width = 454
+          Width = 465
           Height = 21
           Hint = 'Enter optional description for the file'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
           MaxLength = 255
-          ParentFont = False
           TabOrder = 0
         end
         object Combo_Format: TComboBox
@@ -259,13 +247,18 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Height = 21
           Hint = 'Choose format used when saving the file'
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 2
+        end
+        object cbEnableEncrCont: TCheckBox
+          Left = 266
+          Top = 180
+          Width = 222
+          Height = 17
+          Hint = 
+            'Allows you to encrypt selected notes or entries with a common pa' +
+            'ssword'
+          Caption = 'Enable enc&rypted content'
+          TabOrder = 4
         end
       end
     end
@@ -280,7 +273,7 @@ object Form_KntFileInfo: TForm_KntFileInfo
         TabOrder = 0
         object Label9: TLabel
           Left = 15
-          Top = 69
+          Top = 65
           Width = 150
           Height = 13
           AutoSize = False
@@ -327,7 +320,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Width = 230
           Height = 26
           AutoSize = False
-          FocusControl = cbImgStorageMode
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
           Font.Height = -11
@@ -338,6 +330,21 @@ object Form_KntFileInfo: TForm_KntFileInfo
           WordWrap = True
           StyleElements = [seClient, seBorder]
         end
+        object lblImgSetProtect: TLabel
+          Left = 152
+          Top = 119
+          Width = 339
+          Height = 26
+          AutoSize = False
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlue
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          Visible = False
+          StyleElements = [seClient, seBorder]
+        end
         object CB_AsReadOnly: TCheckBox
           Left = 15
           Top = 12
@@ -345,43 +352,25 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Height = 17
           Hint = 'In future, open this file as Read-only'
           Caption = 'Open this file in &Read-Only Mode'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 0
         end
         object CB_NoMultiBackup: TCheckBox
           Left = 15
-          Top = 37
+          Top = 35
           Width = 483
           Height = 17
           Hint = 'Ignore global backup level setting for this file'
           Caption = 'Do not keep &multiple backups of this file'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 1
         end
         object Combo_CompressLevel: TComboBox
           Left = 15
-          Top = 88
+          Top = 84
           Width = 138
           Height = 21
           Hint = 'Choose level of compression used when saving the file'
           Style = csDropDownList
           Enabled = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 2
         end
         object cbImgStorageMode: TComboBox
@@ -390,12 +379,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Width = 226
           Height = 21
           Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 3
           OnChange = cbImgStorageModeChange
         end
@@ -452,12 +435,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
             Height = 21
             Style = csDropDownList
             Enabled = False
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
             TabOrder = 2
             OnChange = cbImgExtStorageTypeChange
           end
@@ -467,12 +444,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
             Width = 336
             Height = 21
             Enabled = False
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ParentFont = False
             TabOrder = 3
             OnEnter = txtExtStorageLocationEnter
             OnExit = txtExtStorageLocationExit
@@ -506,12 +477,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
             'Reconsider next image ID ignoring deleted images'#13#10#13#10'(Only enable' +
             'd when file not modified)'
           Caption = 'Recalc Next ID ...'
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 5
           TabStop = False
           OnClick = btnRecalcNextIDClick
@@ -614,12 +579,6 @@ object Form_KntFileInfo: TForm_KntFileInfo
           Width = 371
           Height = 21
           Enabled = False
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
           TabOrder = 5
         end
         object Edit_TabImg: TEdit
@@ -649,17 +608,17 @@ object Form_KntFileInfo: TForm_KntFileInfo
         TabOrder = 0
         object Label_Confirm: TLabel
           Left = 34
-          Top = 113
-          Width = 431
+          Top = 90
+          Width = 96
           Height = 13
           AutoSize = False
-          Caption = '&Confirm Passphrase:'
+          Caption = '&Confirm Pass.:'
           FocusControl = Edit_Confirm
         end
         object Label_Pass: TLabel
           Left = 34
-          Top = 58
-          Width = 431
+          Top = 59
+          Width = 96
           Height = 13
           AutoSize = False
           Caption = '&Passphrase:'
@@ -667,8 +626,8 @@ object Form_KntFileInfo: TForm_KntFileInfo
         end
         object Label_Method: TLabel
           Left = 34
-          Top = 211
-          Width = 223
+          Top = 155
+          Width = 96
           Height = 13
           AutoSize = False
           Caption = '&Algorithm:'
@@ -689,20 +648,29 @@ object Form_KntFileInfo: TForm_KntFileInfo
           ParentColor = False
           ParentFont = False
         end
-        object Edit_Confirm: TEdit
+        object lblKeyTr: TLabel
           Left = 34
-          Top = 132
-          Width = 431
+          Top = 198
+          Width = 179
+          Height = 13
+          AutoSize = False
+          Caption = 'Key Transformation. &Iterations:'
+          FocusControl = txtIter
+        end
+        object Edit_Confirm: TSecureEdit
+          Left = 134
+          Top = 87
+          Width = 331
           Height = 21
           Hint = 'Carefully re-enter the access passphrase'
           MaxLength = 255
           PasswordChar = '*'
           TabOrder = 1
         end
-        object Edit_Pass: TEdit
-          Left = 34
-          Top = 77
-          Width = 431
+        object Edit_Pass: TSecureEdit
+          Left = 134
+          Top = 56
+          Width = 331
           Height = 21
           Hint = 'Enter access passphrase for this file'
           MaxLength = 255
@@ -710,9 +678,9 @@ object Form_KntFileInfo: TForm_KntFileInfo
           TabOrder = 0
         end
         object Combo_Method: TComboBox
-          Left = 34
-          Top = 230
-          Width = 223
+          Left = 134
+          Top = 152
+          Width = 239
           Height = 21
           Hint = 'Select which encryption algorithm to use'
           Style = csDropDownList
@@ -729,15 +697,44 @@ object Form_KntFileInfo: TForm_KntFileInfo
           OnClick = Button_SetPassClick
         end
         object CB_HidePass: TCheckBox
-          Left = 34
-          Top = 164
-          Width = 431
+          Left = 134
+          Top = 116
+          Width = 331
           Height = 17
           Hint = 'Obscure passphrase with asterisks'
           Caption = '&Hide passphrase while typing'
           Checked = True
           State = cbChecked
           TabOrder = 4
+        end
+        object txtIter: TEdit
+          Left = 214
+          Top = 195
+          Width = 159
+          Height = 21
+          Alignment = taRightJustify
+          MaxLength = 255
+          TabOrder = 5
+        end
+        object btnTestIter: TButton
+          Left = 386
+          Top = 193
+          Width = 79
+          Height = 25
+          Hint = 'Verify the time needed to derive the key from the passphrase'
+          Caption = 'Test'
+          TabOrder = 6
+          OnClick = btnTestIterClick
+        end
+        object cbHideEncrNodes: TCheckBox
+          Left = 34
+          Top = 244
+          Width = 431
+          Height = 17
+          Caption = 
+            'Hide encrypted &nodes in the tree if the encrypted content remai' +
+            'ns '#8220'closed'#8221
+          TabOrder = 7
         end
       end
     end

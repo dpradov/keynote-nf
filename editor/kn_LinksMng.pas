@@ -92,6 +92,7 @@ type
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
+    function GetURLfromClipboard: string;
 
     function PathOfKntLink (myTreeNode: PVirtualNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
@@ -131,6 +132,7 @@ uses
    kn_Main,
    kn_URL,
    kn_EditorUtils,
+   kn_ClipUtils,
    kn_RTFUtils,
    kn_ImagesMng,
    kn_ImageForm,
@@ -425,8 +427,12 @@ procedure InsertRtfHyperlink(const URLStr: string; const TextURL: string;
                              const sepL: string = '';
                              const sepR: string = '');
 begin
-     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
+     //Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
+     //                                [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
+
+     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;}%s' + LINK_RTF + '%s}',
                                      [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
+
 end;
 
 
@@ -831,9 +837,9 @@ const
    PrefixData = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
 
 (*
-   {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{Introduction}}}}\f0\fs20\par
      ->
-   {{\field{\*\fldinst{HYPERLINK \\l "41_B11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK \\l "41_B11"}}{\fldrslt{Introduction}}}}\f0\fs20\par
 *)
 
 function ReplaceHyperlinksWithStandardBookmarks(const S: AnsiString): AnsiString;
@@ -1727,6 +1733,14 @@ begin
       myFolder:= Location.Folder;
       myTreeNode:= Location.Node;
 
+
+      if ActiveFile.EncryptedContentMustBeHidden and myFolder.GetNNode(myTreeNode).Note.IsEncrypted then begin
+         Location.CaretPos:= 0;
+         Location.SelLength:= 0;
+         exit;
+      end;
+
+
       _Executing_JumpToKNTLocation_ToOtherNote:= false;
       try
          // if not current folder, switch to it
@@ -2456,8 +2470,13 @@ begin
 
       Form_URLAction := TForm_URLAction.Create( Form_Main );
       try
+        if URLStr = '' then
+           URLStr:= GetURLfromClipboard;
+
         if URLType = urlFILE then
            AdaptURLFileWithParams(URLStr, false);
+        if TextURL = '' then
+           TextURL:= URLStr;
         Form_URLAction.Edit_URL.Text := URLStr;
         Form_URLAction.Edit_TextURL.Text := TextURL;
         Form_URLAction.URLAction:= urlCreateOrModify;   // Mode: Create. Only will show buttons Ok and Cancel
@@ -2487,6 +2506,27 @@ begin
   end;
 
 end; // Insert URL
+
+
+
+function GetURLfromClipboard: string;
+var
+  URL: string;
+  KNTlocation: boolean;
+  URLType: TKNTURL;
+
+begin
+   URL:= Clipboard.TryAsText;
+   URLType:= TypeURL(URL, KNTlocation);
+
+   case URLType of
+      urlHTTP, urlHTTPS: URL:= DecodeURLWebUTF8Characters(URL);
+      urlFile: if pos('file:', URL) <> 1 then URL:= '';
+      else
+         URL:= '';
+   end;
+   Result:= URL;
+end;
 
 
 

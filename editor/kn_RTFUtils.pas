@@ -70,12 +70,13 @@ function TextToUseInRTF (const UnicodeText : string ): string;
 function ScapeSpecialRTFCharacters (const str : string ): string;
 function GetRTFColor (Color: TColor): string;
 
-function CleanRTF(const RTF: string; var nRTF: string): boolean;
+function CleanRTF(const RTF: AnsiString; var nRTF: AnsiString): boolean;
+function AdaptLinksForColor (const RTF: AnsiString; var nRTF: AnsiString): boolean;
 procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
 
 
 implementation
-
+uses kn_Const;
 
 // To use the filename in {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
 // we must convert each '\' to four '\' or to '/'. Example: D:\kk.txt -> D:\\\\kk.txt or D:/kk.txt
@@ -175,7 +176,7 @@ begin
   R := GetRValue (Color); {red}
   G := GetGValue (Color); {green}
   B := GetBValue (Color); {blue}
-  Result:= '\red' + IntToStr(R) + '\green' + IntToStr(G) + '\blue' + IntToStr(B) + ';';
+  Result:= '\red' + IntToStr(R) + '\green' + IntToStr(G) + '\blue' + IntToStr(B);
 end;
 
 
@@ -213,7 +214,7 @@ But for existing nodes with that problem (not occurs in all) the solution is
 to replace "\f0\fnil " with "\f0\fnil\fcharset0 ".
 *)
 
-function CleanRTF (const RTF: string; var nRTF: string): boolean;
+function CleanRTF (const RTF: AnsiString; var nRTF: AnsiString): boolean;
 var
   p, p2, pHR : integer;
 begin
@@ -261,6 +262,195 @@ begin
        end;
 
     until p <= 0;
+
+end;
+
+
+
+(*
+   Convert all links in the received string to avoid the color problem described in the issue #923
+
+     {\field{\*\fldinst{HYPERLINK ...}}{\fldrslt{\ul\cfX\cfX\ul Text...}}}
+     ->
+     {\cf0\ul{\field{\*\fldinst{HYPERLINK ...}}{\fldrslt{Text...}}}}
+
+   Also consider the links included within folded text. A folded block with links inside might look like this:
+     {\cf1\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1\ul\f1\u10133?\f0  \f1 }}}}
+     \protect\f0\fs20 Folded text with internal links\v\par
+      \'11Lwww.google.es @www.google.es\'12\par
+      \'11L"file:///<1|0|0"@\cf1\ul INTERNAL LINK\'12\cf0\ulnone\par
+      BLABLA\par \v0 ...\'13\protect0\par
+
+   {\field{\*\fldinst{HYPERLINK "URL..."}}{\fldrslt{\cfX\ul Text...}}}
+   It will have become:
+   \'11L"URL..."@\cfX\ul Text...\'12
+
+
+   Consider these cases as well, from AdaptFormatBeforeFoldLink
+     {\cf1\protect{\field{\*\fldinst{HYPERLINK "FOLD:"}}...
+     ->
+     {\protect{\field{\*\fldinst{HYPERLINK "FOLD:"}}...
+
+     {\cf1\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}...
+     ->
+     {\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}...
+
+*)
+
+function AdaptLinksForColor (const RTF: AnsiString; var nRTF: AnsiString): boolean;
+var
+  p, p2, pHR : integer;
+
+   function RemoveLinkFormatInTextLink: boolean;
+   begin
+      Result:= False;
+      while (p <= Length(nRTF)) and (nRTF[p]='\') do begin
+         if (Copy(nRTF,p,3) = '\ul') then begin
+            delete(nRTF,p,3);
+            Result:= True;
+         end
+         else
+         if (Copy(nRTF,p,3) = '\cf') then begin
+            delete(nRTF,p,4);
+            Result:= True;
+            // It's highly unlikely to be in the form \cf12 (two digits), but I'll check just in case:
+            if not (nRTF[p] in ['\', ' ']) then
+               delete(nRTF,p,1);
+         end
+         else
+         break;
+      end;
+
+      if Result and (nRTF[p]=' ') then
+         delete(nRTF,p,1);
+   end;
+
+
+   function AdaptFormatBeforeFoldLink: boolean;
+   var
+     p2, offset: integer;
+     DetectedUL: boolean;
+   begin
+      (* p points to: *\fldinst{HYPERLINK "FOLD:"
+         Locate the first unclosed '{' above, and check if it contains the color command.
+         If it is more than 35 characters to the left, we will ignore it, for safety. It is usually found at most around 30 characters away.
+            {\cf1\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "
+      *)
+      p2:= p- Length('{\field{\')  -1;
+      offset:= 0;
+      DetectedUL:= false;
+      Result:= False;
+
+      while (p2 > 1) and not (nRTF[p2] in ['{','}']) do
+         dec(p2);
+
+      if p-p2 > 35 then exit;
+
+      if nRTF[p2] = '{' then begin
+          inc(p2);
+          while (p2 < p) and (nRTF[p2]='\') do begin
+             if (Copy(nRTF,p2,3) = '\ul') then begin
+                inc(p2,3);
+                DetectedUL:= true;
+             end
+             else
+             if (Copy(nRTF,p2,3) = '\cf') then begin
+                delete(nRTF,p2,4);
+                inc(offset, 4);
+                Result:= True;
+
+                // It's highly unlikely to be in the form \cf12 (two digits), but I'll check just in case:
+                if not (nRTF[p2] in ['\', ' ']) then begin
+                   delete(nRTF,p2,1);
+                   inc(offset);
+                end;
+             end
+             else
+             break;
+          end;
+
+          if not DetectedUL then begin
+             insert('\cf0\ul', nRTF, p2);
+             Result:= True;
+             dec(offset, 4);
+          end;
+          p:= p - offset;
+      end;
+   end;
+
+
+begin
+    Result:= false;
+    nRTF:= RTF;
+
+    p:= 0;
+    repeat
+       p:= pos(AnsiString('*\fldinst{HYPERLINK'), nRTF, p+1);
+
+       if (p > 0) and (Copy(nRTF,p+Length('*\fldinst{HYPERLINK')+1, Length('"FOLD:')) = '"FOLD:') then begin
+          if AdaptFormatBeforeFoldLink then
+             Result:= True;
+          p:= pos(AnsiString('{\fldrslt'), nRTF, p);
+          inc(p, Length('{\fldrslt')+1);
+          if RemoveLinkFormatInTextLink then
+             Result:= True;
+       end
+       else
+       if (p > 0) then begin
+          (* On p-9, must be located {\field{\* and on p 13 we will find {\ul{field{\*
+             if we have already made the adjustment.
+             If this command is being launched for the second time (not necessary), and the link has subsequently been modified
+             by changing its color (of the entire link, not just the visible text), then the link might appear as:
+                 {\cf5\ul{\field{\*\fldinst{HYPERLINK ...
+             In any case, it's fine if we modify it to:
+                 {\cf5\ul{\ul{\field{\*\fldinst{HYPERLINK ...
+             When saving, the control will automatically convert it to:
+                 {\cf5\ul{\field{\*\fldinst{HYPERLINK ...
+           *)
+          Insert('{\cf0\ul', nRTF, p-9);
+          Result:= true;
+
+          p:= pos(AnsiString('{\fldrslt'), nRTF, p);
+          inc(p, Length('{\fldrslt')+1);
+          RemoveLinkFormatInTextLink;
+
+          // Add an extra '}' at the end of the link
+          p:= pos('}', nRTF, p);
+          if p > 0 then
+             insert('}',nRTF,p);
+       end;
+    until p <= 0;
+
+
+    // If there are FOLDED blocks, we'll look inside for any folded links to deal with.
+    //==========================================================================
+    p:= 0;
+    repeat
+       p:= posEx(KNT_RTF_BEGIN_FOLDED_URL, nRTF, p+1);
+       if p > 0 then begin
+          repeat
+             p:= posEx(KNT_RTF_FOLDED_LINK_PREFIX, nRTF, p+1);                   // Search for \'11L
+             if (p > 0) then begin
+                Insert('{\cf0\ul', nRTF, p);
+                Result:= true;
+
+                p:= pos('@', nRTF, p);
+                if not (nRTF[p-1] in [' ', '"']) then
+                   p:= pos('@', nRTF, p);
+                inc(p);
+                RemoveLinkFormatInTextLink;
+
+                // Add an extra '}' at the end of the link
+                p:= pos(AnsiString(KNT_RTF_HIDDEN_MARK_R), nRTF, p);
+                if p > 0 then begin
+                   inc(p, Length(KNT_RTF_HIDDEN_MARK_R));
+                   insert('}',nRTF,p);
+                end;
+             end;
+          until p <= 0;
+       end;
+    until p <= 0;
+
 
 end;
 

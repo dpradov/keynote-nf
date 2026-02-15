@@ -103,6 +103,7 @@ const
   swDoNotDisturb = 'dnd';  // Ignore for purposes of "SingleInstance"
   swTitle        = 'title';  // Sets the title of the instance
   swConvKNTLinks = 'clnks';  // Convert Knt Links to the new format (using GID)
+  swConvLinksForColor = 'clnkc';  // Convert links to allow for proper text color management (see issue #923)
 
 const
   // Filters for open/save dialogs
@@ -723,6 +724,7 @@ type
     ImgSaveInSubfolders:       boolean;
     ImgKeepOrigName:           boolean;      // "Try to keep the original file name" -> If checked, a file named 'MyImage.jpg' will be saved (if possible) with that same name and will not be prefixed with the ID (such as 10_MyImage.jpg)
     ImgViewerPath:             string;       // [*]
+    ImgAllowEncrExternal:      boolean;      // [*]  An image marked as encrypted will be saved in configured storage, even if it is external (ZIP or Folder).
   end;
 
 

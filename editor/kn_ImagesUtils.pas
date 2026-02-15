@@ -1044,16 +1044,16 @@ begin
   (*
   If LinkImgFolded = False:
 
-   KNT_IMG_LINK = '{\field{\*\fldinst{HYPERLINK "img:%d,%d,%d"}}{\fldrslt{\ul\cf1 %s}}}';
-                   {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
+   KNT_IMG_LINK = '{\field{\*\fldinst{HYPERLINK "img:%d,%d,%d"}}{\fldrslt{%s}}}';
+                   {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{textOfHyperlink}}}
 
-                   {\field{\*\fldinst{HYPERLINK "img:999999,2000,2000"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
+                   {\field{\*\fldinst{HYPERLINK "img:999999,2000,2000"}}{\fldrslt{textOfHyperlink}}}
 
    KNT_IMG_LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK "img:'
 
   If LinkImgFolded = True:
 
-   KNT_IMG_LINK_FOLDED =          \'11L"img:999999,2000,2000"$\ul\cf1 textOfHyperlink\'12
+   KNT_IMG_LINK_FOLDED =          \'11L"img:999999,2000,2000"$textOfHyperlink\'12
    KNT_IMG_LINK_FOLDED_PREFIX =   \'11L"img:"
 
   *)
@@ -1131,7 +1131,7 @@ begin
   try
    // RTF (+ LinkOffset): Text that starts with {\field{\*\fldinst{HYPERLINK "img: ...
 
-   //  {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
+   //  {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{textOfHyperlink}}}
    //  {\field{\*\fldinst{HYPERLINK "img:1,255,142"}}{\fldrslt {NOTE1\\1_Image_15nov.png}}}
 
 

@@ -33,9 +33,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.4 .01';
-  Program_Version_Number  = '2.1.4.1';
-  Program_Version_Date    = '24/12/2025';
+  Program_Version  = '2.1.5 .01';
+  Program_Version_Number  = '2.1.5.1';
+  Program_Version_Date    = '15/02/2026';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -47,7 +47,7 @@ const
 
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
-  Program_Credit1 = 'Copyright © 2007-25  Daniel Prado Velasco   (since 1.7.0)';
+  Program_Credit1 = 'Copyright © 2007-26  Daniel Prado Velasco   (since 1.7.0)';
   Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
   Hint_Support = 'Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!';
 
@@ -118,11 +118,13 @@ const
   NFHDR_ID_COMPRESSED = 'GFKNZ'; // compressed KeyNote file header ID
   NFILEVERSION_MAJOR = '3';     // and version numbers
   // NFILEVERSION_MAJOR = '1';     // non-tree version ID, obsolete
-  NFILEVERSION_MINOR = '1';
+  NFILEVERSION_MINOR = '2';
 
  // 2.1 : Since version 1.9.3.1: Use of GID as note identifier, with a new default internal Knt Links format, based on GIDs
  // 3.0 : New major version associated to an important rework: TNote, TNoteNode, TNoteEntry, ...
  // 3.1 : Added Tags
+ // 3.2 : Encrypted format uses a simplified PBKDF2 mechanism to derive keys from passwords using a configurable number of (SHA-1) iterations
+ //       PBKDF2: Password-Based Key Derivation Function 2
 
 const
   FLAGS_STRING_LENGTH  = 24; // can store up to 24 booleans
@@ -308,6 +310,8 @@ const
   _NF_Bookmarks       = '%BK';
   _NF_Bookmark        = 'BK';
   _NF_Tags            = '%TG';
+  _NF_EncryptedContent= '%C';
+  _NF_EncryptedContentEND= '%CE';
 
 
 const
@@ -426,7 +430,8 @@ type
     nbTree,       // = ntTree                 (= Folder)
     nbImages,     // = Images Definition
     nbBookmarks,
-    nbTags
+    nbTags,
+    nbEncrypted
   );
   //TNoteNameStr = String[TABNOTE_NAME_LENGTH];
   TNoteNameStr = string;
@@ -581,26 +586,26 @@ const
   KNT_RTF_HIDDEN_MAX_LENGHT_CONTENT = 15;
 
   LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
-  LINK_RTF    = '{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{\cf1\ul %s}}}';
-  LINK_RTF_2  = '{\field{\*\fldinst{HYPERLINK %s}}{\fldrslt{%s}}}';
+  LINK_RTF    = '{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "%s"}}{\fldrslt{%s}}}}';
+  LINK_RTF_2  = '{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK %s}}{\fldrslt{%s}}}}';
 
   KNT_IMG_LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK "img:';
   //KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt{\ul\cf0 %s}}}';    // {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
-  KNT_IMG_LINK = KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt {%s}}}';    // If used {\fldrslt{\ul\cf0 %s} it ends up with something like {\fldrslt{\ul\cf0\cf0\ul %s}. (Idem with \ul\cf1 .. \cf1\ul etc)
+  KNT_IMG_LINK = '{\cf0\b0\highlight0\ul' + KNT_IMG_LINK_PREFIX + '%d,%d,%d"}}{\fldrslt {%s}}}}';    // If used {\fldrslt{\ul\cf0 %s} it ends up with something like {\fldrslt{\ul\cf0\cf0\ul %s}. (Idem with \ul\cf1 .. \cf1\ul etc)
 
   // Used ➕ a more clear character that help to mark the beginning of the folded block
   // See https://github.com/dpradov/keynote-nf/discussions/852#discussioncomment-12914739
 
   KNT_RTF_FOLDED_LINK_PREFIX =       KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK;                                             //  \'11L
-  KNT_RTF_FOLDED_LINK =        '{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}'; //  {\'11L%s@%s\'12}
+  KNT_RTF_FOLDED_LINK =    '{' + KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '%s@%s'     + KNT_RTF_HIDDEN_MARK_R + '}'; //  {\'11L%s@%s\'12}
   KNT_RTF_FOLDED_LINK_BLOCK_PREFIX = KNT_RTF_HIDDEN_MARK_L      + KNT_RTF_HIDDEN_LINK + '"FOLD:"@';                                //  \''11L"FOLD:"@
 //KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@+' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
   KNT_RTF_FOLDED_LINK_BLOCK_CHAR =   KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK + '"FOLD:"@➕ ' + KNT_RTF_HIDDEN_MARK_R_CHAR;  //  $11L"FOLD:"@+$12
 
   KNT_IMG_FOLDED_PREFIX =  KNT_RTF_HIDDEN_MARK_L_CHAR + 'L"img:';
 
-//KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 +}}}';
-  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf1 \u10133+ }}}';
+//KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{+}}}';
+  KNT_RTF_BEGIN_FOLDED = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\b0\cf0\u10133+ }}}';
   KNT_RTF_BEGIN_FOLDED_URL = '{\field{\*\fldinst{HYPERLINK "FOLD:"}}';
 
 //KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"+';
@@ -658,6 +663,10 @@ const
     'Blowfish', 'Idea'
   );
 
+  KEY_ITERATIONS_ENCRYP = 1000;
+  KEY_ITERATIONS_VERIF_DEFAULT = 100000;
+  KEY_ITERATIONS_VERIF_MAX = High(Cardinal);
+
 const
   ID_STR_LENGTH = 5; // GFKNT, GFKNX, GFKNE, GFKNZ, Notes
 
@@ -669,12 +678,24 @@ type
   end;
 
 type
+  THash = array[0..31] of byte;
+
+type
   // In encrypted files, this is saved in cleartext
-  TEncryptedFileInfo = packed record
+  TEncryptedFileInfo = packed record     // Used in file versions < 3.2
     Method : TCryptMethod;
     DataSize : integer;
-    NoteCount : integer;
+    NoteCount : integer;                // No used
   end;
+
+  TEncryptionInfo = packed record
+    Method : TCryptMethod;
+    KeyDerivIterations: Cardinal;
+    Hash : THash;                      // Verification hash
+    HideEncryptedNodes: boolean;       // To be used with encryption of notes or entries
+    DataSize : integer;
+  end;
+
 
 type
   TCommentStr = String;
@@ -1004,6 +1025,12 @@ const
   _EmbeddedImage = 'EI';
   _END_OF_EMBEDDED_IMAGE = '##END_IMAGE##';
 
+
+const
+  _TEMPLATE_NOTE_COLOR  = '%NCOLOR%';     // To allow referencing the background color of the note in a template
+  _TEMPLATE_TEXT_SCOLOR = '%TSCOLOR%';    //      ,,              the text color of the selection ,,
+  _TEMPLATE_TEXT_COLOR  = '%TCOLOR%';     //      ,,              Text color (Format|Text Color,  Ctrl+R)
+  _TEMPLATE_TEXT_HCOLOR = '%THCOLOR%';    //      ,,              Text Highlight color (Format|Apply HighLight Color,  Ctrl+H)
 
 const
   alph13 = AnsiString('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz');

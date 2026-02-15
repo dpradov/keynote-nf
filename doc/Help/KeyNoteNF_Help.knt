@@ -641,12 +641,12 @@ You may add additional accurate notices of copyright ownership.\par
 %*
 GI=10
 ND=Features
-LM=1910251550
+LM=1502261946
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Features Overview\cf2\f0\fs32\lang1033\par
 \b0\fs26\par
@@ -660,6 +660,7 @@ LM=1910251550
 {\pntext\f3\'B7\tab}Ability to \b merge \b0 two KeyNote files ({{\field{\*\fldinst{HYPERLINK "file:///<56|7413|0|4"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Support for \b drag-and-drop file operations \b0 (including the ability to drag files from Windows Explorer)\par
 {\pntext\f3\'B7\tab}You can \b protect your data files with secure encryption\b0  using a strong cipher: Blowfish or IDEA ({{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+{\pntext\f3\'B7\tab}\b Enable encrypted content\b0 : Added the option of combining an unencrypted format (native or compressed) with the encryption of selected elements: notes and images ({{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f3\'B7\tab}Advanced \b backup options\b0  for additional data safety. See {{\field{\*\fldinst{HYPERLINK "file:///<94|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Options: Backup options}}}}\f0\fs20 .\par
 {\pntext\f3\'B7\tab}Import and export files in the format used by \b TreePad\b0  (See also {{\field{\*\fldinst{HYPERLINK "file:///<17|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Information for DaRT Notes Users}}}}\f0\fs20 )\par
 
@@ -1216,11 +1217,12 @@ Another way of editing text or rich text format files in KeyNote is by using the
 %*
 GI=16
 ND=Command Line Reference
+LM=1402260904
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Courier New;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Command Line Reference\cf2\f0\lang1033\par
 \cf0\b0\fs26\par
@@ -1312,9 +1314,9 @@ The setup program will also allow you to register file extensions.\par
 \pard\sb80\b0 This option allows to jump to the KeyNote internal link especified in quotes, in any of the recognized formats. It is not mandatory to pass a .knt (.kne) file as argument, because the KNT link can include one file. If the KNT link doesn't include a filename, the link will be executed in the current open file, and if the location is not found, a message warning will be shown.\par
 The KNT link must be bound to the option, without any spaces. Examples:\par
 
-\pard\sb40   -jmp"{{\field{\*\fldinst{HYPERLINK "file:///*1|10|201|0"}}{\fldrslt{file:///*1|10|201|0\ul0\cf0}}}}\f0\fs20 "\par
+\pard\sb40   -jmp"{{\field{\*\fldinst{HYPERLINK file:///*1|10|201|0 }}{\fldrslt{file:///*1|10|201|0\ul0\cf0}}}}\f0\fs20 "\par
 
-\pard   -jmp"{{\field{\*\fldinst{HYPERLINK "file:///*1|2|0|0"}}{\fldrslt{file:///*1|2\ul0\cf0}}}}\f0\fs20 "\par
+\pard   -jmp"{{\field{\*\fldinst{HYPERLINK "file:///*1|2|0|0"}}{\fldrslt{\ul\cf2\cf2\ul file:///*1|2}}}}\f0\fs20 "\par
   -jmp"{{\field{\*\fldinst{HYPERLINK file:///C:\\\\myFile.knt*1|3|285|0 }}{\fldrslt{file:///C:\\myFile.knt*1|3|285|0\ul0\cf0}}}}\f0\fs20 "\par
 \par
 \ul Tip\ulnone : You can use the export to plain text with the "Show hidden marks and IDs" option ({{\field{\*\fldinst{HYPERLINK "file:///<57|15858|0|11"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 ) to determine the links to use, as well as "Save Tree to File..." by holding down Ctrl ({{\field{\*\fldinst{HYPERLINK "file:///<115|7901|0|29"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 ) \par
@@ -1344,7 +1346,17 @@ Note that currently, when you open the first .knt file or any subsequent .knt fi
 \b -clnks (convert hyperlinks)\par
 \b0 This option will convert internal KNT links with the old format based on note IDs (considering only links present in RTF notes), to the new format based on GID. More on {{\field{\*\fldinst{HYPERLINK "file:///<38|19244|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Internal KNT Link format}}}}\f0\fs20\par
 
-\pard\sb120 Eg. If the note with ID=10 in folder with ID=3 has GID=12 then:   {{\field{\*\fldinst{HYPERLINK "file:///*3|10|55|0|1"}}{\fldrslt{file:///*3|10|55|0|1\ul0\cf0}}}}\f0\fs20   =>   {{\field{\*\fldinst{HYPERLINK file:///<12|55|0|1 }}{\fldrslt{file:///<12|55|0|1\ul0\cf0}}}}\f0\fs20\par
+\pard\sb120 Eg. If the note with ID=10 in folder with ID=3 has GID=12 then:   {{\field{\*\fldinst{HYPERLINK file:///*3|10|55|0|1 }}{\fldrslt{file:///*3|10|55|0|1\ul0\cf0}}}}\f0\fs20   =>   {{\field{\*\fldinst{HYPERLINK file:///<12|55|0|1 }}{\fldrslt{file:///<12|55|0|1\ul0\cf0}}}}\f0\fs20\par
+
+\pard\par
+\b\v\'11B2\'12\v0 -clnkc (Convert links to allow for proper text colour management)\par
+\b0 This option will modify all links in the file, including those in folded blocks, correcting the problem that prevents changing their colour (See {{\field{\*\fldinst{HYPERLINK "file:///<38|19620|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Changing the color of links}}}}\f0\fs20 )\par
+
+\pard\sb40\ul Notes:\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\ulnone Before modifying the entire file using this parameter, it is highly recommended that you save a \ul backup\ulnone  copy of the file.\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 Do not apply this option multiple times to the same file. Although the file will not be affected incorrectly, its size will increase slightly because the links will include some redundant RTF commands that will only be removed once you modify the corresponding notes and the text editor processes and simplifies the associated internal RTF code \par
 
 \pard\par
 \b -clean (clean hyperlinks)\par
@@ -1574,10 +1586,10 @@ ND=Using KeyNote NF
 %*
 GI=20
 ND=KeyNote Editor
-LM=2412251748
+LM=1402261009
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil\fcharset0 Courier New;}{\f5\fnil Arial;}{\f6\fnil Tahoma;}{\f7\fnil\fcharset0 Arial;}{\f8\fnil\fcharset0 Lucida Console;}{\f9\fnil\fcharset2 Symbol;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Cambria Math;}{\f4\fnil Arial;}{\f5\fnil\fcharset1 Segoe UI Symbol;}{\f6\fnil\fcharset0 Courier New;}{\f7\fnil Tahoma;}{\f8\fnil\fcharset0 Arial;}{\f9\fnil\fcharset0 Lucida Console;}{\f10\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red128\green128\blue0;\red0\green128\blue0;\red64\green64\blue64;\red255\green0\blue0;\red0\green0\blue0;\red96\green96\blue96;\red255\green255\blue0;\red255\green255\blue255;\red51\green51\blue153;\red192\green192\blue192;}
 {\*\generator Riched20 10.0.26100}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
@@ -1599,7 +1611,7 @@ To be productive when editing, it is also advisable to have a minimum knowledge 
 {{\field{\*\fldinst{HYPERLINK "file:///<20|12559|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Using bullets and numbered lists}}}}\f0\fs20\par
 {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<20|16135|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Bullets and plain text}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|18104|0|14"}}{\fldrslt{\ul\cf2\cf2\ul Using color selection buttons}}}}\f0\fs20\par
-{{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf2\cf2\ul How can you insert Tables in Keynote?}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<20|17466|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Inserting tables in Keynote}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|23301|0|18"}}{\fldrslt{\ul\cf2\cf2\ul Inserting a line in the editor}}}}\f0\fs20\par
 {{\field{\*\fldinst{HYPERLINK "file:///<20|20350|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Inserting custom date and time formats}}}}\f0\fs20\par
 \par
@@ -1620,17 +1632,17 @@ To be productive when editing, it is also advisable to have a minimum knowledge 
 Among other editing features available:\par
 \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Most editing and formatting \b commands can be repeated by\b0  pressing \cf3\b Ctrl+\'c7\cf0\b0 .\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Most editing and formatting \b commands can be repeated by\b0  pressing \cf3\b Ctrl+\'c7\cf0\b0 .\par
 
 \pard\li360\sb40\sa80\ul Note\ulnone : Check your current shortcut looking to Edit|Repeat.. entry, because the character will depend on your keyboard layout.\par
 
 \pard\li360\sa80 Most (but not all) edit commands can be repeated across notes. For example, if you use the Font dialog box to select a font style, you can then switch to another note, press \cf3 Ctrl+\'c7\cf0  and the same font style will be applied here.\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can {{\field{\*\fldinst{HYPERLINK "file:///<23|0|0"}}{\fldrslt{\ul\cf2\cf2\ul insert characters}}}}\f0\fs20  from a dialog box, based on a selected font\par
-{\pntext\f9\'B7\tab}KeyNote can calculate the result of an arithmetic operation typed in the editor (see {{\field{\*\fldinst{HYPERLINK "file:///<25|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Expression evaluation}}}}\f0\fs20 )\par
-{\pntext\f9\'B7\tab}When typing in the editor, you can still move between tree nodes without switching focus to the tree: hold down the \cf3\b Alt\cf0\b0  key and press one of the direction arrows (Up, Down, or Shift+Left, or Shift+Right).\par
-{\pntext\f9\'B7\tab}A "match bracket" function (Search | Match Bracket)\par
-{\pntext\f9\'B7\tab}ROT-13, reverse text, repeat last edit command, join and sort lines\'85  (Edit | Transform) (Edit | Lines), etc.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can {{\field{\*\fldinst{HYPERLINK "file:///<23|0|0"}}{\fldrslt{\ul\cf2\cf2\ul insert characters}}}}\f0\fs20  from a dialog box, based on a selected font\par
+{\pntext\f10\'B7\tab}KeyNote can calculate the result of an arithmetic operation typed in the editor (see {{\field{\*\fldinst{HYPERLINK "file:///<25|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Expression evaluation}}}}\f0\fs20 )\par
+{\pntext\f10\'B7\tab}When typing in the editor, you can still move between tree nodes without switching focus to the tree: hold down the \cf3\b Alt\cf0\b0  key and press one of the direction arrows (Up, Down, or Shift+Left, or Shift+Right).\par
+{\pntext\f10\'B7\tab}A "match bracket" function (Search | Match Bracket)\par
+{\pntext\f10\'B7\tab}ROT-13, reverse text, repeat last edit command, join and sort lines\'85  (Edit | Transform) (Edit | Lines), etc.\par
 
 \pard\par
 \b Tip\b0 : It is possible to display a panel near the editor that shows certain information about the note to which it belongs. Note that there are situations where it is useful to keep the tree panel hidden. In this cases can be convenient to have this information panel visible.\par
@@ -1700,8 +1712,8 @@ The latter can be done with the \b Copy Format\b0  button (\v\'11I84\'12\v0\lang
 \par
 Note:\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 When you copy font attributes or paragraph attributes, the copied information persists across file sessions, i.e. you can open a different file and paste attributes copied from the previous file (that is now closed).\par
-{\pntext\f9\'B7\tab}You can also save font, paragraph or mixed formatting attributes as \b Styles\b0 , that you can apply later on selected text ({{\field{\*\fldinst{HYPERLINK "file:///<22|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 When you copy font attributes or paragraph attributes, the copied information persists across file sessions, i.e. you can open a different file and paste attributes copied from the previous file (that is now closed).\par
+{\pntext\f10\'B7\tab}You can also save font, paragraph or mixed formatting attributes as \b Styles\b0 , that you can apply later on selected text ({{\field{\*\fldinst{HYPERLINK "file:///<22|0|0"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 
 \pard\par
 \par
@@ -1724,14 +1736,14 @@ You can use the \ul Format\ulnone  main menu, with many \b shortcuts\b0  that yo
 \pard\par
 In Rich Edit control (and in older versions of KeyNote), the meaning of "first indentation" and "left indentation" is:\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 First Indent: It is the principal indentation; it is set from the left margin in absolute values. Corresponds to the first line.\par
-{\pntext\f9\'B7\tab}Left Indent: This indentation is relative to the paragraph's current indentation (First line's indentation), and controls indentation of 2nd and following lines (can be positive or negative)\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 First Indent: It is the principal indentation; it is set from the left margin in absolute values. Corresponds to the first line.\par
+{\pntext\f10\'B7\tab}Left Indent: This indentation is relative to the paragraph's current indentation (First line's indentation), and controls indentation of 2nd and following lines (can be positive or negative)\par
 
 \pard\par
 On the contrary, MS Word have been using a different semantic, more intuitive:\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Left Indent\b0 :  Indentation of the paragraph, from the left margin\par
-{\pntext\f9\'B7\tab}\b First Indent\b0 : Indentation of the first line regarding to the rest of the lines of the paragraph (can be positive or negative)\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Left Indent\b0 :  Indentation of the paragraph, from the left margin\par
+{\pntext\f10\'B7\tab}\b First Indent\b0 : Indentation of the first line regarding to the rest of the lines of the paragraph (can be positive or negative)\par
 
 \pard\par
 Since version 1.7.5, \b KeyNote NF uses MS Word behavior and terminology\b0 .\par
@@ -1778,8 +1790,8 @@ This way you can select the numbering style, and assuming arabic numbers you can
 The are two options you can use to create more complicated lists. They are available in the same drop-down list of the \v\'11I76\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:76,17,17"}}{\fldrslt {76_Format_15.png}}}\lang1033  button:\par
 \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\b No Next number or bullet\b0  - Continues a numbered list without applying the next number or bullet\par
-{\pntext\f9\'B7\tab}\b Starts New number...\b0\tab  - Selects a new starting number\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\b No Next number or bullet\b0  - Continues a numbered list without applying the next number or bullet\par
+{\pntext\f10\'B7\tab}\b Starts New number...\b0\tab  - Selects a new starting number\par
 
 \pard\par
 You can better understand how to use them with an example.\par
@@ -1922,7 +1934,7 @@ When you paste a bullet list as plain text (with \cf3\b\lang1033 Shift+Insert\cf
 \par
 \lang3082 Example:\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 One\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 One\par
 
 \pard\par
 turns:\par
@@ -1943,8 +1955,8 @@ You can use "" to completely remove the bullets. You can even replace it by the 
 \par
 \b Note:\b0\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 This option will also be used when \b Exporting Folders to Disk Files\b0  and you select plain text format (see {{\field{\*\fldinst{HYPERLINK "file:///<57|8199|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f0\fs20 ).\par
-{\pntext\f9\'B7\tab}Note also that currently the other option available when exporting (\cf6\b NumbTabInPlainText\cf0\b0 ) cannot be used manually as can be done with \cf6\b BulletsInPlainText\b0 . \cf0 (#ToDO)\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 This option will also be used when \b Exporting Folders to Disk Files\b0  and you select plain text format (see {{\field{\*\fldinst{HYPERLINK "file:///<57|8199|0|7"}}{\fldrslt{\ul\cf2\cf2\ul Options for indenting nested nodes}}}}\f0\fs20 ).\par
+{\pntext\f10\'B7\tab}Note also that currently the other option available when exporting (\cf6\b NumbTabInPlainText\cf0\b0 ) cannot be used manually as can be done with \cf6\b BulletsInPlainText\b0 . \cf0 (#ToDO)\par
 
 \pard\par
 \par
@@ -1960,36 +1972,70 @@ KeyNote includes one button to set or change the text color and other to add or 
 Its use should not entail any mystery. However, it is not difficult to get confused when trying to select new custom colors. Consider the following:\par
 \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Custom color buttons [\cf7 1\cf0 ] need to be right clicked to set or modify them\par
-{\pntext\f9\'B7\tab}Once a color is selected in the dialog box that will be displayed, the custom button will reflect that color.\par
-{\pntext\f9\'B7\tab}You can define several custom colors this way, without having to go back to the editor. They will all be saved (in the Windows registry) upon return.\par
-{\pntext\f9\'B7\tab}To apply any color you have to click (left) on its button. They will \ul not\ulnone  be applied automatically after setting the button.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Custom color buttons [\cf7 1\cf0 ] need to be right clicked to set or modify them\par
+{\pntext\f10\'B7\tab}Once a color is selected in the dialog box that will be displayed, the custom button will reflect that color.\par
+{\pntext\f10\'B7\tab}You can define several custom colors this way, without having to go back to the editor. They will all be saved (in the Windows registry) upon return.\par
+{\pntext\f10\'B7\tab}To apply any color you have to click (left) on its button. They will \ul not\ulnone  be applied automatically after setting the button.\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 An exception to this behavior is the color marked with [\cf7 2\cf0 ]: it can be modified by clicking the "Other colors..." button, not by right-clicking. And also, just after selecting the color in the dialog window, the color will be saved and automatically applied.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 An exception to this behavior is the color marked with [\cf7 2\cf0 ]: it can be modified by clicking the "Other colors..." button, not by right-clicking. And also, just after selecting the color in the dialog window, the color will be saved and automatically applied.\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Also note that \ul custom colors defined in the dialog will not be saved\ulnone . Currently it will only be remembered as long as you keep the button color dropdown open.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Also note that \ul custom colors defined in the dialog will not be saved\ulnone . Currently it will only be remembered as long as you keep the button color dropdown open.\par
 
 \pard\par
 \par
-\b\v\fs24\'11B2\'12\v0 How can you insert tables in Keynote?\b0\par
+\b\v\fs24\'11B2\'12\v0 Inserting tables in Keynote\b0\par
 \fs20\par
 There are several ways to create tables in KeyNote NF:\par
 \par
 \b 1. Using Insert|Tables...\par
-\b0\par
 
-\pard\li360 Since version 2.1.4 KeyNote NF includes a new command that allows you to insert a basic table into the active editor, if it is not a plain text editor. You will be asked to specify the number of rows and columns in the table in the format "R,C".\par
-
-\pard\li360\sb80 You can insert the table using the menu entry: \b Insert|Table...  \b0 Clicking this entry while holding down the \cf3\b Shift \cf0\b0 key will insert a table whose lines will be printable; otherwise, the lines of the table will be visible on screen but will not appear when printed.\par
+\pard\li360\sb80\b0 Since version 2.1.4 KeyNote NF includes a new command that allows you to insert a basic table into the active editor, if it is not a plain text editor. You will be asked to specify the number of rows and columns in the table in the format "R,C".\par
+You can insert the table using the menu entry: \b Insert|Table...  \b0 Clicking this entry while holding down the \cf3\b Shift \cf0\b0 key will insert a table whose lines will be printable; otherwise, the lines of the table will be visible on screen but will not appear when printed.\par
 The two new commands (Insert Table and Insert Printable Table) can be repeated (Edit|Repeat...) and used within macros. When used in a macro, the command considers the last defined number of rows and columns in the session. If not yet defined, it will use 2 x 2.\par
 
 \pard\par
-\par
-\b 2. Using lines of the form "+---+--+-------+" and pressing ENTER\par
-\b0\par
+
+\pard\sb80\b\v\'11B20\'12\v0 2. Using templates\par
+
+\pard\li360\sb80\b0 You can also prepare simple formats of empty tables and save them as {{\field{\*\fldinst{HYPERLINK "file:///<69|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Templates}}}}\f0\fs20 , for easy use when you need it. You can give each template a name (e.g. Table2x3).\par
+
+\pard\li720\par
+\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\cellx1562\cellx2714\cellx3866 
+\pard\intbl\qr\cf8\f4\fs18\cell\cell\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\cellx1562\cellx2714\cellx3866 
+\pard\intbl\qr\cell\cell\cell\row 
+\pard\cf0\f0\fs20\par
+
+\pard\li360\lang3082 It is even possible to edit the templates and make use of four {{\field{\*\fldinst{HYPERLINK "file:///<69|1604|0|1"}}{\fldrslt{\ul\cf2\cf2\ul new tokens}}}}\f0\fs20  available since version 2.1.5, which will allow you to \b adjust some of the colors\b0  of the table \b when inserting it\b0 .\par
+{\cf2\protect\fs24\lang1033{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\ul\f5\u10133?\f0  \f5 }}}}\protect\f0\fs20\lang1033 Examples of the use of these tokens are available in several templates distributed in the Templates folder, in the subfolder "Examples":\v\'11f1\'12\par
+
+\protect0\pard\protect\li360\sb40     "Table - 3x3 - Heading.rtf"\par
+
+\protect0\pard\protect\li360\sb80 You can see that it contains:\par
+
+\protect0\pard\protect\li360     \cf4\{\\rtf1\\ansi  \{\\colortbl ;\\red255\\green255\\blue255;\\red0\\green0\\blue0;\\red0\\green0\\blue255;%TSCOLOR%;%THCOLOR%;%TCOLOR%;\}\cf0\par
+     ...\par
+  \par
+One way to use this tokens would be to create a template in KeyNote (likely by pasting from another program that might be needed, such as Excel or Word) with clearly defined and distinct colors. Some of these colors can then be modified in the "\\colortbl" table, replacing them with the tokens you want.\par
+\v0 ...\'13\par
+\protect0\par
+
+\pard\sb80\b 3. By previously creating them in another application\par
+
+\pard\li360\sb80\b0 You can create a table in Word or Excel (or any other application) and copy it to the clipboard. When you paste it into KeyNote, it will become an RTF table. Note that if you use Excel, any selection of cells makes up a table that you can paste.\par
+
+\pard\li360\par
+You can also embedd a new or existing file object (like .docx Word or .xlsx, for example), with \ul\b Insert|Object...\ulnone\b0  If the file already exists, you can insert a linked object, so that any changes to the object will be made to the original file (the .knt file will also take up less space) \par
+
+\pard\par
+
+\pard\sb80\b 4. Using lines of the form "+---+--+-------+" and pressing ENTER\par
 \trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5254 
-\pard\intbl Typing the following\cf8\fs18\cell\cell\cf0\fs20  you will get:\cf8\fs18\cell\row 
+\pard\intbl\sb80\b0 Typing the following\cf8\fs18\cell 
+\pard\intbl\cell 
+\pard\intbl\sb80\cf0\fs20  you will get:\cf8\fs18\cell\row 
 \pard\li360\cf0\fs14\par
 \trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2852\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3097\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx5824 
@@ -2028,7 +2074,7 @@ Note: The text line can not have leading whitespace to the left of the text\par
 \pard\intbl\itap2\nestcell\nestcell{\*\nesttableprops\trowd\trgaph72\trleft75\trpaddl72\trpaddr72\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx575\clbrdrl\brdrw1\brdrs\clbrdrt\brdrw1\brdrs\clbrdrr\brdrw1\brdrs\clbrdrb\brdrw1\brdrs \cellx1075\nestrow}{\nonesttables\par}
 
-\pard\intbl\cf8\fs18\cell\cell\cf0\f4 Courier New\par
+\pard\intbl\cf8\fs18\cell\cell\cf0\f6 Courier New\par
 + 11 dashes +\par
 + 5 dashes + 5 dashes +\par
 \fs20 +-----------+\fs18\par
@@ -2044,41 +2090,20 @@ Note: The text line can not have leading whitespace to the left of the text\par
 \pard\li360\cf0\fs20\par
 
 \pard\par
-\b 3. By previously creating them in another application\par
-\b0\par
-
-\pard\li360 You can create a table in Word or Excel (or any other application) and copy it to the clipboard. When you paste it into KeyNote, it will become an RTF table. Note that if you use Excel, any selection of cells makes up a table that you can paste.\par
-\par
-You can also embedd a new or existing file object (like .docx Word or .xlsx, for example), with \ul\b Insert|Object...\ulnone\b0  If the file already exists, you can insert a linked object, so that any changes to the object will be made to the original file (the .knt file will also take up less space) \par
-
-\pard\par
-\par
-\b 4. Using templates\par
-\b0\par
-
-\pard\li360 You can also prepare simple formats of empty tables and save them as {{\field{\*\fldinst{HYPERLINK "file:///<69|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Templates}}}}\f0\fs20 , for easy use when you need it. You can give each template a name (e.g. Table2x3).\par
-
-\pard\li720\par
-\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\cellx1562\cellx2714\cellx3866 
-\pard\intbl\qr\cf8\f5\fs18\cell\cell\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
-\cellx1562\cellx2714\cellx3866 
-\pard\intbl\qr\cell\cell\cell\row 
-\pard\cf0\f0\fs20\par
 \par
 \b General info and tips for tables\par
 \b0\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 In addition to defining templates with tables already created, you can prepare \ul templates\ulnone  that are "precursors" of tables, adding one (or more) lines of the form "+----+-----+". This way you can easily make adjustments to the table to be created before pressing ENTER.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 In addition to defining templates with tables already created, you can prepare \ul templates\ulnone  that are "precursors" of tables, adding one (or more) lines of the form "+----+-----+". This way you can easily make adjustments to the table to be created before pressing ENTER.\par
 
 \pard\li360\sb40 Note:\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li720 It is necessary to create the template selecting "Formatted text" (obtaining an .RTF)\par
-{\pntext\f9\'B7\tab}It is advisable to create it without including the final character after the last "+", so as not to add a line break so that after inserting the template the cursor is right after the last "+"\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li720 It is necessary to create the template selecting "Formatted text" (obtaining an .RTF)\par
+{\pntext\f10\'B7\tab}It is advisable to create it without including the final character after the last "+", so as not to add a line break so that after inserting the template the cursor is right after the last "+"\par
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can use the {{\field{\*\fldinst{HYPERLINK "file:///<24|0|0"}}{\fldrslt{\ul\cf2\cf2\ul glossary}}}}\f0\fs20  and add one or more terms that can be replaced by this lines of the form "+-+-+". Examples of possible use:\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can use the {{\field{\*\fldinst{HYPERLINK "file:///<24|0|0"}}{\fldrslt{\ul\cf2\cf2\ul glossary}}}}\f0\fs20  and add one or more terms that can be replaced by this lines of the form "+-+-+". Examples of possible use:\par
 
 \pard            "++"  or "+2" or "t2" or ... \tab =>  "+-------------------+-------------------+"\par
             "+8" or "t8" or ...\tab\tab =>  "+-------+-------+-------+-------+-------+- ------+-------+-------+"\par
@@ -2087,57 +2112,57 @@ You can also embedd a new or existing file object (like .docx Word or .xlsx, for
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Once the table is included in KeyNote you can edit it in a basic way. For example, if you press TAB from the last cell in a table, a new row will be added. You can also delete rows, selecting all its cells (and including the hidden character to the right, as you do when you delete a paragraph)\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Once the table is included in KeyNote you can edit it in a basic way. For example, if you press TAB from the last cell in a table, a new row will be added. You can also delete rows, selecting all its cells (and including the hidden character to the right, as you do when you delete a paragraph)\par
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40 You can include a cell inside other cell, or even onother table.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa40 You can include a cell inside other cell, or even onother table.\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can also include images in cells if you want.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can also include images in cells if you want.\par
 
-\pard\li360\sa120 Note that it is not possible to resize the image being inside a cell. But you can resize it outside and copy or dragged into the cell\cf9\f6\fs24\lang3082\par
+\pard\li360\sa120 Note that it is not possible to resize the image being inside a cell. But you can resize it outside and copy or dragged into the cell\cf9\f7\fs24\lang3082\par
 
-\pard\li720\v\'11I162\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:162,16,16"}}{\fldrslt {162_Image_23ene.png}}}\cf9\fs24  \v\f6\'11I162\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:162,24,24"}}{\fldrslt {162_Image_23ene.png}}}\cf9\f6\fs24\par
+\pard\li720\v\'11I162\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:162,16,16"}}{\fldrslt {162_Image_23ene.png}}}\cf9\fs24  \v\f7\'11I162\'12\cf0\v0\f0\fs20{\field{\*\fldinst{HYPERLINK "img:162,24,24"}}{\fldrslt {162_Image_23ene.png}}}\cf9\f7\fs24\par
 
 \pard\li360\par
 \trowd\trgaph30\trleft410\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx4262\cellx4807\cellx5959 
-\pard\intbl\qr\cf8\f7\fs18 Cell, with text \cf7 aligned \cf8 to the right \highlight10\f5\lang1033\cell\highlight0\cell\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\pard\intbl\qr\cf8\f8\fs18 Cell, with text \cf7 aligned \cf8 to the right \highlight10\f4\lang1033\cell\highlight0\cell\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx4262\cellx4807\cellx5959 
 \pard\intbl\qr\highlight10\cell\highlight0\cell\cell\row\trowd\trgaph30\trleft410\trrh1200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx4262\cellx4807\cellx5959 
-\pard\intbl\sa120\cf9\f0\fs22\lang3082    This is a \cf0\b cell\cf9\b0  with a table \highlight10 inside\highlight0 : \f6\fs24\par
+\pard\intbl\sa120\cf9\f0\fs22\lang3082    This is a \cf0\b cell\cf9\b0  with a table \highlight10 inside\highlight0 : \f7\fs24\par
 
-\pard\intbl\itap2\qr\cf8\f7\fs18 X1\f5\lang1033\nestcell\nestcell\nestcell{\*\nesttableprops\trowd\trgaph30\trleft-30\trqc\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\pard\intbl\itap2\qr\cf8\f8\fs18 X1\f4\lang1033\nestcell\nestcell\nestcell{\*\nesttableprops\trowd\trgaph30\trleft-30\trqc\trrh200\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx1122\cellx2274\cellx3381\nestrow}{\nonesttables\par}
 
-\pard\intbl\itap2\qr\f7\lang3082 X2\f5\lang1033\nestcell 
-\pard\intbl\itap2\qc\v\'11I53\'12\cf0\v0\f0\fs20\lang3082{\field{\*\fldinst{HYPERLINK "img:53,16,16"}}{\fldrslt {53_Main_53.png}}}\cf8\f7\fs18  \f5\lang1033\nestcell 
+\pard\intbl\itap2\qr\f8\lang3082 X2\f4\lang1033\nestcell 
+\pard\intbl\itap2\qc\v\'11I53\'12\cf0\v0\f0\fs20\lang3082{\field{\*\fldinst{HYPERLINK "img:53,16,16"}}{\fldrslt {53_Main_53.png}}}\cf8\f8\fs18  \f4\lang1033\nestcell 
 \pard\intbl\itap2\qr\nestcell{\*\nesttableprops\trowd\trgaph30\trleft-30\trqc\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \cellx1122\cellx2274\cellx3381\nestrow}{\nonesttables\par}
 
 \pard\intbl\qr\cell 
 \pard\intbl\qc\par
 \par
-\cf0\v\f0\fs20\'11I86\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:86,24,24"}}{\fldrslt {86_TV_02.png}}}\cf8\f5\fs18\lang1033\cell\f7\lang3082 This cell is centered\f5\lang1033\cell\trowd\trgaph30\trleft410\trrh1200\cellx4262\cellx4807\cellx5959\row 
+\cf0\v\f0\fs20\'11I86\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:86,24,24"}}{\fldrslt {86_TV_02.png}}}\cf8\f4\fs18\lang1033\cell\f8\lang3082 This cell is centered\f4\lang1033\cell\trowd\trgaph30\trleft410\trrh1200\cellx4262\cellx4807\cellx5959\row 
 \pard\cf0\f0\fs20\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You cannot change the color of a cell from inside KeyNote, but you can prepare the table with colors outside and then paste:\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 You cannot change the color of a cell from inside KeyNote, but you can prepare the table with colors outside and then paste:\par
 
 \pard\li360\lang3082\par
 \trowd\trgaph30\trleft410\trrh255\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx1562\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx2714\clcfpat12\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw30\brdrs\brdrcf11 \cellx3866 
-\pard\intbl\qc\cf11\f7\fs18 A1\f5\lang1033\cell\f7\lang3082 B1\f5\lang1033\cell\f7\lang3082 C1\f5\lang1033\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\pard\intbl\qc\cf11\f8\fs18 A1\f4\lang1033\cell\f8\lang3082 B1\f4\lang1033\cell\f8\lang3082 C1\f4\lang1033\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1562\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2714\clcfpat13\clcbpat11\clshdng10000\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3866 
 \pard\intbl\qr\cf8\cell\cell\cell\row 
 \pard\li360\cf0\f0\fs20\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can hide the lines of the table by giving them a color equal to the background of the note:\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can hide the lines of the table by giving them a color equal to the background of the note:\par
 
 \pard\par
 \trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1562\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2714\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3866 
-\pard\intbl\cf8\f5\fs18 A1\cell B1\cell C1\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
+\pard\intbl\cf8\f4\fs18 A1\cell B1\cell C1\cell\row\trowd\trgaph30\trleft410\trrh223\trpaddl30\trpaddr30\trpaddfl3\trpaddfr3
 \clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx1562\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx2714\clbrdrl\brdrw15\brdrs\brdrcf11\clbrdrt\brdrw15\brdrs\brdrcf11\clbrdrr\brdrw15\brdrs\brdrcf11\clbrdrb\brdrw15\brdrs\brdrcf11 \cellx3866 
 \pard\intbl A2\cell B2\cell C2\cell\row 
 \pard\cf0\f0\fs20\par
@@ -2173,15 +2198,38 @@ This is a printable line:\par
 \lang1033\par
 Note:    \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 The RichEdit control does not allow to insert lines exclusively; it does not recognize the specific RTF command for that purpose. The line inserted here is constructed using a cell, adjusted to appear as a line. This implies two limitations:\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80\lang3082 The printable line (using \cf3\lang1033 Shift\cf0\lang3082 ) will use Text \b color\b0  (Format|Text Color,  \cf3 Ctrl+R\cf0 ). It will also use the background colour of the note at the time of creation to 'hide' the invisible borders of the used row cell. Ex:\lang1033\par
+\trowd\trgaph10\trleft360\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+\clbrdrl\brdrw1\brdrs\brdrcf11\clbrdrt\brdrw10\brdrs\brdrcf7\clbrdrr\brdrw1\brdrs\brdrcf11\clbrdrb\brdrw1\brdrs\brdrcf11 \cellx1905 
+\pard\intbl\li360\sb40\fs1\lang3082\cell\row 
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\fs20\lang1033 The RichEdit control does not allow to insert lines exclusively; it does not recognize the specific RTF command for that purpose. The line inserted here is constructed using a cell, adjusted to appear as a line. This implies two limitations:\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li720 The width is not dynamic; it is fixed and is set when the line is created.\par
-{\pntext\f9\'B7\tab}To achieve the line effect, the font size inside the cell is set to 1. This means that if you apply a font size change to a selection that includes a line, the cell will become visible.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li720 The width is not dynamic; it is fixed and is set when the line is created.\par
+{\pntext\f10\'B7\tab}To achieve the line effect, the font size inside the cell is set to 1. This means that if you apply a font size change to a selection that includes a line, the cell will become visible.\par
 
 \pard\li360\sb120 The fact that the font size used within the cell is almost zero (it appears as 0 in the font size dropdown) offers a simple way to delete a line: you can press the cursor keys until the font size displays 0. If you then press the down arrow key while holding down the \cf3 Shift\cf0  key, you will select the entire line. We can then delete it.\par
 
 \pard\par
-\par
+
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80\v\lang3082\'11B19\'12\v0 The \b thickness\b0  of the lines cannot be modified, but it is possible to use \b custom templates\b0  to insert lines with the desired color and thickness. It is even possible to edit the templates and make use of four {{\field{\*\fldinst{HYPERLINK "file:///<69|1604|0|1"}}{\fldrslt{\ul\cf2\cf2\ul new tokens}}}}\f0\fs20  available since version 2.1.5, which will allow you to adjust the line colour when inserting it.\lang1033\par
+
+\pard\li360 {\cf2\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\ul\f5\u10133?\f0  \f5 }}}}\protect\f0\fs20 Examples of the use of these tokens are available in several templates distributed in the Templates folder, in a subfolder called "Examples".\v\'11f1\'12\v0  Those templates that you wish to use should be copied to the main folder, either as is or adapted as needed.\v  These templates can be used to insert lines of varying thicknesses. By default, the Insert|Line command uses size = 10.\par
+It's also possible to assign a shortcut to any of them, including the default one (\cf3 Ctrl+Numpad -\cf0 ).\par
+  \par
+  "Line - White - Size50.rtf"\par
+  "Line - White - Size100.rtf"\par
+  "Line - Black - Size50.rtf"\par
+  "Line - Black - Size100.rtf"\par
+  "Line - TextColor - Size50.rtf"\par
+  "Line - TextColor - Size100.rtf"\par
+    \par
+  You can see that they contain:\par
+  \{\\rtf1\\ansi\{\\colortbl ;%NCOLOR%;%TCOLOR%;\}\par
+  ...\par
+ \par
+\v0 ...\'13\par
+
+\protect0\pard\protect\protect0\par
 \par
 \b\v\fs24\'11B12\'12\v0 Inserting custom date and time formats\par
 \b0\fs20\par
@@ -2197,7 +2245,7 @@ Please note that the date and time formats available under those drop-down menus
 \par
 Note:    \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 The toolbar is not displayed initially; you will need to enable it by using the View | Toolbars | Show Insert Toolbar command.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 The toolbar is not displayed initially; you will need to enable it by using the View | Toolbars | Show Insert Toolbar command.\par
 
 \pard\par
 \par
@@ -2210,25 +2258,25 @@ Note:    \par
 \pard\par
 Usually new zoom value is set by selecting one of the items of the \b combo\b0  (that default to 100%). \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Clicking in one value will \b apply it ALL folders\b0  (and also to the Editor of the \ul Scratch\ulnone  panel)\par
-{\pntext\f9\'B7\tab}If \cf3\b Ctrl\cf0\b0  is down while clicking, it will apply only to \b active folder\b0 .\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Clicking in one value will \b apply it ALL folders\b0  (and also to the Editor of the \ul Scratch\ulnone  panel)\par
+{\pntext\f10\'B7\tab}If \cf3\b Ctrl\cf0\b0  is down while clicking, it will apply only to \b active folder\b0 .\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 If the new zoom value is \b typed\b0  in the control, pressing \cf3\b Enter\cf0\b0  will apply it to \b all folders\b0 . \par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 If the new zoom value is \b typed\b0  in the control, pressing \cf3\b Enter\cf0\b0  will apply it to \b all folders\b0 . \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Pressing \cf3 Ctrl+Enter\cf0  will do nothing. To apply a \b typed\b0  zoom value \b only to the active\b0  folder, \b click on the folder while pressing\b0  \cf3\b Ctrl\cf0\b0 .\par
-
-\pard\par
-
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Double click\b0  resets the zoom to <Default Zoom>%, as before. Now it is controlled also by \cf3\b Ctrl\cf0\b0  key, to apply to all folders or only to active one.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Pressing \cf3 Ctrl+Enter\cf0  will do nothing. To apply a \b typed\b0  zoom value \b only to the active\b0  folder, \b click on the folder while pressing\b0  \cf3\b Ctrl\cf0\b0 .\par
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 If pressing \cf3\b Esc\cf0\b0  inside zoom combo, active note will gain focus, and no change will be done in any zoom.\par
-{\pntext\f9\'B7\tab}Deleting the combo value will be similar to pressing \cf3\b Esc\cf0\b0 .\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\b Double click\b0  resets the zoom to <Default Zoom>%, as before. Now it is controlled also by \cf3\b Ctrl\cf0\b0  key, to apply to all folders or only to active one.\par
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Ctrl\cf0\b0  will control also the menu options \b Zoom in\b0  and \b Zoom out\b0 .\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 If pressing \cf3\b Esc\cf0\b0  inside zoom combo, active note will gain focus, and no change will be done in any zoom.\par
+{\pntext\f10\'B7\tab}Deleting the combo value will be similar to pressing \cf3\b Esc\cf0\b0 .\par
+
+\pard\par
+
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\cf3\b Ctrl\cf0\b0  will control also the menu options \b Zoom in\b0  and \b Zoom out\b0 .\par
 
 \pard\par
 \par
@@ -2264,9 +2312,9 @@ Using the same mechanism that Keynote's Mark/Insert Location is based on, you ca
 \pard - Search | Jump to Bookmark (\cf3\b Alt+[0-9]\cf0\b0 )\par
 \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 The bookmarks \b do\b0  move with the text, because they are linked to target through a hidden mark (Of course, the hidden mark is deleted when the corresponding bookmark is set in another location).\par
-{\pntext\f9\'B7\tab}They are not visible. There is no visible marking indicating where it is placed.\par
-{\pntext\f9\'B7\tab}The markers are global to the entire knt file. These markers are saved within the file, as well as the small hidden markers used as target.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 The bookmarks \b do\b0  move with the text, because they are linked to target through a hidden mark (Of course, the hidden mark is deleted when the corresponding bookmark is set in another location).\par
+{\pntext\f10\'B7\tab}They are not visible. There is no visible marking indicating where it is placed.\par
+{\pntext\f10\'B7\tab}The markers are global to the entire knt file. These markers are saved within the file, as well as the small hidden markers used as target.\par
 
 \pard\par
 \b Tip\b0 :\par
@@ -2281,10 +2329,10 @@ Using the same mechanism that Keynote's Mark/Insert Location is based on, you ca
 The behaviour of \cf3\b Home\cf0\b0  key is similar to other editors (like Notepad++):\par
 Suppose the following line:\par
 \par
-\cf4\f8\tab    Example;\par
+\cf4\f9\tab    Example;\par
 \cf0\f0\par
-If cursor is located at the end the line and you press \cf3 Home\cf0 , it will be moved to the first non "space" character, "\cf4\f8 E\cf0\f0 " in this example.\par
-Pressing \cf3 Home\cf0  again moves caret to beggining of the line. And yet another one again to letter "\cf4\f8 E\cf0\f0 ".\par
+If cursor is located at the end the line and you press \cf3 Home\cf0 , it will be moved to the first non "space" character, "\cf4\f9 E\cf0\f0 " in this example.\par
+Pressing \cf3 Home\cf0  again moves caret to beggining of the line. And yet another one again to letter "\cf4\f9 E\cf0\f0 ".\par
 \par
 \par
 \par
@@ -2301,9 +2349,9 @@ Pressing \cf3 Home\cf0  again moves caret to beggining of the line. And yet anot
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 First option is the default one in WordPad and Word: Moves the cursor to the beginning of the previous (up) or the next (down) paragraph.\par
-{\pntext\f9\'B7\tab}With second option the entre document will be shifted one line down or up. This allows you to see a few lines beyond the current visible top or bottom of the page while you type, for then continue writing in the same position.\par
-{\pntext\f9\'B7\tab}Third option will smoothly move the scroll bar vertically. This is specially useful when the editor contains images because it allows you to view the image with uniform movement, which is not possible in that case with second option.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 First option is the default one in WordPad and Word: Moves the cursor to the beginning of the previous (up) or the next (down) paragraph.\par
+{\pntext\f10\'B7\tab}With second option the entre document will be shifted one line down or up. This allows you to see a few lines beyond the current visible top or bottom of the page while you type, for then continue writing in the same position.\par
+{\pntext\f10\'B7\tab}Third option will smoothly move the scroll bar vertically. This is specially useful when the editor contains images because it allows you to view the image with uniform movement, which is not possible in that case with second option.\par
 
 \pard\sb40\par
 The last two options do not change the cursor (caret) location, as the first does.\par
@@ -2327,7 +2375,7 @@ KeyNote allows you to indent multiple lines with TAB characters (or spaces), in 
 \pard\par
 Suppose that "\cf4 some code2\cf0 " and "\cf4 some code3"\cf0  need to be alligned together to e.g. 6th column. Instead of push tab few times on every line, you can select both lines and press \cf3\b Tab\cf0\b0 , so that all lines will be tabbed together.\par
 \par
-\cf4\f8\{\par
+\cf4\f9\{\par
   some code1\par
   if\par
     \{\par
@@ -2343,14 +2391,14 @@ Note: If the selected lines have mixed leading Tab and spaces, they will removed
 \par
 Note:\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 This functionality is compatible with the usual use of \cf3\b Tab\cf0\b0  and \cf3\b Shift+Tab\cf0\b0  to \b switch focus\b0  between \b editor and tree\b0 :\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 This functionality is compatible with the usual use of \cf3\b Tab\cf0\b0  and \cf3\b Shift+Tab\cf0\b0  to \b switch focus\b0  between \b editor and tree\b0 :\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li720 Multiline text selected \tab - \cf3\b Shift+Tab\cf0\b0  decreases indent\par
-{\pntext\f9\'B7\tab}No multiline selected \tab - \cf3\b Shift+Tab\cf0\b0  switches focus to the tree\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li720 Multiline text selected \tab - \cf3\b Shift+Tab\cf0\b0  decreases indent\par
+{\pntext\f10\'B7\tab}No multiline selected \tab - \cf3\b Shift+Tab\cf0\b0  switches focus to the tree\par
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 If you press Tab over multiple selected lines, with bullets or numbering lists, only the text will be moved, not bullets. It would make no sense, what you should do is indent the paragraph.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 If you press Tab over multiple selected lines, with bullets or numbering lists, only the text will be moved, not bullets. It would make no sense, what you should do is indent the paragraph.\par
 
 \pard\li360\sb40 Instead, what you could consider is to firstly copy and paste as text the selected lines, so that the RTF bullets can be replaced with spaces or other string (by default with "- ")\par
 
@@ -2394,25 +2442,25 @@ The scratch tab, in {{\field{\*\fldinst{HYPERLINK "file:///<12|448|0|1"}}{\fldrs
 
 \pard\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 It is possible to use styles, insert special characters, apply formatting, insert images (*), etc.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 It is possible to use styles, insert special characters, apply formatting, insert images (*), etc.\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Can be used as a ClipCap Capture destination (or as a source, if another folder is chosen as the destination)\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Can be used as a ClipCap Capture destination (or as a source, if another folder is chosen as the destination)\par
 
 \pard\li360\sa80 The activated ClipCap icon will be activated regardless of whether you are in the Scratchpad editor or other folders to facilitate deactivation without first having to focus on Scratchpad\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 It is possible to run macros on this editor, as well as plugins\par
-{\pntext\f9\'B7\tab}Templates, styles and fonts can also be inserted using shortcut keys\par
-{\pntext\f9\'B7\tab}It is possible to drag files, including images, even if no KNT file is open\par
-{\pntext\f9\'B7\tab}It is possible to execute the "Restore Image[s] Proportions" action on any image\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 It is possible to run macros on this editor, as well as plugins\par
+{\pntext\f10\'B7\tab}Templates, styles and fonts can also be inserted using shortcut keys\par
+{\pntext\f10\'B7\tab}It is possible to drag files, including images, even if no KNT file is open\par
+{\pntext\f10\'B7\tab}It is possible to execute the "Restore Image[s] Proportions" action on any image\par
 
 \pard\par
   (*) Images are currently managed as EmbeddedRTF (as it is done with RTF virtual nodes)\par
 \par
 \ul Note\ulnone :\par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Background color of Scratchpad is saved in .INI file. This way is remembered between sessions\par
-{\pntext\f9\'B7\tab}If there is no "scratch.rtf" file, the active editor default font will be applied as default in Scratchpad\par
-{\pntext\f9\'B7\tab}The font used at the final position in the editor is remembered when saving the file   (each time the resource panel is hidden) to allow recover it after deleting all content.  This way the font doesn't revert to default Tahoma 9pt\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Background color of Scratchpad is saved in .INI file. This way is remembered between sessions\par
+{\pntext\f10\'B7\tab}If there is no "scratch.rtf" file, the active editor default font will be applied as default in Scratchpad\par
+{\pntext\f10\'B7\tab}The font used at the final position in the editor is remembered when saving the file   (each time the resource panel is hidden) to allow recover it after deleting all content.  This way the font doesn't revert to default Tahoma 9pt\par
 
 \pard   \par
     \par
@@ -2421,12 +2469,12 @@ Scratchpad (Sp) also allows \b managing registered images\b0 , that is, with ass
 This makes it possible to copy images from file notes to Scratchpad ensuring that they are identified as exactly the same image. In this way, when copying those images thus identified to notes in the same file, they are always treated as new instances and not like new images.\par
 \par
 
-\pard{\pntext\f9\'B7\tab}{\*\pn\pnlvlblt\pnf9\pnindent0{\pntxtb\'B7}}\fi-360\li360 Registered images (with ID) can be copied onto the Sp and these IDs will be remembered as long as the KNT file is still open\par
-{\pntext\f9\'B7\tab}The insertion of new images in Sp, not existing in the KNT file, does not register them in the file (therefore it does not "consume" IDs in the file).\par
-{\pntext\f9\'B7\tab}When an image that does not exist in the KNT file is pasted from Sp, is registered in the file and automatically and at the same moment is identified with the same ID in Sp.\par
-{\pntext\f9\'B7\tab}When the KNT file is closed, the hidden marks in Sp are eliminated, so all its images remain unidentified\par
-{\pntext\f9\'B7\tab}When opening a KNT file, the application identifies images in Sp but without registering any, only labeling the existing ones with their corresponding ID\par
-{\pntext\f9\'B7\tab}Saving the KNT file acts as if you had then closed and reopened the KNT file: the hidden marks in Sp are eliminated and the images are reconsidered again, thus discarding the IDs of those that could have been deleted in the KNT file.\par
+\pard{\pntext\f10\'B7\tab}{\*\pn\pnlvlblt\pnf10\pnindent0{\pntxtb\'B7}}\fi-360\li360 Registered images (with ID) can be copied onto the Sp and these IDs will be remembered as long as the KNT file is still open\par
+{\pntext\f10\'B7\tab}The insertion of new images in Sp, not existing in the KNT file, does not register them in the file (therefore it does not "consume" IDs in the file).\par
+{\pntext\f10\'B7\tab}When an image that does not exist in the KNT file is pasted from Sp, is registered in the file and automatically and at the same moment is identified with the same ID in Sp.\par
+{\pntext\f10\'B7\tab}When the KNT file is closed, the hidden marks in Sp are eliminated, so all its images remain unidentified\par
+{\pntext\f10\'B7\tab}When opening a KNT file, the application identifies images in Sp but without registering any, only labeling the existing ones with their corresponding ID\par
+{\pntext\f10\'B7\tab}Saving the KNT file acts as if you had then closed and reopened the KNT file: the hidden marks in Sp are eliminated and the images are reconsidered again, thus discarding the IDs of those that could have been deleted in the KNT file.\par
 
 \pard\par
 In this way the images included in Sp can be pasted into different KNT files, as new instances or new images, as appropriate. It should be taken into account that some Sp images previously copied from a KNT file may not be recognized as the same image (the same ID), since the RichEdit control sometimes makes certain modifications to the data of some images, eliminating possible metadata (for example). This results in the content of the image varying with respect to that recorded in the KNT file and identifiable through the calculated CRC32).\b\par
@@ -3982,12 +4030,12 @@ You have this option available from active folder and from default settings. Thi
 %*
 GI=33
 ND=Clipboard. Paste. Capture
-LM=0712241211
+LM=1402260738
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green0\blue0;\red0\green0\blue128;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Paste from Clipboard\cf2\lang1033\par
 \cf0\b0\fs20\par
@@ -4058,8 +4106,8 @@ You can also use {{\field{\*\fldinst{HYPERLINK "file:///<110|5597|0|9"}}{\fldrsl
 
 \pard\sa80\cf0\fs20 KeyNote NF includes an option, {{\field{\*\fldinst{HYPERLINK "file:///<101|678|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Plain text mode}}}}\f0\fs20 , that let you keep part of the formatting of the text in the Clipboard. That option is considered in the following situations:\par
 
-\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 {{\field{\*\fldinst{HYPERLINK "file:///<101|185|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Paste external as Plain text}}}}\f0\fs20\par
-{\pntext\f3\'B7\tab}{{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Clipboard Capture}}}}\f0\fs20 , when enabled its own {{\field{\*\fldinst{HYPERLINK "file:///<101|2766|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Paste as plain text}}}}\f0\fs20  option.\par
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360 {{\field{\*\fldinst{HYPERLINK "file:///<101|185|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Paste external using 'Plain text mode'}}}}\f0\fs20\par
+{\pntext\f3\'B7\tab}{{\field{\*\fldinst{HYPERLINK "file:///<35|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Clipboard Capture}}}}\f0\fs20 , when enabled its own {{\field{\*\fldinst{HYPERLINK "file:///<101|2766|0|6"}}{\fldrslt{\ul\cf2\cf2\ul Paste using 'Plain text mode'}}}}\f0\fs20  option.\par
 {\pntext\f3\'B7\tab}{{\field{\*\fldinst{HYPERLINK "file:///<34|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Web clip}}}}\f0\fs20 , when executed in plain text mode, using \cf4\b Shift\cf3 +Ctrl+W \cf0\b0 (instead of \cf3\b Ctrl+W\cf0\b0  )\par
 
 \pard\par
@@ -4796,12 +4844,12 @@ There is no such "one architecture fits all" nor "one framework fits all" soluti
 %*
 GI=38
 ND=Hyperlinks in KeyNote
-LM=1504251756
+LM=1402260904
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red0\green128\blue0;\red128\green0\blue0;\red64\green64\blue0;\red64\green64\blue64;\red128\green128\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Hyperlinks in KeyNote\cf2\f0\lang1033\par
 \cf0\b0\fs20\par
@@ -4818,6 +4866,7 @@ LM=1504251756
       {{\field{\*\fldinst{HYPERLINK "file:///<38|11553|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Inserting links to Local files}}}}\f0\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<38|13732|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Using parameters with hyperlinks}}}}\f0\fs20\par
       {{\field{\*\fldinst{HYPERLINK "file:///<38|13152|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Inserting internal Keynote Links (KNT Links)}}}}\f0\fs20\par
+      {{\field{\*\fldinst{HYPERLINK "file:///<38|19620|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Changing the color of links}}}}\f0\fs20\par
 
 \pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<38|16878|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Activating Links}}}}\f0\fs20\par
 
@@ -4902,10 +4951,7 @@ The Editor (RichEdit control) recognizes and highlights standard URL schemes, wh
 
 \pard\par
 The links are always underlined and displayed in blue by default. Or other styles of font and paragraph are automatically heredated.\par
-
-\pard\li360\sb80\b Tip\b0 : If you want to change the color of the text (perhaps you have a note with a dark background) you can explicitily apply underline attribute (e.g. with \v\'11I64\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:64,16,16"}}{\fldrslt {64_Format_03.png}}}\lang1033 button). The applied color of the text will be recognized on the hyperlink.\par
-
-\pard\par
+\par
 This mechanism presents \b limitations\b0 :\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 You can't show an alternative text for the URL\par
@@ -4958,12 +5004,6 @@ This command allows you to add an alternative text to show, instead of the URL s
 \par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Links created this way are not affected with the \b Detect and highlight URLs\b0  option active in the {{\field{\*\fldinst{HYPERLINK "file:///<30|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Folder Properties}}}}\f0\fs20  dialog box.\par
-{\pntext\f4\'B7\tab}If you're wondering how you can know if a link have been created with the Hyperlink command or is deduced using URL recognition of RTF Editor, you can see that there is a slight difference in the blue color:\par
-
-\pard\li360 {{\field{\*\fldinst{HYPERLINK www.URL.com }}{\fldrslt{www.URL.com\ul0\cf0}}}}\f0\fs20\par
-{{\field{\*\fldinst{HYPERLINK "http://www.URL.com"}}{\fldrslt{\ul\cf2\cf2\ul www.URL.com}}}}\f0\fs20\par
-
-\pard\li360\sb60 The last one have been edit (right clicking +  'Modify'). Although it seems equal, internally has a both a text string and an URL string (identical in this case, but it wouldn't have to be).\par
 
 \pard\par
 
@@ -4996,7 +5036,8 @@ Notes:\par
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 If it is detected as an URL then it will offered in the URL field (with focus in Text field), otherwise in the Text field (with focus in URL).\par
 {\pntext\f4\'B7\tab}If it is detected as a file path, then both fields, URL and Text, will be preloaded with the selected text (with focus in Text field)\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb60 If you execute Insert URL \b with a link already selected\b0 , or \b with the caret inside a link\b0 , that link will be selected (if it wasn't) and the "Create Hyperlink" window offer the URL and Text fields preloaded with the values of the existing hyperlink. If you change any value and press OK you will replace that link for the new one.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb60 KeyNote will check whether there is an http or https \b URL\b0  (or one that explicitly begins with "{{\field{\*\fldinst{HYPERLINK file: }}{\fldrslt{file:\ul0\cf0}}}}\f0\fs20 ") \b in the clipboard\b0 . If there is a URL and text has been selected in the editor (and this is different from the URL), a hyperlink will be created using the URL in the clipboard alongside the selected text, without the need to open the "Create hyperlink" modal window. Otherwise, the modal window will be displayed, but the possible URL in the clipboard will be taken into account and filled in the corresponding field.\par
+{\pntext\f4\'B7\tab}If you execute Insert URL \b with a link already selected\b0 , or \b with the caret inside a link\b0 , that link will be selected (if it wasn't) and the "Create Hyperlink" window offer the URL and Text fields preloaded with the values of the existing hyperlink. If you change any value and press OK you will replace that link for the new one.\par
 
 \pard\li360\sb60\sa60\b Tip\b0 : You can see KNT Links internal URL in this way. (Since version 1.9.3 the internal URL of KNT Links is also displayed from Prompt action, in Choose Action for Hyperlink dialog)\par
 
@@ -5004,8 +5045,7 @@ Notes:\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li720 If it detects that you are inserting an email address, it will also automatically prefix the address (URL) with the \ldblquote mailto:\rdblquote  URL scheme.\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb60 When Text is equal to URL and that URL can be recognized as such by the Editor, it will create a simple link (it will not use HYPERLINK)\par
-{\pntext\f4\'B7\tab}When executing Insert URL in a plain text note it will use, when possible, a format like 'text' (url). For example: 'URL Title' ({{\field{\*\fldinst{HYPERLINK www.URL.com }}{\fldrslt{www.URL.com\ul0\cf0}}}}\f0\fs20 )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb60 When executing Insert URL in a plain text note it will use, when possible, a format like 'text' (url). For example: 'URL Title' ({{\field{\*\fldinst{HYPERLINK www.URL.com }}{\fldrslt{www.URL.com\ul0\cf0}}}}\f0\fs20 )\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 It can be used to insert \b links to local files or directories\b0 , although there are other ways more easy ({{\field{\*\fldinst{HYPERLINK "file:///<38|11736|0|9"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 ). \par
 
@@ -5185,6 +5225,24 @@ As a special kind of link, inserting a KeyNote link requires two steps: marking 
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb60 With \b RelativeKNTLinks\b0  and \b CaretInKNTLinks\b0  INI options you can control how internal links are shown, when no text is selected when you insert the link ({{\field{\*\fldinst{HYPERLINK "file:///<91|2470|0|1"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
 {\pntext\f4\'B7\tab}With the format of KNT Links you can also point to folders, not only nodes (that is, without changing current selected node). See {{\field{\*\fldinst{HYPERLINK "file:///<38|19873|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Internal Hyperlink format}}}}\f0\fs20\par
+
+\pard\par
+\par
+\b\v\fs22\'11B13\'12\v0 Changing the color of links\b0\par
+\fs20\par
+The initial colour of links once created is blue, but this can be changed as desired. It is possible to change both the colour and other formatting styles: bold, italics, highlight colour, etc.\par
+
+\pard\sb160\sa100\b Notes:\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\b0 In links created automatically by the editor ({{\field{\*\fldinst{HYPERLINK "file:///<38|3027|0|3"}}{\fldrslt{\ul\cf2\cf2\ul using URL recognition}}}}\f0\fs20 ), it is possible to apply formats such as bold, italics or highlight colour directly, but in order to change the colour of the hyperlink text, it is necessary to first explicitly apply the underline attribute (e.g. with \v\'11I64\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:64,16,16"}}{\fldrslt {64_Format_03.png}}}\lang1033 button).\par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 As long as the colour of a link is not explicitly modified, it will be displayed in a dynamic colour, adapted to the brightness of the editor's background colour. This colour adjustment is performed automatically by the editor and aims to provide adequate contrast. Thus, if the editor has a white or light-coloured background, the link will be displayed in blue, where this blue may vary slightly. Below a certain brightness value, the link will be displayed in white. This is what happens, for example, if the editor background is blue.\par
+{\pntext\f4\'B7\tab}Once the colour of a link is changed, it will remain fixed regardless of the brightness of the editor background colour.\par
+{\pntext\f4\'B7\tab}In relation to the above: in \b versions prior to 2.1.5\b0 , links were created with an \ul explicitly set blue colour\ulnone . This disabled the automatic colour adjustment described above. At the same time, the way in which this blue colour was applied, combined with an apparent error in the RichEdit control, made it extremely difficult to change the colour of the links: despite reflecting the new colour setting, it was ignored when saving the note (more information is available in {{\field{\*\fldinst{HYPERLINK "https://github.com/dpradov/keynote-nf/issues/923"}}{\fldrslt{\ul\cf2\cf2\ul issue #923}}}}\f0\fs20\lang3082 ).\lang1033\par
+
+\pard\li360\sb40\lang3082 From version 2.1.5 onwards, links do not force any colour and allow dynamic colour adjustment according to the brightness of the background. It is also possible to change the colour of these links without difficulty (and in this case it is not necessary to apply the underline attribute beforehand, as is necessary with those deduced by the editor). \par
+
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 A new {{\field{\*\fldinst{HYPERLINK "file:///<16|7188|0|2"}}{\fldrslt{\ul\cf2\cf2\ul command line option}}}}\f0\fs20  has been added that convert all the links allows existing links to the new format.\lang1033\par
 
 \pard\par
 \par
@@ -5508,12 +5566,12 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=1011251948
+LM=1402261013
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green255\blue0;\red0\green0\blue128;\red128\green0\blue0;\red255\green0\blue0;\red255\green255\blue235;\red255\green255\blue255;\red128\green128\blue0;\red255\green255\blue179;\red179\green255\blue255;}
-{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}{\*\mmathPr\mmathFont3\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Using Find and Find All\cf2\lang1033\par
 \cf0\b0\fs26\par
@@ -5812,7 +5870,7 @@ We can \ul restrict the search to text fragments\ulnone  that do not include any
 {\pntext\f5\'B7\tab}If searching for content using tags and text to find is "", a match is returned for each piece of text that meets the criteria\par
 
 \pard\par
-{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]"\v\par
+{\cf2\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]"\v\par
 \par
 
 \protect0\pard\protect\li360\sb40\cf9 #[x]\par
@@ -5844,9 +5902,9 @@ Task 4 ...\par
 #[x],#E0: Task 3 ...\par
 Task 4 ...\par
 
-\protect0\pard\protect   -----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\lang1033\par
+\protect0\pard\protect   -----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\par
 \par
-{\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Now \ul excluding\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]" "E0"\v\par
+{\cf2\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Now \ul excluding\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]" "E0"\v\par
 
 \protect0\pard\protect\li360\sb160\cf9 Task 1 ...\par
 
@@ -5855,12 +5913,12 @@ Task 3 ... #E0\par
 #[x]\par
 Task 4 ...\par
 
-\protect0\pard\protect ----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\lang1033\par
+\protect0\pard\protect ----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\par
 \par
 
 \pard\sa80 We can restrict the search to text fragments WITH certain tags and/or WITHOUT other tags\par
 
-\pard\sb80 {\protect\fs24\lang3082{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\cf9\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20\lang3082 Some other examples to understand the possibilities; Searching for "task"; \ul With\ulnone  tags: "[x]" and "E0" and \ul Without\ulnone  tags:  \v "BB"\par
+\pard\sb80 {\cf2\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\ul\cf2\ul\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Some other examples to understand the possibilities; Searching for "task"; \ul With\ulnone  tags: "[x]" and "E0" and \ul Without\ulnone  tags: \v  "BB"\par
 
 \protect0\pard\protect\par
 
@@ -5958,7 +6016,7 @@ Task 4 ...\par
 #[x]:\par
 Task 5 ...\par
 
-\protect0\pard\protect   -----------------  -> 2 matches: Task 3, 5\v0 ...\'13\cf0\protect0\lang1033\par
+\protect0\pard\protect   -----------------  -> 2 matches: Task 3, 5\v0 ...\'13\cf0\protect0\par
 \par
 \par
 \cf4\b\v\f1\fs24\'11B6\'12\v0 Syntax for additional/advanced search\par
@@ -6114,12 +6172,12 @@ The number of results may vary slightly depending on whether or not the word w3 
 %*
 GI=41
 ND=Image management in KeyNote
-LM=1910251533
+LM=1502261112
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\froman\fcharset0 Tahoma;}{\f4\froman Tahoma;}{\f5\fnil\fcharset0 Cambria Math;}{\f6\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red255\green0\blue0;\red128\green0\blue0;\red0\green128\blue0;}
-{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont5\mwrapIndent1440 }\viewkind4\uc1 
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red255\green0\blue0;\red0\green128\blue0;\red128\green0\blue0;\red0\green0\blue205;}
+{\*\generator Riched20 10.0.26100}{\*\mmathPr\mmathFont5\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Image management in KeyNote NF\cf2\lang1033\par
 \cf0\b0\fs20\par
@@ -6219,16 +6277,28 @@ Note: Although the \b path\b0  of the (external) storage is displayed and can be
 
 \pard\par
 
-\pard\sa100\ul KeyNote encrypted file\ulnone   \par
+\pard\sa100\ul KeyNote encrypted file\ulnone  (format)\par
 
 \pard\li360\b Important\b0 : In the event that it is required to ensure image encryption, you should use Embedded KNT (or Embedded RTF):\par
 
 \pard\par
 
 \pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Images embedded in binary (Embedded KNT), as well as those embedded in RTF (Embedded RTF), YES they are encrypted.\par
-{\pntext\f6\'B7\tab}Images saved in \b external storage\b0 , Zip or Folder, \cf4 will NOT be encrypted\cf0\par
+{\pntext\f6\'B7\tab}Images saved to \b external storage\b0 , Zip or Folder, \cf4 will NOT be encrypted\cf0 . If you need to encrypt images to external storage you need to enable the encrypted content option (see below)\par
 
 \pard\par
+\ul Content encryption enabled\ulnone  (available since version 2.1.5)\par
+
+\pard\sb80 In addition to the encrypted format, you now have the option of combining an unencrypted format (native or compressed) with the encryption of selected elements (notes and images).\par
+With the \b Enable encrypted content \b0 option, you can use any storage mode, because only images marked as encrypted will be saved as such, as Embedded KNT by default. There is also an INI option that allows you to encrypt images directly in their \b external storage\b0  (provided they are not {{\field{\*\fldinst{HYPERLINK "file:///<41|9265|0|7"}}{\fldrslt{\ul\cf2\cf2\ul "linked" images}}}}\f0\fs20 ).\par
+
+\pard\sb120 Once the protected content has been "opened", you can select one or more images and toggle their protected state using the \cf5\b Encrypt/Decrypt image[s]\cf0\b0  option in the Editor's context menu (right-click). It is also possible to encrypt or decrypt an image from the internal viewer.\par
+
+\pard\sb80\par
+Please, see {{\field{\*\fldinst{HYPERLINK "file:///<51|2933|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Encrypted format vs. native or compressed format with 'Enable encrypted content'}}}}\f0\fs20  for more information related to images and encrypted content.\par
+
+\pard\par
+\par
 \par
 
 \pard\sa100\cf3\b\v\'11B13\'12\v0 Changing the storage mode\b0\par
@@ -6404,16 +6474,20 @@ Note:\par
 
 \pard\sa80\cf3\b\v\'11B16\'12\v0 Force reload of external images\cf0\b0\par
 
-\pard If images are visible (imImage), then \cf5\b\fs18 Ctrl+Click\cf0\b0\fs20  on Image button or \b Click on View | Images\b0  (menu) will force KeyNote to reload the images selected (or all the images in the selected note), if stored externally. This is useful in case any image was modified externally.\par
+\pard If images are visible (imImage), then \cf6\b\fs18 Ctrl+Click\cf0\b0\fs20  on Image button or \b Click on View | Images\b0  (menu) will force KeyNote to reload the images selected (or all the images in the selected note), if stored externally. This is useful in case any image was modified externally.\par
 \par
 
 \pard\sa80\cf3\b Force hidden images\cf0\b0\par
 
-\pard As new images are always inserted visible, if image mode is hidden (imLink), \cf5\b\fs18 Ctrl+Click\cf0\b0\fs20  on Image button (or equivalent menu item) can be used to \b reapply hidden\b0 . This is useful if we are inserting many images and need to hide them from time to time. As indicated, even if the Mode is imLink, added images are always shown. This way is possible to hide these new images without having to previously show all the others.\par
-\par
+\pard As new images are always inserted visible, if image mode is hidden (imLink), \cf6\b\fs18 Ctrl+Click\cf0\b0\fs20  on Image button (or equivalent menu item) can be used to \b reapply hidden\b0 . This is useful if we are inserting many images and need to hide them from time to time. As indicated, even if the Mode is imLink, added images are always shown. This way is possible to hide these new images without having to previously show all the others.\par
 \par
 \f3\lang3082 Note: \f4 Right now the title of the images is shown in the viewer and in the corresponding link when the image is hidden\f3 .\par
 \f0\lang1033\par
+
+\pard\sa80\cf3\b Encrypted images\cf0\b0\par
+
+\pard Remember that with the {{\field{\*\fldinst{HYPERLINK "file:///<51|2933|0|1"}}{\fldrslt{\ul\cf2\cf2\ul encryption content enabled}}}}\f0\fs20  a native or compress knt file can contain encrypted images. Any image marked as encrypted will not be visible in the KNT file if the protected content is not "opened" (entering the password); it will only be shown as a link with the text \cf7 [IMAGE]\cf0 . Also, the name, caption and path of any protected image will not be shown while the encrypted content is \ldblquote closed\rdblquote .\par
+\par
 \par
 \cf3\b\v\fs26\'11B1\'12\v0 Images. Dimensions and proportions\par
 \cf0\fs22\par
@@ -6422,11 +6496,11 @@ Note:\par
 At any time it's possible to restore the proportions of one or all the images in a tree-node or note (tab):\par
 \par
 
-\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Using \cf5\b\fs18 Alt+Click\cf0\b0\fs20  on Image button (or equivalent menu item)\par
+\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Using \cf6\b\fs18 Alt+Click\cf0\b0\fs20  on Image button (or equivalent menu item)\par
 
 \pard\li360\v\'11I113\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:113,526,80"}}{\fldrslt {113_Clipb_04ene.png}}}\lang1033\par
 
-\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Selecting \cf6\b Restore image[s] proportions\cf0\b0  in the context menu (right click) of the Editor. \par
+\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Selecting \cf5\b Restore image[s] proportions\cf0\b0  in the context menu (right click) of the Editor. \par
 
 \pard\par
 Notes:   \par
@@ -6437,7 +6511,7 @@ Notes:   \par
 
 \pard 
 {\pntext\f0 1.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart1\pndec{\pntxta.}}
-\fi-360\li720 The resizing done with \cf5\b\fs18 Alt+Click\cf0\b0\fs20 , \b when applied to all images\b0  in the Editor (with no selection) is \b temporary by default\b0 : if the node has no modifications, its status will not change, it will continue to remain unmodified and these changes will not will be saved.\b\par
+\fi-360\li720 The resizing done with \cf6\b\fs18 Alt+Click\cf0\b0\fs20 , \b when applied to all images\b0  in the Editor (with no selection) is \b temporary by default\b0 : if the node has no modifications, its status will not change, it will continue to remain unmodified and these changes will not will be saved.\b\par
 
 \pard\li1080\b0 This allows to apply an adjustment to all the images to accommodate them to the size that interests us at any given moment, but without forcing it to be maintained, if we do not want to. \par
 For example, we can have a certain node with many images, where we may be interested in keeping them normally saved at a smaller size, and enlarging them to their actual size or limiting them to the width of the editor, at certain times.\par
@@ -6447,7 +6521,7 @@ For example, we can have a certain node with many images, where we may be intere
 
 \pard 
 {\pntext\f0 2.\tab}{\*\pn\pnlvlbody\pnf0\pnindent0\pnstart2\pndec{\pntxta.}}
-\fi-360\li720\sb100\cf6 Restore image[s] proportions\cf0 , by the opposite, will always mark the note (node) as modified, even when applied to all images in the editor. Changes can also be reverted with Undo operation.\b\par
+\fi-360\li720\sb100\cf5 Restore image[s] proportions\cf0 , by the opposite, will always mark the note (node) as modified, even when applied to all images in the editor. Changes can also be reverted with Undo operation.\b\par
 
 \pard\fi240\li360\fs22\par
 
@@ -6476,12 +6550,19 @@ With the viewer it is possible:\par
 {\pntext\f6\'B7\tab}\b Open\b0  the \b image path\b0  or the \b image file\b0  (in case of external images). The latter allows to view the image in a specialized external image viewer \cf4 [4]\cf0\par
 {\pntext\f6\'B7\tab}\b Save\b0  the image to a file \cf4 [4]\cf0\par
 {\pntext\f6\'B7\tab}\b Copy\b0  the image to the clipboard \cf4 [4]\cf0\par
-{\pntext\f6\'B7\tab}\b Scroll through all the images\b0  in the Editor (or in the file) or show the one corresponding to a \b specific image ID\b0  \cf4 [5]\cf0\par
+{\pntext\f6\'B7\tab}\b Encrypt\b0  or \b decrypt\b0  the image (provided that the {{\field{\*\fldinst{HYPERLINK "file:///<51|2933|0|1"}}{\fldrslt{\ul\cf2\cf2\ul encryption content}}}}\f0\fs20  is enabled in the file) \cf4 [6]\cf0\par
 
-\pard\li720\sb80\b Tip\b0 : By default, navigation toolbar buttons will show previous or next image instance in the Editor) (note from where the image has been selected). With \cf5\b\fs18 Ctrl \cf0\b0\fs20 it will show the image with previous or next ID (in the entire .knt file)\par
+\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\b Scroll through all the images\b0  in the Editor (or in the file) or show the one corresponding to a \b specific image ID\b0  \cf4 [5]\cf0\par
+
+\pard\li720\sb80\b Tip\b0 : By default, navigation toolbar buttons will show previous or next image instance in the Editor) (note from where the image has been selected). With \cf6\b\fs18 Ctrl \cf0\b0\fs20 it will show the image with previous or next ID (in the entire .knt file).\par
 
 \pard\par
-\par
+Note, in protected images:\par
+
+\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 Name, caption and path of the image will not be shown while the encrypted content is \ldblquote closed\rdblquote .\par
+{\pntext\f6\'B7\tab}Using \cf6\fs18 Ctrl\cf0\fs20  will skip encrypted images if the protected content is not open.\par
+
+\pard\par
 Also:\par
 
 \pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 The "Compact" option will hide the image details and title bar \cf4 [1]\cf0  and \cf4 [2]\cf0 .\par
@@ -6490,14 +6571,14 @@ Also:\par
 {\pntext\f6\'B7\tab}If {{\field{\*\fldinst{HYPERLINK "file:///<90|6809|0|13"}}{\fldrslt{\ul\cf2\cf2\ul Single instance}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<90|7135|0|14"}}{\fldrslt{\ul\cf2\cf2\ul Hot track}}}}\f0\fs20  options are enabled, you can show in the (opened) viewer any image selected or clicked (image or link), even using only keyboard, maintaining the focus on the editor.\par
 {\pntext\f6\'B7\tab}\b Keyboard shortcuts\b0  available for zoom and scrolling:\par
 
-\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li720 Zoom:\tab  \tab Numpad:   \cf5\b\fs18 +\cf0\b0\fs20  (In)   \cf5\b\fs18 -\cf0\b0\fs20  (Out)   \cf5\b\fs18 *\cf0\b0\fs20  (100%)   \cf5\b\fs18 /\cf0\b0\fs20  (Adjust)\par
-{\pntext\f6\'B7\tab}Scrolling: \tab\cf5\b\fs18 Cursors\cf0\b0\fs20  (left,up,down,right),  \tab\cf5\b\fs18 Prior\cf0\b0\fs20 , \cf5\b\fs18 Next\cf0\b0\fs20  (Up/down edge) \tab  \cf5\b\fs18 Home\cf0\b0\fs20 , \cf5\b\fs18 End\cf0\b0\fs20  (Left/right edge)  \par
+\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li720 Zoom:\tab  \tab Numpad:   \cf6\b\fs18 +\cf0\b0\fs20  (In)   \cf6\b\fs18 -\cf0\b0\fs20  (Out)   \cf6\b\fs18 *\cf0\b0\fs20  (100%)   \cf6\b\fs18 /\cf0\b0\fs20  (Adjust)\par
+{\pntext\f6\'B7\tab}Scrolling: \tab\cf6\b\fs18 Cursors\cf0\b0\fs20  (left,up,down,right),  \tab\cf6\b\fs18 Prior\cf0\b0\fs20 , \cf6\b\fs18 Next\cf0\b0\fs20  (Up/down edge) \tab  \cf6\b\fs18 Home\cf0\b0\fs20 , \cf6\b\fs18 End\cf0\b0\fs20  (Left/right edge)  \par
 
-\pard\li360\tab\tab\tab\cf5\b\fs18 Ctrl+Home\cf0\b0\fs20 : Upper left corner \tab\cf5\b\fs18 Ctrl+End\cf0\b0\fs20 : Lower right corner\par
+\pard\li360\tab\tab\tab\cf6\b\fs18 Ctrl+Home\cf0\b0\fs20 : Upper left corner \tab\cf6\b\fs18 Ctrl+End\cf0\b0\fs20 : Lower right corner\par
 Notes:\par
 
 \pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li720 The increment ratio (Zoom in) is greater than the decrement ratio (Zoom out)\par
-{\pntext\f6\'B7\tab}\cf5\b\fs18 Ctrl\cf0\b0\fs20  can be used while clicking the zoom in and out buttons (or keys) to double the ratio, and also with cursors for greater scrolling.\par
+{\pntext\f6\'B7\tab}\cf6\b\fs18 Ctrl\cf0\b0\fs20  can be used while clicking the zoom in and out buttons (or keys) to double the ratio, and also with cursors for greater scrolling.\par
 
 \pard\par
 \par
@@ -6506,8 +6587,8 @@ Notes:\par
 
 \pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li360 If the image is visible:\par
 
-\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li720\cf5\b\fs18 Double click\cf0\b0\fs20  on it opens the internal KNT viewer with that image loaded, displayed at 100% (or reduced if it cannot be displayed in full on the screen)\par
-{\pntext\f6\'B7\tab}\cf5\b\fs18 Ctrl + double click \cf0\b0\fs20 directly opens the image from outside KNT, with the program that is associated with its extension (This is only possible with Linked images or images saved in an external Folder storage)\par
+\pard{\pntext\f6\'B7\tab}{\*\pn\pnlvlblt\pnf6\pnindent0{\pntxtb\'B7}}\fi-360\li720\cf6\b\fs18 Double click\cf0\b0\fs20  on it opens the internal KNT viewer with that image loaded, displayed at 100% (or reduced if it cannot be displayed in full on the screen)\par
+{\pntext\f6\'B7\tab}\cf6\b\fs18 Ctrl + double click \cf0\b0\fs20 directly opens the image from outside KNT, with the program that is associated with its extension (This is only possible with Linked images or images saved in an external Folder storage)\par
 
 \pard\li720\sb80\b Tip\b0 : There is an {{\field{\*\fldinst{HYPERLINK "file:///<90|8579|0|15"}}{\fldrslt{\ul\cf2\cf2\ul INI option}}}}\f0\fs20  that allows to configure a \ul specific external viewer\ulnone , defined with a path relative to keynote.exe.\par
 
@@ -6876,30 +6957,36 @@ File properties:\par
 %*
 GI=46
 ND=Information
-LM=1910251602
+LM=1402262023
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 File properties: Information\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I234\'12\v0{\field{\*\fldinst{HYPERLINK "img:234,532,390"}}{\fldrslt {234_Clipb_19oct.png}}}\par
+\pard\li360\v\'11I234\'12\v0\fs20\lang3082{\field{\*\fldinst{HYPERLINK "img:234,532,390"}}{\fldrslt {234_Clipb_19oct.png}}}\fs26\lang1033\par
 
 \pard\par
 \fs20 On this tab you can view or change general information about the current KeyNote file.\par
 \par
 \cf1\b\fs22 Filename\cf0\fs20\par
-\b0 Displays the full name of the currently open file. This information is for display only. To change the name of the file, close the File properties dialog box, then select the \b File|Save As\b0\f1  \f0 command, and save the file with a new name.\par
-\par
+
+\pard\sb40\b0 Displays the full name of the currently open file. This information is for display only. To change the name of the file, close the File properties dialog box, then select the \b File|Save As\b0\f1  \f0 command, and save the file with a new name.\par
+
+\pard\par
 \cf1\b\fs22 Description\par
-\cf0\b0\fs20 This is a short description text that will make it easier for you to identify the file. This text is displayed in the {{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf2\cf2\ul File Manager}}}}\f0\fs20  dialog box.\par
-\par
+
+\pard\sb40\cf0\b0\fs20 This is a short description text that will make it easier for you to identify the file. This text is displayed in the {{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf2\cf2\ul File Manager}}}}\f0\fs20  dialog box.\par
+
+\pard\par
 \cf1\b\fs22 Comment\par
-\cf0\b0\fs20 Just like the Description field, the Comment field provides additional space for describing the file. This text is also displayed in the File manager dialog box.\par
-\par
+
+\pard\sb40\cf0\b0\fs20 Just like the Description field, the Comment field provides additional space for describing the file. This text is also displayed in the File manager dialog box.\par
+
+\pard\par
 
 \pard\li240\b Note\b0 :  When you encrypt the file, both the Description and the Comment fields are not encrypted, and are still displayed in the File manager dialog box. See \f1\ldblquote\f0 File properties: Security\f1\rdblquote\f0 .\par
 
@@ -6921,10 +7008,23 @@ LM=1910251602
 
 \pard\li360\par
 
-\pard\b Important: \par
-\b0 See {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Encrypting KeyNote files}}}}\f0\fs20  to learn more about encrypting KeyNote files.\par
-See also notes about {{\field{\*\fldinst{HYPERLINK "file:///<41|4760|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Compression and encryption}}}}\f0\fs20  when using images.\par
+\pard\cf1\b\fs22 Enable encrypted content\par
+
+\pard\sb80\cf0\b0\fs20 If checked, it makes it possible to embed encrypted content in files saved in a native or compressed format. This allows you to select \b nodes\b0  and \b images\b0  to be saved as encrypted.\par
+
+\pard As with encrypted format, once checked you have to set a password in the {{\field{\*\fldinst{HYPERLINK "file:///<49|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Security}}}}\f0\fs20  tab.\par
+
+\pard\sb40 You can also save encrypted images externally. See {{\field{\*\fldinst{HYPERLINK "file:///<51|2933|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Encrypted format vs. native or compressed format with 'Enable encrypted content'}}}}\f0\fs20  for more information.\par
+
+\pard\li360\par
 \par
+
+\pard\b Important: \par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\b0 See {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Encrypting KeyNote files}}}}\f0\fs20  to learn more about encrypting KeyNote files, with encrypted format or the '\ul Enable enrypted content\ulnone ' option\par
+{\pntext\f2\'B7\tab}See also notes about {{\field{\*\fldinst{HYPERLINK "file:///<41|4760|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Compression and encryption}}}}\f0\fs20  when using images.\par
+
+\pard\par
 \par
 \par
 Below, more information is displayed about the currently open file, including the date the file was created, the size of the file and the number of notes which the file contains.\par
@@ -7043,20 +7143,22 @@ ND=File Icons
 %*
 GI=49
 ND=Security
+LM=1402261410
 %.
 %:
-{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}}
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red255\green0\blue0;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 File properties: Security\par
 \cf2\fs24\par
-\cf0\b0\v\fs26\'11I146\'12\v0\fs20{\field{\*\fldinst{HYPERLINK "img:146,537,331"}}{\fldrslt {146_Clipb_19ene.png}}}\fs26\par
-\par
+
+\pard\li360\cf0\b0\v\fs20\lang3082\'11I245\'12\v0{\field{\*\fldinst{HYPERLINK "img:245,533,391"}}{\fldrslt {245_Clipb_14feb.png}}}\fs26\lang1033\par
+
+\pard\par
 \fs20 On this tab you can specify security settings for the current KeyNote file.\par
 \par
-\b Note:  \par
-\b0 The \b Security\b0  tab is only visible if you have selected \ul KeyNote encrypted\ulnone  in the \b Format\b0  drop-down list on the {{\field{\*\fldinst{HYPERLINK "file:///<46|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Information}}}}\f0\fs20  tab.\par
+The \b Security\b0  tab is only visible if you have selected \ul KeyNote encrypted\ulnone  in the \b Format\b0  drop-down list or check the '\ul Enable encrypted content\ulnone ' on the {{\field{\*\fldinst{HYPERLINK "file:///<46|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Information}}}}\f0\fs20  tab.\par
 \par
 Initially, a KeyNote file is not encrypted. When you select the KeyNote encrypted option as the format in which the file should be saved, the Security tab becomes visible, so that you can specify the access passphrase which will be used to encrypt and decrypt the file.\par
 \par
@@ -7064,15 +7166,23 @@ Each time you specify the access passphrase, you must type it twice: in the \cf1
 \par
 In the \cf1\b Algorithm\cf0\b0  field you can select the cryptographic method used to encrypt the file.\par
 \par
-Once your file has been encrypted, you can change the passphrase at any time. To do so, click the \cf1\b Set passphrase \cf0\b0 button, and enter the passphrase as described above.\par
+\cf1\b Key Transformation. Iterations: \cf0\b0 The passphrase is transformed using a key derivation function. This adds a work factor and makes dictionary and guessing attacks harder. The more iterations, the harder are dictionary and guessing attacks, but also .knt file loading takes more time.\par
+\par
+Once your file has been encrypted, you can change the passphrase (and/or algorithm and number of iterations) at any time. To do so, click the \cf1\b Set passphrase \cf0\b0 button, and enter the passphrase as described above.\par
 \par
 If you no longer want to have the file encrypted, click the {{\field{\*\fldinst{HYPERLINK "file:///<46|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Information}}}}\f0\fs20  tab and choose a different (unencrypted) file format. The default format is KeyNote native.\par
 \par
+\cf1\b\lang3082 Hide encrypted nodes in the tree if the encrypted content remains 'closed'\cf0\b0\lang1033\par
+Since version 2.1.5, it has been possible to use a non-encrypted file format (native or compressed) while selectively encrypting certain nodes and/or images. To do this, you must check the 'Enable encrypted content' box in the 'Information' tab.\par
+Once you have enabled encrypted content, you can use this option to hide the encrypted nodes in the tree rather than simply hiding their content. Please note that all child nodes will also be hidden, even if they are not marked as encrypted.\par
+Note: This verification box will remain hidden until the encrypted content is 'opened' by entering the password.\par
 \par
 \b Important: \par
-\b0 See {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Encrypting KeyNote files}}}}\f0\fs20  to learn more about encrypting KeyNote files.\par
-See also notes about {{\field{\*\fldinst{HYPERLINK "file:///<41|4760|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Compression and encryption}}}}\f0\fs20  when using images.\par
-\par
+
+\pard{\pntext\f1\'B7\tab}{\*\pn\pnlvlblt\pnf1\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40\b0 See {\lang3082{\field{\*\fldinst{HYPERLINK "file:///<51|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Encrypting KeyNote files}}}}\f0\fs20  to learn more about encrypting KeyNote files, with encrypted format or the 'Enable enrypted content' option\par
+{\pntext\f1\'B7\tab}See also notes about {{\field{\*\fldinst{HYPERLINK "file:///<41|4760|0|12"}}{\fldrslt{\ul\cf2\cf2\ul Compression and encryption}}}}\f0\fs20  when using images.\par
+
+\pard\par
 \cf3\b\par
 }
 %*
@@ -7272,19 +7382,20 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<55|0|0"}}{\fldrslt{\ul\cf2\cf2\ul fil
 %*
 GI=51
 ND=Encrypting KeyNote Files
+LM=1502261938
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red255\green0\blue0;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\colortbl ;\red0\green0\blue160;\red255\green0\blue0;\red0\green0\blue255;\red255\green255\blue0;\red0\green128\blue0;\red0\green0\blue205;\red128\green0\blue0;}
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
-\cf1\b\f1\fs36\lang1045 Encrypting KeyNote files\cf2\f0\lang1033\par
-\cf0\b0\fs20\par
-\par
-\cf3\b PLEASE READ THE INFORMATION IN THIS FILE BEFORE YOU START ENCRYPTING YOUR KEYNOTE FILES!\cf0\b0\par
-\par
-\cf3\b WARNING: WINDOWS \b0 95/98/NT/ME/XP/W7/W8/W10/W11\b  IS AN INHERENTLY INSECURE SYSTEM!\cf0\b0\par
-\par
+\cf1\b\f1\fs36\lang1045 Encrypting KeyNote files\cf0\b0\f0\fs20\lang1033\par
+
+\pard\li360\qr\cf2\b\fs26 Please read the information in this file before you start encrypting your keynote files!\par
+
+\pard\li360\sb120\qr\fs20 WARNING: WINDOWS \b0 95/98/NT/ME/XP/W7/W8/W10/W11\b  is an inherently INSECURE SYSTEM!\cf0\b0\par
+
+\pard\par
 Any information contained inside a program may be freely \ldblquote paged\rdblquote  (copied to a swap area on the hard disk) by the system's virtual memory manager. That information MAY REMAIN READABLE to a dedicated snooper, even after you have restarted the system. Special disk-reading utilities that allow this exist and are available for free. Currently the program makes no attempt to prevent such paging or swapping of data. This means that the information stored in the KeyNote file (*.knt), though encrypted, MAY end up somewhere on your hard disk in a clear-text (unencrypted) form.\par
 \par
 If you are concerned about this, there are programs that securely WIPE unused hard disk space and/or Windows swapfile. One such program is:\par
@@ -7292,72 +7403,176 @@ If you are concerned about this, there are programs that securely WIPE unused ha
 \pard\fi-240\li240\bullet    \b BCWipe \b0 by Jetico, Inc. {{\field{\*\fldinst{HYPERLINK http://www.jetico.com }}{\fldrslt{http://www.jetico.com\ul0\cf0}}}}\f0\fs20  (Windows GUI program; also distributed as part of excellent BestCrypt disk-encryption package)\par
 
 \pard\par
-Please read {{\field{\*\fldinst{HYPERLINK "file:///<49|0|0"}}{\fldrslt{\ul\cf2\cf2\ul File properties: Security}}}}\f0\fs20  for more information on issues related to encrypting KeyNote files and potential vulnerabilities.\par
+\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|1225|0|2"}}{\fldrslt{\ul\cf3\cf3\ul General Information}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{\ul\cf3\cf3\ul Native or compressed format with 'Enable encrypted content'  vs. Encrypted format}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|12133|0|4"}}{\fldrslt{\ul\cf3\cf3\ul How to Encrypt Your KeyNote File}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|14405|0|5"}}{\fldrslt{\ul\cf3\cf3\ul How to Encrypt nodes and/or images in a native or compressed Keynote File}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|15347|0|6"}}{\fldrslt{\ul\cf3\cf3\ul How to Change Access Passphrase for an Already Encrypted File}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|16340|0|7"}}{\fldrslt{\ul\cf3\cf3\ul How to Stop Encrypting Your KeyNote File}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|17143|0|8"}}{\fldrslt{\ul\cf3\cf3\ul Note About the BLOWFISH and IDEA Cipher Algorithms}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|17809|0|9"}}{\fldrslt{\ul\cf3\cf3\ul Security Considerations}}}}\f0\fs20\par
+{{\field{\*\fldinst{HYPERLINK "file:///<51|20592|0|10"}}{\fldrslt{\ul\cf3\cf3\ul Miscellaneous Notes}}}}\f0\fs20\par
 \par
 \par
-\b\fs24 General Information\fs20\par
+\par
+\b\v\fs24\'11B2\'12\v0 General Information\fs20\par
 \b0\par
 As of version 0.90 beta, KeyNote supports secure encryption. Each KeyNote file can be encrypted using one of the two supported algorithms (Blowfish and IDEA). This allows you to protect your sensitive data with an access passphrase. An encrypted file cannot be opened without entering the passphrase that was used to scramble it.\par
-\par
 
-\pard\li240\cf3\b CAUTION !  IF YOU FORGET YOUR PASSPHRASE, YOU WILL NOT BE ABLE TO ACCESS YOUR ENCRYPTED KEYNOTE FILE!\par
+\pard\li360\sb120\qr\cf2\b\fs22 CAUTION!  If you FORGET YOUR PASSPHRASE, you will not be able to access your encrypted keynote file!\par
 
-\pard\cf0\b0\par
+\pard\cf0\b0\fs20\par
 There are no backdoors, and the cipher algorithms used have no known weaknesses which would allow you - or anyone - to crack the encryption, even using a brute-force attack.\par
+
+\pard\sb80 At the moment, I know of no bugs related to this feature, but this does not mean there are none. Please use the encryption feature cautiously and backup your data frequently. Please do report any problems or bugs you find.\par
+
+\pard\par
+Starting with version 2.1.5, KeyNote offers a series of improvements aimed at enhancing security:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Encrypted format now uses a simplified PBKDF2 mechanism to derive keys from passwords using a configurable number of (SHA-1) iterations. This mechanism helps protect against brute-force attacks\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Additional protection against basic/intermediate keyloggers has been added.\par
+
+\pard\li360 After each user keystroke in a protected field (password), a number of fake keystrokes are generated, each containing real events that the keyloggers must capture. These fake keystrokes are ignored by the control in KeyNote NF and do not affect the actual password entered. Both the number of keystrokes and the fake keystrokes are generated randomly.\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 The vulnerability of the password field to password disclosure tools such as BulletsPassView has been fixed\par
+
+\pard\par
+Despite all these improvements, please see the information at: {{\field{\*\fldinst{HYPERLINK "file:///<51|17809|0|9"}}{\fldrslt{\ul\cf3\cf3\ul Security Considerations}}}}\f0\fs20\par
 \par
-Note that this is the first release of KeyNote which supports encryption. At the moment, I know of no bugs related to this feature, but this does not mean there are none. Please use the encryption feature cautiously and backup your data frequently. Please do report any problems or bugs you find.\par
 \par
 \par
+\b\v\fs24\'11B3\'12\v0 Native or compressed format with 'Enable encrypted content'  vs. \v\'11B1\'12\v0 Encrypted format\b0\fs20\par
+
+\pard\sb80\par
+Since version 2.1.5, in addition to the encrypted format, which allows you to encrypt the entire contents of a file, you now have the option of combining an unencrypted format (native or compressed) with the encryption of selected elements (notes and images). This new option is based on the same encryption mechanism as the encrypted format, with the difference that only the elemnts marked for encryption will be included in the encrypted block, while the rest remains visible and directly accessible from the .knt file.\par
 \par
-\b\fs24 How to Encrypt Your KeyNote File\par
+There are situations in which this new option may be more interesting than using the encrypted format:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 On many occasions, we have .knt files that we need to \b share\b0  with other people. Almost all of the content can be viewed normally, but there may be content that, for various reasons, should not be accessible. We could have a a work file with information about a certain project, in which we have included some personal data such as accounts or passwords related to it, or in which there is data that should only be available to internal members of the work team but not to external personnel, etc.\par
+{\pntext\f2\'B7\tab}It can also be convenient to have some data that we use frequently and that, unlike the rest, needs to be protected, handy in a file we are working on. Access to this protected data, both to display it and to hide it again, is very quick.\par
+{\pntext\f2\'B7\tab}Where it is not necessary for the content to be encrypted, it can remain visible and can therefore be edited directly from the .knt file with a text editor (in situations where this may be necessary).\par
+{\pntext\f2\'B7\tab}Files saved in encrypted format do not offer \b compression\b0 . With the new mechanism, it is possible to apply the desired compression. Naturally, compression on the encrypted content block will achieve virtually no reduction, but it will do so on the visible, unencrypted content.\par
+{\pntext\f2\'B7\tab}For \b image\b0  encryption, the new mechanism offers more options:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80 With the encrypted format, the only way to ensure that an image remains encrypted is to set the image storage mode to Embedded RTF or Embedded KNT. With Embedded KNT, images are located at the end of the KNT file, in binary, taking up much less space. But in both cases, the image is stored in the file itself, thus increasing its size. This will not normally be a problem if the file contains few images. It should be noted that if the file uses many images, even if most of them do not require protection, the simple fact that there is one image that requires protection would force the use of Embedded RTF or Embedded KNT.\par
+{\pntext\f2\'B7\tab}With encryption content enabled, you can use an external storage mode (Zip or Folder) and mark the images that require protection and must be stored encrypted. These selected images will be stored encrypted by default in Embedded KNT format. The rest will be stored according to the defined storage mode (which can also be Embedded KNT). Through the INI configuration option {{\field{\*\fldinst{HYPERLINK "file:///<104|12682|0|15"}}{\fldrslt{\ul\cf3\cf3\ul ImgAllowEncrExternal}}}}\f0\fs20  it is possible to enable image encryption on external storage. When this option is enabled, external image files encrypted in this way will not be visible outside KeyNote.\ul\b\par
+
+\pard\li720\sb80 Note\ulnone\b0 : \ul images that are {\ulnone{\field{\*\fldinst{HYPERLINK "file:///<41|9265|0|7"}}{\fldrslt{\ul\cf3\cf3\ul "linked"}}}}\ulnone\f0\fs20  (not "owned") can be marked as encrypted, but their content will not be modified. Even if their content is not encrypted, the following will apply to them, as with other encrypted images:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80 Any image marked as encrypted will not be visible in the KNT file if the protected content is not "opened" (entering the password). Also, the name, caption and path of any encrypted image will not be shown while the encrypted content is \ldblquote closed\rdblquote .\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Virtual nodes\b0  can be marked as encrypted. As with "linked" images, the \ul content will not be encrypted\ulnone , but \ul it will not be visible from KNT\ulnone . The path to the linked file will also not be displayed. The properties that indicate that the node is virtual, with its paths (VF and RV), will be stored in the encrypted block of the knt file. Furthermore, while the protected content remains \ldblquote closed\rdblquote , it will not even be shown that the node is virtual.\par
+
+\pard\sb80\highlight4\par
+\highlight0 Considerations regarding the use of encrypted content:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 When loading a file with encrypted content (but no encrypted "format"), no password will be requested. You simply will not have access to the protected content. If the file has the \cf5\b Hide encrypted nodes in the tree if the encrypted content remains \ldblquote closed\rdblquote\cf0\b0  option enabled, the encrypted nodes will not be visible in the tree, and the names of these nodes will be stored encrypted. It will also not be possible to know if this option is enabled, as the option itself will remain hidden.\par
+{\pntext\f2\'B7\tab}When accessing encrypted nodes (if they are not hidden), the following text will be displayed as content: \cf5\b ** UNAUTHORIZED CONTENT **   => View | Encrypted Content\cf0\b0\par
+{\pntext\f2\'B7\tab}In unencrypted notes containing encrypted images, these will only be provided as links with the text \cf5\b [IMAGE]\cf0\b0 .\par
+{\pntext\f2\'B7\tab}You can "open" the protected content, making it visible, by executing \cf5\b View | Encrypted Content\cf6\b0 . \cf0 Clicking on an encrypted image link or attempting to change the encryption status of nodes or images will prompt for the password. The same will happen if you try to uncheck the \ldblquote Enable encrypted content\rdblquote  option or change the password, for example.\par
+{\pntext\f2\'B7\tab}You can \ul hide encrypted content\ulnone  at any time by executing again \cf5\b View | Encrypted Content\cf0\b0 . Protected content will also be \ul automatically "closed"\ulnone  after a period of inactivity if you have the \cf5\b Auto-close only encrypted files\cf0\b0  option selected.\par
+{\pntext\f2\'B7\tab}At any time, it is possible to add or remove the encrypted mark from any image or note. When you do so, and \ul after the .knt file is saved\ulnone , the corresponding notes and images will become encrypted or decrypted.\par
+{\pntext\f2\'B7\tab}Any \ul new node\ulnone  created as a \ul child of a encrypted parent\ulnone  will be automatically marked as encrypted \ul only\ulnone  if the encrypted content is opened.\par
+{\pntext\f2\'B7\tab}Any \ul new image\ulnone  inserted into an encrypted node will be automatically marked as encrypted. If this image is then copied to other non-encrypted images, those other instances will also be marked as encrypted.\par
+{\pntext\f2\'B7\tab}You can \ul change the protected state\ulnone  of any selection of nodes by selecting the \cf5\b Encrypted\cf0\b0  option from the context menu in the Editor (right-click). Selecting this option while holding down the \cf7\b Shift\cf0\b0  key will apply the change to all child nodes recursively.\par
+{\pntext\f2\'B7\tab}You can select one or more images and toggle their protected state using the \cf5\b Encrypt/Decrypt image[s]\cf0\b0  option in the Editor's context menu (right-click). It is also possible to encrypt or decrypt an image from the internal viewer.\par
+{\pntext\f2\'B7\tab}When \ul attempting to delete\ulnone  an encrypted node or one with any encrypted children, or one that includes any encrypted images, confirmation will be requested and it will only be authorised if the encrypted content is \lquote open\rquote  or can be opened using the password that will be requested.\par
+{\pntext\f2\'B7\tab}When \ul merging a file\ulnone  with encrypted content, KeyNote will request the password for that file in order to incorporate the encrypted elements. If you provide this password, all the content of the file to be merged (for the selected folders) will be incorporated into the file and will be protected with the password for the current file, or with the password set for it before saving the file, as the current file may not even have the \ldblquote Enable encrypted content\rdblquote  option selected.\par
+
+\pard\li360\sb40\sa20 Please note that if you save the file after merging, without having previously set \ldblquote Enable encrypted content\rdblquote , the encryption mark for these imported items will be discarded.\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Using File|Copy To... and Save As...will preserve the protection of the encrypted content.\par
+
+\pard\sb80\par
+\b Important\b0 :\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Be sure to \ul mark what should be stored encrypted\ulnone . Also remember that the \ul child nodes of an encrypted node\ulnone  do not necessarily have to be encrypted. Depending on how you configure the file, you can choose not to display the unencrypted nodes in the tree, nor its children. However, those children that have not been marked as \ldblquote Encrypted\rdblquote  will be visible from the .knt file. (Note that those children can be 'normal' nodes that are linked from elsewhere)\par
+{\pntext\f2\'B7\tab}Although the \lquote Encrypted\rquote  entry is available in the context menu associated with the tree nodes, it is the notes associated with them that will be encrypted, so any \ul node linked\ulnone  to it will also be protected.\par
+{\pntext\f2\'B7\tab}If you enable the option \cf5\b Hide encrypted nodes in the tree if the encrypted content remains \ldblquote closed\rdblquote\cf0\b0 , please note that all \ul child nodes\ulnone  will also be hidden, even if they are not marked as encrypted. This also applies to the child nodes of linked nodes. These hidden but unencrypted nodes may even be accessible and modifiable if there is a link that jumps to them, also from Find All, but they will not be displayed in the tree at any time.\par
+{\pntext\f2\'B7\tab}\ul If a new image is inserted into an unencrypted node\ulnone , it will remain unencrypted even if it is copied or moved to an encrypted node and the rest of the instances of the image are deleted. If you believe it should be protected, do not forget to mark it as encrypted. Please note that even if the image is only located on an encrypted node, it may be visible from the internal {{\field{\*\fldinst{HYPERLINK "file:///<41|23459|0|2"}}{\fldrslt{\ul\cf3\cf3\ul Image viewer}}}}\f0\fs20 : it cannot be located by scrolling through the images with the \cf7 Ctrl\cf0  key, but it can be requested to display the image by its ID.\par
+{\pntext\f2\'B7\tab}\ul Encrypted images\ulnone  cannot be viewed, nor can their encryption status be changed, but they \ul can be individually deleted\ulnone  if they are located \ul in nodes \ulnone that are \ul not encrypted\ulnone . Selecting and deleting text that includes encrypted images will not generate any warning either. If it is important that no encrypted images can be deleted by mistake, be sure to include a copy of them in an encrypted node. Remember that KeyNote allows multiple references to the same image without increasing the file size.\par
+{\pntext\f2\'B7\tab}When \b exporting\b0 , if the file has encrypted content, a new option, \cf5\b Encrypted content\cf0\b0 , will be available. It will be unchecked by default. If you check it (for which you will need to \ldblquote open\rdblquote  the protected content), all encrypted nodes and images found in the folders and nodes to be exported will be included in the generated file. \par
+
+\pard\li360\sb40 - If the destination \ul format is .knt\ulnone , they will be protected with the same password (you can change it or remove the encryption by opening that file and going to File | Properties). \par
+- Please note that for any \ul other destination format\ulnone , the exported content will \cf2 NOT\cf0  be protected.\par
+
+\pard\sb80\highlight4\par
+
+\pard\highlight0\par
+\par
+\b\v\fs24\'11B4\'12\v0 How to Encrypt Your KeyNote File\par
 \b0\fs20\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Create a new file or open an already existing .KNT file. To encrypt the file, press \cf4\b Alt+Enter\cf0\b0  to open the \ldblquote\cf4\b File Properties\cf0\b0\rdblquote  dialog box (or choose the \cf4\b File/Properties\cf0\b0  command).\par
-{\pntext\f2\'B7\tab}Click the \cf4\b Format\cf0  \b0 drop-down list, and select \cf4\b Keynote encrypted file\cf0  \b0 as the format which should be used to save the file. When you do this, another tab will appear in the dialog box, called \cf4\b Security\cf0\b0 .\par
-{\pntext\f2\'B7\tab}Click the \cf4\b Security\cf0  \b0 tab. Decide what access passphrase you want to use, and enter it in the \cf4\b Passphrase edit field\cf0\b0 . Next, enter the same exact passphrase in the \cf4\b Confirm pass\cf0  \b0 edit field. This is to make sure that you did not accidentally mistype the passphrase.\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Create a new file or open an already existing .KNT file. To encrypt the file, press \cf7\b Alt+Enter\cf0\b0  to open the \cf5\b File Properties\cf0\b0  dialog box (or choose the \cf5\b File/Properties\cf0\b0  command).\par
+{\pntext\f2\'B7\tab}Click the \cf5\b Format\cf0  \b0 drop-down list, and select \cf5\b Keynote encrypted file\cf0  \b0 as the format which should be used to save the file. When you do this, another tab will appear in the dialog box, called {{\field{\*\fldinst{HYPERLINK "file:///<49|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Security}}}}\f0\fs20 .\par
+{\pntext\f2\'B7\tab}Click the \cf5\b Security\cf0  \b0 tab. Decide what access passphrase you want to use, and enter it in the \cf5\b Passphrase edit field\cf0\b0 . Next, enter the same exact passphrase in the \cf5\b Confirm pass\cf0  \b0 edit field. This is to make sure that you did not accidentally mistype the passphrase.\par
 
 \pard\par
 
 \pard\li360\sb100\b Note: \b0 The passphrase cannot be shorter than \b FIVE \b0 characters. However, a truly secure passphrase should be much longer (10-30 characters). Ideally, your passphrase should not contain only letters of alphabet, but also digits and punctuation characters, including space. Remember that the passphrase is case-sensitive. To open the encrypted file, you will have to enter the passphrase PRECISELY as you typed it in this dialog box.\par
 
 \pard\par
-You may also choose which cipher algorithm to use: \b Blowfish \b0 or \b IDEA\b0 .\par
+You may also choose which cipher \cf5\b Algorithm\cf0\b0  to use: \b Blowfish \b0 or \b IDEA\b0 .\par
+\par
+You can configure the \cf5\b Iterations\cf0\b0  field: The passphrase is transformed using a key derivation function. This adds a work factor and makes dictionary and guessing attacks harder. The more iterations, the harder are dictionary and guessing attacks, but also .knt file loading takes more time. You can use the \ul Test\ulnone  button to determine the time required to derive the key based on the number of iterations. A number that takes about a second or slightly longer may be a recommended value.\par
 \par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Click \cf4\b OK\cf0\b0 .\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Click \cf7\b OK\cf0\b0 .\par
 
 \pard\par
 When the file is subsequently saved, it will be stored on your disk in encrypted state. When you later open this file, KeyNote will prompt you for the access passphrase. KeyNote will not be able to open an encrypted file if you do not supply the correct passphrase.\par
 
-\pard\li360\sb100\b Note:  \b0 If you close the file or exit KeyNote without saving the file, the changes made in the \ldblquote File Properties\rdblquote  dialog box will NOT be retained (and the file will remain unencrypted). if you have the AutoSave option turned ON, KeyNote will save the changes automatically.\par
+\pard\sb100\b Note:  \b0 If you close the file or exit KeyNote without saving the file, the changes made in the \ldblquote File Properties\rdblquote  dialog box will NOT be retained (and the file will remain unencrypted). if you have the AutoSave option turned ON, KeyNote will save the changes automatically.\par
 
 \pard\par
 \par
+\b\v\fs24\'11B5\'12\v0 How to Encrypt nodes and/or images in a native or compressed Keynote File\par
+\b0\fs20\par
+The process is identical to that described in the previous section, with the following differences:\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Instead of selecting Keynote encrypted file as format, you must ensure that one of the other two formats (native or compressed) is selected and check the \lquote\cf5\b Enable encrypted content\cf0\b0\rquote  option.\par
+{\pntext\f2\'B7\tab}From the Security tab, in addition to specifying the password, algorithm, and number of iterations, you will have another option available: \cf5\b Hide encrypted nodes in the tree if the encrypted content remains \ldblquote closed\rdblquote\cf0\b0 .\par
+
+\pard\highlight4\par
+\highlight0\b Tip\b0 : If you have a file in encrypted format open and you select the native or compressed format and then check the \lquote Enable encrypted content\rquote  option, the same password will be used by default, so you can click OK without changing it, if you want.\par
 \par
-\b\fs24 How to Change Access Passphrase for an Already Encrypted File\par
+\par
+\par
+\b\v\fs24\'11B6\'12\v0 How to Change Access Passphrase for an Already Encrypted File\par
 \b0\fs20\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Open en encrypted file and enter your passphrase when prompted. Press \cf4\b Alt+Enter\cf0\b0  to open the \ldblquote File Properties\rdblquote  dialog box (or choose the \cf4\b File/Properties\cf0\b0  command).\par
-{\pntext\f2\'B7\tab}Click the \cf4\b Security\cf0  \b0 tab.\par
-{\pntext\f2\'B7\tab}Click the \cf4\b Set Passphrase\cf0  \b0 button, and enter the new access passphrase in the Passphrase and \cf4\b Confirm pass\cf0  \b0 edit fields, as described above.\par
-{\pntext\f2\'B7\tab}Click \cf4\b OK\cf0\b0 .\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Open an encrypted file and enter your passphrase when prompted. Press \cf7\b Alt+Enter\cf0\b0  to open the \ldblquote File Properties\rdblquote  dialog box (or choose the \cf5\b File/Properties\cf0\b0  command).\par
+{\pntext\f2\'B7\tab}Click the \cf5\b Security\cf0  \b0 tab.\par
+{\pntext\f2\'B7\tab}Click the \cf5\b Set Passphrase\cf0  \b0 button, and enter the new access passphrase in the Passphrase and \cf5\b Confirm pass\cf0  \b0 edit fields, as described above.\par
+{\pntext\f2\'B7\tab}Click \cf7\b OK\cf0\b0 .\par
 
 \pard\li360\sb100\b Note:  \b0 If you close the file or exit KeyNote without saving the file, the changes made in the \ldblquote File Properties\rdblquote  dialog box will NOT be retained (and the file will remain encrypted with the original, unchanged passphrase). If you have the AutoSave option turned ON, KeyNote will save the changes automatically.\par
 
 \pard\par
+
+\pard\sb80 Note: In files with \ul encrypted content enabled\ulnone , you can also change the password. You will be asked for it when you click on \lquote Set Passphrase\rquote  if the encrypted content remains \lquote closed\rquote .\par
+
+\pard\par
 \par
-\b\fs24 How to Stop Encrypting Your KeyNote File\par
+\b\v\fs24\'11B7\'12\v0 How to Stop Encrypting Your KeyNote File\par
 \b0\fs20\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Open the encrypted file and enter your passphrase when prompted. Press \cf4\b Alt+Enter\cf0\b0  to open the File Properties dialog box (or choose \cf4\b File/Properties\cf0\b0 ).\par
-{\pntext\f2\'B7\tab}Click the \cf4\b Format\cf0  \b0 drop-down list, and select Keynote native file as the format which should be used to save the file. The Security tab will disappear.\par
-{\pntext\f2\'B7\tab}Click \cf4\b OK\cf0\b0 .\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Open the encrypted file and enter your passphrase when prompted. Press \cf7\b Alt+Enter\cf0\b0  to open the File Properties dialog box (or choose \cf5\b File/Properties\cf0\b0 ).\par
+{\pntext\f2\'B7\tab}Click the \cf5\b Format\cf0  \b0 drop-down list, and select Keynote native file as the format which should be used to save the file. The Security tab will disappear.\par
+{\pntext\f2\'B7\tab}Click \cf7\b OK\cf0\b0 .\par
 
 \pard\li360\sb100\b Note:  \b0 If you close the file or exit KeyNote without saving the file, the changes made in the \ldblquote File Properties\rdblquote  dialog box will NOT be retained (and the file will remain encrypted). If you have the AutoSave option turned ON, KeyNote will save the changes automatically.\par
 
 \pard\par
+
+\pard\sb80 Note: In files with \ul encrypted content enabled\ulnone  you can uncheck the "Enable encrypted content" option.\par
+
+\pard\par
 \par
-\b\fs24 Note About the BLOWFISH and IDEA Cipher Algorithms\par
+\par
+\b\v\fs24\'11B8\'12\v0 Note About the BLOWFISH and IDEA Cipher Algorithms\par
 \b0\fs20\par
 KeyNote supports two encryption algorithms: Blowfish and IDEA. These two ciphers were used in KeyNote, because their use is not restricted by patent laws (Blowfish) or because, while patented, they are free for non-commercial use (IDEA). If you use KeyNote in commercial environment, you should only use the Blowfish cipher, which is the default choice.\par
 \par
@@ -7367,22 +7582,36 @@ Blowfish:\tab {{\field{\*\fldinst{HYPERLINK http://www.counterpane.com/blowfish.
 IDEA: \tab\tab {{\field{\*\fldinst{HYPERLINK http://www.momentus.com.br/PGP/doc/idea.html }}{\fldrslt{http://www.momentus.com.br/PGP/doc/idea.html\ul0\cf0}}}}\f0\fs20  \par
 \par
 \par
-\b\fs24 Security Considerations\b0\par
+\b\v\fs24\'11B9\'12\v0 Security Considerations\b0\par
 \fs20\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 If you have not yet read the \cf3\b WARNING\cf0\b0  at the top of this file, please do so now.\par
-{\pntext\f2\'B7\tab}\cf3\b BACKUP files\cf0\b0 : Typically, KeyNote is configured to maintain the previously-saved version of your file as backup; these files have the \ldblquote .bak\rdblquote  extension. One potential vulnerability related to backup files is that it is possible for the backup file to remain unencrypted, after your KeyNote file was saved in encrypted state. If you create a new KeyNote file, save it, and then decide to encrypt it, the encrypted file will be saved, and the previous version of it will be renamed with the \ldblquote .bak\rdblquote  extension. The previous version - preserved as backup - is unencrypted. After you save your KeyNote file again, the new backup will be a copy of the already encrypted file. Note that the same applies to a situation when you change the access passphrase of the encrypted file: the first time you save the file, the backup is a copy of the file encrypted with the previously used passphrase.\par
-{\pntext\f2\'B7\tab}If you use the \ldblquote Virtual nodes\rdblquote  that KeyNote supports since version 0.91, please note that the actual files on disk which are linked to virtual nodes are NOT encrypted. They cannot be, because if KeyNote encrypted them, you would not be able to open those files in applications other than KeyNote, thus rendering the virtual nodes useless and potentially destroying data. A warning is displayed the first time you add a virtual node to an encrypted file or encrypt a file that has virtual nodes.\par
-{\pntext\f2\'B7\tab}The access passphrase only protects your file when it is encrypted on disk. When KeyNote is running and has the file open, the file may be viewed or edited by anyone who can use your computer, until you close the file. In a future release of KeyNote an option may be added to close the file when the program is minimized, and automatically attempt to reopen it (prompting for passphrase) when KeyNote is restored. This feature is not yet present.\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 If you have not yet read the \cf2\b WARNING\cf0\b0  at the top of this file, please do so now.\par
+{\pntext\f2\'B7\tab}\cf2\b BACKUP files\cf0\b0 : Typically, KeyNote is configured to maintain the previously-saved version of your file as backup; these files have the \ldblquote .bak\rdblquote  extension. One potential vulnerability related to backup files is that it is possible for the backup file to remain unencrypted, after your KeyNote file was saved in encrypted state. If you create a new KeyNote file, save it, and then decide to encrypt it, the encrypted file will be saved, and the previous version of it will be renamed with the \ldblquote .bak\rdblquote  extension. The previous version - preserved as backup - is unencrypted. After you save your KeyNote file again, the new backup will be a copy of the already encrypted file. Note that the same applies to a situation when you change the access passphrase of the encrypted file: the first time you save the file, the backup is a copy of the file encrypted with the previously used passphrase.\par
+{\pntext\f2\'B7\tab}If you use the \ldblquote\ul Virtual nodes\ulnone\rdblquote  that KeyNote supports since version 0.91, please note that the actual files on disk which are linked to virtual nodes are NOT encrypted. They cannot be, because if KeyNote encrypted them, you would not be able to open those files in applications other than KeyNote, thus rendering the virtual nodes useless and potentially destroying data. A warning is displayed the first time you add a virtual node to an encrypted file or encrypt a file that has virtual nodes.\par
+{\pntext\f2\'B7\tab}The access passphrase only protects your file when it is \ul encrypted on disk\ulnone . When KeyNote is running and has the \ul file open\ulnone , the file \ul may be viewed or edited\ulnone  by anyone who can use your computer, until you close the file. Please check the options "\cf5\b Close Notes file after [n] minutes idle\cf0\b0 ", "\cf5\b Auto-close only encrypted files\cf0\b0 " and "\cf5\b Reopen auto-closed files on restore (encrypted only)\cf0\b0 " available from {{\field{\*\fldinst{HYPERLINK "file:///<95|0|0"}}{\fldrslt{\ul\cf3\cf3\ul Configuration Options / Actions}}}}\f0\fs20\par
 {\pntext\f2\'B7\tab}If you need more security then KeyNote offers, or if you need to securely encrypt data files created by other applications, you may consider using disk encryption software instead. Such software encrypts all files on a selected disk partition, thus securing ALL your data and programs. There are freeware disk encryption programs, such as ScramDisk, and commercial solutions. Users of PGP may note that {{\field{\*\fldinst{HYPERLINK http://www.pgpi.com }}{\fldrslt{http://www.pgpi.com\ul0\cf0}}}}\f0\fs20  has a freeware version of PGP which includes the PGPDisk module. An additional advantage of such a solution is that you only need to remember ONE passphrase for accessing all your encrypted data - and any new software installed or any new data files placed on the encrypted disk partition are immediately protected without any additional effort on your part.\par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\b And remember\b0 , like most desktop applications, KeyNote is vulnerable to:\par
+
+\pard\li360   - Keyloggers running on the system\par
+  - Memory dump attacks\par
+  - Malware with process injection capabilities\par
+
+\pard   \par
+
+\pard\li360 If your system is compromised by malware, no desktop application can guarantee complete password security. So, as \b recommendations\b0 :\par
+ - Use strong passwords\par
+ - Keep your system free of malware\par
+ - Use full disk encryption for sensitive files\par
+ - Consider using a dedicated password manager for critical credentials\par
 
 \pard\par
 \par
-\b\fs24 Miscellaneous Notes\b0\par
+\b\v\fs24\'11B10\'12\v0 Miscellaneous Notes\b0\par
 \fs20\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 KeyNote allows you to save data in the format used by a similar application, called DartNotes (see file \ldblquote dart.txt\rdblquote ). However, since DartNotes does not support encryption, you cannot encrypt files saved in this format.\par
-{\pntext\f2\'B7\tab}Using the File Properties dialog box, you can add an optional description and comment to each file. If the file is encrypted, the description and comment are encrypted as well. However, they will be displayed IN CLEAR-TEXT in the {{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf2\cf2\ul File Manager}}}}\f0\fs20  dialog box, which is NOT protected by a password. This may be changed in the future, but for now the description and comment strings are not secure, even if the actual file is.\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140\ul In old KeyNote versions\ulnone : KeyNote allowed you to save data in the format used by a similar application, called DartNotes (see file \ldblquote dart.txt\rdblquote ). However, since DartNotes does not support encryption, you couldn't encrypt files saved in this format.\par
+{\pntext\f2\'B7\tab}Using the File Properties dialog box, you can add an optional description and comment to each file. If the file is encrypted, the description and comment are encrypted as well. However, they will be displayed IN CLEAR-TEXT in the {{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf3\cf3\ul File Manager}}}}\f0\fs20  dialog box, which is NOT protected by a password. This may be changed in the future, but for now the description and comment strings are not secure, even if the actual file is.\par
 
 \pard\par
 \b Crypto algorithms used: DCPCrypt, Delphi cryptographic component package by David Barton:\b0\par
@@ -7394,7 +7623,7 @@ IDEA: \tab\tab {{\field{\*\fldinst{HYPERLINK http://www.momentus.com.br/PGP/doc/
 \pard\li240 If you are interested in how the DCPCrypt package was used in KeyNote, you can download the cryptography-related parts of KeyNote source code from {{\field{\*\fldinst{HYPERLINK http://www.tranglos.com/ }}{\fldrslt{http://www.tranglos.com/\ul0\cf0}}}}\f0\fs20\par
 
 \pard\par
-\cf3\b\par
+\cf2\b\par
 }
 %*
 GI=52
@@ -7891,12 +8120,12 @@ Note:\par
 %*
 GI=57
 ND=Exporting or Printing Notes
-LM=1910251556
+LM=1502261939
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\froman\fcharset0 Tahoma;}{\f3\fnil\fcharset0 Arial;}{\f4\fnil Arial;}{\f5\fnil Tahoma;}{\f6\fnil\fcharset0 Courier New;}{\f7\fnil\fcharset128 Yu Gothic;}{\f8\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue0;\red64\green64\blue64;\red0\green0\blue128;\red255\green0\blue0;\red128\green0\blue0;\red255\green255\blue0;\red128\green128\blue0;\red0\green0\blue0;\red48\green48\blue48;\red96\green96\blue96;\red255\green255\blue255;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Exporting\f0\lang3082  or Printing\f1\lang1045  Notes\f0\lang3082  and Folders\cf2\lang1033\par
 \cf0\b0\fs20\par
@@ -8045,6 +8274,13 @@ All the options are pretty obvious. If you need further information, please cons
 \pard{\pntext\f8\'B7\tab}{\*\pn\pnlvlblt\pnf8\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 If the export is made using Rich Text Format (RTF) as the destination format and you have selected the "Keep unchanged" option, please note that even if the hidden text content is not visible and can be viewed in editors such as WordPad or MS Word, it will still be present in the generated file. In fact, if you later paste that content into KeyNote, you will be able to access it. (Of course, someone with minimal knowledge of RTF will be able to access it.)\par
 
 \pard\par
+\ul\b\fs22 Encryption content enabled\ulnone\b0\fs20\par
+
+\pard\sb120 If the file has encrypted content, a new option, '\cf3\b Encrypted content'\cf0\b0 , will be available. It will be unchecked by default. If you check it (for which you will need to \ldblquote open\rdblquote  the protected content), all encrypted nodes and images found in the folders and nodes to be exported will be included in the generated file. \par
+- If the destination \ul format is .knt\ulnone , they will be protected with the same password (you can change it or remove the encryption by opening that file and going to File | Properties). \par
+- Please note that for any \ul other destination format\ulnone , the exported content will \cf6 NOT\cf0  be protected.\par
+
+\pard\par
 \par
 
 \pard\sb100\sa180\cf5\b\v\f2\fs26\'11B2\'12\v0 Target: Where and how to export?\par
@@ -8145,7 +8381,7 @@ Note: Internal links without marker are also converted to standard RTF format. T
 \b\fs22 Options\par
 \b0\fs20\par
 
-\pard\li360\v\'11I233\'12\v0{\field{\*\fldinst{HYPERLINK "img:233,654,318"}}{\fldrslt {233_Clipb_19oct.png}}}\par
+\pard\li360\v\'11I233\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:233,654,318"}}{\fldrslt {233_Clipb_19oct.png}}}\lang1033\par
 \par
 
 \pard\li1080\v\'11I209\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:209,279,109"}}{\fldrslt {209_Clipb_06ene.png}}}\lang1033\par
@@ -9342,11 +9578,12 @@ Bla bla bla \par
 %*
 GI=69
 ND=Templates
+LM=1402261000
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red96\green96\blue96;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red96\green96\blue96;\red0\green0\blue128;\red128\green128\blue0;}
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 Templates\cf2\f0\lang1033\par
 \cf0\b0\fs20\par
@@ -9356,7 +9593,7 @@ These files are located in the "Templates" subfolder (relative to the location o
 You can create this files with any external editor and adding them to that subfolder, or from this Templates tab in KeyNote:\par
 \par
 
-\pard\li360\v\'11I166\'12\v0{\field{\*\fldinst{HYPERLINK "img:166,216,223"}}{\fldrslt {166_Clipb_27ene.png}}}\par
+\pard\li360\v\'11I166\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:166,216,223"}}{\fldrslt {166_Clipb_27ene.png}}}\lang1033\par
 
 \pard\par
 \par
@@ -9370,12 +9607,30 @@ In general, any text or fragment that you find yourself writing or reusing many 
 \pard\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 Press \cf3\b Enter\cf0\b0  or double-click a template to insert it in the current note. \par
-{\pntext\f2\'B7\tab}Press \cf3\b Insert\cf0\b0  to create a new template. The \v\'11I36\'12\v0{\field{\*\fldinst{HYPERLINK "img:36,16,16"}}{\fldrslt {36_Main_36.png}}} icon next to a template indicates a \cf4\b Rich Text\cf0\b0  template (a template which includes text formatting); the \v\'11I37\'12\v0{\field{\*\fldinst{HYPERLINK "img:37,17,17"}}{\fldrslt {37_Main_37.png}}} icon indicates a \cf4\b plain-text\cf0\b0  template.\par
+{\pntext\f2\'B7\tab}Press \cf3\b Insert\cf0\b0  to create a new template. The \v\'11I36\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:36,16,16"}}{\fldrslt {36_Main_36.png}}}\lang1033  icon next to a template indicates a \cf4\b Rich Text\cf0\b0  template (a template which includes text formatting); the \v\'11I37\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:37,17,17"}}{\fldrslt {37_Main_37.png}}}\lang1033  icon indicates a \cf4\b plain-text\cf0\b0  template.\par
 {\pntext\f2\'B7\tab}There is a context menu with the options: Insert Template, Create Template..., Delete Template\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 If you add a template while KeyNote is running, you do not need to restart KeyNote to display the new item. Just press \cf3\b F9\cf0\b0 ; the resource panel will be hidden and then re-displayed, and the list of templates will be refreshed.\par
 
 \pard\par
+\par
+\v\'11B1\'12\v0 RTF Templates can use the following \b tokens\b0  to allow some \ul configuration in color\ulnone :\par
+  \par
+     \cf5\b %NCOLOR%\cf0\b0     Refers to the background colour of the note\par
+     \cf5\b %TSCOLOR%\cf0\b0\tab ,,     the text color of the selection  ,,\par
+     \cf5\b %TCOLOR%\cf0\b0\tab ,,     Text color (Format|Text Color,  \cf3 Ctrl+R\cf0 )\par
+     \cf5\b %THCOLOR%\cf0\b0\tab ,,     Text Highlight color (Format|Apply HighLight Color,  \cf3 Ctrl+H\cf0 )\par
+  \par
+They will be replaced by expressions of the form "\\redX\\greenY\\blueZ" and are intended for use in the "colortbl" block that appears at the beginning of the RTF code.\par
+  \par
+Examples of the use of these tokens are available in several templates distributed in the Templates folder, in the subfolder called "Examples". See {{\field{\*\fldinst{HYPERLINK "file:///<20|25599|0|19"}}{\fldrslt{\ul\cf2\cf2\ul inserting a line in the editor}}}}\f0\fs20  and {{\field{\*\fldinst{HYPERLINK "file:///<20|21073|0|20"}}{\fldrslt{\ul\cf2\cf2\ul inserting tables}}}}\f0\fs20 .\par
+You can see that they contain:\par
+  \cf6\{\\rtf1\\ansi\{\\colortbl ;%NCOLOR%;%TCOLOR%;\}\cf0\par
+  ...\par
+  \par
+  \cf6\{\\rtf1\\ansi\{\\colortbl ;\\red255\\green255\\blue255;\\red0\\green0\\blue0;\\red0\\green0\\blue255;%TSCOLOR%;%THCOLOR%;%TCOLOR%;\}\cf0\par
+  ...\par
+  \par
 }
 %*
 GI=70
@@ -12689,17 +12944,17 @@ ND=Backup Options
 %*
 GI=95
 ND=Actions
-LM=1910251814
+LM=1402261959
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 Options: Actions\par
 \cf0\b0\fs26\par
 
-\pard\li360\v\'11I239\'12\v0{\field{\*\fldinst{HYPERLINK "img:239,380,371"}}{\fldrslt {239_Clipb_19oct.png}}}\par
+\pard\li360\v\'11I239\'12\v0\fs20\lang3082{\field{\*\fldinst{HYPERLINK "img:239,380,371"}}{\fldrslt {239_Clipb_19oct.png}}}\fs26\lang1033\par
 
 \pard\par
 \fs20 See also {{\field{\*\fldinst{HYPERLINK "file:///<104|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20  \par
@@ -12728,6 +12983,12 @@ LM=1910251814
 \pard\sb80\i Requires \b Close Notes file after [n] minutes idle\b0  be enabled.\par
 
 \pard\i0\par
+Note: In files that do not use encrypted format but have \b content encryption enabled\b0 , this option will not cause the file to close, but only the protected content (nodes and images), which will become hidden. If configured, the encrypted nodes themselves will no longer be displayed in the tree. And of course, their content cannot be searched with Find All.\par
+
+\pard\sb80 See {{\field{\*\fldinst{HYPERLINK "file:///<51|2933|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Encrypted format vs. native or compressed format with 'Enable encrypted content'}}}}\f0\fs20\par
+
+\pard\par
+\par
 \par
 
 \pard\sa80\cf1\b\fs22 If any dialog boxes are open, close them\cf0\fs20\tab\tab\b0 Default: YES\par
@@ -13198,16 +13459,17 @@ Default: The format is the one used in Control Panel, Regional Settings, Time Fo
 %*
 GI=101
 ND=Clipboard
+LM=1402261253
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red128\green0\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 Options: Clipboard\par
 \cf0\b0\fs20\par
 
-\pard\li240\v\'11I119\'12\v0{\field{\*\fldinst{HYPERLINK "img:119,365,376"}}{\fldrslt {119_Clipb_05ene.png}}}\par
+\pard\li240\v\'11I119\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:119,365,376"}}{\fldrslt {119_Clipb_05ene.png}}}\lang1033\par
 
 \pard\par
 See also {{\field{\*\fldinst{HYPERLINK "file:///<104|6273|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Keynote.ini additional settings}}}}\f0\fs20\par
@@ -13216,7 +13478,7 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<104|6273|0|2"}}{\fldrslt{\ul\cf
 {\cf0\b0{\field{\*\fldinst{HYPERLINK "file:///<101|1227|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Clipboard Capture}}}}\f0\fs22\par
 {\cf0\b0{\field{\*\fldinst{HYPERLINK "file:///<101|3895|0|10"}}{\fldrslt{\ul\cf2\cf2\ul Web Clip}}}}\f0\fs22\par
 \par
-\v\'11B4\'12\v0 Paste external as plain text\cf0\fs20\tab\tab\b0 Default: YES\par
+\v\'11B4\'12\v0 Paste external using 'Plain text mode'\cf0\fs20\tab\tab\b0 Default: YES\par
 
 \pard Makes default paste (\cf3\b Ctrl+V\cf0\b0 , \cf3\b Shift+Insert\cf0\b0  or equivalent) as \b plain text\b0  when copied from outside KeyNote, where this 'Plain text' is based in the corresponding value in the option \b Plain text mode\b0\par
 
@@ -13228,14 +13490,14 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<104|6273|0|2"}}{\fldrslt{\ul\cf
 {\pntext\f2\'B7\tab}The option is also modifiable from:\par
 
 \pard\par
-    \v\'11I193\'12\v0{\field{\*\fldinst{HYPERLINK "img:193,202,232"}}{\fldrslt {193_Clipb_31mar.png}}}\par
+    \v\'11I244\'12\v0\lang3082{\field{\*\fldinst{HYPERLINK "img:244,243,226"}}{\fldrslt {244_Clipb_14feb.png}}}\lang1033\par
         \par
 \par
 
 \pard\sa80\cf1\b\v\fs22\'11B5\'12\v0 Plain text mode\cf0\fs20\tab\tab\tab\tab\b0 Default: Only font style\par
 
 \pard Determines which part of the formatting of the text should be maintained, if any, when using plain text mode, allowing a "Custom plain" Paste.\par
-Applies to: "Paste external as Plain text", Clipboard Capture and Web clip.\par
+Applies to: "Paste external using 'Plain text mode' ", Clipboard Capture and Web clip.\par
 
 \pard\sb100 * When \ul Paste as Text\ulnone  (Shift+Ctrl+Insert or Shift+Ctrl+V) is executed, \ul full plain text\ulnone  it always be applied )\par
 
@@ -13330,7 +13592,7 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<36|0|0"}}{\fldrslt{\ul\cf2\cf2\
 
 \pard\par
 
-\pard\sa80\cf1\b\v\fs22\'11B6\'12\v0 Paste as plain text\tab\tab\tab\tab\cf0\b0\fs20 Default: NO\par
+\pard\sa80\cf1\b\v\fs22\'11B6\'12\v0 Paste using 'Plain text mode'\tab\tab\cf0\b0\fs20 Default: NO\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 If enabled, text will be pasted text as defined by option {{\field{\*\fldinst{HYPERLINK "file:///<101|615|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Plain text mode}}}}\f0\fs20\par
 {\pntext\f2\'B7\tab}If disabled, paste text with full formatting.\par
@@ -13339,9 +13601,9 @@ See also {{\field{\*\fldinst{HYPERLINK "file:///<36|0|0"}}{\fldrslt{\ul\cf2\cf2\
 
 \pard\par
 
-\pard\sa80\cf1\b\fs22 Limit size to:\tab\cf0\fs20\tab\tab\tab\tab\b0 Default: 0\par
+\pard\sa80\cf1\b\fs22 Limit size to:\tab\cf0\fs20\tab\tab\tab\b0 Default: 0\par
 
-\pard Maximum length of text to capture, in bytes, when \b Paste as plain text\b0  is enabled and {{\field{\*\fldinst{HYPERLINK "file:///<101|615|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Plain text mode}}}}\f0\fs20  is "Plain (without any formatting)"\par
+\pard Maximum length of text to capture, in bytes, when \b Paste using 'Plain text mode'\b0  is enabled and {{\field{\*\fldinst{HYPERLINK "file:///<101|615|0|5"}}{\fldrslt{\ul\cf2\cf2\ul Plain text mode}}}}\f0\fs20  is "Plain (without any formatting)"\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360 0: No limit\par
 
@@ -13468,12 +13730,12 @@ Use the following web browser\par
 %*
 GI=104
 ND=KeyNote.ini Settings
-LM=1910251539
+LM=1402262021
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset204 Tahoma;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green128\blue128;\red128\green0\blue0;\red144\green144\blue144;\red0\green128\blue0;}
-{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\f1\fs36\lang1045 KeyNote.ini file settings\cf2\f0\lang1033\par
 \cf0\b0\fs26\par
@@ -13698,6 +13960,15 @@ When inserting the image programmatically, the format that KeyNote NF will used 
 \pard\li460\sa100 The application will use jpegblip for JPG images, emfblip for images that come from EMF \i files\i0 , wmetafile8 for those that come from WMF \i files\i0 , and pngblip for the rest: PNG, GIF, TIF, BMP and ICO.\par
 
 \pard\li460\sb40\sa100 Remember: When inserting / registering a new image, the application differentiates between the \ul format in which it will keep\ulnone  the image, which will be the format it presents in the case of inserting (or dragging) from a file; and the \ul format used to display it\ulnone  in the RichEdit control, that is, the one that will be used together with the RTF \cf6\\pict\cf0  tag. ImgFormatInsideRTF controls the latter one.\par
+
+\pard   \par
+\b\v\'11B15\'12\v0 ImgAllowEncrExternal\b0 =0\b\par
+
+\pard\li100\sb60\b0\lang3082 Option that determine where can encrypted images be saved when encryption content is enabled\par
+If set to 0 (default), an encrypted image will always be saved internally in the embedded KNT storage.\par
+If set to 1, an encrypted image will be saved in the configured storage, even if it is external (ZIP or folder).\par
+
+\pard\li100\sb140\lang1033 See also {{\field{\*\fldinst{HYPERLINK "file:///<51|2933|0|1"}}{\fldrslt{\ul\cf2\cf2\ul Encrypted format vs. native or compressed format with 'Enable encrypted content'}}}}\f0\fs20\par
 
 \pard   \par
 \b UseCtrlHideTreePanel\b0 =1\b\par
@@ -17030,7 +17301,7 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=2412251717
+LM=1502261944
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -17054,6 +17325,11 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.1.5\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\b\lang1033 Enable encrypted content\b0 : Added the option of combining an unencrypted format (native or compressed) with the encryption of selected elements: notes and images ({{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.1.4\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Fixed: MBCS languages and plain text notes [#936]\par
@@ -18387,11 +18663,9 @@ LV=1
 %-
 gi=87
 DI=295
-ns=0400
 %-
 gi=88
 DI=238
-ns=0400
 LV=2
 %-
 gi=89
@@ -18512,7 +18786,7 @@ FN=Tahoma
 FS=9
 LN=3082
 ST=
-FL=111110000000100000000000
+FL=111110000000100001000000
 SN=0
 TW=182
 TM=0
@@ -18549,7 +18823,7 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=244
+II=246
 PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
 PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
 PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
@@ -18657,7 +18931,6 @@ PD=139||139_Clipb_17ene.png|1|333|369|2331528855||1|1||0
 PD=140||140_Clipb_17ene.png|1|359|366|1088923935||1|1||0
 PD=141||141_Clipb_18ene.png|1|21|19|2802262753||1|1||0
 PD=142||142_Clipb_18ene.png|1|284|166|3671234682||1|1||0
-PD=146||146_Clipb_19ene.png|1|537|331|3837106390||1|1||0
 PD=148||148_Clipb_20ene.png|1|510|262|3469532081||1|1||0
 PD=149||149_Clipb_20ene.png|1|510|263|2525683181||1|1||0
 PD=150||150_MergeKNT_21ene.png|1|421|185|4294470417||1|1||0
@@ -18681,7 +18954,6 @@ PD=185||185_Clipb_31mar.png|1|297|152|2996717648||1|1||0
 PD=186||186_Clipb_31mar.png|1|293|152|190736701||1|1||0
 PD=187||187_Clipb_31mar.png|1|286|150|594474843||1|1||0
 PD=192||192_Clipb_31mar.png|1|411|28|2464087388||1|1||0
-PD=193||193_Clipb_31mar.png|1|202|232|2195227359||1|1||0
 PD=194||194_Clipb_24nov.png|1|198|233|788728395||1|1||0
 PD=195||195_Clipb_24nov.png|1|475|302|2114296858||1|1||0
 PD=196||196_Clipb_24nov.png|1|123|72|1473008777||1|2||0
@@ -18713,5 +18985,7 @@ PD=240||240_Clipb_19oct.png|1|337|347|3051443956||1|1||0
 PD=241||241_Clipb_19oct.png|1|380|371|1231395502||1|1||0
 PD=242||242_Clipb_19oct.png|1|322|374|468339261||1|1||0
 PD=243||243_Clipb_24dic.png|1|379|366|2323966770||1|1||0
+PD=244||244_Clipb_14feb.png|1|243|226|334048320||1|1||0
+PD=245||245_Clipb_14feb.png|1|533|391|3178212650||1|1||0
 %EI
 %%
