@@ -8574,7 +8574,7 @@ begin
    if Node <> nil then begin
       NNode:= ActiveTreeUI.GetNNode(Node);
       Note:= NNode.Note;
-      IsVirtual:= Note.IsVirtual;
+      IsVirtual:= Note.IsVirtual and not (ActiveFile.EncryptedContentMustBeHidden and NNode.Note.IsEncrypted);
       HasSeveralNNodes := Note.NumNNodes > 1;
 
       actTVCheckNode.Checked := Node.CheckState.IsChecked;

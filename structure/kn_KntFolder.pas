@@ -1276,6 +1276,10 @@ begin
   Result:= false;
   if (Node = nil ) then exit;
   Note:= TreeUI.GetNNode(Node).Note;
+  if (ActiveFile.EncryptedContentMustBeHidden and Note.IsEncrypted) then begin
+     App.WarningPopup(GetRS(sEdt52));
+     exit;
+  end;
   Result:= Note.IsVirtual;
   if not Result then
      App.ErrorPopup(Format(GetRS(sFld47), [Note.Name]));
@@ -1374,6 +1378,11 @@ begin
 
   NNode:= TreeUI.GetNNode(Node);
   Note:= NNode.Note;
+  if (ActiveFile.EncryptedContentMustBeHidden and Note.IsEncrypted) then begin
+    App.WarningPopup(GetRS(sEdt52));
+    exit;
+  end;
+
 
   IsFlushingData := false;
   IsChangingFile := false;
@@ -1652,7 +1661,7 @@ begin
                 end;
              end
              else begin
-               if (not EditorOptions.TrackStyle) then
+               if (not EditorOptions.TrackStyle) and not (ActiveFile.EncryptedContentMustBeHidden and NNode.Note.IsEncrypted) then
                  HintStatusBar := GetRS(sFld01) + NNode.Note.VirtualFN;
              end;
              TVCheckNode.Checked := Node.CheckState.IsChecked;

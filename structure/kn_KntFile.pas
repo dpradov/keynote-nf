@@ -2613,7 +2613,9 @@ var
       InEntryContent := false;
 
       if FromEncryptedContent then begin
-         if not ((VirtualFN <> '') or (RelativeVirtualFN <> '')) then begin
+         if (VirtualFN <> '') or (RelativeVirtualFN <> '') then
+            LoadVirtualNote (Note, VirtualFN, RelativeVirtualFN)
+         else begin
             TransferedNEntryText(NEntry);
             assert((NEntry.IsRTF = RTFContent) or (NEntry.Stream.Size=0));
          end;
@@ -2639,9 +2641,10 @@ var
              Note.SelEntry:= NSelEntry;
           end;
 
-          VirtualFN:= '';
-          RelativeVirtualFN:= '';
       end;
+      VirtualFN:= '';
+      RelativeVirtualFN:= '';
+
     end;
 
 begin
@@ -3118,7 +3121,7 @@ var
   Stream : TFileStream;
   myFolder : TKntFolder;
   ds : AnsiString;
-  tf, tfC : TTextFile;
+  tf, tfC, t : TTextFile;
   AuxStream : TMemoryStream;
   NotesToSave: TNoteList;
   ToEncryptStream, EncryptedStream, AuxEncryptStream : TMemoryStream;
@@ -3156,7 +3159,11 @@ var
   var
     i: integer;
   begin
+    t:= nil;
+    if not Note.IsEncrypted then
+       t:= tf;
     if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
+       t:= tfC;
        tfC.WriteLine(_NF_Note);              // TNote begins
        tfC.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
 
@@ -3185,14 +3192,18 @@ var
        tf.WriteLine(_NoteResources + '=' + Note.ResourcesToString  );
 
     if Note.IsVirtual then begin
-      if Note.HasVNodeError then
+      if Note.HasVNodeError then begin
          // there was an error when we tried to load this file, so don't try to save it (assume no valid data in node)
-          tf.WriteLine( _VirtualFN + '=' + copy( Note.VirtualFN, 2, length( Note.VirtualFN )), True )
+         if t <> nil then
+            t.WriteLine( _VirtualFN + '=' + copy( Note.VirtualFN, 2, length( Note.VirtualFN )), True );
+      end
       else
           try
              Note.SaveVirtualFile;
-             tf.WriteLine( _VirtualFN + '=' + Note.VirtualFN, True  );
-             tf.WriteLine( _RelativeVirtualFN + '=' + ExtractRelativePath(ActiveFile.File_Path, Note.VirtualFN), True  );
+             if t <> nil then begin
+                t.WriteLine( _VirtualFN + '=' + Note.VirtualFN, True  );
+                t.WriteLine( _RelativeVirtualFN + '=' + ExtractRelativePath(ActiveFile.File_Path, Note.VirtualFN), True  );
+             end;
           except
             on E : Exception do
               // [x] A note may have hundreds of nodes.We should allow user to ABORT here or to skip subsequent error messages
@@ -3818,6 +3829,7 @@ begin
      NNode:= myFolder.FocusedNNode;
      if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted) then
         myFolder.NoteUI.LoadFromNNode(NNode, True);
+     myFolder.TreeUI.TV.Invalidate;                        // In case there are virtual nodes, so that the icons are updated
   end;
 
   App.EditorFocused(CurrentEditor);

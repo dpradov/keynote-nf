@@ -1582,7 +1582,7 @@ begin
   case IconKind of
 
     niStandard : begin
-      if NNode.IsVirtual then
+      if NNode.IsVirtual and not (ActiveFile.EncryptedContentMustBeHidden and NNode.Note.IsEncrypted) then
          ImageIndex := ICON_VIRTUAL
 
       else begin
