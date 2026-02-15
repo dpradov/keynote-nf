@@ -2607,7 +2607,7 @@ begin
                   KntFile.OnPassphraseChanged;
                end;
                if KntFile.FileFormat <> nffEncrypted then begin
-                  if not HadEncryptedContentEnabled then begin
+                  if PassphraseChanged or not HadEncryptedContentEnabled then begin
                      KntFile.EncryptedContentEnabled:= True;
                      KntFile.EncryptedContentOpened:= True;
                      KntFile.UpdateLoadedVerificationHash;
