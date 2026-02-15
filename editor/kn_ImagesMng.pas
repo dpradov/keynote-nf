@@ -380,7 +380,8 @@ type
                                  Owned: boolean;
                                  const Source: String;
                                  var Img: TKntImage;
-                                 const NameProposed: string = ''
+                                 const NameProposed: string = '';
+                                 MarkAsEncrypted: boolean = false
                                  ): boolean;
 
     function RegisterNewImage (Stream: TMemoryStream;
@@ -391,7 +392,8 @@ type
                                Owned: boolean;
                                const Source: String;
                                const FolderName: String;
-                               const NameProposed: string = ''
+                               const NameProposed: string = '';
+                               MarkAsEncrypted: boolean = false
                                ): TKntImage;
 
     function GetMaxSavedImageID: integer;
@@ -2566,7 +2568,8 @@ function TImageMng.RegisterNewImage(
                                          Owned: boolean;
                                          const Source: String;
                                          const FolderName: string;
-                                         const NameProposed: string = ''
+                                         const NameProposed: string = '';
+                                         MarkAsEncrypted: boolean = false
                                          ): TKntImage;
 var
    Img: TKntImage;
@@ -2599,6 +2602,9 @@ begin
 
    Img.GenerateName(FolderName, Source, ZipPathFormat, NameProposed);
 
+   if MarkAsEncrypted then
+      Img.IsEncrypted:= True
+   else
    if Owned and ActiveFile.EncryptedContentEnabled then begin
       NNode:= ActiveFolder.FocusedNNode;
       if (NNode <> nil) and (NNode.Note.IsEncrypted) then
@@ -2629,7 +2635,8 @@ function TImageMng.CheckRegisterImage (
                                            Owned: boolean;
                                            const Source: String;
                                            var Img: TKntImage;
-                                           const NameProposed: string = ''
+                                           const NameProposed: string = '';
+                                           MarkAsEncrypted: boolean = false
                                            ): boolean;
 var
   crc32: DWORD;
@@ -2638,7 +2645,7 @@ begin
 
     Img:= GetImageFromStream (Stream, crc32);
     if (Img = nil) and not fDoNotRegisterNewImages then begin
-       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, FolderName, NameProposed);
+       Img:= RegisterNewImage(Stream, imgFormat, Width, Height, crc32, OriginalPath, Owned, Source, FolderName, NameProposed, MarkAsEncrypted);
        Result:= True;        // Registered
     end;
 end;
@@ -3393,7 +3400,7 @@ begin
 
                   if Img <> nil then begin            // Processing images from MergeFromKNTFile
                     ImgCaption:= Img.Caption;
-                    if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, FolderName, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img) then begin
+                    if CheckRegisterImage (Stream, Img.ImageFormat,  Width, Height, FolderName, Img.OriginalPath, Img.IsOwned, 'MergeKNT', Img, '', Img.IsEncrypted) then begin
                        StreamRegistered:= true;
                        if ImgCaption <> '' then
                           Img.Caption:= ImgCaption;
