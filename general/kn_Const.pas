@@ -33,9 +33,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.4 .01';
-  Program_Version_Number  = '2.1.4.1';
-  Program_Version_Date    = '24/12/2025';
+  Program_Version  = '2.1.5 .01';
+  Program_Version_Number  = '2.1.5.1';
+  Program_Version_Date    = '15/02/2026';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -47,7 +47,7 @@ const
 
   Program_Email1  = 'dprado.keynote@gmail.com';
   Program_Email2  = 'marekjed@users.sourceforge.net';
-  Program_Credit1 = 'Copyright © 2007-25  Daniel Prado Velasco   (since 1.7.0)';
+  Program_Credit1 = 'Copyright © 2007-26  Daniel Prado Velasco   (since 1.7.0)';
   Program_Credit2 = 'Copyright © 2000-05  Marek Jedlinski';
   Hint_Support = 'Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!';
 

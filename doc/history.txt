@@ -3,6 +3,30 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.5.1  (15 feb 2026)
+--------------------------
+* Added option to encrypt only selected content (nodes and/or images)
+* Encryption strengthened, obtaining the key from the password with a configurable number of iterations [#545]
+* Added protection against basic/intermediate keyloggers
+* Fixed: Password field vulnerable to password reveal tools like BulletsPassView (#599)
+--
+* Insert|Line and Insert|Table with Shift (=> printable) will use Text color (Format|Text Color,  Ctrl+R) [#944]
+* RTF Templates can use 4 tokens to allow some configuration in color || Added several Line/Table templates [#944]
+--
+* Insert|URL... Use URL in clipboard (#706)
+* Double click word to select only the word, without space(s) [#951]
+* "Paste External as Plain text" -> "Paste External using 'Plain text mode'"
+--
+* Fixed: In most situations, it is not possible to change the blue colour of links [#923]
+* Added a new command line option: -clnkc  (Convert links to allow for proper text colour management)
+* Fixed: Adjustments to the treatment of folded blocks
+--
+* Fixed: The check-state of a hidden checkbox node is saved, but it is ignored when the file is opened [#947]
+* Fixed: Exception using F6 (Defaults for all files) with no file open  [#953]
+* Fixed: Avoid possible exception when starting the application [#946]
+* Fixed: Crash in W8.1 when opening Font settings dialog [#726][#613]
+
+
 v 2.1.4.1  (24 dec 2025)
 --------------------------
 * Fixed: MBCS languages and plain text notes [#936]
