@@ -465,7 +465,7 @@ begin
    txtCaption.Enabled:= RegisteredImg;
    txtCaption.Visible:= not ImageToHide;
    btnEncryp.Down:= Image.IsEncrypted;
-   btnEncryp.Enabled:= RegisteredImg;
+   btnEncryp.Enabled:= RegisteredImg and ActiveFile.EncryptedContentEnabled;
 
 
    fImagePath:= ImageMng.GetImagePath(Image);
