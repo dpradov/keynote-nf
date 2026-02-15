@@ -1244,16 +1244,22 @@ procedure TKntImage.DecryptImageStream;
 var
    DecryptedStream: TMemoryStream;
    EncryptionInfo: TEncryptionInfo;
+   KntFile: TKntFile;
 
 begin
    if FImageStream = nil then exit;
 
    try
-     EncryptionInfo:= TKntFile(ImageMng.KntFile).GetEncryptionInfo;
+     if ImageMng.ExternalImagesManager <> nil then
+        KntFile:= TKntFile(ImageMng.ExternalImagesManager.KntFile)
+     else
+        KntFile:= TKntFile(ImageMng.KntFile);
+
+     EncryptionInfo:= KntFile.GetEncryptionInfo;
      DecryptedStream:= TMemoryStream.Create;
      EncryptionInfo.DataSize:= FImageStream.Size;
      FImageStream.Position:= 0;
-     TKntFile(ImageMng.KntFile).DecryptStream(EncryptionInfo, FImageStream, DecryptedStream);
+     KntFile.DecryptStream(EncryptionInfo, FImageStream, DecryptedStream);
      FImageStream.Clear;
      FImageStream.Free;
      FImageStream:= DecryptedStream;

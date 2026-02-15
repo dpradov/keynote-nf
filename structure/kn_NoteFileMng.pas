@@ -1458,6 +1458,7 @@ begin
 
               try
                 CreateVCLControlsForFolder( newFolder );
+                AFileIsLoading:= False;          // To enable the encrypted image content contained in the file to be merged to be decrypted
                 if ( MergeFN.ToUpper = ActiveFile.FileName.ToUpper) then
                    ActiveFile.UpdateImagesCountReferences(newFolder)
                 else
@@ -1465,16 +1466,18 @@ begin
                     with the help of the ImageManager associated with the MergeFile file }
                   ActiveFile.UpdateImagesStorageModeInFile (ImageMng.StorageMode, newFolder, false);
 
+                AFileIsLoading:= True;
                 newFolder.LoadEditorFromNNode(newFolder.FocusedNNode, False);
                 SetUpVCLControls( newFolder );
               finally
+                AFileIsLoading:= True;
                 newFolder.TabSheet.TabVisible := true; // was created hidden
                 newFolder.TreeUI.TV.ScrollIntoView(newFolder.TreeUI.FocusedNode, false);
               end;
 
             end;
 
-            { Mirror nodes (if exists).. will have been converted to NNodes when opening the file. 
+            { Mirror nodes (if exists).. will have been converted to NNodes when opening the file.
               Even if we import mirror nodes to nodes in another folder that we do not import, it does not matter now.
               During the conversion carried out when opening the file we will have NNodes like others. The possibility
               of including several linked nodes has already been managed above, with the help of MergeNotesMultiNNodes
