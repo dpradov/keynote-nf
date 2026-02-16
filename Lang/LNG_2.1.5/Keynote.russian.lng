@@ -454,11 +454,10 @@ Pages.Tab_Pass.GroupBox2.Button_SetPass.Hint=Нажмите для смены п
 Pages.Tab_Pass.GroupBox2.Button_SetPass.Caption=&Сменить пароль
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Hint=Скрывать пароль за звёздочками
 Pages.Tab_Pass.GroupBox2.CB_HidePass.Caption=&Скрыть пароль при вводе
-Pages.Tab_Pass.GroupBox2.lblKeyTr.Caption=Ключевое преобразование. &Итерации:
+Pages.Tab_Pass.GroupBox2.lblKeyTr.Caption=Ключ. преобразование. &Итерации:
 Pages.Tab_Pass.GroupBox2.btnTestIter.Caption=Тест
 Pages.Tab_Pass.GroupBox2.btnTestIter.Hint=Проверьте время, необходимое для получения ключа из парольной фразы
-Pages.Tab_Pass.GroupBox2.cbHideEncrNodes.Caption=Скрыть зашифрованные &узлы в дереве, если зашифрованное содержимое остается «закрытым»
-Button_System.Hint=Показать системный диалог Свойства файла
+Pages.Tab_Pass.GroupBox2.cbHideEncrNodes.Caption=Скрыть зашифр. &узлы в дереве, если зашифр. содержимое остается «закрытым»
 Button_System.Caption=С&истема...
 Button_Help.Caption=&Справка
 
