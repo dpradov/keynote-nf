@@ -458,6 +458,7 @@ Pages.Tab_Pass.GroupBox2.lblKeyTr.Caption=Ключ. преобразование
 Pages.Tab_Pass.GroupBox2.btnTestIter.Caption=Тест
 Pages.Tab_Pass.GroupBox2.btnTestIter.Hint=Проверьте время, необходимое для получения ключа из парольной фразы
 Pages.Tab_Pass.GroupBox2.cbHideEncrNodes.Caption=Скрыть зашифр. &узлы в дереве, если зашифр. содержимое остается «закрытым»
+Button_System.Hint=Показать системный диалог Свойства файла
 Button_System.Caption=С&истема...
 Button_Help.Caption=&Справка
 
