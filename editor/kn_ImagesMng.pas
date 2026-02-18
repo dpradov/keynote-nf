@@ -1699,6 +1699,8 @@ var
   ImgUseRecycleBinBAK: boolean;
 begin
    if ExportingMode then exit;
+   if fExternalStorageToSave = nil then exit;     // nothing to delete
+
 
    // Delete the externally images now encrypted and saved embedded
 
