@@ -1292,8 +1292,6 @@ end;
 procedure TKntImage.SetImageStream (Stream: TMemoryStream);
 begin
    FImageStream:= Stream;
-   if not AFileIsLoading then
-      FStreamIsEncrypted:= False;
 end;
 
 procedure TKntImage.SetAccessed;
