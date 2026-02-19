@@ -3,12 +3,22 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.5.3  (19 feb 2026)
+--------------------------
+Patch for version 2.1.5 (.1):
+* Fixed: Exception in the x64 version when using 'Enable encrypted content' [#961]
+* Fixed: Exception with ImgAllowEncrExternal=0 and storage mode=EmbeddedKNT [#961]
+* Fixed: Problem with ImgAllowEncrExternal=1 and storage mode=External [#961]
+* Fixed: Encrypted images and converting image storage mode, from EmbeddedKNT to External, 
+         with ImgAllowEncrExternal=0 [#961]
+
+
 v 2.1.5.2  (19 feb 2026)
 --------------------------
-Fixed: Exception with ImgAllowEncrExternal=0 and storage mode=EmbeddedKNT [#961]
-Fixed: Problem with ImgAllowEncrExternal=1 and storage mode=External [#961]
-Fixed: Encrypted images and converting image storage mode, from EmbeddedKNT to External, 
-       with ImgAllowEncrExternal=0 [#961]
+* Fixed: Exception with ImgAllowEncrExternal=0 and storage mode=EmbeddedKNT [#961]
+* Fixed: Problem with ImgAllowEncrExternal=1 and storage mode=External [#961]
+* Fixed: Encrypted images and converting image storage mode, from EmbeddedKNT to External, 
+         with ImgAllowEncrExternal=0 [#961]
 
 
 v 2.1.5.1  (15 feb 2026)
