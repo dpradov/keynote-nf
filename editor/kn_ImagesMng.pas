@@ -598,6 +598,18 @@ begin
 
              if not SaveAllImages and not Img.MustBeSavedExternally then continue;
 
+             { *1
+             This method is called when ImageMng.StorageMode = smExternal or smExternalAndEmbKNT. If this is done after a
+             storage conversion, fSaveAllImagesToExtStorage will have been set to True, and consequently, this method will
+             have been called with the parameter SaveAllImages=True
+             By default, SaveAllImages=True saves all images without regard to MustBeSavedExternally, an attribute that is correctly
+             maintained for encrypted images, and which, with ImageMng.StorageMode = smExternal and KeyOptions.ImgAllowEncrExternal=0,
+             would be set to False.
+             We don't even need to ask about SaveAllImages. We can simply control that if KeyOptions.ImgAllowEncrExternal=0,
+             we shouldn't save the image if it's encrypted.
+             }
+             if Img.IsEncrypted and not KeyOptions.ImgAllowEncrExternal then continue;    // *1
+
              if Img.ReferenceCount = 0 then begin
                 Img.FreeImageStream;
                 Img.Free;
@@ -1292,8 +1304,6 @@ end;
 procedure TKntImage.SetImageStream (Stream: TMemoryStream);
 begin
    FImageStream:= Stream;
-   if not AFileIsLoading then
-      FStreamIsEncrypted:= False;
 end;
 
 procedure TKntImage.SetAccessed;
@@ -1699,6 +1709,8 @@ var
   ImgUseRecycleBinBAK: boolean;
 begin
    if ExportingMode then exit;
+   if fExternalStorageToSave = nil then exit;     // nothing to delete
+
 
    // Delete the externally images now encrypted and saved embedded
 
