@@ -2652,6 +2652,8 @@ begin
   InNote := false;
   InNoteEntry := false;
   InEntryContent := false;
+  Note:= nil;
+  NEntry:= nil;
 
   while (not tf.eof()) do begin
      s:= tf.readln();
