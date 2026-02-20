@@ -24,6 +24,7 @@ uses
    System.Classes,
    Vcl.Graphics,
    Vcl.Controls,
+   Vcl.Clipbrd,
    Vcl.StdCtrls,
    Vcl.Forms,
    Vcl.Dialogs;
@@ -34,12 +35,15 @@ type
     FSecureMode: boolean;
     FSecureText: string;
     FObfuscationEnabled: Boolean;
+    FAllowPaste: Boolean;
     FIgnoringFakeKeys: Boolean;
     //FTestKeys: string;
     procedure WMGetText(var Message: TMessage); message WM_GETTEXT;
     procedure WMGetTextLength(var Message: TMessage); message WM_GETTEXTLENGTH;
     procedure WMKeyDown(var Message: TWMKeyDown); message WM_KEYDOWN;
-    //procedure WMPaste(var Message: TMessage); message WM_PASTE;
+    procedure WMPaste(var Message: TMessage); message WM_PASTE;
+    procedure WMContextMenu(var Message: TWMContextMenu); message WM_CONTEXTMENU;
+
   protected
     procedure KeyPress(var Key: Char); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
@@ -49,6 +53,7 @@ type
   public
     property SecureMode: boolean read FSecureMode write SetSecureMode;
     property ObfuscationEnabled: Boolean read FObfuscationEnabled write FObfuscationEnabled;
+    property AllowPaste: Boolean read FAllowPaste write FAllowPaste;
     function GetSecureText: string;
     procedure ClearSecure;
     constructor Create(AOwner: TComponent); override;
@@ -76,6 +81,7 @@ begin
   PasswordChar := '*';
   FIgnoringFakeKeys := False;
   FObfuscationEnabled:= True;
+  FAllowPaste := True;
   Randomize;
 end;
 
@@ -98,6 +104,16 @@ begin
 
 end;
 
+
+procedure TSecureEdit.WMContextMenu(var Message: TWMContextMenu);
+begin
+  Message.Result := 1;       // Do not call inherited = do not show contextual menu
+end;
+
+procedure TSecureEdit.WMPaste(var Message: TMessage);
+begin
+  Message.Result := 0;       // Block the system's WM_PASTE message. We already handle this manually in KeyDown.
+end;
 
 procedure TSecureEdit.WMKeyDown(var Message: TWMKeyDown);
 begin
@@ -131,18 +147,15 @@ begin
        Delete(FSecureText, CursorPos + 1, SelLength)
      else if CursorPos > 0 then
        Delete(FSecureText, CursorPos, 1);
-     Key := #0;
+
      inherited KeyPress(Key);
 
      SendFakeKeystrokes;            // Send fake keys after backspace
   end
   else if Key >= #32 then begin    // Normal character
-     if SelLength > 0 then begin
-       Delete(FSecureText, CursorPos + 1, SelLength);
-       Insert(Key, FSecureText, CursorPos + 1);
-     end
-     else
-       Insert(Key, FSecureText, CursorPos + 1);
+     if SelLength > 0 then
+        Delete(FSecureText, CursorPos + 1, SelLength);
+     Insert(Key, FSecureText, CursorPos + 1);
      Key := '*';
      inherited KeyPress(Key);
 
@@ -157,6 +170,7 @@ end;
 procedure TSecureEdit.KeyDown(var Key: Word; Shift: TShiftState);
 var
   CursorPos: Integer;
+  ClpStr: string;
 begin
   if not FSecureMode then begin
      inherited;
@@ -180,15 +194,35 @@ begin
 
      SendFakeKeystrokes;
      Exit;
+  end
+  else
+  if FAllowPaste and
+     ( ((ssCtrl in Shift) and (Key = Ord('V'))) or
+      ((Key = VK_INSERT) and (shift = [ssShift])) ) then begin
+     if Clipboard.HasFormat(CF_TEXT) then begin
+        ClpStr := Clipboard.AsText;
+
+        if SelLength > 0 then
+           Delete(FSecureText, CursorPos + 1, SelLength);
+        Insert(ClpStr, FSecureText, CursorPos + 1);
+
+        Text := StringOfChar('*', Length(FSecureText));
+        SelStart := CursorPos + Length(ClpStr);
+
+        SendFakeKeystrokes;
+        if Length(ClpStr) > 1 then
+           SendFakeKeystrokes;
+     end;
+     Key := 0;
+     exit;
   end;
 
-  // Block clipboard paste?
-  {
-  if (ssCtrl in Shift) and (Key in [Ord('C'), Ord('V'), Ord('X')]) then begin
+  // Block Ctrl+A, Ctrl+C, Ctrl+X
+  if (ssCtrl in Shift) and (Key in [Ord('A'), Ord('C'), Ord('X')]) then begin
      Key := 0;
-     Exit;
+     exit;
   end;
-  }
+
 
   inherited;
 end;
@@ -210,16 +244,6 @@ begin
      inherited;
 end;
 
-// Block clipboard paste?
-{
-procedure TSecureEdit.WMPaste(var Message: TMessage);
-begin
-  if FSecureMode then
-     Message.Result := 0
-  else
-     inherited;
-end;
-}
 
 function TSecureEdit.GetSecureText: string;
 begin
