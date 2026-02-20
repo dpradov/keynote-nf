@@ -107,12 +107,18 @@ end;
 
 procedure TSecureEdit.WMContextMenu(var Message: TWMContextMenu);
 begin
-  Message.Result := 1;       // Do not call inherited = do not show contextual menu
+  if FSecureMode then
+     Message.Result := 1       // Do not call inherited = do not show contextual menu
+  else
+     inherited;
 end;
 
 procedure TSecureEdit.WMPaste(var Message: TMessage);
 begin
-  Message.Result := 0;       // Block the system's WM_PASTE message. We already handle this manually in KeyDown.
+  if FSecureMode then
+     Message.Result := 0       // Block the system's WM_PASTE message. We already handle this manually in KeyDown.
+  else
+     inherited;
 end;
 
 procedure TSecureEdit.WMKeyDown(var Message: TWMKeyDown);
