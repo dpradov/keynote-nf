@@ -129,7 +129,7 @@ type
     CheckBox_AutoSaveOnFocus: TCheckBox;
     CheckBox_AutoSaveOnTimer: TCheckBox;
     Spin_AutoSaveOnTimerInt: TSpinEdit;
-    Label_Minutes: TLabel;
+    lblMin: TLabel;
     GroupBox_FileOpt2: TGroupBox;
     CheckBox_OpenFloppyReadOnly: TCheckBox;
     CheckBox_OpenReadOnlyWarn: TCheckBox;
@@ -318,6 +318,12 @@ type
     lblTab: TLabel;
     lbl2: TLabel;
     CB_LineEdWidth: TCheckBox;
+    GroupBox_Files3: TGroupBox;
+    CB_LockOpen: TCheckBox;
+    CB_TimerLock: TCheckBox;
+    Spin_TimerLock: TSpinEdit;
+    lblMin2: TLabel;
+    BitBtn_LckHlp: TBitBtn;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -380,6 +386,8 @@ type
     procedure btnFBEditClick(Sender: TObject);
     procedure btnFBDeleteClick(Sender: TObject);
     procedure txtSepInListsExit(Sender: TObject);
+    procedure BitBtn_LckHlpClick(Sender: TObject);
+    procedure CB_TimerLockClick(Sender: TObject);
   private
     fOptions: array[0..16] of TOption;
     procedure CheckImgMaxAutoWidthGoalValue;
@@ -733,6 +741,7 @@ begin
 
   CheckBox_AutoSaveOnTimerClick( CheckBox_AutoSaveOnTimer );
   Checkbox_AutoSaveClick( Checkbox_AutoSave );
+  CB_TimerLockClick (CB_TimerLock);
   checkbox_BackupClick( Checkbox_Backup );
 
   CheckBox_TimerMinimizeClick( CheckBox_TimerMinimize );
@@ -745,6 +754,7 @@ begin
   CheckBox_MRUUse.OnClick := CheckBox_MRUUseClick;
   Checkbox_AutoSave.OnClick := Checkbox_AutoSaveClick;
   CheckBox_AutoSaveOnTimer.OnClick := CheckBox_AutoSaveOnTimerClick;
+  CB_TimerLock.OnClick:= CB_TimerLockClick;
   CheckBox_ShowTooltips.OnClick := CheckBox_ShowTooltipsClick;
   Edit_DateFormat.OnChange := Edit_DateFormatChange;
   Edit_TimeFormat.OnChange := Edit_TimeFormatChange;
@@ -948,6 +958,8 @@ begin
     AutoSave := CheckBox_AutoSave.Checked;
     AutoSaveOnFocus := CheckBox_AutoSaveOnFocus.Checked;
     AutoSaveOnTimer := CheckBox_AutoSaveOnTimer.Checked;
+    LockOnOpening   := CB_LockOpen.Checked;
+    TimerFileLckInt := Spin_TimerLock.Value;
 
     BackupRegularIntervals := CB_BackupRegularIntervals.Checked;
     Backup := checkbox_Backup.Checked;
@@ -1172,6 +1184,9 @@ begin
     CheckBox_AutoSave.Checked := AutoSave;
     CheckBox_AutoSaveOnFocus.Checked := AutoSaveOnFocus;
     CheckBox_AutoSaveOnTimer.Checked := AutoSaveOnTimer;
+    CB_LockOpen.Checked := LockOnOpening;
+    CB_TimerLock.Checked:= (TimerFileLckInt > 0);
+    Spin_TimerLock.Value := TimerFileLckInt;
     Checkbox_Backup.Checked := Backup;
     CB_BackupRegularIntervals.Checked := BackupRegularIntervals;
     CB_BackupVNodes.Checked := BackupVNodes;
@@ -1458,7 +1473,7 @@ begin
   CheckBox_AutoSaveOnFocus.Enabled := Checkbox_AutoSave.Checked;
   CheckBox_AutoSaveOnTimer.Enabled := Checkbox_AutoSave.Checked;
   Spin_AutoSaveOnTimerInt.Enabled := ( Checkbox_AutoSave.Checked and CheckBox_AutoSaveOnTimer.Checked );
-  Label_Minutes.Enabled := Checkbox_AutoSave.Checked;
+  lblMin.Enabled := Checkbox_AutoSave.Checked;
 end;
 
 procedure TForm_OptionsNew.CheckBox_AutoSaveOnFocusClick(Sender: TObject);
@@ -2095,6 +2110,13 @@ begin
      CB_PathTopToBottom.Checked:= False;
 end;
 
+procedure TForm_OptionsNew.CB_TimerLockClick(Sender: TObject);
+begin
+   Spin_TimerLock.Enabled:= CB_TimerLock.Checked;
+   if not CB_TimerLock.Checked then
+      Spin_TimerLock.Value:= 0;
+end;
+
 procedure TForm_OptionsNew.CB_TrackWordCountClick(Sender: TObject);
 begin
   if CB_TrackWordCount.Checked then
@@ -2352,5 +2374,11 @@ begin
   DeleteBlock;
   LVfb.SetFocus;
 end;
+
+procedure TForm_OptionsNew.BitBtn_LckHlpClick(Sender: TObject);
+begin
+  App.InfoPopup(GetRS(sOpt21));
+end;
+
 
 end.

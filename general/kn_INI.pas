@@ -406,6 +406,8 @@ type
     TimerCloseEncOnly,
     TimerCloseInt,
     TimerCloseAutoReopen,
+    LockOnOpening,
+    TimerFileLckInt,
     TipOfTheDay,
     TipOfTheDayIdx,
     ToolbarFormatShow,
@@ -593,6 +595,8 @@ const
     TimerCloseEncOnly : 'TimerCloseEncOnly';
     TimerCloseInt : 'TimerCloseInt';
     TimerCloseAutoReopen : 'TimerCloseAutoReopen';
+    LockOnOpening : 'LockOnOpening';
+    TimerFileLckInt : 'TimerFileLckInt';
     TipOfTheDay : 'TipOfTheDay';
     TipOfTheDayIdx : 'TipOfTheDayIdx';
     ToolbarFormatShow : 'ToolbarFormatShow';
@@ -1170,6 +1174,8 @@ begin
     TimerCloseEncOnly := true;
     TimerCloseInt := DEF_TIMERCLOSEINT;
     TimerCloseAutoReopen := true;
+    LockOnOpening := True;
+    TimerFileLckInt := 5;
     TipOfTheDay := true;
     TipOfTheDayIdx := -1;
     ToolbarFormatShow := true;
@@ -1493,6 +1499,8 @@ begin
       writebool( section, KeyOptionsIniStr.TimerCloseEncOnly, KeyOptions.TimerCloseEncOnly );
       writeinteger( section, KeyOptionsIniStr.TimerCloseInt, KeyOptions.TimerCloseInt );
       writebool( section, KeyOptionsIniStr.TimerCloseAutoReopen, KeyOptions.TimerCloseAutoReopen );
+      writebool( section, KeyOptionsIniStr.LockOnOpening, KeyOptions.LockOnOpening );
+      writeinteger( section, KeyOptionsIniStr.TimerFileLckInt, KeyOptions.TimerFileLckInt );
 
       writebool( section, KeyOptionsIniStr.TipOfTheDay, KeyOptions.TipOfTheDay );
       writeinteger( section, KeyOptionsIniStr.TipOfTheDayIdx, KeyOptions.TipOfTheDayIdx );
@@ -1860,6 +1868,8 @@ begin
       KeyOptions.TimerCloseEncOnly := readbool( section, KeyOptionsIniStr.TimerCloseEncOnly, KeyOptions.TimerCloseEncOnly );
       KeyOptions.TimerCloseInt := readinteger( section, KeyOptionsIniStr.TimerCloseInt, KeyOptions.TimerCloseInt );
       KeyOptions.TimerCloseAutoReopen := readbool( section, KeyOptionsIniStr.TimerCloseAutoReopen, KeyOptions.TimerCloseAutoReopen );
+      KeyOptions.LockOnOpening := readbool( section, KeyOptionsIniStr.LockOnOpening, KeyOptions.LockOnOpening );
+      KeyOptions.TimerFileLckInt := readinteger( section, KeyOptionsIniStr.TimerFileLckInt, KeyOptions.TimerFileLckInt );
 
       if KeyOptions.TimerMinimizeInt < 1 then
         KeyOptions.TimerMinimizeInt := DEF_TIMERMINIMIZEINT;

@@ -1,14 +1,14 @@
 unit knt.App;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
- (c) 2007-2015 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2026 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
@@ -27,6 +27,7 @@ uses
    System.StrUtils,
    System.AnsiStrings,
    System.IniFiles,
+   System.IOUtils,
    Vcl.Clipbrd,
    Vcl.Graphics,
    Vcl.FileCtrl,
@@ -111,6 +112,10 @@ type
       fUI_RTL: boolean;
       fTagsState: TTagsState;
 
+      FLockStream: TStream;                      // for locking of main (.knt) file
+      FLckStream: TStream;                       // for locking of .lck file
+      FActiveFileEditedByOtherUser: boolean;
+
       constructor Create;
       procedure Initialize;
 
@@ -157,9 +162,19 @@ type
       procedure FolderPropertiesModified (Folder: TKntFolder);
 
       procedure FileNew (aFile: TKntFile);
-      procedure FileOpening (aFile: TKntFile);
-      procedure FileOpen (aFile: TKntFile);
+      function  FileOpening (aFile: TKntFile; const FN: string; var OpenReadOnly: boolean): boolean;
+      procedure FileOpen (aFile: TKntFile; const FN: string);
       procedure FileClosed (aFile: TKntFile);
+      function  LockFile (const FN: string; ReportError: boolean; OfferContinueReadOnly: boolean; var ContinueReadOnly: boolean): boolean;
+      procedure ReportLockedFile(const FN: string; OfferContinueReadOnly: boolean; var ContinueReadOnly: boolean; AdditionalMsg: string = ''; OnlyIfFileExists: boolean = false);
+      procedure ReleaseLockedFile (FN: string);
+      procedure UnlockFileTemporarily (FN: string);
+      procedure SaveLockInfo(FN: string);
+      function FileIsLockedByOtherUser (FN: string): boolean;
+      property LockStream: TStream read FLockStream;
+      property LckStream: TStream read FLckStream;
+      property ActiveFileEditedByOtherUser: boolean read FActiveFileEditedByOtherUser write FActiveFileEditedByOtherUser;
+
 
       procedure ActivateFolder (Folder: TKntFolder); overload;
       procedure ActivateFolder (TabIndex: Integer); overload;
@@ -231,6 +246,7 @@ var
    FloatingEditorCannotBeSaved: boolean;
 
    ExportingFormVisible: boolean;
+   InformingSomeoneChangedOurFile: boolean;
 
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas
@@ -256,6 +272,9 @@ implementation
 uses
    GFTipDlg,
    GFLog,
+   gf_streams,
+   gf_files,
+   gf_strings,
    gf_Lang,
    kn_MacroMng,
    kn_VCLControlsMng,
@@ -356,12 +375,15 @@ begin
    ActiveEditor := nil;
    ActiveFolder := nil;
    ActiveFileIsBusy := false;
+   FLockStream:= nil;
+   FLckStream := nil;
 
    IgnoringEditorChanges:= false;
    HandlingTimerTick:= false;
    UpdatingTextPlain:= false;
    fTagsState:= tsPendingUpdate;
    ExportingFormVisible:= false;
+   InformingSomeoneChangedOurFile:= false;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
@@ -912,6 +934,7 @@ end;
 
 procedure TKntApp.FileNew (aFile: TKntFile);
 begin
+   FActiveFileEditedByOtherUser:= False;
    ActiveFolder:= nil;
    ActiveNNode:= nil;
    ActiveFile:= aFile;
@@ -920,14 +943,190 @@ begin
       ActiveEditor:= nil;
 end;
 
-procedure TKntApp.FileOpening (aFile: TKntFile);
+
+function TKntApp.FileOpening (aFile: TKntFile; const FN: string; var OpenReadOnly: boolean): boolean;
+var
+   info: string;
+   ContinueReadOnly: boolean;
 begin
+   Result:= True;
+
+   if not OpenReadOnly then begin
+      if not LockFile(FN, True, True, ContinueReadOnly) then begin
+         Result:= ContinueReadOnly;
+         OpenReadOnly:= True;
+      end;
+   end;
+
    ActiveFile:= aFile;
    ActiveFileIsBusy := true;
    AFileIsLoading:= True;
 end;
 
-procedure TKntApp.FileOpen (aFile: TKntFile);   // aFile can be nil (file open failed)
+
+function TKntApp.LockFile (const FN: string; ReportError: boolean; OfferContinueReadOnly: boolean; var ContinueReadOnly: boolean): boolean;
+begin
+   if not KeyOptions.LockOnOpening then begin
+      Result:= True;
+      FActiveFileEditedByOtherUser:= False;
+      if FileIsLockedByOtherUser(FN) then begin
+         FActiveFileEditedByOtherUser:= True;
+         Result:= False;
+         ReportLockedFile(FN, OfferContinueReadOnly, ContinueReadOnly);
+      end;
+      exit;
+   end;
+
+   Result:= False;
+   try
+     FLockStream := TFileStream.Create(FN, fmOpenReadWrite or fmShareDenyWrite);
+     if not TFile.Exists(FN + ext_LockFile) then
+        SaveLockInfo(FN);
+     Result:= True;
+     FActiveFileEditedByOtherUser:= False;
+
+   except
+     FLockStream := nil;
+     FActiveFileEditedByOtherUser:= True;
+     if ReportError then
+        ReportLockedFile(FN, OfferContinueReadOnly, ContinueReadOnly);
+   end;
+end;
+
+
+procedure TKntApp.ReportLockedFile(const FN: string; OfferContinueReadOnly: boolean; var ContinueReadOnly: boolean;
+                                   AdditionalMsg: string = '';
+                                   OnlyIfFileExists: boolean = false);
+var
+  Strs: TStrings;
+  Msg, Info: string;
+  User, Computer, FromInstant: string;
+begin
+  if OnlyIfFileExists and not TFile.Exists(FN) then
+     exit;
+
+  Strs:= TStringList.Create;
+
+  try
+     try
+        Info:= TryUTF8ToUnicodeString( ReadAllTextNoLockAsAnsiString(FN + ext_LockFile) );
+        SplitString(Strs, Info, SEP, false);
+        User:=  Strs[0];
+        Computer:=  Strs[1];
+        FromInstant:=  Strs[2];
+     except
+        User:= '?';
+        Computer:= '?';
+        FromInstant:= '?';
+     end;
+
+     if AdditionalMsg <> '' then
+        AdditionalMsg:= #13#13 + AdditionalMsg;
+
+     Msg:= Format(GetRS(sFileM85), [FN, User, Computer, FromInstant]);
+     if OfferContinueReadOnly then begin
+         ContinueReadOnly:= True;
+         Msg:= Msg + GetRS(sFileM86) + AdditionalMsg;
+         if ( App.PopupMessage( Msg, TMsgDlgType.mtWarning, [mbYes,mbNo] ) <> mrYes ) then
+             ContinueReadOnly:= False;
+     end
+     else
+        App.WarningPopup(Msg + AdditionalMsg);
+
+  finally
+     Strs.Free;
+  end;
+
+end;
+
+
+procedure TKntApp.SaveLockInfo(FN: string);
+var
+   info: UTF8String;
+   UserBuf: array[0..256] of Char;                          // maximum username size
+   CompBuf: array[0..MAX_COMPUTERNAME_LENGTH] of Char;
+   Size: DWORD;
+
+begin
+  if not KeyOptions.LockOnOpening then exit;
+
+  try
+    FN:= FN + ext_LockFile;
+
+    DeleteFile(FN);
+
+    FLckStream := TFileStream.Create(FN, fmCreate or fmShareDenyWrite);
+
+    Size := Length(UserBuf);
+    if not GetUserName(UserBuf, Size) then
+       StrCopy(UserBuf, ' ? ');
+
+    Size := Length(CompBuf);
+    if not GetComputerName(CompBuf, Size) then
+       StrCopy(CompBuf, ' ? ');
+
+    info:= string(UserBuf) + '|' + string(CompBuf) + '|' + DateTimeToStr(Now);
+    FLckStream.WriteBuffer(Pointer(Info)^, Length(Info));
+
+  except
+     On E: Exception do begin
+        FLckStream:= nil;
+        Log_StoreTick('Error trying to save lock info file: ' + E.Message);
+     end;
+  end;
+end;
+
+
+procedure TKntApp.ReleaseLockedFile (FN: string);
+var
+   AuxFN, Path: string;
+   Released: boolean;
+begin
+   if not KeyOptions.LockOnOpening then exit;
+
+   Released:= False;
+   if FLockStream <> nil then begin
+      FLockStream.Free;
+      FLockStream := nil;
+      Released:= True;
+   end;
+   if FLckStream <> nil then begin
+      FLckStream.Free;
+      FLckStream := nil;
+   end;
+   DeleteFile(FN + ext_LockFile);
+
+   if Released then begin
+     // To force the detection of the file release, so that it can be detected by any client that has the file
+     // open in read mode, waiting for it to be unlocked
+      Path:= ExtractFilePath(FN);
+      AuxFN:= Path + 'KNT_' + RandomFileName(Path, ext_Txt, 8);
+      TFile.WriteAllText(AuxFN, FN + ' unlocked');
+      DeleteFile(AuxFN);
+   end;
+end;
+
+
+procedure TKntApp.UnlockFileTemporarily (FN: string);
+begin
+   FLockStream.Free;
+   FLockStream := nil;
+end;
+
+
+function TKntApp.FileIsLockedByOtherUser (FN: string): boolean;
+begin
+   Result:= True;
+   FN:= FN + ext_LockFile;
+   DeleteFile(FN);
+   if not TFile.Exists(FN) then
+      Result:= False;
+end;
+
+
+
+
+procedure TKntApp.FileOpen (aFile: TKntFile; const FN: string);   // aFile can be nil (file open failed)
 begin
    ActiveFile:= aFile;
    ActiveFileIsBusy := false;
@@ -942,8 +1141,11 @@ begin
             CheckTagsField(txtTagsIncl, FindTagsIncl);
             CheckTagsField(txtTagsExcl, FindTagsExcl);
          end;
-   end;
+   end
+   else
+      ReleaseLockedFile(FN);
 end;
+
 
 procedure TKntApp.TagsUpdated;
 begin

@@ -38,6 +38,7 @@ uses
 const
   ext_KeyNote    = '.knt'; // KeyNote data file
   ext_Encrypted  = '.kne'; // KeyNote encrypted file
+  ext_LockFile   = '.lck'; // KeyNote lock auxiliary file
   ext_DEFAULTS   = '.def'; // KeyNote default storage
   ext_MGR        = '.mgr'; // KeyNote file manager
   ext_RTF        = '.rtf';
@@ -598,6 +599,8 @@ type
     TimerCloseEncOnly : boolean; // auto close only encrypted files
     TimerCloseInt : integer; // minutes
     TimerCloseAutoReopen : boolean; // will try to reopen encrypted files ONLY!
+    LockOnOpening : boolean;
+    TimerFileLckInt : integer;  // minutes
     TipOfTheDay : boolean;
     TipOfTheDayIdx : integer;
     ToolbarFormatShow : boolean;

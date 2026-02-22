@@ -289,8 +289,11 @@ begin
             Log_StoreTick('');
             Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
 
-            App.FileOpening(KntFile);
-            result := KntFile.Load( FN, ImageMng, ClipCapIdx, true );
+            if TFile.Exists(FN) and not App.FileOpening(KntFile, FN, OpenReadOnly) then begin
+               result := -1;
+               exit;
+            end;
+            result := KntFile.Load( FN, ImageMng, ClipCapIdx, true );        // <======== LOAD
 
             Log_StoreTick( 'After parsed .knt file', 1 );
 
@@ -451,7 +454,7 @@ begin
            and the below call to App.ActivateFolder will not ensure that the carets are visbile. For this reason there is also
            a call to these methods in Form_Main.Activate (they will run only the first time, when opening the app).
          }
-          App.FileOpen(KntFile);     // KntFile can be nil. It will set ActiveFile and ActiveFileIsBusy (False)
+          App.FileOpen(KntFile, FN);     // KntFile can be nil. It will set ActiveFile and ActiveFileIsBusy (False)         // <======== APP.FILEOPEN
 
           if opensuccess then begin
             if assigned( KntFile ) then begin
@@ -755,14 +758,29 @@ var
   tempDirectory, tempFN : string;
   SavedFolders, SavedNotes: integer;
   KntFile: TKntFile;
+  AuxBool: boolean;
+  OriginalFN: string;
+  OriginalLockStream, OriginalLckStream: TStream;
 
-  procedure RenameTempFile;
+  function RenameTempFile: boolean;
   var
      Str: string;
   begin
+     Result:= True;
      if not MoveFileExW_n (tempFN, FN, 5) then begin
-        Str:= GetRS(sFileM25) + GetRS(sFileMInfSaving);
-        raise EKeyKntFileError.CreateFmt(Str, [FN, GetLastError, tempFN, KeyOptions.BackupDir]);
+        Str:= GetRS(sFileM25);
+        if App.FileIsLockedByOtherUser(FN) then begin
+           App.ReportLockedFile(FN, False, AuxBool,
+                                Format(Str, ['', GetLastError, tempFN, KeyOptions.BackupDir]) + GetRS(sFileM88));
+           KntFile.ReadOnly := True;
+           Result:= False;
+        end
+        else begin
+           if OriginalFN = FN then
+              Str:= Str + GetRS(sFileMInfSaving);
+           raise EKeyKntFileError.CreateFmt(Str, ['"' + FN + '"', GetLastError, tempFN, KeyOptions.BackupDir]);
+        end;
+
      end;
   end;
 
@@ -793,6 +811,8 @@ begin
          KntFile.IsBusy := true;
          FolderMon.Active := false;
          if not HaveKntFolders(true, false) then exit;
+
+         OriginalFN:= KntFile.FileName;
 
          if FN <> '' then begin
             FN := NormalFN(FN);
@@ -846,7 +866,8 @@ begin
                         FN := FN + ext_KeyNote;
                  end;
               end;
-
+              OriginalLockStream:= App.LockStream;
+              OriginalLckStream:= App.LckStream;
            end
            else
               Exit;
@@ -904,18 +925,27 @@ begin
          Log_StoreTick( 'After KntFile.Save (temporal location)', 1 );
 
          if Result = 0 then begin
-            // BACKUP (using previous file, before this saving) of the file
-            if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
-               if not SUCCESS then begin
-                  if App.DoMessageBox(Format(GetRS(sFileM21), [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo]) <> mrYes then begin
-                    Result := -2;
-                    Exit;
+            if OriginalFN = FN then begin
+               // BACKUP (using previous file, before this saving) of the file
+               App.UnlockFileTemporarily(FN);
+
+               if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
+                  if not SUCCESS then begin
+                     if App.DoMessageBox(Format(GetRS(sFileM21), [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo]) <> mrYes then begin
+                       Result := -2;
+                       Exit;
+                     end;
                   end;
                end;
+               Log_StoreTick( 'After DoBackup', 1 );
             end;
-            Log_StoreTick( 'After DoBackup', 1 );
 
-            RenameTempFile;                 // Now rename the temp file to the actual KeyNote file name
+            if not RenameTempFile then                 // Now rename the temp file to the actual KeyNote file name
+               exit;
+
+            if KeyOptions.LockOnOpening and not App.LockFile(FN, True, False, AuxBool) then
+               exit;
+
             KntFile.FileName := FN;
             KntFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
 
@@ -931,7 +961,10 @@ begin
          else begin
             // ERROR on save
             StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sFileM23), [Result] );
-            ErrStr := Format(GetRS(sFileM24) + GetRS(sFileMInfSaving), [Result, tempDirectory, KeyOptions.BackupDir] );
+            ErrStr := GetRS(sFileM24);
+            if OriginalFN = FN then
+               ErrStr:= ErrStr + GetRS(sFileMInfSaving);
+            ErrStr := Format(ErrStr, [Result, tempDirectory, KeyOptions.BackupDir] );
 
             if KeyOptions.AutoSave then begin
                KeyOptions.AutoSave := False;
@@ -947,7 +980,8 @@ begin
            Log.Add('Exception in KntFileSave: ' + E.Message);
            {$ENDIF}
            StatusBar.Panels[PANEL_HINT].Text := GetRS(sFileM27);
-           App.ErrorPopup(E, GetRS(sFileM28) + ExtractFileName(FN));
+           App.ErrorPopup(GetRS(sFileM28) + ExtractFileName(FN) + ':'+#13#13 + E.Message);
+           App.ReportLockedFile(FN, False, AuxBool, '', True);       // True: OnlyIfFileExists
            Result := 1;
          end;
        end;
@@ -992,6 +1026,12 @@ begin
         if KeyOptions.MRUUse then
            MRU.AddItem(FN);
         AddToFileManager(FN, KntFile);
+
+        if KeyOptions.LockOnOpening and (OriginalFN <> FN) then begin
+           OriginalLockStream.Free;
+           OriginalLckStream.Free;
+           DeleteFile(OriginalFN + ext_LockFile);
+        end
      end;
   end;
 
@@ -1004,6 +1044,7 @@ end; // KntFileSave
 function KntFileClose : boolean;
 var
    KntFile: TKntFile;
+   FN: string;
 begin
 
   if ( not Form_Main.HaveKntFolders( false, false )) then exit;
@@ -1014,6 +1055,7 @@ begin
   end;
 
   KntFile:= ActiveFile;
+  FN:= KntFile.FileName;
 
   with Form_Main do begin
 
@@ -1085,6 +1127,7 @@ begin
         if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
            Res_RTF.RemoveKNTHiddenCharacters(false);
 
+        App.ReleaseLockedFile(FN);
         AlarmMng.Clear;
         ImageMng.Clear;
         TKntTreeUI.ClearGlobalData;
@@ -1530,11 +1573,26 @@ end; // MergeFromKNTFile
 // SomeoneChangedOurFile
 //=================================================================
 procedure SomeoneChangedOurFile;
+var
+  Msg: string;
+  DlgType: TMsgDlgType;
 begin
+  if InformingSomeoneChangedOurFile then exit;
+
   Application_BringToFront;
   Form_Main.FolderMon.Active := false;
+  InformingSomeoneChangedOurFile:= true;
   try
-    case App.DoMessageBox( Format(GetRS(sFileM49), [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
+    DlgType:= mtWarning;
+    if App.ActiveFileEditedByOtherUser then begin
+       App.ActiveFileEditedByOtherUser:= false;
+       Msg:= GetRS(sFileM87);                   // File '%s' has been released and can now be opened in edit mode. Reload from disk?
+       DlgType:= TMsgDlgType.mtConfirmation;
+    end
+    else
+       Msg:= GetRS(sFileM49);
+
+    case App.DoMessageBox( Format(Msg, [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
       mrYes : begin
         KntFileOpen( ActiveFile.FileName );
       end;
@@ -1543,6 +1601,7 @@ begin
       end;
     end;
   finally
+    InformingSomeoneChangedOurFile:= false;
     Form_Main.FolderMon.Active := ( not KeyOptions.DisableFileMon );
   end;
 end; // SomeoneChangedOurFile;
@@ -1597,6 +1656,11 @@ begin
         if ( not HaveKntFolders( false, false )) then exit;
         if ( ActiveFile.State.Name = '' ) then exit;
         Changed := false;
+
+        if App.ActiveFileEditedByOtherUser then
+           if App.FileIsLockedByOtherUser(ActiveFile.FileName) then
+              exit;
+
         s := '';
         GetFileState( ActiveFile.State.Name, NewState );
         if ( NewState.Size = -1 ) then begin
@@ -1617,13 +1681,19 @@ begin
           end;
         end;
 
-        if Changed then begin
-          ActiveFile.ChangedOnDisk := true;
-          StatusBar.Panels[PANEL_HINT].Text := GetRS(sFileM53);
-         {$IFDEF KNT_DEBUG}
-          Log.Add( 'FileChangedOnDisk: ' + s );
-         {$ENDIF}
+        if Changed or App.ActiveFileEditedByOtherUser then begin
+          if Changed then begin
+             StatusBar.Panels[PANEL_HINT].Text := GetRS(sFileM53);
+            {$IFDEF KNT_DEBUG}
+             Log.Add( 'FileChangedOnDisk: ' + s );
+            {$ENDIF}
+          end;
           GetFileState( ActiveFile.State.Name, ActiveFile.State );
+
+          if Application.Active then
+             SomeoneChangedOurFile
+          else
+             ActiveFile.ChangedOnDisk := true;
         end;
   end;
 
@@ -1685,6 +1755,9 @@ begin
         end;
 
       finally
+         if Result and (ActiveFile <> nil) then
+            App.ReleaseLockedFile(ActiveFile.FileName);
+
         {$IFDEF KNT_DEBUG}
          Log.Add( 'CheckModified result: ' + BOOLARRAY[result], 1 );
         {$ENDIF}

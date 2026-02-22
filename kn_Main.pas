@@ -2577,13 +2577,17 @@ begin
   try
      inc( Timer_Tick );
      inc( Timer_TickAlarm);
+     inc( Timer_TickFileLock);
      {
-       timer may trigger THREE kinds of things:
+       timer may trigger:
        1. auto-saving current file
        2. minimizing keynote and/or closing file after a period of inactivity.
 
-       3. Show Alarms on nodes           [dpv*]
-       4. Invoke ImagesManager.CleanUp   [dpv]
+       3. Show Alarms on nodes
+       4. Invoke ImagesManager.CleanUp
+       5. Check for new version
+       6. Update TextPlain Variables (for use in Find All)
+       7. Checking the release of a file locked by another user or process
      }
      try
         if ( Timer_Tick >= KeyOptions.AutoSaveOnTimerInt * ( 60000 div _TIMER_INTERVAL ) ) then
@@ -2623,7 +2627,7 @@ begin
        end;
 
 
-       if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Comprobamos cada 15 segundos
+       if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Check every 15 seconds
            Timer_TickAlarm:= 0;
            AlarmMng.checkAlarms;
            ImageMng.CheckFreeImageStreamsNotRecentlyUsed;     // This method will only work if ImageManager.Enabled and if more than X minutes have passed since the previous cleanup
@@ -2637,6 +2641,19 @@ begin
        if EditorOptions.WordCountTrack and (_MillisecondsIdle >= 450) then
           if assigned(ActiveEditor) then
              ActiveEditor.UpdateWordCount;
+
+
+       if (KeyOptions.TimerFileLckInt > 0) and
+          (Timer_TickFileLock >= KeyOptions.TimerFileLckInt * ( 60000 div _TIMER_INTERVAL )) then begin
+
+          Timer_TickFileLock:= 0;
+          if (ActiveFile <> nil) then
+             if App.ActiveFileEditedByOtherUser and not App.FileIsLockedByOtherUser(ActiveFile.FileName) then
+                SomeoneChangedOurFile
+             else
+                FolderChanged;
+       end;
+
 
      finally
         HandlingTimerTick:= False;

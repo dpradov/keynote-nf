@@ -370,11 +370,11 @@ const
    sFileM17 = 54344;   //  ERROR %d opening file
    sFileM19 = 54345;   //  Saving
    sFileM20 = 54346;   // Specified backup directory "%s" does not exist. Backup files will be created in the original file's directory.
-   sFileM21 = 54347;   // Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?\^\^ (Note: File was temporary saved in %s)
+   sFileM21 = 54347;   // Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?\^\^ (Note: File was temporarily saved in %s)
    sFileM22 = 54348;   //  File saved (%d folders, %d notes)
    sFileM23 = 54349;   //  Error %d while saving file.
    sFileM24 = 54351;   // Error %d occurred while saving to a temporal folder (%s). The contents of the file in memory are perhaps partially corrupted.\^\^-> Please, retry, and if you can'nt save to a .knt file, try to recover the nodes/notes with unsaved changes using, for example, File -> Export...\^\^\^
-   sFileM25 = 54320;   // Failed to create output file "%s" (Error: %d)\^File was temporary saved in %s\^\^\^
+   sFileM25 = 54320;   // * Failed to create output file %s (Error: %d)\^* File was temporarily saved in %s\^\^\^
    sFileM26 = 54321;   // The Auto-Save option was turned OFF, to prevent KeyNote from automatically saving the (perhaps) damaged file.
    sFileM27 = 54322;   //  ERROR saving file
    sFileM28 = 54323;   // Saving "
@@ -397,7 +397,7 @@ const
    sFileM46 = 54308;   // Error while adding folders:
    sFileM47 = 54309;   // Merged %d folders from "%s"
    sFileM48 = 54310;   // No folders were merged
-   sFileM49 = 54312;   // Another application has modified the knt file %s. Reload the file from disk?
+   sFileM49 = 54312;   //'%s':\^ANOTHER APPLICATION has MODIFIED the file. RELOAD from disk?
    sFileM50 = 54313;   // %s folder "%s" does not exist
    sFileM51 = 54314;   // . Create the folder now?
    sFileM52 = 54315;   // Could not create folder: %s
@@ -424,9 +424,12 @@ const
    sFileM81 = 54272;   // Cannot insert images in a plain text folder
    sFileM82 = 54273;   // The file must first be saved (with Save or Save As)
    sFileM83 = 54311;   // %d Links or Mirror nodes couldn't be adapted\^Links can be found searching for "file///<%d"
-   sFileMInfSaving = 54350;   // * NOTE:\^  - The .knt file in disk must not have been modified from last correct save.\^  - You should have multiple backup files in the folder %s, specially if you selected the option "Backup at regular intervals" (highly recommended)
+   sFileMInfSaving = 54350;   // * NOTE:\^  - The .knt file on disk must not have been modified since the last successful save.\^  - You should have multiple backup files in the folder %s, specially if you selected the option "Backup at regular intervals" (highly recommended)
    sFileM84 = 55137;   // Do you want to merge the ENCRYPTED CONTENT?\^\^It will remain protected with the password of the current file (or the one you set *before* saving)
-
+   sFileM85 = 55143;   // File '%s'\^\^IS BEING EDITED BY ANOTHER USER:\^\^%s (%s)\^Since: %s
+   sFileM86 = 55144;   // \^\^OPEN it in READ-ONLY mode?
+   sFileM87 = 55145;   // File '%s'\^\^HAS BEEN RELEASED and can now be opened in edit mode\^RELOAD from disk?
+   sFileM88 = 55146;   // * The file WILL BE CHANGED to READ-ONLY (use 'Save As')
    sFInf01 = 54410;   //  file
    sFInf02 = 54411;   // File properties:
    sFInf03 = 54412;   //  bytes
@@ -873,7 +876,14 @@ const
    sOpt18 = 55088;   // Enter new extension for text files:
    sOpt19 = 55089;   // Extension \"%s\" already listed.
    sOpt20 = 55090;   // Reset default text file extensions?
-
+   sOpt21 = 55147;  { * Locked files open in read-only mode.
+                      * Saving to a locked file is prevented (use “Save As”).
+                      * File changes and lock releases are monitored automatically, with optional periodic checks.
+                      ----
+                      * When opening a file locked by another user, a warning is shown and you may continue in read-only mode\^\^
+                      * Attempts to save a locked file are blocked and the document switches automatically to read-only mode (use 'Save As')\^\^
+                      * KeyNote monitors file changes and lock releases. The 'Check for file…' option ensures periodic verification if the system does not report them.
+                     }
    sOptS00 = 54897;   // General Settings
    sOptS01 = 54898;   // Rich Text Editor
    sOptS02 = 54899;   // Images

@@ -937,7 +937,7 @@ object Form_OptionsNew: TForm_OptionsNew
         Left = 5
         Top = 5
         Width = 374
-        Height = 145
+        Height = 136
         Caption = ' On program startup... '
         DefaultHeaderFont = False
         HeaderFont.Charset = DEFAULT_CHARSET
@@ -961,7 +961,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_LoadLastFile: TCheckBox
           Left = 14
-          Top = 31
+          Top = 27
           Width = 355
           Height = 17
           Hint = 'Open the file which was used the last time'
@@ -970,7 +970,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_LoadUserFile: TCheckBox
           Left = 14
-          Top = 55
+          Top = 51
           Width = 355
           Height = 17
           Hint = 'Open the specified file on startup'
@@ -979,7 +979,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Edit_UserFile: TEdit
           Left = 33
-          Top = 77
+          Top = 73
           Width = 297
           Height = 21
           Hint = 'Enter a filename'
@@ -987,7 +987,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_AutoNewFile: TCheckBox
           Left = 14
-          Top = 107
+          Top = 103
           Width = 355
           Height = 17
           Caption = '&Create a blank new file if no file is loaded'
@@ -996,9 +996,9 @@ object Form_OptionsNew: TForm_OptionsNew
       end
       object GroupBox_Files2: TGroupBox
         Left = 5
-        Top = 167
+        Top = 148
         Width = 374
-        Height = 152
+        Height = 142
         Caption = ' Auto save '
         DefaultHeaderFont = False
         HeaderFont.Charset = DEFAULT_CHARSET
@@ -1007,16 +1007,16 @@ object Form_OptionsNew: TForm_OptionsNew
         HeaderFont.Name = 'Tahoma'
         HeaderFont.Style = [fsBold]
         TabOrder = 1
-        object Label_Minutes: TLabel
+        object lblMin: TLabel
           Left = 181
-          Top = 79
+          Top = 73
           Width = 37
           Height = 13
           Caption = 'minutes'
         end
         object Checkbox_AutoSave: TCheckBox
           Left = 14
-          Top = 31
+          Top = 25
           Width = 355
           Height = 17
           Hint = 'Automatically save note files when necessary'
@@ -1025,7 +1025,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_AutoSaveOnFocus: TCheckBox
           Left = 37
-          Top = 58
+          Top = 52
           Width = 324
           Height = 17
           Hint = 
@@ -1041,17 +1041,17 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_AutoSaveOnTimer: TCheckBox
           Left = 37
-          Top = 78
-          Width = 75
+          Top = 72
+          Width = 85
           Height = 17
           Hint = 'Save file at regular intervals'
           Caption = '&Every'
           TabOrder = 2
         end
         object Spin_AutoSaveOnTimerInt: TSpinEdit
-          Left = 114
-          Top = 76
-          Width = 61
+          Left = 128
+          Top = 70
+          Width = 47
           Height = 22
           Hint = 'How often to save changes automatically'
           MaxLength = 3
@@ -1062,11 +1062,73 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_SkipNewFilePrompt: TCheckBox
           Left = 14
-          Top = 111
+          Top = 105
           Width = 355
           Height = 17
           Caption = '&Do not prompt to save new files'
           TabOrder = 4
+        end
+      end
+      object GroupBox_Files3: TGroupBox
+        Left = 4
+        Top = 298
+        Width = 373
+        Height = 71
+        Caption = ' Protection / Change detection '
+        DefaultHeaderFont = False
+        HeaderFont.Charset = DEFAULT_CHARSET
+        HeaderFont.Color = clWindowText
+        HeaderFont.Height = -11
+        HeaderFont.Name = 'Tahoma'
+        HeaderFont.Style = [fsBold]
+        TabOrder = 2
+        object lblMin2: TLabel
+          Left = 323
+          Top = 48
+          Width = 37
+          Height = 13
+          Caption = 'minutes'
+        end
+        object CB_LockOpen: TCheckBox
+          Left = 15
+          Top = 22
+          Width = 316
+          Height = 17
+          Hint = 'Lock the file on opening, reporting it in an auxiliary .lck file'
+          Caption = 'Loc&k on opening'
+          TabOrder = 0
+        end
+        object CB_TimerLock: TCheckBox
+          Left = 15
+          Top = 44
+          Width = 250
+          Height = 17
+          Hint = 
+            'How often to check for the modification or release of a file edi' +
+            'ted by another user or process'
+          Caption = 'Check for file released / modified every'
+          TabOrder = 1
+        end
+        object Spin_TimerLock: TSpinEdit
+          Left = 268
+          Top = 42
+          Width = 48
+          Height = 22
+          MaxLength = 3
+          MaxValue = 999
+          MinValue = 0
+          TabOrder = 2
+          Value = 10
+        end
+        object BitBtn_LckHlp: TBitBtn
+          Left = 337
+          Top = 15
+          Width = 25
+          Height = 25
+          ImageIndex = 60
+          Images = Form_Main.IMG_Toolbar
+          TabOrder = 3
+          OnClick = BitBtn_LckHlpClick
         end
       end
     end
@@ -2186,9 +2248,9 @@ object Form_OptionsNew: TForm_OptionsNew
           FocusControl = Combo_ClipNodeNaming
         end
         object Label_MaxSize: TLabel
-          Left = 204
+          Left = 223
           Top = 228
-          Width = 78
+          Width = 59
           Height = 13
           Alignment = taRightJustify
           Caption = '&Limit size to:'
