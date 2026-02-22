@@ -1,12 +1,12 @@
-Three .INI options related to RTL activation have been added: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont  (information on their usage can be found in the help file: Configuring Keynote -> KeyNote.ini file settings)
-You can fold text, hiding its content except for a small fragment used as a visible excerpt. You can manage collapsed blocks to simplify visibility, to treat certain text as a kind of archive, etc.
-When folding, you can insert a second space to force the point where you want the visible excerpt to end
-When exporting you can decide to unfold, remove or keep unchanged folded text
-In the search panel (Search All), the 'folded mode' option allows you to decide whether to search within folded blocks
-You can apply tags to notes, allowing you to filter visible nodes in a tree or restrict certain searches to nodes that contain (or do not contain) certain tags. You can also use them to further restrict the notes to be exported.
-You can add an alias and/or description to any tag, which you can use to help you search for a tag.
-You can add tags to paragraphs or text fragments. By defining tagging criteria, you can restrict search results to specific text fragments, use "Find All" to retrieve the beginning of all fragments that meet the tagging criteria, and export only certain text fragments.
-Tags are independent for each .knt file but you can export or import tags. If you export to "Tags.txt", in the same folder as Keynote.exe, it will be automatically imported when you open any file, adding new tags or updating the description of those modified
+已新增三个与 RTL（从右到左）激活相关的 .INI 选项：RTLkeyShct、IMEAutoKeyboard、IMEAutoFont（用法说明见帮助文件：配置 Keynote -> KeyNote.ini 文件设置）。
+您可以折叠文本，只保留一小段作为可见摘要显示，其余内容隐藏。您可以通过管理折叠块来简化显示、将某些文本当作归档内容等。
+折叠时，可插入第二个空格来强制指定可见摘要的结束位置。
+导出时，您可以选择将折叠文本展开、移除或保持原样。
+在搜索面板（查找全部）中，“折叠模式”选项可让您选择是否在折叠块内进行搜索。
+您可以为笔记添加标签，从而在树中过滤可见节点，或将某些搜索限制为包含（或不包含）特定标签的节点。您还可以用标签进一步限制要导出的笔记。
+您可以为任意标签添加别名和/或描述，便于查找该标签。
+您可以为段落或文本片段添加标签。通过定义标签条件，可以限制搜索结果到特定片段、用“查找全部”获取符合条件的所有片段开头，以及仅导出特定文本片段。
+每个 .knt 文件的标签相互独立，但您可以导出或导入标签。若导出到与 Keynote.exe 同目录下的“Tags.txt”，则在打开任意文件时会自动导入，并添加新标签或更新已修改标签的描述。
 KNT 文件可以配置为将图像保存为内部文件，保存为 RTF ASCII/Hex 格式或图像的二进制格式，或保存为独立的图像文件（zip 或文件夹）外部存储（文件 | 属性）（参见 doc\Images_Readme.txt）。  
 强烈建议在升级到新版本之前备份 .knt 文件。考虑使用“定期备份”选项（参见 https://github.com/dpradov/keynote-nf/issues/544）。  
 您可以将 GIF、PNG、JPG、TIF、BMP、WMF、EMF 和 ICO 图像插入笔记文本中：从“插入”菜单选择“图片”，或将文件拖放到编辑器中。  
