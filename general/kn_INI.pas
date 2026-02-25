@@ -1331,7 +1331,7 @@ begin
   with Struct do
   begin
     AutoNameVNodes := true;
-    AutoScroll := false;
+    AutoScroll := true;
     ConfirmNodeDelete := true;
     ConfirmNodeRefresh := true;
     ExpandMode := txmExact;

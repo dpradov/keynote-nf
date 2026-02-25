@@ -871,8 +871,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 220
           Width = 360
           Height = 17
-          Hint = 'Auto scroll tree when text doesn'#39't fit in window'
-          Caption = 'A&uto scroll tree on mouse movement'
+          Hint = 'Automatically scrolls the tree when dragging nodes near the top or bottom edges'
+          Caption = 'A&uto scroll tree when dragging and dropping nodes'
           TabOrder = 6
         end
         object CheckBox_TreeTips: TCheckBox
