@@ -1,4 +1,4 @@
-已新增三个与 RTL（从右到左）激活相关的 .INI 选项：RTLkeyShct、IMEAutoKeyboard、IMEAutoFont（用法说明见帮助文件：配置 Keynote -> KeyNote.ini 文件设置）。
+﻿已新增三个与 RTL（从右到左）激活相关的 .INI 选项：RTLkeyShct、IMEAutoKeyboard、IMEAutoFont（用法说明见帮助文件：配置 Keynote -> KeyNote.ini 文件设置）。
 您可以折叠文本，只保留一小段作为可见摘要显示，其余内容隐藏。您可以通过管理折叠块来简化显示、将某些文本当作归档内容等。
 折叠时，可插入第二个空格来强制指定可见摘要的结束位置。
 导出时，您可以选择将折叠文本展开、移除或保持原样。

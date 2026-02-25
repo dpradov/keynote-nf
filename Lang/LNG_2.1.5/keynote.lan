@@ -15,7 +15,7 @@ Translator=coolvitto
 RTL=0
 
 [Chinese Simplified]
-Comment=v2.0.5.02
+Comment=v2.1.5.01
 Name=Chinese  Simplified
 LangFile=Keynote.chinese-simplified.lng
 TipFile=Keynote.chinese-simplified.tip

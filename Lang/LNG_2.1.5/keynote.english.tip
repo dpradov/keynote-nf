@@ -1,4 +1,4 @@
-Three .INI options related to RTL activation have been added: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont  (information on their usage can be found in the help file: Configuring Keynote -> KeyNote.ini file settings)
+﻿Three .INI options related to RTL activation have been added: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont  (information on their usage can be found in the help file: Configuring Keynote -> KeyNote.ini file settings)
 You can fold text, hiding its content except for a small fragment used as a visible excerpt. You can manage collapsed blocks to simplify visibility, to treat certain text as a kind of archive, etc.
 When folding, you can insert a second space to force the point where you want the visible excerpt to end
 When exporting you can decide to unfold, remove or keep unchanged folded text
