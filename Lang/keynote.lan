@@ -30,7 +30,6 @@ TipFile=Keynote.english.tip
 Translator=https://forum.ru-board.com/topic.cgi?forum=5&topic=2649
 RTL=0
 
-
 [Spanish]
 Comment=v2.1.5.01
 Name=Spanish (Español-Castellano)
@@ -39,6 +38,15 @@ TipFile=Keynote.spanish.tip
 Translator=dprado.keynote@gmail.com
 RTL=0
 
+[German]
+Comment=2.1.5
+Name=German
+LangFile=Keynote.german.lng
+TipFile=Keynote.german.tip
+Translator=vapurcu
+RTL=0
+
+
 
 [Dutch]
 Comment=Translation by Ennovy and Plankje
@@ -46,14 +54,6 @@ Name=Dutch
 LangFile=Keynote.dutch.lng
 TipFile=Keynote.dutch.tip
 Translator=http://forum.goeiedageven.nl/
-RTL=0
-
-[German]
-Comment=OPTION - menu and .tip file aren't translated yet
-Name=German
-LangFile=Keynote.german.lng
-TipFile=Keynote.english.tip
-Translator=Klaus Utech  (http://www.klausutech.com)
 RTL=0
 
 [French]

@@ -1,0 +1,26 @@
+Drei INI-Optionen für die RTL-Aktivierung wurden hinzugefügt: RTLkeyShct, IMEAutoKeyboard und IMEAutoFont (Informationen zu ihrer Verwendung finden Sie in der Hilfedatei: Keynote konfigurieren -> Einstellungen der Datei KeyNote.ini).
+Sie können Text einklappen und seinen Inhalt bis auf einen kleinen Ausschnitt verbergen, der als sichtbarer Auszug dient. Sie können eingeklappte Blöcke verwalten, um die Sichtbarkeit zu vereinfachen, bestimmten Text als Datei zu behandeln usw.
+Beim Einklappen können Sie ein zweites Leerzeichen einfügen, um das Ende des sichtbaren Auszugs zu erzwingen.
+Beim Exportieren können Sie den eingeklappten Text ausklappen, löschen oder unverändert lassen.
+Im Bereich „Alle durchsuchen“ können Sie mit der Option „Eingeklappter Modus“ festlegen, ob innerhalb eingeklappter Blöcke gesucht werden soll.
+Sie können Notizen mit Tags versehen, um sichtbare Knoten in einem Baum zu filtern oder bestimmte Suchen auf Knoten zu beschränken, die bestimmte Tags enthalten (oder nicht enthalten). Sie können diese Tags auch verwenden, um die zu exportierenden Notizen weiter einzuschränken.
+Sie können jedem Tag einen Alias ??und/oder eine Beschreibung hinzufügen, die Ihnen die Suche erleichtern.
+Sie können Absätzen oder Textausschnitten Tags hinzufügen. Durch die Definition von Tagging-Kriterien können Sie die Suchergebnisse auf bestimmte Textausschnitte beschränken, mit „Alle suchen“ den Anfang aller Ausschnitte abrufen, die den Tagging-Kriterien entsprechen, und nur bestimmte Textausschnitte exportieren.
+Tags sind für jede .knt-Datei separat, Sie können sie jedoch exportieren oder importieren. Wenn Sie in „Tags.txt“ im selben Ordner wie Keynote.exe exportieren, werden diese beim Öffnen einer Datei automatisch importiert, wobei neue Tags hinzugefügt oder die Beschreibung geänderter Tags aktualisiert wird.
+Die KNT-Datei kann so konfiguriert werden, dass Bilder intern im RTF-ASCII/Hex- oder Binärbildformat oder extern in separaten Bilddateien (ZIP oder Ordner) gespeichert werden (Datei | Eigenschaften) (siehe doc\Images_Readme.txt).
+Es wird dringend empfohlen, Sicherungskopien von .knt-Dateien zu erstellen, insbesondere vor dem Upgrade auf eine neue Version. Nutzen Sie die Option „In regelmäßigen Abständen sichern“ (siehe https://github.com/dpradov/keynote-nf/issues/544).
+Sie können Bilder im GIF-, PNG-, JPG-, TIF-, BMP-, WMF-, EMF- und ICO-Format in Ihren Notiztext einfügen: Wählen Sie „Bild“ aus dem Menü „Einfügen“ oder ziehen Sie die Datei per Drag & Drop in den Editor.
+Die Anwendung ermöglicht es Ihnen, den Speichermodus für Bilder in einer Datei zu ändern, von einem externen Zip-Speicher in einen anderen Ordner und umgekehrt zu wechseln oder auf einen neuen Speicherort zu verweisen.
+Beim Export ins KNT-Format werden Bilder je nach Konfigurationsoptionen entweder im klassischen Modus (eingebettet in RTF), im Binärmodus (eingebetteter KNT-Modus) oder gar nicht in die Datei exportiert.
+Keynote ermöglicht es Ihnen, die Sichtbarkeit von Bildern in der Datei zu ändern. Wenn Sie die Option zum Ausblenden von Bildern auswählen, blendet die Anwendung deren Inhalt aus und bietet stattdessen einen Link an.
+Sie können im internen Bildbetrachter Tastaturkürzel zum Zoomen und Schwenken verwenden: Siehe die Hilfe-Schaltfläche im Bildbetrachter.
+Sie können Teile der KNT-Datei mit verschiedenen Optionen in eine neue KeyNote-Datei exportieren: „KeyNote“ wurde als Zielformat unter „Datei | Exportieren“ hinzugefügt.
+Vielen Dank für die Nutzung von KeyNote NF. Zeigen Sie Ihre Wertschätzung und unterstützen Sie die zukünftige Entwicklung mit einer Spende!
+Sie können die Größe von KeyNote-Dateien reduzieren, indem Sie das komprimierte Format verwenden (unter „Datei | Eigenschaften“). Siehe auch „Kommentare zu KNT-Dateiformaten.txt“.
+Sie können „verknüpfte“ Knoten erstellen, sodass sie denselben Inhalt, Titel und Alarmstatus aufweisen. Auf diese Weise können Sie Ihre Informationen gleichzeitig auf verschiedene Arten organisieren (siehe https://github.com/dpradov/keynote-nf/issues/57).
+Mit „verknüpften“ Knoten können Sie Aufgaben auf mehrere Registerkarten verteilen und gleichzeitig in andere Registerkarten einfügen. Sie erhalten einen umfassenden Überblick über die Hauptaufgaben: Sortieren, Klassifizieren und Strukturieren in einer eigenständigen Baumhierarchie, unabhängig von der Hierarchie der „echten“ Knoten.
+Auf der KeyNote NF-Website (https://github.com/dpradov/keynote-nf) können Sie die neueste Version des Programms herunterladen, Fehlerberichte oder Funktionsanfragen einreichen und vieles mehr.
+Seit Version 1.7.5 kann KeyNote NF in mehreren Sprachen angezeigt werden. Eine teilweise spanische Übersetzung ist als Beispiel enthalten. Mithilfe der Community werden der offiziellen Version neue Sprachen hinzugefügt.
+Sie können auf zwei Arten mit ausgeblendeten Knoten arbeiten: durch automatisches Ausblenden markierter Knoten oder durch Filtern einer oder aller Notizen anhand eines Suchkriteriums.
+Es ist möglich, Kontrollkästchen für alle Knoten (Kontrollkästchen „Ansicht/Alle Knoten“) und nur für untergeordnete Knoten ausgewählter Knoten (Kontrollkästchen „Untergeordnete Knoten“) anzuzeigen.
+Sie können Knoten und Teilbäume mit den Verknüpfungen in der Zwischenablage kopieren, ausschneiden und einfügen.
