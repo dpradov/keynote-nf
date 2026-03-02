@@ -1076,6 +1076,8 @@ const
    sTag17 = 55123;   // Error importing Tags:
    sTag18 = 55124;   // Importing Tags from file
 
+   sUI01 = 55148;  // Click to change text color
+   sUI02 = 55149;  // Click to add or remove highlight
 
 implementation
 

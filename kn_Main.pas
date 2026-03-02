@@ -1699,6 +1699,9 @@ begin
   PrintDlg:= TPrintDialog.Create(Self);
   PrintDlg.Options:= [poPrintToFile];
   PageSetupDlg := nil;
+
+  TB_Color.Hint:= GetRS(sUI01);
+  TB_Hilite.Hint:= GetRS(sUI02);
 end;
 // CREATE
 

@@ -54,6 +54,7 @@ uses
    kn_Const,
    kn_global,
    kn_Main,
+   kn_AlertMng,
    knt.App,
    knt.RS;
 
@@ -164,8 +165,16 @@ begin
           end;
 
           App.UI_RTL:= RTL;
-          if Form_Main <> nil then
+          if Form_Main <> nil then begin
              App.ApplyBiDiMode;
+             Form_Main.TB_Color.Hint:= GetRS(sUI01);
+             Form_Main.TB_Hilite.Hint:= GetRS(sUI02);
+          end;
+          if Form_Alarm <> nil then begin
+             Form_Alarm.TB_Color.Hint:= GetRS(sUI01);
+             Form_Alarm.TB_Hilite.Hint:= GetRS(sUI02);
+          end;
+
 
           if FN <> '' then begin
              if not fileexists( path + FN ) then

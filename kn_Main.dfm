@@ -776,7 +776,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 34
         Height = 22
-        Hint = 'Click to change text color'
         HelpKeyword = '20-14'
         ActiveColor = clBlack
         TargetColor = clBlack
@@ -795,7 +794,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 34
         Height = 22
-        Hint = 'Click to add or remove highlight'
         HelpType = htKeyword
         HelpKeyword = '20-14'
         ActiveColor = clInfoBk
