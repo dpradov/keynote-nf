@@ -1,4 +1,4 @@
-#!GFKNT 3.1
+#!GFKNT 3.2
 # This is an automatically generated file. Do not edit.
 #/
 #?
@@ -7188,22 +7188,24 @@ Note: This verification box will remain hidden until the encrypted content is 'o
 %*
 GI=50
 ND=Opening and Saving KeyNote files
+LM=0203262307
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset0 Courier New;}{\f2\fnil\fcharset0 Lucida Console;}{\f3\froman\fcharset0 Tahoma;}{\f4\fnil\fcharset0 Cambria Math;}{\f5\fnil\fcharset2 Symbol;}}
 {\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red0\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red64\green64\blue64;}
-{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont4\mwrapIndent1440 }\viewkind4\uc1 
+{\*\generator Riched20 10.0.26100}{\*\mmathPr\mmathFont4\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Opening and Saving KeyNote files\cf2\lang1033\par
 \cf0\b0\fs26\par
 \fs20\par
-{{\field{\*\fldinst{HYPERLINK "file:///<50|107|0|2"}}{\fldrslt{\ul\cf2\cf2\ul Opening a KeyNote file}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<50|107|0|2"}}{\fldrslt{Opening a KeyNote file}}}}\f0\fs20\par
 
-\pard\sb40    {{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf2\cf2\ul File Manager}}}}\f0\fs20\par
+\pard\sb40    {\ul{\field{\*\fldinst{HYPERLINK "file:///<50|6489|0|6"}}{\fldrslt{Lock on opening}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{File Manager}}}}\f0\fs20\par
 
-\pard    {{\field{\*\fldinst{HYPERLINK "file:///<50|2804|0|4"}}{\fldrslt{\ul\cf2\cf2\ul Some considerations}}}}\f0\fs20\par
+\pard    {\ul{\field{\*\fldinst{HYPERLINK "file:///<50|2804|0|4"}}{\fldrslt{Some considerations}}}}\f0\fs20\par
 
-\pard\sb80 {{\field{\*\fldinst{HYPERLINK "file:///<50|3404|0|3"}}{\fldrslt{\ul\cf2\cf2\ul Saving a KeyNote file}}}}\f0\fs20\par
+\pard\sb80 {\ul{\field{\*\fldinst{HYPERLINK "file:///<50|3404|0|3"}}{\fldrslt{Saving a KeyNote file}}}}\f0\fs20\par
 
 \pard\par
 See also:\par
@@ -7217,9 +7219,9 @@ See also:\par
 You can \b open \b0 a KeyNote file in many ways:\par
 \par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can search a KeyNote file (.knt or .kne) using {{\field{\*\fldinst{HYPERLINK "file:///<109|593|0|2"}}{\fldrslt{\ul\cf2\cf2\ul File | Open...}}}}\f0\fs20 , the \v\'11I2\'12\v0{\field{\*\fldinst{HYPERLINK "img:2,19,19"}}{\fldrslt {2_Main_02.png}}} toolbar button or pressing \cf4\b\fs18 Ctrl+O\cf0\b0\fs20 .\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can search a KeyNote file (.knt or .kne) using {{\field{\*\fldinst{HYPERLINK "file:///<109|593|0|2"}}{\fldrslt{\ul\cf2\cf2\ul File | Open...}}}}\f0\fs20 , the \v\'11I2\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:2,19,19"}}{\fldrslt {2_Main_02.png}}}}\lang1033  toolbar button or pressing \cf4\b\fs18 Ctrl+O\cf0\b0\fs20 .\par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb160 A very convenient way to to open .knt files is to use the {{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf2\cf2\ul File Manager}}}}\f0\fs20  dialog box, via File menu, the \cf5\v\f1\lang3082\'11I13\'12\cf0\v0\f0\lang1033{\field{\*\fldinst{HYPERLINK "img:13,18,18"}}{\fldrslt {13_Main_13.png}}} toolbar button or with \cf4\b F12 \cf0\b0 shortcut.\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb160 A very convenient way to to open .knt files is to use the {{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{\ul\cf2\cf2\ul File Manager}}}}\f0\fs20  dialog box, via File menu, the \cf5\v\f1\lang3082\'11I13\'12\cf0\v0\f0{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:13,18,18"}}{\fldrslt {13_Main_13.png}}}}\lang1033  toolbar button or with \cf4\b F12 \cf0\b0 shortcut.\par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 You can also \b drag\b0  a KeyNote file from Windows Explorer (or other programs, like Everything, eg.) and \b drop\b0  it onto any area of the main KeyNote window, including the Editor panel.\par
 {\pntext\f5\'B7\tab}You can directly \b open\b0  (double click or Enter) the file in \b Windows Explorer\b0  if you have associated the extension (.knd and/or .knt) with KeyNote NF program. A \b new instance\b0  of KeyNote will be open, where the knt file will be loaded.\par
@@ -7253,6 +7255,7 @@ You can \b open \b0 a KeyNote file in many ways:\par
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 You could also use the \b KntLauncher.exe \b0 add-on utility. This would allow you to open a specific file in a new independent KeyNote NF instance, launching a new instance or activating the one that could have it already open). (See {{\field{\*\fldinst{HYPERLINK "file:///<77|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Using KeyNote NF .knt as Help files}}}}\f0\fs20 )\par
 
 \pard\li360\sb80\b Tip\b0 : With the help of kntLauncher.exe you can get a "\b multiple instances, but only one per file\b0 " functionality: dbl-clicking a knt-file should activate the corresponding window if the file is already open or fire up an additional Keynote instance if the file is not open yet.\par
+\b Tip\b0 : See also {\ul{\field{\*\fldinst{HYPERLINK "file:///<50|6489|0|6"}}{\fldrslt{Lock on opening}}}}\f0\fs20\par
 To achieve this, you can associate the .knt extension with a .bat file. For example, you can create a "kntLauncher.bat" that includes:\par
 
 \pard\li720\sb120\f2\fs18 "<PathToKeyNote NF>\\kntLauncher.exe" %1 -ignSI -dnd -title%1\f0\fs20\par
@@ -7293,6 +7296,16 @@ These profiles ("F9" and "F12") can be configured to start Keynote instances min
 \b Note: \b0 If you have multiple versions of Keynote.exe on your computer, make sure that opening the application by double-clicking on a .knt file opens the correct version. If you have installed the latest version of KeyNote NF using the installer you will have had the option to register the .knt, .kne, .knl and .knm extensions with that version.\par
 \par
 \par
+\cf3\b\v\f3\fs22\'11B6\'12\v0 Lock on opening\cf0\b0\f0\par
+\fs20\par
+KeyNote includes an option (in {{\field{\*\fldinst{HYPERLINK "file:///<92|0|0"}}{\fldrslt{\ul\cf2\cf2\ul KeyNote files}}}}\f0\fs20 ) called 'Lock on opening'. If enabled, it will attempt to lock the file when it is opened, preventing any other users (or processes belonging to the same user) from editing the file simultaneously. This option enables more secure collaborative work.\par
+
+\pard\sb80 A warning will be displayed when opening a file locked by another user/process, allowing you to continue in read-only mode. Any attempt to save over a locked file will be reported, automatically switching to read-only mode (use 'Save as').\par
+
+\pard\par
+KeyNote monitors file changes and lock releases through the System (using Advanced/Folder Monitor). Another option, 'Check for file released/modified', ensures that these changes are detected at least every few minutes, in case the system fails to notify them.\par
+\par
+\par
 \cf3\b\v\f3\fs22\'11B1\'12\v0 File Manager\cf0\b0\f0\par
 \fs20\par
 KeyNote has a simple file manager which allows you to quickly open a file you have used previously. Press \cf4\b\lang1035 F12\cf0\b0\lang1033  to open the file manager window.\par
@@ -7301,7 +7314,7 @@ The File Manager dialog box displays a list of all KeyNote \b files\b0  you have
 For each file, its description, comments and other metadata is displayed, so that you can easily identify them:\par
 \par
 
-\pard\li360\v\'11I160\'12\v0{\field{\*\fldinst{HYPERLINK "img:160,442,246"}}{\fldrslt {160_Clipb_22ene.png}}}\par
+\pard\li360\v\'11I160\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:160,442,246"}}{\fldrslt {160_Clipb_22ene.png}}}}\lang1033\par
 
 \pard\par
 Note:\par
@@ -7330,7 +7343,7 @@ Note:\par
 The currently open KeyNote file can be \b saved\b0  in different ways:\par
 \par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can manually save current KeyNote file to disk at any moment using {{\field{\*\fldinst{HYPERLINK "file:///<109|1742|0|3"}}{\fldrslt{\ul\cf2\cf2\ul File | Save...}}}}\f0\fs20 , the \v\'11I3\'12\v0{\field{\*\fldinst{HYPERLINK "img:3,18,18"}}{\fldrslt {3_Main_03.png}}} toolbar button or pressing \cf4\b\fs18 Ctrl+S\cf0\b0\fs20 .\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can manually save current KeyNote file to disk at any moment using {{\field{\*\fldinst{HYPERLINK "file:///<109|1742|0|3"}}{\fldrslt{\ul\cf2\cf2\ul File | Save...}}}}\f0\fs20 , the \v\'11I3\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:3,18,18"}}{\fldrslt {3_Main_03.png}}}}\lang1033  toolbar button or pressing \cf4\b\fs18 Ctrl+S\cf0\b0\fs20 .\par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 The file will be saved automatically if {{\field{\*\fldinst{HYPERLINK "file:///<109|3021|0|9"}}{\fldrslt{\ul\cf2\cf2\ul Auto Save}}}}\f0\fs20  option is enabled, the file has changes and..\par
 
@@ -12686,16 +12699,17 @@ LM=1910251812
 %*
 GI=92
 ND=KeyNote Files
+LM=0203262310
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green128\blue128;\red0\green0\blue255;}
-{\*\generator Riched20 10.0.19041}\viewkind4\uc1 
+{\colortbl ;\red0\green128\blue128;\red0\green0\blue255;\red255\green255\blue0;}
+{\*\generator Riched20 10.0.26100}\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36 Options: KeyNote files\par
 \cf0\b0\fs20\par
 
-\pard\li360\v\'11I131\'12\v0{\field{\*\fldinst{HYPERLINK "img:131,360,317"}}{\fldrslt {131_Clipb_17ene.png}}}\par
+\pard\li360\v\'11I246\'12\v0{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:246,381,368"}}{\fldrslt {246_Clipb_02mar.png}}}}\par
 
 \pard\par
 \par
@@ -12767,6 +12781,22 @@ Please, see {{\field{\*\fldinst{HYPERLINK "file:///<52|0|0"}}{\fldrslt{\ul\cf2\c
 \pard\sa80\cf1\b\fs22 Do not prompt to save new files\tab\tab\tab\cf0\b0\fs20 Default: NO\par
 
 \pard If enabled, KeyNote prompts you to save a new KeyNote file when you create the file.\par
+\par
+\par
+
+\pard\sa100\cf1\b\fs22 Lock on opening\cf0\fs20\tab\tab\tab\tab\tab\b0 Default: YES\par
+
+\pard If enabled, KeyNote will attempt to lock the file when it is opened, preventing any other users (or processes belonging to the same user) from editing the file simultaneously.\par
+This option enables more secure collaborative work\par
+\par
+A warning will be displayed when opening a file locked by another user/process, allowing you to continue in read-only mode.\par
+Any attempt to save over a locked file will be reported, automatically switching to read-only mode (use 'Save as').\highlight3\par
+\highlight0\par
+
+\pard\sa80\cf1\b\fs22 Check for file released / modified every [n] minutes\tab\cf0\b0\fs20 Default: YES (5 minutes)\par
+
+\pard KeyNote monitors file changes and lock releases through the System (using Advanced/Folder Monitor). \par
+If enabled, the 'Check for file released/modified' option ensures that these changes are detected at least every few minutes, in case the system fails to notify them.\par
 \par
 }
 %*
@@ -17301,7 +17331,7 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=1502261944
+LM=0203262313
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -17325,6 +17355,11 @@ In {{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{\ul\cf2\cf2\ul Ne
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.1.6\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Added \b Lock on opening \b0  ({\ul{\field{\*\fldinst{HYPERLINK "file:///<50|6489|0|6"}}{\fldrslt{More}}}}\f0\fs20 )\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.1.5\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\b\lang1033 Enable encrypted content\b0 : Added the option of combining an unencrypted format (native or compressed) with the encryption of selected elements: notes and images ({{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{\ul\cf2\cf2\ul More}}}}\f0\fs20 )\par
@@ -18332,7 +18367,7 @@ FS=10
 LN=1033
 ST=
 FL=111110000000100000000000
-SN=0
+SN=51
 TW=239
 TM=0
 EN=New node
@@ -18524,6 +18559,7 @@ DI=291
 %-
 gi=50
 DI=539
+ns=0400
 LV=1
 %-
 gi=51
@@ -18663,6 +18699,7 @@ LV=1
 %-
 gi=87
 DI=295
+ns=0400
 %-
 gi=88
 DI=238
@@ -18823,169 +18860,169 @@ BK=9,file:///*8|479|0|0
 SM=2
 SD=1|KeyNoteNF_Help_img
 %I
-II=246
-PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0
-PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0
-PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0
-PD=4||4_Main_04.png|1|16|16|1833999455|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_04.png|1|1||0
-PD=5||5_Main_05.png|1|16|16|2513789892|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_05.png|1|1||0
-PD=6||6_Main_06.png|1|16|16|2730468625|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_06.png|1|2||0
-PD=7||7_Main_07.png|1|16|16|573886404|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_07.png|1|1||0
-PD=8||8_Main_08.png|1|16|16|1742246512|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_08.png|1|1||0
-PD=9||9_Main_09.png|1|16|16|3785741756|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_09.png|1|1||0
-PD=10||10_Main_10.png|1|16|16|1295062666|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_10.png|1|1||0
-PD=11||11_Main_11.png|1|16|16|179195837|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_11.png|1|1||0
-PD=13||13_Main_13.png|1|16|16|3277643282|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_13.png|1|2||0
-PD=14||14_Main_14.png|1|16|16|483689585|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_14.png|1|1||0
-PD=15||15_Main_15.png|1|16|16|2816975381|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_15.png|1|1||0
-PD=16||16_Main_16.png|1|16|16|1605563304|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_16.png|1|1||0
-PD=17||17_Main_17.png|1|16|16|705682479|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_17.png|1|1||0
-PD=18||18_Main_18.png|1|16|16|4181989681|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_18.png|1|1||0
-PD=19||19_Main_19.png|1|16|16|4066405362|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_19.png|1|3||0
-PD=25||25_Main_25.png|1|16|16|1257618565|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_25.png|1|1||0
-PD=26||26_Main_26.png|1|16|16|2853600458|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_26.png|1|3||0
-PD=27||27_Main_27.png|1|16|16|1410634220|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_27.png|1|1||0
-PD=28||28_Main_28.png|1|16|16|3318799919|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_28.png|1|5||0
-PD=29||29_Main_29.png|1|16|16|3088530505|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_29.png|1|1||0
-PD=30||30_Main_30.png|1|16|16|1388185901|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_30.png|1|2||0
-PD=31||31_Main_31.png|1|16|16|665176127|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_31.png|1|1||0
-PD=32||32_Main_32.png|1|16|16|1147568806|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_32.png|1|1||0
-PD=36||36_Main_36.png|1|16|16|1640085482|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_36.png|1|2||0
-PD=37||37_Main_37.png|1|16|16|4101824314|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_37.png|1|2||0
-PD=38||38_Main_38.png|1|16|16|1290736416|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_38.png|1|3||0
-PD=39||39_Main_39.png|1|16|16|1693513575|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_39.png|1|3||0
-PD=40||40_Main_40.png|1|16|16|417326355|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_40.png|1|3||0
-PD=41||41_Main_41.png|1|16|16|286977420|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_41.png|1|1||0
-PD=42||42_Main_42.png|1|16|16|1849987477|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_42.png|1|2||0
-PD=43||43_Main_43.png|1|16|16|3102777653|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_43.png|1|1||0
-PD=44||44_Main_44.png|1|16|16|4283927379|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_44.png|1|1||0
-PD=45||45_Main_45.png|1|16|16|625671480|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_45.png|1|1||0
-PD=46||46_Main_46.png|1|16|16|915624286|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_46.png|1|1||0
-PD=47||47_Main_47.png|1|16|16|2420904335|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_47.png|1|3||0
-PD=48||48_Main_48.png|1|16|16|791259666|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_48.png|1|3||0
-PD=49||49_Main_49.png|1|16|16|327767544|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_49.png|1|4||0
-PD=50||50_Main_50.png|1|16|16|1370678470|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_50.png|1|5||0
-PD=51||51_Main_51.png|1|16|16|1236282668|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_51.png|1|2||0
-PD=52||52_Main_52.png|1|16|16|2925437011|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_52.png|1|4||0
-PD=53||53_Main_53.png|1|16|16|2409510470|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_53.png|1|6||0
-PD=54||54_Main_54.png|1|16|16|979053902|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_54.png|1|3||0
-PD=55||55_Main_55.png|1|16|16|128560789|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_55.png|1|3||0
-PD=58||58_Main_58.png|1|16|16|608179592|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_58.png|1|1||0
-PD=59||59_Main_59.png|1|16|16|942615361|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_59.png|1|1||0
-PD=60||60_Main_60.png|1|16|16|632642592|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_60.png|1|2||0
-PD=61||61_Main_61.png|1|16|16|3558603133|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_61.png|1|2||0
-PD=62||62_Format_01.png|1|16|16|3861826360|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_01.png|1|1||0
-PD=63||63_Format_02.png|1|16|16|2086500868|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_02.png|1|1||0
-PD=64||64_Format_03.png|1|16|16|4284333970|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_03.png|1|2||0
-PD=65||65_Format_04.png|1|16|16|1191387415|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_04.png|1|1||0
-PD=66||66_Format_05.png|1|16|16|1175809834|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_05.png|1|1||0
-PD=67||67_Format_06.png|1|16|16|2983036228|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_06.png|1|1||0
-PD=68||68_Format_07.png|1|16|16|585201190|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_07.png|1|1||0
-PD=69||69_Format_08.png|1|16|16|329807484|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_08.png|1|2||0
-PD=70||70_Format_09.png|1|16|16|1237452762|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_09.png|1|2||0
-PD=71||71_Format_10.png|1|16|16|548117059|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_10.png|1|2||0
-PD=73||73_Format_12.png|1|16|16|2462567649|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_12.png|1|2||0
-PD=76||76_Format_15.png|1|16|16|3891746343|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_15.png|1|3||0
-PD=77||77_Format_16.png|1|16|16|2246385565|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_16.png|1|1||0
-PD=78||78_Format_17.png|1|16|16|4053006770|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_17.png|1|1||0
-PD=79||79_Format_18.png|1|16|16|1328737656|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_18.png|1|1||0
-PD=80||80_Format_19.png|1|16|16|1784046046|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_19.png|1|2||0
-PD=81||81_Format_20.png|1|16|16|786322269|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_20.png|1|1||0
-PD=82||82_Format_21.png|1|16|16|728783670|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_21.png|1|1||0
-PD=83||83_Format_22.png|1|16|16|3637091044|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_22.png|1|1||0
-PD=84||84_Format_23.png|1|16|16|1570017117|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_23.png|1|4||0
-PD=85||85_TV_01.png|1|16|16|4104991316|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_01.png|1|1||0
-PD=86||86_TV_02.png|1|16|16|1783977642|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_02.png|1|2||0
-PD=87||87_TV_03.png|1|16|16|3850022720|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_03.png|1|1||0
-PD=88||88_TV_04.png|1|16|16|2350938606|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_04.png|1|1||0
-PD=89||89_TV_05.png|1|16|16|2503772034|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_05.png|1|1||0
-PD=90||90_TV_06.png|1|16|16|2921612053|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_06.png|1|1||0
-PD=91||91_TV_07.png|1|16|16|1533798404|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_07.png|1|1||0
-PD=92||92_TV_08.png|1|16|16|180575234|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_08.png|1|1||0
-PD=93||93_TV_09.png|1|16|16|3389029563|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_09.png|1|1||0
-PD=94||94_TV_10.png|1|16|16|2086952544|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_10.png|1|1||0
-PD=95||95_PasteFormat.png|1|24|21|2067365639|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\PasteFormat.png|1|1||0
-PD=98||98_TextColor.png|1|35|21|1111043370|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\TextColor.png|1|1||0
-PD=99||99_ApplyHighlight.png|1|33|21|1772463586|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\ApplyHighlight.png|1|1||0
-PD=102||102_keynote.ico|3|32|32|3549155930|D:\Dani\PROYECTOS\TESELA kn\src\resources\keynote.ico|1|1||0
-PD=103||103_Clipb_02ene.png|1|843|374|4019961967||1|1||0
-PD=104||104_Clipb_03ene.png|1|163|101|244405219||1|2||0
-PD=105||105_Clipb_03ene.png|1|147|102|2223406620||1|1||0
-PD=106||106_Clipb_03ene.png|1|149|46|3523751802||1|1||0
-PD=113||113_Clipb_04ene.png|1|526|80|2991040271||1|1||0
-PD=114||114_Clipb_04ene.png|1|360|247|630860667||1|1||0
-PD=116||116_Clipboard_05ene.png|1|74|35|1464027792||1|1||0
-PD=117||117_Clipboard_05ene.png|1|181|51|1960015756||1|1||0
-PD=118||118_Clipb_05ene.png|1|1025|608|2757826324||1|1||0
-PD=119||119_Clipb_05ene.png|1|365|376|4274985252||1|1||0
-PD=121||121_Clipb_06ene.png|1|45|27|2744550161||1|2||0
-PD=122||122_Clipb_07ene.png|1|608|148|548260909||1|1||0
-PD=124||124_Clipb_09ene.png|1|607|173|3935290466||1|1||0
-PD=125||125_Clipb_12ene.png|1|359|245|1498360587||1|2||0
-PD=129||129_Clipboard_17ene.png|1|214|27|2698778189||1|1||0
-PD=130||130_Clipboard_17ene.png|1|213|31|1555017293||1|1||0
-PD=131||131_Clipb_17ene.png|1|360|317|1354413043||1|1||0
-PD=132||132_Clipb_17ene.png|1|358|342|314395984||1|1||0
-PD=133||133_Clipb_17ene.png|1|356|366|928829736||1|2||0
-PD=139||139_Clipb_17ene.png|1|333|369|2331528855||1|1||0
-PD=140||140_Clipb_17ene.png|1|359|366|1088923935||1|1||0
-PD=141||141_Clipb_18ene.png|1|21|19|2802262753||1|1||0
-PD=142||142_Clipb_18ene.png|1|284|166|3671234682||1|1||0
-PD=148||148_Clipb_20ene.png|1|510|262|3469532081||1|1||0
-PD=149||149_Clipb_20ene.png|1|510|263|2525683181||1|1||0
-PD=150||150_MergeKNT_21ene.png|1|421|185|4294470417||1|1||0
-PD=154||154_MergeKNT_21ene.png|1|439|288|268172364||1|2||0
-PD=159||159_Clipb_22ene.png|1|360|246|2775906493||1|1||0
-PD=160||160_Clipb_22ene.png|1|442|246|3450617208||1|1||0
-PD=161||161_Clipb_23ene.png|1|417|301|2570366320||1|1||0
-PD=162||162_Image_23ene.png|1|16|16|3345295157||1|2||0
-PD=163||163_Image_24ene.png|1|16|16|3249459115||1|1||0
-PD=164||164_Clipb_25ene.png|1|310|303|4254172203||1|1||0
-PD=166||166_Clipb_27ene.png|1|216|223|921081539||1|1||0
-PD=168||168_Clipb_20feb.png|1|535|436|3914595364||1|1||0
-PD=169||169_Clipb_21feb.png|1|488|533|2314338839||1|1||0
-PD=171||171_Clipb_22feb.png|1|359|282|3285222098||1|1||0
-PD=173||173_Clipb_24feb.png|1|88|31|231898908||1|1||0
-PD=174||174_Clipb_06mar.png|1|532|330|3305557142||1|1||0
-PD=178||178_Clipb_31mar.png|1|402|46|2296713539||1|1||0
-PD=181||181_Clipb_31mar.png|1|335|279|3220090320||1|1||0
-PD=184||184_Clipb_31mar.png|1|326|285|2196688151||1|1||0
-PD=185||185_Clipb_31mar.png|1|297|152|2996717648||1|1||0
-PD=186||186_Clipb_31mar.png|1|293|152|190736701||1|1||0
-PD=187||187_Clipb_31mar.png|1|286|150|594474843||1|1||0
-PD=192||192_Clipb_31mar.png|1|411|28|2464087388||1|1||0
-PD=194||194_Clipb_24nov.png|1|198|233|788728395||1|1||0
-PD=195||195_Clipb_24nov.png|1|475|302|2114296858||1|1||0
-PD=196||196_Clipb_24nov.png|1|123|72|1473008777||1|2||0
-PD=197||197_Clipb_25nov.png|1|407|283|3780025982||1|1||0
-PD=202||202_Clipb_25nov.png|1|594|295|3724386940||1|1||0
-PD=203||203_Clipb_25nov.png|1|594|295|1371154350||1|1||0
-PD=204||204_Clipb_07dic.png|1|489|198|245941648||1|1||0
-PD=209||209_Clipb_06ene.png|1|279|109|3349534461||1|1||0
-PD=212||212_Clipb_08ene.png|1|387|530|136024720||1|1||0
-PD=216||216_Clipb_20ene.png|1|312|600|784430773||1|1||0
-PD=217||217_Clipb_13abr.png|1|203|734|2984979133||1|1||0
-PD=219||219_Clipb_13abr.png|1|528|455|3207839127||1|2||0
-PD=221||221_Clipb_13abr.png|1|209|355|3096465394||1|1||0
-PD=222||222_Clipb_13abr.png|1|216|73|3778486667||1|1||0
-PD=223||223_Clipb_13abr.png|1|389|97|240801985||1|1||0
-PD=224||224_Clipb_13abr.png|1|722|205|3960901167||1|2||0
-PD=228||228_Clipb_07oct.png|1|505|536|372918343||1|3||0
-PD=229||229_Clipb_07oct.png|1|385|532|2396441486||1|1||0
-PD=230||230_Clipb_07oct.png|1|385|532|2063594020||1|1||0
-PD=231||231_Clipb_07oct.png|1|349|368|3670992723||1|1||0
-PD=232||232_Clipb_19oct.png|1|678|495|3925350657||1|1||0
-PD=233||233_Clipb_19oct.png|1|654|318|4192914063||1|1||0
-PD=234||234_Clipb_19oct.png|1|532|390|1433871927||1|1||0
-PD=235||235_Clipb_19oct.png|1|532|390|764013386||1|1||0
-PD=237||237_Clipb_19oct.png|1|382|371|1932103461||1|1||0
-PD=238||238_Clipb_19oct.png|1|370|370|3919544723||1|1||0
-PD=239||239_Clipb_19oct.png|1|380|371|3204302766||1|1||0
-PD=240||240_Clipb_19oct.png|1|337|347|3051443956||1|1||0
-PD=241||241_Clipb_19oct.png|1|380|371|1231395502||1|1||0
-PD=242||242_Clipb_19oct.png|1|322|374|468339261||1|1||0
-PD=243||243_Clipb_24dic.png|1|379|366|2323966770||1|1||0
-PD=244||244_Clipb_14feb.png|1|243|226|334048320||1|1||0
-PD=245||245_Clipb_14feb.png|1|533|391|3178212650||1|1||0
+II=247
+PD=1||1_Main_01.png|1|16|16|3916063436|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_01.png|1|1||0|0
+PD=2||2_Main_02.png|1|16|16|3563158236|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_02.png|1|2||0|0
+PD=3||3_Main_03.png|1|16|16|2303431239|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_03.png|1|2||0|0
+PD=4||4_Main_04.png|1|16|16|1833999455|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_04.png|1|1||0|0
+PD=5||5_Main_05.png|1|16|16|2513789892|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_05.png|1|1||0|0
+PD=6||6_Main_06.png|1|16|16|2730468625|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_06.png|1|2||0|0
+PD=7||7_Main_07.png|1|16|16|573886404|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_07.png|1|1||0|0
+PD=8||8_Main_08.png|1|16|16|1742246512|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_08.png|1|1||0|0
+PD=9||9_Main_09.png|1|16|16|3785741756|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_09.png|1|1||0|0
+PD=10||10_Main_10.png|1|16|16|1295062666|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_10.png|1|1||0|0
+PD=11||11_Main_11.png|1|16|16|179195837|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_11.png|1|1||0|0
+PD=13||13_Main_13.png|1|16|16|3277643282|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_13.png|1|2||0|0
+PD=14||14_Main_14.png|1|16|16|483689585|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_14.png|1|1||0|0
+PD=15||15_Main_15.png|1|16|16|2816975381|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_15.png|1|1||0|0
+PD=16||16_Main_16.png|1|16|16|1605563304|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_16.png|1|1||0|0
+PD=17||17_Main_17.png|1|16|16|705682479|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_17.png|1|1||0|0
+PD=18||18_Main_18.png|1|16|16|4181989681|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_18.png|1|1||0|0
+PD=19||19_Main_19.png|1|16|16|4066405362|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_19.png|1|3||0|0
+PD=25||25_Main_25.png|1|16|16|1257618565|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_25.png|1|1||0|0
+PD=26||26_Main_26.png|1|16|16|2853600458|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_26.png|1|3||0|0
+PD=27||27_Main_27.png|1|16|16|1410634220|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_27.png|1|1||0|0
+PD=28||28_Main_28.png|1|16|16|3318799919|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_28.png|1|5||0|0
+PD=29||29_Main_29.png|1|16|16|3088530505|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_29.png|1|1||0|0
+PD=30||30_Main_30.png|1|16|16|1388185901|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_30.png|1|2||0|0
+PD=31||31_Main_31.png|1|16|16|665176127|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_31.png|1|1||0|0
+PD=32||32_Main_32.png|1|16|16|1147568806|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_32.png|1|1||0|0
+PD=36||36_Main_36.png|1|16|16|1640085482|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_36.png|1|2||0|0
+PD=37||37_Main_37.png|1|16|16|4101824314|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_37.png|1|2||0|0
+PD=38||38_Main_38.png|1|16|16|1290736416|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_38.png|1|3||0|0
+PD=39||39_Main_39.png|1|16|16|1693513575|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_39.png|1|3||0|0
+PD=40||40_Main_40.png|1|16|16|417326355|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_40.png|1|3||0|0
+PD=41||41_Main_41.png|1|16|16|286977420|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_41.png|1|1||0|0
+PD=42||42_Main_42.png|1|16|16|1849987477|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_42.png|1|2||0|0
+PD=43||43_Main_43.png|1|16|16|3102777653|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_43.png|1|1||0|0
+PD=44||44_Main_44.png|1|16|16|4283927379|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_44.png|1|1||0|0
+PD=45||45_Main_45.png|1|16|16|625671480|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_45.png|1|1||0|0
+PD=46||46_Main_46.png|1|16|16|915624286|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_46.png|1|1||0|0
+PD=47||47_Main_47.png|1|16|16|2420904335|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_47.png|1|3||0|0
+PD=48||48_Main_48.png|1|16|16|791259666|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_48.png|1|3||0|0
+PD=49||49_Main_49.png|1|16|16|327767544|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_49.png|1|4||0|0
+PD=50||50_Main_50.png|1|16|16|1370678470|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_50.png|1|5||0|0
+PD=51||51_Main_51.png|1|16|16|1236282668|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_51.png|1|2||0|0
+PD=52||52_Main_52.png|1|16|16|2925437011|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_52.png|1|4||0|0
+PD=53||53_Main_53.png|1|16|16|2409510470|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_53.png|1|6||0|0
+PD=54||54_Main_54.png|1|16|16|979053902|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_54.png|1|3||0|0
+PD=55||55_Main_55.png|1|16|16|128560789|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_55.png|1|3||0|0
+PD=58||58_Main_58.png|1|16|16|608179592|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_58.png|1|1||0|0
+PD=59||59_Main_59.png|1|16|16|942615361|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_59.png|1|1||0|0
+PD=60||60_Main_60.png|1|16|16|632642592|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_60.png|1|2||0|0
+PD=61||61_Main_61.png|1|16|16|3558603133|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Main\Main_61.png|1|2||0|0
+PD=62||62_Format_01.png|1|16|16|3861826360|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_01.png|1|1||0|0
+PD=63||63_Format_02.png|1|16|16|2086500868|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_02.png|1|1||0|0
+PD=64||64_Format_03.png|1|16|16|4284333970|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_03.png|1|2||0|0
+PD=65||65_Format_04.png|1|16|16|1191387415|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_04.png|1|1||0|0
+PD=66||66_Format_05.png|1|16|16|1175809834|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_05.png|1|1||0|0
+PD=67||67_Format_06.png|1|16|16|2983036228|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_06.png|1|1||0|0
+PD=68||68_Format_07.png|1|16|16|585201190|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_07.png|1|1||0|0
+PD=69||69_Format_08.png|1|16|16|329807484|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_08.png|1|2||0|0
+PD=70||70_Format_09.png|1|16|16|1237452762|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_09.png|1|2||0|0
+PD=71||71_Format_10.png|1|16|16|548117059|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_10.png|1|2||0|0
+PD=73||73_Format_12.png|1|16|16|2462567649|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_12.png|1|2||0|0
+PD=76||76_Format_15.png|1|16|16|3891746343|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_15.png|1|3||0|0
+PD=77||77_Format_16.png|1|16|16|2246385565|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_16.png|1|1||0|0
+PD=78||78_Format_17.png|1|16|16|4053006770|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_17.png|1|1||0|0
+PD=79||79_Format_18.png|1|16|16|1328737656|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_18.png|1|1||0|0
+PD=80||80_Format_19.png|1|16|16|1784046046|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_19.png|1|2||0|0
+PD=81||81_Format_20.png|1|16|16|786322269|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_20.png|1|1||0|0
+PD=82||82_Format_21.png|1|16|16|728783670|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_21.png|1|1||0|0
+PD=83||83_Format_22.png|1|16|16|3637091044|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_22.png|1|1||0|0
+PD=84||84_Format_23.png|1|16|16|1570017117|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\Format_23.png|1|4||0|0
+PD=85||85_TV_01.png|1|16|16|4104991316|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_01.png|1|1||0|0
+PD=86||86_TV_02.png|1|16|16|1783977642|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_02.png|1|2||0|0
+PD=87||87_TV_03.png|1|16|16|3850022720|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_03.png|1|1||0|0
+PD=88||88_TV_04.png|1|16|16|2350938606|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_04.png|1|1||0|0
+PD=89||89_TV_05.png|1|16|16|2503772034|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_05.png|1|1||0|0
+PD=90||90_TV_06.png|1|16|16|2921612053|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_06.png|1|1||0|0
+PD=91||91_TV_07.png|1|16|16|1533798404|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_07.png|1|1||0|0
+PD=92||92_TV_08.png|1|16|16|180575234|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_08.png|1|1||0|0
+PD=93||93_TV_09.png|1|16|16|3389029563|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_09.png|1|1||0|0
+PD=94||94_TV_10.png|1|16|16|2086952544|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_TV\TV_10.png|1|1||0|0
+PD=95||95_PasteFormat.png|1|24|21|2067365639|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\PasteFormat.png|1|1||0|0
+PD=98||98_TextColor.png|1|35|21|1111043370|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\TextColor.png|1|1||0|0
+PD=99||99_ApplyHighlight.png|1|33|21|1772463586|D:\Dani\PROYECTOS\TESELA kn\src\resources\Buttons\Btn_Format\ApplyHighlight.png|1|1||0|0
+PD=102||102_keynote.ico|3|32|32|3549155930|D:\Dani\PROYECTOS\TESELA kn\src\resources\keynote.ico|1|1||0|0
+PD=103||103_Clipb_02ene.png|1|843|374|4019961967||1|1||0|0
+PD=104||104_Clipb_03ene.png|1|163|101|244405219||1|2||0|0
+PD=105||105_Clipb_03ene.png|1|147|102|2223406620||1|1||0|0
+PD=106||106_Clipb_03ene.png|1|149|46|3523751802||1|1||0|0
+PD=113||113_Clipb_04ene.png|1|526|80|2991040271||1|1||0|0
+PD=114||114_Clipb_04ene.png|1|360|247|630860667||1|1||0|0
+PD=116||116_Clipboard_05ene.png|1|74|35|1464027792||1|1||0|0
+PD=117||117_Clipboard_05ene.png|1|181|51|1960015756||1|1||0|0
+PD=118||118_Clipb_05ene.png|1|1025|608|2757826324||1|1||0|0
+PD=119||119_Clipb_05ene.png|1|365|376|4274985252||1|1||0|0
+PD=121||121_Clipb_06ene.png|1|45|27|2744550161||1|2||0|0
+PD=122||122_Clipb_07ene.png|1|608|148|548260909||1|1||0|0
+PD=124||124_Clipb_09ene.png|1|607|173|3935290466||1|1||0|0
+PD=125||125_Clipb_12ene.png|1|359|245|1498360587||1|2||0|0
+PD=129||129_Clipboard_17ene.png|1|214|27|2698778189||1|1||0|0
+PD=130||130_Clipboard_17ene.png|1|213|31|1555017293||1|1||0|0
+PD=132||132_Clipb_17ene.png|1|358|342|314395984||1|1||0|0
+PD=133||133_Clipb_17ene.png|1|356|366|928829736||1|2||0|0
+PD=139||139_Clipb_17ene.png|1|333|369|2331528855||1|1||0|0
+PD=140||140_Clipb_17ene.png|1|359|366|1088923935||1|1||0|0
+PD=141||141_Clipb_18ene.png|1|21|19|2802262753||1|1||0|0
+PD=142||142_Clipb_18ene.png|1|284|166|3671234682||1|1||0|0
+PD=148||148_Clipb_20ene.png|1|510|262|3469532081||1|1||0|0
+PD=149||149_Clipb_20ene.png|1|510|263|2525683181||1|1||0|0
+PD=150||150_MergeKNT_21ene.png|1|421|185|4294470417||1|1||0|0
+PD=154||154_MergeKNT_21ene.png|1|439|288|268172364||1|2||0|0
+PD=159||159_Clipb_22ene.png|1|360|246|2775906493||1|1||0|0
+PD=160||160_Clipb_22ene.png|1|442|246|3450617208||1|1||0|0
+PD=161||161_Clipb_23ene.png|1|417|301|2570366320||1|1||0|0
+PD=162||162_Image_23ene.png|1|16|16|3345295157||1|2||0|0
+PD=163||163_Image_24ene.png|1|16|16|3249459115||1|1||0|0
+PD=164||164_Clipb_25ene.png|1|310|303|4254172203||1|1||0|0
+PD=166||166_Clipb_27ene.png|1|216|223|921081539||1|1||0|0
+PD=168||168_Clipb_20feb.png|1|535|436|3914595364||1|1||0|0
+PD=169||169_Clipb_21feb.png|1|488|533|2314338839||1|1||0|0
+PD=171||171_Clipb_22feb.png|1|359|282|3285222098||1|1||0|0
+PD=173||173_Clipb_24feb.png|1|88|31|231898908||1|1||0|0
+PD=174||174_Clipb_06mar.png|1|532|330|3305557142||1|1||0|0
+PD=178||178_Clipb_31mar.png|1|402|46|2296713539||1|1||0|0
+PD=181||181_Clipb_31mar.png|1|335|279|3220090320||1|1||0|0
+PD=184||184_Clipb_31mar.png|1|326|285|2196688151||1|1||0|0
+PD=185||185_Clipb_31mar.png|1|297|152|2996717648||1|1||0|0
+PD=186||186_Clipb_31mar.png|1|293|152|190736701||1|1||0|0
+PD=187||187_Clipb_31mar.png|1|286|150|594474843||1|1||0|0
+PD=192||192_Clipb_31mar.png|1|411|28|2464087388||1|1||0|0
+PD=194||194_Clipb_24nov.png|1|198|233|788728395||1|1||0|0
+PD=195||195_Clipb_24nov.png|1|475|302|2114296858||1|1||0|0
+PD=196||196_Clipb_24nov.png|1|123|72|1473008777||1|2||0|0
+PD=197||197_Clipb_25nov.png|1|407|283|3780025982||1|1||0|0
+PD=202||202_Clipb_25nov.png|1|594|295|3724386940||1|1||0|0
+PD=203||203_Clipb_25nov.png|1|594|295|1371154350||1|1||0|0
+PD=204||204_Clipb_07dic.png|1|489|198|245941648||1|1||0|0
+PD=209||209_Clipb_06ene.png|1|279|109|3349534461||1|1||0|0
+PD=212||212_Clipb_08ene.png|1|387|530|136024720||1|1||0|0
+PD=216||216_Clipb_20ene.png|1|312|600|784430773||1|1||0|0
+PD=217||217_Clipb_13abr.png|1|203|734|2984979133||1|1||0|0
+PD=219||219_Clipb_13abr.png|1|528|455|3207839127||1|2||0|0
+PD=221||221_Clipb_13abr.png|1|209|355|3096465394||1|1||0|0
+PD=222||222_Clipb_13abr.png|1|216|73|3778486667||1|1||0|0
+PD=223||223_Clipb_13abr.png|1|389|97|240801985||1|1||0|0
+PD=224||224_Clipb_13abr.png|1|722|205|3960901167||1|2||0|0
+PD=228||228_Clipb_07oct.png|1|505|536|372918343||1|3||0|0
+PD=229||229_Clipb_07oct.png|1|385|532|2396441486||1|1||0|0
+PD=230||230_Clipb_07oct.png|1|385|532|2063594020||1|1||0|0
+PD=231||231_Clipb_07oct.png|1|349|368|3670992723||1|1||0|0
+PD=232||232_Clipb_19oct.png|1|678|495|3925350657||1|1||0|0
+PD=233||233_Clipb_19oct.png|1|654|318|4192914063||1|1||0|0
+PD=234||234_Clipb_19oct.png|1|532|390|1433871927||1|1||0|0
+PD=235||235_Clipb_19oct.png|1|532|390|764013386||1|1||0|0
+PD=237||237_Clipb_19oct.png|1|382|371|1932103461||1|1||0|0
+PD=238||238_Clipb_19oct.png|1|370|370|3919544723||1|1||0|0
+PD=239||239_Clipb_19oct.png|1|380|371|3204302766||1|1||0|0
+PD=240||240_Clipb_19oct.png|1|337|347|3051443956||1|1||0|0
+PD=241||241_Clipb_19oct.png|1|380|371|1231395502||1|1||0|0
+PD=242||242_Clipb_19oct.png|1|322|374|468339261||1|1||0|0
+PD=243||243_Clipb_24dic.png|1|379|366|2323966770||1|1||0|0
+PD=244||244_Clipb_14feb.png|1|243|226|334048320||1|1||0|0
+PD=245||245_Clipb_14feb.png|1|533|391|3178212650||1|1||0|0
+PD=246||246_Clipb_02mar.png|1|381|368|13934027||1|1||0|0
 %EI
 %%
