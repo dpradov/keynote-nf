@@ -173,6 +173,7 @@ const
   TRRENODE_SELIDX       = 4;
   MIN_PASS_LEN          = 5; // minimum length of file access passphrase
   MAX_BACKUP_LEVEL      = 9; // max number of backup files to keep
+  MAX_DAILY_BACKUP_LEVEL  = 7; // max number of files to keep as daily backups (of the form _BAK@D1)
   MAX_NAVHISTORY_COUNT  = 100; // number of navigation history locations to maintain
 
 const

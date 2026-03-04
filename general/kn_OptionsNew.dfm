@@ -871,7 +871,9 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 220
           Width = 360
           Height = 17
-          Hint = 'Automatically scrolls the tree when dragging nodes near the top or bottom edges'
+          Hint = 
+            'Automatically scrolls the tree when dragging nodes near the top ' +
+            'or bottom edges'
           Caption = 'A&uto scroll tree when dragging and dropping nodes'
           TabOrder = 6
         end
@@ -1293,7 +1295,7 @@ object Form_OptionsNew: TForm_OptionsNew
         TabOrder = 0
         object Label_BakDir: TLabel
           Left = 16
-          Top = 250
+          Top = 255
           Width = 145
           Height = 13
           Caption = '&Directory for backup files:'
@@ -1306,35 +1308,33 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Label_MaxBak2: TLabel
           Left = 104
-          Top = 197
+          Top = 158
           Width = 193
           Height = 13
           Alignment = taRightJustify
           AutoSize = False
-          Caption = '&Max backup level:'
+          Caption = '&Max backup level (^):'
           FocusControl = Combo_BakLevel
         end
         object Bevel3: TBevel
           Left = 14
-          Top = 228
+          Top = 238
           Width = 350
           Height = 2
           Shape = bsTopLine
         end
         object Label_MaxBak1: TLabel
-          Left = 51
-          Top = 142
+          Left = 22
+          Top = 195
           Width = 317
-          Height = 49
+          Height = 35
           AutoSize = False
-          Caption = 
-            'Up to 9 most recent backup files can be kept. Oldest backups wil' +
-            'l be recycled automatically.'
+          Caption = '(^) Oldest backups will be recycled automatically'
           WordWrap = True
         end
         object TB_OpenDlgBakDir: TToolbarButton97
           Left = 328
-          Top = 327
+          Top = 332
           Width = 25
           Height = 21
           AllowAllUp = True
@@ -1345,9 +1345,19 @@ object Form_OptionsNew: TForm_OptionsNew
           RepeatInterval = 101
           OnClick = TB_OpenDlgBakDirClick
         end
+        object lblMaxDBak: TLabel
+          Left = 33
+          Top = 53
+          Width = 264
+          Height = 13
+          Alignment = taRightJustify
+          AutoSize = False
+          Caption = 'Max &daily backup level  (^):'
+          FocusControl = Combo_DayBakLevel
+        end
         object checkbox_Backup: TCheckBox
           Left = 13
-          Top = 62
+          Top = 85
           Width = 355
           Height = 17
           Hint = 'Create backup file when saving'
@@ -1356,7 +1366,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CheckBox_BackupAppendExt: TCheckBox
           Left = 33
-          Top = 88
+          Top = 111
           Width = 271
           Height = 17
           Hint = 'Add backup extension to end of original filename'
@@ -1365,7 +1375,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Edit_BackupExt: TEdit
           Left = 310
-          Top = 86
+          Top = 109
           Width = 44
           Height = 21
           Hint = 'Extension to use for Backup files'
@@ -1374,7 +1384,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object RB_BakOriginalDir: TRadioButton
           Left = 22
-          Top = 277
+          Top = 282
           Width = 345
           Height = 17
           Hint = 'Create backup file in the same folder as original file'
@@ -1386,7 +1396,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object RB_BakUserDir: TRadioButton
           Left = 22
-          Top = 304
+          Top = 309
           Width = 345
           Height = 17
           Hint = 'Create backup files in specified folder'
@@ -1396,7 +1406,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Edit_BakDir: TEdit
           Left = 48
-          Top = 327
+          Top = 332
           Width = 274
           Height = 21
           Hint = 'Specify folder for backup files'
@@ -1404,7 +1414,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object Combo_BakLevel: TComboBox
           Left = 308
-          Top = 194
+          Top = 155
           Width = 45
           Height = 21
           Style = csDropDownList
@@ -1413,7 +1423,7 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_BackupVNodes: TCheckBox
           Left = 33
-          Top = 111
+          Top = 134
           Width = 320
           Height = 17
           Hint = 'Backup files linked to virtual nodes'
@@ -1422,14 +1432,14 @@ object Form_OptionsNew: TForm_OptionsNew
         end
         object CB_BackupRegularIntervals: TCheckBox
           Left = 13
-          Top = 33
+          Top = 28
           Width = 355
           Height = 17
           Hint = 
             'Create copies of the file daily, weekly and montly. '#13#10'Montly cop' +
             'ies will not be deleted nor replaced by KN'#13#10#13#10'* Highly recommend' +
             'ed'
-          Caption = '&Backup at regular intervals (*)'
+          Caption = 'Backup at &regular intervals (*)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
           Font.Height = -11
@@ -1438,6 +1448,15 @@ object Form_OptionsNew: TForm_OptionsNew
           ParentFont = False
           TabOrder = 0
           StyleElements = [seClient, seBorder]
+        end
+        object Combo_DayBakLevel: TComboBox
+          Left = 309
+          Top = 50
+          Width = 45
+          Height = 21
+          Style = csDropDownList
+          DropDownCount = 10
+          TabOrder = 9
         end
       end
     end

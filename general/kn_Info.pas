@@ -494,6 +494,7 @@ type
     BackupLevel : integer;
     BackupVNodes : boolean;
     BackupRegularIntervals : boolean;
+    BackupDayLevel : integer;
     ColorDlgBig : boolean; // [*] auto show color dialogs in "expanded" form
     ComboFontLen : integer;  // [*] | these three settings   |
     ComboMacroLen : integer; // [*] | are read from INI file |

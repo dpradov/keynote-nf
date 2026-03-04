@@ -562,7 +562,7 @@ end;
 function DoBackup(const FN: string; var BakFN: string; var BakFolder: string;
                   var SUCCESS: LongBool; var LastError: Integer): Boolean;
 var
-  ext, bakFNfrom, bakFNto, FileName: string;
+  ext, bakFNfrom, bakFNto, bakFNday, FileName: string;
   DayBakFN, DayBakFN_Txt: string;
   myBackupLevel, bakindex : Integer;
   FirstSaveInDay: Boolean;
@@ -682,18 +682,34 @@ begin
 
    SUCCESS := MoveFileExW_n(FN, BakFN, 3);
 
+   if SUCCESS then begin
+      if KeyOptions.BackupRegularIntervals and FirstSaveInDay then begin
 
-   if KeyOptions.BackupRegularIntervals and FirstSaveInDay then
-      TFile.WriteAllText(DayBakFN_Txt, Format(GetRS(sFileM78), [DateToStr(Date), BakFN]));
+         if KeyOptions.BackupDayLevel > 1 then begin
+             // Create a backup for each day (it will have the state at the end of the day)
+             // cycling the others (up to 7)
+             bakFNday := ChangeFileExt(BakFolder + FileName, IntervalPrefixBAK + 'D');
+             for bakIndex := Pred(KeyOptions.BackupDayLevel) downto 1 do begin
+                bakFNfrom := bakFNday + IntToStr(bakIndex)       + ext;
+                bakFNto   := bakFNday + IntToStr(Succ(bakIndex)) + ext;
+                if FileExists(bakFNfrom) then
+                   MoveFileExW_n(bakFNfrom, bakFNto, 3);
+             end;
+             BakFNday:= BakFNday + '1' + ext;
+             SUCCESS:= MoveFileExW_n(bakFN, BakFNday, 3);                // Daily backup
+             BakFN:= BakFNday;
+         end;
+         TFile.WriteAllText(DayBakFN_Txt, Format(GetRS(sFileM78), [DateToStr(Date), BakFN]));
+      end;
 
-   if not SUCCESS then begin
+   end
+   else begin
       bakFN:= '';
       LastError := GetLastError;
      {$IFDEF KNT_DEBUG}
       Log.Add('Backup failed; code ' + IntToStr(LastError));
      {$ENDIF}
    end;
-
 end;
 
 

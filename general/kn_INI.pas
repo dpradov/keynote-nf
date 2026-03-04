@@ -302,6 +302,7 @@ type
     BackupLevel,
     BackupVNodes,
     BackupRegularIntervals,
+    BackupDayLevel,
     ColorDlgBig,
     ComboFontLen,
     ComboMacroLen,
@@ -491,6 +492,8 @@ const
     BackupExt : 'BackupExt';
     BackupLevel : 'BackupLevel';
     BackupVNodes : 'BackupVNodes';
+    BackupRegularIntervals : 'BackupRegIntv';
+    BackupDayLevel : 'BackupDayLevel';
     ColorDlgBig : 'ColorDlgBig';
     ComboFontLen : 'ComboFontLen';
     ComboMacroLen : 'ComboMacroLen';
@@ -1059,6 +1062,7 @@ begin
     BackupExt := ext_BAK;
     BackupVNodes := true;
     BackupRegularIntervals := true;
+    BackupDayLevel := 5;
     BackupLevel := 1;
     ColorDlgBig := true;
     ComboFontLen := 0;
@@ -1396,6 +1400,7 @@ begin
       writestring( section, KeyOptionsIniStr.BackupExt, KeyOptions.BackupExt );
       writebool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
       writebool( section, KeyOptionsIniStr.BackupRegularIntervals, KeyOptions.BackupRegularIntervals );
+      writeinteger( section, KeyOptionsIniStr.BackupDayLevel, KeyOptions.BackupDayLevel );
       writeinteger( section, KeyOptionsIniStr.BackupLevel, KeyOptions.BackupLevel );
       writebool( section, KeyOptionsIniStr.ColorDlgBig, KeyOptions.ColorDlgBig );
       writeinteger( section, KeyOptionsIniStr.ComboDropDownCount, KeyOptions.ComboDropDownCount );
@@ -1735,6 +1740,7 @@ begin
       KeyOptions.BackupLevel := readinteger( section, KeyOptionsIniStr.BackupLevel, KeyOptions.BackupLevel );
       KeyOptions.BackupVNodes := readbool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
       KeyOptions.BackupRegularIntervals := readbool( section, KeyOptionsIniStr.BackupRegularIntervals, KeyOptions.BackupRegularIntervals );
+      KeyOptions.BackupDayLevel := readinteger( section, KeyOptionsIniStr.BackupDayLevel, KeyOptions.BackupDayLevel );
       KeyOptions.ColorDlgBig := readbool( section, KeyOptionsIniStr.ColorDlgBig, KeyOptions.ColorDlgBig );
       KeyOptions.ComboDropDownCount := readinteger( section, KeyOptionsIniStr.ComboDropDownCount, KeyOptions.ComboDropDownCount );
 

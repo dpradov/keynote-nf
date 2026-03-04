@@ -324,6 +324,8 @@ type
     Spin_TimerLock: TSpinEdit;
     lblMin2: TLabel;
     BitBtn_LckHlp: TBitBtn;
+    Combo_DayBakLevel: TComboBox;
+    lblMaxDBak: TLabel;
     procedure TB_OpenDlgBakDirClick(Sender: TObject);
     procedure TB_OpenDlgURLAltBrowserPathClick(Sender: TObject);
     procedure TB_OpenDlgUserFileClick(Sender: TObject);
@@ -554,6 +556,11 @@ begin
     Combo_BakLevel.Items.Add( inttostr( i ));
   end;
   Combo_BakLevel.ItemIndex := 0;
+
+  for i := 1 to MAX_DAILY_BACKUP_LEVEL do
+     Combo_DayBakLevel.Items.Add( inttostr( i ));
+  Combo_DayBakLevel.ItemIndex := 0;
+
 
   // Combo_ICN.ItemIndex := 0;
 
@@ -916,6 +923,7 @@ begin
       Combo_URLAction.DroppedDown or
       Combo_URLCtrlAction.DroppedDown or
       Combo_BakLevel.DroppedDown or
+      Combo_DayBakLevel.DroppedDown or
       Combo_TabPos.DroppedDown
       )) then
     begin
@@ -984,6 +992,7 @@ begin
         BackupDir := '';
     end;
     BackupLevel := succ( Combo_BakLevel.ItemIndex );
+    BackupDayLevel := succ( Combo_DayBakLevel.ItemIndex );
 
     AutoPasteEval := CheckBox_AutoPasteEval.Checked;
     AutoPastePlugin := CheckBox_AutoPastePlugin.Checked;
@@ -1204,6 +1213,7 @@ begin
       Edit_BakDir.Text := BackupDir;
     end;
     Combo_BakLevel.ItemIndex := pred( BackupLevel );
+    Combo_DayBakLevel.ItemIndex := pred( BackupDayLevel );
 
     if CheckBox_AutoSaveOnFocus.Checked then
        CheckBox_AutoSaveOnFocus.Font.Color:= clBlue;
@@ -1847,10 +1857,11 @@ end;
 
 procedure TForm_OptionsNew.Checkbox_BackupClick(Sender: TObject);
 var
-  CyclicBackup, CyclicOrIntervalBackup: Boolean;
+  CyclicBackup, IntervalBackup, CyclicOrIntervalBackup: Boolean;
 begin
   CyclicBackup:= Checkbox_Backup.Checked;
-  CyclicOrIntervalBackup:= CyclicBackup or CB_BackupRegularIntervals.Checked;
+  IntervalBackup:= CB_BackupRegularIntervals.Checked;
+  CyclicOrIntervalBackup:= CyclicBackup or IntervalBackup;
 
   CheckBox_BackupAppendExt.Enabled := CyclicBackup;
   Edit_BackupExt.Enabled := CyclicBackup;
@@ -1861,6 +1872,8 @@ begin
   Label_MaxBak2.Enabled := CyclicBackup;
   Combo_BakLevel.Enabled := CyclicBackup;
   CB_BackupVNodes.Enabled := CyclicBackup;
+  lblMaxDBak.Enabled := IntervalBackup;
+  Combo_DayBakLevel.Enabled:= IntervalBackup;;
   Edit_BakDir.Enabled := ( CyclicOrIntervalBackup and RB_BakUserDir.Checked );
   TB_OpenDlgBakDir.Enabled:= Edit_BakDir.Enabled;
 end; // Checkbox_BackupClick
