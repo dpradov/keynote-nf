@@ -3,6 +3,14 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.6.1  (06 mar 2026)
+--------------------------
+* New: The "Lock on opening" option has been added to enable more secure collaborative work [#607]
+* New option associated with "Backup at regular intervals": "Max daily backup level"  [#976]
+* Fixed: Allow pasting when entering password / Also: Backspace key ignored  [#969]
+* Auto scroll on Tree: Fixed the caption and hint of the existing option [#823]
+
+
 v 2.1.5.3  (19 feb 2026)
 --------------------------
 Patch for version 2.1.5 (.1):
