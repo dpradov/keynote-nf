@@ -165,16 +165,8 @@ begin
           end;
 
           App.UI_RTL:= RTL;
-          if Form_Main <> nil then begin
+          if Form_Main <> nil then
              App.ApplyBiDiMode;
-             Form_Main.TB_Color.Hint:= GetRS(sUI01);
-             Form_Main.TB_Hilite.Hint:= GetRS(sUI02);
-          end;
-          if Form_Alarm <> nil then begin
-             Form_Alarm.TB_Color.Hint:= GetRS(sUI01);
-             Form_Alarm.TB_Hilite.Hint:= GetRS(sUI02);
-          end;
-
 
           if FN <> '' then begin
              if not fileexists( path + FN ) then
@@ -194,6 +186,17 @@ begin
                  result:= True;
              end;
           end;
+
+          if Form_Main <> nil then begin
+             Form_Main.TB_Color.Hint:= GetRS(sUI01);
+             Form_Main.TB_Hilite.Hint:= GetRS(sUI02);
+          end;
+          if Form_Alarm <> nil then begin
+             Form_Alarm.TB_Color.Hint:= GetRS(sUI01);
+             Form_Alarm.TB_Hilite.Hint:= GetRS(sUI02);
+          end;
+
+
           if TipFile <> '' then begin
              if not fileexists( path + TipFile ) then
                 App.ErrorPopup( GetRS(sLng03) + path + TipFile)
