@@ -2419,6 +2419,10 @@ begin
         if InfoExportedNotes <> nil then                           // We can be writing only the table of contents
            InsertKNTLinksWithoutMarker(RTF, InfoExportedNotes);
         NodeText:= RTF.RtfText;
+
+        //  ...\'13      =>    ...{\fs36\u9633?}
+        NodeText:= StringReplace(NodeText, '...\''13', '...{\fs36\u9633?}', [rfReplaceAll]);
+
         NodeText:= ReplaceHyperlinksWithStandardBookmarks(NodeText);
         if InfoExportedNotes <> nil then
            NodeText:= ConvertToStandardBookmarks(NodeText, InfoExportedNotes, true, ExportOptions);
