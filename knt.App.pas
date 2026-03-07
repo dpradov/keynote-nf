@@ -948,10 +948,16 @@ function TKntApp.FileOpening (aFile: TKntFile; const FN: string; var OpenReadOnl
 var
    info: string;
    ContinueReadOnly: boolean;
+   Attrs : TFileAttributes;
 begin
    Result:= True;
 
    if not OpenReadOnly then begin
+      Attrs := TFile.GetAttributes(FN);
+      if (TFileAttribute.faReadOnly in Attrs) then
+         OpenReadOnly:= True
+
+      else
       if not LockFile(FN, True, True, ContinueReadOnly) then begin
          Result:= ContinueReadOnly;
          OpenReadOnly:= True;
@@ -987,10 +993,18 @@ begin
 
    except
      FLockStream := nil;
-     FActiveFileEditedByOtherUser:= True;
-     if ReportError then
-        ReportLockedFile(FN, OfferContinueReadOnly, ContinueReadOnly);
+
+     if not TFile.Exists(FN + ext_LockFile) then begin      // File is not locked. Probably the file is in a protected folder
+        FActiveFileEditedByOtherUser:= False;
+        ContinueReadOnly:= True;                            // Continue in read-only mode and allow other possible exceptions to be triggered
+     end
+     else begin
+        FActiveFileEditedByOtherUser:= True;
+        if ReportError then
+           ReportLockedFile(FN, OfferContinueReadOnly, ContinueReadOnly);
+     end;
    end;
+
 end;
 
 
