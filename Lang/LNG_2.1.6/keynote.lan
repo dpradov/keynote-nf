@@ -39,7 +39,7 @@ Translator=dprado.keynote@gmail.com
 RTL=0
 
 [German]
-Comment=2.1.5
+Comment=2.1.6.01
 Name=German
 LangFile=Keynote.german.lng
 TipFile=Keynote.german.tip
