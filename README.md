@@ -15,7 +15,7 @@ Tabbed notebook with RichText editor, multi-level notes and strong encryption.
 
 This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new features like: 
 
- * *Unicode compliant*  
+ * *Unicode compliant*, *Multilanguage support*
 
  * *Improvement in image management*
    * Support for GIF, PNG, JPG, TIF, BMP, WMF, EMF and ICO   
@@ -31,7 +31,12 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
  * *Redesigned navigation history mechanism*
 
  * *New KeyNote file format: compressed*
+ 
+ * *Enable encrypted content*
+    Combine an unencrypted format (native or compressed) with the encryption of selected elements, such as notes and images
 
+ * *Lock on opening* option to enable more secure collaborative work
+ 
  * *Improved Find All* <br>
    * Search is now much faster
    * Excerpts from the note of the matches found are displayed, where the searched words are highlighted
@@ -63,6 +68,7 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
    * KNT internal links are converted to standard RTF format (works with MS Word and LibreOffice)
    * Added "Printer (PDF, ...)" as a new target format in File | Export.... (Preview also available)
    * Table of Contents, sections, page number, page header, etc.
+   * Added 'KeyNote' as target format in File | Export
  
  * *Checkboxes on children of selected nodes* <br>
    * Selecting checkboxes for all nodes (View/Tree Checkboxes -- now View/All nodes Checkboxes) is still posible. Besides, checkboxes can be shown only on children of selected nodes (Children Checkbox)
@@ -75,14 +81,12 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
  * *Linked nodes*: share the content of a same note <br>
      
  * *New button: 'Copy Format'*
-
- * *Added 'KeyNote' as target format in File | Export*
-
+ 
  * *Alarms on nodes*  
 
  * *Added a new property, "Default Zoom"*, and new action: View | Alternative Margins
+ 
 
- * *Multilanguage support*  
 <br>
 
 ### References, documentation and contact information
@@ -145,8 +149,8 @@ In case you fork the repository or clone it to your desktop, in the [README_Sour
 ### Copyright and license
 The initial developer of KeyNote is Marek Jedlinski, copyright 2000-2005.  
 
-The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2024.  
-In august 2023, with the version 1.8.0, the code was migrated from Borland Delphi 2006 to to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
+The adaptation to Delphi 2006 and the new functionalities added since version 1.7.0 corresponds to Daniel Prado Velasco, copyright 2007-2026.  
+In august 2023, with the version 1.8.0, the code was migrated from Borland Delphi 2006 to Embarcadero Delphi CE 11.3 (Community Edition 11.3  Alexandria).
 
 Code released under the [Mozilla Public License 2.0](./LICENSE.txt). This license applies only to units written by the authors of KeyNote and KeyNote NF: Marek Jedlinski and Daniel Prado, respectively.
 Note: KeyNote was originally licensed by MPL 1.1. I have contacted with Marek and have obtained his approval to update to MPL 2.0.

@@ -801,6 +801,10 @@ begin
       if KntTreeOptions.EditInPlace then
         TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toEditable];
 
+      // After that time, a faster autoscroll is activated (which already depends on how close the cursor is to the edge).
+      // I'm "reducing" it from 1000 to 1500 ms because I think 1 second makes it accelerate too quickly
+      TV.AutoScrollDelay:= 1500;
+
       if KntTreeOptions.AutoScroll then
         TreeOptions.AutoOptions := TreeOptions.AutoOptions + [toAutoScroll];
 

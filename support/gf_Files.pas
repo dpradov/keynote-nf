@@ -483,7 +483,7 @@ function GetFileSize( const fn : string ) : longint;
 var
    f : TFileStream;
 begin
-   F:= TFileStream.Create( fn, ( fmOpenRead ));
+   F:= TFileStream.Create( fn,  fmOpenRead or fmShareDenyNone);
    try
      try
        result:= F.Size;
@@ -505,7 +505,7 @@ var
    fh : integer;
 begin
    try
-     fh := FileOpen( fn, 0 );
+     fh := FileOpen( fn, fmOpenRead or fmShareDenyNone );
      try
        result := FileDateToDateTime( FileGetDate( fh ));
      finally

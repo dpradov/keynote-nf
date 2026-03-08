@@ -54,6 +54,7 @@ uses
    kn_Const,
    kn_global,
    kn_Main,
+   kn_AlertMng,
    knt.App,
    knt.RS;
 
@@ -185,6 +186,17 @@ begin
                  result:= True;
              end;
           end;
+
+          if Form_Main <> nil then begin
+             Form_Main.TB_Color.Hint:= GetRS(sUI01);
+             Form_Main.TB_Hilite.Hint:= GetRS(sUI02);
+          end;
+          if Form_Alarm <> nil then begin
+             Form_Alarm.TB_Color.Hint:= GetRS(sUI01);
+             Form_Alarm.TB_Hilite.Hint:= GetRS(sUI02);
+          end;
+
+
           if TipFile <> '' then begin
              if not fileexists( path + TipFile ) then
                 App.ErrorPopup( GetRS(sLng03) + path + TipFile)

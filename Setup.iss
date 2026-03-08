@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "2.1.5.1"
-#define AppVersion "2.1.5 .01"
+#define Version "2.1.6.1"
+#define AppVersion "2.1.6 .01"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -17,8 +17,8 @@
 
 [Setup]
 SignTool=mySignTool
-TouchDate=2026-02-15
-TouchTime=22:00
+TouchDate=2026-03-08
+TouchTime=10:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
@@ -154,6 +154,7 @@ Source: "doc\kn_fileformat\fileformat_2.1 (until v1.9.5).txt"; DestDir: "{app}\d
 Source: "doc\kn_fileformat\fileformat_3.0 (since v2.0.0).txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_3.0.knt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_3.1 (since v2.1.0).txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\kn_fileformat\fileformat_3.2 (since v2.1.5).txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_3.1.knt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_minimal.knt"; DestDir: "{app}\doc"; Components: main
 Source: "doc\kn_fileformat\fileformat_readme.txt"; DestDir: "{app}\doc" ; Components: main

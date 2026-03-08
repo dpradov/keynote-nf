@@ -65,6 +65,9 @@ function AddUTF8_BOM ( Stream : TMemoryStream ): boolean;
 function ReadAllText(FN: String): String;
 function ReadAllTextAsAnsiString(FN: String): AnsiString;
 procedure LoadTxtOrRTFFromFile (Stream: TStream; FN: string);
+procedure LoadMemoryStreamNoLock(const FileName: string; Target: TMemoryStream);
+function ReadAllTextNoLockAsAnsiString(const FN: string): AnsiString;
+
 
 type
   TTextFile = class
@@ -398,6 +401,38 @@ begin
    if Copy(Str, 1, 6) = '{\rtf1' then begin
       Stream.Write(AnsiString(#13#10#0), 3);
    end;
+end;
+
+
+procedure LoadMemoryStreamNoLock(const FileName: string; Target: TMemoryStream);
+var
+  FS: TFileStream;
+begin
+  FS := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
+  try
+    Target.LoadFromStream(FS);
+  finally
+    FS.Free;
+  end;
+end;
+
+
+function ReadAllTextNoLockAsAnsiString(const FN: string): AnsiString;
+var
+  FS: TFileStream;
+begin
+  Result := '';
+  try
+    FS := TFileStream.Create(FN, fmOpenRead or fmShareDenyNone);
+    try
+      SetLength(Result, FS.Size);
+      if FS.Size > 0 then
+         FS.ReadBuffer(Pointer(Result)^, FS.Size);
+    finally
+      FS.Free;
+    end;
+  except
+  end;
 end;
 
 

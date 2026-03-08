@@ -3565,8 +3565,8 @@ begin
             // Abandoned hidden image marks have been located, which must be removed
             ContainsImgIDsRemoved:= true;
             if (RTFTextOut = '')  then begin
-               SetLength(RTFTextOut, Length(RTFText));
-               Move(RTFText[1], RTFTextOut[1], pIDff-1);
+               SetLength(RTFTextOut, BufSize);
+               Move(RTFText[0], RTFTextOut[pOut], pIDff-1);
                pOut:= pIDff;
             end
             else begin

@@ -2199,7 +2199,7 @@ begin
   ImgManager.KntFile:= Self;
 
   result := 1;
-  Stream := TFileStream.Create( FN, ( fmOpenRead or fmShareDenyWrite ));
+  Stream := TFileStream.Create( FN, fmOpenRead or fmShareDenyNone);
 
   FileIDTestFailed := true; // assume the worst
   result := 2;
@@ -2252,7 +2252,7 @@ begin
     try
       if ( FFileFormat = nffEncrypted ) then begin
         MemStream := TMemoryStream.Create;
-        Stream := TFileStream.Create(FN, fmOpenRead);
+        Stream := TFileStream.Create(FN, fmOpenRead or fmShareDenyNone);
         try
           Stream.Read(chunksize, sizeof(integer));
           sizeread:= Stream.Read(FVersion, sizeof(FVersion));
@@ -2307,7 +2307,7 @@ begin
           var PosIniNonCompressed, NToRead, PosToWrite: Int64;
 
           MemStream := TMemoryStream.Create;
-          Stream := TFileStream.Create(FN, fmOpenRead);
+          Stream := TFileStream.Create(FN, fmOpenRead or fmShareDenyNone);
           try
              Stream.ReadBuffer(FVersion, sizeof( FVersion ));
              Stream.ReadBuffer(FCompressionLevel, sizeof( FCompressionLevel ));
@@ -2332,7 +2332,7 @@ begin
 
       if ( FFileFormat = nffKeyNote ) then begin
           MemStream := TMemoryStream.Create;
-          MemStream.LoadFromFile(FN);
+          LoadMemoryStreamNoLock(FN, MemStream);
       end;
 
       case FFileFormat of

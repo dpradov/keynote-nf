@@ -150,6 +150,8 @@ var
    //================================================== TIMER
     Timer_Tick : integer; // timer counter, for autosave
     Timer_TickAlarm: integer;  // timer counter, for checking alarms
+    Timer_TickFileLock: integer;  // Timer counter for checking file changes and lock releases
+
     AppLastActiveTime : TDateTime; // for auto-minimizing and auto-closing on timeout
 (*
     {$IFDEF WITH_TIMER}
@@ -469,6 +471,7 @@ begin
       Timer.Enabled := false;
       Timer_Tick := 0;
       Timer_TickAlarm:= 0;
+      Timer_TickFileLock:= 0;
       Timer.Interval := _TIMER_INTERVAL;
 
 

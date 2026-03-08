@@ -704,7 +704,6 @@ object Form_Alarm: TForm_Alarm
           Top = 0
           Width = 34
           Height = 22
-          Hint = 'Click to change text color'
           ActiveColor = clBlack
           TargetColor = clBlack
           Flat = True
@@ -722,7 +721,6 @@ object Form_Alarm: TForm_Alarm
           Top = 0
           Width = 34
           Height = 22
-          Hint = 'Click to add or remove highlight'
           ActiveColor = clInfoBk
           TargetColor = clBlack
           Flat = True

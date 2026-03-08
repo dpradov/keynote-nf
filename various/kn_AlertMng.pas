@@ -1560,6 +1560,9 @@ begin
 
    ForceGetMonthInfo(ccalendar);
    FCalendarMonthChanged:= False;
+
+   TB_Color.Hint:= GetRS(sUI01);
+   TB_Hilite.Hint:= GetRS(sUI02);
 end;
 
 

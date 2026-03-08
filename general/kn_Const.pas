@@ -33,9 +33,9 @@ procedure DefineConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.5 .03';
-  Program_Version_Number  = '2.1.5.3';
-  Program_Version_Date    = '19/02/2026';
+  Program_Version  = '2.1.6 .01';
+  Program_Version_Number  = '2.1.6.1';
+  Program_Version_Date    = '08/03/2026';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -173,6 +173,7 @@ const
   TRRENODE_SELIDX       = 4;
   MIN_PASS_LEN          = 5; // minimum length of file access passphrase
   MAX_BACKUP_LEVEL      = 9; // max number of backup files to keep
+  MAX_DAILY_BACKUP_LEVEL  = 7; // max number of files to keep as daily backups (of the form _BAK@D1)
   MAX_NAVHISTORY_COUNT  = 100; // number of navigation history locations to maintain
 
 const

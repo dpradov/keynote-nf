@@ -441,15 +441,13 @@ end; // GetTextFileType
 
 function GetFileSize( const fn : string ) : longint;
 var
-   f : file;
+   f : TFileStream;
 begin
-   assignfile( f, fn );
-   FileMode := 0;
+   F:= TFileStream.Create( fn,  fmOpenRead or fmShareDenyNone);
    try
      try
-       reset( f, 1 );
-       result := FileSize( f );
-       closefile( f );
+       result:= F.Size;
+       F.Free;
      except
        on E :Exception do
        begin
@@ -458,7 +456,6 @@ begin
        end;
      end;
    finally
-     FileMode := 2;
    end;
 end; // GetFileSize
 
@@ -467,7 +464,7 @@ var
    fh : integer;
 begin
    try
-     fh := FileOpen( fn, 0 );
+     fh := FileOpen( fn, fmOpenRead or fmShareDenyNone );
      result := FileDateToDateTime( FileGetDate( fh ));
      FileClose( fh );
    except
