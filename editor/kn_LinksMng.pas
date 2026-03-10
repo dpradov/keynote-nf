@@ -92,6 +92,7 @@ type
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
+    function GetURLfromClipboard: string;
 
     function PathOfKntLink (myTreeNode: PVirtualNode; myFolder : TKntFolder; position: Integer; ForceShowPosition: boolean; RelativeKNTLink: boolean;
                             forUseInFindResults: boolean = false): string;
@@ -131,6 +132,7 @@ uses
    kn_Main,
    kn_URL,
    kn_EditorUtils,
+   kn_ClipUtils,
    kn_RTFUtils,
    kn_ImagesMng,
    kn_ImageForm,
@@ -425,8 +427,12 @@ procedure InsertRtfHyperlink(const URLStr: string; const TextURL: string;
                              const sepL: string = '';
                              const sepR: string = '');
 begin
-     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
+     //Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;\red0\green0\blue255;}{\fonttbl}%s' + LINK_RTF + '%s\cf0\ulnone}',
+     //                                [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
+
+     Editor.PutRtfText(Format('{\rtf1\ansi{\colortbl ;}%s' + LINK_RTF + '%s}',
                                      [sepL, URLToRTF(URLStr, false ), URLToRTF(TextURL, true), sepR]), true);
+
 end;
 
 
@@ -827,20 +833,122 @@ end;
 
 
 const
-   sHYPERLINK = '\*\fldinst{HYPERLINK "file:';  // -> ", inclusive: 22
    PrefixData = KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA;
 
 (*
-   {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK "file:///<41|663|0|11"}}{\fldrslt{Introduction}}}}\f0\fs20\par
      ->
-   {{\field{\*\fldinst{HYPERLINK \\l "41_B11"}}{\fldrslt{\ul\cf2\cf2\ul Introduction}}}}\f0\fs20\par
+   {{\field{\*\fldinst{HYPERLINK \\l "41_B11"}}{\fldrslt{Introduction}}}}\f0\fs20\par
 *)
 
 function ReplaceHyperlinksWithStandardBookmarks(const S: AnsiString): AnsiString;
+const
+   sHYPERLINK = '{\field{\*\fldinst{HYPERLINK "';  // -> ", inclusive: 30
 var
    pIn, pOut, pI, pF, NBytes: integer;
    URL, NewURL: AnsiString;
    Loc: TLocation;
+   FileLink: boolean;
+   FormatStr: AnsiString;
+   posFormat, pCF0: integer;
+   CFBlue: AnsiString;
+
+
+   function FormatToUseBeforeField (var posFormat: integer; var FormatToUse: AnsiString): boolean;
+   var
+     FormatOrig: AnsiString;
+     i: integer;
+   begin
+      (* pI points to: {\field{\*\fldinst{
+         Locate the first unclosed '{' above, and return a string check if it contains the \cf0 color command.
+         We'll try to make the blue color explicit in the link when exporting, otherwise MS Word will interpret it as black
+      *)
+      Result:= False;
+      posFormat:= pI -1;
+
+      while (posFormat > 1) and not (S[posFormat] in ['{','}']) do
+         dec(posFormat);
+
+      if pI-posFormat > 35 then exit;
+
+      Result:= True;
+
+      if S[posFormat] = '{' then begin
+          FormatOrig:= Copy(S, posFormat+1, pI-posFormat-1);
+          FormatToUse:= CFBlue + '\ul';
+
+          i:= 1;
+          while (i <= Length(FormatOrig)) do begin
+            if (Copy(FormatOrig, i,4) = '\cf0') then begin
+                delete(FormatOrig, i, 4);
+                continue;
+            end;
+            if (Copy(FormatOrig, i, Length(CFBlue)) = CFBlue) then begin
+                delete(FormatOrig, i, Length(CFBlue));
+                continue;
+            end;
+            if (Copy(FormatOrig, i,3) = '\ul') then begin
+                delete(FormatOrig, i, 3);
+                continue;
+            end;
+            inc(i);
+          end;
+          FormatToUse:= FormatToUse + FormatOrig;
+      end;
+   end;
+
+   procedure CalculatePosOfCommandCf0InTextLink;
+   var
+     p: integer;
+   begin
+     // pF points to  '"}}{\fldrslt{...}'
+
+      pCF0 := -1;
+      p:= pF + 13;             // 13:  "}}{\fldrslt{
+      if S[p] <> '\' then
+         exit;
+
+      while p < Length(S) do begin
+        if (S[p] in [' ','}']) then
+           exit;
+        if (Copy(S,p,4) = '\cf0') then begin
+           pCF0 := p;
+           exit;
+        end;
+        inc(p);
+      end;
+   end;
+
+   procedure IdentifyCFBlue (var posToInsert: integer);
+   var
+      p, p1, p2: integer;
+      Str: AnsiString;
+      iBlue: integer;
+   begin
+     // {\colortbl ;\red0\green0\blue205;\red0\green0\blue255;\red255\green0\blue0;}
+      p1:= Pos(AnsiString('{\colortbl '), S, 1);
+      p2:= Pos('}', S, p1);
+      Str:= Copy(S, p1, p2-p1);
+
+      posToInsert:= p2 -2;
+      p:= 0;
+      iBlue:= 1;
+      repeat
+         p:= Pos(';', Str, p+1);
+         if p > 0 then begin
+            if Copy(Str,p,Length(';\red0\green0\blue255')) = ';\red0\green0\blue255' then begin
+               posToInsert:= -1;
+               break;
+            end
+            else
+               inc(iBlue);
+         end
+         else
+            dec(iBlue);
+      until p = 0;
+      CFBlue:= '\cf' + iBlue.ToString;
+   end;
+
 
 begin
   if S = '' then Exit('');
@@ -854,35 +962,71 @@ begin
   pOut:= 1;
   pI:= 0;
 
+  IdentifyCFBlue(pI);
+  if pI > 0 then begin
+     Move(S[pIn], Result[pOut], pI);
+     inc(pOut, pI);
+     NBytes:= Length(';\red0\green0\blue255');
+     Move(AnsiString(';\red0\green0\blue255')[1], Result[pOut], NBytes);
+     inc(pOut, NBytes);
+     pIn:= pI+1;
+  end
+  else
+     pI:= 0;
+
   repeat
      pI:= Pos(AnsiString(sHYPERLINK), S, pI+1);
 
      if pI > 0 then begin
+                                                                           //  {\cf0\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "
+        FileLink:= ( Copy(S, pI + length(sHYPERLINK), 5) = 'file:');
+
+        if FormatToUseBeforeField(posFormat, FormatStr) then begin
+           NBytes:= posFormat - pIn +1;
+           Move(S[pIn], Result[pOut], NBytes);
+           inc(pOut, NBytes);
+           NBytes:= Length(FormatStr);
+           Move(FormatStr[1], Result[pOut], NBytes);
+           inc(pOut, NBytes);
+           pIn:= pI;
+        end;
+
         pF:= Pos('"}', S, pI + length(sHYPERLINK));
         if (pF > 0) then begin
-            URL:= Copy(S, pI+22, pF-pI-22);
-            try
-              try
-                 Loc:= BuildLocationFromKntURL(URL);
-                 if UpdateLocation(Loc, false) or (Loc.NNodeGID <> 0) then begin
-                    NewURL:= GetURLLinkStandard(Loc);
+            if FileLink then begin
+                URL:= Copy(S, pI+30, pF-pI-30);                    //  '{\field{\*\fldinst{HYPERLINK "file:';  // -> ", inclusive: 30
+                try
+                  try
+                     Loc:= BuildLocationFromKntURL(URL);
+                     if UpdateLocation(Loc, false) or (Loc.NNodeGID <> 0) then begin
+                        NewURL:= GetURLLinkStandard(Loc);
 
-                    NBytes:= pI+21 - pIn;                 // 21 -> Do not include the first "
-                    Move(S[pIn], Result[pOut], NBytes);
-                    inc(pOut, NBytes);
-                    Move(NewURL[1], Result[pOut], Length(NewURL));
-                    inc(pOut, Length(NewURL));
-                    pIn:= pF+1;
-                 end;
+                        NBytes:= pI+29 - pIn;                 // 29 -> Do not include the first "
+                        Move(S[pIn], Result[pOut], NBytes);
+                        inc(pOut, NBytes);
+                        Move(NewURL[1], Result[pOut], Length(NewURL));
+                        inc(pOut, Length(NewURL));
+                        pIn:= pF+1;
+                     end;
 
-              finally
-                 Loc.Free;
-              end;
+                  finally
+                     Loc.Free;
+                  end;
 
-            except
+                except
+                end;
             end;
 
             pI:= pF;
+
+            CalculatePosOfCommandCf0InTextLink;
+            if pCF0 > 0 then begin
+               NBytes:= pCF0 - pIn;
+               Move(S[pIn], Result[pOut], NBytes);
+               inc(pOut, NBytes);
+               pIn:= pCF0 + 4;                    // 4: '\cf0'
+            end;
+
         end;
      end;
     until pI = 0;
@@ -980,6 +1124,8 @@ end;
 
 
 procedure GetInfoKNTLinksWithoutMarker(const S: AnsiString; InfoExportedNotes: TInfoExportedNotesInRTF);
+const
+   sHYPERLINK = '\*\fldinst{HYPERLINK "file:';  // -> ", inclusive: 22
 var
    pI, pF: integer;
    URL: AnsiString;
@@ -1727,6 +1873,14 @@ begin
       myFolder:= Location.Folder;
       myTreeNode:= Location.Node;
 
+
+      if ActiveFile.EncryptedContentMustBeHidden and myFolder.GetNNode(myTreeNode).Note.IsEncrypted then begin
+         Location.CaretPos:= 0;
+         Location.SelLength:= 0;
+         exit;
+      end;
+
+
       _Executing_JumpToKNTLocation_ToOtherNote:= false;
       try
          // if not current folder, switch to it
@@ -2456,8 +2610,13 @@ begin
 
       Form_URLAction := TForm_URLAction.Create( Form_Main );
       try
+        if URLStr = '' then
+           URLStr:= GetURLfromClipboard;
+
         if URLType = urlFILE then
            AdaptURLFileWithParams(URLStr, false);
+        if TextURL = '' then
+           TextURL:= URLStr;
         Form_URLAction.Edit_URL.Text := URLStr;
         Form_URLAction.Edit_TextURL.Text := TextURL;
         Form_URLAction.URLAction:= urlCreateOrModify;   // Mode: Create. Only will show buttons Ok and Cancel
@@ -2487,6 +2646,27 @@ begin
   end;
 
 end; // Insert URL
+
+
+
+function GetURLfromClipboard: string;
+var
+  URL: string;
+  KNTlocation: boolean;
+  URLType: TKNTURL;
+
+begin
+   URL:= Clipboard.TryAsText;
+   URLType:= TypeURL(URL, KNTlocation);
+
+   case URLType of
+      urlHTTP, urlHTTPS: URL:= DecodeURLWebUTF8Characters(URL);
+      urlFile: if pos('file:', URL) <> 1 then URL:= '';
+      else
+         URL:= '';
+   end;
+   Result:= URL;
+end;
 
 
 

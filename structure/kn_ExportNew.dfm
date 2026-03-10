@@ -160,7 +160,7 @@ object Form_ExportNew: TForm_ExportNew
         object CB_ShowHiddenMarkers: TCheckBox
           Left = 9
           Top = 353
-          Width = 260
+          Width = 300
           Height = 17
           Hint = 
             'Makes hidden marks (KNT Links, bmk and img) visible'#13#10'Also shows ' +
@@ -323,7 +323,7 @@ object Form_ExportNew: TForm_ExportNew
         object CB_UseNote: TCheckBox
           Left = 9
           Top = 353
-          Width = 260
+          Width = 173
           Height = 17
           Hint = 'Include notes'#39'content as plain text in "_note" attribute'
           HelpType = htKeyword
@@ -331,6 +331,18 @@ object Form_ExportNew: TForm_ExportNew
           Checked = True
           State = cbChecked
           TabOrder = 11
+        end
+        object chkEncrypted: TCheckBox
+          Left = 185
+          Top = 353
+          Width = 130
+          Height = 17
+          Hint = 
+            'NOTE: Content will only remain encrypted with .knt as target for' +
+            'mat'
+          Caption = 'Encrypted content'
+          TabOrder = 12
+          OnClick = chkEncryptedClick
         end
       end
       object GroupBox_Target: TGroupBox
@@ -513,7 +525,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitWidth = 646
       object gbHeadings: TGroupBox
         Left = 14
         Top = 11
@@ -854,7 +865,6 @@ object Form_ExportNew: TForm_ExportNew
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitWidth = 646
       object RG_TreePadVersion: TRadioGroup
         Left = 37
         Top = 23

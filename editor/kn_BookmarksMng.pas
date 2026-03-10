@@ -162,6 +162,10 @@ begin
          NextBlock:= nbImages;         // Images definition begins
          break;
        end;
+       if ( s = _NF_EncryptedContent ) then begin
+         NextBlock:= nbEncrypted;       // Encrypted content begins
+         break;
+       end;
        if ( s = _NF_EOF ) then begin
          FileExhausted := true;
          break; // END OF FILE

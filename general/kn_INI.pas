@@ -303,6 +303,7 @@ type
     BackupLevel,
     BackupVNodes,
     BackupRegularIntervals,
+    BackupDayLevel,
     ColorDlgBig,
     ComboFontLen,
     ComboMacroLen,
@@ -407,6 +408,8 @@ type
     TimerCloseEncOnly,
     TimerCloseInt,
     TimerCloseAutoReopen,
+    LockOnOpening,
+    TimerFileLckInt,
     TipOfTheDay,
     TipOfTheDayIdx,
     ToolbarFormatShow,
@@ -469,7 +472,8 @@ type
     ImgHotTrackViewer,
     ImgSaveInSubfolders,
     ImgKeepOrigName,
-    ImgViewerPath: string;
+    ImgViewerPath,
+    ImgAllowEncrExternal: string;
   end;
 
 const
@@ -489,6 +493,8 @@ const
     BackupExt : 'BackupExt';
     BackupLevel : 'BackupLevel';
     BackupVNodes : 'BackupVNodes';
+    BackupRegularIntervals : 'BackupRegIntv';
+    BackupDayLevel : 'BackupDayLevel';
     ColorDlgBig : 'ColorDlgBig';
     ComboFontLen : 'ComboFontLen';
     ComboMacroLen : 'ComboMacroLen';
@@ -593,6 +599,8 @@ const
     TimerCloseEncOnly : 'TimerCloseEncOnly';
     TimerCloseInt : 'TimerCloseInt';
     TimerCloseAutoReopen : 'TimerCloseAutoReopen';
+    LockOnOpening : 'LockOnOpening';
+    TimerFileLckInt : 'TimerFileLckInt';
     TipOfTheDay : 'TipOfTheDay';
     TipOfTheDayIdx : 'TipOfTheDayIdx';
     ToolbarFormatShow : 'ToolbarFormatShow';
@@ -656,6 +664,7 @@ const
     ImgSaveInSubfolders: 'ImgSaveInSubfolders';
     ImgKeepOrigName: 'ImgKeepOrigName';
     ImgViewerPath: 'ImgViewerPath';
+    ImgAllowEncrExternal: 'ImgAllowEncrExternal';
   );
 
 type
@@ -1092,6 +1101,7 @@ begin
     BackupExt := ext_BAK;
     BackupVNodes := true;
     BackupRegularIntervals := true;
+    BackupDayLevel := 5;
     BackupLevel := 1;
     ColorDlgBig := true;
     ComboFontLen := 0;
@@ -1207,6 +1217,8 @@ begin
     TimerCloseEncOnly := true;
     TimerCloseInt := DEF_TIMERCLOSEINT;
     TimerCloseAutoReopen := true;
+    LockOnOpening := True;
+    TimerFileLckInt := 5;
     TipOfTheDay := true;
     TipOfTheDayIdx := -1;
     ToolbarFormatShow := true;
@@ -1270,6 +1282,7 @@ begin
     ImgSaveInSubfolders:= false;
     ImgKeepOrigName:= false;
     ImgViewerPath:= '';
+    ImgAllowEncrExternal:= false;
   end;
 end; // InitializeKeyOptions
 
@@ -1362,7 +1375,7 @@ begin
   with Struct do
   begin
     AutoNameVNodes := true;
-    AutoScroll := false;
+    AutoScroll := true;
     ConfirmNodeDelete := true;
     ConfirmNodeRefresh := true;
     ExpandMode := txmExact;
@@ -1451,6 +1464,7 @@ begin
       writestring( section, KeyOptionsIniStr.BackupExt, KeyOptions.BackupExt );
       writebool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
       writebool( section, KeyOptionsIniStr.BackupRegularIntervals, KeyOptions.BackupRegularIntervals );
+      writeinteger( section, KeyOptionsIniStr.BackupDayLevel, KeyOptions.BackupDayLevel );
       writeinteger( section, KeyOptionsIniStr.BackupLevel, KeyOptions.BackupLevel );
       writebool( section, KeyOptionsIniStr.ColorDlgBig, KeyOptions.ColorDlgBig );
       writeinteger( section, KeyOptionsIniStr.ComboDropDownCount, KeyOptions.ComboDropDownCount );
@@ -1554,6 +1568,8 @@ begin
       writebool( section, KeyOptionsIniStr.TimerCloseEncOnly, KeyOptions.TimerCloseEncOnly );
       writeinteger( section, KeyOptionsIniStr.TimerCloseInt, KeyOptions.TimerCloseInt );
       writebool( section, KeyOptionsIniStr.TimerCloseAutoReopen, KeyOptions.TimerCloseAutoReopen );
+      writebool( section, KeyOptionsIniStr.LockOnOpening, KeyOptions.LockOnOpening );
+      writeinteger( section, KeyOptionsIniStr.TimerFileLckInt, KeyOptions.TimerFileLckInt );
 
       writebool( section, KeyOptionsIniStr.TipOfTheDay, KeyOptions.TipOfTheDay );
       writeinteger( section, KeyOptionsIniStr.TipOfTheDayIdx, KeyOptions.TipOfTheDayIdx );
@@ -1615,6 +1631,7 @@ begin
       writebool   ( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
       writebool   ( section, KeyOptionsIniStr.ImgKeepOrigName, KeyOptions.ImgKeepOrigName );
       writestring ( section, KeyOptionsIniStr.ImgViewerPath, KeyOptions.ImgViewerPath );
+      writebool   ( section, KeyOptionsIniStr.ImgAllowEncrExternal, KeyOptions.ImgAllowEncrExternal );
 
       section := EditorOptionsIniStr.section;
       writebool( section, EditorOptionsIniStr.AutoIndent, EditorOptions.AutoIndent );
@@ -1788,6 +1805,7 @@ begin
       KeyOptions.BackupLevel := readinteger( section, KeyOptionsIniStr.BackupLevel, KeyOptions.BackupLevel );
       KeyOptions.BackupVNodes := readbool( section, KeyOptionsIniStr.BackupVNodes, KeyOptions.BackupVNodes );
       KeyOptions.BackupRegularIntervals := readbool( section, KeyOptionsIniStr.BackupRegularIntervals, KeyOptions.BackupRegularIntervals );
+      KeyOptions.BackupDayLevel := readinteger( section, KeyOptionsIniStr.BackupDayLevel, KeyOptions.BackupDayLevel );
       KeyOptions.ColorDlgBig := readbool( section, KeyOptionsIniStr.ColorDlgBig, KeyOptions.ColorDlgBig );
       KeyOptions.ComboDropDownCount := readinteger( section, KeyOptionsIniStr.ComboDropDownCount, KeyOptions.ComboDropDownCount );
 
@@ -1921,6 +1939,8 @@ begin
       KeyOptions.TimerCloseEncOnly := readbool( section, KeyOptionsIniStr.TimerCloseEncOnly, KeyOptions.TimerCloseEncOnly );
       KeyOptions.TimerCloseInt := readinteger( section, KeyOptionsIniStr.TimerCloseInt, KeyOptions.TimerCloseInt );
       KeyOptions.TimerCloseAutoReopen := readbool( section, KeyOptionsIniStr.TimerCloseAutoReopen, KeyOptions.TimerCloseAutoReopen );
+      KeyOptions.LockOnOpening := readbool( section, KeyOptionsIniStr.LockOnOpening, KeyOptions.LockOnOpening );
+      KeyOptions.TimerFileLckInt := readinteger( section, KeyOptionsIniStr.TimerFileLckInt, KeyOptions.TimerFileLckInt );
 
       if KeyOptions.TimerMinimizeInt < 1 then
         KeyOptions.TimerMinimizeInt := DEF_TIMERMINIMIZEINT;
@@ -1994,6 +2014,7 @@ begin
       KeyOptions.ImgSaveInSubfolders := readbool( section, KeyOptionsIniStr.ImgSaveInSubfolders, KeyOptions.ImgSaveInSubfolders );
       KeyOptions.ImgKeepOrigName := readbool( section, KeyOptionsIniStr.ImgKeepOrigName, KeyOptions.ImgKeepOrigName );
       KeyOptions.ImgViewerPath := readstring( section, KeyOptionsIniStr.ImgViewerPath, KeyOptions.ImgViewerPath );
+      KeyOptions.ImgAllowEncrExternal := readbool( section, KeyOptionsIniStr.ImgAllowEncrExternal, KeyOptions.ImgAllowEncrExternal );
 
       if KeyOptions.SingleInstance then KeyOptions.HotKeyWarn := false;
 

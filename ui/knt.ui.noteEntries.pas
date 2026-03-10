@@ -1,4 +1,4 @@
-unit knt.ui.noteEntries;
+﻿unit knt.ui.noteEntries;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -80,6 +80,7 @@ type
     FLastEditorUIWidth: string;
 
     fChangingInCode: boolean;
+    FReadOnly: boolean;
 
     FOnEnterOnEditor: TNotifyEvent;
     FOnMouseUpOnNoteEntries: TNotifyEvent;
@@ -130,6 +131,7 @@ type
   protected
     function GetReadOnly: boolean;
     procedure SetReadOnly( AReadOnly : boolean );
+    procedure ForceTempReadOnly( AReadOnly : boolean );
   public
     property ReadOnly : boolean read GetReadOnly write SetReadOnly;
     property OnUse: boolean read FOnUse;
@@ -277,12 +279,21 @@ end;
 
 procedure TKntNoteEntriesUI.SetReadOnly( AReadOnly : boolean );
 begin
+   FReadOnly:= AReadOnly;
    Editor.ReadOnly:= AReadOnly;
    txtName.ReadOnly:= AReadOnly;
    txtTags.ReadOnly:= AReadOnly;
 
    ConfigureEditor;
 end;
+
+procedure TKntNoteEntriesUI.ForceTempReadOnly( AReadOnly : boolean );
+begin
+   Editor.ReadOnly:= AReadOnly;
+   txtName.ReadOnly:= AReadOnly;
+   txtTags.ReadOnly:= AReadOnly;
+end;
+
 
 procedure TKntNoteEntriesUI.SetAsUnused;
 begin
@@ -667,9 +678,9 @@ end;
 procedure TKntNoteEntriesUI.ReloadFromDataModel;
 var
   ReadOnlyBAK: boolean;
-
+  str: String;
+  
 {$IFDEF KNT_DEBUG}
- str: String;
  dataSize: integer;
 {$ENDIF}
 
@@ -712,11 +723,18 @@ begin
    end;
 
 
-   ReadOnlyBAK:= Editor.ReadOnly;
+   ReadOnlyBAK:= FReadOnly;
    ContainsImgIDsRemoved:= false;
    try
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
      Editor.Clear;
+
+     if ActiveFile.EncryptedContentMustBeHidden and Note.IsEncrypted then begin
+        FEditor.AddText(GetRS(sEdt52));
+        ReadOnlyBAK:= True;
+        exit;
+     end;
+ 
      fImagesReferenceCount:= nil;
 
      i:= 0;
@@ -803,7 +821,7 @@ begin
         UpdateEditor (cEditor, FKntFolder, false);
 
    finally
-     Editor.ReadOnly:= ReadOnlyBAK;
+     ForceTempReadOnly(ReadOnlyBAK);
 
      Editor.RestoreZoomGoal;
 

@@ -70,6 +70,7 @@ type
     chkCompact: TCheckBox;
     btnHelp: TBitBtn;
     btnCopy: TToolbarButton97;
+    btnEncryp: TToolbarButton97;
     procedure FormShow(Sender: TObject);
     procedure bGrayClick(Sender: TObject);
     procedure bBlackClick(Sender: TObject);
@@ -100,6 +101,7 @@ type
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
     procedure btnCopyClick(Sender: TObject);
+    procedure btnEncrypClick(Sender: TObject);
   private
     { Private declarations }
     fCurrentKntFile: TKntFile;
@@ -408,6 +410,7 @@ var
   Ratio: Single;
   ImageSizerThanWindow: boolean;
   RegisteredImg: boolean;
+  ImageToHide: boolean;
 
   procedure CalculateDimensions;
   begin
@@ -449,6 +452,8 @@ var
 begin
    if Image = nil then exit;
 
+   ImageToHide:= (Image.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden);
+
    txtID.Text:= GetImageID.ToString;
    lblDetails.Caption:= Image.Details;
    lblDetails.Hint:= StringReplace(Image.Details, '|', '│', [rfReplaceAll]);
@@ -458,9 +463,13 @@ begin
 
    RegisteredImg:= (fImageID <> 0);
    txtCaption.Enabled:= RegisteredImg;
+   txtCaption.Visible:= not ImageToHide;
+   btnEncryp.Down:= Image.IsEncrypted;
+   btnEncryp.Enabled:= RegisteredImg and ActiveFile.EncryptedContentEnabled;
+
 
    fImagePath:= ImageMng.GetImagePath(Image);
-   if RegisteredImg and (fImagePath <> '') then begin
+   if RegisteredImg and (fImagePath <> '') and not ImageToHide then begin
       btnOpenFolder.Enabled:= true;
       btnOpenFolder.Hint:= GetRS(sImgF04) + '   ' + fImagePath;
    end
@@ -469,16 +478,21 @@ begin
       btnOpenFolder.Hint:= '';
    end;
 
-   if Image.Caption <> '' then
-      Caption:= Image.Name + ' - ' + Image.Caption
+   btnCreateFile.Enabled:= not ImageToHide;
+   btnCopy.Enabled:= not ImageToHide;
+
+
+   if (Image.Caption <> '') and not ImageToHide then
+      Caption:= Image.VisibleName + ' - ' + Image.Caption
    else
-      Caption:= Image.Name;
+      Caption:= Image.VisibleName;
 
 
    fChangingInCode:= true;
    Pic:= TSynPicture.Create;
    try
-      Pic.LoadFromStream(Image.ImageStream);
+      if not (Image.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+         Pic.LoadFromStream(Image.ImageStream);
 
       if not KeepAspect then
          CalculateDimensions;
@@ -587,8 +601,8 @@ begin
       CompactModeDefault:= fCompactMode;
 
    lblDetails.Visible := not fCompactMode;
-   lblLinked.Visible := not fCompactMode;
-   txtCaption.Visible := not fCompactMode;
+   lblLinked.Visible := not fCompactMode and not Image.IsOwned;
+   txtCaption.Visible := not fCompactMode and not (Image.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden);
 
    if fCompactMode then begin
       Offset:= cScrollBoxTopInitial - lblDetails.Top;
@@ -714,6 +728,20 @@ begin
   end;
 
   Image.ImageStream.SaveToFile(FN);
+end;
+
+
+procedure TForm_Image.btnEncrypClick(Sender: TObject);
+begin
+   if Image = nil then exit;
+
+   if ActiveFile.EncryptedContentMustBeHidden then
+      ActiveFile.CheckAuthorized(False);
+
+   if not ActiveFile.EncryptedContentMustBeHidden then
+      Image.IsEncrypted:= not Image.IsEncrypted
+   else
+      btnEncryp.Down:= Image.IsEncrypted;
 end;
 
 

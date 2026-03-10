@@ -776,7 +776,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 34
         Height = 22
-        Hint = 'Click to change text color'
         HelpKeyword = '20-14'
         ActiveColor = clBlack
         TargetColor = clBlack
@@ -795,7 +794,6 @@ object Form_Main: TForm_Main
         Top = 0
         Width = 34
         Height = 22
-        Hint = 'Click to add or remove highlight'
         HelpType = htKeyword
         HelpKeyword = '20-14'
         ActiveColor = clInfoBk
@@ -2242,6 +2240,13 @@ object Form_Main: TForm_Main
       ImageIndex = 6
       OnExecute = actTVVirtualNodeExecute
     end
+    object actTVEncrypNode: TAction
+      Caption = 'Encrypted'
+      Hint = 
+        'The content of the note, and optionally its name, will be saved ' +
+        'encrypted in the file (Shift: also in children, recursive)'
+      OnExecute = actTVEncrypNodeExecute
+    end
   end
   object Menu_Main: TMainMenu
     Images = IMG_Toolbar
@@ -2423,7 +2428,7 @@ object Form_Main: TForm_Main
           Caption = '-'
         end
         object MMEditPlainDefaultPaste: TMenuItem
-          Caption = 'Paste &External as Plain text'
+          Caption = 'Paste &External using '#39'Plain text mode'#39
           Hint = 
             'Default paste as plain text when copied from outside KN, accordi' +
             'ng to '#39'Plain text mode'#39
@@ -2775,6 +2780,12 @@ object Form_Main: TForm_Main
         Caption = 'Filter nodes'
         ImageIndex = 49
         OnClick = MMViewFilterTreeClick
+      end
+      object MMViewEncryptedCont: TMenuItem
+        Caption = 'Encrypted content'
+        Enabled = False
+        Hint = 'Show or hide nodes, entries and images with encrypted content'
+        OnClick = MMViewEncryptedContClick
       end
       object N106: TMenuItem
         Caption = '-'
@@ -4218,6 +4229,15 @@ object Form_Main: TForm_Main
         'image[s] (if no selection: all images in editor)'
       OnClick = RTFMRestoreProportionsClick
     end
+    object RTFMEncryptImg: TMenuItem
+      Caption = 'Encrypt/Decrypt image[s]'
+      Hint = 
+        'Selected image[s] will be saved encrypted/decrypted (if no selec' +
+        'tion: all images in editor)  (Consider also INI option '#39'ImgAllow' +
+        'EncrExternal'#39') '
+      Visible = False
+      OnClick = RTFMEncryptImgClick
+    end
   end
   object Menu_TAB: TPopupMenu
     AutoPopup = False
@@ -4862,7 +4882,7 @@ object Form_Main: TForm_Main
       Caption = '-'
     end
     object MMP_PlainDefaultPaste: TMenuItem
-      Caption = 'Paste &external as Plain text'
+      Caption = 'Paste &External using '#39'Plain text mode'#39
       OnClick = MMP_PlainDefaultPasteClick
     end
     object N107: TMenuItem
@@ -5252,6 +5272,10 @@ object Form_Main: TForm_Main
     object TVFlaggedNode: TMenuItem
       Action = actTVFlaggedNode
     end
+    object TVEncrypNode: TMenuItem
+      Action = actTVEncrypNode
+      Visible = False
+    end
     object N80: TMenuItem
       Caption = '-'
     end
@@ -5500,5 +5524,9 @@ object Form_Main: TForm_Main
   object CheckImages: TImageList
     Left = 528
     Top = 360
+  end
+  object MGRImages: TImageList
+    Left = 162
+    Top = 183
   end
 end

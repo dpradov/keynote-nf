@@ -47,7 +47,8 @@ uses
                             ExportingMode: boolean= false;
                             OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                             OnlyNotHiddenNodes: boolean= false;
-                            OnlyCheckedNodes: boolean= false);
+                            OnlyCheckedNodes: boolean= false;
+                            ExportEncryptedContent: boolean = false);
 
     procedure EnsureNodeAndCaretVisibleInFolders;
 
@@ -288,8 +289,11 @@ begin
             Log_StoreTick('');
             Log_StoreTick( 'FileOpen (' + FN + ') - BEGIN', 0, +1);
 
-            App.FileOpening(KntFile);
-            result := KntFile.Load( FN, ImageMng, ClipCapIdx, true );
+            if TFile.Exists(FN) and not App.FileOpening(KntFile, FN, OpenReadOnly) then begin
+               result := -1;
+               exit;
+            end;
+            result := KntFile.Load( FN, ImageMng, ClipCapIdx, true );        // <======== LOAD
 
             Log_StoreTick( 'After parsed .knt file', 1 );
 
@@ -355,10 +359,16 @@ begin
                Log_StoreTick( 'After convert KntLinks to new format', 1 );
             end;
 
+            if App.opt_ConvLinksForColor then begin
+               linksModified:= KntFile.ConvertLinksForColorInNotes;
+               Log_StoreTick( 'After convert links to allow for proper text color management', 1 );
+            end;
+
             SetupAndShowVCLControls;
             EnsureNodeAndCaretVisibleInFolders;                                // *1
             Log_StoreTick( 'After SetupAndShowVCLControls', 1 );
 
+            KntFile.InitialConfigEncryptedContent;
 
             opensuccess := true;
 
@@ -444,7 +454,7 @@ begin
            and the below call to App.ActivateFolder will not ensure that the carets are visbile. For this reason there is also
            a call to these methods in Form_Main.Activate (they will run only the first time, when opening the app).
          }
-          App.FileOpen(KntFile);     // KntFile can be nil. It will set ActiveFile and ActiveFileIsBusy (False)
+          App.FileOpen(KntFile, FN);     // KntFile can be nil. It will set ActiveFile and ActiveFileIsBusy (False)         // <======== APP.FILEOPEN
 
           if opensuccess then begin
             if assigned( KntFile ) then begin
@@ -552,7 +562,7 @@ end;
 function DoBackup(const FN: string; var BakFN: string; var BakFolder: string;
                   var SUCCESS: LongBool; var LastError: Integer): Boolean;
 var
-  ext, bakFNfrom, bakFNto, FileName: string;
+  ext, bakFNfrom, bakFNto, bakFNday, FileName: string;
   DayBakFN, DayBakFN_Txt: string;
   myBackupLevel, bakindex : Integer;
   FirstSaveInDay: Boolean;
@@ -672,18 +682,34 @@ begin
 
    SUCCESS := MoveFileExW_n(FN, BakFN, 3);
 
+   if SUCCESS then begin
+      if KeyOptions.BackupRegularIntervals and FirstSaveInDay then begin
 
-   if KeyOptions.BackupRegularIntervals and FirstSaveInDay then
-      TFile.WriteAllText(DayBakFN_Txt, Format(GetRS(sFileM78), [DateToStr(Date), BakFN]));
+         if KeyOptions.BackupDayLevel > 1 then begin
+             // Create a backup for each day (it will have the state at the end of the day)
+             // cycling the others (up to 7)
+             bakFNday := ChangeFileExt(BakFolder + FileName, IntervalPrefixBAK + 'D');
+             for bakIndex := Pred(KeyOptions.BackupDayLevel) downto 1 do begin
+                bakFNfrom := bakFNday + IntToStr(bakIndex)       + ext;
+                bakFNto   := bakFNday + IntToStr(Succ(bakIndex)) + ext;
+                if FileExists(bakFNfrom) then
+                   MoveFileExW_n(bakFNfrom, bakFNto, 3);
+             end;
+             BakFNday:= BakFNday + '1' + ext;
+             SUCCESS:= MoveFileExW_n(bakFN, BakFNday, 3);                // Daily backup
+             BakFN:= BakFNday;
+         end;
+         TFile.WriteAllText(DayBakFN_Txt, Format(GetRS(sFileM78), [DateToStr(Date), BakFN]));
+      end;
 
-   if not SUCCESS then begin
+   end
+   else begin
       bakFN:= '';
       LastError := GetLastError;
      {$IFDEF KNT_DEBUG}
       Log.Add('Backup failed; code ' + IntToStr(LastError));
      {$ENDIF}
    end;
-
 end;
 
 
@@ -748,14 +774,29 @@ var
   tempDirectory, tempFN : string;
   SavedFolders, SavedNotes: integer;
   KntFile: TKntFile;
+  AuxBool: boolean;
+  OriginalFN: string;
+  OriginalLockStream, OriginalLckStream: TStream;
 
-  procedure RenameTempFile;
+  function RenameTempFile: boolean;
   var
      Str: string;
   begin
+     Result:= True;
      if not MoveFileExW_n (tempFN, FN, 5) then begin
-        Str:= GetRS(sFileM25) + GetRS(sFileMInfSaving);
-        raise EKeyKntFileError.CreateFmt(Str, [FN, GetLastError, tempFN, KeyOptions.BackupDir]);
+        Str:= GetRS(sFileM25);
+        if App.FileIsLockedByOtherUser(FN) then begin
+           App.ReportLockedFile(FN, False, AuxBool,
+                                Format(Str, ['', GetLastError, tempFN, KeyOptions.BackupDir]) + GetRS(sFileM88));
+           KntFile.ReadOnly := True;
+           Result:= False;
+        end
+        else begin
+           if OriginalFN = FN then
+              Str:= Str + GetRS(sFileMInfSaving);
+           raise EKeyKntFileError.CreateFmt(Str, ['"' + FN + '"', GetLastError, tempFN, KeyOptions.BackupDir]);
+        end;
+
      end;
   end;
 
@@ -786,6 +827,8 @@ begin
          KntFile.IsBusy := true;
          FolderMon.Active := false;
          if not HaveKntFolders(true, false) then exit;
+
+         OriginalFN:= KntFile.FileName;
 
          if FN <> '' then begin
             FN := NormalFN(FN);
@@ -839,7 +882,8 @@ begin
                         FN := FN + ext_KeyNote;
                  end;
               end;
-
+              OriginalLockStream:= App.LockStream;
+              OriginalLckStream:= App.LckStream;
            end
            else
               Exit;
@@ -897,18 +941,27 @@ begin
          Log_StoreTick( 'After KntFile.Save (temporal location)', 1 );
 
          if Result = 0 then begin
-            // BACKUP (using previous file, before this saving) of the file
-            if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
-               if not SUCCESS then begin
-                  if App.DoMessageBox(Format(GetRS(sFileM21), [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo]) <> mrYes then begin
-                    Result := -2;
-                    Exit;
+            if OriginalFN = FN then begin
+               // BACKUP (using previous file, before this saving) of the file
+               App.UnlockFileTemporarily(FN);
+
+               if DoBackup(FN, BakFN, BakFolder, SUCCESS, LastError) then begin
+                  if not SUCCESS then begin
+                     if App.DoMessageBox(Format(GetRS(sFileM21), [LastError, SysErrorMessage(LastError), tempFN]), mtWarning, [mbYes,mbNo]) <> mrYes then begin
+                       Result := -2;
+                       Exit;
+                     end;
                   end;
                end;
+               Log_StoreTick( 'After DoBackup', 1 );
             end;
-            Log_StoreTick( 'After DoBackup', 1 );
 
-            RenameTempFile;                 // Now rename the temp file to the actual KeyNote file name
+            if not RenameTempFile then                 // Now rename the temp file to the actual KeyNote file name
+               exit;
+
+            if KeyOptions.LockOnOpening and not App.LockFile(FN, True, False, AuxBool) then
+               exit;
+
             KntFile.FileName := FN;
             KntFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
 
@@ -924,7 +977,10 @@ begin
          else begin
             // ERROR on save
             StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sFileM23), [Result] );
-            ErrStr := Format(GetRS(sFileM24) + GetRS(sFileMInfSaving), [Result, tempDirectory, KeyOptions.BackupDir] );
+            ErrStr := GetRS(sFileM24);
+            if OriginalFN = FN then
+               ErrStr:= ErrStr + GetRS(sFileMInfSaving);
+            ErrStr := Format(ErrStr, [Result, tempDirectory, KeyOptions.BackupDir] );
 
             if KeyOptions.AutoSave then begin
                KeyOptions.AutoSave := False;
@@ -940,7 +996,8 @@ begin
            Log.Add('Exception in KntFileSave: ' + E.Message);
            {$ENDIF}
            StatusBar.Panels[PANEL_HINT].Text := GetRS(sFileM27);
-           App.ErrorPopup(E, GetRS(sFileM28) + ExtractFileName(FN));
+           App.ErrorPopup(GetRS(sFileM28) + ExtractFileName(FN) + ':'+#13#13 + E.Message);
+           App.ReportLockedFile(FN, False, AuxBool, '', True);       // True: OnlyIfFileExists
            Result := 1;
          end;
        end;
@@ -985,6 +1042,12 @@ begin
         if KeyOptions.MRUUse then
            MRU.AddItem(FN);
         AddToFileManager(FN, KntFile);
+
+        if KeyOptions.LockOnOpening and (OriginalFN <> FN) then begin
+           OriginalLockStream.Free;
+           OriginalLckStream.Free;
+           DeleteFile(OriginalFN + ext_LockFile);
+        end
      end;
   end;
 
@@ -997,6 +1060,7 @@ end; // KntFileSave
 function KntFileClose : boolean;
 var
    KntFile: TKntFile;
+   FN: string;
 begin
 
   if ( not Form_Main.HaveKntFolders( false, false )) then exit;
@@ -1007,6 +1071,7 @@ begin
   end;
 
   KntFile:= ActiveFile;
+  FN:= KntFile.FileName;
 
   with Form_Main do begin
 
@@ -1042,6 +1107,10 @@ begin
         UpdateLastCommand( ecNone );
         BookmarkInitializeAll;
         UpdateAlarmStatus;
+        MMViewEncryptedCont.Enabled:= False;
+        MMViewEncryptedCont.Checked:= False;
+        TVEncrypNode.Visible:= False;
+
 
         if assigned( KntFile ) then begin
           try
@@ -1053,6 +1122,7 @@ begin
           try
             try
               App.FileClosed(KntFile);
+              KntFile.InvalidateKeyCache;
               KntFile.Free;
             except
               // showmessage( 'BUG: error in KntFile.Free' );
@@ -1073,6 +1143,7 @@ begin
         if assigned(Res_RTF) and (ImageMng.StorageMode <> smEmbRTF) then
            Res_RTF.RemoveKNTHiddenCharacters(false);
 
+        App.ReleaseLockedFile(FN);
         AlarmMng.Clear;
         ImageMng.Clear;
         TKntTreeUI.ClearGlobalData;
@@ -1095,7 +1166,8 @@ procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false;
                         OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                         OnlyNotHiddenNodes: boolean= false;
-                        OnlyCheckedNodes: boolean= false);
+                        OnlyCheckedNodes: boolean= false;
+                        ExportEncryptedContent: boolean = false);
 var
   currentFN, newFN : string;
   cr : integer;
@@ -1157,7 +1229,7 @@ begin
             try
               ImageMng.ExportingMode:= true;
               try
-                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent);
               finally
                  ImageMng.ExportingMode:= false;
               end;
@@ -1264,6 +1336,7 @@ begin
         }
 
         MergeFile := TKntFile.Create;
+        MergeFile.IsMergeFile:= True;
         MergeFile.PassphraseFunc := GetFilePassphrase;
         mergecnt := 0;
 
@@ -1284,6 +1357,12 @@ begin
               App.InfoPopup( GetRS(sFileM41));
               exit;
             end;
+
+            MergeFile.InitialConfigEncryptedContent;
+            if ( MergeFile.EncryptedContentEnabled and
+                (App.DoMessageBox(GetRS(sFileM84), mtWarning, [mbYes,mbNo], def1) = mrYes) ) then
+                MergeFile.CheckAuthorized(True);
+
 
             for i := 0 to pred( MergeFile.FolderCount ) do begin
               // initially, UNMARK ALL notes (i.e. no merging)
@@ -1438,6 +1517,7 @@ begin
 
               try
                 CreateVCLControlsForFolder( newFolder );
+                AFileIsLoading:= False;          // To enable the encrypted image content contained in the file to be merged to be decrypted
                 if ( MergeFN.ToUpper = ActiveFile.FileName.ToUpper) then
                    ActiveFile.UpdateImagesCountReferences(newFolder)
                 else
@@ -1445,16 +1525,18 @@ begin
                     with the help of the ImageManager associated with the MergeFile file }
                   ActiveFile.UpdateImagesStorageModeInFile (ImageMng.StorageMode, newFolder, false);
 
+                AFileIsLoading:= True;
                 newFolder.LoadEditorFromNNode(newFolder.FocusedNNode, False);
                 SetUpVCLControls( newFolder );
               finally
+                AFileIsLoading:= True;
                 newFolder.TabSheet.TabVisible := true; // was created hidden
                 newFolder.TreeUI.TV.ScrollIntoView(newFolder.TreeUI.FocusedNode, false);
               end;
 
             end;
 
-            { Mirror nodes (if exists).. will have been converted to NNodes when opening the file. 
+            { Mirror nodes (if exists).. will have been converted to NNodes when opening the file.
               Even if we import mirror nodes to nodes in another folder that we do not import, it does not matter now.
               During the conversion carried out when opening the file we will have NNodes like others. The possibility
               of including several linked nodes has already been managed above, with the help of MergeNotesMultiNNodes
@@ -1507,11 +1589,26 @@ end; // MergeFromKNTFile
 // SomeoneChangedOurFile
 //=================================================================
 procedure SomeoneChangedOurFile;
+var
+  Msg: string;
+  DlgType: TMsgDlgType;
 begin
+  if InformingSomeoneChangedOurFile then exit;
+
   Application_BringToFront;
   Form_Main.FolderMon.Active := false;
+  InformingSomeoneChangedOurFile:= true;
   try
-    case App.DoMessageBox( Format(GetRS(sFileM49), [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
+    DlgType:= mtWarning;
+    if App.ActiveFileEditedByOtherUser then begin
+       App.ActiveFileEditedByOtherUser:= false;
+       Msg:= GetRS(sFileM87);                   // File '%s' has been released and can now be opened in edit mode. Reload from disk?
+       DlgType:= TMsgDlgType.mtConfirmation;
+    end
+    else
+       Msg:= GetRS(sFileM49);
+
+    case App.DoMessageBox( Format(Msg, [ActiveFile.State.Name]), mtWarning, [mbYes,mbNo] ) of
       mrYes : begin
         KntFileOpen( ActiveFile.FileName );
       end;
@@ -1520,6 +1617,7 @@ begin
       end;
     end;
   finally
+    InformingSomeoneChangedOurFile:= false;
     Form_Main.FolderMon.Active := ( not KeyOptions.DisableFileMon );
   end;
 end; // SomeoneChangedOurFile;
@@ -1574,6 +1672,11 @@ begin
         if ( not HaveKntFolders( false, false )) then exit;
         if ( ActiveFile.State.Name = '' ) then exit;
         Changed := false;
+
+        if App.ActiveFileEditedByOtherUser then
+           if App.FileIsLockedByOtherUser(ActiveFile.FileName) then
+              exit;
+
         s := '';
         GetFileState( ActiveFile.State.Name, NewState );
         if ( NewState.Size = -1 ) then begin
@@ -1594,13 +1697,19 @@ begin
           end;
         end;
 
-        if Changed then begin
-          ActiveFile.ChangedOnDisk := true;
-          StatusBar.Panels[PANEL_HINT].Text := GetRS(sFileM53);
-         {$IFDEF KNT_DEBUG}
-          Log.Add( 'FileChangedOnDisk: ' + s );
-         {$ENDIF}
+        if Changed or App.ActiveFileEditedByOtherUser then begin
+          if Changed then begin
+             StatusBar.Panels[PANEL_HINT].Text := GetRS(sFileM53);
+            {$IFDEF KNT_DEBUG}
+             Log.Add( 'FileChangedOnDisk: ' + s );
+            {$ENDIF}
+          end;
           GetFileState( ActiveFile.State.Name, ActiveFile.State );
+
+          if Application.Active then
+             SomeoneChangedOurFile
+          else
+             ActiveFile.ChangedOnDisk := true;
         end;
   end;
 
@@ -1662,6 +1771,9 @@ begin
         end;
 
       finally
+         if Result and (ActiveFile <> nil) then
+            App.ReleaseLockedFile(ActiveFile.FileName);
+
         {$IFDEF KNT_DEBUG}
          Log.Add( 'CheckModified result: ' + BOOLARRAY[result], 1 );
         {$ENDIF}
@@ -2528,6 +2640,8 @@ procedure KntFileProperties;
 var
   Form_FileInfo : TForm_KntFileInfo;
   KntFile: TKntFile;
+  KeyIter: Cardinal;
+  HadEncryptedContentEnabled: boolean;
 begin
   KntFile:= ActiveFile;
 
@@ -2540,6 +2654,7 @@ begin
 
       try
         Form_FileInfo.myKntFile := KntFile;
+        HadEncryptedContentEnabled:= KntFile.EncryptedContentEnabled;
 
         if ( Form_FileInfo.ShowModal = mrOK ) then begin
           App.Virtual_UnEncrypt_Warning_Done := false;
@@ -2574,11 +2689,32 @@ begin
                 KntFile.TabIconsFN := '';
             end;
 
-            if ( KntFile.FileFormat = nffEncrypted ) then begin
-              KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
-              if PassphraseChanged then
-                KntFile.Passphrase := Edit_Pass.Text;
+
+            if ( KntFile.FileFormat = nffEncrypted ) or cbEnableEncrCont.Checked then begin
+               if PassphraseChanged then begin
+                  KntFile.Passphrase := Edit_Pass.GetSecureText;
+                  assert(Length(Edit_Pass.GetSecureText) >= 5);
+                  KntFile.CryptMethod := TCryptMethod( Combo_Method.ItemIndex );
+                  KntFile.KeyDerivIterations:= StrToUIntDef(txtIter.Text, KEY_ITERATIONS_VERIF_DEFAULT);
+                  KntFile.OnPassphraseChanged;
+               end;
+               if KntFile.FileFormat <> nffEncrypted then begin
+                  if PassphraseChanged or not HadEncryptedContentEnabled then begin
+                     KntFile.EncryptedContentEnabled:= True;
+                     KntFile.EncryptedContentOpened:= True;
+                     KntFile.UpdateLoadedVerificationHash;
+                  end;
+                  KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
+               end;
+            end
+            else begin
+               KntFile.Passphrase := '';
+               KntFile.EncryptedContentEnabled:= False;
+               KntFile.EncryptedContentOpened:= False;
+               KntFile.InvalidateKeyCache;
+               KntFile.UpdateLoadedVerificationHash;
             end;
+
 
             if ( KntFile.FileName <> '' ) then
                case KntFile.FileFormat of
@@ -2660,6 +2796,14 @@ begin
   TKntTreeUI.ClearGlobalData;
 
   if ActiveFileIsBusy then exit;
+
+  if (ActiveFile.EncryptedContentOpened and KeyOptions.TimerClose and KeyOptions.TimerCloseEncOnly) then begin
+     ActiveFile.EncryptedContentOpened:= False;
+     Log_StoreTick('AutoClose Encrypted Content', 0);
+     exit;
+  end;
+
+
   if ( not ( KeyOptions.TimerClose and
              Form_Main.HaveKntFolders( false, false ) and
              KeyOptions.AutoSave

@@ -283,6 +283,7 @@ const
    sEdt49 = 54527;   // Print all nodes in folder?\^\^0: Only selected node\^1: All, contiguous\^2: All, starting on new page 
    sEdt50 = 54496;   // CRC calculation error in clipboard capture, testing for duplicate clips will be turned off. Message:
    sEdt51 = 55129;   // Insert basic Table with R rows and C columns
+   sEdt52 = 55134;   // ** UNAUTHORIZED CONTENT **   => View | Encrypted Content
 
    sExp01 = 54274;   // Error while importing HTML text:
    sExp02 = 54275;   // Error while exporting to HTML (method=
@@ -327,7 +328,7 @@ const
 
    sFile01 = 54372;   // Cannot open "%s": File not found
    sFile02 = 54373;   // Invalid file header in "%s" (not a KeyNote file)
-   sFile03 = 54374;   // Access passphrase not specified: cannot open encrypted file.
+   sFile03 = 54374;   // Access passphrase not specified
    sFile04 = 54375;   // The passphrase is invalid. Try again?
    sFile05 = 54376;   // %s: This file was created with a version of KeyNote later than the version you are using. Expected version ID: "%s.%s" This file version ID: "%s.%s"  You need the latest version of KeyNote to open this file.
    sFile06 = 54377;   // : This file was created with a version of KeyNote newer than the version you are using. The file can be opened, but some information can be lost or misinterpreted. As a safety measure, the file should be opened in Read-Only mode. Would you like to open the file as Read-Only?
@@ -338,7 +339,7 @@ const
    sFile13 = 54382;   // Error while saving folder "%s": %s
    sFile14 = 54383;   // Cannot save: Passphrase not set
    sFile15 = 54352;   // Stream size error: Encrypted file is invalid or corrupt.
-   sFile16 = 54353;   // Invalid passphrase: Cannot open encrypted file.
+   sFile16 = 54353;   // Invalid passphrase
    sFile18 = 54354;   // OK to convert to PLAIN TEXT current note?\^\^ALL IMAGES and FORMATTING will be REMOVED !!
    sFile19 = 54355;   // Exception trying to ensure plain text and removing of images:
    sFile20 = 54356;   // Virtual note "%s" cannot write file
@@ -346,6 +347,10 @@ const
    sFile22 = 54358;   // OK to remove date from note name?\^
    sFile23 = 54359;   // All (or selected) nodes will be considered
    sFile24 = 54360;   // \^\^Please read the help file before proceeding. Search for "Deduce Dates"
+   sFile25 = 55130;   // The key transformation took %u ms
+   sFile26 = 55132;   // : Cannot open encrypted file
+   sFile27 = 55133;   // : Cannot show encrypted content
+   sFile28 = 55136;   // Error loading encrypted content
 
    sFileM01 = 54361;   // Cannot create a new file:
    sFileM02 = 54362;   //  New KNT file created.
@@ -365,11 +370,11 @@ const
    sFileM17 = 54344;   //  ERROR %d opening file
    sFileM19 = 54345;   //  Saving
    sFileM20 = 54346;   // Specified backup directory "%s" does not exist. Backup files will be created in the original file's directory.
-   sFileM21 = 54347;   // Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?\^\^ (Note: File was temporary saved in %s)
+   sFileM21 = 54347;   // Cannot create backup file (error %d: %s). Current file will not be backed up. Proceed anyway?\^\^ (Note: File was temporarily saved in %s)
    sFileM22 = 54348;   //  File saved (%d folders, %d notes)
    sFileM23 = 54349;   //  Error %d while saving file.
    sFileM24 = 54351;   // Error %d occurred while saving to a temporal folder (%s). The contents of the file in memory are perhaps partially corrupted.\^\^-> Please, retry, and if you can'nt save to a .knt file, try to recover the nodes/notes with unsaved changes using, for example, File -> Export...\^\^\^
-   sFileM25 = 54320;   // Failed to create output file "%s" (Error: %d)\^File was temporary saved in %s\^\^\^
+   sFileM25 = 54320;   // * Failed to create output file %s (Error: %d)\^* File was temporarily saved in %s\^\^\^
    sFileM26 = 54321;   // The Auto-Save option was turned OFF, to prevent KeyNote from automatically saving the (perhaps) damaged file.
    sFileM27 = 54322;   //  ERROR saving file
    sFileM28 = 54323;   // Saving "
@@ -392,7 +397,7 @@ const
    sFileM46 = 54308;   // Error while adding folders:
    sFileM47 = 54309;   // Merged %d folders from "%s"
    sFileM48 = 54310;   // No folders were merged
-   sFileM49 = 54312;   // Another application has modified the knt file %s. Reload the file from disk?
+   sFileM49 = 54312;   //'%s':\^ANOTHER APPLICATION has MODIFIED the file. RELOAD from disk?
    sFileM50 = 54313;   // %s folder "%s" does not exist
    sFileM51 = 54314;   // . Create the folder now?
    sFileM52 = 54315;   // Could not create folder: %s
@@ -419,8 +424,12 @@ const
    sFileM81 = 54272;   // Cannot insert images in a plain text folder
    sFileM82 = 54273;   // The file must first be saved (with Save or Save As)
    sFileM83 = 54311;   // %d Links or Mirror nodes couldn't be adapted\^Links can be found searching for "file///<%d"
-   sFileMInfSaving = 54350;   // * NOTE:\^  - The .knt file in disk must not have been modified from last correct save.\^  - You should have multiple backup files in the folder %s, specially if you selected the option "Backup at regular intervals" (highly recommended)
-
+   sFileMInfSaving = 54350;   // * NOTE:\^  - The .knt file on disk must not have been modified since the last successful save.\^  - You should have multiple backup files in the folder %s, specially if you selected the option "Backup at regular intervals" (highly recommended)
+   sFileM84 = 55137;   // Do you want to merge the ENCRYPTED CONTENT?\^\^It will remain protected with the password of the current file (or the one you set *before* saving)
+   sFileM85 = 55143;   // File '%s'\^\^IS BEING EDITED BY ANOTHER USER:\^\^%s (%s)\^Since: %s
+   sFileM86 = 55144;   // \^\^OPEN it in READ-ONLY mode?
+   sFileM87 = 55145;   // File '%s'\^\^HAS BEEN RELEASED and can now be opened in edit mode\^RELOAD from disk?
+   sFileM88 = 55146;   // * The file WILL BE CHANGED to READ-ONLY (use 'Save As')
    sFInf01 = 54410;   //  file
    sFInf02 = 54411;   // File properties:
    sFInf03 = 54412;   //  bytes
@@ -441,6 +450,7 @@ const
    sFInf19 = 54395;   // Current Next ID (%d) cannot be reduced\^(Max ID in image list is %d)
    sFInf20 = 54396;   // Max ID in image list is %d and Next ID is %d\^\^Do you want the NEXT image to be saved with ID = %d \^\^* YOU MUST MAKE SURE there are no images with larger IDs on the external storage, perhaps referenced by other knt files (New images could override existing files)\^\^CONTINUE?
    sFInf21 = 54397;   // Next ID was changed ok
+   sFInf22 = 55131;   // All notes will be saved unencrypted. CONTINUE?
 
    sFld01 = 54263;   //  Virtual:
    sFld05 = 54264;   // Problem while saving folder "%s": Note count mismatch (Folder: %d  Internal: %d) The note may not be saved correctly. Continue?
@@ -528,6 +538,11 @@ const
    sImg20 = 54660;   // Exception processing image in RTF:
    sImg21 = 54661;   // Error saving image "%s" (ID:%d) :\^  Content lost\^  Will be removed from Images
    sImg22 = 54662;   // < Unregistered image >
+   sImg23 = 55138;   // Error decrypting image
+   sImg24 = 55139;   // %d image[s] will be saved encrypted
+   sImg25 = 55140;   // %d Image[s] will be saved decrypted
+   sImg26 = 55141;   // No registered image is selected
+   sImg27 = 55142;   // [IMAGE]
    sImgF01 = 54699;   // Image no available. Change in caption will not saved
    sImgF02 = 54700;   // Save image file as
    sImgF03 = 54701;   // All image files
@@ -861,7 +876,14 @@ const
    sOpt18 = 55088;   // Enter new extension for text files:
    sOpt19 = 55089;   // Extension \"%s\" already listed.
    sOpt20 = 55090;   // Reset default text file extensions?
-
+   sOpt21 = 55147;  { * Locked files open in read-only mode.
+                      * Saving to a locked file is prevented (use “Save As”).
+                      * File changes and lock releases are monitored automatically, with optional periodic checks.
+                      ----
+                      * When opening a file locked by another user, a warning is shown and you may continue in read-only mode\^\^
+                      * Attempts to save a locked file are blocked and the document switches automatically to read-only mode (use 'Save As')\^\^
+                      * KeyNote monitors file changes and lock releases. The 'Check for file…' option ensures periodic verification if the system does not report them.
+                     }
    sOptS00 = 54897;   // General Settings
    sOptS01 = 54898;   // Rich Text Editor
    sOptS02 = 54899;   // Images
@@ -881,7 +903,7 @@ const
    sOptS16 = 55106;   // Folding Blocks
 
    sPass01 = 54873;   // Passphrase cannot be blank.
-   sPass02 = 54874;   // File "%s" is encrypted
+   sPass02 = 54874;   // File "%s" has content encrypted
 
    sPlg01 = 54875;   // StatusOK
    sPlg02 = 54876;   // Gets data
@@ -1007,6 +1029,7 @@ const
    sTree64 = 54198;   // Date
    sTree65 = 54199;   // Note creation date
    sTree66 = 54200;   // Flagged
+   sTree67 = 55135;   // Node (or its children) contains encrypted content! CONTINUE?
 
    sUInote01 = 54201;   // Created: %s  ==  Last modified: %s
 
@@ -1053,6 +1076,8 @@ const
    sTag17 = 55123;   // Error importing Tags:
    sTag18 = 55124;   // Importing Tags from file
 
+   sUI01 = 55148;  // Click to change text color
+   sUI02 = 55149;  // Click to add or remove highlight
 
 implementation
 

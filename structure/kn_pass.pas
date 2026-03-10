@@ -28,7 +28,8 @@ uses
    Vcl.Forms,
    Vcl.Dialogs,
    Vcl.StdCtrls,
-   Vcl.ExtCtrls;
+   Vcl.ExtCtrls,
+   knt.ui.secureEdit;
 
 type
   TForm_Password = class(TForm)
@@ -37,10 +38,10 @@ type
     GroupBox1: TGroupBox;
     Label_FileName: TLabel;
     Label2: TLabel;
-    Edit_Pass: TEdit;
-    procedure FormKeyDown(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    Edit_Pass: TSecureEdit;
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure Button_OKClick(Sender: TObject);
     procedure Button_CancelClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -84,6 +85,12 @@ begin
   App.ApplyBiDiModeOnForm(Self);
 end;
 
+procedure TForm_Password.FormDestroy(Sender: TObject);
+begin
+  Edit_Pass.ClearSecure;
+end;
+
+
 function TForm_Password.FormHelp(Command: Word; Data: NativeInt;
   var CallHelp: Boolean): Boolean;
 begin
@@ -111,7 +118,7 @@ end;
 
 function TForm_Password.VerifyPass : boolean;
 begin
-  result := ( Edit_Pass.Text <> '' );
+  result := ( Edit_Pass.GetSecureText <> '' );
   if ( not result ) then
   begin
     Edit_Pass.SetFocus;

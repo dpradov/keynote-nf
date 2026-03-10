@@ -1,4 +1,4 @@
-Three .INI options related to RTL activation have been added: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont  (information on their usage can be found in the help file: Configuring Keynote -> KeyNote.ini file settings)
+ï»¿Three .INI options related to RTL activation have been added: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont  (information on their usage can be found in the help file: Configuring Keynote -> KeyNote.ini file settings)
 You can fold text, hiding its content except for a small fragment used as a visible excerpt. You can manage collapsed blocks to simplify visibility, to treat certain text as a kind of archive, etc.
 When folding, you can insert a second space to force the point where you want the visible excerpt to end
 When exporting you can decide to unfold, remove or keep unchanged folded text
@@ -17,13 +17,13 @@ You can use keyboard shortcuts for zoom and scrolling in the internal image view
 You can export parts of knt file, with different options, to a new keynote file: Added 'KeyNote' as target format in File | Export
 Thanks for using KeyNote NF. You can show your appreciation and support future development by donating!
 You can reduce the size of KeyNote files using the compressed format (in File | Properties). See also 'Comments on KNT file formats.txt.'
-U kunt mirror(kopieën)knopen aanmaken zodat deze dezelfde inhoud, alarmen en status delen. Op deze manier kunt u uw gegevens tegelijkertijd op verschillende manieren organiseren (Zie kwestie 57 in https://github.com/dpradov/keynote-nf/issues)
-Met mirror-knopen kunt u taken spreiden over meerdere tabbladen en deze tegelijkertijd insluiten in een ander tabblad. Hiermee verkrijgt u een algemeen overzicht over de zaken die nog te doen zijn, de rangorde en structuur van een vrije boom-hiërarchie, onafhankelijk van de echte hiërarchie van de 'echte' knopen.
+U kunt mirror(kopieÃ«n)knopen aanmaken zodat deze dezelfde inhoud, alarmen en status delen. Op deze manier kunt u uw gegevens tegelijkertijd op verschillende manieren organiseren (Zie kwestie 57 in https://github.com/dpradov/keynote-nf/issues)
+Met mirror-knopen kunt u taken spreiden over meerdere tabbladen en deze tegelijkertijd insluiten in een ander tabblad. Hiermee verkrijgt u een algemeen overzicht over de zaken die nog te doen zijn, de rangorde en structuur van een vrije boom-hiÃ«rarchie, onafhankelijk van de echte hiÃ«rarchie van de 'echte' knopen.
 Van de KeyNote NF website (https://github.com/dpradov/keynote-nf), kunt u o.a. de laatste versie van het programma downloaden, fouten rapporteren of feature aanvragen.
-Sinds versis 1.7.5 kan KeyNote NF worden weergegeven in meerdere talen. Als voorbeeld vindt u een gedeeltelijke vertaling naar het Spaans (Castiliaans). Met de hulp van de community zullen er aan de officiële versie nieuwe talen worden toegevoegd.
+Sinds versis 1.7.5 kan KeyNote NF worden weergegeven in meerdere talen. Als voorbeeld vindt u een gedeeltelijke vertaling naar het Spaans (Castiliaans). Met de hulp van de community zullen er aan de officiÃ«le versie nieuwe talen worden toegevoegd.
 U kunt op twee manieren met verborgen knopen werken: aangevinkte knopen automatisch verbergen, een of alle notities filteren op bepaalde zoekvoorwaardes.
 Het is mogelijk om selectievakjes weer te geven voor alle knopen (Beeld/Alle koopselectievakjes) en alleen op kinderen van de geselecteerde knopen: (Kinderselectievakje)
-U kunt knopen en zijknopen kopiëren, knippen en plakken d.m.v. de normale klembord-sneltoetsen (Ctrl-C, CTRL-V, Ctrl-X of Ctrl-Ins, Shift-Ins, Shift-Supr).
+U kunt knopen en zijknopen kopiÃ«ren, knippen en plakken d.m.v. de normale klembord-sneltoetsen (Ctrl-C, CTRL-V, Ctrl-X of Ctrl-Ins, Shift-Ins, Shift-Supr).
 U kunt tabellen gebruiken en weergegeven in KeyNote indien u gebruik maakt van Windows XP SP1 of hoger, d.m.v. "msftedit.dll".
 U kunt alarms instellen, gekoppeld aan knopen. Soortgelijk aan de functie die Outlook biedt: uitstellen, negeren, ...
 Activering van modus met automatisch verbergen van aangekruisde knopen (Verberg geselecteerde knopen) kan handig zijn wanneer u gaat stoeien met taken.
@@ -40,7 +40,7 @@ Macros, plugins en sjablonen zijn gegroepeerd in het nieuwe Bronnenpaneel. Gebru
 De "Zoek alle" opdracht in het bronnenpaneel zoekt in notities naat tekst en geeft een lijst met resultaten weer.
 De "Zoek alle" opdracht kan worden gebruikt voor eenvoudige boolean (AND / OR) zoekopdrachten.
 U kunt nu HTML-documenten importeren in KeyNote. KeyNote maakt gebruik van MS Office 97/2000 of MS Internet Explorer versie 5.0 of later voor de HTML-naar-RTF conversie.
-KeyNote heeft nu spellingscontrole ingebouwd (onder het "Notitie" menu). Om de spellingscontrole te kunnen gebruiken moet u MS Office 97 of 2000 geïnstalleerd hebben.
+KeyNote heeft nu spellingscontrole ingebouwd (onder het "Notitie" menu). Om de spellingscontrole te kunnen gebruiken moet u MS Office 97 of 2000 geÃ¯nstalleerd hebben.
 U kunt KeyNote macro's en plugins starten door erop te dubbelklikken in de windows verkenner.
 Knopen kunt u markeren door deze aan te kruisen of deze vet weer te geven. Ook kunt u kleuren selecteren voor de individuele knopen. (Functies zijn bereikbaar via het boom-rechtsklikmenu.)
 KeyNote beschikt over verschillende geavanceerde backup opties voor extra data-veiligheid. Zie Opties dialoogvenster (F5), "Backup opties" tab.
@@ -54,7 +54,7 @@ U kunt de volgorde van de notities in een bestand aanpassen. Klik op een tabblad
 Sommige werkbalkknoppen en menu-commando's gedragen zich anders als u de Shift of Ctrl toetsen ingedrukt houdt. Dit wordt gedetailleerd beschreven in het Help bestand.
 KeyNote ondersteunt macro's en plugins. Om te leren hoe deze te gebruiken kunt u de Macro's en Plugins onderwerpen in het Help bestand raadplegen.
 Om macro's aan te maken of te gebruiken, klikt u in het bronnenpaneel (druk eventueel op F9) op het "Macro" tabblad.
-Om geïnstalleerde plugins te gebruiken, selecteert u het "Plugins" commando in het "Extra" menu, of druk op Ctrl+F12.
+Om geÃ¯nstalleerde plugins te gebruiken, selecteert u het "Plugins" commando in het "Extra" menu, of druk op Ctrl+F12.
 Bepaalde macro's starten automatisch wanneer een nieuw bestand of nieuwe notitie wordt aangemaakt. Zie "Auto-run macros" in het Help bestand.
 Om toegang te krijgen tot de Stijlen-uitrollijst zonder de muis door de Ctrl toets in te drukken en tegelijkertijd op de * toets van het nummerieke toetsgedeelte te drukken. Selecteer daarna een stijl en druk op Enter om deze toe te passen.
 Om toegang te krijgen tot de Macro-uitrollijst zonder de muis door de Ctrl toets in te drukken tegelijkertijd op de / toets van het nummerieke toetsgedeelte te drukken. Selecteer daarna een macro en druk op Enter om deze te starten.
@@ -73,8 +73,8 @@ U kunt een speciaal teken invoegen in een notitie door op Shift+Ctrl+C te drukke
 Om snel een soortgelijke te vinden, druk Ctrl+M.
 U kunt een enkele boomknoop exporteren. Rechtsklik op de knoop en selecteer het "Exporteren" commando.
 KeyNote kan een geluid afspelen bij opnemen van tekst van het klembord. U kunt dit standaard geluid (clip.wav) vervangen met een .wav bestand na keuze.
-U kunt subbomen verplaatsen of kopiëren tussen boom-notities en tussen bestanden.
-U kunt een subboom kopiëren van de ene notitie naar een andere, door erop te klikken en het naar een andere tab te slepen.
+U kunt subbomen verplaatsen of kopiÃ«ren tussen boom-notities en tussen bestanden.
+U kunt een subboom kopiÃ«ren van de ene notitie naar een andere, door erop te klikken en het naar een andere tab te slepen.
 Boom-notities kunnen een verticale opmaak bezitten (boom boven de editor). Dit is in te stellen in de Notitie-eigenschappen (F4).
 U kunt tekst in een notitie markeren. Druk op Ctrl+H, of houdt de Shift ingedrukt en klik op de Kleurenknop op de werkbalk.
 U kunt bestanden slepen vanuit de Windows Verkenner naar een KeyNote venster om het te openen of te importeren.
@@ -91,7 +91,7 @@ U kunt snel de achtergrondkleur aanpassen van ALLE KNOPEN in een boom: houdt de 
 KeyNote kan wiskundigel expressies evalueren. Typ een expressie (e.g. "2 + 2"), selecteer het, druk op Ctrl+=. Het resultaat zal naar het klembord worden gekopieerd.
 U kunt de standaard notitie-eigenschappen voor het huidige bestand instellen (inplaats van alle bestandens): In het "Notitie-eigenschappen" dialoogvenster, klik u op de "Geavanceerd" knop en daarna op "Opslaan als standaard voor...".
 KeyNote heeft een eenvoudige bestandsbeheerder waarmee u snel een bestand kunt openen die u onlangs gebruikt heeft. Druk op F12 om de bestandsbeheerder te openen.
-KeyNote heeft een woordenboek/synoniemen programma geïntegreerd genaamd WordWeb. Druk op Ctrl+F11 om het huidige woord op te zoeken.
+KeyNote heeft een woordenboek/synoniemen programma geÃ¯ntegreerd genaamd WordWeb. Druk op Ctrl+F11 om het huidige woord op te zoeken.
 U kunt notities importeren van een ander KeyNote bestand naar een bestand dat momenteel open is. Selecteer Extra->Notities samenvoegen.
 Wanneer gebruikers KeyNote delen op een computer, kan elke gebruiker zijn/haar persoonlijke instellingen specificeren in een alternatieve INI-bestandsnaam in de snelkoppeling die gebruikt wordt om KeyNote te starten.
 Keynote kan automatisch tekst opnemen dat gekopieerd wordt naar het klembord in iedere Windows applicatie: kies "Klembordopname" uit het "Notitie" menu.

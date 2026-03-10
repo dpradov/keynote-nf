@@ -927,6 +927,11 @@ type
     RTFMExpand: TMenuItem;
     MMInsertLine: TMenuItem;
     MMInsertTable: TMenuItem;
+    MMViewEncryptedCont: TMenuItem;
+    TVEncrypNode: TMenuItem;
+    actTVEncrypNode: TAction;
+    RTFMEncryptImg: TMenuItem;
+    MGRImages: TImageList;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1355,6 +1360,9 @@ type
     procedure Pages_ResEnter(Sender: TObject);
     procedure MMInsertLineClick(Sender: TObject);
     procedure MMInsertTableClick(Sender: TObject);
+    procedure MMViewEncryptedContClick(Sender: TObject);
+    procedure actTVEncrypNodeExecute(Sender: TObject);
+    procedure RTFMEncryptImgClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1526,6 +1534,7 @@ uses
    gf_misc,
    gf_miscvcl,
    gf_Lang,
+   gf_strings,
    kn_Global,
    kn_Pass,
    kn_Macro,
@@ -1589,7 +1598,7 @@ begin
   try
     PassForm.myFileName := FN;
     if ( PassForm.ShowModal = mrOK ) then
-      result := PassForm.Edit_Pass.Text;
+      result := PassForm.Edit_Pass.GetSecureText;
   finally
     PassForm.Free;
   end;
@@ -1664,6 +1673,7 @@ begin
   LoadGifFromResource(IMG_Toolbar, 'TOOLBAR_MAIN');   //,  clFuchsia);
   LoadGifFromResource(IMG_Format, 'TOOLBAR_FORMAT');  //    ,,
   LoadGifFromResource(IMG_TV, 'TV_IMAGES');           //    ,,
+  LoadGifFromResource(MGRImages, 'MGRIMAGES');        //    ,,
   LoadGifFromResource(CheckImages, 'VTCHECKIMGS');
 
   { The name associated with the secondary icon as a resource must be after (alphabetically) the main one
@@ -1689,6 +1699,9 @@ begin
   PrintDlg:= TPrintDialog.Create(Self);
   PrintDlg.Options:= [poPrintToFile];
   PageSetupDlg := nil;
+
+  TB_Color.Hint:= GetRS(sUI01);
+  TB_Hilite.Hint:= GetRS(sUI02);
 end;
 // CREATE
 
@@ -2492,7 +2505,15 @@ procedure TForm_Main.Fix_DoNotLoseScrollPosInEditor;
 begin
    ActiveControl:= nil;
    Application.ProcessMessages;
-   ActiveControl:= ActiveEditor;
+   try
+      if (ActiveEditor = nil) or not ActiveEditor.CanFocus then begin
+         Sleep(100);
+         Application.ProcessMessages;
+      end;
+      ActiveControl:= ActiveEditor;
+   except
+   end;
+
 end;
 
 
@@ -2559,13 +2580,17 @@ begin
   try
      inc( Timer_Tick );
      inc( Timer_TickAlarm);
+     inc( Timer_TickFileLock);
      {
-       timer may trigger THREE kinds of things:
+       timer may trigger:
        1. auto-saving current file
        2. minimizing keynote and/or closing file after a period of inactivity.
 
-       3. Show Alarms on nodes           [dpv*]
-       4. Invoke ImagesManager.CleanUp   [dpv]
+       3. Show Alarms on nodes
+       4. Invoke ImagesManager.CleanUp
+       5. Check for new version
+       6. Update TextPlain Variables (for use in Find All)
+       7. Checking the release of a file locked by another user or process
      }
      try
         if ( Timer_Tick >= KeyOptions.AutoSaveOnTimerInt * ( 60000 div _TIMER_INTERVAL ) ) then
@@ -2605,7 +2630,7 @@ begin
        end;
 
 
-       if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Comprobamos cada 15 segundos
+       if ( Timer_TickAlarm >=  ( 60000 div _TIMER_INTERVAL )/4 ) then begin    // Check every 15 seconds
            Timer_TickAlarm:= 0;
            AlarmMng.checkAlarms;
            ImageMng.CheckFreeImageStreamsNotRecentlyUsed;     // This method will only work if ImageManager.Enabled and if more than X minutes have passed since the previous cleanup
@@ -2619,6 +2644,19 @@ begin
        if EditorOptions.WordCountTrack and (_MillisecondsIdle >= 450) then
           if assigned(ActiveEditor) then
              ActiveEditor.UpdateWordCount;
+
+
+       if (KeyOptions.TimerFileLckInt > 0) and
+          (Timer_TickFileLock >= KeyOptions.TimerFileLckInt * ( 60000 div _TIMER_INTERVAL )) then begin
+
+          Timer_TickFileLock:= 0;
+          if (ActiveFile <> nil) then
+             if App.ActiveFileEditedByOtherUser and not App.FileIsLockedByOtherUser(ActiveFile.FileName) then
+                SomeoneChangedOurFile
+             else
+                FolderChanged;
+       end;
+
 
      finally
         HandlingTimerTick:= False;
@@ -3609,6 +3647,15 @@ begin
    if ActiveTreeUI <> nil then
       ActiveTreeUI.TB_FilterTreeClick(nil);
 end;
+
+procedure TForm_Main.MMViewEncryptedContClick(Sender: TObject);
+begin
+   if ActiveFile.EncryptedContentOpened then
+      ActiveFile.EncryptedContentOpened:= False
+   else
+      ActiveFile.CheckAuthorized(True);
+end;
+
 
 procedure TForm_Main.MMViewFormatNoneClick(Sender: TObject);
 begin
@@ -4663,6 +4710,23 @@ begin
       ActiveEditor.ReconsiderImageDimensionGoals(true, imImage);        // Scratchpad
 end;
 
+
+procedure TForm_Main.RTFMEncryptImgClick(Sender: TObject);
+var
+  ImgID: integer;
+begin
+   if ActiveEditor = nil then exit;
+
+   ImgID:= ActiveEditor.GetSelectedImageID;
+
+   if ActiveFile.EncryptedContentMustBeHidden then
+      ActiveFile.CheckAuthorized(False);
+
+   if not ActiveFile.EncryptedContentMustBeHidden then
+      ImageMng.ToogleEncryptedOnImages(ActiveEditor);
+end;
+
+
 procedure TForm_Main.RTFMWordWebClick(Sender: TObject);
 begin
   if App.CheckActiveEditor then
@@ -5082,8 +5146,15 @@ end;
 
 
 procedure TForm_Main.MMInsertURLClick(Sender: TObject);
+var
+  URL, TextURL: string;
 begin
-  InsertURL('', '', ActiveEditor);   // Ask the user
+  TextURL:= Trim(ActiveEditor.SelVisibleText);
+  if TextURL <> '' then
+     URL:= GetURLfromClipboard;
+  if URL = TextURL then
+     URL:= '';
+  InsertURL(URL, TextURL, ActiveEditor);   // If URL='' -> Ask the user
 end; // Insert URL
 
 procedure TForm_Main.MMInsertLineClick(Sender: TObject);
@@ -8213,6 +8284,22 @@ begin
   ActiveTreeUI.TreeTransferProc(ttPaste, KeyOptions.ConfirmTreePaste, true);
 end;
 
+procedure TForm_Main.actTVEncrypNodeExecute(Sender: TObject);
+var
+  WasClosed, MustReload: boolean;
+begin
+  WasClosed:= not ActiveFile.EncryptedContentOpened;
+
+  if not ActiveFile.CheckAuthorized(True) then exit;
+
+  MustReload:= WasClosed and ActiveFolder.FocusedNNode.Note.IsEncrypted;
+
+  ActiveTreeUI.SetNodeEncrypted(ShiftDown);
+
+  if MustReload then
+     ActiveFolder.NoteUI.ReloadFromDataModel;
+end;
+
 procedure TForm_Main.actTVEraseTreeMemExecute(Sender: TObject);
 begin
   ActiveTreeUI.TreeTransferProc(ttClear, false, false);
@@ -8520,13 +8607,14 @@ begin
    if Node <> nil then begin
       NNode:= ActiveTreeUI.GetNNode(Node);
       Note:= NNode.Note;
-      IsVirtual:= Note.IsVirtual;
+      IsVirtual:= Note.IsVirtual and not (ActiveFile.EncryptedContentMustBeHidden and NNode.Note.IsEncrypted);
       HasSeveralNNodes := Note.NumNNodes > 1;
 
       actTVCheckNode.Checked := Node.CheckState.IsChecked;
       actTVChildrenCheckbox.Checked := NNode.ChildrenCheckbox;
       actTVBoldNode.Checked := NNode.Bold;
       actTVFlaggedNode.Checked := NNode.Flagged;
+      actTVEncrypNode.Checked := Note.IsEncrypted;
    end
    else
       actTVCheckNode.Checked := false;

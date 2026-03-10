@@ -1132,6 +1132,7 @@ var
   LastLocationAdded_NodeName: boolean;
   SearchingInNonRTFText: boolean;
   ClearRTFAux: boolean;
+  HideEncrypted: boolean;
 
   SearchIn: string;
   LastDScope, CurrentDScope: TDistanceScope;
@@ -2631,6 +2632,7 @@ begin
   MatchCount := 0;
   FindDone := false;
   noteidx := 0;
+  HideEncrypted:= ActiveFile.EncryptedContentMustBeHidden;
 
   LastResultCellWidth:= '';
   SearchInProgress := true;
@@ -2733,7 +2735,8 @@ begin
                    break;
 
                 // TODO: Consider the dates of the Entries of the note
-                if (not SearchingByDates or (myNNode.Note.LastModified <> 0) ) and
+                if (not (HideEncrypted and myNNode.Note.IsEncrypted) ) and
+                   (not SearchingByDates or (myNNode.Note.LastModified <> 0) ) and
                    (myNNode.Note.LastModified.GetDate  >= myFindOptions.LastModifFrom) and
                    ((myFindOptions.LastModifUntil = 0) or (myNNode.Note.LastModified.GetDate <= myFindOptions.LastModifUntil)) and
                    (myNNode.Note.DateCreated.GetDate  >= myFindOptions.CreatedFrom) and
@@ -3325,6 +3328,7 @@ var
   NNode: TNoteNode;
   SearchInImLinkTextPlain: boolean;  // True: PatternPos is a position in imLinkTextPlain
   IgnoreKNTHiddenMarks: boolean;
+  HideEncrypted: boolean;
   pI, pF: integer;
 
   function LoopCompleted(Wrap: boolean): Boolean;
@@ -3545,6 +3549,8 @@ begin
       end;
 
 
+      HideEncrypted:= ActiveFile.EncryptedContentMustBeHidden;
+
       // Búsqueda del patrón iterando sobre los nodos / notas hasta encontrar uno -------------
       // Según las opciones establecidas así podrán recorrerse o no todos los nodos de una nota, todas las notas
       // o incluso continuar buscando desde el punto de partida, de manera cíclica.
@@ -3552,38 +3558,41 @@ begin
       repeat
             NNode:= TreeUI.GetNNode(myTreeNode);
 
-            if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then
-               ReplacingLastNodeHasRegImg:= true;   // We can't know this unless we query NNode.TextPlain because the Editor will still be 'pointing' to another node
+            if not (HideEncrypted and NNode.Note.IsEncrypted) then begin
 
-            if ReplacingLastNodeHasRegImg then begin
-               TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux);
-               SearchInImLinkTextPlain:= true;
-            end
-            else
-               TextPlain:= GetTextPlainFromNode(NNode, RTFAux);
+                if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then
+                   ReplacingLastNodeHasRegImg:= true;   // We can't know this unless we query NNode.TextPlain because the Editor will still be 'pointing' to another node
 
-            if PositionInFoldedBlock(TextPlain, Editor.SelStart, nil, pI, pF) then
-               SearchOrigin:= pF + 1;
+                if ReplacingLastNodeHasRegImg then begin
+                   TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux);
+                   SearchInImLinkTextPlain:= true;
+                end
+                else
+                   TextPlain:= GetTextPlainFromNode(NNode, RTFAux);
 
-            if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then begin
-               ReplacingLastNode:= myTreeNode;
-               ReplacingLastNodeHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same node will be optimized if this node has no images
+                if PositionInFoldedBlock(TextPlain, Editor.SelStart, nil, pI, pF) then
+                   SearchOrigin:= pF + 1;
+
+                if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then begin
+                   ReplacingLastNode:= myTreeNode;
+                   ReplacingLastNodeHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same node will be optimized if this node has no images
+                end;
+
+                IgnoreKNTHiddenMarks:= NNode.Note.Entries[0].IsRTF;   // ### Entries[0]
+
+                if FindOptions.MatchCase then
+                   PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks, True) -1
+                else
+                   PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks, True) -1;
+
+                {
+                PatternPos := EditControl.FindText(
+                  Text_To_Find,
+                  SearchOrigin, -1,
+                  SearchOpts
+                );
+                }
             end;
-
-            IgnoreKNTHiddenMarks:= NNode.Note.Entries[0].IsRTF;   // ### Entries[0]
-
-            if FindOptions.MatchCase then
-               PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks, True) -1
-            else
-               PatternPos:= FindPattern(AnsiUpperCase(Text_To_Find), AnsiUpperCase(TextPlain), SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks, True) -1;
-
-            {
-            PatternPos := EditControl.FindText(
-              Text_To_Find,
-              SearchOrigin, -1,
-              SearchOpts
-            );
-            }
 
             if PatternPos < 0 then begin
                GetNextNode;                 // Podrá actualizar FindDone

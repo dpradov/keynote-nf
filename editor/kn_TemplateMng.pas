@@ -24,7 +24,8 @@ uses
    Vcl.Forms,
    Vcl.Controls,
    Vcl.Dialogs,
-   Vcl.StdCtrls
+   Vcl.StdCtrls,
+   Vcl.Graphics
    ;
 
 
@@ -57,6 +58,7 @@ uses
    kn_NoteFileMng,
    knt.ui.editor,
    kn_EditorUtils,
+   kn_RTFUtils,
    knt.App,
    knt.RS
    ;
@@ -311,6 +313,30 @@ begin
           IsRTF:= tplText.StartsWith('{\rtf1');
 
           RTFText:= '';
+          if IsRTF then begin
+             (* "rfReplaceAll" is not used because its intended use is to include a color reference in the color table, in the template header. It will be replaced with the RGB value corresponding to the specified parameter.
+               Example:
+                {\rtf1\ansi{\colortbl ;%NCOLOR%;}
+                \trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+                \clbrdrt\brdrw50
+                \clbrdrb\brdrw1\brdrcf1
+                \clbrdrl\brdrw1\brdrcf1
+                \clbrdrr\brdrw1\brdrcf1
+                \cellx999999 \pard\intbl\fs1\cell\row \pard
+                }
+
+                If the background color of the note is white, it will become:
+                {\rtf1\ansi{\colortbl ;\red255\green255\blue255;}
+                ....
+
+                Therefore, commands like \cf1 or \brdrcf1 will refer to the color white.
+             *)
+             tplText:= StringReplace(tplText, _TEMPLATE_NOTE_COLOR,  GetRTFColor(ColorToRGB(Editor.Color)), []);
+             tplText:= StringReplace(tplText, _TEMPLATE_TEXT_SCOLOR, GetRTFColor(ColorToRGB(Editor.SelAttributes.Color)), []);
+             tplText:= StringReplace(tplText, _TEMPLATE_TEXT_COLOR, GetRTFColor(ColorToRGB(Form_Main.TB_Color.ActiveColor)), []);
+             tplText:= StringReplace(tplText, _TEMPLATE_TEXT_HCOLOR, GetRTFColor(ColorToRGB(Form_Main.TB_Hilite.ActiveColor)), []);
+          end;
+
           if IsRTF and Editor.SupportsRegisteredImages then
              RTFText:= ImageMng.ProcessImagesInRTF(tplText, ActiveFolder.Name, ImageMng.ImagesMode, 'Template');
 

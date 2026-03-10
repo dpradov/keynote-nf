@@ -1576,9 +1576,11 @@ end;
 function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
 begin
   Result:=
-      '{\rtf1\ansi{\colortbl ;\red255\green255\blue255;}' +
+      '{\rtf1\ansi{\colortbl ;'
+          + GetRTFColor(ColorToRGB(Editor.Color)) + ';'
+          + GetRTFColor(ColorToRGB(Form_Main.TB_Color.ActiveColor))   + ';}' +
       '\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3'+
-      '\clbrdrt\brdrw10'+
+      '\clbrdrt\brdrw10\brdrcf2'+
       '\clbrdrb\brdrw1\brdrcf1'+
       '\clbrdrl\brdrw1\brdrcf1'+
       '\clbrdrr\brdrw1\brdrcf1'+
@@ -1614,7 +1616,7 @@ begin
   widthTwips := GetEditorWidthInTwips(Editor);
   IncWidth:= widthTwips div nC;
   if Printable then
-     cellsConfig := '\clbrdrl\brdrw1\clbrdrt\brdrw1\clbrdrr\brdrw1\clbrdrb\brdrw1';
+     cellsConfig := '\clbrdrl\brdrw1\brdrcf1\clbrdrt\brdrw1\brdrcf1\clbrdrr\brdrw1\brdrcf1\clbrdrb\brdrw1\brdrcf1';
 
   CellWidth:= 0;
   for i := 1 to nC do begin
@@ -1623,7 +1625,7 @@ begin
       cells:= cells + '\cell';
   end;
   rowStr:= '\trowd' + rowStr + ' \pard\intbl' + cells + '\row\pard';
-  Result:= '{\rtf1\ansi';
+  Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(ColorToRGB(Form_Main.TB_Color.ActiveColor)) + ';}';
   for i := 1 to nR do begin
       Result:= Result + rowStr;
   end;

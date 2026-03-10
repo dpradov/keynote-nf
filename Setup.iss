@@ -4,8 +4,8 @@
 
 #define AppName "KeyNote NF"
 #define AppFileExe "keynote.exe"
-#define Version "2.1.4.1"
-#define AppVersion "2.1.4 .01"
+#define Version "2.1.6.1"
+#define AppVersion "2.1.6 .01"
 ;#define AppVersion GetVersionNumbersString("..\Output\bin\keynote.exe")
 #define DefaultProfile "{app}\Profiles\Default"
 
@@ -17,12 +17,12 @@
 
 [Setup]
 SignTool=mySignTool
-TouchDate=2025-12-24
-TouchTime=19:00
+TouchDate=2026-03-08
+TouchTime=10:00
 AppName={#AppName}
 AppVersion={#AppVersion}
 VersionInfoVersion={#Version}
-AppCopyright=Copyright (C) 2007-2025 Daniel Prado Velasco   (C) 2000-2005 Marek Jedlinski
+AppCopyright=Copyright (C) 2007-2026 Daniel Prado Velasco   (C) 2000-2005 Marek Jedlinski
 ;AppComments=
 AppContact=Daniel Prado Velasco <dprado.keynote@gmail.com>
 AppPublisher=Daniel Prado Velasco
@@ -154,6 +154,7 @@ Source: "doc\kn_fileformat\fileformat_2.1 (until v1.9.5).txt"; DestDir: "{app}\d
 Source: "doc\kn_fileformat\fileformat_3.0 (since v2.0.0).txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_3.0.knt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_3.1 (since v2.1.0).txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\kn_fileformat\fileformat_3.2 (since v2.1.5).txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_3.1.knt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\kn_fileformat\fileformat_minimal.knt"; DestDir: "{app}\doc"; Components: main
 Source: "doc\kn_fileformat\fileformat_readme.txt"; DestDir: "{app}\doc" ; Components: main
@@ -177,6 +178,7 @@ Source: "doc\Changes in 2.1.1 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 2.1.2 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 2.1.3 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\Changes in 2.1.4 .01.txt"; DestDir: "{app}\doc" ; Components: main
+Source: "doc\Changes in 2.1.5 .01.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart.txt"; DestDir: "{app}\doc" ; Components: main
 Source: "doc\dart_format.txt"; DestDir: "{app}\doc" ; Components: main
 
@@ -187,6 +189,15 @@ Source: "resources\Icons\keynote_hlp.ico"  ; DestDir: "{app}\help" ; Components:
 
 ; {app}\templates
 Source: "misc_files\Meeting template - sample.rtf"; DestDir: "{app}\templates"; Flags: onlyifdoesntexist
+Source: "misc_files\templates\Line - TextColor - Size100.rtf"; DestDir: "{app}\templates\examples";
+Source: "misc_files\templates\Line - TextHLColor - Size50.rtf"; DestDir: "{app}\templates\examples";
+Source: "misc_files\templates\Line - White - Size50.rtf"; DestDir: "{app}\templates\examples";
+Source: "misc_files\templates\Line - White - Size100.rtf"; DestDir: "{app}\templates\examples";
+Source: "misc_files\templates\Line - Black - Size50.rtf"; DestDir: "{app}\templates\examples";
+Source: "misc_files\templates\Line - Black - Size100.rtf"; DestDir: "{app}\templates\examples";
+Source: "misc_files\templates\Line - TextColor - Size50.rtf"; DestDir: "{app}\templates\examples";
+Source: "misc_files\templates\Table - 3x3 - Heading.rtf"; DestDir: "{app}\templates\examples";
+
 
 ; {app}\plugins
 Source: "plugins\Binary examples\32bits\kncalendar.knl"; DestDir: "{app}\plugins" ; Components: plugins

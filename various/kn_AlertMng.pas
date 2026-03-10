@@ -1560,6 +1560,9 @@ begin
 
    ForceGetMonthInfo(ccalendar);
    FCalendarMonthChanged:= False;
+
+   TB_Color.Hint:= GetRS(sUI01);
+   TB_Hilite.Hint:= GetRS(sUI02);
 end;
 
 
@@ -3193,7 +3196,7 @@ var
                end;
             ColorsTbl[iColorsTbl]:= Color;
             iColorsTbl:= iColorsTbl + 1;
-            rtfColorsTbl:= rtfColorsTbl + GetRTFColor(Color);
+            rtfColorsTbl:= rtfColorsTbl + GetRTFColor(Color) + ';';
          end;
      end;
   end;

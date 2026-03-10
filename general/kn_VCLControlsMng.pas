@@ -1265,7 +1265,7 @@ begin
 
     end;
 
-    Chest.MGRImages.GetBitmap( Index, Glyph.Bitmap );
+    Form_Main.MGRImages.GetBitmap( Index, Glyph.Bitmap );
     SetStatusbarGlyph(Glyph);
 
   finally

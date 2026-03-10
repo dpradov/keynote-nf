@@ -105,6 +105,7 @@ type
     fSplitterNoteMoving: boolean;
 
     fTempFilterTagApplying: boolean;
+    fChangingInCode: boolean;
 
   public
     class constructor Create;
@@ -242,6 +243,11 @@ type
     procedure SetNodeFontFace(const ResetDefault, DoChildren : boolean); overload;
     procedure SetNodeFontFace(Node: PVirtualNode; const FontFace : string; const DoChildren: boolean); overload;
   //procedure SetNodeFontSize(TreeNode: PVirtualNode; const ResetDefault, DoChildren : boolean);
+    procedure SetNodeEncrypted(const DoChildren : boolean); overload;
+    procedure SetNodeEncrypted(Node: PVirtualNode; Encrypted: boolean; const DoChildren : boolean); overload;
+    procedure ShowEncryptedNodes (Show: boolean);
+    function  CheckNodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
+    function  NodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
 
   public
     function GetNodePath(aNode: PVirtualNode; const aDelimiter: string; const TopToBottom: boolean) : string;
@@ -472,6 +478,7 @@ begin
   fDropTargetNodeInsMode:= tnAddLast;
 
   fTempFilterTagApplying:= false;
+  fChangingInCode:= false;
 end;
 
 
@@ -794,6 +801,10 @@ begin
 
       if KntTreeOptions.EditInPlace then
         TreeOptions.MiscOptions := TreeOptions.MiscOptions + [toEditable];
+
+      // After that time, a faster autoscroll is activated (which already depends on how close the cursor is to the edge).
+      // I'm "reducing" it from 1000 to 1500 ms because I think 1 second makes it accelerate too quickly
+      TV.AutoScrollDelay:= 1500;
 
       if KntTreeOptions.AutoScroll then
         TreeOptions.AutoOptions := TreeOptions.AutoOptions + [toAutoScroll];
@@ -1576,7 +1587,7 @@ begin
   case IconKind of
 
     niStandard : begin
-      if NNode.IsVirtual then
+      if NNode.IsVirtual and not (ActiveFile.EncryptedContentMustBeHidden and NNode.Note.IsEncrypted) then
          ImageIndex := ICON_VIRTUAL
 
       else begin
@@ -1763,9 +1774,9 @@ end;
 {$ENDREGION}
 
 
-// ShowOrHideIcons,  NodeColor, NodeBold, NodeCustomImage, NodeFontFace,  ==============================
+// ShowOrHideIcons,  NodeColor, NodeBold, NodeCustomImage, NodeFontFace, NodeEncrypted ==============================
 
-{$REGION ShowOrHideIcons,  NodeColor, NodeBold, NodeCustomImage, NodeFontFace}
+{$REGION ShowOrHideIcons,  NodeColor, NodeBold, NodeCustomImage, NodeFontFace, NodeEncrypted}
 
 procedure TKntTreeUI.ShowOrHideIcons;
 var
@@ -2172,6 +2183,110 @@ end;
 //
 //end;
 
+
+procedure TKntTreeUI.SetNodeEncrypted(Node: PVirtualNode; Encrypted: boolean; const DoChildren : boolean);
+
+   procedure EncryptNNode (Node: PVirtualNode);
+   var
+     NNode : TNoteNode;
+   begin
+     NNode:= GetNNode(Node);
+     NNode.Note.IsEncrypted := Encrypted;
+     if DoChildren and (vsHasChildren in Node.States) then
+         for Node in TV.ChildNodes(Node) do
+            EncryptNNode(Node);
+   end;
+
+begin
+  if not Assigned(Node) then
+     Node := TV.FocusedNode;
+  if not Assigned(Node) or CheckReadOnly then exit;
+
+  EncryptNNode(Node);
+  TKntFolder(Folder).Modified:= true;
+end;
+
+
+procedure TKntTreeUI.SetNodeEncrypted(const DoChildren : boolean);
+var
+  TVSelectedNodes: TNodeArray;
+  Node: PVirtualNode;
+  Encrypted: boolean;
+  i: integer;
+begin
+  Node:= TV.FocusedNode;
+  if Node = nil then exit;
+
+  Encrypted:= not GetNNode(Node).Note.IsEncrypted;
+
+  if TV.SelectedCount = 0 then
+     SetNodeEncrypted(Node, Encrypted, DoChildren)
+
+  else
+     if DoChildren then begin
+        TVSelectedNodes:= TV.GetSortedSelection(True);
+        for i := 0 to High(TVSelectedNodes) do
+           SetNodeEncrypted(TVSelectedNodes[i], Encrypted, DoChildren)
+     end
+     else
+        for Node in TV.SelectedNodes() do
+           SetNodeEncrypted(Node, Encrypted, DoChildren);
+end;
+
+
+procedure TKntTreeUI.ShowEncryptedNodes (Show: boolean);
+var
+  Node : PVirtualNode;
+begin
+   TV.BeginUpdate;
+
+   for Node in TV.Nodes do begin
+      if GetNNode(Node).Note.IsEncrypted then
+         TV.IsVisible[Node]:= Show;
+   end;
+
+   EnsureFocusedNode;
+
+   TV.EndUpdate;
+end;
+
+
+function TKntTreeUI.CheckNodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
+begin
+  Result:= True;
+  if NodeOrChildrenHaveEncryptedContent (Node, OnlyChildren) then begin
+     if (App.DoMessageBox (GetRS(sTree67), mtWarning, [mbYes,mbNo]) <> mrYes) then
+        Result:= False
+     else
+        Result:= ActiveFile.CheckAuthorized(false);
+  end;
+end;
+
+
+function TKntTreeUI.NodeOrChildrenHaveEncryptedContent(Node: PVirtualNode; OnlyChildren: boolean = False): boolean;
+var
+  NNode : TNoteNode;
+  ContainImg: boolean;
+begin
+  Result:= False;
+  NNode:= GetNNode(Node);
+  ContainImg:= ImageMng.FileContainsEncryptedImages;
+
+  if not OnlyChildren then begin
+     if NNode.Note.IsEncrypted then exit (True);
+     if ContainImg then begin
+        if ImageMng.ContainsEncryptedImages(NNode.Note) then
+           exit (True);
+     end;
+  end;
+
+  if (vsHasChildren in Node.States) then
+     for Node in TV.ChildNodes(Node) do
+         if NodeOrChildrenHaveEncryptedContent(Node) then exit(True);
+end;
+
+
+
 {$ENDREGION }
 
 
@@ -2343,6 +2458,8 @@ begin
   NNode:= GetNNode(Node);
   if NNode = nil then exit;
 
+  if (ActiveFile.EncryptedContentMustBeHidden and GetNNode(Node).Note.IsEncrypted) and not ActiveFile.CheckAuthorized(false) then exit;
+
   EditInPlace:= KntTreeOptions.EditInPlace;
 
   if not Focused  then
@@ -2372,6 +2489,13 @@ end;
 procedure TKntTreeUI.TV_Editing(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
 begin
    Allowed := not CheckReadOnly;
+
+   if Allowed and (ActiveFile.EncryptedContentMustBeHidden and GetNNode(Node).Note.IsEncrypted) then begin
+     if (App.DoMessageBox (GetRS(sTree67), mtWarning, [mbYes,mbNo]) <> mrYes) then
+        Allowed:= False
+     else
+        Allowed:= ActiveFile.CheckAuthorized(false);
+   end;
 end;
 
 { Never called in VirtualTree...
@@ -2835,6 +2959,11 @@ begin
       SetNNode(myTreeNode, NewNNode);
       NewNNode.Note.Name:= myName;
       SetNumberingMethod(myTreeNode);
+      if aInsMode = tnAddChild then begin
+         if GetNNode(OriginNode).Note.IsEncrypted and ActiveFile.EncryptedContentOpened then
+            NewNNode.Note.IsEncrypted:= True;
+      end;
+
 
       Result := NewNNode;
 
@@ -2973,13 +3102,11 @@ begin
    end;
 
    if Loaded then begin
-      if (Node.CheckType = ctCheckBox) then begin
-         NNode:= GetNNode(Node);
-         if nnsSaved_Checked in NNode.States then
-            Node.CheckState := csCheckedNormal
-         else
-            Node.CheckState := csUncheckedNormal;
-      end;
+      NNode:= GetNNode(Node);
+      if nnsSaved_Checked in NNode.States then
+         Node.CheckState := csCheckedNormal
+      else
+         Node.CheckState := csUncheckedNormal;
    end
    else begin
       // This NNode can be the result of a copy or move operation from other tree. The source node could be filtered.
@@ -3156,6 +3283,8 @@ begin
       NNode:= GetNNode(myTreeNode);
       myTreeParent := myTreeNode.Parent;
       Folder:= TKntFolder(Self.Folder);
+
+      if not CheckNodeOrChildrenHaveEncryptedContent(myTreeNode, DeleteOnlyChildren) then exit;
 
       Result:= true;
 
@@ -3886,6 +4015,8 @@ begin
   if CheckReadOnly then exit;
   if not assigned(Node) then exit;
 
+  if not CheckNodeOrChildrenHaveEncryptedContent(Node) then exit;
+
   if Node.CheckState = csCheckedNormal then
      Node.CheckState:= csUncheckedNormal
   else
@@ -3919,6 +4050,7 @@ procedure TKntTreeUI.ShowNonFilteredNodes (ParentNode: PVirtualNode);
 var
   Node : PVirtualNode;
   Enum: TVTVirtualNodeEnumeration;
+  HideEncrypted: boolean;
 begin
    TV.BeginUpdate;
    if ParentNode = nil then
@@ -3926,8 +4058,11 @@ begin
    else
       Enum:= TV.ChildNodes(ParentNode);
 
+   HideEncrypted:= ActiveFile.EncryptedNodesMustBeHidden;
+
    for Node in Enum do
-      TV.IsVisible[Node]:= True;       // If the node is Filtered and the filter is being applied, it will not be seen
+      if not (HideEncrypted and GetNNode(Node).Note.IsEncrypted) then
+         TV.IsVisible[Node]:= True;       // If the node is Filtered and the filter is being applied, it will not be seen
 
    EnsureFocusedNode(true);
    TV.EndUpdate;
@@ -3952,13 +4087,32 @@ procedure TKntTreeUI.ChangeCheckedState(Node: PVirtualNode; Checked: Boolean);
     end;
 
 begin
+    if fChangingInCode then exit;
+
+    if CheckReadOnly or (ActiveFile.EncryptedContentMustBeHidden and GetNNode(Node).Note.IsEncrypted) then begin
+       fChangingInCode:= true;
+        if Node.CheckState = csCheckedNormal then
+           Node.CheckState:= csUncheckedNormal
+        else
+           Node.CheckState:= csCheckedNormal;
+
+       fChangingInCode:= false;
+
+       if not ReadOnly then
+          ToggleCheckNode(Node);
+
+       exit;
+    end;
+
     try
       if (Shiftdown and (vsHasChildren in Node.States)) then
          CheckChildren(node);
 
       if HideCheckedNodes then begin
-          TV.IsVisible[Node]:= not Checked;
-          EnsureFocusedNode(True);
+          if Checked then begin
+             TV.IsVisible[Node]:= not Checked;
+             EnsureFocusedNode(True);
+          end;
       end;
 
     finally
@@ -4004,14 +4158,20 @@ end;
 {$REGION Filter nodes }
 
 procedure TKntTreeUI.MakePathVisible (Node: PVirtualNode);
+var
+   HideEncripted: boolean;
 begin
 { It doesn't work: VisiblePath[Node]:= True;
   Because what it does is ensure the expansion of the parents. Here we need to ensure that vsVisible is set }
-   TV.IsVisible[Node]:= True;
+   HideEncripted:= ActiveFile.EncryptedNodesMustBeHidden;
+
+   if not (HideEncripted and GetNNode(Node).Note.IsEncrypted) then
+      TV.IsVisible[Node]:= True;
    repeat
      Node := Node.Parent;
      if Node = TV.RootNode then Break;
-     TV.IsVisible[Node]:= True;
+     if not (HideEncripted and GetNNode(Node).Note.IsEncrypted) then
+        TV.IsVisible[Node]:= True;
    until False;
 end;
 
@@ -4421,12 +4581,14 @@ end;
 procedure TKntTreeUI.EnsureFocusedNode(CheckedChanged: boolean = False);
 var
   Node: PVirtualNode;
+  HideEncrypted: boolean;
 begin
      Node:= TV.FocusedNode;
+     HideEncrypted:= ActiveFile.EncryptedNodesMustBeHidden;
 
      if not CheckedChanged then begin
 
-         if TV.IsEffectivelyFiltered[Node] then begin              // True => Node <> nil
+         if TV.IsEffectivelyFiltered[Node] or (HideEncrypted and GetNNode(Node).Note.IsEncrypted) then begin              // TV.IsEffectivelyFiltered[Node]= True => Node <> nil
             Node := TV.GetNextNotHidden(Node);                     // By default, IncludeFiltered=False
             if Node = nil then
                Node := TV.GetPreviousNotHidden(TV.FocusedNode);    // ,,
@@ -4444,7 +4606,7 @@ begin
          end;
      end
      else begin
-         if (Node = nil) or not TV.FullyVisible[Node] then begin
+         if ((Node = nil) or not TV.FullyVisible[Node]) or (HideEncrypted and GetNNode(Node).Note.IsEncrypted) then begin
             if (Node <> nil) then begin
                Node := TV.GetNextNotHidden(Node);
                if (Node = nil) then
