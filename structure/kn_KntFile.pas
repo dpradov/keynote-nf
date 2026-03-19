@@ -95,6 +95,7 @@ type
     FCachedVerificationHash: THash;
     FKeysAreCached: Boolean;
     FHidingEncryptedNodes : Boolean;
+    FHighlightProtectedNodes : Boolean;
 
     FSavedActiveFolderID : Cardinal;
 
@@ -177,6 +178,7 @@ type
     property EncryptedContentMustBeHidden: boolean read GetEncryptedContentMustBeHidden;
     property EncryptedNodesMustBeHidden: boolean read GetEncryptedNodesMustBeHidden;
     property KeysAreCached: Boolean read FKeysAreCached;
+    property HighlightProtectedNodes: Boolean read FHighlightProtectedNodes;
 
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
@@ -356,6 +358,7 @@ begin
   FEncryptedContentOpened:= True;
   FHideEncryptedNodes:= False;
   FHidingEncryptedNodes:= False;
+  FHighlightProtectedNodes:= False;
   InvalidateKeyCache;
   FReadOnly := false;
   FOpenAsReadOnly := false;
@@ -3751,14 +3754,18 @@ begin
          ImageMng.ProcessEncryptedImages;
       end;
 
-      if not FEncryptedContentOpened then
+      if not FEncryptedContentOpened then begin
          InvalidateKeyCache;
+         FHighlightProtectedNodes:= False;
+      end;
 
       if not IsMergeFile then begin
          ReloadFocusedNodesWithEncryptedContent;
 
          if FHideEncryptedNodes then
             ShowOrHideEncryptedNodes;
+
+         ActiveTreeUI.TV.Refresh;                      // To consider FHighlightProtectedNodes
       end;
    end;
 end;
@@ -3842,10 +3849,13 @@ end;
 
 
 function TKntFile.CheckAuthorized(ShowDetail: boolean): boolean;
+var
+  WasShiftDown: boolean;
 begin
   Result:= False;
   if not GetEncryptedContentMustBeHidden then exit(true);
 
+  WasShiftDown:= ShiftDown;
   repeat
     try
       if not GetPassphrase(FFileName) then begin
@@ -3855,6 +3865,7 @@ begin
       end;
 
       if CheckPassword(GetEncryptionInfo) then begin
+         FHighlightProtectedNodes:= WasShiftDown;
          EncryptedContentOpened:= True;
          exit (True);
       end;
