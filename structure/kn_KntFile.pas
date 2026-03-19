@@ -232,6 +232,7 @@ type
     procedure InitialConfigEncryptedContent;
     procedure UpdateLoadedVerificationHash;
     procedure ProcessLoadedEncryptedContent;
+    procedure CheckEntriesEncryption;
 
   private
     function  PropertiesToFlagsString : TFlagsString; virtual;
@@ -2807,6 +2808,7 @@ begin
   end; { while not eof( tf ) }
 
 
+  CheckEntriesEncryption;
   CheckNotesSorted;
   if not fNotesSorted then
      Notes.Sort(CompareNotes);
@@ -3134,7 +3136,9 @@ var
 
   procedure WriteNEntry (NEntry: TNoteEntry; Note: TNote);
   begin
+     t:= tf;
      if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
+        t:= tfC;
         tfC.WriteLine(_NF_NEntry);                              // TNoteEntry begins
         if NEntry.ID <> 0 then
            tfC.WriteLine(_NEntryID + '=' + NEntry.ID.ToString );
@@ -3150,13 +3154,10 @@ var
        tf.WriteLine(_NEntryState + '=' + NEntry.StatesToString);
 
      if NEntry.Tags <> nil then
-        tf.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);
+        t.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);            // Saved in tf or tfC
 
      if not Note.IsVirtual then
-        if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then
-           SaveTextToFile(tfC, NEntry.Stream, NEntry.IsPlainTXT)
-        else
-           SaveTextToFile(tf, NEntry.Stream, NEntry.IsPlainTXT);
+        SaveTextToFile(t, NEntry.Stream, NEntry.IsPlainTXT);             // Saved in tf or tfC
   end;
 
 
@@ -3765,8 +3766,8 @@ begin
          if FHideEncryptedNodes then
             ShowOrHideEncryptedNodes;
 
-         ActiveTreeUI.ExecuteTreeFiltering;
-         ActiveTreeUI.TV.Refresh;                      // To consider FHighlightProtectedNodes
+         if Form_Main.chkFilterOnTags.Checked then   // -> ShowUseOfTags = True
+            Form_Main.chkFilterOnTagsClick(nil);
       end;
    end;
 end;
@@ -3841,7 +3842,13 @@ begin
      NNode:= myFolder.FocusedNNode;
      if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted) then
         myFolder.NoteUI.LoadFromNNode(NNode, True);
-     myFolder.TreeUI.TV.Invalidate;                        // In case there are virtual nodes, so that the icons are updated
+
+     if myFolder.Filtered then begin
+        if myFolder.TreeUI.TagFilterApplied then
+           myFolder.TreeUI.CheckFilterNotesOnTags;
+        myFolder.TreeUI.ExecuteTreeFiltering;
+     end;
+     myFolder.TreeUI.TV.Invalidate;                    // In case there are virtual nodes, so that the icons are updated (also to consider FHighlightProtectedNodes)
   end;
 
   App.EditorFocused(CurrentEditor);
@@ -4176,6 +4183,32 @@ begin
       Decrypt.Free;
     end;
 
+end;
+
+
+procedure TKntFile.CheckEntriesEncryption;
+var
+  i, j: integer;
+  N: TNote;
+  EntriesEnc: boolean;
+begin
+  // Make sure that some entry is marked as encrypted if its note is encrypted.
+  // The notes could have been marked as encrypted before modification
+  // in procedure TNote.SetIsEncrypted(value: boolean) where this is done
+
+  for i := 0 to Notes.Count-1 do begin
+     N:= Notes[i];
+     if N.IsEncrypted then begin
+        EntriesEnc:= false;
+        for j := 0 to High(N.Entries) do
+           if N.Entries[j].IsEncrypted then begin
+              EntriesEnc:= true;
+              break;
+           end;
+        if not EntriesEnc then
+           N.IsEncrypted:= True;
+     end;
+  end;
 end;
 
 
