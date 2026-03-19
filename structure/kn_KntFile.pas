@@ -3765,6 +3765,7 @@ begin
          if FHideEncryptedNodes then
             ShowOrHideEncryptedNodes;
 
+         ActiveTreeUI.ExecuteTreeFiltering;
          ActiveTreeUI.TV.Refresh;                      // To consider FHighlightProtectedNodes
       end;
    end;

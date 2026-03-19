@@ -4514,9 +4514,10 @@ begin
   str:= trim(txtFilter.Text).ToUpper;
   myFindOptions.Pattern:= str;
   myFindOptions.LastModifFrom:= 0;
+  myFindOptions.ProtectedNodesOnly := false;
   PreprocessTextPattern(myFindOptions);     // Can modify Pattern and set .LastModifFrom
 
-  if (Length(str) < 3) and (myFindOptions.LastModifFrom = 0) then begin
+  if (Length(str) < 3) and (myFindOptions.LastModifFrom = 0) and not myFindOptions.ProtectedNodesOnly then begin
      if TreeFilterApplied then begin
         fLastTreeSearch:= '';
         TreeFilterApplied:= false;
