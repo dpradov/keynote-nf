@@ -1,0 +1,122 @@
+Changes in 2.1.4 .01    (24 dec 2025)
+====================
+
+* Fixed: MBCS languages and plain text notes [#936]
+
+  This commit fixes two bugs:
+  - In systems with an MBCS regional codepage (e.g. 936 for Simplified Chinese), plain text notes were always saved as UTF-8.
+    The function that determines whether text can be saved as ANSI (as it can be safely stored within the system's codepage) or
+    must be saved as UTF-8 was incorrect. This function worked fine with SBCS (single-byte) codepages, but not with MBCS
+    (multibyte character set) codepages such as 936 and GBK.
+
+  - Plain text notes in UTF-8 were incorrectly loaded into the editor. Some garbled data could appear. Again, this text loading
+    process worked with SBCS codepages, but not with MBCS codepages. Once saved, the error in the UTF-8 plain text persisted in
+    the file.
+
+- - - - - 
+* New: Insert | Line
+
+  A new command has been added that allows you to insert a line into the active editor, provided the editor is not a plain text editor.
+
+  An option has been added to Configuration Options (F5) -> Rich Text Editor: "Insert | Line: Limit to editor width on creation."
+  If selected, the line will be created with the current editor width; otherwise, it will be created with a very large width, extending
+  beyond any possible page width. In the first case (option selected), the right end of the line will be accessible, and you can drag
+  and drag the cursor over it to change the width.
+
+  You can insert the line using the menu entry: Insert | Line.
+  Clicking this entry while holding down the Shift key will insert a printable line; otherwise, the inserted line will be visible on
+  screen but will not appear when printed.
+  The default keyboard shortcuts are:
+   Ctrl+Numpad -		 Insert line
+   Ctrl+Shift+Numpad -	 Insert printable line
+
+  As with most commands, it's possible to change the keyboard shortcut for Insert Line. Pressing Shift at the same time will insert a printable line.
+
+  The two new commands (Insert Line and Insert Printable Line) can be repeated (Edit|Repeat...) and used within macros.
+
+  NOTE:
+  The RichEdit control does not allow to insert lines exclusively; it does not recognize the specific RTF command for that purpose.
+  The line inserted here is constructed using a cell, adjusted to appear as a line.
+
+  This has two limitations:
+  - The width is not dynamic; it is fixed and is set when the line is created.
+  - To achieve the line effect, a space is included within the line, with a font size of 1. This means that if you apply a font size change
+    to a selection that includes a line, the cell will become visible.
+
+  The fact that the font size used within the cell is almost zero (it appears as 0 in the font size dropdown) offers a simple way to
+  delete a line: we can press the cursor keys until the font size displays 0. If we then press the down arrow key while holding down
+  the Shift key, we will select the entire line. We can then delete it (Delete).
+
+  The RTF code used to represent the line is:
+
+  Simple line (not printable):
+        {\rtf1\ansi\trowd\cellx99999 \pard\intbl\fs1\cell\row \pard}
+
+  Printable line:
+		{\rtf1\ansi{\colortbl ;\red255\green255\blue255;}
+		\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3
+		\clbrdrt\brdrw10
+		\clbrdrb\brdrw1\brdrcf1
+		\clbrdrl\brdrw1\brdrcf1
+		\clbrdrr\brdrw1\brdrcf1
+		\cellx99999 \pard\intbl\fs1\cell\row \pard}
+
+- - - - - - -
+* New: Insert | Table...
+
+  A new command has been added that allows you to insert a basic table into the active editor, provided the editor is not a plain text editor.
+  You will then be asked to specify the number of rows and columns in the table in the format "R,C".
+
+  You can insert the table using the menu entry: Insert | Table...
+  Clicking this entry while holding down the Shift key will insert a table whose lines will be printable; otherwise, the lines of the table
+  will be visible on screen but will not appear when printed.
+
+  The two new commands (Insert Table and Insert Printable Table) can be repeated (Edit|Repeat...) and used within macros.
+  When used in a macro, the command considers the last defined number of rows and columns in the session. If not yet defined, it will use 2 x 2.
+
+- - - - - - -
+* Fixed: Command line option (-clnks) is not converting old (file:///*) links
+
+* Fixed: KNT links in previous format (file:///*) in Merged notes must be converted to new format based on GIDs
+  Applies to:  Tools|Merge Folders...
+  This is necessary because the folder IDs they are based on may have changed after the merge.
+  Instead of simply adapting the folder ID, these links are converted to the new format.
+  (Moving a note to another folder does not break any Knt link based in the new format)
+- - - -
+* Fixed: Possible exception when moving a node or subtree to another folder (when trying to update the navigation history)
+
+* Fixed: KeyNote NF does not respond...  when pasting in a very specific situation
+  When pasting text containing a folded block from another instance of KeyNote,
+  with ‘Paste external as plain text’ selected in the destination instance and ‘Plain text mode’
+  set to a value other than ‘Plain (without any formatting)’, the application could get stuck
+  in an infinite loop.
+
+* Fixed: Enabled state of format toolbar buttons and Insert -> Image / Object  menu entries when focus is moved to the tree [#885]
+  See comment https://github.com/dpradov/keynote-nf/issues/885#issuecomment-3677656171
+
+* Fixed: Floating editor should be closed when selected another node in the same folder
+  Bug introduced in commit bcd8ed5ae, 18/09/25 : "Fixed: When saving a file, either manually or automatically, any floating editors will not close."
+
+- - - -
+* Fixed: When unfolding a block with images, these could remain hidden, if it is contiguous with another block or hyperlink
+
+  Added code to protect the unfolding/extracting from what appears to be a bug in the RichEdit control:
+  If a collapsed text block contains an image and is immediately followed (or separated by a single line break) by another collapsed
+  block or a regular hyperlink, the image is hidden. This is because the `\v0` tag, which delimits the end of the hidden marker with
+  the image ID and should be positioned just before the image, is shifted to the right of the image itself, thereby hiding it.
+  This doesn't happen in the RTF returned by PrepareRTFtoBeExpanded, where the image displays correctly. However, when inserted right
+  next to these elements, it undergoes this transformation.
+  To avoid this, if this situation is detected, some auxiliary characters are inserted just after the end of the text to be expanded,
+  thus preventing this bug. Once the replacement is made, these characters are searched for and removed.
+
+      <FoldeBlock1>
+      <FoldeBlock2>
+
+      <FoldeBlock1>
+      <Hyperlink>
+
+      <FoldeBlock1><Hyperlink>
+
+      <FoldeBlock1><FoldeBlock2>
+	  
+- - - -
