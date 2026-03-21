@@ -3,6 +3,17 @@
 ## Remember to make backups of .knt files. Recommended option: 'Backup at regular intervals'
 
 
+v 2.1.7.1  (21 mar 2026)
+--------------------------
+* New: Shift + 'View|Encrypted content' -> highlight encrypted nodes [#985]
+* New advanced search token, '*?' -> allows restricting searches/filtering to encrypted nodes [#985]
+* Information about tags of the protected nodes is now hidden when the encrypted content is 'closed'
+* Improvements and fixes related to advanced search tokens in Find All/Tree filtering
+- - -
+* Fixed: Incorrect loading of ANSI texts with DBCS encoding in the editor in certain situations [#990]
+* Fixed: Double click word to select only the word, without space(s) (It was partially resolved) [#951]
+
+
 v 2.1.6.1  (08 mar 2026)
 --------------------------
 * New: The "Lock on opening" option has been added to enable more secure collaborative work [#607]

@@ -333,6 +333,7 @@ type
     procedure SetIsPlainTXT(value: boolean);
     procedure SetIsHTML(value: boolean);
     procedure SetIsEncrypted(value: boolean);
+    function GetTags: TNoteTagArray;
 
   public
     constructor Create (NumEntry: Word = 0);
@@ -345,7 +346,7 @@ type
     property States: TNoteEntryStates read fStates;
     procedure SetModified;
     property Modified: boolean read GetModified write SetModified_;
-    property Tags: TNoteTagArray read fTags write fTags;
+    property Tags: TNoteTagArray read GetTags write fTags;
     property Created: TDateTime read fDateCreated write fDateCreated;
 
 
@@ -963,11 +964,16 @@ begin
 end;
 
 procedure TNote.SetIsEncrypted(value: boolean);
+var
+   i: integer;
 begin
   if value then
      Include(fStates, nsEncrypted)
   else
      Exclude(fStates, nsEncrypted);
+
+  for i:= 0 to High(fEntries) do
+     fEntries[i].IsEncrypted:= value;
 end;
 
 
@@ -1225,14 +1231,28 @@ begin
 end;
 
 
+function TNoteEntry.GetTags: TNoteTagArray;
+begin
+   if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
+      exit(nil);
+
+   Result:=  fTags;
+end;
+
 function TNoteEntry.HasTag(Tag: TNoteTag): boolean;
 begin
+   if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
+      exit(false);
+
    Result:= TNoteTagArrayUtils.HasTag(fTags, Tag);
 end;
 
 
 function TNoteEntry.HasTag(TagName: string): boolean;
 begin
+   if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
+      exit(false);
+
    Result:= TNoteTagArrayUtils.HasTag(fTags, TagName);
 end;
 
@@ -1244,6 +1264,9 @@ var
    TagID: Cardinal;
    NRemoved: integer;
 begin
+   if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
+      exit;
+
    if Tags <> nil then begin
       NRemoved:= 0;
 
@@ -1274,6 +1297,9 @@ end;
 
 procedure TNoteEntry.AddTags(SelectedTags: TNoteTagArray);
 begin
+   if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
+      exit;
+
    TNoteTagArrayUtils.AddTags(fTags, SelectedTags);
 end;
 
@@ -1282,6 +1308,9 @@ function TNoteEntry.TagsNames: string;
 var
    i: integer;
 begin
+   if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
+      exit;
+
    if Tags <> nil then begin
       for i:= 0 to High(Tags) do
          Result:= Result + Tags[i].Name + ' ';
@@ -1336,6 +1365,9 @@ var
    i: integer;
 begin
    Result:= False;
+   if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
+      exit(Length(SomeTags)=0);
+
    if (Length(Tags) = Length(SomeTags)) then begin
       Result:= True;
       if (Tags <> nil)  then begin

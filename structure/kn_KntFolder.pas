@@ -1844,7 +1844,8 @@ begin
       NoteUI.SaveToDataModel;
 
    NEntry:= NNode.Note.Entries[0];         // %%%
-   if InitializeTextPlain(NEntry, RTFAux) and ClearRTFAux and NEntry.IsRTF then
+   InitializeTextPlain(NEntry, RTFAux);
+   if ClearRTFAux and (RTFAux.TextLength > 0) then
       RTFAux.Clear;
    Result:= NEntry.TextPlain;
 end;

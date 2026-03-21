@@ -1,0 +1,69 @@
+
+Changes in 2.1.7 .01    (20 mar 2026)
+====================
+
+* New: Shift + 'View|Encrypted content' -> highlight encrypted nodes (#985)
+  By holding down the Shift key while selecting 'View | Encrypted content', and after entering the password,
+  the encrypted nodes will be highlighted in red (*), and any changes made to the encryption status of the
+  nodes will be reflected in their color. Once the encrypted content is closed, the highlights will cease.
+  (Note: You only need to hold down the Shift key when clicking on the menu option.)
+  
+  The hint associated with the menu entry will now display:
+  "Show or hide nodes, entries and images with encrypted content (Shift: highlight encrypted nodes)"
+  
+   (*) In addition to temporarily displaying the font color in red, the associated 'Flagged' column will be 
+   highlighted in a reddish color (which can be seen if it is visible, for example with 
+   'View / Filter -> Show columns' in the tree's context menu).
+  
+* Information relating to the tags of the protected nodes is now hidden when the encrypted content is 'closed'. 
+  Encrypted nodes are now treated as if they have no tags. Therefore, no tags will be displayed in the editor
+  info panel for an encrypted node unless the encrypted content is open.
+  Also, if 'Show use of tags in tree' is checked, the tags tab in the resources panel will indicate that tags
+  are not being used for those nodes.
+  
+  
+* Improvements and fixes related to Find All/Tree filtering (#985) 
+  - Expressions like '* text' were working with 'All the words' and 'Any of the words', but not with 'Exact Phrase'.
+  - Enclosing text in quotation marks (e.g., "-2 Text") was not working with 'Exact Phrase'.
+  - Including only '*' or '**' in the search was generating an exception.
+  - Searches with * or ** might not return all entries, as the formatting wasn't always correctly considered
+    when determining if the text was emphasized.
+  * New advanced search token, '*?' : Allows restricting searches/filtering to encrypted nodes. Enabled only when
+    encrypted content is "open"
+  
+  Combination of tokens used in advanced search (-<number> | *? | ** | *)
+  - [-<number>] must always be included at the beginning
+  - The remaining tokens, with 'All the words' or 'Any of the words', can be used in any order and position
+  - It is now also possible to combine these advanced search tokens with 'Exact Phrase', but they must be
+    in the following order:
+      [-<number>] [*?] ([**] or [*]) [Text]
+  
+     Expressions such as '-2 *? * Text' or '-2 *? ** Text', '-2 * Text', '-2 ** Text', etc., are allowed.
+  
+     It is also possible to specify only '-<number>' or '*?' or '-<number> *?' without any additional text.
+     This will return nodes that meet that condition. 
+  
+- - - - - - 
+  
+* Fixed: Incorrect loading of ANSI texts with DBCS encoding in the editor in certain situations [#990] 
+  (Bug currently present in Delphi library) 
+  
+  KeyNote uses the unRxLib library to interact with the RichEdit control. The method that the library
+  offer to load a stream into the editor is based on that defined in the Embarcadero library (Vcl.ComCtrls).
+  These methods contain a latent bug that only manifests in certain cases, such as that shown in test.txt
+  in issue #990: in texts whose code page can use characters with more than one byte, combined with
+  single-byte characters (such as commas and periods). If these are not handled correctly, 'garbled' text
+  can be produced by the incorrect interpretation of one or more characters.
+  
+  The original code likely assumed that, in a DBCS locale, all characters would be two bytes,
+  but this is an incorrect simplification that doesn't account for mixed cases.
+  
+  The fix identifies the correct number of bytes to manage in each fragment, thereby preventing the
+  truncation of the last character.
+  
+  See: procedure TRichEditStrings.LoadFromStream(...) --> StreamLoad()
+  
+
+* Fixed: Double click word to select only the word, without space(s) [#951] 
+  It worked when there were a single space, but not when there were multiple spaces.
+  Also, it didn't work ok in plain text notes..

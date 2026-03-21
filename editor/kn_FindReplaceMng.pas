@@ -235,6 +235,7 @@ const
    FIND_PARAGRAPH_SCOPE_SEP = '...';
    FIND_EMPHASIZED_SEARCH_WORDS_CHR = '*';
    FIND_EMPHASIZED_SEARCH_PARAGRAPH_CHR = '**';
+   FIND_ONLY_PROTECTED_NODES_CHR = '*?';
 
 
 procedure FreeFragments(var FoundNodes: TNodeList; var FragmentsInNodes: TNoteFragmentsList);
@@ -822,7 +823,7 @@ end;
       Examples: [** images] [** keyboard short]
 }
 
-procedure SearchPatternToSearchWords(WordList : TSearchWordList; const SearchPattern : string;
+procedure SearchPatternToSearchWords(WordList : TSearchWordList; var SearchPattern : string;
                                      var myFindOptions: TFindOptions );
 var
   aStr, s : string;
@@ -937,51 +938,61 @@ begin
            myFindOptions.EmphasizedSearch:= esWords;
            wordList.delete(i);
         end
+        else
+        if wordList[i].word = FIND_ONLY_PROTECTED_NODES_CHR then begin               // *?
+           myFindOptions.ProtectedNodesOnly:= True;
+           wordList.delete(i);
+        end
         else begin
            wordList[i].word := StringReplace(wordList[i].word,  CHR_SEP_PARAGRAPH, FIND_PARAGRAPH_SCOPE_SEP, [rfReplaceAll]);
            wordList[i].word := StringReplace(wordList[i].word , CHR_SEP_SENTENCE,  FIND_SENTENCE_SCOPE_SEP,  [rfReplaceAll]);
         end;
      end;
 
-
-     if myFindOptions.EmphasizedSearch = esParagraph then
-        for i := 0 to wordList.count - 1 do begin
-           wordList[i].Scope:= dsParagraph;
-           wordList[i].BeginDScope:= (i=0);
-           wordList[i].EndDScope:= (i<>0);
-        end
-
+     if wordList.count = 0 then begin
+        myFindOptions.SearchMode := smPhrase;
+        SearchPattern:= '';
+     end
      else begin
-         InDScope:= false;
-         for i := 0 to wordList.count - 2 do begin
-            ch:= wordList[i].RightSep;
-            case ch of
-               CHR_SEP_PARAGRAPH, CHR_SEP_SENTENCE: begin
-                   wordList[i].BeginDScope:= not InDScope;
-                   InDScope:= true;
+         if myFindOptions.EmphasizedSearch = esParagraph then
+            for i := 0 to wordList.count - 1 do begin
+               wordList[i].Scope:= dsParagraph;
+               wordList[i].BeginDScope:= (i=0);
+               wordList[i].EndDScope:= (i<>0);
+            end
 
-                   if ch = CHR_SEP_PARAGRAPH then
-                       wordList[i].Scope:= dsParagraph
-                   else
-                       wordList[i].Scope:= dsSentence;
-                   wordList[i+1].Scope:= wordList[i].Scope;
-                   if wordList[i+1].RightSep <> ' ' then
-                      wordList[i+1].RightSep:= ch;
-               end
-               else begin
-                  InDScope:= false;
-                  wordList[i].EndDScope:= true;
-               end;
-            end;
-         end;
+         else begin
+             InDScope:= false;
+             for i := 0 to wordList.count - 2 do begin
+                ch:= wordList[i].RightSep;
+                case ch of
+                   CHR_SEP_PARAGRAPH, CHR_SEP_SENTENCE: begin
+                       wordList[i].BeginDScope:= not InDScope;
+                       InDScope:= true;
 
-         for i := 0 to wordList.count - 1 do begin
-             if wordList[i].Scope = dsAll then begin
-                wordList[i].BeginDScope:= true;
-                wordList[i].EndDScope:= true;
-             end
+                       if ch = CHR_SEP_PARAGRAPH then
+                           wordList[i].Scope:= dsParagraph
+                       else
+                           wordList[i].Scope:= dsSentence;
+                       wordList[i+1].Scope:= wordList[i].Scope;
+                       if wordList[i+1].RightSep <> ' ' then
+                          wordList[i+1].RightSep:= ch;
+                   end
+                   else begin
+                      InDScope:= false;
+                      wordList[i].EndDScope:= true;
+                   end;
+                end;
+             end;
+
+             for i := 0 to wordList.count - 1 do begin
+                 if wordList[i].Scope = dsAll then begin
+                    wordList[i].BeginDScope:= true;
+                    wordList[i].EndDScope:= true;
+                 end
+             end;
+             wordList[wordList.count - 1].EndDScope:= true;
          end;
-         wordList[wordList.count - 1].EndDScope:= true;
      end;
 
 
@@ -1041,6 +1052,8 @@ procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
 var
   pF: integer;
   NumDaysBack: integer;
+  str: string;
+  p: integer;
 begin
   {
    Trying to identify '-<number>'  in the beginning Eg: '-3' '-7 search term'
@@ -1049,19 +1062,67 @@ begin
      '-0' is equivalent to [LastModified] >= '15/10/2024'  (modified on current day)
    If enclosed in "" it will managed as a normal text pattern:
     '"-2"'
+
+   Also, check if in the first position (or just after -X) it is set *?, * or **
+
+   If multiple of these special tokens are included with SearchMode = smPhrase, they must be entered in the following order:
+      [-<number>] [*?] ([**] or [*]) Text
+   Expressions such as '-2 *? * Text' or '-2 *? ** Text', '-2 * Text', '-2 ** Text', etc., are allowed.
+   It is also possible to specify only '-<number>' or '*?' or '-<number> *?' without any additional text.
+   This will return nodes that meet that condition.
+
+     *?  -> ProtectedNodesOnly:= True;
+
+     **  -> EmphasizedSearch:= esParagraph;
+            SearchScope:= ssContentsAndNodeName;
+
+      *  -> EmphasizedSearch:= esWords;
+
+
+   If Pattern is enclosed in "" and SearchMode = smPhrase then remove that "s
  }
 
-  if (myFindOptions.Pattern.Length < 2) or (myFindOptions.Pattern[1] <> '-') then exit;
+  if (myFindOptions.Pattern.Length < 2) then exit;
 
-  pF:= Pos(' ', myFindOptions.Pattern, 2);
-  if pF <= 0 then pF:= 9999;
+  if myFindOptions.Pattern[1] = '-' then begin
+     pF:= Pos(' ', myFindOptions.Pattern, 2);
+     if pF <= 0 then pF:= 9999;
 
-  NumDaysBack:= StrToIntDef(Copy(myFindOptions.Pattern, 2, pF-2), -1);
-  if NumDaysBack >= 0 then begin
-      myFindOptions.LastModifFrom := Today() -NumDaysBack;
-      Delete(myFindOptions.Pattern, 1, pF-1);
-      myFindOptions.Pattern:= trim(myFindOptions.Pattern);
+     NumDaysBack:= StrToIntDef(Copy(myFindOptions.Pattern, 2, pF-2), -1);
+     if NumDaysBack >= 0 then begin
+         myFindOptions.LastModifFrom := Today() -NumDaysBack;
+         Delete(myFindOptions.Pattern, 1, pF-1);
+         myFindOptions.Pattern:= trim(myFindOptions.Pattern);
+     end;
   end;
+
+  if (myFindOptions.Pattern.Length < 2) then exit;
+
+  str:= Copy(myFindOptions.Pattern, 1, 3).TrimRight;
+  if (myFindOptions.SearchMode = smPhrase) and
+     (myFindOptions.Pattern[1] = '"') and (myFindOptions.Pattern[Length(myFindOptions.Pattern)] = '"')  then
+      myFindOptions.Pattern:= Copy(myFindOptions.Pattern,2,Length(myFindOptions.Pattern)-2)
+  else
+  if str = FIND_ONLY_PROTECTED_NODES_CHR then begin               // *?
+     myFindOptions.ProtectedNodesOnly:= True;
+     myFindOptions.Pattern:= Copy(myFindOptions.Pattern, 3).TrimLeft;
+  end;
+
+  p:= 0;
+  if str = FIND_EMPHASIZED_SEARCH_PARAGRAPH_CHR then begin        // **
+     myFindOptions.EmphasizedSearch:= esParagraph;
+     myFindOptions.SearchScope:= ssContentsAndNodeName;
+     p:= 3;
+  end
+  else
+  if Copy(myFindOptions.Pattern, 1, 2).TrimRight = FIND_EMPHASIZED_SEARCH_WORDS_CHR then begin            // *
+     myFindOptions.EmphasizedSearch:= esWords;
+     p:= 2;
+  end;
+
+  if p > 0 then
+     myFindOptions.Pattern:= Copy(myFindOptions.Pattern, p).TrimLeft
+
 end;
 
 {
@@ -2582,7 +2643,7 @@ begin
      SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
   end;
 
-  if (myFindOptions.Pattern = '') and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText ) then exit;
+  if (myFindOptions.Pattern = '') and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText ) and not myFindOptions.ProtectedNodesOnly then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
@@ -2672,7 +2733,7 @@ begin
          TextToFind:= wordList[0].word;           // '"Windows 10"' --> 'Windows 10'
       end;
 
-      if (wordcnt = 0) and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText) then begin
+      if (wordcnt = 0) and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText) and not myFindOptions.ProtectedNodesOnly then begin
          Form_Main.Combo_ResFind.Text:= '';
          Form_Main.Btn_ResFind.Enabled:= False;
          exit;
@@ -2735,7 +2796,9 @@ begin
                    break;
 
                 // TODO: Consider the dates of the Entries of the note
-                if (not (HideEncrypted and myNNode.Note.IsEncrypted) ) and
+                if (not (HideEncrypted and myNNode.Note.IsEncrypted) or
+                          (not ActiveFile.EncryptedNodesMustBeHidden and ((TextToFind = '') or (myFindOptions.SearchScope <> ssOnlyContent)) ) ) and
+                   (not myFindOptions.ProtectedNodesOnly or (not HideEncrypted and myNNode.Note.IsEncrypted)) and
                    (not SearchingByDates or (myNNode.Note.LastModified <> 0) ) and
                    (myNNode.Note.LastModified.GetDate  >= myFindOptions.LastModifFrom) and
                    ((myFindOptions.LastModifUntil = 0) or (myNNode.Note.LastModified.GetDate <= myFindOptions.LastModifUntil)) and
@@ -2827,7 +2890,7 @@ begin
                            FindPatternInText(true, true);
                          end;
 
-                         if (myFindOptions.SearchScope <> ssOnlyNodeName) then begin
+                         if (myFindOptions.SearchScope <> ssOnlyNodeName) and not (HideEncrypted and myNNode.Note.IsEncrypted) then begin
                             if TextPlainToUse <> '' then
                                TextPlainBAK:= TextPlainToUse
                             else

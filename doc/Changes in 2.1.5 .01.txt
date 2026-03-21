@@ -1,0 +1,163 @@
+Changes in 2.1.5 .01    (15 feb 2026)
+====================
+
+* Added option to encrypt only selected content (nodes and/or images).
+
+  It is now possible to embed encrypted content in files saved in a native or compressed format. 
+  This allows you to encrypt just selected nodes or images.
+  
+  Added new options in File Properties:
+   - "Enable encrypted content" 
+   - "Hide encrypted nodes in the tree if the encrypted content remains 'closed'"
+   
+  If "encrypted content" is enabled it is possible to select nodes and images to be saved as encrypted.
+  
+  Images will be saved embedded and encrypted in the .knt file by default. 
+    This can be changed using the new INI option KeyOptions.ImgAllowEncrExternal:
+	 - False (0): An encrypted image will always be saved internally in the embedded KNT storage.  
+     - True (1) : An encrypted image will be saved in the configured storage, even if it is external (ZIP or folder).     
+      
+     In both cases, the image content will be saved as encrypted, with one exception: images that are linked
+	 (not 'owned') can be marked as encrypted, but their content will not be modified.
+	 
+	 Any image marked as encrypted will not be visible in the KNT file if the Encrypted content is not 'opened'
+	 (i.e. the password is not entered). Also, the name, caption and path of any encrypted image will not be shown
+	 while the encrypted content is 'closed'.
+	 
+- - -   
+* Encryption strengthened, obtaining the key from the password with a configurable number of iterations [#545]
+  Encrypted format now uses a simplified PBKDF2 mechanism to derive keys from passwords using a configurable
+  number of (SHA-1) iterations. This mechanism helps protect against brute-force attacks
+  New .knt file format (3.2) saves the number of iterations used to derive verification keys from password.
+ (PBKDF2: Password-Based Key Derivation Function 2)
+
+* Added protection against basic/intermediate keyloggers
+  After each user keystroke in a protected field (password), TSecureText, between 0 and 3
+  fake keystrokes are generated, each containing real events that the keyloggers must capture.
+  These fake keystrokes are ignored by the control in KeyNote NF and do not affect the actual
+  password entered.
+  Both the number of keystrokes and the fake keystrokes are generated randomly.
+  
+* Fixed: Password field vulnerable to password reveal tools like BulletsPassView (#599)
+
+- - - - - 	
+* Insert|Line and Insert|Table with Shift (=> printable) will use Text color (Format|Text Color,  Ctrl+R) [#944]
+  Also, the Insert|Line option will use the note's background color to "hide" the non-visible
+  borders of the used row cell.
+
+* RTF Templates can use 4 tokens to allow some configuration in color || Added several Line/Table templates [#944]
+
+  The following tokens can be used:
+  
+     %NCOLOR%      To allow referencing the background color of the note in a template
+     %TSCOLOR%          ,,              the text color of the selection ,,
+     %TCOLOR%           ,,              Text color (Format|Text Color,  Ctrl+R)
+     %THCOLOR%          ,,              Text Highlight color (Format|Apply HighLight Color,  Ctrl+H)
+  
+  They will be replaced by expressions of the form "\redX\greenY\blueZ" and are intended for use
+  in the "colortbl" block that appears at the beginning of the RTF code.
+  
+  Examples of the use of these tokens are available in several templates that will be distributed in the Templates folder,
+  in a new subfolder called "Examples". Those templates that you wish to use should be copied to the main folder, either as
+  is or adapted as needed.
+  These templates can be used to insert lines of varying thicknesses. By default, the Insert|Line command uses size = 10.
+  It's also possible to assign a shortcut to any of them, including the default one (Ctrl+Numpad -).
+  
+  "Line - White - Size50.rtf"
+  "Line - White - Size100.rtf"
+  "Line - Black - Size50.rtf"
+  "Line - Black - Size100.rtf"
+  "Line - TextColor - Size50.rtf"
+  "Line - TextColor - Size100.rtf"
+  "Line - TextHLColor - Size50.rtf"
+  "Table - 3x3 - Heading.rtf"
+  
+  You can see that they contain:
+  {\rtf1\ansi{\colortbl ;%NCOLOR%;%TCOLOR%;}
+  ...
+  
+  {\rtf1\ansi
+  {\colortbl ;\red255\green255\blue255;\red0\green0\blue0;\red0\green0\blue255;%TSCOLOR%;%THCOLOR%;%TCOLOR%;}
+  ...
+
+  One way to use them would be to create a template in KeyNote (likely by pasting from another program that might be 
+  needed, such as Excel or Word) with clearly defined and distinct colors. Some of these colors can then be modified
+  in the "\colortbl" table, replacing them with the tokens you want.
+  
+- - - - - - - - - - 
+* Insert|URL... Use URL in clipboard (#706)
+  When you run Insert|URL..., KeyNote will check whether there is an http or https URL
+  (or one that explicitly begins with "file:") in the clipboard.
+  If there is a URL and text has been selected in the editor (and this is different from the URL),
+  a hyperlink will be created using the URL in the clipboard alongside the selected text, without
+  the need to open the "Create hyperlink" modal window.
+  Otherwise, the modal window will be displayed, but the possible URL in the clipboard will be taken
+  into account and filled in the corresponding field, facilitating the quick creation of the hyperlink,
+  either with the same URL as the text to be displayed (field filled in by default, with all the text selected),
+  or by setting any other text.
+
+* Double click word to select only the word, without space(s) [#951]
+
+* "Paste External as Plain text" -> "Paste External using 'Plain text mode'"
+   See https://github.com/dpradov/keynote-nf/discussions/921
+
+
+- - - - - - 
+* Fixed: In most situations, it is not possible to change the blue colour of links [#923]
+  Problem: When changing the colour of a link, it is displayed in the desired colour, but the control
+  continues to interpret it as blue (bug), so if we copy the link to another location, it will be copied
+  in blue. Similarly, when saved, it will be saved in blue. Therefore, when changing nodes and returning
+  to the node, we will probably see the link in blue again.
+  In issue #923, I explain in detail all the behaviour observed and the solution adopted.
+  
+  These changes to the code modify the way links are inserted, ensuring that links are initially displayed
+  in the same colour as the control offers for auto-detected links —a colour that automatically adapts
+  to the background colour.
+
+* Added a new command line option: -clnkc  (Convert links to allow for proper text colour management)
+  When a .knt file is opened with this option, all existing links, including those in folded blocks, 
+  will be scanned and adapted to the new format.
+
+- - - - - - 
+* Fixed: Adjustments to the treatment of folded blocks.
+  
+  - In folded blocks, the final character [ ] did not display correctly if the end of the block was in bold,
+    as this character is not available in bold in Tahoma, resulting in a small, unattractive rectangle.
+    In addition, it was displayed with the colour used at the end of the folded block.
+    Now it will always be displayed with the same colour (medium blue).
+  
+  - If the first line selected to be included in a folded block had the same colour and highlighting as the previous line,
+    the font colour of the lines in the folded block could be lost both when previewing (displaying in the floating editor)
+    and when unfolded.
+      The reason? The RTF commands that set the colour were fixed before the folded block and were not included in the RTF code
+    associated with the selection.
+    To avoid this problem now, transparently, before obtaining the RTF to be processed for previewing or displaying, a blank
+    character is inserted in front of the block, to which default colours are set. This ensures that the initial colours are
+    correctly specified in the selection. After that, this auxiliary character is removed. 
+
+- - - - - 
+* Fixed: The check-state of a hidden checkbox node is saved, but it is ignored when the file is opened [#947]
+
+* Fixed: Exception using F6 (Defaults for all files) with no file open  [#953]
+
+* Fixed: Avoid possible exception when starting the application [#946]
+  The method called at the end of the FormActivate event handler to resolve issue #720
+  ("save and restore caret position...not sure what it's supposed to do") could cause an exception
+  in some cases if the system has not had time to allow the editor to take focus.
+
+* Fixed: Crash in W8.1 when opening Font settings dialog [#726][#613]   
+  The SetThreadDpiAwarenessContext method doesn't exist in Windows 8.1. This feature was introduced in the 
+  Windows 10 Anniversary Update (version 1607). When the application tries to call a function that doesn't 
+  exist in the system DLL, Windows terminates the process abruptly before the code can execute, so the
+  Try...Except exception handling block doesn't catch anything.
+  -> Do not use SetThreadDpiAwarenessContext API method if Windows version <10
+  
+  See https://github.com/dpradov/keynote-nf/issues/726#issuecomment-3677551236
+  
+  Related to commit: 
+    "Fixed: Setting the font size with the Font dialog when using scaling settings other
+     than 100% results in a larger font than expected"  
+    There is an issue with TFontDialog in Delphi when using scaling settings other than 100%. 
+	This issue can cause the selected font to appear larger than expected.
+    The problem lies in how TFontDialog (and, in fact, the underlying Win32 ChooseFont API) 
+	handles DPI awareness. Ref: #613  

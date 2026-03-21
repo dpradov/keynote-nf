@@ -6730,6 +6730,7 @@ begin
 
   myFindOptions.EmphasizedSearch:= esNone;
   myFindOptions.FoldedMode:= TSearchFoldedMode(CbFindFoldedMode.ItemIndex);
+  myFindOptions.ProtectedNodesOnly:= false;
   
 
   ApplyFilter:= CB_ResFind_Filter.Checked;

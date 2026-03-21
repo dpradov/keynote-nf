@@ -1502,6 +1502,10 @@ begin
   NNode := Sender.GetNodeData(Node);
 
   if (Column = 2) then begin
+     if ActiveFile.HighlightProtectedNodes and NNode.Note.IsEncrypted then begin
+        TargetCanvas.Brush.Color := clWebPink;
+        TargetCanvas.FillRect(CellRect);
+     end;
      if TagFilterApplied then begin
         InheritedParentTags:= nil;
         if FindOptions.InheritedTags then begin
@@ -1556,6 +1560,8 @@ begin
   Color:= clNone;
   if fFindFilterApplied and NNode.FindFilterMatch and not (TV.Selected[Node] and (Column <= 0)) then
      Color:= clBlue
+  else if ActiveFile.HighlightProtectedNodes and NNode.Note.IsEncrypted then
+     Color:= clRed
   else
      Color:= NNode.NodeColor;
 
@@ -2186,6 +2192,8 @@ procedure TKntTreeUI.SetNodeEncrypted(Node: PVirtualNode; Encrypted: boolean; co
    begin
      NNode:= GetNNode(Node);
      NNode.Note.IsEncrypted := Encrypted;
+     if ActiveFile.HighlightProtectedNodes then
+        TV.InvalidateNode(Node);
      if DoChildren and (vsHasChildren in Node.States) then
          for Node in TV.ChildNodes(Node) do
             EncryptNNode(Node);
@@ -4506,9 +4514,10 @@ begin
   str:= trim(txtFilter.Text).ToUpper;
   myFindOptions.Pattern:= str;
   myFindOptions.LastModifFrom:= 0;
+  myFindOptions.ProtectedNodesOnly := false;
   PreprocessTextPattern(myFindOptions);     // Can modify Pattern and set .LastModifFrom
 
-  if (Length(str) < 3) and (myFindOptions.LastModifFrom = 0) then begin
+  if (Length(str) < 3) and (myFindOptions.LastModifFrom = 0) and not myFindOptions.ProtectedNodesOnly then begin
      if TreeFilterApplied then begin
         fLastTreeSearch:= '';
         TreeFilterApplied:= false;

@@ -2784,7 +2784,7 @@ object Form_Main: TForm_Main
       object MMViewEncryptedCont: TMenuItem
         Caption = 'Encrypted content'
         Enabled = False
-        Hint = 'Show or hide nodes, entries and images with encrypted content'
+        Hint = 'Show or hide nodes, entries and images with encrypted content (Shift: highlight encrypted nodes)'
         OnClick = MMViewEncryptedContClick
       end
       object N106: TMenuItem

@@ -2878,6 +2878,7 @@ begin
   myFindOptions.CreatedUntil := 0;
   myFindOptions.EmphasizedSearch:= esNone;
   myFindOptions.FoldedMode:= sfAll;
+  myFindOptions.ProtectedNodesOnly := false;
 
   Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyNode, FolderToUse, TextPlainToUse);
 end;
