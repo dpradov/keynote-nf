@@ -4388,14 +4388,62 @@ begin
   StreamInfo := PRichEditStreamInfo(dwCookie)^;
   SetLength(Buffer, cb + 1);
   // SetLength(pbBuff2, cb + 1);                                 // [dpv] See comment *5
+
+  {                                                              // [dpv] See comment *6, below
   cb := cb div 2;
   if (cb mod 2) > 0 then
     cb := cb -1 ;
+  }
+
   StartIndex := 0;
   pcb := 0;
   try
     if StreamInfo.Converter <> nil then
       pcb := StreamInfo.Converter.ConvertReadStream(StreamInfo.Stream, Buffer, cb);
+
+
+    if StreamInfo.PlainText then begin                               // [dpv]  See comment *6
+      { Adjust pcb to avoid cutting a DBCS character in half
+        MB_ERR_INVALID_CHARS -> If there is an invalid character that cannot be converted -> MultiByteToWideChar will return 0
+        (additionally, in that case: GetLastError = ERROR_NO_UNICODE_TRANSLATION).
+        If there were an invalid character inside (an anomalous situation where the content to be loaded is incorrect), both a call
+        considering pcb bytes and another with pcb-1 would return 0.
+        In that case (invalid character inside), using pcb-1 vs. pcb makes no difference because the subsequent conversion
+        will produce garbage anyway; the invalid character inside will be corrupted regardless.
+      }
+       if pcb = 0 then exit;
+
+       var Enc:= StreamInfo.Encoding;
+       if Enc = nil then
+          Enc:= TEncoding.Default;
+
+       if not Enc.IsSingleByte then begin
+          var CodePage := Enc.CodePage; // eg. 936
+          if MultiByteToWideChar(CodePage, MB_ERR_INVALID_CHARS, PAnsiChar(Buffer), pcb, nil, 0) = 0 then begin
+             Dec(pcb);
+             StreamInfo.Stream.Seek(-1, soCurrent);
+          end;
+
+         // Another alternative way to determine whether to consider pcb or pcb-1 bytes, to avoid truncating the last
+         // character is the following, also valid, but somewhat more expensive :
+         {
+         var i := 0;
+         while i < pcb do begin
+           if IsDBCSLeadByteEx(CodePage, Buffer[i]) then
+             Inc(i, 2)   // 2-byte character: skip both
+           else
+             Inc(i, 1);  // 1-byte character (ASCII, comma, etc.)
+         end;
+         // If i == pcb: the fragment ends clean
+         // If i == pcb + 1: the last lead byte is left without its trail byte
+         if i = pcb + 1 then begin
+           Dec(pcb);
+           StreamInfo.Stream.Seek(-1, soCurrent);
+         end;
+         }
+       end;
+    end;
+
     if pcb > 0 then
     begin
       Buffer[pcb] := 0;
@@ -4451,6 +4499,37 @@ begin
       st1.Write(pbBuff[0],  pcb1);
       st2.Write(pbBuff2[0], pcb2);
       pcb:= pcb1;
+
+
+      { *6
+       Adjustments to prevent truncation of characters in texts whose codepage can use characters with more than one byte, and where these
+       can be combined with single-byte characters (such as commas, periods, etc.). If these are not handled correctly, "garbled" text can
+       be produced by incorrectly interpreting one or more characters.
+       See issue #990 "ANSI TXT as virtual node causes Chinese garbled text" in KeyNote: https://github.com/dpradov/keynote-nf/issues/990
+       The initial approach (which is the same as that used by the StreamLoad method of the Delphi library, in the Vcl.ComCtrls file) is
+       not valid:
+
+       cb := cb div 2;
+       if (cb mod 2) > 0 then
+          cb := cb - 1;
+
+       The code in Vcl.ComCtrls likely assumed that if the system was in a DBCS locale, all characters would be 2 bytes (hence the
+       div 2 + mod 2 check). This is an incorrect simplification that doesn't account for mixed cases.
+
+       It's therefore a latent bug that only manifests with mixed text, like that in the test file attached to the issue mentioned.
+       This problem, identified with Chinese text, can occur with any Windows DBCS encoding:  CP932 (Japanese Shift-JIS), CP949 (Korean),
+       CP950 (Traditional Chinese).
+       They all mix single bytes with byte pairs, and they all have the same risk of truncation.
+
+       Note:
+       MBCS (Multi-Byte Character Set) is the generic term—characters of variable length, potentially 1, 2, 3, or more bytes.
+       DBCS (Double-Byte Character Set) is a specific subset where characters are exactly 1 or 2 bytes, never more.
+
+       In practice, all MBCS encodings that Windows supports in its codepages are DBCS—there is no standard Windows codepage with 3- or 4-byte characters.
+       If an encoding with 3-byte characters were ever to exist, truncation might require moving back 2 bytes instead of 1.
+       But since in practice Windows MBCS = DBCS, Seek(-1, soCurrent) is always sufficient, and the solution is correct for all real-world cases.
+      }
+
     *)
 
     end;

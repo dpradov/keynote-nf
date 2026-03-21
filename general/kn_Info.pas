@@ -850,6 +850,7 @@ type
     ShowChildren: boolean;      // show children of matching nodes
     InheritedTags: boolean;     // Each node will be considered as having its own tags and the tags of its ancestors
     EmphasizedSearch: TEmphasizedSerch;  // for "Find all" (resource panel) ONLY
+    ProtectedNodesOnly: boolean;             //   ,,
     TagSearch: boolean;   // Search for a tag (#MyTag). It must meet certain other criteria.
     FindTagsIncl: TFindTags;   // Include text/notes with ALL or ANY of the selected tags
     FindTagsExcl: TFindTags;   // Exclude text/notes with ANY of the selected tags

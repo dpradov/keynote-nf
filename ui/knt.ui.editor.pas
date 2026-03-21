@@ -4840,21 +4840,24 @@ end;
 
 procedure TKntRichEdit.DblClick;
 var
-  ImgID, p, SL: integer;
-  txt: AnsiString;
+  ImgID, p, SL, nSL: integer;
+  txt, rtfTxt: AnsiString;
   ImgIDs: TImageIDs;
   Img: TKntImage;
 
 begin
    ImgID:= 0;
    Img:= nil;
+
+   SL:= SelLength;
+   if SL > 1 then
+      txt:= SelVisibleText;
+
    if FSupportsRegisteredImages then begin
-      SL:= SelLength;
       if SL = 1 then
          ImgID:= CheckToIdentifyImageID(p)
 
       else if SL > 1 then begin
-         txt:= SelVisibleText;
          if Length(txt) < SL then begin
            ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain(SelText);
            if ImgIDs <> nil then
@@ -4867,9 +4870,9 @@ begin
    end;
 
    if (ImgID = 0) and FSupportsImages and (not FSupportsRegisteredImages or not assigned(NNodeObj) ) then begin
-      txt:= RtfSelText;
-      if length(txt) > 0 then
-         ImageMng.TryRTFPictToImage (@txt[1], Length(txt), Img);
+      rtfTxt:= RtfSelText;
+      if length(rtfTxt) > 0 then
+         ImageMng.TryRTFPictToImage (@rtfTxt[1], Length(rtfTxt), Img);
    end;
 
    if (ImgID <> 0) or (Img <> nil) then
@@ -4881,8 +4884,11 @@ begin
       FLastFoldingTime:= Now();
    end
    else
-   if (SL > 1) and (txt[SL] in [' ', #9]) then   // See issue #951
-       SelLength:= SL-1;
+   if (SL > 1) then begin                        // See issue #951
+      nSL:= Length(TrimRight(txt));
+      if nSL < SL then
+         SelLength:= nSL;
+   end;
 
    inherited;
 end;

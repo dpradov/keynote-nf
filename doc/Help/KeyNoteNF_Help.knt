@@ -4,8 +4,11 @@
 #?
 #$8
 #C20-04-2003 22:44:55
-#^110000000000000000000000
+#^010000000000000000000000
 #Tkeynote_hlp.ico
+%TG
+ID=1
+TN=985)
 N:=124
 %*
 GI=1
@@ -2815,40 +2818,41 @@ KeyNote uses the freeware WordWeb integration component written by Mr. Antony Le
 %*
 GI=27
 ND=Folders as note trees
-LM=1304252133
+LM=2003262043
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Cambria Math;}{\f3\fnil\fcharset0 Courier New;}{\f4\fnil\fcharset2 Symbol;}}
-{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;\red128\green128\blue0;\red193\green255\blue255;}
-{\*\generator Riched20 10.0.22621}{\*\mmathPr\mmathFont2\mwrapIndent1440 }\viewkind4\uc1 
+{\colortbl ;\red0\green0\blue160;\red0\green0\blue255;\red128\green0\blue0;\red255\green255\blue0;\red64\green64\blue64;\red128\green128\blue0;\red255\green0\blue0;\red193\green255\blue255;}
+{\*\generator Riched20 10.0.26100}{\*\mmathPr\mmathFont2\mwrapIndent1440 }\viewkind4\uc1 
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Folders as note trees\cf2\lang1033\par
 \cf0\b0\fs26\par
-{\fs20{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|74|0|3"}}{\fldrslt{General information}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|1704|0|4"}}{\fldrslt{Creating Folders (Tabs)}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|2550|0|5"}}{\fldrslt{Configuring tree settings}}}}}\f0\fs20\par
+{\ul\fs20{\field{\*\fldinst{HYPERLINK "file:///<27|74|0|3"}}{\fldrslt{General information}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<27|1704|0|4"}}{\fldrslt{Creating Folders (Tabs)}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<27|2550|0|5"}}{\fldrslt{Configuring tree settings}}}}\f0\fs20\par
 
-\pard\sb80 {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|4545|0|6"}}{\fldrslt{Using the Tree panel}}}}}\f0\fs20\par
+\pard\sb80 {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|4545|0|6"}}{\fldrslt{Using the Tree panel}}}}\f0\fs20\par
 
-\pard    {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|7820|0|12"}}{\fldrslt{Normal vs maximum tree width}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|5849|0|7"}}{\fldrslt{Using the keyboard in the Tree panel}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|6952|0|8"}}{\fldrslt{Drag and drop operations in the tree}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|7821|0|1"}}{\fldrslt{Copying or moving Subtrees}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|11501|0|9"}}{\fldrslt{Hiding the Tree panel}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{Using Hidden nodes}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|20573|0|13"}}{\fldrslt{Outline Numbering}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|22219|0|14"}}{\fldrslt{Optional columns: Flagged, Date}}}}}\f0\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{Tree filtering}}}}}\f0\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|24224|0|16"}}{\fldrslt{Filtering results. Use of 'Show children'}}}}}\f0\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{Filtering by last modification date}}}}}\f0\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|26525|0|18"}}{\fldrslt{Filtering by name}}}}}\f0\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|28655|0|19"}}{\fldrslt{Filtering by flagged status}}}}}\f0\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31948|0|22"}}{\fldrslt{Filtering by Tags}}}}}\f0\fs20\par
+\pard    {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|7820|0|12"}}{\fldrslt{Normal vs maximum tree width}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|5849|0|7"}}{\fldrslt{Using the keyboard in the Tree panel}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|6952|0|8"}}{\fldrslt{Drag and drop operations in the tree}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|7821|0|1"}}{\fldrslt{Copying or moving Subtrees}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|11501|0|9"}}{\fldrslt{Hiding the Tree panel}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{Using Hidden nodes}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|20573|0|13"}}{\fldrslt{Outline Numbering}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|22219|0|14"}}{\fldrslt{Optional columns: Flagged, Date}}}}\f0\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{Tree filtering}}}}\f0\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|24224|0|16"}}{\fldrslt{Filtering results. Use of 'Show children'}}}}\f0\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{Filtering by last modification date}}}}\f0\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|26525|0|18"}}{\fldrslt{Filtering by name}}}}\f0\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|29818|0|23"}}{\fldrslt{Filtering by protected status}}}}\f0\fs20  \par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|28655|0|19"}}{\fldrslt{Filtering by flagged status}}}}\f0\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31948|0|22"}}{\fldrslt{Filtering by Tags}}}}\f0\fs20\par
 
-\pard\sb80 {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{Deduce missing date information}}}}}\f0\fs20\par
+\pard\sb80 {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{Deduce missing date information}}}}\f0\fs20\par
 
-\pard {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{Note information panel}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|9413|0|2"}}{\fldrslt{Keyboard Shortcuts for Tree-Related Commands}}}}}\f0\fs20\par
+\pard {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{Note information panel}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<27|9413|0|2"}}{\fldrslt{Keyboard Shortcuts for Tree-Related Commands}}}}\f0\fs20\par
 \par
 \par
 \par
@@ -2866,7 +2870,7 @@ In KeyNote, a folder appears as a tabbed window, with the name and icon for the 
 You will find the tree panel in the left-hand side by default, and the normal editor on the right-hand side. The Tree panel looks and behaves similarly to the tree in Windows Explorer, and can also be hidden.\par
 \par
 \b Tip\b0 : It is possible to display a panel near the editor that shows certain information about the note to which it belongs. Note that there are situations where it is useful to keep the tree panel hidden. In this cases can be convenient to have this information panel visible.\par
-See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{Note information panel}}}}}\f0\fs20 .\par
+See {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{Note information panel}}}}\f0\fs20 .\par
 \par
  \par
 \b "Note" and "node" (tree node)\par
@@ -2882,16 +2886,16 @@ See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|33941|0|21"}}{\fldrslt{No
 \pard\sb80 In the screenshot, the "To Do" folder has 3 nodes. You can see any node as a branch or a leaf in a folders's tree:\par
 \fs8\par
 
-\pard\li360\sb40\v\fs20\'11I104\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:104,130,82"}}{\fldrslt {104_Clipb_03ene.png}}}}\lang1033\par
+\pard\li360\sb40\v\fs20\'11I104\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:104,130,82"}}{\fldrslt {104_Clipb_03ene.png}}}}\lang1033\par
 
 \pard\par
-\b Tip\b0 : The creation and modification dates of the notes are available since version 2.0 of KeyNote NF. A tool have been include to try to deduce dates from the name and content of existing notes, created with older versions. See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{Deduce missing date information}}}}}\f0\fs20\par
+\b Tip\b0 : The creation and modification dates of the notes are available since version 2.0 of KeyNote NF. A tool have been include to try to deduce dates from the name and content of existing notes, created with older versions. See {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{Deduce missing date information}}}}\f0\fs20\par
 \par
 \par
 KeyNote recognizes some special type of nodes, that allows more advanced features, and have some specific commands associated:\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{Virtual nodes}}}}}\f0\fs20  and {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{Linked nodes}}}}}\f0\fs20 .\par
-{\pntext\f4\'B7\tab}Also, tree nodes can be \b hidden\b0  ({{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{More}}}}}\f0\fs20 )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {\ul\lang3082{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{Virtual nodes}}}}\f0\fs20  and {\ul{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{Linked nodes}}}}\f0\fs20 .\par
+{\pntext\f4\'B7\tab}Also, tree nodes can be \b hidden\b0  ({\ul{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{More}}}}\f0\fs20 )\par
 
 \pard\par
  \par
@@ -2914,12 +2918,12 @@ Using Tree main menu or via right-click context menu in the tree you have the fo
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120\sa20 Show or hide checkboxes in all nodes of the tree or only in children of selected node.\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa100\f1\lang3082 Modify the checked state\b  \b0 of a node. You can also hide the children of a selected node based on their checked stated (hide checked or hide unchecked), or show all hidden children not filtered by search (See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{Filtering tree nodes}}}}}\f1\fs20 ). This checked state can be used as search criterion (See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{Find All}}}}}\f1\fs20 ).\f0\lang1033\par
-{\pntext\f4\'B7\tab}Set o remove alarms on nodes ({{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<76|670|0|1"}}{\fldrslt{More}}}}}\f0\fs20 )\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa100\f1\lang3082 Modify the checked state\b  \b0 of a node. You can also hide the children of a selected node based on their checked stated (hide checked or hide unchecked), or show all hidden children not filtered by search (See {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{Filtering tree nodes}}}}\f1\fs20 ). This checked state can be used as search criterion (See {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{Find All}}}}\f1\fs20 ).\f0\lang1033\par
+{\pntext\f4\'B7\tab}Set o remove alarms on nodes ({\ul{\field{\*\fldinst{HYPERLINK "file:///<76|670|0|1"}}{\fldrslt{More}}}}\f0\fs20 )\par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Save the tree structure to a file\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<57|0|0"}}{\fldrslt{Export}}}}}\f0\fs20  the contents of the tree to several formats: plain text, RTF, HTML, TreePad and .KNT. You can export single nodes, branches or other selections.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 {\ul{\field{\*\fldinst{HYPERLINK "file:///<57|0|0"}}{\fldrslt{Export}}}}\f0\fs20  the contents of the tree to several formats: plain text, RTF, HTML, TreePad and .KNT. You can export single nodes, branches or other selections.\par
 
 \pard\par
 
@@ -2934,7 +2938,7 @@ You can select nodes in several standard ways: with \cf3 Ctrl\cf0 , \cf3 Shift\c
 \b\v\fs26\'11B4\'12\v0 Creating Folders (Tabs)\b0\par
 \fs20\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100 To create a folder, press \cf3\b Ctrl+N\cf0\b0 , or choose the {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<114|844|0|1"}}{\fldrslt{Folder | New Folder...}}}}}\b\f0\fs20  \b0 command.\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb100 To create a folder, press \cf3\b Ctrl+N\cf0\b0 , or choose the {\ul{\field{\*\fldinst{HYPERLINK "file:///<114|844|0|1"}}{\fldrslt{Folder | New Folder...}}}}\b\f0\fs20  \b0 command.\par
 {\pntext\f4\'B7\tab}You can optionally specify at this moment many options for the folder, like the font and background color for the tree text: use "Properties" button.\par
 {\pntext\f4\'B7\tab}Newly created folders will show a tree with one node. You can add nodes to the tree, edit them and drag in the tree. See below for information about tree functions and keyboard shortcuts. You can hide the tree panel to get a folder similar to the old 'Simple notes', with \cf3\b Shift+F11\cf0\b0 .\par
 {\pntext\f4\'B7\tab}Once you have created a note you can edit all \ul properties\ulnone  of the folder at any time by pressing \cf3\b F4\cf0\b0 .\par
@@ -2957,13 +2961,13 @@ Many other tree-related settings are global, that is, they apply \b to ALL folde
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 You can a define a default \ul font and background color\ulnone  for the whole tree (tab), while allowing each individual node to overwrite it.\par
 {\pntext\f4\'B7\tab}When you modify the default values, they will applied only to nodes not customized.\par
-{\pntext\f4\'B7\tab}Note that the \ul Word-Wrap\ulnone  function (to wrap long lines) also works the same way: can be set for all nodes in the folder (with Folder | Properties, or \cf3\b F4\cf0\b0 ), or only to current node (using the toolbar button \v\'11I80\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:80,16,16"}}{\fldrslt {80_Format_19.png}}}}\lang1033  or the menu option Format | Word Wrap )\par
+{\pntext\f4\'B7\tab}Note that the \ul Word-Wrap\ulnone  function (to wrap long lines) also works the same way: can be set for all nodes in the folder (with Folder | Properties, or \cf3\b F4\cf0\b0 ), or only to current node (using the toolbar button \v\'11I80\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:80,16,16"}}{\fldrslt {80_Format_19.png}}}}\lang1033  or the menu option Format | Word Wrap )\par
 
 \pard\par
 
-\pard\sb120 See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<32|0|0"}}{\fldrslt{Default Settings | Tree settings}}}}}\f0\fs20  for information about what can be configured on each Tree panel.\par
+\pard\sb120 See {\ul{\field{\*\fldinst{HYPERLINK "file:///<32|0|0"}}{\fldrslt{Default Settings | Tree settings}}}}\f0\fs20  for information about what can be configured on each Tree panel.\par
 
-\pard\sb80 Note that there are also \ul general options\ulnone  that control certain aspects of the Tree panel's behavior ({{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{More}}}}}\f0\fs20 )\par
+\pard\sb80 Note that there are also \ul general options\ulnone  that control certain aspects of the Tree panel's behavior ({\ul{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{More}}}}\f0\fs20 )\par
 
 \pard\par
 \par
@@ -2975,11 +2979,11 @@ Many other tree-related settings are global, that is, they apply \b to ALL folde
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb120 The \b width of the tree\b0  can be changed by dragging the vertical "splitter" bar which divides the tree from the editor. Each folder retains the tree width independently of other folders, and the width of the tree is always restored when you open a previously saved file. (If the size of the main KeyNote window is too small to make the tree as wide as it was previously, the tree is automatically narrowed to fit.)\par
 {\pntext\f4\'B7\tab}You can set and modify manually the name of a tree node (note). But they can be \b named automatically\b0 . For instance, when you create a new node in the tree, this node's number can be added to the name, or added prefix defined with special tokens.\par
-{\pntext\f4\'B7\tab}You can \b hide temporarily\b0  the tree panel. Use \cf3\b Shift+F11 \cf0\b0 to increase the width of the Editor while keeping the width of the main window, or \cf3\b Ctrl+Shift+F11 \cf0\b0 to maintain the witdh of the Editor and reduce, temporarly, the width of the main window ({{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|11464|0|9"}}{\fldrslt{More}}}}}\f0\fs20 )\par
+{\pntext\f4\'B7\tab}You can \b hide temporarily\b0  the tree panel. Use \cf3\b Shift+F11 \cf0\b0 to increase the width of the Editor while keeping the width of the main window, or \cf3\b Ctrl+Shift+F11 \cf0\b0 to maintain the witdh of the Editor and reduce, temporarly, the width of the main window ({\ul{\field{\*\fldinst{HYPERLINK "file:///<27|11464|0|9"}}{\fldrslt{More}}}}\f0\fs20 )\par
 
 \pard\li360\sb40 Note that the hidden state of the tree panel will be saved in the .knt file\par
 
-\pard\li360\sb120\b Tip\b0 : You can \b navigate\b0  the nodes of the tree although when the tree panel is hidden. There are {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|9960|0|2"}}{\fldrslt{keyboard shortcuts}}}}}\f0\fs20  (and menu entries) to navigate up, down, left and right in the \f1\lang3082 tree hierarchy.\par
+\pard\li360\sb120\b Tip\b0 : You can \b navigate\b0  the nodes of the tree although when the tree panel is hidden. There are {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|9960|0|2"}}{\fldrslt{keyboard shortcuts}}}}\f0\fs20  (and menu entries) to navigate up, down, left and right in the \f1\lang3082 tree hierarchy.\par
 
 \pard\li360\sb40\b Tip\b0 : The reverse is also true: when the tree is focused, you can press \cf3\b\f0\lang1033 Alt+Up\cf0\b0\f1\lang3082  or \cf3\b\f0\lang1033 Alt+Down\cf0\b0\f1\lang3082  arrow to scroll the editor up or down.\f0\lang1033\par
 
@@ -3049,12 +3053,12 @@ Both values, normal width and optional maximun width, will be saved on .knt file
 \pard\sa80\par
 \cf3\b Ins\cf0\b0  will insert a sibling node \b above\b0  currently selected ("Add Above"). You can add a \b child\b0  to selected node with \cf3\b Shift+Enter\cf0\b0  ("Add Child").\par
 You can create a new sibling node, immediately \b below\b0  currently selected with \cf3\b Ctrl+Enter \cf0\b0 ("Add Below"). \cf3\b Enter\cf0\b0  will add a \b new node\b0  as the \b last sibling\b0  (at the bottom) of the node where you press the key ("Add Last sibling"). \par
-You can also \b copy \b0 or\b  move\b0  a node or an entire subtree (or any selection of nodes) using common keyboard shortcuts: \cf3\b Ctrl+C\cf0\b0 , \cf3\b Ctrl+X\cf0\b0 , \cf3\b Ctrl+V\cf0\b0 . You can paste as {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{linked nodes}}}}}\f0\fs20  with \cf3\b Ctrl+Shift+V\cf0\b0 .\par
+You can also \b copy \b0 or\b  move\b0  a node or an entire subtree (or any selection of nodes) using common keyboard shortcuts: \cf3\b Ctrl+C\cf0\b0 , \cf3\b Ctrl+X\cf0\b0 , \cf3\b Ctrl+V\cf0\b0 . You can paste as {\ul{\field{\*\fldinst{HYPERLINK "file:///<29|0|0"}}{\fldrslt{linked nodes}}}}\f0\fs20  with \cf3\b Ctrl+Shift+V\cf0\b0 .\par
 
 \pard\sb100 To switch between the editor and the tree, press \cf3\b Ctrl+\\\cf0\b0 . You can also press \cf3\b Shift+Tab \cf0\b0 to switch from the editor to the tree and \cf3\b Tab\cf0\b0  to switch back to the editor. \par
 You can \b navigate\b0  the nodes in \ul tree hierarchy\ulnone  using the keyboard.\par
 
-\pard\sb40 And you can also navigate using the \ul history\ulnone , global or local (to the tree type note). More on {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<39|0|0"}}{\fldrslt{Navigating history mechanism}}}}}\f0\fs20 .\par
+\pard\sb40 And you can also navigate using the \ul history\ulnone , global or local (to the tree type note). More on {\ul{\field{\*\fldinst{HYPERLINK "file:///<39|0|0"}}{\fldrslt{Navigating history mechanism}}}}\f0\fs20 .\par
 
 \pard\sb100 You can easily \b expand\b0  or \b collapse\b0  any branch in the tree using \cf3\b Right\cf0\b0  and \cf3\b Left\cf0\b0  arrow keys. Or even the whole tree.\par
 
@@ -3064,12 +3068,12 @@ You can \b navigate\b0  the nodes in \ul tree hierarchy\ulnone  using the keyboa
 
 \pard\sb100\par
 
-\pard\sb120\b Tip\b0 : There are some commands in tree panel context menu with different behaviour if you use \cf3\b Ctrl\cf0\b0  or \cf3\b Shift\cf0\b0 , as Copy node name. See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<82|0|0"}}{\fldrslt{Other Shortcut Keys}}}}}\f0\fs20\par
+\pard\sb120\b Tip\b0 : There are some commands in tree panel context menu with different behaviour if you use \cf3\b Ctrl\cf0\b0  or \cf3\b Shift\cf0\b0 , as Copy node name. See {\ul{\field{\*\fldinst{HYPERLINK "file:///<82|0|0"}}{\fldrslt{Other Shortcut Keys}}}}\f0\fs20\par
 
 \pard\sb200\b Tip:\b0  In addition to the options already existing in the tree's own contextual menu, it is possible to modify the \b node text color\b0  or its \b highlight\b0  through the corresponding options of the format menu or their shortcuts: Text color (\cf3\b Ctrl+R\cf0\b0 ), Highlight (\cf3\b Ctrl+H\cf0\b0 ), No highlight (\cf3\b Ctrl+Shift+H\cf0\b0 )\par
 
 \pard\sb100\par
-See also {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|8876|0|2"}}{\fldrslt{Keyboard Shortcuts for Tree-Related Commands}}}}}\f0\fs20 . Some information is included about {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|14928|0|10"}}{\fldrslt{Ctr+\\}}}}}\f0\fs20  not being recognized in certain keyboard layouts, and also on how you can customize shortcuts to set the focus on the editor or the tree, or toggle between both panels.\par
+See also {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|8876|0|2"}}{\fldrslt{Keyboard Shortcuts for Tree-Related Commands}}}}\f0\fs20 . Some information is included about {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|14928|0|10"}}{\fldrslt{Ctr+\\}}}}\f0\fs20  not being recognized in certain keyboard layouts, and also on how you can customize shortcuts to set the focus on the editor or the tree, or toggle between both panels.\par
 
 \pard\sb120\par
 
@@ -3079,7 +3083,7 @@ See also {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|8876|0|2"}}{\fldrslt
 {\pntext\f4\'B7\tab}While \b dragging\b0  you can select the exact position where you want the nodes to be dropped (copied or moved). They can be inserted as childs of an existing node or at the same level, below or above it.\par
 {\pntext\f4\'B7\tab}You can indicate whether you want to copy, move or create linked nodes while dragging, by holding down the \cf3\b Ctrl\cf0\b0  (copy), \cf3\b Shift \cf0\b0 (Move) or \cf3\b Alt\cf0\b0  (link) key. Default: Move.\par
 {\pntext\f4\'B7\tab}When you drag to \b to another Folder\b0  (tab), it will be activated and can be dropped at an exact position within the tree, dropping into a node or just above or below.\par
-{\pntext\f4\'B7\tab}If you \b drag a file\b0  onto the tree (or event the Editor), you will be able to import the contents of that file in several ways, or to add it to the tree as a \b Virtual node\b0 . ({{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{More}}}}}\f0\fs20 )\par
+{\pntext\f4\'B7\tab}If you \b drag a file\b0  onto the tree (or event the Editor), you will be able to import the contents of that file in several ways, or to add it to the tree as a \b Virtual node\b0 . ({\ul{\field{\*\fldinst{HYPERLINK "file:///<28|0|0"}}{\fldrslt{More}}}}\f0\fs20 )\par
 
 \pard\sa80\b\par
 Tip:\b0  You can drag files from the file system to exact positions in any tree.\par
@@ -3129,7 +3133,7 @@ It is possible to move or copy (or create link nodes) multiple nodes / subtrees 
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Copy and move operations will only work with subtrees in the \b same file\b0 . If you want to transfer nodes between files you can use File | Export... (with .knt format and defining in Source what you want to transfer) and File | Import...  or Tools | Merge folder... to import the nodes included in a folder of a .knt file.\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\sa80 When copying nodes/subtrees, {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{hidden nodes}}}}}\f0\fs20  will also be included\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\sa80 When copying nodes/subtrees, {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|13504|0|11"}}{\fldrslt{hidden nodes}}}}\f0\fs20  will also be included\par
 {\pntext\f4\'B7\tab}When you copy virtual nodes (linked to files on disk), paste, or drag, they will be pasted as linked nodes.\par
 
 \pard\par
@@ -3139,10 +3143,10 @@ It is possible to move or copy (or create link nodes) multiple nodes / subtrees 
 
 \pard\sb120\fs20 You can \b hide temporarily\b0  the tree panel in two ways: using \cf3\b Shift+F11 \cf0\b0 to increase the width of the Editor while keeping the width of the main window, or using \cf3\b Ctrl+ Shift+F11 \cf0\b0 to maintain the with of the Editor and reduce, the width of the main window.\par
 
-\pard\sb40 (See also {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|9649|0|12"}}{\fldrslt{Normal vs maximum tree size}}}}}\f0\fs20 )\par
+\pard\sb40 (See also {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|9649|0|12"}}{\fldrslt{Normal vs maximum tree size}}}}\f0\fs20 )\par
 
 \pard\par
-When you hide the Tree Panel pressing \b Ctrl\b0  (\cf3\b Ctrl+Shift+F11\cf0\b0   or Ctrl + {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<111|4949|0|15"}}{\fldrslt{View | Tree Panel}}}}}\f0\fs20 ) then, instead of letting the editor panel grow to the left occuping the width of the tree panel, the application window will reduce its width temporarily so that the editor maintain its width and position.\par
+When you hide the Tree Panel pressing \b Ctrl\b0  (\cf3\b Ctrl+Shift+F11\cf0\b0   or Ctrl + {\ul{\field{\*\fldinst{HYPERLINK "file:///<111|4949|0|15"}}{\fldrslt{View | Tree Panel}}}}\f0\fs20 ) then, instead of letting the editor panel grow to the left occuping the width of the tree panel, the application window will reduce its width temporarily so that the editor maintain its width and position.\par
  \par
 Once shown the Tree panel again, the application window's size and position will be restored.\par
  \par
@@ -3184,7 +3188,7 @@ Folders allow you to work with \b hidden nodes\b0 . You can hide nodes that you 
 
 \pard 
 {\pntext\f1 1.\tab}{\*\pn\pnlvlbody\pnf1\pnindent0\pnstart1\pndec{\pntxta.}}
-\fi-360\li360\sa20 You can activate a mode \f1\lang3082 wich automatically hides checked nodes:  View | \b Hide Checked Nodes\b0  (\v\'11I38\'12\v0\f0{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:38,17,17"}}{\fldrslt {38_Main_38.png}}}}\f1 )\par
+\fi-360\li360\sa20 You can activate a mode \f1\lang3082 wich automatically hides checked nodes:  View | \b Hide Checked Nodes\b0  (\v\'11I38\'12\v0\f0{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:38,17,17"}}{\fldrslt {38_Main_38.png}}}}\f1 )\par
 
 \pard\li360 Once you have the checkboxes displayed in a tree, on all nodes or only on the children of the selected nodes, every time a node is checked, it will be hidden. Additionally, all already marked nodes will be hidden.\par
 
@@ -3211,9 +3215,9 @@ Unlike those two commands, \cf5\b Hide Checked Nodes\b0  \cf0 dynamically hide a
 {\pntext\f1 3.\tab}{\*\pn\pnlvlbody\pnf1\pnindent0\pnstart3\pndec{\pntxta.}}
 \fi-360\li360\sb160\sa100\b Filtering\b0  one folder's nodes or all folders under a searching criterion \par
 
-\pard\li360\sa60 See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{Filtering tree nodes}}}}}\f1\fs20  for information on how to define and apply this filtering.\par
+\pard\li360\sa60 See {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{Filtering tree nodes}}}}\f1\fs20  for information on how to define and apply this filtering.\par
 
-\pard\li360\sa100 Once applied, you can deactivate it with View | \b Filter nodes\b0  or \v\'11I163\'12\v0\f0{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:163,18,18"}}{\fldrslt {163_Image_24ene.png}}}}\f1  button.\par
+\pard\li360\sa100 Once applied, you can deactivate it with View | \b Filter nodes\b0  or \v\'11I163\'12\v0\f0{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:163,18,18"}}{\fldrslt {163_Image_24ene.png}}}}\f1  button.\par
 
 \pard\par
 Note that you can show the checkbox for all nodes with View | \b All nodes Checkboxes\b0 . \f0\lang1033 Additionally\f1\lang3082 , checkboxes can be displayed only on then children of selected nodes (Children Checkbox | \b Show Checkboxes\b0  in Tree context menu) \par
@@ -3223,7 +3227,7 @@ Note that you can show the checkbox for all nodes with View | \b All nodes Check
 \par
 With \ul Tree | Outline numbering...\ulnone  you can add or remove outline-style numbering to the names of nodes in active folder's tree.\par
 \par
-\v\'11I195\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:195,475,302"}}{\fldrslt {195_Clipb_24nov.png}}}}\lang1033\par
+\v\'11I195\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:195,475,302"}}{\fldrslt {195_Clipb_24nov.png}}}}\lang1033\par
 \par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 Allows automatic renaming/renumbering.\par
@@ -3268,16 +3272,19 @@ The flagged status and creation date can be used as criteria in "Find All" searc
 
 \pard\sa80 At the bottom of the tree there is a panel that includes a text box and several buttons that let you filter the tree based of the names of the nodes (notes), the checked status, the creation/modification date of the notes, and the flagged status of the nodes.\par
 
-\pard Tree panel filtering can be temporarily disabled, while highlighted the results, with "Filter nodes" button  (\v\'11I50\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033 ).\par
+\pard Tree panel filtering can be temporarily disabled, while highlighted the results, with "Filter nodes" button  (\v\'11I50\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033 ).\par
 
-\pard\sb120\b Important\b0 : This 'Tree panel' filter will be combined with 'Find All' filter. See clarifications in {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|16050|0|11"}}{\fldrslt{Using Find and Find All}}}}}\f0\fs20\par
+\pard\sb120\b Important\b0 : This 'Tree panel' filter will be combined with 'Find All' filter. See clarifications in {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|16050|0|11"}}{\fldrslt{Using Find and Find All}}}}\f0\fs20\par
 
 \pard\par
 
-\pard\li360\v\'11I197\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:197,407,283"}}{\fldrslt {197_Clipb_25nov.png}}}}\lang1033\par
+\pard\li360\v\'11I197\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:197,407,283"}}{\fldrslt {197_Clipb_25nov.png}}}}\lang1033\par
 \par
 
+\pard\sb120 See also {\ul\f1\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|20992|0|15"}}{\fldrslt{Combining advanced search tokens (and search type)}}}}\f0\fs20\par
+
 \pard\par
+\par
 \b\v\fs22\'11B16\'12\v0 Filtering results. Use of 'Show children'\par
 
 \pard\sb120\b0\fs20 When filtering, nodes that are matching are highlighted in light yellow (+). A parent node may be visible because one of its children is a match, but it may also be a match itself, and be highlighted in yellow.\par
@@ -3352,7 +3359,21 @@ This is because this way, considering the path (with the names of the parents), 
 
 \pard\sb120\b Tip\b0 : This option can be set also from the \ul Find All panel\ulnone , and will be used both in these searches and in Tree filtering\par
 
-\pard   \par
+\pard\par
+\par
+\b\v\fs22\'11B23\'12\v0 Filtering by protected status \par
+
+\pard\sb120\b0\fs20 It is possible to filter the tree showing only the encrypted nodes using and advanced token: \cf7\b *?\cf0\b0\par
+
+\pard\sb40 See more about {\ul{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{encrypted content}}}}\f0\fs20  (vs. Encrypted format) and other ways to highlight encrypted nodes (like Shift + 'View | Encrypted content')\par
+
+\pard\sb160 It can be useful if you have many protected nodes and you need to be sure whether a node is encrypted like intended, or if you want to move (only) encrypted nodes that are scattered in different folders into a single folder or parent node. The protection status is always shown in the tree's context menu, but it's difficult to rely exclusively on that source if there are many encrypted nodes to check.\par
+\b Tip\b0 : You can combine this filtering with other options. For example, you can show encrypted nodes modifiy since the last 2 days: '-2 *?, or show only the encrypted nodes that are tagged in some way. This will also work with {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{Find All}}}}\f0\fs20  searches\par
+
+\pard\sb40\par
+\b Note\b0 : This filtering is only possible while encrypted content is open.\par
+
+\pard\par
 \par
 \b\v\fs22\'11B19\'12\v0 Filtering by flagged status \par
 
@@ -3434,8 +3455,8 @@ Other example. \par
 
 \pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360 The View | Show Children option is also applicable to this new criterion.\par
 
-\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Those nodes that match the indicated tags will be highlighted with a \highlight7 light cyan color\highlight0  in the "flagged" column. If this column was not visible, it will be temporarily displayed while the filter is applied.\par
-{\pntext\f4\'B7\tab}If a term ends in '\b *\b0 ' and it is not identified as a {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{registered tag}}}}}\f0\fs20 , it will be assumed that we want to indicate the search for tags that contain the entered substring (not just the one that ends with it).\par
+\pard{\pntext\f4\'B7\tab}{\*\pn\pnlvlblt\pnf4\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 Those nodes that match the indicated tags will be highlighted with a \highlight8 light cyan color\highlight0  in the "flagged" column. If this column was not visible, it will be temporarily displayed while the filter is applied.\par
+{\pntext\f4\'B7\tab}If a term ends in '\b *\b0 ' and it is not identified as a {\ul{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{registered tag}}}}\f0\fs20 , it will be assumed that we want to indicate the search for tags that contain the entered substring (not just the one that ends with it).\par
 
 \pard\li360 In this way, if we have for example the tags: "\cf6 Error\cf0 ", "\cf6 ErrorHigh\cf0 ", "\cf6 ErrorLow\cf0 " and we want to select only the first one, we will write "\cf6 Error\cf0 " (or simply select it from the selector, in the many possible ways).\par
 
@@ -3458,11 +3479,11 @@ Other example. \par
 \pard\par
 \par
 
-\pard\li360\v\'11I224\'12\v0{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:224,722,205"}}{\fldrslt {224_Clipb_13abr.png}}}}\par
+\pard\li360\v\'11I224\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:224,722,205"}}{\fldrslt {224_Clipb_13abr.png}}}}\lang1033\par
 
 \pard\par
 
-\pard\li360 See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<122|18636|0|7"}}{\fldrslt{Using the Tags Tab of the Resources Panel}}}}}\f0\fs20  for a explanation of this example, and the general use of Tags.\par
+\pard\li360 See {\ul{\field{\*\fldinst{HYPERLINK "file:///<122|18636|0|7"}}{\fldrslt{Using the Tags Tab of the Resources Panel}}}}\f0\fs20  for a explanation of this example, and the general use of Tags.\par
 
 \pard\par
  \par
@@ -3565,13 +3586,13 @@ With the \b EditorInfoPanelTop\b0  .INI option you can change the position of th
 
 \pard\sa80 EditorInfoPanelTop = 0  (Bottom [default])\par
 
-\pard\li360\v\'11I202\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:202,414,208"}}{\fldrslt {202_Clipb_25nov.png}}}}\lang1033\par
+\pard\li360\v\'11I202\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:202,414,208"}}{\fldrslt {202_Clipb_25nov.png}}}}\lang1033\par
 
 \pard     \par
 
 \pard\sa80 EditorInfoPanelTop = 1  (Top)\par
 
-\pard\li360\v\'11I203\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:203,418,209"}}{\fldrslt {203_Clipb_25nov.png}}}}\lang1033\par
+\pard\li360\v\'11I203\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:203,418,209"}}{\fldrslt {203_Clipb_25nov.png}}}}\lang1033\par
 
 \pard\par
 \par
@@ -3609,7 +3630,7 @@ With the \b EditorInfoPanelTop\b0  .INI option you can change the position of th
 \pard\intbl\sb100\sa100\cf0\b0 Expand or collapse the full tree (showing only 1st level, or TOP, nodes)\cell\cf3\b Shift+Numpad + \cf0\b0 or \cf3\b Shift+Numpad -\cell\row 
 \pard\li240\cf0\b0\par
 
-\pard See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<78|0|0"}}{\fldrslt{Keyboard Reference}}}}}\f0\fs20  for a complete list of keyboard shortcuts.\par
+\pard See {\ul{\field{\*\fldinst{HYPERLINK "file:///<78|0|0"}}{\fldrslt{Keyboard Reference}}}}\f0\fs20  for a complete list of keyboard shortcuts.\par
 
 \pard\li240\par
 
@@ -5567,7 +5588,7 @@ The \b color of the arrows\b0  in the toolbar buttons will indicate if the forwa
 %*
 GI=40
 ND=Using Find and Find All
-LM=1402261013
+LM=2003262045
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\froman\fcharset0 Tahoma;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset0 Cambria Math;}{\f4\fnil\fcharset1 Segoe UI Symbol;}{\f5\fnil\fcharset2 Symbol;}}
@@ -5576,21 +5597,23 @@ LM=1402261013
 \pard\f0\fs20\lang1033\par
 \cf1\b\fs36\lang3082 Using Find and Find All\cf2\lang1033\par
 \cf0\b0\fs26\par
-{\f1\fs20\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|319|0|2"}}{\fldrslt{Find}}}}}\f1\fs20\lang3082\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|1409|0|3"}}{\fldrslt{Searching nodes}}}}}\f1\fs20\par
+{\ul\f1\fs20\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|319|0|2"}}{\fldrslt{Find}}}}\f1\fs20\lang3082\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|1409|0|3"}}{\fldrslt{Searching nodes}}}}\f1\fs20\par
 
-\pard\sb80 {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|2226|0|4"}}{\fldrslt{Replace}}}}}\f1\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{Find All}}}}}\f1\fs20\par
+\pard\sb80 {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|2226|0|4"}}{\fldrslt{Replace}}}}\f1\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<40|3096|0|5"}}{\fldrslt{Find All}}}}\f1\fs20\par
 
-\pard    {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|10113|0|13"}}{\fldrslt{Folded blocks}}}}}\f1\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|10051|0|12"}}{\fldrslt{Using Tags with Find All}}}}}\f1\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{Syntax for additional/advanced search}}}}}\f1\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9385|0|7"}}{\fldrslt{Search by last modification date}}}}}\f1\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9852|0|8"}}{\fldrslt{Words in the same paragraph or sentence}}}}}\f1\fs20\par
-      {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|11754|0|9"}}{\fldrslt{Emphasized words}}}}}\f1\fs20\par
+\pard    {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|10113|0|13"}}{\fldrslt{Folded blocks}}}}\f1\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|10051|0|12"}}{\fldrslt{Using Tags with Find All}}}}\f1\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{Syntax for additional/advanced search}}}}\f1\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9385|0|7"}}{\fldrslt{Search by last modification date}}}}\f1\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|17398|0|16"}}{\fldrslt{Search by protected stated}}}}\f1\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9852|0|8"}}{\fldrslt{Words in the same paragraph or sentence}}}}\f1\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|11754|0|9"}}{\fldrslt{Emphasized words}}}}\f1\fs20\par
+      {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|20992|0|15"}}{\fldrslt{Combining advanced search tokens (and search type)}}}}\f1\fs20\par
 
-\pard\sb40    {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{Filtering tree nodes}}}}}\f1\fs20\par
-   {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|15353|0|10"}}{\fldrslt{Revised the way 'All the words' search type works}}}}}\f1\fs20\par
+\pard\sb40    {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|7583|0|1"}}{\fldrslt{Filtering tree nodes}}}}\f1\fs20\par
+   {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|15353|0|10"}}{\fldrslt{Revised the way 'All the words' search type works}}}}\f1\fs20\par
 
 \pard\par
 \par
@@ -5611,7 +5634,7 @@ LM=1402261013
 
 \pard\sb100\sa100\par
 
-\pard\li360\sb100\sa100\v\'11I148\'12\v0\f0{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:148,510,262"}}{\fldrslt {148_Clipb_20ene.png}}}}\f1\par
+\pard\li360\sb100\sa100\v\'11I148\'12\v0\f0{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:148,510,262"}}{\fldrslt {148_Clipb_20ene.png}}}}\f1\par
 
 \pard\sb100\sa100\f0\lang1033 You can indicate to start searching beginning at the first character of the node/note (if \b From Top of Text \b0 is enabled). Otherwise, the matches will be searched from the cursor position.\par
 Searches can be limited to the current editor or include all nodes (\b Search all tree Nodes\b0 ) or even all folders (\b Search All folders\b0 ). When searching all tree nodes, you can ignore or include hidden nodes (\b Search Hidden nodes\b0 ).\par
@@ -5632,13 +5655,13 @@ Note:\par
 
 \pard\sb100\sa100\par
 \cf4\b\v\fs24\'11B4\'12\v0 Replace\par
-\cf0\b0\fs20 Using the same mechanism described in {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|258|0|2"}}{\fldrslt{Find}}}}}\f1\fs20  dialog box, you can replace each found occurrence with new text.\par
+\cf0\b0\fs20 Using the same mechanism described in {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|258|0|2"}}{\fldrslt{Find}}}}\f1\fs20  dialog box, you can replace each found occurrence with new text.\par
 
 \pard\sa100 Command Search|\b Replace\b0  (also \cf5\b\f0\lang1033 Ctrl+F3 \cf0\b0\f1\lang3082 )\b  \b0 will first try to replace text at cursor, and if cursor it is not situated in a text to be replaced then it will move to the next coincident text and wait for us to confirm replacement clicking in \ul Replace\ulnone  button.\par
 
 \pard\par
 
-\pard\li360\sb100\sa100\v\'11I149\'12\v0\f0{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:149,510,263"}}{\fldrslt {149_Clipb_20ene.png}}}}\f1\par
+\pard\li360\sb100\sa100\v\'11I149\'12\v0\f0{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:149,510,263"}}{\fldrslt {149_Clipb_20ene.png}}}}\f1\par
 
 \pard\sb100\sa100 You can replace text one item each time, or all at once using \ul Replace All\ulnone  button. When replacing all text at once, you can limit to \b Selected Text\b0  (disabled if there isn't text selected) or force KeyNote to ask for confirmation with all matches found (\b Confirm replace\b0 ).\par
 Besides using the buttons in the dialog above, you can use Search|\b Replace Next \b0 to repeat last replace command, searching for another text to replace.\par
@@ -5646,7 +5669,7 @@ Besides using the buttons in the dialog above, you can use Search|\b Replace Nex
 
 \pard\b Tip:\b0\par
 
-\pard\li360 Consider the "Reset Find Next after" option (in {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<103|0|0"}}{\fldrslt{Advanced | Other}}}}}\f1\fs20 ). Setting that option you could normally use \ul Find Next\ulnone  (\cf5\b\f0\lang1033 F3\cf0\b0\f1\lang3082 ) instead of \ul Find...\ulnone  making it possible to assign the usual \cf5\b\f0\lang1033 Ctrl+F\cf0\b0\f1\lang3082  shortcut to \ul Find All...\ulnone  \par
+\pard\li360 Consider the "Reset Find Next after" option (in {\ul{\field{\*\fldinst{HYPERLINK "file:///<103|0|0"}}{\fldrslt{Advanced | Other}}}}\f1\fs20 ). Setting that option you could normally use \ul Find Next\ulnone  (\cf5\b\f0\lang1033 F3\cf0\b0\f1\lang3082 ) instead of \ul Find...\ulnone  making it possible to assign the usual \cf5\b\f0\lang1033 Ctrl+F\cf0\b0\f1\lang3082  shortcut to \ul Find All...\ulnone  \par
 
 \pard\par
 
@@ -5656,15 +5679,15 @@ Besides using the buttons in the dialog above, you can use Search|\b Replace Nex
 \pard\b0\fs20 You can find and display all matches for a given text in all folders or all nodes in the current folder. You can also narrow down where to search with other options.\par
 In all cases, \b\f0\lang1033 excerpts\b0  from the note of the \b matches\b0  found are displayed, where the \b searched words\b0  are \b highlighted\b0 .\par
 \par
-Matches in Results panel are grouped (^) by the note (node) where they are found. You can display the node name or its full path in the search results panel depending on the \b Show full node path in search results \b0 global option (in {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{Options: Tree panel}}}}}\f0\fs20 ). The name of the node is highlighted in the path.\par
+Matches in Results panel are grouped (^) by the note (node) where they are found. You can display the node name or its full path in the search results panel depending on the \b Show full node path in search results \b0 global option (in {\ul{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{Options: Tree panel}}}}\f0\fs20 ). The name of the node is highlighted in the path.\par
 
-\pard\li360\sb80\f1\lang3082 The global option \b Reverse order\b0  (in {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{Options: Tree panel}}}}}\f1\fs20 ) it is used only with the the option \ul Show full node path in status bar\ulnone . Node path in search results is always shown top to bottom.\par
+\pard\li360\sb80\f1\lang3082 The global option \b Reverse order\b0  (in {\ul{\field{\*\fldinst{HYPERLINK "file:///<91|0|0"}}{\fldrslt{Options: Tree panel}}}}\f1\fs20 ) it is used only with the the option \ul Show full node path in status bar\ulnone . Node path in search results is always shown top to bottom.\par
 \f0\lang1033 (^) When searching note content is not required and results will only include node names/paths, it will display only one row per result (node), without any other grouping rows.\par
 
-\pard\sb200 It is also possible to change the size the font used in Results tab, with the global option: \b Font size in Find All results \b0 (in {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<103|0|0"}}{\fldrslt{Advanced | Other}}}}}\f0\fs20  tab )\par
+\pard\sb200 It is also possible to change the size the font used in Results tab, with the global option: \b Font size in Find All results \b0 (in {\ul{\field{\*\fldinst{HYPERLINK "file:///<103|0|0"}}{\fldrslt{Advanced | Other}}}}\f0\fs20  tab )\par
 
 \pard\par
-With this Find tab panel you will be able to {\f1\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|5597|0|1"}}{\fldrslt{filter tree nodes}}}}}\f1\fs20\lang3082  based of the result of the search, hiding or showing nodes.\par
+With this Find tab panel you will be able to {\ul\f1\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|5597|0|1"}}{\fldrslt{filter tree nodes}}}}\f1\fs20\lang3082  based of the result of the search, hiding or showing nodes.\par
 \par
 Note that pressing \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  in any tab of Resource panel (*) will shift the focus to Editor panel (or Tree panel). If focus is in control "Find text", first \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  will empty the search pattern, and next will shift the focus the Editor.\par
 
@@ -5677,11 +5700,11 @@ Note that pressing \cf5\b\f0\lang1033 Esc\cf0\b0\f1\lang3082  in any tab of Reso
 \b   \par
 Tip\b0 : \f0\lang1033 After you have used the "Find All" command, right-click the search results list for a context menu. The menu contains commands to insert the search results as clickable hyperlinks in current note.\par
 \par
-\b\f1\lang3082 Tip\b0 : You can further narrow your search by using a {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{syntax for additional/advanced search}}}}}\f0\fs20\lang1033 .\par
+\b\f1\lang3082 Tip\b0 : You can further narrow your search by using a {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|9159|0|6"}}{\fldrslt{syntax for additional/advanced search}}}}\f0\fs20\lang1033 .\par
 \f1\lang3082\par
 \par
 
-\pard\li360\v\'11I217\'12\v0\f0{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:217,203,734"}}{\fldrslt {217_Clipb_13abr.png}}}}\lang1033      \v\'11I216\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:216,312,600"}}{\fldrslt {216_Clipb_20ene.png}}}}\f1\par
+\pard\li360\v\'11I217\'12\v0\f0{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:217,203,734"}}{\fldrslt {217_Clipb_13abr.png}}}}\lang1033      \v\'11I216\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:216,312,600"}}{\fldrslt {216_Clipb_20ene.png}}}}\f1\par
 
 \pard\f0\lang1033\par
 \par
@@ -5711,11 +5734,11 @@ The search will be case sensitive. "KeyNote" is different from "keynote", for ex
 \par
 \par
 \b Search hidden nodes\b0\par
-As indicated {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{here}}}}}\f0\fs20 , tree nodes can be hidden in several ways (for example as the result of a Find All seach with \ul Filter folder\ulnone  enabled, see below). If this option is enabled, KeyNote will consider hidden nodes in the search.\par
+As indicated {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\fldrslt{here}}}}\f0\fs20 , tree nodes can be hidden in several ways (for example as the result of a Find All seach with \ul Filter folder\ulnone  enabled, see below). If this option is enabled, KeyNote will consider hidden nodes in the search.\par
 
 \pard\sb80\par
 
-\pard\b Search Type\b0\par
+\pard\b\v\'11B14\'12\v0 Search Type\b0\par
 
 \pard\sb80 The "Find all" command can be used to perform simple boolean (AND / OR) searches:\par
 
@@ -5733,7 +5756,7 @@ As indicated {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|18325|0|11"}}{\f
 \pard\li360\sb80 KeyNote will search for the words entered, using the space(s) as a word separator.\par
 With this option selected, KeyNote will include in the results all the consecutive matches where \ul all\ulnone  of the words are present.\par
 The first word found from the list provided is highlighted, as well as those others that appear within the excerpt, to its right. If the last word found within the identified match is not shown in the excerpt obtained for the first word found, an additional excerpt for the last word is added (separated with "\cf6\b\f2 . . //. .\cf0\b0\f0 "), where all searched words are highlighted.\par
-\ul Note\ulnone : Since version 2.0 have been revised the way 'All the words' search type works. See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<40|15353|0|10"}}{\fldrslt{more}}}}}\f0\fs20 .\par
+\ul Note\ulnone : Since version 2.0 have been revised the way 'All the words' search type works. See {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|15353|0|10"}}{\fldrslt{more}}}}\f0\fs20 .\par
 
 \pard\par
 
@@ -5749,7 +5772,8 @@ Results are created that include, and highlight, all occurrences of each of the 
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 There may be more than one result/match per note (node)\par
 {\pntext\f5\'B7\tab}The order of appearance of the words is not relevant.\par
-{\pntext\f5\'B7\tab}Selecting\f3  \f0 "All\f3  \f0 the\f3  \f0 words"\f3  \f0 or\f3  \f0 "Any\f3  \f0 of\f3  \f0 the\f3  \f0 words"\f3  \f0 when\f3  \f0 searching\f3  \f0 only\f3  \f0 one\f3  \f0 word\f3  \f0 is\f3  \f0 equivalent\f3  \f0 to\f3  \f0 use\f3  \f0 "Exact\f3  \f0 phrase"\f3 .\f0\par
+{\pntext\f5\'B7\tab}Selecting\f3  \f0 "All\f3  \f0 the\f3  \f0 words"\f3  \f0 or\f3  \f0 "Any\f3  \f0 of\f3  \f0 the\f3  \f0 words"\f3  \f0 when\f3  \f0 searching\f3  \f0 only\f3  \f0 one\f3  \f0 word\f3  \f0 is\f3  \f0 equivalent\f3  \f0 to\f3  \f0 use\f3  \f0 "Exact\f3  \f0 phrase".\par
+{\pntext\f5\'B7\tab}See also {\ul\f1\lang3082{\field{\*\fldinst{HYPERLINK "file:///<40|20992|0|15"}}{\fldrslt{Combining advanced search tokens (and search type)}}}}\f0\fs20\par
 
 \pard\par
 \par
@@ -5757,7 +5781,7 @@ Results are created that include, and highlight, all occurrences of each of the 
 \pard\sb80\b Creation date. Last modification date   (From / Until)\b0\par
 Keynote will considere only the nodes created and/or modified in the intervals indicated.\par
 
-\pard It will ignore nodes missing creation date or last modification. Note that KeyNote acn deduce dates from the name and content of existing notes, created with older versions. See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{Deduce missing date information}}}}}\f0\fs20\par
+\pard It will ignore nodes missing creation date or last modification. Note that KeyNote acn deduce dates from the name and content of existing notes, created with older versions. See {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|31373|0|20"}}{\fldrslt{Deduce missing date information}}}}\f0\fs20\par
 
 \pard\sb160\b Tip\b0 : Running Find All without adding any text is allowed, as long as some date criteria is set\par
 
@@ -5782,7 +5806,7 @@ Keynote will considere only the nodes created and/or modified in the intervals i
 \b Use path of node\b0\par
 
 \pard\sb80 By default, when searching in the name of the nodes only the node itself is considered. When the option 'Use path of nodes' is enabled the complete path should be used, that is, considering also the names of the ancestors.\par
-There is an explanation and an example of its possible use in Folders as note trees / Tree Filtering / {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|26525|0|18"}}{\fldrslt{Filtering by name}}}}}\f0\fs20\par
+There is an explanation and an example of its possible use in Folders as note trees / Tree Filtering / {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|26525|0|18"}}{\fldrslt{Filtering by name}}}}\f0\fs20\par
 
 \pard\par
 \par
@@ -5815,7 +5839,7 @@ The first option, selected by default, does not distinguish based on text status
 \pard\par
 The two middle options allow you to ignore folded text, with the third being more restrictive, excluding only those folded blocks that begin with a tag. \par
 
-\pard\sb40 This option ({{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<122|23127|0|11"}}{\fldrslt{"tagged" folded block}}}}}\f0\fs20 ) is provided considering the possibility of combined use of tags and folding that you might use to easily mark text to ignore in searches, such as archived information, auxiliary content, completed tasks that you don't want to consider, etc. Conversely, other folded blocks might contain text that you simply want to keep hidden for readability or clarity, as these are details you prefer to make visible only when needed.\par
+\pard\sb40 This option ({\ul{\field{\*\fldinst{HYPERLINK "file:///<122|23127|0|11"}}{\fldrslt{"tagged" folded block}}}}\f0\fs20 ) is provided considering the possibility of combined use of tags and folding that you might use to easily mark text to ignore in searches, such as archived information, auxiliary content, completed tasks that you don't want to consider, etc. Conversely, other folded blocks might contain text that you simply want to keep hidden for readability or clarity, as these are details you prefer to make visible only when needed.\par
 
 \pard\sb80 Of course, each user may use folded blocks differently.\par
 
@@ -5847,7 +5871,7 @@ Checks related:\par
 {\pntext\f5\'B7\tab}\b Inherited tags (metadata)\b0\par
 
 \pard\par
-The introduction of tags to use in the With and Without fields will be done with the help of a tag selector (See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<122|7939|0|5"}}{\fldrslt{Using the Tag Selector}}}}}\f0\fs20 ) \par
+The introduction of tags to use in the With and Without fields will be done with the help of a tag selector (See {\ul{\field{\*\fldinst{HYPERLINK "file:///<122|7939|0|5"}}{\fldrslt{Using the Tag Selector}}}}\f0\fs20 ) \par
 
 \pard\li360\sb80\b Tip\b0 : You can clear the content of With or Without controls with \cf5 Ctrl+Click\cf0  in its text.\par
 
@@ -5865,13 +5889,13 @@ We can \ul restrict the search to text fragments\ulnone  that do not include any
 \pard\par
 \b Notes\b0 :\par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 When checking whether a text fragment satisfies the tag conditions, it is important to keep in mind that each tag defines a scope (an interval, with a lower bound and an upper bound for the text it affects) and that this will also depend on whether the tag has been defined "openly" (e.g., #Critical: ) or not, affecting in this last case only the paragraph in which it is located (See {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{Scope or range of application of Tags}}}}}\f0\fs20 )\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 When checking whether a text fragment satisfies the tag conditions, it is important to keep in mind that each tag defines a scope (an interval, with a lower bound and an upper bound for the text it affects) and that this will also depend on whether the tag has been defined "openly" (e.g., #Critical: ) or not, affecting in this last case only the paragraph in which it is located (See {\ul{\field{\*\fldinst{HYPERLINK "file:///<122|4425|0|3"}}{\fldrslt{Scope or range of application of Tags}}}}\f0\fs20 )\par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 It is possible to restrict the search using {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{unregistered tags}}}}}\f0\fs20\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 It is possible to restrict the search using {\ul{\field{\*\fldinst{HYPERLINK "file:///<122|6396|0|4"}}{\fldrslt{unregistered tags}}}}\f0\fs20\par
 {\pntext\f5\'B7\tab}If searching for content using tags and text to find is "", a match is returned for each piece of text that meets the criteria\par
 
 \pard\par
-{\cf0\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]"\v\par
+{\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Some \b examples\b0 ; searching for "task", indicating to \ul exclude\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]"\v\par
 \par
 
 \protect0\pard\protect\li360\sb40\cf9 #[x]\par
@@ -5905,7 +5929,7 @@ Task 4 ...\par
 
 \protect0\pard\protect   -----------------  -> 1 match: Task 1\v0 ...\'13\cf0\protect0\par
 \par
-{\cf0\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Now \ul excluding\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]" "E0"\v\par
+{\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Now \ul excluding\ulnone  text with any of the selected tags: \ul Without\ulnone  = "[x]" "E0"\v\par
 
 \protect0\pard\protect\li360\sb160\cf9 Task 1 ...\par
 
@@ -5919,7 +5943,7 @@ Task 4 ...\par
 
 \pard\sa80 We can restrict the search to text fragments WITH certain tags and/or WITHOUT other tags\par
 
-\pard\sb80 {\cf0\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Some other examples to understand the possibilities; Searching for "task"; \ul With\ulnone  tags: "[x]" and "E0" and \ul Without\ulnone  tags: \v  "BB"\par
+\pard\sb80 {\ul\protect\fs24{\field{\*\fldinst{HYPERLINK "FOLD:"}}{\fldrslt{\f4\u10133?\f0  \f4 }}}}\protect\f0\fs20 Some other examples to understand the possibilities; Searching for "task"; \ul With\ulnone  tags: "[x]" and "E0" and \ul Without\ulnone  tags: \v  "BB"\par
 
 \protect0\pard\protect\par
 
@@ -6027,9 +6051,17 @@ In addition to the search criteria listed above, you can use a simple syntax to 
 \cf4\b\v\f1\fs22\'11B7\'12\v0 Search by last modification date\fs20\par
 
 \pard\sb80\cf0\b0\f0 You can consider only the nodes that were modified (or created) during the current day or since the last X days. This can be done very easily by specifying in the first characters of the search string an expression of the form "-<number days back>"\par
-More information: {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{Filtering by last modification date}}}}}\f0\fs20 , in Tree filtering.\par
+More information: {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|25491|0|17"}}{\fldrslt{Filtering by last modification date}}}}\f0\fs20 , in Tree filtering.\par
 
 \pard\par
+\par
+\cf4\b\v\f1\fs22\'11B16\'12\v0 Search by protected stated\fs20\par
+
+\pard\sb80\cf0\b0\f0 While the {\ul{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{encrypted content}}}}\f0\fs20  is open you can consider only the encrypted nodes when searching or filtering. This can be done by including the modifier \cf6\b *?\cf0\b0  in the search string.\par
+
+\pard\par
+The *? token can be also used in {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|29818|0|23"}}{\fldrslt{Tree filtering}}}}\f0\fs20\par
+\par
 \par
 \cf4\b\v\f1\fs22\'11B8\'12\v0 Words in the same paragraph or sentence\fs20\par
 
@@ -6088,6 +6120,24 @@ You can indicate if the words to search for must be emphasized, or also inside a
 
 \pard\li360    Examples: [\cf9 ** images\cf0 ] [\cf9 ** keyboard short\cf0 ] [\cf9 ** example export\cf0 ]\par
 
+\pard\par
+\par
+\cf4\b\v\f1\fs22\'11B15\'12\v0 Combining advanced search tokens (and search type)\par
+\cf0\b0\f0\fs20\par
+
+\pard\sa80 All this modifiers can be used with any {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|7518|0|14"}}{\fldrslt{search type}}}}\f0\fs20  and can be combined with text patterns, although with some differences when using 'Exact Phrase':\par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 With 'All the words' or 'Any of the words' that tokens can be used in any order and position (except [-<number>], that must always be included at the beginning)\par
+{\pntext\f5\'B7\tab}When using with 'Exact Phrase' they must be in the following order:     [-<number>] [*?] ([**] or [*]) [Text] \par
+
+\pard\li360\sb40 Expressions such as [\cf9 -2 *? * images\cf0 ] [\cf9 -2 *? ** keyboard short\cf0 ] [\cf9 -2 * Text\cf0 ]  [\cf9 -2 * Text\cf0 ], [\cf9 * Text\cf0 ], etc, are allowed.\par
+
+\pard\li360\sb120 * Note that \ul tree filtering\ulnone  is always based in 'Exact Phrase'\par
+
+\pard    \par
+
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 Remember that it is also possible to specify only [\cf9 -<number>\cf0 ] or [\cf9 *?\cf0 ] or  [\cf9 -<number> *?\cf0 ] without any additional text pattern. This will return nodes that meet that condition.\par
+
 \pard    \par
 \par
 \cf4\b\v\f1\fs24\lang3082\'11B1\'12\v0 Filtering tree nodes\fs20\par
@@ -6097,14 +6147,14 @@ KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b 
 \par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa80 If \b Search all folders \b0 is disabled, the filter will only affect to the current folder.\par
-{\pntext\f5\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the tree toolbar button \v\'11I50\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033  will be shown pressed.\par
+{\pntext\f5\'B7\tab}To indicate that a filter is applied and to highlight the \ul nodes containing the search text\ulnone , the latter ones will be shown with \cf2 blue font\cf0 , and the tree toolbar button \v\'11I50\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033  will be shown pressed.\par
 {\pntext\f5\'B7\tab}Using this option, you will be able to \b refine your search\b0 , considering only the nodes (and parents...) that satisfied the previous search, if you run another search where the \b Search hidden nodes\b0  \ul option is disabled\ulnone . This new search may or may not keep the \ul Filter folder\ulnone  enabled. If enabled, it can hide some other nodes.\par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 When running a new search where \b Search hidden nodes\b0  \ul option is enabled\ulnone , it will not be affected by a previous filter that may be active. The new search will display all results found, whether in a hidden or visible node. If \ul Filter folder\ulnone  was enabled in this new search, all nodes will be shown or hidden depending on the search. Nodes that were hidden can now be shown.\par
 
 \pard\par
 
-\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 After applying 'Filter folder[s]' it is possible to \b toggle\b0  whether or not to \b activate the filter\b0 . You can toggle between showing all the nodes or only the unfiltered ones using the "Filter nodes" button (or menu entry), \v\'11I50\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033 .\par
+\pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360 After applying 'Filter folder[s]' it is possible to \b toggle\b0  whether or not to \b activate the filter\b0 . You can toggle between showing all the nodes or only the unfiltered ones using the "Filter nodes" button (or menu entry), \v\'11I50\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033 .\par
 
 \pard{\pntext\f5\'B7\tab}{\*\pn\pnlvlblt\pnf5\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 The find filter applied can be \b cleared\b0  with \cf5\b Ctrl+Click\cf0\b0  on "Filter nodes" button, in tree panel. The tree filter appplied, if any, won't be affected\par
 
@@ -6114,11 +6164,11 @@ KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b 
 \b Tip\b0 : If you uncheck 'Filter folder[s]' and execute new searches in Find All, filtered nodes will not be affected.\par
 \par
 
-\pard\sb80\ul\b\v\'11B11\'12\v0 Remember\ulnone\b0 : Filtering based on the search panel (Find All) will be \b combined\b0  with {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{Tree filtering}}}}}\f0\fs20 .\par
+\pard\sb80\ul\b\v\'11B11\'12\v0 Remember\ulnone\b0 : Filtering based on the search panel (Find All) will be \b combined\b0  with {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|23654|0|15"}}{\fldrslt{Tree filtering}}}}\f0\fs20 .\par
 
 \pard\par
 
-\pard\li360\v\'11I204\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:204,489,198"}}{\fldrslt {204_Clipb_07dic.png}}}}\lang1033\par
+\pard\li360\v\'11I204\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:204,489,198"}}{\fldrslt {204_Clipb_07dic.png}}}}\lang1033\par
 
 \pard\par
 
@@ -6129,7 +6179,7 @@ KeyNote will \b apply a Filter based on the results of the searched text\b0 :\b 
 \pard\li360\par
 Both types of filters ('Tree panel' filtering \emdash with text and/or flag and/or check status\emdash  and 'Find All' filtering) are considered/applied together, and both can be disabled or enabled with the 'filter' button. \par
 \par
-The filter button (\v\'11I50\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033 ) indicates whether the tree is filtered (pressed), due to Tree panel filtering, Find All filtering, or both, as well as if it is not filtered out but there is an existing filter that can be re-enabled (unpressed but enabled, colored). Also note that the tooltip associated with the filter button highlights whether or not filtering based on Find All is included. In this example, "(Ctrl: Clear Find filter)" is displayed, reminding us that a 'Find All' filter has been defined, and how to remove it.\par
+The filter button (\v\'11I50\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:50,18,18"}}{\fldrslt {50_Main_50.png}}}}\lang1033 ) indicates whether the tree is filtered (pressed), due to Tree panel filtering, Find All filtering, or both, as well as if it is not filtered out but there is an existing filter that can be re-enabled (unpressed but enabled, colored). Also note that the tooltip associated with the filter button highlights whether or not filtering based on Find All is included. In this example, "(Ctrl: Clear Find filter)" is displayed, reminding us that a 'Find All' filter has been defined, and how to remove it.\par
 
 \pard\li360\sb80 Ctrl+Clicking the filter button is required to clear "Find All" (this does not affect "tree filtering"), except if the "Find All" criteria did not return any results; in that case, simply unpressing the filter button will clear the "Find All" filter.\par
 
@@ -6138,7 +6188,7 @@ Remember that you can disable the filter at any time without having to remove an
 
 \pard\highlight3\par
 \highlight0\par
-Please note that nodes may be hidden due of a Filter applied, but also because \ul View | Hide Checked Nodes\ulnone  (\v\'11I38\'12\v0\lang3082{\cf0\ul{\field{\*\fldinst{HYPERLINK "img:38,20,20"}}{\fldrslt {38_Main_38.png}}}}\lang1033 ) is active, or because they have been explicitly hidden via Tree context menu: \ul Children Checkboxes\ulnone  | \b Hide Checked\b0  or \b Hide Unchecked\b0\par
+Please note that nodes may be hidden due of a Filter applied, but also because \ul View | Hide Checked Nodes\ulnone  (\v\'11I38\'12\v0\lang3082{\cf0\b0\highlight0\ul{\field{\*\fldinst{HYPERLINK "img:38,20,20"}}{\fldrslt {38_Main_38.png}}}}\lang1033 ) is active, or because they have been explicitly hidden via Tree context menu: \ul Children Checkboxes\ulnone  | \b Hide Checked\b0  or \b Hide Unchecked\b0\par
 \par
 Note: If Find All is used with "Filter folder", and Tree toolbar is not visible then "Show Tree Toolbar" will automatically activated, so you can disable or clear find filter applied.\par
 \par
@@ -7398,7 +7448,7 @@ In {\ul{\field{\*\fldinst{HYPERLINK "file:///<55|0|0"}}{\fldrslt{fileformat.txt}
 %*
 GI=51
 ND=Encrypting KeyNote Files
-LM=1502261938
+LM=2003262048
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil\fcharset2 Symbol;}}
@@ -7416,19 +7466,19 @@ Any information contained inside a program may be freely \ldblquote paged\rdblqu
 \par
 If you are concerned about this, there are programs that securely WIPE unused hard disk space and/or Windows swapfile. One such program is:\par
 
-\pard\fi-240\li240\bullet    \b BCWipe \b0 by Jetico, Inc. {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.jetico.com }}{\fldrslt{http://www.jetico.com\ul0\cf0}}}}}\f0\fs20  (Windows GUI program; also distributed as part of excellent BestCrypt disk-encryption package)\par
+\pard\fi-240\li240\bullet    \b BCWipe \b0 by Jetico, Inc. {{\field{\*\fldinst{HYPERLINK http://www.jetico.com }}{\fldrslt{http://www.jetico.com\ul0\cf0}}}}\f0\fs20  (Windows GUI program; also distributed as part of excellent BestCrypt disk-encryption package)\par
 
 \pard\par
 \par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|1225|0|2"}}{\fldrslt{General Information}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{Native or compressed format with 'Enable encrypted content'  vs. Encrypted format}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|12133|0|4"}}{\fldrslt{How to Encrypt Your KeyNote File}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|14405|0|5"}}{\fldrslt{How to Encrypt nodes and/or images in a native or compressed Keynote File}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|15347|0|6"}}{\fldrslt{How to Change Access Passphrase for an Already Encrypted File}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|16340|0|7"}}{\fldrslt{How to Stop Encrypting Your KeyNote File}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|17143|0|8"}}{\fldrslt{Note About the BLOWFISH and IDEA Cipher Algorithms}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|17809|0|9"}}{\fldrslt{Security Considerations}}}}}\f0\fs20\par
-{{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|20592|0|10"}}{\fldrslt{Miscellaneous Notes}}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|1225|0|2"}}{\fldrslt{General Information}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|2992|0|3"}}{\fldrslt{Native or compressed format with 'Enable encrypted content'  vs. Encrypted format}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|12133|0|4"}}{\fldrslt{How to Encrypt Your KeyNote File}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|14405|0|5"}}{\fldrslt{How to Encrypt nodes and/or images in a native or compressed Keynote File}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|15347|0|6"}}{\fldrslt{How to Change Access Passphrase for an Already Encrypted File}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|16340|0|7"}}{\fldrslt{How to Stop Encrypting Your KeyNote File}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|17143|0|8"}}{\fldrslt{Note About the BLOWFISH and IDEA Cipher Algorithms}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|17809|0|9"}}{\fldrslt{Security Considerations}}}}\f0\fs20\par
+{\ul{\field{\*\fldinst{HYPERLINK "file:///<51|20592|0|10"}}{\fldrslt{Miscellaneous Notes}}}}\f0\fs20\par
 \par
 \par
 \par
@@ -7455,7 +7505,7 @@ Starting with version 2.1.5, KeyNote offers a series of improvements aimed at en
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb40 The vulnerability of the password field to password disclosure tools such as BulletsPassView has been fixed\par
 
 \pard\par
-Despite all these improvements, please see the information at: {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<51|17809|0|9"}}{\fldrslt{Security Considerations}}}}}\f0\fs20\par
+Despite all these improvements, please see the information at: {\ul{\field{\*\fldinst{HYPERLINK "file:///<51|17809|0|9"}}{\fldrslt{Security Considerations}}}}\f0\fs20\par
 \par
 \par
 \par
@@ -7473,11 +7523,11 @@ There are situations in which this new option may be more interesting than using
 {\pntext\f2\'B7\tab}For \b image\b0  encryption, the new mechanism offers more options:\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80 With the encrypted format, the only way to ensure that an image remains encrypted is to set the image storage mode to Embedded RTF or Embedded KNT. With Embedded KNT, images are located at the end of the KNT file, in binary, taking up much less space. But in both cases, the image is stored in the file itself, thus increasing its size. This will not normally be a problem if the file contains few images. It should be noted that if the file uses many images, even if most of them do not require protection, the simple fact that there is one image that requires protection would force the use of Embedded RTF or Embedded KNT.\par
-{\pntext\f2\'B7\tab}With encryption content enabled, you can use an external storage mode (Zip or Folder) and mark the images that require protection and must be stored encrypted. These selected images will be stored encrypted by default in Embedded KNT format. The rest will be stored according to the defined storage mode (which can also be Embedded KNT). Through the INI configuration option {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<104|12682|0|15"}}{\fldrslt{ImgAllowEncrExternal}}}}}\f0\fs20  it is possible to enable image encryption on external storage. When this option is enabled, external image files encrypted in this way will not be visible outside KeyNote.\ul\b\par
+{\pntext\f2\'B7\tab}With encryption content enabled, you can use an external storage mode (Zip or Folder) and mark the images that require protection and must be stored encrypted. These selected images will be stored encrypted by default in Embedded KNT format. The rest will be stored according to the defined storage mode (which can also be Embedded KNT). Through the INI configuration option {\ul{\field{\*\fldinst{HYPERLINK "file:///<104|12682|0|15"}}{\fldrslt{ImgAllowEncrExternal}}}}\f0\fs20  it is possible to enable image encryption on external storage. When this option is enabled, external image files encrypted in this way will not be visible outside KeyNote.\ul\b\par
 
-\pard\li720\sb80 Note\ulnone\b0 : \ul images that are {\ulnone{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<41|9265|0|7"}}{\fldrslt{"linked"}}}}}\ulnone\f0\fs20  (not "owned") can be marked as encrypted, but their content will not be modified. Even if their content is not encrypted, the following will apply to them, as with other encrypted images:\par
+\pard\li720\sb80 Note\ulnone\b0 : \ul images that are {{\field{\*\fldinst{HYPERLINK "file:///<41|9265|0|7"}}{\fldrslt{"linked"}}}}\ulnone\f0\fs20  (not "owned") can be marked as encrypted, but their content will not be modified. Even if their content is not encrypted, the following will apply to them, as with other encrypted images:\par
 
-\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80 Any image marked as encrypted will not be visible in the KNT file if the protected content is not "opened" (entering the password). Also, the name, caption and path of any encrypted image will not be shown while the encrypted content is \ldblquote closed\rdblquote .\par
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li720\sb80 Any image marked as encrypted will not be visible in the KNT file if the protected content is not "opened" (entering the password). Also, the name, caption and path of any encrypted image will not be shown while the encrypted content is "closed".\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80\b Virtual nodes\b0  can be marked as encrypted. As with "linked" images, the \ul content will not be encrypted\ulnone , but \ul it will not be visible from KNT\ulnone . The path to the linked file will also not be displayed. The properties that indicate that the node is virtual, with its paths (VF and RV), will be stored in the encrypted block of the knt file. Furthermore, while the protected content remains \ldblquote closed\rdblquote , it will not even be shown that the node is virtual.\par
 
@@ -7487,13 +7537,24 @@ There are situations in which this new option may be more interesting than using
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 When loading a file with encrypted content (but no encrypted "format"), no password will be requested. You simply will not have access to the protected content. If the file has the \cf5\b Hide encrypted nodes in the tree if the encrypted content remains \ldblquote closed\rdblquote\cf0\b0  option enabled, the encrypted nodes will not be visible in the tree, and the names of these nodes will be stored encrypted. It will also not be possible to know if this option is enabled, as the option itself will remain hidden.\par
 {\pntext\f2\'B7\tab}When accessing encrypted nodes (if they are not hidden), the following text will be displayed as content: \cf5\b ** UNAUTHORIZED CONTENT **   => View | Encrypted Content\cf0\b0\par
 {\pntext\f2\'B7\tab}In unencrypted notes containing encrypted images, these will only be provided as links with the text \cf5\b [IMAGE]\cf0\b0 .\par
+{\pntext\f2\'B7\tab}While encrypted content is "closed" the information relating to the \ul tags of the protected nodes\ulnone  will be hidden. Encrypted nodes will be treated as if they have no tags. Therefore, no tags will be displayed in the editor info panel for an encrypted node. Also, if 'Show use of tags in tree' is checked, the tags tab in the resources panel will indicate that tags are not being used for those nodes.\par
 {\pntext\f2\'B7\tab}You can "open" the protected content, making it visible, by executing \cf5\b View | Encrypted Content\cf6\b0 . \cf0 Clicking on an encrypted image link or attempting to change the encryption status of nodes or images will prompt for the password. The same will happen if you try to uncheck the \ldblquote Enable encrypted content\rdblquote  option or change the password, for example.\par
-{\pntext\f2\'B7\tab}You can \ul hide encrypted content\ulnone  at any time by executing again \cf5\b View | Encrypted Content\cf0\b0 . Protected content will also be \ul automatically "closed"\ulnone  after a period of inactivity if you have the \cf5\b Auto-close only encrypted files\cf0\b0  option selected.\par
+
+\pard\fi-400\li760\sb80\b Tip\b0 : By holding down the \cf7\b Shift\cf0\b0  key while selecting 'View | Encrypted content', and after entering the password, the \ul encrypted nodes will be highlighted\ulnone  in red (also, the associated 'Flagged' column will be highlighted in a reddish color), and any changes made to the encryption status of the nodes will be reflected in their color. Once the encrypted content is closed, the highlights will cease.\par
+
+\pard\li720\sb40\sa40  Note: You only need to hold down the Shift key when clicking on the menu option.\par
+
+\pard\fi-400\li760\sb80\sa40  \b Tip\b0 : You can also use the advanced search token \cf2\b *?\cf0\b0  to filter the tree showing only encrypted nodes or to restrict searches to encrypted nodes (this is enabled only while encrypted content is open) (See {\ul{\field{\*\fldinst{HYPERLINK "file:///<27|29818|0|23"}}{\fldrslt{Tree filtering}}}}\f0\fs20\lang3082  and {\ul{\field{\*\fldinst{HYPERLINK "file:///<40|17398|0|16"}}{\fldrslt{Find All}}}}\f0\fs20\lang1033 ). \par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 You can \ul hide encrypted content\ulnone  at any time by executing again \cf5\b View | Encrypted Content\cf0\b0 . Protected content will also be \ul automatically "closed"\ulnone  after a period of inactivity if you have the \cf5\b Auto-close only encrypted files\cf0\b0  option selected.\par
 {\pntext\f2\'B7\tab}At any time, it is possible to add or remove the encrypted mark from any image or note. When you do so, and \ul after the .knt file is saved\ulnone , the corresponding notes and images will become encrypted or decrypted.\par
 {\pntext\f2\'B7\tab}Any \ul new node\ulnone  created as a \ul child of a encrypted parent\ulnone  will be automatically marked as encrypted \ul only\ulnone  if the encrypted content is opened.\par
 {\pntext\f2\'B7\tab}Any \ul new image\ulnone  inserted into an encrypted node will be automatically marked as encrypted. If this image is then copied to other non-encrypted images, those other instances will also be marked as encrypted.\par
 {\pntext\f2\'B7\tab}You can \ul change the protected state\ulnone  of any selection of nodes by selecting the \cf5\b Encrypted\cf0\b0  option from the context menu in the Editor (right-click). Selecting this option while holding down the \cf7\b Shift\cf0\b0  key will apply the change to all child nodes recursively.\par
-{\pntext\f2\'B7\tab}You can select one or more images and toggle their protected state using the \cf5\b Encrypt/Decrypt image[s]\cf0\b0  option in the Editor's context menu (right-click). It is also possible to encrypt or decrypt an image from the internal viewer.\par
+
+\pard\fi-400\li760\sb80\b Note\b0 : If you try to modify \ul several nodes simultaneously\ulnone  with the encrypted content closed, you will notice that, after entering the password, only one of the nodes changes its protection state (explained in issue #985). \par
+
+\pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 You can select one or more images and toggle their protected state using the \cf5\b Encrypt/Decrypt image[s]\cf0\b0  option in the Editor's context menu (right-click). It is also possible to encrypt or decrypt an image from the internal viewer.\par
 {\pntext\f2\'B7\tab}When \ul attempting to delete\ulnone  an encrypted node or one with any encrypted children, or one that includes any encrypted images, confirmation will be requested and it will only be authorised if the encrypted content is \lquote open\rquote  or can be opened using the password that will be requested.\par
 {\pntext\f2\'B7\tab}When \ul merging a file\ulnone  with encrypted content, KeyNote will request the password for that file in order to incorporate the encrypted elements. If you provide this password, all the content of the file to be merged (for the selected folders) will be incorporated into the file and will be protected with the password for the current file, or with the password set for it before saving the file, as the current file may not even have the \ldblquote Enable encrypted content\rdblquote  option selected.\par
 
@@ -7507,7 +7568,7 @@ There are situations in which this new option may be more interesting than using
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sb80 Be sure to \ul mark what should be stored encrypted\ulnone . Also remember that the \ul child nodes of an encrypted node\ulnone  do not necessarily have to be encrypted. Depending on how you configure the file, you can choose not to display the unencrypted nodes in the tree, nor its children. However, those children that have not been marked as \ldblquote Encrypted\rdblquote  will be visible from the .knt file. (Note that those children can be 'normal' nodes that are linked from elsewhere)\par
 {\pntext\f2\'B7\tab}Although the \lquote Encrypted\rquote  entry is available in the context menu associated with the tree nodes, it is the notes associated with them that will be encrypted, so any \ul node linked\ulnone  to it will also be protected.\par
 {\pntext\f2\'B7\tab}If you enable the option \cf5\b Hide encrypted nodes in the tree if the encrypted content remains \ldblquote closed\rdblquote\cf0\b0 , please note that all \ul child nodes\ulnone  will also be hidden, even if they are not marked as encrypted. This also applies to the child nodes of linked nodes. These hidden but unencrypted nodes may even be accessible and modifiable if there is a link that jumps to them, also from Find All, but they will not be displayed in the tree at any time.\par
-{\pntext\f2\'B7\tab}\ul If a new image is inserted into an unencrypted node\ulnone , it will remain unencrypted even if it is copied or moved to an encrypted node and the rest of the instances of the image are deleted. If you believe it should be protected, do not forget to mark it as encrypted. Please note that even if the image is only located on an encrypted node, it may be visible from the internal {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<41|23459|0|2"}}{\fldrslt{Image viewer}}}}}\f0\fs20 : it cannot be located by scrolling through the images with the \cf7 Ctrl\cf0  key, but it can be requested to display the image by its ID.\par
+{\pntext\f2\'B7\tab}\ul If a new image is inserted into an unencrypted node\ulnone , it will remain unencrypted even if it is copied or moved to an encrypted node and the rest of the instances of the image are deleted. If you believe it should be protected, do not forget to mark it as encrypted. Please note that even if the image is only located on an encrypted node, it may be visible from the internal {\ul{\field{\*\fldinst{HYPERLINK "file:///<41|23459|0|2"}}{\fldrslt{Image viewer}}}}\f0\fs20 : it cannot be located by scrolling through the images with the \cf7 Ctrl\cf0  key, but it can be requested to display the image by its ID.\par
 {\pntext\f2\'B7\tab}\ul Encrypted images\ulnone  cannot be viewed, nor can their encryption status be changed, but they \ul can be individually deleted\ulnone  if they are located \ul in nodes \ulnone that are \ul not encrypted\ulnone . Selecting and deleting text that includes encrypted images will not generate any warning either. If it is important that no encrypted images can be deleted by mistake, be sure to include a copy of them in an encrypted node. Remember that KeyNote allows multiple references to the same image without increasing the file size.\par
 {\pntext\f2\'B7\tab}When \b exporting\b0 , if the file has encrypted content, a new option, \cf5\b Encrypted content\cf0\b0 , will be available. It will be unchecked by default. If you check it (for which you will need to \ldblquote open\rdblquote  the protected content), all encrypted nodes and images found in the folders and nodes to be exported will be included in the generated file. \par
 
@@ -7522,7 +7583,7 @@ There are situations in which this new option may be more interesting than using
 \b0\fs20\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 Create a new file or open an already existing .KNT file. To encrypt the file, press \cf7\b Alt+Enter\cf0\b0  to open the \cf5\b File Properties\cf0\b0  dialog box (or choose the \cf5\b File/Properties\cf0\b0  command).\par
-{\pntext\f2\'B7\tab}Click the \cf5\b Format\cf0  \b0 drop-down list, and select \cf5\b Keynote encrypted file\cf0  \b0 as the format which should be used to save the file. When you do this, another tab will appear in the dialog box, called {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<49|0|0"}}{\fldrslt{Security}}}}}\f0\fs20 .\par
+{\pntext\f2\'B7\tab}Click the \cf5\b Format\cf0  \b0 drop-down list, and select \cf5\b Keynote encrypted file\cf0  \b0 as the format which should be used to save the file. When you do this, another tab will appear in the dialog box, called {\ul{\field{\*\fldinst{HYPERLINK "file:///<49|0|0"}}{\fldrslt{Security}}}}\f0\fs20 .\par
 {\pntext\f2\'B7\tab}Click the \cf5\b Security\cf0  \b0 tab. Decide what access passphrase you want to use, and enter it in the \cf5\b Passphrase edit field\cf0\b0 . Next, enter the same exact passphrase in the \cf5\b Confirm pass\cf0  \b0 edit field. This is to make sure that you did not accidentally mistype the passphrase.\par
 
 \pard\par
@@ -7594,8 +7655,8 @@ KeyNote supports two encryption algorithms: Blowfish and IDEA. These two ciphers
 \par
 For detailed descriptions of the crypto algorithms used, see:\par
 \par
-Blowfish:\tab {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.counterpane.com/blowfish.html }}{\fldrslt{http://www.counterpane.com/blowfish.html\ul0\cf0}}}}}\f0\fs20  \par
-IDEA: \tab\tab {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.momentus.com.br/PGP/doc/idea.html }}{\fldrslt{http://www.momentus.com.br/PGP/doc/idea.html\ul0\cf0}}}}}\f0\fs20  \par
+Blowfish:\tab {{\field{\*\fldinst{HYPERLINK http://www.counterpane.com/blowfish.html }}{\fldrslt{http://www.counterpane.com/blowfish.html\ul0\cf0}}}}\f0\fs20  \par
+IDEA: \tab\tab {{\field{\*\fldinst{HYPERLINK http://www.momentus.com.br/PGP/doc/idea.html }}{\fldrslt{http://www.momentus.com.br/PGP/doc/idea.html\ul0\cf0}}}}\f0\fs20  \par
 \par
 \par
 \b\v\fs24\'11B9\'12\v0 Security Considerations\b0\par
@@ -7604,8 +7665,8 @@ IDEA: \tab\tab {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.momentus.com.br/
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140 If you have not yet read the \cf2\b WARNING\cf0\b0  at the top of this file, please do so now.\par
 {\pntext\f2\'B7\tab}\cf2\b BACKUP files\cf0\b0 : Typically, KeyNote is configured to maintain the previously-saved version of your file as backup; these files have the \ldblquote .bak\rdblquote  extension. One potential vulnerability related to backup files is that it is possible for the backup file to remain unencrypted, after your KeyNote file was saved in encrypted state. If you create a new KeyNote file, save it, and then decide to encrypt it, the encrypted file will be saved, and the previous version of it will be renamed with the \ldblquote .bak\rdblquote  extension. The previous version - preserved as backup - is unencrypted. After you save your KeyNote file again, the new backup will be a copy of the already encrypted file. Note that the same applies to a situation when you change the access passphrase of the encrypted file: the first time you save the file, the backup is a copy of the file encrypted with the previously used passphrase.\par
 {\pntext\f2\'B7\tab}If you use the \ldblquote\ul Virtual nodes\ulnone\rdblquote  that KeyNote supports since version 0.91, please note that the actual files on disk which are linked to virtual nodes are NOT encrypted. They cannot be, because if KeyNote encrypted them, you would not be able to open those files in applications other than KeyNote, thus rendering the virtual nodes useless and potentially destroying data. A warning is displayed the first time you add a virtual node to an encrypted file or encrypt a file that has virtual nodes.\par
-{\pntext\f2\'B7\tab}The access passphrase only protects your file when it is \ul encrypted on disk\ulnone . When KeyNote is running and has the \ul file open\ulnone , the file \ul may be viewed or edited\ulnone  by anyone who can use your computer, until you close the file. Please check the options "\cf5\b Close Notes file after [n] minutes idle\cf0\b0 ", "\cf5\b Auto-close only encrypted files\cf0\b0 " and "\cf5\b Reopen auto-closed files on restore (encrypted only)\cf0\b0 " available from {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<95|0|0"}}{\fldrslt{Configuration Options / Actions}}}}}\f0\fs20\par
-{\pntext\f2\'B7\tab}If you need more security then KeyNote offers, or if you need to securely encrypt data files created by other applications, you may consider using disk encryption software instead. Such software encrypts all files on a selected disk partition, thus securing ALL your data and programs. There are freeware disk encryption programs, such as ScramDisk, and commercial solutions. Users of PGP may note that {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.pgpi.com }}{\fldrslt{http://www.pgpi.com\ul0\cf0}}}}}\f0\fs20  has a freeware version of PGP which includes the PGPDisk module. An additional advantage of such a solution is that you only need to remember ONE passphrase for accessing all your encrypted data - and any new software installed or any new data files placed on the encrypted disk partition are immediately protected without any additional effort on your part.\par
+{\pntext\f2\'B7\tab}The access passphrase only protects your file when it is \ul encrypted on disk\ulnone . When KeyNote is running and has the \ul file open\ulnone , the file \ul may be viewed or edited\ulnone  by anyone who can use your computer, until you close the file. Please check the options "\cf5\b Close Notes file after [n] minutes idle\cf0\b0 ", "\cf5\b Auto-close only encrypted files\cf0\b0 " and "\cf5\b Reopen auto-closed files on restore (encrypted only)\cf0\b0 " available from {\ul{\field{\*\fldinst{HYPERLINK "file:///<95|0|0"}}{\fldrslt{Configuration Options / Actions}}}}\f0\fs20\par
+{\pntext\f2\'B7\tab}If you need more security then KeyNote offers, or if you need to securely encrypt data files created by other applications, you may consider using disk encryption software instead. Such software encrypts all files on a selected disk partition, thus securing ALL your data and programs. There are freeware disk encryption programs, such as ScramDisk, and commercial solutions. Users of PGP may note that {{\field{\*\fldinst{HYPERLINK http://www.pgpi.com }}{\fldrslt{http://www.pgpi.com\ul0\cf0}}}}\f0\fs20  has a freeware version of PGP which includes the PGPDisk module. An additional advantage of such a solution is that you only need to remember ONE passphrase for accessing all your encrypted data - and any new software installed or any new data files placed on the encrypted disk partition are immediately protected without any additional effort on your part.\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\b And remember\b0 , like most desktop applications, KeyNote is vulnerable to:\par
 
@@ -7627,16 +7688,16 @@ IDEA: \tab\tab {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.momentus.com.br/
 \fs20\par
 
 \pard{\pntext\f2\'B7\tab}{\*\pn\pnlvlblt\pnf2\pnindent0{\pntxtb\'B7}}\fi-360\li360\sa140\ul In old KeyNote versions\ulnone : KeyNote allowed you to save data in the format used by a similar application, called DartNotes (see file \ldblquote dart.txt\rdblquote ). However, since DartNotes does not support encryption, you couldn't encrypt files saved in this format.\par
-{\pntext\f2\'B7\tab}Using the File Properties dialog box, you can add an optional description and comment to each file. If the file is encrypted, the description and comment are encrypted as well. However, they will be displayed IN CLEAR-TEXT in the {{\cf0\ul{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{File Manager}}}}}\f0\fs20  dialog box, which is NOT protected by a password. This may be changed in the future, but for now the description and comment strings are not secure, even if the actual file is.\par
+{\pntext\f2\'B7\tab}Using the File Properties dialog box, you can add an optional description and comment to each file. If the file is encrypted, the description and comment are encrypted as well. However, they will be displayed IN CLEAR-TEXT in the {\ul{\field{\*\fldinst{HYPERLINK "file:///<50|496|0|1"}}{\fldrslt{File Manager}}}}\f0\fs20  dialog box, which is NOT protected by a password. This may be changed in the future, but for now the description and comment strings are not secure, even if the actual file is.\par
 
 \pard\par
 \b Crypto algorithms used: DCPCrypt, Delphi cryptographic component package by David Barton:\b0\par
 
-\pard\li240 {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.cityinthesky.co.uk/cryptography.html }}{\fldrslt{http://www.cityinthesky.co.uk/cryptography.html\ul0\cf0}}}}}\f0\fs20\par
+\pard\li240 {{\field{\*\fldinst{HYPERLINK http://www.cityinthesky.co.uk/cryptography.html }}{\fldrslt{http://www.cityinthesky.co.uk/cryptography.html\ul0\cf0}}}}\f0\fs20\par
 
 \pard\par
 
-\pard\li240 If you are interested in how the DCPCrypt package was used in KeyNote, you can download the cryptography-related parts of KeyNote source code from {{\cf0\ul{\field{\*\fldinst{HYPERLINK http://www.tranglos.com/ }}{\fldrslt{http://www.tranglos.com/\ul0\cf0}}}}}\f0\fs20\par
+\pard\li240 If you are interested in how the DCPCrypt package was used in KeyNote, you can download the cryptography-related parts of KeyNote source code from {{\field{\*\fldinst{HYPERLINK http://www.tranglos.com/ }}{\fldrslt{http://www.tranglos.com/\ul0\cf0}}}}\f0\fs20\par
 
 \pard\par
 \cf2\b\par
@@ -17371,7 +17432,7 @@ ND=Help Menu
 %*
 GI=119
 ND=What's New
-LM=0503262051
+LM=2003262057
 %.
 %:
 {\rtf1\ansi\ansicpg1252\deff0\nouicompat{\fonttbl{\f0\fnil\fcharset0 Tahoma;}{\f1\fnil\fcharset238 Tahoma;}{\f2\fnil Tahoma;}{\f3\fnil\fcharset2 Symbol;}}
@@ -17395,6 +17456,12 @@ In {\ul{\field{\*\fldinst{HYPERLINK "file:///<120|0|0"}}{\fldrslt{News}}}}\f0\fs
 The \b main changes/improvements of the latest versions\b0  are highlighted below:\highlight3\par
 
 \pard\sa120\highlight0\par
+\b\fs26\lang3082 v 2.1.7\b0\fs20\par
+
+\pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Fixed: Incorrect loading of ANSI texts with DBCS encoding in the editor in certain situations [#990]\par
+{\pntext\f3\'B7\tab}New advanced search token, \b *?\b0 , to allows restricting searches/filtering to encrypted nodes. Also: Shift + 'View|Encrypted content' -> highlight encrypted nodes\par
+
+\pard\sa120\par
 \b\fs26\lang3082 v 2.1.6\b0\fs20\par
 
 \pard{\pntext\f3\'B7\tab}{\*\pn\pnlvlblt\pnf3\pnindent0{\pntxtb\'B7}}\fi-360\li360\lang1033 Added \b Lock on opening \b0 to enable more secure collaboration ({\ul{\field{\*\fldinst{HYPERLINK "file:///<50|6489|0|6"}}{\fldrslt{More}}}}\f0\fs20 )\par
@@ -18460,7 +18527,6 @@ LV=0
 %-
 gi=11
 DI=10
-ns=0400
 LV=1
 %-
 gi=12
@@ -18584,6 +18650,7 @@ DI=576
 %-
 gi=45
 DI=287
+ns=0400
 LV=1
 %-
 gi=46
@@ -18741,7 +18808,6 @@ LV=1
 %-
 gi=87
 DI=295
-ns=0400
 %-
 gi=88
 DI=238
@@ -18759,7 +18825,6 @@ DI=240
 %-
 gi=92
 DI=241
-ns=0400
 LV=2
 %-
 gi=93
