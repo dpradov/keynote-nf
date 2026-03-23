@@ -77,7 +77,7 @@ type
     fImagesReferenceCount: TImageIDs;
     FEditor_SupportsRegisteredImages: boolean;       // For use with meMultipleEntries
 
-    FLastEditorUIWidth: string;
+    //FLastEditorUIWidth: string;
 
     fChangingInCode: boolean;
     FReadOnly: boolean;
@@ -109,10 +109,10 @@ type
     procedure SaveToDataModel;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
-    procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
+    //procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
-    function GetHeaderCellx: AnsiString;
+    //function GetHeaderCellx: AnsiString;
     function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
   public
     property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;      // SetPanelConfig...
@@ -127,6 +127,7 @@ type
     procedure RefreshTags;
     function HideTemporarilyInfoPanel: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
+    procedure RefreshEntry;
 
   protected
     function GetReadOnly: boolean;
@@ -174,6 +175,7 @@ uses
   kn_LinksMng,
   kn_EditorUtils,
   kn_ImagesUtils,
+  kn_RTFUtils,
   knt.ui.TagMng,
   knt.ui.note,
   knt.RS;
@@ -238,7 +240,7 @@ begin
 
    SetReadOnly(FKntFolder.ReadOnly);
    fChangingInCode:= false;
-   FLastEditorUIWidth:= '';
+   //FLastEditorUIWidth:= '';
    FOnUse:= False;
 
    UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
@@ -538,8 +540,6 @@ procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
 begin
    if Note <> nil then begin
       AdjustTxtTagsWidth(txtTags.Focused);
-      if FModeEntriesUI = meMultipleEntries then
-         UpdateEntriesHeaderWidth(False);
    end;
 end;
 
@@ -853,7 +853,7 @@ begin
   txtName.Enabled:= True;
 end;
 
-
+(*
 function TKntNoteEntriesUI.GetHeaderCellx: AnsiString;
 var
   w, widthTwips: integer;
@@ -953,6 +953,38 @@ begin
    else
    if EnsureRefreshOnEditor then
       Editor.Refresh;
+end;
+*)
+
+
+function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
+var
+  str: AnsiString;
+  s, strInfo: string;
+
+begin
+   // # ToDO —  08/11/2025 - 11:36  —
+
+   strInfo:= '';
+   if PanelConfig.MMShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
+      strInfo:= '# ' + Trim(NEntry.TagsNames) + '  ';
+   end;
+   if PanelConfig.MMShowDateInHeader and (NEntry.Created <> 0) then begin
+      if (NEntry.Created).GetTime <> 0 then
+         S:= ' - ' + FormatSettings.ShortTimeFormat;
+      strInfo:= strInfo + ' — ' + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
+   end;
+   strInfo := strInfo + ' —';
+
+   str:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';
+
+   Result:= str;
+end;
+
+
+procedure TKntNoteEntriesUI.RefreshEntry;
+begin
+   Editor.Refresh;
 end;
 
 

@@ -603,7 +603,7 @@ var
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if FNEntryUI[p] <> nil then
-         FNEntryUI[p].UpdateEntriesHeaderWidth(True);
+         FNEntryUI[p].RefreshEntry;
 end;
 
 procedure TKntNoteUI.CreateNewEntry(RequestedFromEditor: TKntRichEdit);
