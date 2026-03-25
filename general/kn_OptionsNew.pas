@@ -535,7 +535,6 @@ begin
   InitializeTreeOptions( myTreeOpts );
   InitializeEditorOptions( myEditorOptions );
   InitializeTreeOptions( myTreeOptions );
-  InitializeNoteAdvancedOptions ( myNoteAdvOptions );
 
   // Combo_ICN.ImageList := Chest.IMG_Categories;
   List_ICN.ImageList := Chest.IMG_Categories;

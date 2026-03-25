@@ -83,7 +83,7 @@ const
   _KNM_FILETYPE = 'KeyNote macro';
   _KNL_FILETYPE = 'KeyNote plugin';
 
-const                  
+const
   swMinimize     = 'min'; // minimize on startup
   //swSetup        = 'setup'; // run Setup routine (UNUSED, we have installer now instead)
   swDebug        = 'debug'; // save some debug info
@@ -864,22 +864,44 @@ type
 
 
 type
-  TNEntriesPanel = (pnCenter, pnLeft, pnTL, pnTR, pnBL, pnBR);   // pnR1, pnR2...
+  TNEntriesPanel    = (pnCenter, pnTL, pnTR, pnBL, pnBR,  pnLeft, pnR1, pnR2, pnR3);
+  TNEntriesMainPanel = pnCenter..pnBR;
+  TNEntriesAuxPanel  = pnLeft..pnR3;
+
+
+  TNEntriesPanelUse = (
+     pnuShowVinculatedWithTags,    //  On read: Show only if there is any entry with any of the indicated tag
+                                   //  When starting editing: Show vinculated to the indicated tags
+     pnuShowNewestEntry,           //  Show newest entry           (*)
+     pnuShowOldestEntry,           //   ,,  oldest entry           (*)
+     pnuShowLastSelectedEntry,     //   ,,  last selected entry    (*)
+     pnuShowAllEntries,            //   ,,  all entries
+     pnuHidePanel                  //  Keep panel hidden
+  );
+
+  // (*) In DefaultUseWhenEditing, you can define one panel (and only one) with one of these three options.
+  //     If there are none with those options, there must necessarily be one defined with pnuShowAllEntries
+  //     The corresponding panel will be used to edit entries or create new entries.
 
 type
    TNoteAdvancedOptions = packed record
-     EditCentralPanelEntriesIn: TNEntriesPanel;      // Possible values: pnCenter, pnTL, pnBL
-     ShowPanelTLInNewNotes: boolean;
-     ShowPanelTRInNewNotes: boolean;
-     ShowPanelBLInNewNotes: boolean;
-     ShowPanelBRInNewNotes: boolean;
-     DefaultTagsInPanels: array[TNEntriesPanel] of TNoteTagArray;   // Saved in .ini as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
-     DefaultTagsOrder: TNoteTagArray;                             // Ex: Summary,Req,ToDO,...    Saved in .ini as string
 
-     PnlTopRatio:    Single;   // Ratio Top vs Other (Center+Bottom) [*]
-     PnlBottomRatio: Single;   // Ratio Bottom vs Other (Center+Top) [*]
-     PnlTLTRRatio:   Single;   // Ratio TL vs TR                     [*]
-     PnlBLBRRatio:   Single;   // Ratio BL vs BR                     [*]
+     DefaultUseWhenReading: array[TNEntriesMainPanel] of TNEntriesPanelUse;
+     VinculatedTagsWhenReading: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
+
+     DefaultUseWhenEditing: array[TNEntriesMainPanel] of TNEntriesPanelUse;
+     VinculatedTagsWhenEditing: array[TNEntriesMainPanel] of TNoteTagArray;
+
+     DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
+
+     PnlTopRatio:    Single;   // Ratio Top vs Other (Center+Bottom)
+     PnlBottomRatio: Single;   // Ratio Bottom vs Other (Center+Top)
+     PnlTLTRRatio:   Single;   // Ratio TL vs TR
+     PnlBLBRRatio:   Single;   // Ratio BL vs BR
+
+
+     public procedure Initialize;
+     public function EditMultiEntriesPanelIn: TNEntriesPanel;
   end;
 
 
@@ -1119,6 +1141,44 @@ begin
 
   if SameFile then
      Result:= GID;
+end;
+
+function TNoteAdvancedOptions.EditMultiEntriesPanelIn: TNEntriesPanel;
+var
+  p, pAllEntries: TNEntriesPanel;
+begin
+    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+       if DefaultUseWhenEditing[p] in [pnuShowNewestEntry, pnuShowOldestEntry, pnuShowLastSelectedEntry] then
+          exit(p);
+
+       if DefaultUseWhenEditing[p] = pnuShowAllEntries then
+          pAllEntries:= p;
+    end;
+
+    Result:= pAllEntries;
+end;
+
+
+procedure TNoteAdvancedOptions.Initialize;
+var
+  p: TNEntriesPanel;
+begin
+    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+       DefaultUseWhenReading[p] := pnuHidePanel;
+       DefaultUseWhenEditing[p] := pnuHidePanel;
+       VinculatedTagsWhenReading[p]:= nil;
+       VinculatedTagsWhenEditing[p]:= nil;
+    end;
+    DefaultUseWhenReading[pnCenter] := pnuShowAllEntries;
+    DefaultUseWhenReading[pnTL] := pnuShowNewestEntry;
+    DefaultUseWhenEditing[pnCenter] := pnuShowAllEntries;
+
+    DefaultTagsOrder:= nil;
+
+    PnlTLTRRatio:= 0.5;
+    PnlBLBRRatio:= 0.5;
+    PnlTopRatio:= 0.1354;
+    PnlBottomRatio:= 0.15;
 end;
 
 

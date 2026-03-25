@@ -116,6 +116,8 @@ type
       FLckStream: TStream;                       // for locking of .lck file
       FActiveFileEditedByOtherUser: boolean;
 
+      FInmersiveMode: boolean;
+
       constructor Create;
       procedure Initialize;
 
@@ -160,6 +162,8 @@ type
       procedure NNodeFocused(NNode: TNoteNode);
       procedure FolderDeleted (Folder: TKntFolder; TabIndex: integer);
       procedure FolderPropertiesModified (Folder: TKntFolder);
+
+      property InmersiveMode: boolean read FInmersiveMode write FInmersiveMode;
 
       procedure FileNew (aFile: TKntFile);
       function  FileOpening (aFile: TKntFile; const FN: string; var OpenReadOnly: boolean): boolean;
@@ -257,7 +261,6 @@ var
    ResPanelOptions : TResPanelOptions;
    KntTreeOptions : TKntTreeOptions;
    FindOptions : TFindOptions;
-   NoteAdvOptions: TNoteAdvancedOptions;
 
    //================================================== DEFAULT PROPERTIES
    DefaultEditorProperties : TFolderEditorProperties;

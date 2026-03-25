@@ -103,7 +103,7 @@ type
   TFilterOptionsInPanel = packed record
     TagsIncl: TNoteTagArray;          // Consider notes/entries with ALL of the selected tags in its metadata (TagsModeOR=False) (TagsText=False)
     InheritedTags: boolean;           // Each node will be considered as having its own tags and the tags of its ancestors
-    ExcludeTaggedToIgnore: boolean;   // Use TFindOptions.DefaultTagsExcl  ("i")
+    UseDefaultTagsExcl: boolean;      // Use TFindOptions.DefaultTagsExcl  ("i")
     TextFilter : string;              // Entry to consider must include the pattern
     MatchCase : boolean;              // case-sensitive ("c")
     WholeWordsOnly : boolean;         // only match whole words ("w")
@@ -119,8 +119,8 @@ type
 
   TPanelConfiguration = record
     Panel: TNEntriesPanel;
-    Auxiliar: boolean;
     Visible: boolean;
+    ShowEditorInfoPanel: boolean;
     Scope : TScopeInEntriesPanel;
     Mode: TModeEntriesUI;
     NNodes: TNoteNodeList;             // *1

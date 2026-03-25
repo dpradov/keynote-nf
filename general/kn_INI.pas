@@ -238,7 +238,6 @@ procedure InitializeEditorOptions( var Struct : TEditorOptions );
 procedure InitializeResPanelOptions( var Struct : TResPanelOptions );
 procedure InitializeExportOptions( var Struct : TExportOptions );
 procedure InitializeTreeOptions( var Struct : TKntTreeOptions );
-procedure InitializeNoteAdvancedOptions( var Struct : TNoteAdvancedOptions );
 
 type
   TClipOptionsIniStr = packed record
@@ -1397,29 +1396,6 @@ begin
   end;
 end; // InitializeTreeOptions
 
-
-procedure InitializeNoteAdvancedOptions( var Struct : TNoteAdvancedOptions );
-var
-  p: TNEntriesPanel;
-begin
-  with Struct do begin
-    EditCentralPanelEntriesIn:= pnBL;
-
-    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-       DefaultTagsInPanels[p] := nil;
-
-    ShowPanelTLInNewNotes:= false;
-    ShowPanelTRInNewNotes:= false;
-    ShowPanelBLInNewNotes:= false;
-    ShowPanelBRInNewNotes:= false;
-    DefaultTagsOrder:= nil;
-
-    PnlTLTRRatio:= 0.5;
-    PnlBLBRRatio:= 0.5;
-    PnlTopRatio:= 0.1354;
-    PnlBottomRatio:= 0.15;
-  end;
-end;
 
 
 procedure SaveKeyNoteOptions(

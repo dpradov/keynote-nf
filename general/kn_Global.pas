@@ -863,7 +863,6 @@ begin
       InitializeClipOptions( ClipOptions );
       InitializeEditorOptions( EditorOptions );
       InitializeResPanelOptions( ResPanelOptions );
-      InitializeNoteAdvancedOptions ( NoteAdvOptions );
 
       InitializeChrome( DefaultEditorChrome );
       InitializeFolderEditorProperties( DefaultEditorProperties );

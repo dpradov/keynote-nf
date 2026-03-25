@@ -627,11 +627,11 @@ begin
 
    if FNewNNodeUIConfig and (NNode.note.NumEntries = 2) then begin
       FNNodeUIConfig.Free;
-      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode);
+      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder);
       RequestedFromNEntryUI.PanelConfig:= FNNodeUIConfig.PanelConfig(pnCenter);
    end;
 
-   PnlEdit:= NoteAdvOptions.EditCentralPanelEntriesIn;
+   PnlEdit:= Folder.NoteAdvOptions.EditMultiEntriesPanelIn;
    PanelConfig:= FNNodeUIConfig.PanelConfig(PnlEdit);
    PanelConfig.NEntryID:= NEntry.ID;
    NEntriesUI:= GetNEntryUI(PnlEdit);
@@ -737,7 +737,7 @@ begin
      FNNodeUIConfig:= Folder.GetNNodeUIConfig(NNode);
      FNewNNodeUIConfig:= false;
      if FNNodeUIConfig = nil then begin
-        FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode);
+        FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder);
         FNewNNodeUIConfig:= true;
      end;
    end;

@@ -67,10 +67,15 @@ type
   TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
 
 type
+  TKntFolder = class;
+  TFolderList = TSimpleObjList<TKntFolder>;
+  TKNTHistoryObj = TObject;            // To avoid circular references
+
   TNNodeUIConfiguration = class
 
     private
       FNNodeGID: Cardinal;
+      FFolder: TKntFolder;
 
       FTop_Ratio: Single;
       FBottom_Ratio: Single;
@@ -84,14 +89,14 @@ type
       function GetBLBR_Ratio: Single;
 
     protected
-      constructor Create (NNodeGID: Cardinal);
+      constructor Create (NNodeGID: Cardinal; Folder: TKntFolder);
       function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; EntryID: Word = 0): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
 
 
-      class function CreateDefault (NNode : TNoteNode): TNNodeUIConfiguration;
+      class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder): TNNodeUIConfiguration;
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
       function SaveToString: string;
 
@@ -105,11 +110,6 @@ type
   end;
 
   TNNodeUIConfigList = TSimpleObjList<TNNodeUIConfiguration>;   // TList<TNNodeUIConfiguration>;
-
-
-  TKntFolder = class;
-  TFolderList = TSimpleObjList<TKntFolder>;
-  TKNTHistoryObj = TObject;            // To avoid circular references
 
 
   // [*] -> Folder properties saved to .knt
@@ -210,6 +210,8 @@ type
     procedure UpdateLoadingLevels;
 
   public
+    NoteAdvOptions: TNoteAdvancedOptions;
+
     class function NewKntFolder(const DefaultFolder, CanFocus : boolean) : boolean;
     class procedure CreateNewKntFolder;
     class procedure DeleteKntFolder;
@@ -867,6 +869,7 @@ begin
   InitializeChrome( FTreeChrome );
   FDefaultNoteName := DEFAULT_NEW_NOTE_NAME;
   fNNodes := TNoteNodeList.Create;
+  NoteAdvOptions.Initialize;
   fNNodesUIConfig := TNNodeUIConfigList.Create;
   FLoadingLevels:= TIntegerList.Create;
   FEditorInfoPanelHidden:= false;
@@ -3148,13 +3151,14 @@ end;
 
 //=====  TNNodeUIConfiguration ================
 
-constructor TNNodeUIConfiguration.Create (NNodeGID: Cardinal);
+constructor TNNodeUIConfiguration.Create (NNodeGID: Cardinal; Folder: TKntFolder);
 begin
   FNNodeGID:= NNodeGID;
   FTop_Ratio:= 0;
   FBottom_Ratio:= 0;
   FTLTR_Ratio:= 0;
   FBLBR_Ratio:= 0;
+  FFolder:= Folder;
 end;
 
 
@@ -3162,28 +3166,28 @@ function TNNodeUIConfiguration.GetTop_Ratio: Single;
 begin
    Result:= FTop_Ratio;
       if Result = 0 then
-      Result:= NoteAdvOptions.PnlTopRatio;
+      Result:= FFolder.NoteAdvOptions.PnlTopRatio;
 end;
 
 function TNNodeUIConfiguration.GetBottom_Ratio: Single;
 begin
    Result:= FBottom_Ratio;
    if Result = 0 then
-      Result:= NoteAdvOptions.PnlBottomRatio;
+      Result:= FFolder.NoteAdvOptions.PnlBottomRatio;
 end;
 
 function TNNodeUIConfiguration.GetTLTR_Ratio: Single;
 begin
    Result:= FTLTR_Ratio;
    if Result = 0 then
-      Result:= NoteAdvOptions.PnlTLTRRatio;
+      Result:= FFolder.NoteAdvOptions.PnlTLTRRatio;
 end;
 
 function TNNodeUIConfiguration.GetBLBR_Ratio: Single;
 begin
    Result:= FBLBR_Ratio;
    if Result = 0 then
-      Result:= NoteAdvOptions.PnlBLBRRatio;
+      Result:= FFolder.NoteAdvOptions.PnlBLBRRatio;
 end;
 
 function TNNodeUIConfiguration.PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
@@ -3209,7 +3213,7 @@ begin
     with Result do begin
        with PanelsConfig[L] do begin
           Panel:= aPanel;
-          Auxiliar:= (aPanel <> pnCenter);
+          ShowEditorInfoPanel:= (aPanel = pnCenter);
           Visible:= True;
           Scope:= fsCurrentNode;
           Mode:= meSingleEntry;
@@ -3220,14 +3224,14 @@ begin
           if aMode = meMultipleEntries then begin
             Mode:= meMultipleEntries;
             MMContent:= cmWholeEntries;
-            MMShowDateInHeader:= not Auxiliar;
-            MMShowTagsInHeader:= not Auxiliar;
+            MMShowDateInHeader:= ShowEditorInfoPanel;
+            MMShowTagsInHeader:= ShowEditorInfoPanel;
             Order:= eoDateCreation;
             DescendingOrder:= True;
             with Filter do begin
               TagsIncl:= [];
               InheritedTags:= false;
-              ExcludeTaggedToIgnore:= false;
+              UseDefaultTagsExcl:= false;
               TextFilter := '';
               MatchCase := false;
               WholeWordsOnly := false;
@@ -3241,23 +3245,44 @@ begin
 end;
 
 
-class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode): TNNodeUIConfiguration;
+class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode; Folder: TKntFolder): TNNodeUIConfiguration;
 var
-   PnlEdit: TNEntriesPanel;
-   Mode: TModeEntriesUI;
+   p: TNEntriesPanel;
+   EntryID: Word;
+   PnlUse: TNEntriesPanelUse;
+   N: integer;
 begin
-    Result:= TNNodeUIConfiguration.Create(NNode.GID);
+    Result:= TNNodeUIConfiguration.Create(NNode.GID, Folder);
 
-    Mode:= meSingleEntry;
-    PnlEdit:= pnCenter;
-    if NNode.Note.NumEntries > 1 then begin
-       Mode:= meMultipleEntries;
-       PnlEdit:= NoteAdvOptions.EditCentralPanelEntriesIn;
+    N:= NNode.Note.NumEntries;
+
+    // ToDO: OnRead vs OnEdit...  ***
+
+    if (N = 1) then begin
+        Result.CreateDefaultPanelConfig (p, meSingleEntry, NNode.Note.Entries[0].ID);
+        exit;
     end;
 
-    Result.CreateDefaultPanelConfig (PnlEdit, meSingleEntry, NNode.Note.NumEntries-1);
-    if (Mode = meMultipleEntries) and (PnlEdit <> pnCenter) then
-       Result.CreateDefaultPanelConfig (pnCenter, meMultipleEntries);
+    // ToDO: pnuShowVinculatedWithTags, pnuShowLastSelectedEntry  ***
+
+    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+       PnlUse:= Folder.NoteAdvOptions.DefaultUseWhenReading[p];
+       if (PnlUse in [pnuShowNewestEntry, pnuShowOldestEntry, pnuShowLastSelectedEntry]) then begin
+          case PnlUse of
+             pnuShowNewestEntry:
+                EntryID:= NNode.Note.Entries[NNode.Note.NumEntries-1].ID;
+             pnuShowOldestEntry:
+                EntryID:= NNode.Note.Entries[0].ID;
+             pnuShowLastSelectedEntry:
+                EntryID:= NNode.Note.Entries[0].ID;    // TODO ***
+          end;
+          Result.CreateDefaultPanelConfig (p, meSingleEntry, EntryID);
+       end
+       else
+       if PnlUse = pnuShowAllEntries then
+          Result.CreateDefaultPanelConfig (p, meMultipleEntries);
+    end;
+
 end;
 
 class function TNNodeUIConfiguration.CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;

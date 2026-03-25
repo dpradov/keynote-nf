@@ -334,8 +334,8 @@ begin
   if FloatingEditorCannotBeSaved then
      Editor.ActivateFloatingEditor;
 
-  if not FInfoPanelHidden and FPanelConfig.Auxiliar then
-     pnlIdentif.Visible := True;
+  if not FInfoPanelHidden and not FPanelConfig.ShowEditorInfoPanel then
+     pnlIdentif.Visible := True;     // Temporarily..
 end;
 
 
@@ -380,7 +380,7 @@ var
   wasFocused: boolean;
 begin
   wasFocused:= (txtTags.Focused or txtName.Focused);
-  if not FInfoPanelHidden and FPanelConfig.Auxiliar and not wasFocused then
+  if not FInfoPanelHidden and not FPanelConfig.ShowEditorInfoPanel and not wasFocused then
      pnlIdentif.Visible := False;
 
   Result:= not wasFocused;
@@ -605,7 +605,7 @@ begin
           FNote:= NNode.Note;
           FOnUse:= True;
 
-          txtName.Visible := not FPanelConfig.Auxiliar;
+          txtName.Visible := FPanelConfig.ShowEditorInfoPanel;
 
 
           case NNode.WordWrap of
