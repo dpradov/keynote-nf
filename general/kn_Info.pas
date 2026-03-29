@@ -1170,7 +1170,8 @@ begin
        VinculatedTagsWhenEditing[p]:= nil;
     end;
     DefaultUseWhenReading[pnCenter] := pnuShowAllEntries;
-    DefaultUseWhenReading[pnTL] := pnuShowNewestEntry;
+
+    DefaultUseWhenEditing[pnTL] := pnuShowNewestEntry;
     DefaultUseWhenEditing[pnCenter] := pnuShowAllEntries;
 
     DefaultTagsOrder:= nil;

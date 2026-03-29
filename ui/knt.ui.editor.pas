@@ -90,6 +90,8 @@ type
     fFolderObj: TObject;
     fNNodeObj:  TObject;
     fNEntryObj: TObject;
+    fMultiEntries: boolean;
+    fNEntriesUIObj: TObject;
 
     FAutoIndent : boolean;
     FUseTabChar : boolean;
@@ -163,7 +165,7 @@ type
     property ZoomGoal: integer read FZoomGoal;
     property ZoomCurrent: integer read FZoomCurrent;
 
-    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject);
+    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
     function ContainsRegisteredImages: boolean;
 
     procedure SetLangOptions(AfterChangeRTL: boolean);
@@ -384,6 +386,7 @@ uses
    knt.ui.tagSelector,
    knt.ui.TagMng,
    knt.ui.floatingEditor,
+   knt.ui.noteEntries,
    knt.App,
    knt.RS
   ;
@@ -558,12 +561,14 @@ begin
   inherited Destroy;
 end;
 
-procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject);
+procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
 begin
    fFileObj:= FileObj;
    fFolderObj:= FolderObj;
    fNNodeObj:= NNodeObj;
    fNEntryObj:= NEntryObj;
+   fNEntriesUIObj:= NEntriesUIObj;
+   fMultiEntries:= MultiEntries;
 end;
 
 
@@ -4659,6 +4664,9 @@ begin
      else
      if IgnoreSelectorForTagSubsr = ' ' then
         IgnoreSelectorForTagSubsr := '';
+
+  if FMultiEntries and (FNEntriesUIObj <> nil) then
+     TKntNoteEntriesUI(FNEntriesUIObj).EditorChangedSelectionInMultiEntries;
 
   if FLinkHover.cpMin <> -1 then begin
      App.ShowInfoInStatusBar('');

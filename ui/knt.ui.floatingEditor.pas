@@ -165,7 +165,7 @@ begin
      HelpContext:= 20;  // KeyNote Editor
 
      ParentEditor:= ParentEdit;
-     SetVinculatedObjs(nil, nil, nil, nil);
+     SetVinculatedObjs(nil, nil, nil, nil, nil, false);
 
      PlainText:= ParentEditor.PlainText;
      Chrome:= Knt.App.DefaultEditorChrome;

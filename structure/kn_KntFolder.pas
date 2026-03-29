@@ -74,7 +74,7 @@ type
   TNNodeUIConfiguration = class
 
     private
-      FNNodeGID: Cardinal;
+      FNNode: TNoteNode;
       FFolder: TKntFolder;
 
       FTop_Ratio: Single;
@@ -89,8 +89,8 @@ type
       function GetBLBR_Ratio: Single;
 
     protected
-      constructor Create (NNodeGID: Cardinal; Folder: TKntFolder);
-      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; EntryID: Word = 0): TPanelConfiguration;
+      constructor Create (NNode: TNoteNode; Folder: TKntFolder);
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: Word = 0): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
@@ -100,7 +100,7 @@ type
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
       function SaveToString: string;
 
-      property NNodeGID: Cardinal read FNNodeGID;
+      property NNode: TNoteNode read FNNode;
       function PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
 
       property Top_Ratio: Single read GetTop_Ratio write FTop_Ratio;
@@ -874,6 +874,13 @@ begin
   FLoadingLevels:= TIntegerList.Create;
   FEditorInfoPanelHidden:= false;
 
+  // Example ***
+  var Tags: TNoteTagArray;
+  SetLength(Tags, 1);
+  Tags[0]:= TKntFile(FKntFile).NoteTags[0];
+  NoteAdvOptions.DefaultUseWhenReading[pnTL]:= pnuShowVinculatedWithTags;
+  NoteAdvOptions.VinculatedTagsWhenReading[pnTL]:= Tags;
+
 end; // CREATE
 
 
@@ -1323,10 +1330,9 @@ var
   i: integer;
   GID: Cardinal;
 begin
-  GID:= NNode.GID;
   for i:= 0 to NNodesUIConfig.Count-1 do begin
      Result:= NNodesUIConfig[i];
-     if Result.NNodeGID = GID then exit;
+     if Result.NNode = NNode then exit;
   end;
   Result:= nil;
 end;
@@ -3151,9 +3157,9 @@ end;
 
 //=====  TNNodeUIConfiguration ================
 
-constructor TNNodeUIConfiguration.Create (NNodeGID: Cardinal; Folder: TKntFolder);
+constructor TNNodeUIConfiguration.Create (NNode: TNoteNode; Folder: TKntFolder);
 begin
-  FNNodeGID:= NNodeGID;
+  FNNode:= NNode;
   FTop_Ratio:= 0;
   FBottom_Ratio:= 0;
   FTLTR_Ratio:= 0;
@@ -3199,11 +3205,11 @@ begin
           exit(PanelsConfig[i]);
    end;
 
-   exit( CreateDefaultPanelConfig(Panel, meMultipleEntries) );
+   exit( CreateDefaultPanelConfig(Panel, meMultipleEntries, FNNode) );
 end;
 
 
-function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; EntryID: Word = 0): TPanelConfiguration;
+function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: Word = 0): TPanelConfiguration;
 var
    L: integer;
 begin
@@ -3215,15 +3221,17 @@ begin
           Panel:= aPanel;
           ShowEditorInfoPanel:= (aPanel = pnCenter);
           Visible:= True;
-          Scope:= fsCurrentNode;
+          Scope:= fsSelectedNode;
           Mode:= meSingleEntry;
-          NNodes:= nil;
-          SelectedNNode:= nil;
+          SelectedNNode:= NNode;
           NEntryID:= EntryID;
+          NNodes:= nil;
+          VinculatedTagsWhenReading:= FFolder.NoteAdvOptions.VinculatedTagsWhenReading[aPanel];
+          VinculatedTagsWhenEditing:= FFolder.NoteAdvOptions.VinculatedTagsWhenEditing[aPanel];
 
           if aMode = meMultipleEntries then begin
             Mode:= meMultipleEntries;
-            MMContent:= cmWholeEntries;
+            MMContent:= cmWholeEntry;
             MMShowDateInHeader:= ShowEditorInfoPanel;
             MMShowTagsInHeader:= ShowEditorInfoPanel;
             Order:= eoDateCreation;
@@ -3252,14 +3260,18 @@ var
    PnlUse: TNEntriesPanelUse;
    N: integer;
 begin
-    Result:= TNNodeUIConfiguration.Create(NNode.GID, Folder);
+    Result:= TNNodeUIConfiguration.Create(NNode, Folder);
+    if NNode = nil then begin
+       Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, nil, 0);
+       exit;
+    end;
 
     N:= NNode.Note.NumEntries;
 
     // ToDO: OnRead vs OnEdit...  ***
 
     if (N = 1) then begin
-        Result.CreateDefaultPanelConfig (p, meSingleEntry, NNode.Note.Entries[0].ID);
+        Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode, NNode.Note.Entries[0].ID);
         exit;
     end;
 
@@ -3276,11 +3288,14 @@ begin
              pnuShowLastSelectedEntry:
                 EntryID:= NNode.Note.Entries[0].ID;    // TODO ***
           end;
-          Result.CreateDefaultPanelConfig (p, meSingleEntry, EntryID);
+          Result.CreateDefaultPanelConfig (p, meSingleEntry, NNode, EntryID);
        end
        else
        if PnlUse = pnuShowAllEntries then
-          Result.CreateDefaultPanelConfig (p, meMultipleEntries);
+          Result.CreateDefaultPanelConfig (p, meMultipleEntries, NNode)
+       else
+       if PnlUse = pnuShowVinculatedWithTags then
+          Result.CreateDefaultPanelConfig (p, meMultipleEntries, NNode);
     end;
 
 end;

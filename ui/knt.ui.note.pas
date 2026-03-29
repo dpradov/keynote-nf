@@ -108,7 +108,7 @@ type
     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
     procedure ReloadFromDataModel;
-    function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
+    procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
     procedure SaveToDataModel;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
@@ -124,6 +124,7 @@ type
     procedure TimerTimer(Sender: TObject);
  public
     procedure NEntryUIEditorEnter(Sender: TObject);
+    function GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
 
  public
     procedure Refresh;
@@ -597,6 +598,11 @@ begin
    Result:= nil;
 end;
 
+function TKntNoteUI.GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
+begin
+   Result:= GetNEntryUI(Editor);
+end;
+
 procedure TKntNoteUI.Refresh;
 var
   p: TNEntriesPanel;
@@ -633,9 +639,10 @@ begin
 
    PnlEdit:= Folder.NoteAdvOptions.EditMultiEntriesPanelIn;
    PanelConfig:= FNNodeUIConfig.PanelConfig(PnlEdit);
+   PanelConfig.Mode:= meSingleEntry;
    PanelConfig.NEntryID:= NEntry.ID;
    NEntriesUI:= GetNEntryUI(PnlEdit);
-   NEntriesUI.LoadFromNNode(NNode, PanelConfig, True);
+   NEntriesUI.LoadFromDataModel(PanelConfig, True);
    case PnlEdit of
       pnTL: ShowPanelsTop(True, False);
       pnBL: ShowPanelsBottom(True, False);
@@ -713,7 +720,7 @@ end;
 
 function TKntNoteUI.GetSelectedNEntry: TNoteEntry;
 begin
-   Result:= FSelectedNEntryUI.SelectedNEntry;
+   Result:= FSelectedNEntryUI.NEntry;
 end;
 
 procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
@@ -740,7 +747,10 @@ begin
         FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder);
         FNewNNodeUIConfig:= true;
      end;
-   end;
+   end
+   else
+      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder);
+
 
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       ShowPanel[p]:= false;
@@ -748,13 +758,22 @@ begin
          exit;
    end;
 
-   for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
-       PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
-       if PanelConfig.Visible then begin
-          ShowPanel[PanelConfig.Panel]:= True;
-          GetNEntryUI(PanelConfig.Panel).LoadFromNNode(NNode, PanelConfig, False);
-       end;
+   if assigned(NNode) then begin
+      for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
+          PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
+          if PanelConfig.Visible then begin
+             ShowPanel[PanelConfig.Panel]:= True;
+             GetNEntryUI(PanelConfig.Panel).LoadFromDataModel(PanelConfig, False);
+          end;
+      end;
+   end
+   else begin
+      PanelConfig.Panel:= pnCenter;
+      PanelConfig.Scope:= fsSelectedNode;
+      PanelConfig.SelectedNNode:= nil;
+      GetNEntryUI(pnCenter).LoadFromDataModel(PanelConfig, False);
    end;
+
 
    // Clear unused editors  (##)
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
@@ -769,9 +788,9 @@ begin
    FNNodeDeleted:= false;
 end;
 
-function TKntNoteUI.ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
+procedure TKntNoteUI.ReloadMetadataFromDataModel(ReloadTags: boolean = true);
 begin
-   Result:= FNEntryUI[pnCenter].ReloadMetadataFromDataModel(ReloadTags);
+   FNEntryUI[pnCenter].ReloadMetadataFromDataModel(ReloadTags);        //***
 end;
 
 

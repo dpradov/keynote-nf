@@ -39,13 +39,14 @@ type
      function GetNNode: TNoteNode;
      function GetFolder: TObject;
      function GetSelectedNEntry: TNoteEntry;
+     function GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
      property Editor: TKntRichEdit read GetEditor;
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
      procedure ReloadFromDataModel;
-     function ReloadMetadataFromDataModel(ReloadTags: boolean = true): TNoteEntry;
+     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
      procedure ReloadNoteName;
      procedure SaveToDataModel;
      procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit);
@@ -80,18 +81,18 @@ type
   );
 
   TScopeInEntriesPanel = (
-    fsCurrentNode,
     fsSelectedNode,
-    fsCurrentNodeAndSubtree,
-    fsCurrentNodeAndAncestors,
+    fsSelectedNodeAndSubtree,
+    fsSelectedNodeAndAncestors,
+    fsSelectedNodes,
     fsFolder,
     fsFile
   );
 
   TContentInMultipleMode = (
-    cmOnlyHeaders,
-    cmWholeEntries,
-    cmOnlyFirstLines
+    cmOnlyHeader,
+    cmWholeEntry,
+    cmOnlyFirstLine
   );
 
   TOrderInEntriesInPanel = (
@@ -126,6 +127,8 @@ type
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
     NEntryID: Word;
+    VinculatedTagsWhenReading: TNoteTagArray;
+    VinculatedTagsWhenEditing: TNoteTagArray;
     MMContent: TContentInMultipleMode;
     MMShowDateInHeader: boolean;
     MMShowTagsInHeader: boolean;

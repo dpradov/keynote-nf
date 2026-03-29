@@ -249,7 +249,7 @@ begin
      OnKeyPress:= Form_Main.RxResTabRTFKeyPress;
      OnKeyDown:= Form_Main.RxResTabRTFKeyDown;
 
-     SetVinculatedObjs(nil, nil, nil, nil);
+     SetVinculatedObjs(nil, nil, nil, nil, nil, false);
 
      PlainText:= False;
      SupportsRegisteredImages:= True;
