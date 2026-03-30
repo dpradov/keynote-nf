@@ -11,7 +11,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 54198,  "Date"
 54199,  "Note creation date"
 54200,  "Flagged"
-54201,  "Created: %s  ==  Last modified: %s"
+54201,  "[Note] Created: %s  ==  Last modified (note): %s"
 54202,  "REMEMBER:\n\n- Folder settings apply only to NEW notes, except:\n   - 'Plain note only': modifies ALL the notes\n   - 'WordWrap': affects ALL the notes\n       (not explicitly set WordWrap previously)\n\n>> More info in Help File (F1)"
 54203,  "REMEMBER:\n\n- Font change affect only to NEW nodes (all if Plain note)\n- BG Color depends on 'Inherit BG color from active node':\n   - If set, background color of selected node is shown\n     (=> BG color of its new child nodes)\n   - If not set, default BG color for all NEW nodes is shown\n   * To edit this option -> F5 | General settings| Rich Text editor\n\n- BG Color can be changed for ALL nodes in a Folder:\n    [Shift] + \"Format | Background color\"\n\n>> More info in Help File (F1)"
 54204,  "REMEMBER:\n\n- BG Color sets backgroud color for the Tree Panel and\n  default BG color of tree nodes\n- Previous changes to individual nodes won't be affected\n- 'Inherit properties from active node' option is\n  considered in NEW nodes\n- Font and BG color can be changed for ALL tree panels at once:\n    \"Apply to ALL folders\"\n\n- Note: 'Inherit BG color from active node' option does NOT\n  affect (refers to Editor) \n\n>> More info in Help File (F1)"
@@ -949,4 +949,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55147,  "* Locked files open in read-only mode\n\n* Saving to a locked file is prevented (use 'Save As')\n\n* File changes and lock releases are monitored automatically, with optional periodic checks"
 55148,  "Click to change text color"
 55149,  "Click to add or remove highlight"
+55150,  "[Entry] Created: %s"
 }

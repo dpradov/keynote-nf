@@ -3223,6 +3223,7 @@ begin
           Visible:= True;
           Scope:= fsSelectedNode;
           Mode:= meSingleEntry;
+          DisplayingSingleEntry:= true;
           SelectedNNode:= NNode;
           NEntryID:= EntryID;
           NNodes:= nil;
@@ -3231,6 +3232,7 @@ begin
 
           if aMode = meMultipleEntries then begin
             Mode:= meMultipleEntries;
+            DisplayingSingleEntry:= false;
             MMContent:= cmWholeEntry;
             MMShowDateInHeader:= ShowEditorInfoPanel;
             MMShowTagsInHeader:= ShowEditorInfoPanel;

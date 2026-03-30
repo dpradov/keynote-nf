@@ -639,7 +639,7 @@ begin
 
    PnlEdit:= Folder.NoteAdvOptions.EditMultiEntriesPanelIn;
    PanelConfig:= FNNodeUIConfig.PanelConfig(PnlEdit);
-   PanelConfig.Mode:= meSingleEntry;
+   PanelConfig.DisplayingSingleEntry:= true;
    PanelConfig.NEntryID:= NEntry.ID;
    NEntriesUI:= GetNEntryUI(PnlEdit);
    NEntriesUI.LoadFromDataModel(PanelConfig, True);

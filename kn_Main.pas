@@ -1569,6 +1569,7 @@ uses
    kn_VCLControlsMng,
    knt.ui.tagSelector,
    knt.ui.TagMng,
+   knt.ui.noteEntries,
    knt.App,
    knt.RS
    {$IFNDEF EXCLUDEEMAIL}
@@ -3145,6 +3146,13 @@ begin
 
         else begin
            if Msg.CharCode = VK_RETURN then begin
+              if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and
+                  ActiveEditor.MultiEntries and (ActiveEditor.NEntriesUIObj <> nil) then begin
+
+                  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).EditorIntroInMultiEntries;
+                  Handled:= true;
+              end
+              else
               if activeControl = ListBox_ResFav then begin
                 JumpToFavorite;
                 Handled:= true;
@@ -3155,7 +3163,7 @@ begin
       end
       else begin
         if Msg.CharCode = VK_RETURN then begin
-           if (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) then begin
+           if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) then begin
               ActiveFolder.NoteUI.CreateNewEntry(ActiveEditor);
               Handled:= true;
            end;

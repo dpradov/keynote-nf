@@ -1921,7 +1921,7 @@ Button_OK.Caption=&Close
 54198_knt_RS_sTree64=Date
 54199_knt_RS_sTree65=Note creation date
 54200_knt_RS_sTree66=Flagged
-54201_knt_RS_sUInote01=Created: %s  ==  Last modified: %s
+54201_knt_RS_sUInote01=[Note] Created: %s  ==  Last modified (note): %s
 54202_knt_RS_sDef31=REMEMBER:\^\^- Folder settings apply only to NEW notes, except:\^   - 'Plain note only': modifies ALL the notes\^   - 'WordWrap': affects ALL the notes\^       (not explicitly set WordWrap previously)\^\^>> More info in Help File (F1)
 54203_knt_RS_sDef32=REMEMBER:\^\^- Font change affect only to NEW nodes (all if Plain note)\^- BG Color depends on 'Inherit BG color from active node':\^   - If set, background color of selected node is shown\^     (=> BG color of its new child nodes)\^   - If not set, default BG color for all NEW nodes is shown\^   * To edit this option -> F5 | General settings| Rich Text editor\^\^- BG Color can be changed for ALL nodes in a Folder:\^    [Shift] + "Format | Background color"\^\^>> More info in Help File (F1)
 54204_knt_RS_sDef33=REMEMBER:\^\^- BG Color sets backgroud color for the Tree Panel and\^  default BG color of tree nodes\^- Previous changes to individual nodes won't be affected\^- 'Inherit properties from active node' option is\^  considered in NEW nodes\^- Font and BG color can be changed for ALL tree panels at once:\^    "Apply to ALL folders"\^\^- Note: 'Inherit BG color from active node' option does NOT\^  affect (refers to Editor) \^\^>> More info in Help File (F1)
@@ -2854,5 +2854,6 @@ Button_OK.Caption=&Close
 55147_knt_RS_sOpt21=* Locked files open in read-only mode\^\^* Saving to a locked file is prevented (use "Save As")\^\^* File changes and lock releases are monitored automatically, with optional periodic checks.
 55148_knt_RS_sUI01=Click to change text color
 55149_knt_RS_sUI02=Click to add or remove highlight
+55150_knt_RS_sUInote02=[Entry] Created: %s
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

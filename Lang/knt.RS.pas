@@ -1031,7 +1031,8 @@ const
    sTree66 = 54200;   // Flagged
    sTree67 = 55135;   // Node (or its children) contains encrypted content! CONTINUE?
 
-   sUInote01 = 54201;   // Created: %s  ==  Last modified: %s
+   sUInote01 = 54201;   // [Note] Created: %s  ==  Last modified: %s
+   sUInote02 = 55150;   // [Entry] Created: %s
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !
