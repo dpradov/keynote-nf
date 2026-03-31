@@ -140,6 +140,7 @@ type
     procedure OnEndEditTagsIntroduction(PressedReturn: boolean);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure ShowEntriesButtons(Show: boolean);
+    procedure SelectINextEntry(iNextEntry: integer);
     procedure FrameResize(Sender: TObject);
   public
     procedure EditTags;
@@ -795,6 +796,119 @@ var
  end;
 
 
+ // FEntriesShown[iEntry]  - - -> strRTF or cEditor
+ procedure PrepareEntryContent;
+ begin
+     if not PanelConfig.DisplayingSingleEntry then begin
+        cEditor.Clear;
+        if FEditor.SupportsRegisteredImages then
+           FEditor_SupportsRegisteredImages:= True;
+     end;
+
+
+     FNEntry.Stream.Position := 0;
+     strRTF:= '';
+
+     if PanelConfig.DisplayingSingleEntry or (FEntriesShown[iEntry].Content <> cmOnlyHeader) then begin
+         if not FNEntry.IsRTF then
+            UpdateEditor (cEditor, FKntFolder, False);
+
+         // *1 For newly created, empty notes, this must be ensured (when the note is not intended to be created as plain text. See call to ConfigureEditor).
+         //    If we don't do this, we may encounter with an exception when calling LoadFromStream while working with the note, before it
+         //    is persisted to the model (for example, when selecting another note from the tree). This can occur if in that situation
+         //    we select several lines and press Shift+TAB (to tab multiple lines, decreasing indentation)
+
+         if (not cEditor.PlainText) and (FNEntry.Stream.Size = 0) then
+            cEditor.StreamFormat:= sfRichText                             // *1
+
+         else begin
+           if NodeStreamIsRTF (FNEntry.Stream) then begin
+              cEditor.StreamFormat:= sfRichText;
+              if FEditor.SupportsRegisteredImages then begin
+                 ImagesAux:= GetImagesIDInstances (FNEntry.Stream, FNEntry.TextPlain);
+                 strRTF:= ImageMng.ProcessImagesInRTF(FNEntry.Stream.Memory, FNEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+                 if PanelConfig.DisplayingSingleEntry then
+                    fImagesReferenceCount:= ImagesAux
+                 else
+                    CombineImagesInstances(ImagesAux, fImagesReferenceCount);
+              end;
+           end
+           else
+              cEditor.StreamFormat:= sfPlainText;
+         end;
+
+         Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - BEGIN', 4, +1);
+        {$IFDEF KNT_DEBUG}
+         if log.Active and  (log.MaxDbgLevel >= 5) then begin
+            dataSize:= FNEntry.Stream.Size;
+            if dataSize > 0 then
+               str:= Copy(String(PAnsiChar(FNEntry.Stream.Memory)), 1, 90)
+            else
+               str:= '';
+            Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(cEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
+         end;
+        {$ENDIF}
+
+
+         if StrRTF <> '' then begin
+            if PanelConfig.DisplayingSingleEntry then begin
+               cEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
+               cEditor.ClearUndo;
+            end;
+         end
+         else
+         if FNEntry.Stream.Size > 0 then
+            cEditor.Lines.LoadFromStream( FNEntry.Stream );
+     end;
+
+ end;
+
+ procedure ReconsiderSelectedEntry;
+ var
+   i: integer;
+   iFrom, iTo, Offset: integer;
+ begin
+    iFrom:= Length(FEntriesShown)-1;
+    iTo:= 0;
+    if PanelConfig.DescendingOrder then begin
+       iTo:= iFrom;
+       iFrom:= 0;
+    end;
+
+    Offset:= 0;
+    for i:= iFrom to iTo do begin
+       iEntry:= i;
+       if (FEntriesShown[iEntry].NEntry.ID = PanelConfig.NEntryID) then begin
+           FiEntry:= iEntry;
+           FNEntry:= FEntriesShown[iEntry].NEntry;
+           ConfigureEditor;
+           PrepareEntryContent;
+           if StrRTF = '' then
+              strRTF:= cEditor.RtfText;
+           Editor.SetSelection(FEntriesShown[iEntry].StartingContentPos, FEntriesShown[iEntry].FinalPos, false);
+           if FEntriesShown[iEntry].Content = cmOnlyHeader then begin
+              Editor.SelText:= '';
+              Offset:= - (FEntriesShown[iEntry].FinalPos - FEntriesShown[iEntry].StartingContentPos);
+              inc(FEntriesShown[iEntry].FinalPos, Offset);
+           end
+           else begin
+              Editor.PutRtfText(strRTF,True,True);
+              Editor.SelStart:= Editor.SelStart - 1;
+              Editor.SelLength:= 1;
+              Editor.SelText:= '';
+              FEntriesShown[iEntry].FinalPos:= Editor.SelStart;
+              Offset:= (FEntriesShown[iEntry].FinalPos - FEntriesShown[iEntry].StartingContentPos);
+           end;
+       end
+       else
+       if (Offset <> 0) then begin
+          inc(FEntriesShown[iEntry].StartingPos, Offset);
+          inc(FEntriesShown[iEntry].StartingContentPos, Offset);
+          inc(FEntriesShown[iEntry].FinalPos, Offset);
+       end;
+    end;
+ end;
+
 begin
    if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil) then begin
       FNNode:= nil;
@@ -825,8 +939,11 @@ begin
    ReadOnlyBAK:= FReadOnly;
    ContainsImgIDsRemoved:= false;
    try
+     fChangingInCode:= True;
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
-     Editor.Clear;
+
+     if not ReconsiderOnlyContentInSelectedEntry then
+        Editor.Clear;
 
 
      if CalculateEntriesToShow then begin
@@ -842,7 +959,14 @@ begin
      FiEntry:= 0;
      iEntry:= -1;
 
-     repeat                            // ====================================================== Load each entry, depending on mode
+
+     if ReconsiderOnlyContentInSelectedEntry then begin
+        ReconsiderSelectedEntry;
+        exit;
+     end;
+
+
+     repeat                                         // ============================================== Load each entry, depending on mode
          repeat
             FNEntry:= GetNextEntry;
          until (FNEntry = nil) or ((not PanelConfig.DisplayingSingleEntry) or (FNEntry.ID = PanelConfig.NEntryID));
@@ -853,78 +977,15 @@ begin
          if PanelConfig.NEntryID = FNEntry.ID then
             FiEntry:= iEntry;
 
-
          ConfigureEditor;
+         PrepareEntryContent;        // FEntriesShown[iEntry] -> strRTF or cEditor
 
          if not PanelConfig.DisplayingSingleEntry then begin
-            cEditor.Clear;
-            if FEditor.SupportsRegisteredImages then
-               FEditor_SupportsRegisteredImages:= True;
-         end;
-
-
-         FNEntry.Stream.Position := 0;
-         strRTF:= '';
-
-         if PanelConfig.DisplayingSingleEntry or (FEntriesShown[iEntry].Content <> cmOnlyHeader) then begin
-             if not FNEntry.IsRTF then
-                UpdateEditor (cEditor, FKntFolder, False);
-
-             // *1 For newly created, empty notes, this must be ensured (when the note is not intended to be created as plain text. See call to ConfigureEditor).
-             //    If we don't do this, we may encounter with an exception when calling LoadFromStream while working with the note, before it
-             //    is persisted to the model (for example, when selecting another note from the tree). This can occur if in that situation
-             //    we select several lines and press Shift+TAB (to tab multiple lines, decreasing indentation)
-
-             if (not cEditor.PlainText) and (FNEntry.Stream.Size = 0) then
-                cEditor.StreamFormat:= sfRichText                             // *1
-
-             else begin
-               if NodeStreamIsRTF (FNEntry.Stream) then begin
-                  cEditor.StreamFormat:= sfRichText;
-                  if FEditor.SupportsRegisteredImages then begin
-                     ImagesAux:= GetImagesIDInstances (FNEntry.Stream, FNEntry.TextPlain);
-                     strRTF:= ImageMng.ProcessImagesInRTF(FNEntry.Stream.Memory, FNEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
-                     if PanelConfig.DisplayingSingleEntry then
-                        fImagesReferenceCount:= ImagesAux
-                     else
-                        CombineImagesInstances(ImagesAux, fImagesReferenceCount);
-                  end;
-               end
-               else
-                  cEditor.StreamFormat:= sfPlainText;
-             end;
-
-             Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - BEGIN', 4, +1);
-            {$IFDEF KNT_DEBUG}
-             if log.Active and  (log.MaxDbgLevel >= 5) then begin
-                dataSize:= FNEntry.Stream.Size;
-                if dataSize > 0 then
-                   str:= Copy(String(PAnsiChar(FNEntry.Stream.Memory)), 1, 90)
-                else
-                   str:= '';
-                Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(cEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
-             end;
-            {$ENDIF}
-
-
-             if StrRTF <> '' then begin
-                if PanelConfig.DisplayingSingleEntry then begin
-                   cEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
-                   cEditor.ClearUndo;
-                end;
-             end
-             else
-             if FNEntry.Stream.Size > 0 then
-                cEditor.Lines.LoadFromStream( FNEntry.Stream );
-         end;
-
-         if not PanelConfig.DisplayingSingleEntry then begin
-            if StrRTF = '' then
-               strRTF:= cEditor.RtfText;
-
             Editor.PutRtfText(GetEntryHeader(FNote, FNEntry, false), True,True);
             FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
 
+            if StrRTF = '' then
+               strRTF:= cEditor.RtfText;
             Editor.PutRtfText(strRTF,True,True);
          end;
          FEntriesShown[iEntry].FinalPos:= Editor.SelStart -1;
@@ -996,6 +1057,8 @@ begin
 
      if not ClipCapMng.IsBusy then
         App.EditorReloaded(Editor, Editor.Focused);
+
+     fChangingInCode:= false;
    end;
 
 
@@ -1238,17 +1301,7 @@ var
 begin
    if FiEntry > 0 then begin
       iNextEntry:= FiEntry-1;
-
-      if not PanelConfig.DisplayingSingleEntry then
-          Editor.SelStart:= FEntriesShown[iNextEntry].StartingContentPos
-
-      else begin
-          SaveToDataModel();
-          PanelConfig.NEntryID:= FEntriesShown[iNextEntry].NEntry.ID;
-          btnToggleMulti.Caption:= (iNextEntry+1).ToString;
-          Editor.HideNestedFloatingEditor;
-          ReloadFromDataModel(false);
-      end;
+      SelectINextEntry(iNextEntry);
    end;
 end;
 
@@ -1259,19 +1312,28 @@ var
 begin
    if FiEntry < Length(FEntriesShown) -1 then begin
       iNextEntry:= FiEntry+1;
-
-      if not PanelConfig.DisplayingSingleEntry then
-          Editor.SelStart:= FEntriesShown[iNextEntry].StartingContentPos
-
-      else begin
-          SaveToDataModel();
-          PanelConfig.NEntryID:= FEntriesShown[iNextEntry].NEntry.ID;
-          btnToggleMulti.Caption:= (iNextEntry+1).ToString;
-          Editor.HideNestedFloatingEditor;
-          ReloadFromDataModel(false);
-      end;
+      SelectINextEntry(iNextEntry);
    end;
+end;
 
+
+procedure TKntNoteEntriesUI.SelectINextEntry(iNextEntry: integer);
+var
+   SS: integer;
+begin
+   if not PanelConfig.DisplayingSingleEntry then begin
+       SS:= FEntriesShown[iNextEntry].StartingContentPos;
+       if FEntriesShown[iNextEntry].Content = cmOnlyHeader then
+          SS:= FEntriesShown[iNextEntry].StartingPos;
+       Editor.SelStart:= SS;
+   end
+   else begin
+       SaveToDataModel();
+       PanelConfig.NEntryID:= FEntriesShown[iNextEntry].NEntry.ID;
+       btnToggleMulti.Caption:= (iNextEntry+1).ToString;
+       Editor.HideNestedFloatingEditor;
+       ReloadFromDataModel(false);
+   end;
 end;
 
 
@@ -1328,6 +1390,8 @@ procedure TKntNoteEntriesUI.EditorChangedSelectionInMultiEntries;
 var
    SS, i: integer;
 begin
+   if fChangingInCode then exit;
+
    SS:= Editor.SelStart;
    if (SS < FEntriesShown[FiEntry].StartingPos) or (SS > FEntriesShown[FiEntry].FinalPos) then begin
       for i:=0 to High(FEntriesShown) do
