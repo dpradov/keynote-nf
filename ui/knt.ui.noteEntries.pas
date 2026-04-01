@@ -986,7 +986,11 @@ begin
 
             if StrRTF = '' then
                strRTF:= cEditor.RtfText;
+            if StrRTF = '' then
+               strRTF:= #13;
             Editor.PutRtfText(strRTF,True,True);
+            if Editor.GetTextRange(Editor.SelStart-1, Editor.SelStart) <> #13 then
+               Editor.AddText(#13);
          end;
          FEntriesShown[iEntry].FinalPos:= Editor.SelStart -1;
 
@@ -1006,10 +1010,7 @@ begin
             FEntriesShown[iEntry].StartingContentPos:= 0;
             if (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
                 UpdateEditor (Editor, FKntFolder, false);
-         end
-         else
-            FEditor.SupportsRegisteredImages:= FEditor_SupportsRegisteredImages;
-
+         end;
 
          Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
          FNNode:= FEntriesShown[FiEntry].NNode;
@@ -1040,6 +1041,12 @@ begin
      //NEntry:= NNode.Note.SelEntry;
      if assigned(NNode) and (NNode.Note.ScrollPosInEditor.Y > 0) then
         Editor.SetScrollPosInEditor(NNode.Note.ScrollPosInEditor);
+
+     if not PanelConfig.DisplayingSingleEntry then begin
+        Editor.StreamFormat:= sfRichText;
+        Editor.PlainText:= False;
+        Editor.SupportsRegisteredImages:= FEditor_SupportsRegisteredImages;
+     end;
 
      Editor.SetLangOptions(False);
      Editor.EndUpdate;
