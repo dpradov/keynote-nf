@@ -75,6 +75,7 @@ type
     procedure btnPrevEntryClick(Sender: TObject);
     procedure btnNextEntryClick(Sender: TObject);
     procedure btnToggleMultiClick(Sender: TObject);
+    procedure btnOptionsClick(Sender: TObject);
 
   private class var
     FColorTxts: TColor;
@@ -197,9 +198,13 @@ uses
   kn_EditorUtils,
   kn_ImagesUtils,
   kn_RTFUtils,
+  kn_KntFile,
   knt.ui.TagMng,
   knt.ui.note,
   knt.RS;
+
+const
+  MIN_TAGS_WIDTH = 17;
 
 
 // Create  / Destroy =========================================
@@ -352,8 +357,11 @@ begin
   if FloatingEditorCannotBeSaved then
      Editor.ActivateFloatingEditor;
 
-  if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel then
+  if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel then begin
      pnlIdentif.Visible := True;     // Temporarily..
+     if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry.Tags <> nil) then
+        FrameResize(nil);
+  end;
 end;
 
 
@@ -398,7 +406,7 @@ function TKntNoteEntriesUI.HideTemporarilyInfoPanel: boolean;
 var
   wasFocused: boolean;
 begin
-  wasFocused:= (txtTags.Focused or txtName.Focused);
+  wasFocused:= (txtTags.Focused or txtName.Focused or txtCreationDate.Focused);
   if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel and not wasFocused then
      pnlIdentif.Visible := False;
 
@@ -549,15 +557,13 @@ begin
 end;
 
 procedure TKntNoteEntriesUI.AdjustTxtTagsWidth (AllowEdition: boolean = False);
-const
-  MinTagsWidth = 17;
 var
   MinNoteNameWidth, MaxAvailableWidth: integer;
   MaxAvailableForTags, TagsWidth: integer;
 
 begin
   MinNoteNameWidth:= TagMng.GetTextWidth(Note.Name, txtName) + 10;
-  TagsWidth:=   MinTagsWidth;
+  TagsWidth:=   MIN_TAGS_WIDTH;
   if txtTags.Text <> EMPTY_TAGS then
      TagsWidth:= TagMng.GetTextWidth(txtTags.Text, txtTags) + 10;
 
@@ -574,6 +580,9 @@ begin
   if TagsWidth > MaxAvailableForTags then
      TagsWidth := MaxAvailableForTags;
 
+  if TagsWidth < MIN_TAGS_WIDTH then
+     TagsWidth := MIN_TAGS_WIDTH;
+
   txtTags.Width:= TagsWidth;
   txtName.Width:= MaxAvailableWidth - TagsWidth;
   txtName.Left:= txtTags.Left + TagsWidth + 2;
@@ -583,7 +592,7 @@ end;
 procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
 begin
    if Note <> nil then begin
-      ShowEntriesButtons(PanelConfig.Mode = meMultipleEntries);
+      ShowEntriesButtons(not PanelConfig.DisplayingSingleEntry);
       AdjustTxtTagsWidth(txtTags.Focused);
    end;
 end;
@@ -717,60 +726,75 @@ var
  ImagesAux: TImageIDs;
 
 
- function GetNextEntry: TNoteEntry;
+ procedure PopulateEntriesToShow;
+ var
+   N: integer;
+   iEntry: integer;
+   iFrom, iTo: integer;
+   Tags: TNoteTagArray;
+   FindTags: TFindTags;
+   NEntry: TNoteEntry;
+
+   procedure FillEntry(i: integer);
+   begin
+      FEntriesShown[i].NNode:= FNNode;
+      FEntriesShown[i].Note:= FNote;
+      FEntriesShown[i].Content:= PanelConfig.MMContent;
+   end;
+
  begin
-    Result:= nil;
-
-    if not CalculateEntriesToShow then begin
-       inc(iEntry);
-       if iEntry < Length(FEntriesShown) then
-          Result:= FEntriesShown[iEntry].NEntry;
-       exit;
-    end;
-
     case PanelConfig.Scope of
       fsSelectedNode: begin
          FNNode:= PanelConfig.SelectedNNode;
          FNote:= FNNode.Note;
 
-         if FEntriesShown = nil then begin
-            if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
-               FEditor.AddText(GetRS(sEdt52));
-               ReadOnlyBAK:= True;
-               exit;
-            end;
-            SetLength(FEntriesShown, Note.NumEntries);
+         FEntriesShown:= nil;
+
+         if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
+            FEditor.AddText(GetRS(sEdt52));
+            ReadOnlyBAK:= True;
+            exit;
          end;
 
          case PanelConfig.Mode  of
             meSingleEntry: begin
-               if iEntry = -99 then begin                 // Initial situation
-                  Result:= Note.GetEntry(PanelConfig.NEntryID);
-                  iEntry:= 0;
-               end;
+                SetLength(FEntriesShown, 1);
+                FEntriesShown[0].NEntry:= Note.GetEntry(PanelConfig.NEntryID);
+                FillEntry(0);
             end;
 
             meMultipleEntries: begin
-               if iEntry = -99 then begin                 // Initial situation
-                  if PanelConfig.DescendingOrder then
-                     iEntry:= FNote.NumEntries-1
-                  else
-                     iEntry:= 0
-               end
-               else
-                  if PanelConfig.DescendingOrder then
-                     dec(iEntry)
-                  else
-                     inc(iEntry);
+               SetLength(FEntriesShown, Note.NumEntries);
 
-               case PanelConfig.Order of
-                  eoDateCreation: ;
-                  eoHierarchyAndDateCreation: ;       // Use hierarchy in tree + DataCreation
-                  eoTagsAndDateCreation: ;            // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
+               iFrom:= Length(FEntriesShown)-1;
+               iTo:= 0;
+               if PanelConfig.DescendingOrder then begin
+                  iTo:= iFrom;
+                  iFrom:= 0;
                end;
 
-               if (iEntry <= FNote.NumEntries-1) and (iEntry >= 0) then
-                  Result:= Note.Entries[iEntry];
+               N:= 0;
+               Tags:= PanelConfig.VinculatedTagsWhenReading;
+               if (Tags <> nil) then
+                  FindTags:= FindTagsGetModeAND(Tags);
+
+               for iEntry:= iFrom to iTo do begin
+                  NEntry:= Note.Entries[iEntry];
+                  if (FindTags = nil) or NEntry.MatchesTags(FindTags) then begin
+                     FEntriesShown[N].NEntry:= NEntry;
+                     FillEntry(N);
+                     inc(N);
+                  end;
+               end;
+
+               SetLength(FEntriesShown, N);
+
+
+//               case PanelConfig.Order of
+//                  eoDateCreation: ;
+//                  eoHierarchyAndDateCreation: ;       // Use hierarchy in tree + DataCreation
+//                  eoTagsAndDateCreation: ;            // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
+//               end;
             end;
 
 
@@ -783,14 +807,6 @@ var
       fsSelectedNodes: ;      // -> PanelConfig.NNodes
       fsFolder: ;
       fsFile: ;
-    end;
-
-
-    if Result <> nil then begin
-      FEntriesShown[iEntry].NNode:= FNNode;
-      FEntriesShown[iEntry].Note:= FNote;
-      FEntriesShown[iEntry].NEntry:= Result;
-      FEntriesShown[iEntry].Content:= PanelConfig.MMContent;
     end;
 
  end;
@@ -866,17 +882,11 @@ var
  procedure ReconsiderSelectedEntry;
  var
    i: integer;
-   iFrom, iTo, Offset: integer;
+   Offset: integer;
  begin
-    iFrom:= Length(FEntriesShown)-1;
-    iTo:= 0;
-    if PanelConfig.DescendingOrder then begin
-       iTo:= iFrom;
-       iFrom:= 0;
-    end;
 
     Offset:= 0;
-    for i:= iFrom to iTo do begin
+    for i:= 0 to High(FEntriesShown) do begin
        iEntry:= i;
        if (FEntriesShown[iEntry].NEntry.ID = PanelConfig.NEntryID) then begin
            FiEntry:= iEntry;
@@ -918,8 +928,12 @@ begin
       exit;
    end;
 
-   // ToDO: ReconsiderOnlyContentInSelectedEntry
 
+   if CalculateEntriesToShow then begin
+      PopulateEntriesToShow;
+      if Length(FEntriesShown) <= 1 then
+         PanelConfig.DisplayingSingleEntry:= True;
+   end;
 
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
@@ -946,19 +960,9 @@ begin
         Editor.Clear;
 
 
-     if CalculateEntriesToShow then begin
-        iEntry:= -99;
-        FEntriesShown:= nil;
-        repeat
-           FNEntry:= GetNextEntry;
-        until (FNEntry = nil);
-     end;
-
-     CalculateEntriesToShow:= false;
      fImagesReferenceCount:= nil;
      FiEntry:= 0;
      iEntry:= -1;
-
 
      if ReconsiderOnlyContentInSelectedEntry then begin
         ReconsiderSelectedEntry;
@@ -967,8 +971,15 @@ begin
 
 
      repeat                                         // ============================================== Load each entry, depending on mode
+
          repeat
-            FNEntry:= GetNextEntry;
+            inc(iEntry);
+            FNEntry := nil;
+            if (iEntry <= High(FEntriesShown)) and (iEntry >= 0) then begin
+               FNNode:= FEntriesShown[iEntry].NNode;
+               FNote:= FEntriesShown[iEntry].Note;
+               FNEntry:= FEntriesShown[iEntry].NEntry;
+            end;
          until (FNEntry = nil) or ((not PanelConfig.DisplayingSingleEntry) or (FNEntry.ID = PanelConfig.NEntryID));
 
          if FNEntry = nil then break;
@@ -999,12 +1010,7 @@ begin
 
      if FEntriesShown <> nil then begin
 
-         if PanelConfig.DescendingOrder then
-            iEntry:= Length(FEntriesShown)-1
-         else
-            iEntry:= 0;
-         inc(FEntriesShown[iEntry].FinalPos);      // Last shown entry in the editor
-
+         inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
 
          if PanelConfig.DisplayingSingleEntry then begin
             FEntriesShown[iEntry].StartingContentPos:= 0;
@@ -1310,6 +1316,7 @@ begin
       iNextEntry:= FiEntry-1;
       SelectINextEntry(iNextEntry);
    end;
+   FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
 
 
@@ -1321,6 +1328,7 @@ begin
       iNextEntry:= FiEntry+1;
       SelectINextEntry(iNextEntry);
    end;
+   FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
 
 
@@ -1369,6 +1377,14 @@ begin
    else
       Editor.SelStart:= SSinEntry;
 end;
+
+
+procedure TKntNoteEntriesUI.btnOptionsClick(Sender: TObject);
+begin
+  //
+end;
+
+
 
 procedure TKntNoteEntriesUI.ConfigureEditor;
 var

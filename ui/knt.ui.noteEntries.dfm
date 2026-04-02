@@ -70,6 +70,7 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
       Anchors = [akTop, akRight]
       Caption = '...'
       ImageIndex = 39
+      OnClick = btnOptionsClick
       ExplicitLeft = 580
     end
     object btnToggleMulti: TToolbarButton97

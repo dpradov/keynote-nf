@@ -496,7 +496,9 @@ type
   PNoteNode = ^TNoteNode;
 
 
-  function FindTagsGetModeOR(FindTags: TFindTags): TFindTags;
+  function FindTagsGetModeOR(FindTags: TFindTags): TFindTags; overload;
+  function FindTagsGetModeOR(Tags: TNoteTagArray): TFindTags; overload;
+  function FindTagsGetModeAND(Tags: TNoteTagArray): TFindTags;
 
 
 implementation
@@ -1119,7 +1121,7 @@ begin
    if FindTags = nil then
       exit(nil);
 
-   SetLength(Result, 1);                      // All tags be OR operands
+   SetLength(Result, 1);                      // All tags will be OR operands
    SetLength(FindOR, MAX_SEARCHED_TAGS);
 
    N:= 0;
@@ -1132,6 +1134,34 @@ begin
    SetLength(FindOR, N);
    Result[0]:= FindOR;
 end;
+
+
+function FindTagsGetModeOR(Tags: TNoteTagArray): TFindTags;
+begin
+   if Tags = nil then
+      exit(nil);
+
+   SetLength(Result, 1);                      // All tags will be OR operands
+   Result[0]:= Tags;
+end;
+
+function FindTagsGetModeAND(Tags: TNoteTagArray): TFindTags;
+var
+  i: integer;
+  FindOR: TNoteTagArray;
+begin
+   if Tags = nil then
+      exit(nil);
+
+   SetLength(Result, Length(Tags));                      // All tags will be AND operands
+   for i:= 0 to High(Tags) do begin
+      SetLength(FindOR, 1);
+      FindOR[0]:= Tags[i];
+      Result[i]:= FindOR;
+   end;
+end;
+
+
 
 
 // =========================================================================================================

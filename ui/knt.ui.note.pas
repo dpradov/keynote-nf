@@ -125,6 +125,7 @@ type
  public
     procedure NEntryUIEditorEnter(Sender: TObject);
     function GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
+    procedure KeepInfoPanelTemporarilyVisible;
 
  public
     procedure Refresh;
@@ -296,8 +297,15 @@ end;
 
 
 procedure TKntNoteUI.SetInfoPanelHidden(value: boolean);
+var
+  p: TNEntriesPanel;
 begin
-   FNEntryUI[pnCenter].InfoPanelHidden:= value;
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].InfoPanelHidden:= value;
+
+   if not value then
+      Timer.Enabled:= True;
 end;
 
 
@@ -665,6 +673,7 @@ begin
               exit;
 
   FSelectedNEntryUI:= TKntNoteEntriesUI(Sender);
+  Timer.Enabled:= False;
   Timer.Enabled:= True;
 end;
 
@@ -674,11 +683,18 @@ var
   KeepEnabled: boolean;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if (p <> pnCenter) and (FNEntryUI[p] <> nil)  then
+      if (FNEntryUI[p] <> nil) and not FNEntryUI[p].PanelConfig.ShowEditorInfoPanel then
          KeepEnabled:= not FNEntryUI[p].HideTemporarilyInfoPanel;
 
    if not KeepEnabled then
       Timer.Enabled:= False;
+end;
+
+
+procedure TKntNoteUI.KeepInfoPanelTemporarilyVisible;
+begin
+  Timer.Enabled:= False;
+  Timer.Enabled:= True;
 end;
 
 

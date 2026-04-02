@@ -61,6 +61,7 @@ type
      procedure EditTags;
      procedure RefreshTags;
      procedure SetInfoPanelHidden(value: boolean);
+     procedure KeepInfoPanelTemporarilyVisible;
 
      procedure SetReadOnly( AReadOnly : boolean );
      procedure NNodeDeleted;
