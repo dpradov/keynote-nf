@@ -647,11 +647,17 @@ end;
 procedure TKntNoteUI.ModeChangedToEditing(Editor: TKntRichEdit);
 var
   p: TNEntriesPanel;
+  NEntriesUI: TKntNoteEntriesUI;
 begin
+   Editor.OnEditorChanged:= nil;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
-      if (FNEntryUI[p] <> nil) then
+      if (FNEntryUI[p] <> nil) and ((FNEntryUI[p].NEntry <> nil)) then
          FNEntryUI[p].Editor.OnEditorChanged:= nil;
    end;
+
+   NEntriesUI:= GetNEntryUI(Editor);
+   if (NEntriesUI.NEntry = nil) and (NEntriesUI.Note <> nil) then
+      NEntriesUI.AddNewEntryInTagVinculatedPanel;
 
 //   LoadFromNNode(FNNode, False, True);
 
@@ -686,19 +692,22 @@ var
   PanelConfig: TPanelConfiguration;
   PnlEdit: TNEntriesPanel;
   RequestedFromMultiEntry: boolean;
+  CreatingSecondEntry: boolean;
 
 begin
    if (RequestedFromNEntryUI = nil) or (Note = nil) then exit;
 
-   RequestedFromMultiEntry:= RequestedFromNEntryUI.PanelConfig.Mode = meMultipleEntries;
+   RequestedFromMultiEntry:= (RequestedFromNEntryUI.PanelConfig.Mode = meMultipleEntries) and not RequestedFromNEntryUI.PanelConfig.DisplayingSingleEntry;
+   CreatingSecondEntry:= false;
 
    if FNewNNodeUIConfig and NewEntry and (NNode.note.NumEntries = 2) then begin
       FNNodeUIConfig.Free;
       FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, True);
       RequestedFromNEntryUI.PanelConfig:= FNNodeUIConfig.PanelConfig(pnCenter);
+      CreatingSecondEntry:= true;
    end;
 
-   if RequestedFromMultiEntry or FNewNNodeUIConfig then begin
+   if RequestedFromMultiEntry or CreatingSecondEntry then begin
       if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
          PnlEdit:= RequestedFromNEntryUI.PanelConfig.Panel;
          if not NewEntry then begin
@@ -771,13 +780,17 @@ end;
 {$REGION Tags }
 
 procedure TKntNoteUI.RefreshTags;
+var
+  p: TNEntriesPanel;
 begin
-   FNEntryUI[pnCenter].RefreshTags;
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if FNEntryUI[p] <> nil then
+         FNEntryUI[p].RefreshTags;
 end;
 
 procedure TKntNoteUI.EditTags;
 begin
-   FNEntryUI[pnCenter].EditTags;
+   FSelectedNEntryUI.EditTags;
 end;
 
 
@@ -856,7 +869,7 @@ begin
              PanelConfig.ShowEditorInfoPanel:= (p = PanelConfig.Panel);
              NEntriesUI:= GetNEntryUI(PanelConfig.Panel);
              NEntriesUI.LoadFromDataModel(PanelConfig, False);
-             if EditingMode then
+             if EditingMode and (NEntriesUI.NEntry <> nil) then        // NEntriesUI.NEntry = nil => Vinculated to tags, with no one entry
                 NEntriesUI.Editor.OnEditorChanged := nil
              else
                 NEntriesUI.Editor.OnEditorChanged := ModeChangedToEditing;

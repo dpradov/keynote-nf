@@ -123,6 +123,7 @@ type
     procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
     procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true; ReconsiderOnlyContentInSelectedEntry: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
+    procedure AddNewEntryInTagVinculatedPanel;
     procedure SaveToDataModel;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
@@ -283,6 +284,8 @@ begin
       App.EditorUnavailable(FEditor);
       FreeAndNil(FEditor);
     end;
+    if RTFAux <> nil then
+      FreeAndNil(RTFAux);
 
    fImagesReferenceCount:= nil;
 
@@ -502,9 +505,14 @@ procedure TKntNoteEntriesUI.RefreshTags;
 var
    S: string;
 begin
-   if FNEntry = nil then exit;
+   if FNEntry <> nil then
+      S:= FNEntry.TagsNames
+   else
+   if PanelConfig.VinculatedTags <> nil then
+      S:= TNoteTagArrayUtils.ToNames(PanelConfig.VinculatedTags)
+   else
+      exit;
 
-   S:= FNEntry.TagsNames;
    txtTags.Text:= S;
    TagMng.UpdateTxtTagsHint(txtTags);
    if S = '' then begin
@@ -521,7 +529,7 @@ procedure TKntNoteEntriesUI.txtTagsEnter(Sender: TObject);
 begin
    if txtTags.ReadOnly then exit;
 
-   TagMng.StartTxtEditTagIntrod(txtTags, OnEndEditTagsIntroduction, Note, Folder);
+   TagMng.StartTxtEditTagIntrod(txtTags, OnEndEditTagsIntroduction, FNote, FNEntry, Folder);
    AdjustTxtTagsWidth(True);
 end;
 
@@ -625,8 +633,6 @@ begin
 
        //FNNodeDeleted:= false;    //##
        PanelConfig:= APanelConfig;
-       Editor.Clear;
-       Editor.ClearUndo;
 
 
        if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
@@ -922,6 +928,9 @@ var
           inc(FEntriesShown[iEntry].FinalPos, Offset);
        end;
     end;
+
+    if PanelConfig.DisplayingSingleEntry then
+       ConfigureEditor;
  end;
 
 begin
@@ -936,6 +945,9 @@ begin
 
    CannotShow_Encrypted:= False;
    if CalculateEntriesToShow then begin
+      FNNode:= nil;
+      FNote:= nil;
+      FNEntry:= nil;
       PopulateEntriesToShow;
       if Length(FEntriesShown) <= 1 then
          PanelConfig.DisplayingSingleEntry:= True;
@@ -945,7 +957,8 @@ begin
 
    if not PanelConfig.DisplayingSingleEntry then begin
       SetReadOnly(true);
-      RTFAux:= CreateAuxRichEdit();
+      if RTFAux = nil then
+         RTFAux:= CreateAuxRichEdit();
       cEditor:= RTFAux;
       cEditor.BeginUpdate;
       FEditor_SupportsRegisteredImages:= False;
@@ -962,8 +975,10 @@ begin
      fChangingInCode:= True;
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
 
-     if not ReconsiderOnlyContentInSelectedEntry then
+     if not ReconsiderOnlyContentInSelectedEntry then begin
         Editor.Clear;
+        Editor.ClearUndo;
+     end;
 
 
      fImagesReferenceCount:= nil;
@@ -1088,7 +1103,7 @@ begin
      Editor.Change;
 
      if RTFAux <> nil then
-        FreeAndNil(RTFAux);
+        RTFAux.Clear;
 
      if not ClipCapMng.IsBusy then
         App.EditorReloaded(Editor, Editor.Focused);
@@ -1101,6 +1116,16 @@ begin
   txtName.Enabled:= True;
 end;
 
+
+procedure TKntNoteEntriesUI.AddNewEntryInTagVinculatedPanel;
+begin
+   FNEntry:= FNote.AddNewEntry;
+   NEntry.Tags:= PanelConfig.VinculatedTags;
+   Folder.Modified:= True;
+   PanelConfig.NEntryID:= NEntry.ID;
+   ReloadMetadataFromDataModel;
+   ConfigureEditor;
+end;
 
 function TKntNoteEntriesUI.VinculatedToMultipleEntries: boolean;
 begin
@@ -1259,7 +1284,7 @@ begin
 
   Encoding:= nil;
 
-  if assigned(NNode) then begin
+  if assigned(NNode) and (FNEntry <> nil) then begin
      if FEditor.FloatingEditor <> nil then
         FEditor.DoSaveChangesInFloatingEditor;
 

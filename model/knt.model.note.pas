@@ -271,6 +271,7 @@ type
      class function HasTag(Tags: TNoteTagArray; TagName: string): boolean; overload;
      class function HasTag(Tags: TNoteTagArray; Tag: TNoteTag): boolean; overload;
      class procedure AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
+     class function ToNames(Tags: TNoteTagArray): string;
      class function ToString(Tags: TNoteTagArray): string;
      class function StringToTags(Str: string): TNoteTagArray;
    end;
@@ -1069,6 +1070,17 @@ begin
 
 end;
 
+class function TNoteTagArrayUtils.ToNames(Tags: TNoteTagArray): string;
+var
+   i: integer;
+begin
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         Result:= Result + Tags[i].Name + ' ';
+   end;
+end;
+
+
 class function TNoteTagArrayUtils.ToString(Tags: TNoteTagArray): string;
 var
    i: integer;
@@ -1386,11 +1398,9 @@ begin
    if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
       exit;
 
-   if Tags <> nil then begin
-      for i:= 0 to High(Tags) do
-         Result:= Result + Tags[i].Name + ' ';
-   end;
+   Result:= TNoteTagArrayUtils.ToNames(Tags);
 end;
+
 
 function TNoteEntry.TagsToString: string;
 begin

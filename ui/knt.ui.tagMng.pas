@@ -32,6 +32,7 @@ type
     FAllowNotRegTags: boolean;
 
     FNote: TNote;
+    FNEntry: TNoteEntry;
     FFolder: TObject;
 
     FCanvasAux : TControlCanvas;
@@ -63,7 +64,7 @@ type
   public
     destructor Destroy; override;
 
-    procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
+    procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; NEntry: TNoteEntry; Folder: TObject);
     procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod; AllowNotRegTags:boolean);
     procedure EndedTxtTagIntrod(PressedReturn: boolean);
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
@@ -421,7 +422,7 @@ begin
    end;
 end;
 
-procedure TTagMng.StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
+procedure TTagMng.StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; NEntry: TNoteEntry; Folder: TObject);
 begin
    if TagEdit = txtTags then exit;
    StartTxtTagIntrod(TagEdit);
@@ -429,6 +430,7 @@ begin
    FTagsMode:= tmEdit;
    FOnEndEditTagsIntrod:= OnEndEditTagsIntrod;
    FNote:= Note;
+   FNEntry:= NEntry;
    FFolder:= Folder;
 end;
 
@@ -712,7 +714,6 @@ var
    TagsNames: array of string;
    N: integer;
    TagsStateBAK: TTagsState;
-   NEntry: TNoteEntry;
    FindTags: TFindTags;
    NTagsOR: TNoteTagList;
    ConsideredWords: string;
@@ -849,15 +850,14 @@ begin
         App.TagsState := TagsStateBAK;
         App.TagsUpdated;                            // Perform the sorting only once
 
-        NEntry:= FNote.Entries[0];                               // %%%%
-        if not NEntry.HaveSameTags(TagsAssigned) then begin
-           NEntry.Tags:= TagsAssigned;
-           App.NEntryModified(NEntry, FNote, TKntFolder(FFolder));
+        if not FNEntry.HaveSameTags(TagsAssigned) then begin
+           FNEntry.Tags:= TagsAssigned;
+           App.NEntryModified(FNEntry, FNote, TKntFolder(FFolder));
            Form_Main.ClearFindTags;
            if TKntFolder(FFolder).TreeUI.ShowUseOfTags then
               Form_Main.RefreshFilterOnTags;
         end;
-        txtTags.Text:= NEntry.TagsNames;
+        txtTags.Text:= FNEntry.TagsNames;
 
       end
       else begin     // FTagsMode = tmSearch
@@ -1085,3 +1085,4 @@ initialization
    TagMng:= TTagMng.Create;
 
 end.
+

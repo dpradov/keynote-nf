@@ -4790,9 +4790,9 @@ begin
 
   if FUpdating = 0 then begin
     if Modified and not IgnoringEditorChanges then begin
-       App.ChangeInEditor(Self);
        if assigned(FEditorChanged) then
           OnEditorChanged(Self);
+       App.ChangeInEditor(Self);
     end;
   end;
 
