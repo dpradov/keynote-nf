@@ -76,6 +76,7 @@ type
     private
       FNNode: TNoteNode;
       FFolder: TKntFolder;
+      FEditingMode: boolean;
 
       FTop_Ratio: Single;
       FBottom_Ratio: Single;
@@ -89,15 +90,17 @@ type
       function GetBLBR_Ratio: Single;
 
     protected
-      constructor Create (NNode: TNoteNode; Folder: TKntFolder);
+      constructor Create (NNode: TNoteNode; Folder: TKntFolder; EditingMode: boolean);
       function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: Word = 0): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
 
 
-      class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder): TNNodeUIConfiguration;
+      class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; EditingMode: boolean): TNNodeUIConfiguration;
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
+      function GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
+      function GetVisibleBottomPanel: TNEntriesPanel;
       function SaveToString: string;
 
       property NNode: TNoteNode read FNNode;
@@ -303,7 +306,7 @@ type
     function GetFocusedNNode : TNoteNode;
     property FocusedNNode : TNoteNode read GetFocusedNNode;
 
-    function GetNNodeUIConfig(NNode : TNoteNode): TNNodeUIConfiguration;
+    function GetNNodeUIConfig(NNode : TNoteNode; EditingMode: boolean): TNNodeUIConfiguration;
     function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
 
     procedure NoteNameModified(NNode: TNoteNode);
@@ -881,6 +884,11 @@ begin
   NoteAdvOptions.DefaultUseWhenReading[pnTL]:= pnuShowVinculatedWithTags;
   NoteAdvOptions.VinculatedTagsWhenReading[pnTL]:= Tags;
 
+  NoteAdvOptions.DefaultUseWhenEditing[pnTL] := pnuShowVinculatedWithTags;
+  NoteAdvOptions.DefaultUseWhenEditing[pnCenter] := pnuShowNewestEntry;
+  NoteAdvOptions.DefaultUseWhenEditing[pnBL] := pnuShowAllEntries;
+  NoteAdvOptions.VinculatedTagsWhenEditing[pnTL]:= Tags;
+
 end; // CREATE
 
 
@@ -1325,14 +1333,14 @@ end;
 
 {$REGION NNodes UI Config }
 
-function TKntFolder.GetNNodeUIConfig(NNode : TNoteNode): TNNodeUIConfiguration;
+function TKntFolder.GetNNodeUIConfig(NNode : TNoteNode; EditingMode: boolean): TNNodeUIConfiguration;
 var
   i: integer;
   GID: Cardinal;
 begin
   for i:= 0 to NNodesUIConfig.Count-1 do begin
      Result:= NNodesUIConfig[i];
-     if Result.NNode = NNode then exit;
+     if (Result.NNode = NNode) and (Result.FEditingMode = EditingMode) then exit;
   end;
   Result:= nil;
 end;
@@ -3157,7 +3165,7 @@ end;
 
 //=====  TNNodeUIConfiguration ================
 
-constructor TNNodeUIConfiguration.Create (NNode: TNoteNode; Folder: TKntFolder);
+constructor TNNodeUIConfiguration.Create (NNode: TNoteNode; Folder: TKntFolder; EditingMode: boolean);
 begin
   FNNode:= NNode;
   FTop_Ratio:= 0;
@@ -3165,6 +3173,7 @@ begin
   FTLTR_Ratio:= 0;
   FBLBR_Ratio:= 0;
   FFolder:= Folder;
+  FEditingMode:= EditingMode;
 end;
 
 
@@ -3205,7 +3214,8 @@ begin
           exit(PanelsConfig[i]);
    end;
 
-   exit( CreateDefaultPanelConfig(Panel, meMultipleEntries, FNNode) );
+   Result:= CreateDefaultPanelConfig(Panel, meMultipleEntries, FNNode);
+   exit;
 end;
 
 
@@ -3219,7 +3229,7 @@ begin
     with Result do begin
        with PanelsConfig[L] do begin
           Panel:= aPanel;
-          ShowEditorInfoPanel:= (aPanel = pnCenter);
+          ShowEditorInfoPanel:= False;
           Visible:= True;
           Scope:= fsSelectedNode;
           Mode:= meSingleEntry;
@@ -3227,15 +3237,17 @@ begin
           SelectedNNode:= NNode;
           NEntryID:= EntryID;
           NNodes:= nil;
-          VinculatedTagsWhenReading:= FFolder.NoteAdvOptions.VinculatedTagsWhenReading[aPanel];
-          VinculatedTagsWhenEditing:= FFolder.NoteAdvOptions.VinculatedTagsWhenEditing[aPanel];
+          if FEditingMode then
+             VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenEditing[aPanel]
+          else
+             VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenReading[aPanel];
 
           if aMode = meMultipleEntries then begin
             Mode:= meMultipleEntries;
             DisplayingSingleEntry:= false;
             MMContent:= cmWholeEntry;
-            MMShowDateInHeader:= ShowEditorInfoPanel;
-            MMShowTagsInHeader:= ShowEditorInfoPanel;
+            MMShowDateInHeader:= true;
+            MMShowTagsInHeader:= true;
             Order:= eoDateCreation;
             DescendingOrder:= True;
             with Filter do begin
@@ -3255,14 +3267,14 @@ begin
 end;
 
 
-class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode; Folder: TKntFolder): TNNodeUIConfiguration;
+class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode; Folder: TKntFolder; EditingMode: boolean): TNNodeUIConfiguration;
 var
    p: TNEntriesPanel;
    EntryID: Word;
    PnlUse: TNEntriesPanelUse;
    N: integer;
 begin
-    Result:= TNNodeUIConfiguration.Create(NNode, Folder);
+    Result:= TNNodeUIConfiguration.Create(NNode, Folder, EditingMode);
     if NNode = nil then begin
        Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, nil, 0);
        exit;
@@ -3270,17 +3282,19 @@ begin
 
     N:= NNode.Note.NumEntries;
 
-    // ToDO: OnRead vs OnEdit...  ***
-
     if (N = 1) then begin
         Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode, NNode.Note.Entries[0].ID);
         exit;
     end;
 
-    // ToDO: pnuShowVinculatedWithTags, pnuShowLastSelectedEntry  ***
+    // ToDO: pnuShowLastSelectedEntry  ***
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-       PnlUse:= Folder.NoteAdvOptions.DefaultUseWhenReading[p];
+       if EditingMode then
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseWhenEditing[p]
+       else
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseWhenReading[p];
+
        if (PnlUse in [pnuShowNewestEntry, pnuShowOldestEntry, pnuShowLastSelectedEntry]) then begin
           case PnlUse of
              pnuShowNewestEntry:
@@ -3301,6 +3315,52 @@ begin
     end;
 
 end;
+
+
+function TNNodeUIConfiguration.GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
+var
+  i: integer;
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= true;
+   for i := 0 to High(PanelsConfig) do begin
+       PanelConfig:= PanelsConfig[i];
+       if (PanelConfig.Mode = meSingleEntry) and (PanelConfig.VinculatedTags = nil) then begin
+          Pnl:= PanelConfig.Panel;
+          exit;
+       end;
+   end;
+
+   Result:= false;
+end;
+
+
+function TNNodeUIConfiguration.GetVisibleBottomPanel: TNEntriesPanel;
+var
+  i: integer;
+  BLv,BRv,CenterV: boolean;
+  PanelConfig: TPanelConfiguration;
+begin
+   BLv:= False;
+   BRv:= False;
+   CenterV:= False;
+   for i := 0 to High(PanelsConfig) do begin
+       PanelConfig:= PanelsConfig[i];
+       case PanelConfig.Panel of
+          pnBL: BLv:= PanelConfig.Visible;
+          pnBR: BRv:= PanelConfig.Visible;
+          pnCenter: CenterV:= PanelConfig.Visible;
+       end;
+   end;
+
+   if BLv and not BRv then
+      exit(pnBL);
+   if BRv and not BLv then
+      exit(pnBR);
+   if CenterV then
+      exit(pnCenter);
+end;
+
 
 class function TNNodeUIConfiguration.CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
 begin

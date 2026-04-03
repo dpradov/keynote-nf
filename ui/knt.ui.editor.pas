@@ -53,6 +53,7 @@ type
 type
   TKntRichEdit= class;
   TChangedSelectionEvent = procedure(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false) of object;
+  TEditorChangedEvent = procedure(Sender: TKntRichEdit) of object;
 
 
 //======================================
@@ -112,6 +113,7 @@ type
 
     FIgnoreSelectionChange: boolean;
     FChangedSelection: TChangedSelectionEvent;
+    FEditorChanged: TEditorChangedEvent;
     FLinkHover: TCharRange;
 
     FKeepEndCR: boolean;       // in folded block open in floating editor
@@ -180,6 +182,7 @@ type
     property RecreateWndProtect : boolean read FRecreateWndProtect write FRecreateWndProtect;
 
     property OnChangedSelection: TChangedSelectionEvent read FChangedSelection write FChangedSelection;
+    property OnEditorChanged: TEditorChangedEvent read FEditorChanged write FEditorChanged;
     procedure ChangedSelection; virtual;
     procedure Change; override;
     function GetSelectedImageID: integer;
@@ -529,6 +532,8 @@ begin
   FUseTabChar := true;
   FTabSize := DEF_TAB_SIZE;
 
+  FEditorChanged:= nil;
+  FChangedSelection:= nil;
   FIgnoreSelectionChange:= false;
   DraggingImageID:= 0;
 
@@ -4169,9 +4174,9 @@ var
   ch: char;
 
 begin
-  if (Key = VK_RETURN) and (shift = []) and FMultiEntries and not fDisplayingSingleEntry and (FNEntriesUIObj <> nil) then begin
+  if (Key = VK_RETURN) and (shift = []) and FMultiEntries and not fDisplayingSingleEntry and (FNNodeObj <> nil) then begin
        key:= 0;
-       TKntNoteEntriesUI(FNEntriesUIObj).EditorIntroInMultiEntries;
+       ActiveFolder.NoteUI.IntroInEditorMultiEntries(ActiveEditor);
        exit;
   end;
 
@@ -4784,8 +4789,11 @@ begin
   if FUpdating > 0 then exit;
 
   if FUpdating = 0 then begin
-    if Modified and not IgnoringEditorChanges then
+    if Modified and not IgnoringEditorChanges then begin
        App.ChangeInEditor(Self);
+       if assigned(FEditorChanged) then
+          OnEditorChanged(Self);
+    end;
   end;
 
   inherited;
@@ -4794,7 +4802,7 @@ end; // Change
 
 procedure TKntRichEdit.ChangedSelection;
 begin
-    if assigned(OnChangedSelection) then
+    if assigned(FChangedSelection) then
        OnChangedSelection(Self);
 end;
 

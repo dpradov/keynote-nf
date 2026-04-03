@@ -864,8 +864,8 @@ type
 
 
 type
-  TNEntriesPanel    = (pnCenter, pnTL, pnTR, pnBL, pnBR,  pnLeft, pnR1, pnR2, pnR3);
-  TNEntriesMainPanel = pnCenter..pnBR;
+  TNEntriesPanel    = (pnTL, pnTR, pnCenter, pnBL, pnBR,  pnLeft, pnR1, pnR2, pnR3);
+  TNEntriesMainPanel = pnTL..pnBR;
   TNEntriesAuxPanel  = pnLeft..pnR3;
 
 
@@ -899,9 +899,7 @@ type
      PnlTLTRRatio:   Single;   // Ratio TL vs TR
      PnlBLBRRatio:   Single;   // Ratio BL vs BR
 
-
      public procedure Initialize;
-     public function EditMultiEntriesPanelIn: TNEntriesPanel;
   end;
 
 
@@ -1141,21 +1139,6 @@ begin
 
   if SameFile then
      Result:= GID;
-end;
-
-function TNoteAdvancedOptions.EditMultiEntriesPanelIn: TNEntriesPanel;
-var
-  p, pAllEntries: TNEntriesPanel;
-begin
-    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-       if DefaultUseWhenEditing[p] in [pnuShowNewestEntry, pnuShowOldestEntry, pnuShowLastSelectedEntry] then
-          exit(p);
-
-       if DefaultUseWhenEditing[p] = pnuShowAllEntries then
-          pAllEntries:= p;
-    end;
-
-    Result:= pAllEntries;
 end;
 
 

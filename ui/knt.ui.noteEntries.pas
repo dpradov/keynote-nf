@@ -126,7 +126,7 @@ type
     procedure SaveToDataModel;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
-    procedure EditorIntroInMultiEntries;
+    procedure IntroInEditorMultiEntries;
     procedure EditorDblClickInMultiEntries;
     function VinculatedToMultipleEntries: boolean;
     procedure ConfigureEditor;
@@ -359,7 +359,7 @@ begin
 
   if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel then begin
      pnlIdentif.Visible := True;     // Temporarily..
-     if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry.Tags <> nil) then
+     if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil) then
         FrameResize(nil);
   end;
 end;
@@ -443,7 +443,7 @@ var
   s, lm: string;
 begin
   if (FNote <> nil) then begin
-      if (not PanelConfig.DisplayingSingleEntry) then begin
+      if (not PanelConfig.DisplayingSingleEntry) or (FNote.NumEntries = 1) then begin
          if FNote.LastModified <> 0 then begin
             if (FNote.LastModified).GetTime <> 0 then
                 S:= ' - ' + FormatSettings.ShortTimeFormat;
@@ -631,7 +631,9 @@ begin
 
        if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
           FOnUse:= True;
-          HideTemporarilyInfoPanel;
+          if not FInfoPanelHidden then
+             pnlIdentif.Visible := True;
+
           txtName.Visible := PanelConfig.ShowEditorInfoPanel;
           case PanelConfig.SelectedNNode.WordWrap of
             wwAsFolder : Editor.WordWrap := FKntFolder.WordWrap;
@@ -684,7 +686,7 @@ begin
    try
       txtName.Text:= FNote.Name;
 
-      if (not PanelConfig.DisplayingSingleEntry) then
+      if (not PanelConfig.DisplayingSingleEntry) or (FNEntry = nil) then
          Created:= FNote.DateCreated
       else
          Created:= FNEntry.Created;
@@ -724,13 +726,14 @@ var
  cEditor: TRxRichEdit;
  iEntry: integer;
  ImagesAux: TImageIDs;
+ CannotShow_Encrypted: boolean;
 
 
+ // -> FEntriesShown, FNNode, FNote, [FNEntry, ReadOnlyBAK]
  procedure PopulateEntriesToShow;
  var
    N: integer;
    iEntry: integer;
-   iFrom, iTo: integer;
    Tags: TNoteTagArray;
    FindTags: TFindTags;
    NEntry: TNoteEntry;
@@ -742,6 +745,17 @@ var
       FEntriesShown[i].Content:= PanelConfig.MMContent;
    end;
 
+   procedure CheckCandidateEntry;
+   begin
+      NEntry:= Note.Entries[iEntry];
+      if (FindTags = nil) or NEntry.MatchesTags(FindTags) then begin
+         FEntriesShown[N].NEntry:= NEntry;
+         FillEntry(N);
+         inc(N);
+      end;
+   end;
+
+
  begin
     case PanelConfig.Scope of
       fsSelectedNode: begin
@@ -751,8 +765,7 @@ var
          FEntriesShown:= nil;
 
          if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
-            FEditor.AddText(GetRS(sEdt52));
-            ReadOnlyBAK:= True;
+            CannotShow_Encrypted:= True;
             exit;
          end;
 
@@ -766,26 +779,18 @@ var
             meMultipleEntries: begin
                SetLength(FEntriesShown, Note.NumEntries);
 
-               iFrom:= Length(FEntriesShown)-1;
-               iTo:= 0;
-               if PanelConfig.DescendingOrder then begin
-                  iTo:= iFrom;
-                  iFrom:= 0;
-               end;
-
-               N:= 0;
-               Tags:= PanelConfig.VinculatedTagsWhenReading;
+               Tags:= PanelConfig.VinculatedTags;
                if (Tags <> nil) then
                   FindTags:= FindTagsGetModeAND(Tags);
 
-               for iEntry:= iFrom to iTo do begin
-                  NEntry:= Note.Entries[iEntry];
-                  if (FindTags = nil) or NEntry.MatchesTags(FindTags) then begin
-                     FEntriesShown[N].NEntry:= NEntry;
-                     FillEntry(N);
-                     inc(N);
-                  end;
-               end;
+               N:= 0;
+               if PanelConfig.DescendingOrder then
+                   for iEntry:= Length(FEntriesShown)-1 downto 0 do
+                      CheckCandidateEntry
+               else
+                   for iEntry:= 0 to Length(FEntriesShown)-1 do
+                      CheckCandidateEntry;
+
 
                SetLength(FEntriesShown, N);
 
@@ -812,7 +817,7 @@ var
  end;
 
 
- // FEntriesShown[iEntry]  - - -> strRTF or cEditor
+ // FEntriesShown[iEntry], FNEntry  - - -> strRTF or cEditor
  procedure PrepareEntryContent;
  begin
      if not PanelConfig.DisplayingSingleEntry then begin
@@ -929,6 +934,7 @@ begin
    end;
 
 
+   CannotShow_Encrypted:= False;
    if CalculateEntriesToShow then begin
       PopulateEntriesToShow;
       if Length(FEntriesShown) <= 1 then
@@ -970,7 +976,9 @@ begin
      end;
 
 
-     repeat                                         // ============================================== Load each entry, depending on mode
+     if FEntriesShown <> nil then begin
+
+       repeat                                         // ============================================== Load each entry, depending on mode
 
          repeat
             inc(iEntry);
@@ -989,7 +997,7 @@ begin
             FiEntry:= iEntry;
 
          ConfigureEditor;
-         PrepareEntryContent;        // FEntriesShown[iEntry] -> strRTF or cEditor
+         PrepareEntryContent;        // FEntriesShown[iEntry], FNEntry -> strRTF or cEditor
 
          if not PanelConfig.DisplayingSingleEntry then begin
             Editor.PutRtfText(GetEntryHeader(FNote, FNEntry, false), True,True);
@@ -1005,32 +1013,46 @@ begin
          end;
          FEntriesShown[iEntry].FinalPos:= Editor.SelStart -1;
 
-     until PanelConfig.DisplayingSingleEntry;         //===========================================
+       until PanelConfig.DisplayingSingleEntry;         //===========================================
 
 
-     if FEntriesShown <> nil then begin
+       inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
 
-         inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
+       if PanelConfig.DisplayingSingleEntry then begin
+          FEntriesShown[FiEntry].StartingContentPos:= 0;
+          if (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+              UpdateEditor (Editor, FKntFolder, false);
+       end
+       else
+       if CalculateEntriesToShow then begin
+          FiEntry:= 0;
+          if not PanelConfig.DescendingOrder then
+             FiEntry:= Length(FEntriesShown)-1;
+       end;
 
-         if PanelConfig.DisplayingSingleEntry then begin
-            FEntriesShown[iEntry].StartingContentPos:= 0;
-            if (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
-                UpdateEditor (Editor, FKntFolder, false);
-         end;
+       Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
+       FNNode:= FEntriesShown[FiEntry].NNode;
+       FNote:= FEntriesShown[FiEntry].Note;
+       FNEntry:= FEntriesShown[FiEntry].NEntry;
+       if PanelConfig.DisplayingSingleEntry and (FNote.SelEntry = FNEntry) then begin
+          Editor.SelStart := FNote.SelStart;
+          Editor.SelLength := FNote.SelLength;
+       end
+       else begin
+          if FiEntry = 0 then
+             Editor.SelStart:= 0;
+          Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos;
+          Editor.SelLength := 0;
+       end;
 
-         Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
-         FNNode:= FEntriesShown[FiEntry].NNode;
-         FNote:= FEntriesShown[FiEntry].Note;
-         FNEntry:= FEntriesShown[FiEntry].NEntry;
-         if PanelConfig.DisplayingSingleEntry and (FNote.SelEntry = FNEntry) then begin
-            Editor.SelStart := FNote.SelStart;
-            Editor.SelLength := FNote.SelLength;
-         end
-         else begin
-            Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos;
-            Editor.SelLength := 0;
-         end;
-
+     end
+     else begin                    // FEntriesShown = nil and not: (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)
+        if CannotShow_Encrypted then begin
+           FNEntry:= FNote.Entries[0];
+           FEditor.AddText(GetRS(sEdt52));
+           ReadOnlyBAK:= True;
+        end;
+        ConfigureEditor;
      end;
 
      ReloadMetadataFromDataModel;
@@ -1398,7 +1420,9 @@ begin
      txtName.Enabled:= False;
   end
   else begin
-     plainTxt:= FNEntry.IsPlainTXT;
+     plainTxt:= false;
+     if FNEntry <> nil then
+        plainTxt:= FNEntry.IsPlainTXT;
      FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, FNEntry, Self, (PanelConfig.Mode=meMultipleEntries), PanelConfig.DisplayingSingleEntry);
      FEditor.PlainText:= plainTxt;
      FEditor.Chrome:= FKntFolder.EditorChrome;
@@ -1431,7 +1455,7 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.EditorIntroInMultiEntries;
+procedure TKntNoteEntriesUI.IntroInEditorMultiEntries;
 begin
    btnToggleMultiClick(nil);
 end;

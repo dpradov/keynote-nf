@@ -3147,9 +3147,9 @@ begin
         else begin
            if Msg.CharCode = VK_RETURN then begin
               if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and
-                  ActiveEditor.MultiEntries and (ActiveEditor.NEntriesUIObj <> nil) then begin
+                  ActiveEditor.MultiEntries and (ActiveEditor.NNodeObj <> nil) then begin
 
-                  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).EditorIntroInMultiEntries;
+                  ActiveFolder.NoteUI.IntroInEditorMultiEntries(ActiveEditor);
                   Handled:= true;
               end
               else

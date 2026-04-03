@@ -40,16 +40,18 @@ type
      function GetFolder: TObject;
      function GetSelectedNEntry: TNoteEntry;
      function GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
+     function GetEditingMode: boolean;
      property Editor: TKntRichEdit read GetEditor;
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
 
-     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingMode: boolean=false);
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
      procedure ReloadNoteName;
      procedure SaveToDataModel;
      procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit);
+     procedure IntroInEditorMultiEntries(RequestedFromEditor: TKntRichEdit);
      procedure Refresh;
 
      procedure SetImagesMode(ImagesMode: TImagesMode);
@@ -129,8 +131,7 @@ type
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
     NEntryID: Word;
-    VinculatedTagsWhenReading: TNoteTagArray;
-    VinculatedTagsWhenEditing: TNoteTagArray;
+    VinculatedTags: TNoteTagArray;
     MMContent: TContentInMultipleMode;
     MMShowDateInHeader: boolean;
     MMShowTagsInHeader: boolean;

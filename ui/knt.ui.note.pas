@@ -74,12 +74,13 @@ type
     FNNodeUIConfig: TNNodeUIConfiguration;
     FNewNNodeUIConfig: boolean;
     FSelectedNEntryUI: TKntNoteEntriesUI;
+    FEditingMode: boolean;
 
     fSplitterNoteMoving: boolean;
     FUpdatingOnResize: boolean;
     IncResize: integer;
 
-    Timer: TTimer;
+    TimerInfoPanel: TTimer;
 
 {  // DEBUG
     FEditorL  : TKntRichEdit;
@@ -93,6 +94,7 @@ type
     function GetNNode: TNoteNode;
     function GetFolder: TObject;
     function GetSelectedNEntry: TNoteEntry;
+    function GetEditingMode: boolean;
 
   public
     constructor Create(AOwner: TComponent; KntFolder: TKntFolder);
@@ -106,7 +108,7 @@ type
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
-    procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean);
+    procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean; EditingMode: boolean=false);
     procedure ReloadFromDataModel;
     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
     procedure SaveToDataModel;
@@ -121,7 +123,10 @@ type
     function GetNEntryUI (Editor: TKntRichEdit): TKntNoteEntriesUI; overload;
     procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit); overload;
     procedure CreateNewEntry(RequestedFromNEntryUI: TKntNoteEntriesUI); overload;
-    procedure TimerTimer(Sender: TObject);
+    procedure EditInInMultiEntries(RequestedFromNEntryUI: TKntNoteEntriesUI; NEntryID: integer; NewEntry: boolean);
+    procedure IntroInEditorMultiEntries(RequestedFromEditor: TKntRichEdit);
+    procedure ModeChangedToEditing(Editor: TKntRichEdit);
+    procedure TimerInfoTimer(Sender: TObject);
  public
     procedure NEntryUIEditorEnter(Sender: TObject);
     function GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
@@ -187,7 +192,7 @@ begin
 
    FKntFolder:= KntFolder;
 
-   for p := pnTL to High(TNEntriesPanel) do
+   for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
       FNEntryUI[p]:= nil;
 
    FNEntryUI[pnCenter]:= TKntNoteEntriesUI.Create( PnlCenter, Self );
@@ -198,10 +203,10 @@ begin
 
    fSplitterNoteMoving:= false;
    FUpdatingOnResize:= false;
-   Timer:= TTimer.Create(Self);
-   Timer.Enabled := false;
-   Timer.Interval := 3000;  // 3 seconds
-   Timer.OnTimer:= TimerTimer;
+   TimerInfoPanel:= TTimer.Create(Self);
+   TimerInfoPanel.Enabled := false;
+   TimerInfoPanel.Interval := 2000;  // 2 seconds
+   TimerInfoPanel.OnTimer:= TimerInfoTimer;
 end;
 
 
@@ -213,7 +218,7 @@ begin
       if FNEntryUI[p] <> nil then
          FreeAndNil(FNEntryUI[p]);
 
-   Timer.Free;
+   TimerInfoPanel.Free;
 
    inherited;
 end;
@@ -305,7 +310,7 @@ begin
          FNEntryUI[p].InfoPanelHidden:= value;
 
    if not value then
-      Timer.Enabled:= True;
+      TimerInfoPanel.Enabled:= True;
 end;
 
 
@@ -620,6 +625,39 @@ begin
          FNEntryUI[p].RefreshEntry;
 end;
 
+
+procedure TKntNoteUI.IntroInEditorMultiEntries(RequestedFromEditor: TKntRichEdit);
+var
+   NEntriesUI: TKntNoteEntriesUI;
+   NEntryID: integer;
+begin
+  NEntriesUI:= GetNEntryUI(RequestedFromEditor);
+  if NEntriesUI.PanelConfig.DisplayingSingleEntry then
+     NEntriesUI.IntroInEditorMultiEntries
+  else
+  if not FEditingMode then begin
+     NEntryID:= NEntriesUI.NEntry.ID;
+     LoadFromNNode(FNNode, True, True);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
+     if CtrlDown then
+        EditInInMultiEntries(NEntriesUI, NEntryID, false);
+  end;
+end;
+
+
+procedure TKntNoteUI.ModeChangedToEditing(Editor: TKntRichEdit);
+var
+  p: TNEntriesPanel;
+begin
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+      if (FNEntryUI[p] <> nil) then
+         FNEntryUI[p].Editor.OnEditorChanged:= nil;
+   end;
+
+//   LoadFromNNode(FNNode, False, True);
+
+end;
+
+
 procedure TKntNoteUI.CreateNewEntry(RequestedFromEditor: TKntRichEdit);
 begin
    CreateNewEntry(GetNEntryUI(RequestedFromEditor));
@@ -628,28 +666,56 @@ end;
 procedure TKntNoteUI.CreateNewEntry(RequestedFromNEntryUI: TKntNoteEntriesUI);
 var
   NEntry: TNoteEntry;
-  NEntriesUI: TKntNoteEntriesUI;
-
-  PanelConfig: TPanelConfiguration;
-  PnlEdit: TNEntriesPanel;
-
 begin
    if (RequestedFromNEntryUI = nil) or (Note = nil) then exit;
 
    NEntry:= Note.AddNewEntry;
    Folder.Modified:= True;
 
-   if FNewNNodeUIConfig and (NNode.note.NumEntries = 2) then begin
+   if not FEditingMode then begin
+      LoadFromNNode(FNNode, False, True);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
+   end;
+
+   EditInInMultiEntries(RequestedFromNEntryUI, NEntry.ID, true);
+end;
+
+
+procedure TKntNoteUI.EditInInMultiEntries(RequestedFromNEntryUI: TKntNoteEntriesUI; NEntryID: integer; NewEntry: boolean);
+var
+  NEntriesUI: TKntNoteEntriesUI;
+  PanelConfig: TPanelConfiguration;
+  PnlEdit: TNEntriesPanel;
+  RequestedFromMultiEntry: boolean;
+
+begin
+   if (RequestedFromNEntryUI = nil) or (Note = nil) then exit;
+
+   RequestedFromMultiEntry:= RequestedFromNEntryUI.PanelConfig.Mode = meMultipleEntries;
+
+   if FNewNNodeUIConfig and NewEntry and (NNode.note.NumEntries = 2) then begin
       FNNodeUIConfig.Free;
-      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder);
+      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, True);
       RequestedFromNEntryUI.PanelConfig:= FNNodeUIConfig.PanelConfig(pnCenter);
    end;
 
-   PnlEdit:= Folder.NoteAdvOptions.EditMultiEntriesPanelIn;
-   PanelConfig:= FNNodeUIConfig.PanelConfig(PnlEdit);
-   PanelConfig.DisplayingSingleEntry:= true;
-   PanelConfig.NEntryID:= NEntry.ID;
-   NEntriesUI:= GetNEntryUI(PnlEdit);
+   if RequestedFromMultiEntry or FNewNNodeUIConfig then begin
+      if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
+         PnlEdit:= RequestedFromNEntryUI.PanelConfig.Panel;
+         if not NewEntry then begin
+            RequestedFromNEntryUI.IntroInEditorMultiEntries;
+            exit;
+         end;
+      end;
+      PanelConfig:= FNNodeUIConfig.PanelConfig(PnlEdit);
+      PanelConfig.DisplayingSingleEntry:= true;
+      NEntriesUI:= GetNEntryUI(PnlEdit);
+   end
+   else begin
+      NEntriesUI:= RequestedFromNEntryUI;
+      PanelConfig:= RequestedFromNEntryUI.PanelConfig;
+   end;
+
+   PanelConfig.NEntryID:= NEntryID;
    NEntriesUI.LoadFromDataModel(PanelConfig, True);
    case PnlEdit of
       pnTL: ShowPanelsTop(True, False);
@@ -673,11 +739,11 @@ begin
               exit;
 
   FSelectedNEntryUI:= TKntNoteEntriesUI(Sender);
-  Timer.Enabled:= False;
-  Timer.Enabled:= True;
+  TimerInfoPanel.Enabled:= False;
+  TimerInfoPanel.Enabled:= True;
 end;
 
-procedure TKntNoteUI.TimerTimer(Sender: TObject);
+procedure TKntNoteUI.TimerInfoTimer(Sender: TObject);
 var
   p: TNEntriesPanel;
   KeepEnabled: boolean;
@@ -687,14 +753,14 @@ begin
          KeepEnabled:= not FNEntryUI[p].HideTemporarilyInfoPanel;
 
    if not KeepEnabled then
-      Timer.Enabled:= False;
+      TimerInfoPanel.Enabled:= False;
 end;
 
 
 procedure TKntNoteUI.KeepInfoPanelTemporarilyVisible;
 begin
-  Timer.Enabled:= False;
-  Timer.Enabled:= True;
+  TimerInfoPanel.Enabled:= False;
+  TimerInfoPanel.Enabled:= True;
 end;
 
 
@@ -739,13 +805,19 @@ begin
    Result:= FSelectedNEntryUI.NEntry;
 end;
 
-procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+function TKntNoteUI.GetEditingMode: boolean;
+begin
+   Result:= FEditingMode;
+end;
+
+procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingMode: boolean=false);
 var
    ShowPanels: boolean;
    P: TNEntriesPanel;
    i: integer;
    PanelConfig: TPanelConfiguration;
    ShowPanel: array[TNEntriesPanel] of boolean;
+   NEntriesUI: TKntNoteEntriesUI;
 begin
    if SavePreviousContent and (FNNode <> nil) then
       SaveToDataModel;
@@ -754,18 +826,19 @@ begin
 
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
+   FEditingMode:= EditingMode;
 
    if assigned(NNode) then begin
      FNote:= NNode.Note;
-     FNNodeUIConfig:= Folder.GetNNodeUIConfig(NNode);
+     FNNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, EditingMode);
      FNewNNodeUIConfig:= false;
      if FNNodeUIConfig = nil then begin
-        FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder);
+        FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, EditingMode);
         FNewNNodeUIConfig:= true;
      end;
    end
    else
-      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder);
+      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, EditingMode);
 
 
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
@@ -775,11 +848,18 @@ begin
    end;
 
    if assigned(NNode) then begin
+      p:= FNNodeUIConfig.GetVisibleBottomPanel;
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
           if PanelConfig.Visible then begin
              ShowPanel[PanelConfig.Panel]:= True;
-             GetNEntryUI(PanelConfig.Panel).LoadFromDataModel(PanelConfig, False);
+             PanelConfig.ShowEditorInfoPanel:= (p = PanelConfig.Panel);
+             NEntriesUI:= GetNEntryUI(PanelConfig.Panel);
+             NEntriesUI.LoadFromDataModel(PanelConfig, False);
+             if EditingMode then
+                NEntriesUI.Editor.OnEditorChanged := nil
+             else
+                NEntriesUI.Editor.OnEditorChanged := ModeChangedToEditing;
           end;
       end;
    end
@@ -800,6 +880,11 @@ begin
    ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);
    ShowPanelsBottom(ShowPanel[pnBL], ShowPanel[pnBR]);
    FrameResize(nil);
+
+   if EditingMode and not Folder.EditorInfoPanelHidden then
+      KeepInfoPanelTemporarilyVisible
+   else
+      TimerInfoTimer(nil);
 
    FNNodeDeleted:= false;
 end;
