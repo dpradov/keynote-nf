@@ -92,7 +92,6 @@ type
     fNNodeObj:  TObject;
     fNEntryObj: TObject;
     fMultiEntries: boolean;
-    fDisplayingSingleEntry: boolean;
     fNEntriesUIObj: TObject;
 
     FAutoIndent : boolean;
@@ -157,7 +156,6 @@ type
     property NEntryObj: TObject read fNEntryObj;
     property NEntriesUIObj: TObject read fNEntriesUIObj;
     property MultiEntries: boolean read fMultiEntries;
-    property DisplayingSingleEntry: boolean read fDisplayingSingleEntry;
 
     class property Copying: boolean read FCopying write FCopying;
     class property FoldingInScrapbook: boolean read FFoldingInScrapbook write FFoldingInScrapbook;
@@ -171,7 +169,7 @@ type
     property ZoomGoal: integer read FZoomGoal;
     property ZoomCurrent: integer read FZoomCurrent;
 
-    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean; DisplayingSingleEntry: boolean);
+    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
     function ContainsRegisteredImages: boolean;
 
     procedure SetLangOptions(AfterChangeRTL: boolean);
@@ -570,7 +568,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean; DisplayingSingleEntry: boolean);
+procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
 begin
    fFileObj:= FileObj;
    fFolderObj:= FolderObj;
@@ -578,7 +576,6 @@ begin
    fNEntryObj:= NEntryObj;
    fNEntriesUIObj:= NEntriesUIObj;
    fMultiEntries:= MultiEntries;
-   fDisplayingSingleEntry:= DisplayingSingleEntry;
 end;
 
 
@@ -4174,7 +4171,7 @@ var
   ch: char;
 
 begin
-  if (Key = VK_RETURN) and (shift = []) and FMultiEntries and not fDisplayingSingleEntry and (FNNodeObj <> nil) then begin
+  if (Key = VK_RETURN) and (shift = []) and FMultiEntries and (FNNodeObj <> nil) then begin
        key:= 0;
        ActiveFolder.NoteUI.IntroInEditorMultiEntries(ActiveEditor);
        exit;
@@ -4680,7 +4677,7 @@ begin
      if IgnoreSelectorForTagSubsr = ' ' then
         IgnoreSelectorForTagSubsr := '';
 
-  if not fDisplayingSingleEntry and (FNEntriesUIObj <> nil) then
+  if fMultiEntries and (FNEntriesUIObj <> nil) then
      TKntNoteEntriesUI(FNEntriesUIObj).EditorChangedSelectionInMultiEntries;
 
   if FLinkHover.cpMin <> -1 then begin
@@ -4917,7 +4914,7 @@ begin
    end;
 
 
-   if not fDisplayingSingleEntry and (FNEntriesUIObj <> nil) then
+   if fMultiEntries and (FNEntriesUIObj <> nil) then
      TKntNoteEntriesUI(FNEntriesUIObj).EditorDblClickInMultiEntries;
 
    inherited;

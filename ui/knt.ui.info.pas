@@ -127,10 +127,9 @@ type
     ShowEditorInfoPanel: boolean;
     Scope : TScopeInEntriesPanel;
     Mode: TModeEntriesUI;
-    DisplayingSingleEntry: boolean;
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
-    NEntryID: Word;
+    NEntryID: integer;
     VinculatedTags: TNoteTagArray;
     MMContent: TContentInMultipleMode;
     MMShowDateInHeader: boolean;

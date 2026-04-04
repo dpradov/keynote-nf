@@ -91,7 +91,7 @@ type
 
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; EditingMode: boolean);
-      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: Word = 0): TPanelConfiguration;
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: integer = NENTRY_ID_NEWER): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
@@ -3219,7 +3219,7 @@ begin
 end;
 
 
-function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: Word = 0): TPanelConfiguration;
+function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: integer = NENTRY_ID_NEWER): TPanelConfiguration;
 var
    L: integer;
 begin
@@ -3232,8 +3232,7 @@ begin
           ShowEditorInfoPanel:= False;
           Visible:= True;
           Scope:= fsSelectedNode;
-          Mode:= meSingleEntry;
-          DisplayingSingleEntry:= true;
+          Mode:= aMode;
           SelectedNNode:= NNode;
           NEntryID:= EntryID;
           NNodes:= nil;
@@ -3244,7 +3243,6 @@ begin
 
           if aMode = meMultipleEntries then begin
             Mode:= meMultipleEntries;
-            DisplayingSingleEntry:= false;
             MMContent:= cmWholeEntry;
             MMShowDateInHeader:= true;
             MMShowTagsInHeader:= true;

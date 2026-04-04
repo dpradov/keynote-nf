@@ -446,7 +446,7 @@ var
   s, lm: string;
 begin
   if (FNote <> nil) then begin
-      if (not PanelConfig.DisplayingSingleEntry) or (FNote.NumEntries = 1) then begin
+      if (PanelConfig.Mode = meMultipleEntries) or (FNote.NumEntries = 1) then begin
          if FNote.LastModified <> 0 then begin
             if (FNote.LastModified).GetTime <> 0 then
                 S:= ' - ' + FormatSettings.ShortTimeFormat;
@@ -600,7 +600,7 @@ end;
 procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
 begin
    if Note <> nil then begin
-      ShowEntriesButtons(not PanelConfig.DisplayingSingleEntry);
+      ShowEntriesButtons(Length(FEntriesShown) > 1);
       AdjustTxtTagsWidth(txtTags.Focused);
    end;
 end;
@@ -692,7 +692,7 @@ begin
    try
       txtName.Text:= FNote.Name;
 
-      if (not PanelConfig.DisplayingSingleEntry) or (FNEntry = nil) then
+      if (PanelConfig.Mode = meMultipleEntries) or (FNEntry = nil) then
          Created:= FNote.DateCreated
       else
          Created:= FNEntry.Created;
@@ -744,19 +744,14 @@ var
    FindTags: TFindTags;
    NEntry: TNoteEntry;
 
-   procedure FillEntry(i: integer);
-   begin
-      FEntriesShown[i].NNode:= FNNode;
-      FEntriesShown[i].Note:= FNote;
-      FEntriesShown[i].Content:= PanelConfig.MMContent;
-   end;
-
    procedure CheckCandidateEntry;
    begin
       NEntry:= Note.Entries[iEntry];
       if (FindTags = nil) or NEntry.MatchesTags(FindTags) then begin
          FEntriesShown[N].NEntry:= NEntry;
-         FillEntry(N);
+         FEntriesShown[N].NNode:= FNNode;
+         FEntriesShown[N].Note:= FNote;
+         FEntriesShown[N].Content:= PanelConfig.MMContent;
          inc(N);
       end;
    end;
@@ -775,41 +770,27 @@ var
             exit;
          end;
 
-         case PanelConfig.Mode  of
-            meSingleEntry: begin
-                SetLength(FEntriesShown, 1);
-                FEntriesShown[0].NEntry:= Note.GetEntry(PanelConfig.NEntryID);
-                FillEntry(0);
-            end;
+         SetLength(FEntriesShown, Note.NumEntries);
 
-            meMultipleEntries: begin
-               SetLength(FEntriesShown, Note.NumEntries);
+         Tags:= PanelConfig.VinculatedTags;
+         if (Tags <> nil) then
+            FindTags:= FindTagsGetModeAND(Tags);
 
-               Tags:= PanelConfig.VinculatedTags;
-               if (Tags <> nil) then
-                  FindTags:= FindTagsGetModeAND(Tags);
+         N:= 0;
+         if PanelConfig.DescendingOrder then
+             for iEntry:= Length(FEntriesShown)-1 downto 0 do
+                CheckCandidateEntry
+         else
+             for iEntry:= 0 to Length(FEntriesShown)-1 do
+                CheckCandidateEntry;
 
-               N:= 0;
-               if PanelConfig.DescendingOrder then
-                   for iEntry:= Length(FEntriesShown)-1 downto 0 do
-                      CheckCandidateEntry
-               else
-                   for iEntry:= 0 to Length(FEntriesShown)-1 do
-                      CheckCandidateEntry;
+         SetLength(FEntriesShown, N);
 
-
-               SetLength(FEntriesShown, N);
-
-
-//               case PanelConfig.Order of
-//                  eoDateCreation: ;
-//                  eoHierarchyAndDateCreation: ;       // Use hierarchy in tree + DataCreation
-//                  eoTagsAndDateCreation: ;            // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
-//               end;
-            end;
-
-
-         end;
+//       case PanelConfig.Order of
+//          eoDateCreation: ;
+//          eoHierarchyAndDateCreation: ;       // Use hierarchy in tree + DataCreation
+//          eoTagsAndDateCreation: ;            // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
+//       end;
 
       end;
 
@@ -826,7 +807,7 @@ var
  // FEntriesShown[iEntry], FNEntry  - - -> strRTF or cEditor
  procedure PrepareEntryContent;
  begin
-     if not PanelConfig.DisplayingSingleEntry then begin
+     if (PanelConfig.Mode = meMultipleEntries) then begin
         cEditor.Clear;
         if FEditor.SupportsRegisteredImages then
            FEditor_SupportsRegisteredImages:= True;
@@ -836,7 +817,7 @@ var
      FNEntry.Stream.Position := 0;
      strRTF:= '';
 
-     if PanelConfig.DisplayingSingleEntry or (FEntriesShown[iEntry].Content <> cmOnlyHeader) then begin
+     if (PanelConfig.Mode = meSingleEntry) or (FEntriesShown[iEntry].Content <> cmOnlyHeader) then begin
          if not FNEntry.IsRTF then
             UpdateEditor (cEditor, FKntFolder, False);
 
@@ -854,7 +835,7 @@ var
               if FEditor.SupportsRegisteredImages then begin
                  ImagesAux:= GetImagesIDInstances (FNEntry.Stream, FNEntry.TextPlain);
                  strRTF:= ImageMng.ProcessImagesInRTF(FNEntry.Stream.Memory, FNEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
-                 if PanelConfig.DisplayingSingleEntry then
+                 if (PanelConfig.Mode = meSingleEntry) then
                     fImagesReferenceCount:= ImagesAux
                  else
                     CombineImagesInstances(ImagesAux, fImagesReferenceCount);
@@ -878,7 +859,7 @@ var
 
 
          if StrRTF <> '' then begin
-            if PanelConfig.DisplayingSingleEntry then begin
+            if (PanelConfig.Mode = meSingleEntry) then begin
                cEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
                cEditor.ClearUndo;
             end;
@@ -929,7 +910,7 @@ var
        end;
     end;
 
-    if PanelConfig.DisplayingSingleEntry then
+    if (PanelConfig.Mode = meSingleEntry) then
        ConfigureEditor;
  end;
 
@@ -949,13 +930,11 @@ begin
       FNote:= nil;
       FNEntry:= nil;
       PopulateEntriesToShow;
-      if Length(FEntriesShown) <= 1 then
-         PanelConfig.DisplayingSingleEntry:= True;
    end;
 
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
-   if not PanelConfig.DisplayingSingleEntry then begin
+   if (PanelConfig.Mode = meMultipleEntries) then begin
       SetReadOnly(true);
       if RTFAux = nil then
          RTFAux:= CreateAuxRichEdit();
@@ -1003,7 +982,14 @@ begin
                FNote:= FEntriesShown[iEntry].Note;
                FNEntry:= FEntriesShown[iEntry].NEntry;
             end;
-         until (FNEntry = nil) or ((not PanelConfig.DisplayingSingleEntry) or (FNEntry.ID = PanelConfig.NEntryID));
+
+            if PanelConfig.Mode = meMultipleEntries then
+               break
+            else
+            if (FNEntry.ID = PanelConfig.NEntryID) then
+               break;
+
+         until (FNEntry = nil);
 
          if FNEntry = nil then break;
 
@@ -1014,7 +1000,7 @@ begin
          ConfigureEditor;
          PrepareEntryContent;        // FEntriesShown[iEntry], FNEntry -> strRTF or cEditor
 
-         if not PanelConfig.DisplayingSingleEntry then begin
+         if (PanelConfig.Mode = meMultipleEntries) then begin
             Editor.PutRtfText(GetEntryHeader(FNote, FNEntry, false), True,True);
             FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
 
@@ -1028,12 +1014,12 @@ begin
          end;
          FEntriesShown[iEntry].FinalPos:= Editor.SelStart -1;
 
-       until PanelConfig.DisplayingSingleEntry;         //===========================================
+       until (PanelConfig.Mode = meSingleEntry);         //===========================================
 
 
        inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
 
-       if PanelConfig.DisplayingSingleEntry then begin
+       if (PanelConfig.Mode = meSingleEntry) then begin
           FEntriesShown[FiEntry].StartingContentPos:= 0;
           if (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
               UpdateEditor (Editor, FKntFolder, false);
@@ -1049,7 +1035,7 @@ begin
        FNNode:= FEntriesShown[FiEntry].NNode;
        FNote:= FEntriesShown[FiEntry].Note;
        FNEntry:= FEntriesShown[FiEntry].NEntry;
-       if PanelConfig.DisplayingSingleEntry and (FNote.SelEntry = FNEntry) then begin
+       if (PanelConfig.Mode = meSingleEntry) and (FNote.SelEntry = FNEntry) then begin
           Editor.SelStart := FNote.SelStart;
           Editor.SelLength := FNote.SelLength;
        end
@@ -1085,7 +1071,7 @@ begin
      if assigned(NNode) and (NNode.Note.ScrollPosInEditor.Y > 0) then
         Editor.SetScrollPosInEditor(NNode.Note.ScrollPosInEditor);
 
-     if not PanelConfig.DisplayingSingleEntry then begin
+     if (PanelConfig.Mode = meMultipleEntries) then begin
         Editor.StreamFormat:= sfRichText;
         Editor.PlainText:= False;
         Editor.SupportsRegisteredImages:= FEditor_SupportsRegisteredImages;
@@ -1280,7 +1266,7 @@ var
    TextPlain: string;
 
 begin
-  if not PanelConfig.DisplayingSingleEntry then exit;
+  if (PanelConfig.Mode = meMultipleEntries) then exit;
 
   Encoding:= nil;
 
@@ -1383,7 +1369,7 @@ procedure TKntNoteEntriesUI.SelectINextEntry(iNextEntry: integer);
 var
    SS: integer;
 begin
-   if not PanelConfig.DisplayingSingleEntry then begin
+   if (PanelConfig.Mode = meMultipleEntries) then begin
        SS:= FEntriesShown[iNextEntry].StartingContentPos;
        if FEntriesShown[iNextEntry].Content = cmOnlyHeader then
           SS:= FEntriesShown[iNextEntry].StartingPos;
@@ -1405,21 +1391,21 @@ var
   SS, SSinEntry: integer;
 begin
    SS:= Editor.SelStart;
-   if not PanelConfig.DisplayingSingleEntry then begin
-      PanelConfig.DisplayingSingleEntry:= true;
+   if (PanelConfig.Mode = meMultipleEntries) then begin
+      PanelConfig.Mode:= meSingleEntry;
       PanelConfig.NEntryID:= NEntry.ID;
       SSinEntry:= SS - FEntriesShown[FiEntry].StartingContentPos;
    end
    else begin
       SaveToDataModel();
-      PanelConfig.DisplayingSingleEntry:= false;
+      PanelConfig.Mode:= meMultipleEntries;
       SSinEntry:= SS;
    end;
    Editor.HideNestedFloatingEditor;
 
    ReloadFromDataModel(false);
 
-   if not PanelConfig.DisplayingSingleEntry then
+   if (PanelConfig.Mode = meMultipleEntries) then
       Editor.SelStart:= FEntriesShown[FiEntry].StartingContentPos + SSinEntry
    else
       Editor.SelStart:= SSinEntry;
@@ -1440,7 +1426,7 @@ begin
   if FNNode = nil then begin
      FEditor.SupportsRegisteredImages:= false;
      FEditor.SupportsImages:= false;
-     FEditor.SetVinculatedObjs(nil, nil, nil, nil, nil, (PanelConfig.Mode=meMultipleEntries), PanelConfig.DisplayingSingleEntry);
+     FEditor.SetVinculatedObjs(nil, nil, nil, nil, nil, (PanelConfig.Mode=meMultipleEntries));
      FEditor.Enabled:= False;
      txtName.Enabled:= False;
   end
@@ -1448,7 +1434,7 @@ begin
      plainTxt:= false;
      if FNEntry <> nil then
         plainTxt:= FNEntry.IsPlainTXT;
-     FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, FNEntry, Self, (PanelConfig.Mode=meMultipleEntries), PanelConfig.DisplayingSingleEntry);
+     FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, FNEntry, Self, (PanelConfig.Mode=meMultipleEntries));
      FEditor.PlainText:= plainTxt;
      FEditor.Chrome:= FKntFolder.EditorChrome;
 

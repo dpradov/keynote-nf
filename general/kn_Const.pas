@@ -1038,6 +1038,10 @@ const
   alph13 = AnsiString('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz');
   alph13UP = AnsiString('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
+const
+  NENTRY_ID_OLDER = -10;
+  NENTRY_ID_NEWER = -11;
+
 {$IFDEF WITH_IE}
 type
   TIECommand = (

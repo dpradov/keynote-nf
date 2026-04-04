@@ -632,7 +632,7 @@ var
    NEntryID: integer;
 begin
   NEntriesUI:= GetNEntryUI(RequestedFromEditor);
-  if NEntriesUI.PanelConfig.DisplayingSingleEntry then
+  if NEntriesUI.PanelConfig.Mode = meSingleEntry then
      NEntriesUI.IntroInEditorMultiEntries
   else
   if not FEditingMode then begin
@@ -697,7 +697,7 @@ var
 begin
    if (RequestedFromNEntryUI = nil) or (Note = nil) then exit;
 
-   RequestedFromMultiEntry:= (RequestedFromNEntryUI.PanelConfig.Mode = meMultipleEntries) and not RequestedFromNEntryUI.PanelConfig.DisplayingSingleEntry;
+   RequestedFromMultiEntry:= (RequestedFromNEntryUI.PanelConfig.Mode = meMultipleEntries);
    CreatingSecondEntry:= false;
 
    if FNewNNodeUIConfig and NewEntry and (NNode.note.NumEntries = 2) then begin
@@ -711,12 +711,12 @@ begin
       if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
          PnlEdit:= RequestedFromNEntryUI.PanelConfig.Panel;
          if not NewEntry then begin
-            RequestedFromNEntryUI.IntroInEditorMultiEntries;
+            RequestedFromNEntryUI.IntroInEditorMultiEntries;       // Use requested NEntriesUI for editing
             exit;
          end;
       end;
       PanelConfig:= FNNodeUIConfig.PanelConfig(PnlEdit);
-      PanelConfig.DisplayingSingleEntry:= true;
+      PanelConfig.Mode:= meSingleEntry;
       NEntriesUI:= GetNEntryUI(PnlEdit);
    end
    else begin
