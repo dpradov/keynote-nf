@@ -3241,23 +3241,20 @@ begin
           else
              VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenReading[aPanel];
 
-          if aMode = meMultipleEntries then begin
-            Mode:= meMultipleEntries;
-            MMContent:= cmWholeEntry;
-            MMShowDateInHeader:= true;
-            MMShowTagsInHeader:= true;
-            Order:= eoDateCreation;
-            DescendingOrder:= True;
-            with Filter do begin
-              TagsIncl:= [];
-              InheritedTags:= false;
-              UseDefaultTagsExcl:= false;
-              TextFilter := '';
-              MatchCase := false;
-              WholeWordsOnly := false;
-              SearchMode := smPhrase;
-              ShowExcerpts:= false;
-            end;
+          MMContent:= cmWholeEntry;
+          MMShowDateInHeader:= true;
+          MMShowTagsInHeader:= true;
+          Order:= eoDateCreation;
+          DescendingOrder:= True;
+          with Filter do begin
+            TagsIncl:= [];
+            InheritedTags:= false;
+            UseDefaultTagsExcl:= false;
+            TextFilter := '';
+            MatchCase := false;
+            WholeWordsOnly := false;
+            SearchMode := smPhrase;
+            ShowExcerpts:= false;
           end;
        end;
     end;

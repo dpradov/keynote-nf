@@ -407,13 +407,16 @@ end;
 
 function TKntNoteEntriesUI.HideTemporarilyInfoPanel: boolean;
 var
-  wasFocused: boolean;
+  KeepVisible: boolean;
 begin
-  wasFocused:= (txtTags.Focused or txtName.Focused or txtCreationDate.Focused);
-  if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel and not wasFocused then
+  KeepVisible:= (txtTags.Focused or txtName.Focused or txtCreationDate.Focused);
+  if not KeepVisible then
+     KeepVisible:= IsMouseOver(pnlIdentif);
+
+  if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel and not KeepVisible then
      pnlIdentif.Visible := False;
 
-  Result:= not wasFocused;
+  Result:= not KeepVisible;
 end;
 
 
@@ -1040,8 +1043,7 @@ begin
           Editor.SelLength := FNote.SelLength;
        end
        else begin
-          if FiEntry = 0 then
-             Editor.SelStart:= 0;
+          Editor.SelStart := FEntriesShown[FiEntry].StartingPos;
           Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos;
           Editor.SelLength := 0;
        end;
@@ -1076,6 +1078,8 @@ begin
         Editor.PlainText:= False;
         Editor.SupportsRegisteredImages:= FEditor_SupportsRegisteredImages;
      end;
+
+     btnToggleMulti.Caption:= (FiEntry+1).ToString;
 
      Editor.SetLangOptions(False);
      Editor.EndUpdate;
@@ -1344,9 +1348,13 @@ end;
 procedure TKntNoteEntriesUI.btnPrevEntryClick(Sender: TObject);
 var
    iNextEntry: integer;
+   SS: integer;
 begin
-   if FiEntry > 0 then begin
-      iNextEntry:= FiEntry-1;
+   SS:= Editor.SelStart;
+   if (FiEntry > 0) or ((PanelConfig.Mode = meMultipleEntries) and (SS > FEntriesShown[FiEntry].StartingContentPos)) then begin
+      iNextEntry:= FiEntry;
+      if (PanelConfig.Mode = meSingleEntry) or (SS <= FEntriesShown[FiEntry].StartingContentPos) then
+         dec(iNextEntry);
       SelectINextEntry(iNextEntry);
    end;
    FNoteUI.KeepInfoPanelTemporarilyVisible;
@@ -1354,26 +1362,19 @@ end;
 
 
 procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
-var
-   iNextEntry: integer;
 begin
-   if FiEntry < Length(FEntriesShown) -1 then begin
-      iNextEntry:= FiEntry+1;
-      SelectINextEntry(iNextEntry);
-   end;
+   if FiEntry < Length(FEntriesShown) -1 then
+      SelectINextEntry(FiEntry+1);
    FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
 
 
 procedure TKntNoteEntriesUI.SelectINextEntry(iNextEntry: integer);
-var
-   SS: integer;
 begin
    if (PanelConfig.Mode = meMultipleEntries) then begin
-       SS:= FEntriesShown[iNextEntry].StartingContentPos;
-       if FEntriesShown[iNextEntry].Content = cmOnlyHeader then
-          SS:= FEntriesShown[iNextEntry].StartingPos;
-       Editor.SelStart:= SS;
+       Editor.SelStart:= FEntriesShown[iNextEntry].StartingPos;
+       if FEntriesShown[iNextEntry].Content <> cmOnlyHeader then
+          Editor.SelStart:= FEntriesShown[iNextEntry].StartingContentPos;
    end
    else begin
        SaveToDataModel();

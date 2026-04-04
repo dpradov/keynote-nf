@@ -108,6 +108,8 @@ function GetEditCaretPos(Edit: TEdit; CharIndex: integer): TPoint;
 procedure EnableShadow(FormHandle: HWND);
 procedure EnableTopMost(hWND: HWND; Enable: boolean);
 
+function IsMouseOver(Control: TWinControl): Boolean;
+
 
 var
   _TahomaFontInstalled : boolean = false;
@@ -911,6 +913,14 @@ begin
       SetWindowPos(hWND, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
 end;
 
+
+function IsMouseOver(Control: TWinControl): Boolean;
+var
+  MousePos: TPoint;
+begin
+  GetCursorPos(MousePos);
+  Result := FindVCLWindow(MousePos) = Control;
+end;
 
 
 initialization

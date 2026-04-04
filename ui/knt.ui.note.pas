@@ -757,9 +757,11 @@ var
   p: TNEntriesPanel;
   KeepEnabled: boolean;
 begin
+   KeepEnabled:= False;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if (FNEntryUI[p] <> nil) and not FNEntryUI[p].PanelConfig.ShowEditorInfoPanel then
-         KeepEnabled:= not FNEntryUI[p].HideTemporarilyInfoPanel;
+         if not FNEntryUI[p].HideTemporarilyInfoPanel then
+            KeepEnabled:= True;
 
    if not KeepEnabled then
       TimerInfoPanel.Enabled:= False;
