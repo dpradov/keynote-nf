@@ -868,7 +868,10 @@ type
   TNEntriesMainPanel = pnTL..pnBR;
   TNEntriesAuxPanel  = pnLeft..pnR3;
 
+const
+  MainPanels: set of TNEntriesPanel = [Low(TNEntriesMainPanel)..High(TNEntriesMainPanel)];
 
+type
   TNEntriesPanelUse = (
      pnuShowVinculatedWithTags,    //  On read: Show only if there is any entry with any of the indicated tag
                                    //  When starting editing: Show vinculated to the indicated tags

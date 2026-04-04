@@ -923,6 +923,7 @@ procedure TKntNoteUI.SaveToDataModel;
 var
   p: TNEntriesPanel;
   iOnUse: integer;
+  SelNEntriesUI: TKntNoteEntriesUI;
 const
   TTNEntriesPanelCount = Ord(High(TNEntriesPanel)) - Ord(Low(TNEntriesPanel)) + 1;
 
@@ -932,17 +933,35 @@ begin
    SetLength(FNNodeUIConfig.PanelsConfig, TTNEntriesPanelCount);
 
    iOnUse:= 0;
+   SelNEntriesUI:= nil;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if FNEntryUI[p] <> nil then begin
          FNEntryUI[p].SaveToDataModel;
          if FNEntryUI[p].OnUse then begin
+            FNEntryUI[p].SavePositionInPanel;
             FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntryUI[p].PanelConfig;
             inc(iOnUse);
+            if p in MainPanels then begin                              // Main panels: [pnTL..pnBR]
+               if FNEntryUI[p].PanelConfig.VinculatedTags = nil then
+                  SelNEntriesUI:= FNEntryUI[p];
+            end;
          end;
       end;
 
+   if (FSelectedNEntryUI <> nil) and (FSelectedNEntryUI.PanelConfig.Panel in MainPanels) and (FSelectedNEntryUI.PanelConfig.VinculatedTags = nil) then
+      SelNEntriesUI:= FSelectedNEntryUI;
+
+   if SelNEntriesUI <> nil then
+      with SelNEntriesUI do begin
+         FNote.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
+         FNote.SelEntry  := NEntry;
+         FNote.SelStart  := PanelConfig.SelStart;
+         FNote.SelLength := PanelConfig.SelLength;
+      end;
+
+
    SetLength(FNNodeUIConfig.PanelsConfig, iOnUse);
-   if FNewNNodeUIConfig and (NNode.Note.NumEntries > 1) then begin  // ToDO .. and configuration has changed and it is <> than default
+   if FNewNNodeUIConfig and (NNode.Note.NumEntries > 1) then begin
       Folder.AddNNodeUIConfig(FNNodeUIConfig);
       FNewNNodeUIConfig:= false;
    end;

@@ -121,7 +121,7 @@ type
   //   It will be saved in the .knt file as NNode1.GID,NNode2.GID,...  (NNode.GID.ToString)
 
 
-  TPanelConfiguration = record
+  TPanelConfiguration = class
     Panel: TNEntriesPanel;
     Visible: boolean;
     ShowEditorInfoPanel: boolean;
@@ -137,6 +137,10 @@ type
     Order: TOrderInEntriesInPanel;
     DescendingOrder: boolean;
     Filter: TFilterOptionsInPanel;
+    SelNEntryID: integer;
+    SelStart : integer;
+    SelLength : integer;
+    ScrollPosInEditor: TPoint;
   end;
 
 

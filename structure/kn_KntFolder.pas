@@ -91,6 +91,7 @@ type
 
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; EditingMode: boolean);
+      destructor Destroy; override;
       function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: integer = NENTRY_ID_NEWER): TPanelConfiguration;
 
     public
@@ -921,6 +922,13 @@ begin
 
        fNNodes.Free;
     end;
+
+    if fNNodesUIConfig <> nil then begin
+       for i := 0 to fNNodesUIConfig.Count-1 do
+           fNNodesUIConfig[i].Free;
+       fNNodesUIConfig.Free;
+    end;
+
 
   except
   end;
@@ -3176,6 +3184,14 @@ begin
   FEditingMode:= EditingMode;
 end;
 
+destructor TNNodeUIConfiguration.Destroy;
+var
+   i: integer;
+begin
+   for i:= 0 to Length(PanelsConfig)-1 do
+       PanelsConfig[i].Free;
+end;
+
 
 function TNNodeUIConfiguration.GetTop_Ratio: Single;
 begin
@@ -3222,41 +3238,55 @@ end;
 function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: integer = NENTRY_ID_NEWER): TPanelConfiguration;
 var
    L: integer;
+   PanelConfig: TPanelConfiguration;
 begin
     L:= Length(PanelsConfig);
     SetLength(PanelsConfig, L + 1);
 
+    Result:= TPanelConfiguration.Create;
+    PanelsConfig[L]:= Result;
     with Result do begin
-       with PanelsConfig[L] do begin
-          Panel:= aPanel;
-          ShowEditorInfoPanel:= False;
-          Visible:= True;
-          Scope:= fsSelectedNode;
-          Mode:= aMode;
-          SelectedNNode:= NNode;
-          NEntryID:= EntryID;
-          NNodes:= nil;
-          if FEditingMode then
-             VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenEditing[aPanel]
-          else
-             VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenReading[aPanel];
+       Panel:= aPanel;
+       ShowEditorInfoPanel:= False;
+       Visible:= True;
+       Scope:= fsSelectedNode;
+       Mode:= aMode;
+       SelectedNNode:= NNode;
+       NEntryID:= EntryID;
+       NNodes:= nil;
+       if FEditingMode then
+          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenEditing[aPanel]
+       else
+          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenReading[aPanel];
 
-          MMContent:= cmWholeEntry;
-          MMShowDateInHeader:= true;
-          MMShowTagsInHeader:= true;
-          Order:= eoDateCreation;
-          DescendingOrder:= True;
-          with Filter do begin
-            TagsIncl:= [];
-            InheritedTags:= false;
-            UseDefaultTagsExcl:= false;
-            TextFilter := '';
-            MatchCase := false;
-            WholeWordsOnly := false;
-            SearchMode := smPhrase;
-            ShowExcerpts:= false;
-          end;
+       MMContent:= cmWholeEntry;
+       MMShowDateInHeader:= true;
+       MMShowTagsInHeader:= true;
+       Order:= eoDateCreation;
+       DescendingOrder:= True;
+       with Filter do begin
+         TagsIncl:= [];
+         InheritedTags:= false;
+         UseDefaultTagsExcl:= false;
+         TextFilter := '';
+         MatchCase := false;
+         WholeWordsOnly := false;
+         SearchMode := smPhrase;
+         ShowExcerpts:= false;
        end;
+       SelStart:= 0;
+       SelLength:= 0;
+       SelNEntryID:= -1;
+       ScrollPosInEditor.X:= 0;
+       ScrollPosInEditor.Y:= 0;
+       if NNode <> nil then begin
+          SelStart:= NNode.Note.SelStart;
+          SelLength:= NNode.Note.SelLength;
+          if NNode.Note.SelEntry <> nil then
+             SelNEntryID:= NNode.Note.SelEntry.ID;
+          ScrollPosInEditor:= NNode.Note.ScrollPosInEditor;
+       end;
+
     end;
 
 end;
