@@ -504,6 +504,7 @@ uses  System.DateUtils,
       kn_ImagesUtils,
       kn_Main,
       kn_KntFile,
+      knt.ui.info,
       knt.App,
       knt.RS
       ;
@@ -4286,7 +4287,7 @@ begin
 
       if Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
          if ActiveFile.CheckAuthorized(True) then
-            ActiveFolder.NoteUI.LoadFromNNode(ActiveFolder.FocusedNNode, True)
+            ActiveFolder.NoteUI.LoadFromNNode(ActiveFolder.FocusedNNode, True, eLastMode)
          else
             exit;
       end;

@@ -108,6 +108,7 @@ type
     fNotes: TNoteList;
     fNextNNodeGID: Cardinal;     // Global ID of next note node to be created
     fNotesSorted: boolean;       // Normally notes are ordered by GID
+    fNotesOnEditionMode: TNoteList;
 
     FBookmarks : TBookmarks;
     FTextPlainVariablesInitialized: boolean;
@@ -293,6 +294,10 @@ type
     function HasVirtualNotes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
     function GetVirtualNoteByFileName( const aNote : TNote; FN : string ): TNote;
     procedure ConvertOldMirrorNodesToNNodes;
+  public
+    property NotesOnEditionMode: TNoteList read fNotesOnEditionMode;
+    function GetNoteIsOnEditionMode(Note: TNote): Boolean;
+    procedure SetNoteIsOnEditionMode(Note: TNote; OnEditionMode: boolean);
 
     procedure TryToDeduceDates(RemoveDateFromName: boolean);
 
@@ -378,6 +383,7 @@ begin
   fNoteTags:= TNoteTagList.Create;
   fFolders := TFolderList.Create;
   fNotes := TNoteList.Create;
+  fNotesOnEditionMode:= TNoteList.Create;
 
   for i:= 0 to MAX_BOOKMARKS do
      FBookmarks[i]:= nil;
@@ -416,6 +422,9 @@ begin
     fFolders.Free;
     fFolders := nil;
   end;
+
+  if fNotesOnEditionMode <> nil then
+     fNotesOnEditionMode.Free;
 
   if fNotes <> nil then begin
      for i := 0 to fNotes.Count-1 do begin
@@ -1626,6 +1635,21 @@ begin
            exit(Note);
      end;
   end;
+end;
+
+
+function TKntFile.GetNoteIsOnEditionMode(Note: TNote): Boolean;
+begin
+    Result:= FNotesOnEditionMode.IndexOf(Note) >= 0;
+end;
+
+procedure TKntFile.SetNoteIsOnEditionMode(Note: TNote; OnEditionMode: boolean);
+begin
+  if not OnEditionMode then
+     FNotesOnEditionMode.Remove(Note)
+  else
+  if FNotesOnEditionMode.IndexOf(Note) < 0 then
+     FNotesOnEditionMode.Add(Note);
 end;
 
 
@@ -3841,7 +3865,7 @@ begin
      myFolder := FFolders[i];
      NNode:= myFolder.FocusedNNode;
      if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted) then
-        myFolder.NoteUI.LoadFromNNode(NNode, True);
+        myFolder.NoteUI.LoadFromNNode(NNode, True, eLastMode);
 
      if myFolder.Filtered then begin
         if myFolder.TreeUI.TagFilterApplied then

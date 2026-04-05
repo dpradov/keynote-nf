@@ -870,21 +870,21 @@ type
 
 const
   MainPanels: set of TNEntriesPanel = [Low(TNEntriesMainPanel)..High(TNEntriesMainPanel)];
+  TNEntriesPanel_Count = Ord(High(TNEntriesPanel)) - Ord(Low(TNEntriesPanel)) + 1;
 
 type
   TNEntriesPanelUse = (
      pnuShowVinculatedWithTags,    //  On read: Show only if there is any entry with any of the indicated tag
                                    //  When starting editing: Show vinculated to the indicated tags
-     pnuShowNewestEntry,           //  Show newest entry           (*)
-     pnuShowOldestEntry,           //   ,,  oldest entry           (*)
-     pnuShowLastSelectedEntry,     //   ,,  last selected entry    (*)
+     pnuShowSelectedEntry,         //  Show newest/oldest/last selected entry    (*)
      pnuShowAllEntries,            //   ,,  all entries
      pnuHidePanel                  //  Keep panel hidden
   );
 
-  // (*) In DefaultUseWhenEditing, you can define one panel (and only one) with one of these three options.
-  //     If there are none with those options, there must necessarily be one defined with pnuShowAllEntries
+  // (*) In DefaultUseWhenEditing, you can define one panel (and only one) with one of this option.
+  //     If there is none with this option, there must necessarily be one defined with pnuShowAllEntries
   //     The corresponding panel will be used to edit entries or create new entries.
+  // Newest/oldest/last selected, depending on TNoteAdvancedOptions.ShowNewestEntryInSingleEntry and TEditorOptions.SaveCaretPos
 
 type
    TNoteAdvancedOptions = packed record
@@ -896,6 +896,8 @@ type
      VinculatedTagsWhenEditing: array[TNEntriesMainPanel] of TNoteTagArray;
 
      DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
+
+     ShowNewestEntryInSingleEntry: boolean;
 
      PnlTopRatio:    Single;   // Ratio Top vs Other (Center+Bottom)
      PnlBottomRatio: Single;   // Ratio Bottom vs Other (Center+Top)
@@ -1157,7 +1159,7 @@ begin
     end;
     DefaultUseWhenReading[pnCenter] := pnuShowAllEntries;
 
-    DefaultUseWhenEditing[pnTL] := pnuShowNewestEntry;
+    DefaultUseWhenEditing[pnTL] := pnuShowSelectedEntry;
     DefaultUseWhenEditing[pnCenter] := pnuShowAllEntries;
 
     DefaultTagsOrder:= nil;

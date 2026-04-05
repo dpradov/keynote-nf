@@ -92,7 +92,7 @@ type
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; EditingMode: boolean);
       destructor Destroy; override;
-      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: integer = NENTRY_ID_NEWER): TPanelConfiguration;
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
@@ -886,7 +886,7 @@ begin
   NoteAdvOptions.VinculatedTagsWhenReading[pnTL]:= Tags;
 
   NoteAdvOptions.DefaultUseWhenEditing[pnTL] := pnuShowVinculatedWithTags;
-  NoteAdvOptions.DefaultUseWhenEditing[pnCenter] := pnuShowNewestEntry;
+  NoteAdvOptions.DefaultUseWhenEditing[pnCenter] := pnuShowSelectedEntry;
   NoteAdvOptions.DefaultUseWhenEditing[pnBL] := pnuShowAllEntries;
   NoteAdvOptions.VinculatedTagsWhenEditing[pnTL]:= Tags;
 
@@ -1277,7 +1277,7 @@ end;
 
 procedure TKntFolder.NoNodeInTree;
 begin
-   NoteUI.LoadFromNNode(nil, true);
+   NoteUI.LoadFromNNode(nil, true, eReadingMode);
 end;
 
 
@@ -1745,7 +1745,7 @@ begin
 
   with Form_Main do begin
       try
-        NoteUI.LoadFromNNode(NNode, SavePreviousContent);
+        NoteUI.LoadFromNNode(NNode, SavePreviousContent, eLastMode);
 
         if assigned(NNode) then begin
              Node:= NNode.TVNode;
@@ -1768,8 +1768,8 @@ begin
              EnableInsertImg:= not NoteUI.Editor.ReadOnly and NoteUI.Editor.SupportsImages;
              MMInsertPicture.Enabled:= EnableInsertImg;
              MMInsertObject.Enabled:= EnableInsertImg;
-			 MMInsertLine.Enabled:= EnableInsertImg;
-			 MMInsertTable.Enabled:= EnableInsertImg;
+             MMInsertLine.Enabled:= EnableInsertImg;
+             MMInsertTable.Enabled:= EnableInsertImg;
 
              UpdateAlarmStatus;
              UpdateShowImagesState;
@@ -3235,7 +3235,7 @@ begin
 end;
 
 
-function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode; EntryID: integer = NENTRY_ID_NEWER): TPanelConfiguration;
+function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
 var
    L: integer;
    PanelConfig: TPanelConfiguration;
@@ -3252,7 +3252,6 @@ begin
        Scope:= fsSelectedNode;
        Mode:= aMode;
        SelectedNNode:= NNode;
-       NEntryID:= EntryID;
        NNodes:= nil;
        if FEditingMode then
           VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenEditing[aPanel]
@@ -3274,17 +3273,18 @@ begin
          SearchMode := smPhrase;
          ShowExcerpts:= false;
        end;
-       SelStart:= 0;
-       SelLength:= 0;
-       SelNEntryID:= -1;
-       ScrollPosInEditor.X:= 0;
-       ScrollPosInEditor.Y:= 0;
        if NNode <> nil then begin
           SelStart:= NNode.Note.SelStart;
           SelLength:= NNode.Note.SelLength;
-          if NNode.Note.SelEntry <> nil then
-             SelNEntryID:= NNode.Note.SelEntry.ID;
+          SelNEntry:= NNode.Note.SelEntry;
           ScrollPosInEditor:= NNode.Note.ScrollPosInEditor;
+       end
+       else begin
+          SelStart:= 0;
+          SelLength:= 0;
+          SelNEntry:= nil;
+          ScrollPosInEditor.X:= 0;
+          ScrollPosInEditor.Y:= 0;
        end;
 
     end;
@@ -3301,18 +3301,17 @@ var
 begin
     Result:= TNNodeUIConfiguration.Create(NNode, Folder, EditingMode);
     if NNode = nil then begin
-       Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, nil, 0);
+       Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, nil);
        exit;
     end;
 
     N:= NNode.Note.NumEntries;
 
-    if (N = 1) then begin
-        Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode, NNode.Note.Entries[0].ID);
+    if (N = 1) then begin                                                    // ToDO ***
+        Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode);
         exit;
     end;
 
-    // ToDO: pnuShowLastSelectedEntry  ***
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
        if EditingMode then
@@ -3320,23 +3319,12 @@ begin
        else
           PnlUse:= Folder.NoteAdvOptions.DefaultUseWhenReading[p];
 
-       if (PnlUse in [pnuShowNewestEntry, pnuShowOldestEntry, pnuShowLastSelectedEntry]) then begin
-          case PnlUse of
-             pnuShowNewestEntry:
-                EntryID:= NNode.Note.Entries[NNode.Note.NumEntries-1].ID;
-             pnuShowOldestEntry:
-                EntryID:= NNode.Note.Entries[0].ID;
-             pnuShowLastSelectedEntry:
-                EntryID:= NNode.Note.Entries[0].ID;    // TODO ***
-          end;
-          Result.CreateDefaultPanelConfig (p, meSingleEntry, NNode, EntryID);
-       end
-       else
-       if PnlUse = pnuShowAllEntries then
-          Result.CreateDefaultPanelConfig (p, meMultipleEntries, NNode)
-       else
-       if PnlUse = pnuShowVinculatedWithTags then
-          Result.CreateDefaultPanelConfig (p, meMultipleEntries, NNode);
+       case PnlUse of
+         pnuShowVinculatedWithTags,
+         pnuShowAllEntries:    Result.CreateDefaultPanelConfig (p, meMultipleEntries, NNode);
+
+         pnuShowSelectedEntry: Result.CreateDefaultPanelConfig (p, meSingleEntry, NNode);
+       end;
     end;
 
 end;

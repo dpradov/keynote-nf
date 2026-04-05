@@ -120,7 +120,7 @@ type
     property Note: TNote read FNote;
     property NNode: TNoteNode read FNNode;
     property NEntry: TNoteEntry read FNEntry;
-    property Mode: TModeEntriesUI read FMode;
+    property Mode: TModeEntriesUI read FMode write FMode;
     property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;
     procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
     procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true; ReconsiderOnlyContentInSelectedEntry: boolean = false);
@@ -273,6 +273,7 @@ begin
    SetReadOnly(FKntFolder.ReadOnly);
    fChangingInCode:= false;
    //FLastEditorUIWidth:= '';
+   FPanelConfig:= nil;
    FOnUse:= False;
 
    UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
@@ -644,23 +645,28 @@ begin
 
        //FNNodeDeleted:= false;    //##
        FPanelConfig:= APanelConfig;
-       FMode:= PanelConfig.Mode;
+       FNNode:= nil;
+       FNote:= nil;
+       FNEntry:= nil;
+       FOnUse:= False;
 
+       if FPanelConfig <> nil then begin
+           FMode:= PanelConfig.Mode;
+           if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
+              FOnUse:= True;
+              if not FInfoPanelHidden then
+                 pnlIdentif.Visible := True;
 
-       if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
-          FOnUse:= True;
-          if not FInfoPanelHidden then
-             pnlIdentif.Visible := True;
-
-          txtName.Visible := PanelConfig.ShowEditorInfoPanel;
-          case PanelConfig.SelectedNNode.WordWrap of
-            wwAsFolder : Editor.WordWrap := FKntFolder.WordWrap;
-            wwYes : Editor.WordWrap := true;
-            wwno :  Editor.WordWrap := false;
-          end;
-       end
-       else
-         txtName.Visible:= True;
+              txtName.Visible := PanelConfig.ShowEditorInfoPanel;
+              case PanelConfig.SelectedNNode.WordWrap of
+                wwAsFolder : Editor.WordWrap := FKntFolder.WordWrap;
+                wwYes : Editor.WordWrap := true;
+                wwno :  Editor.WordWrap := false;
+              end;
+           end
+           else
+             txtName.Visible:= True;
+       end;
 
        ReloadFromDataModel;
 
@@ -896,7 +902,7 @@ var
     Offset:= 0;
     for i:= 0 to High(FEntriesShown) do begin
        iEntry:= i;
-       if (FEntriesShown[iEntry].NEntry.ID = PanelConfig.NEntryID) then begin
+       if (FEntriesShown[iEntry].NEntry = PanelConfig.SelNEntry) then begin
            FiEntry:= iEntry;
            FNEntry:= FEntriesShown[iEntry].NEntry;
            ConfigureEditor;
@@ -931,7 +937,7 @@ var
  end;
 
 begin
-   if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil) then begin
+   if (PanelConfig = nil) or ((PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)) then begin
       FNNode:= nil;
       FNote:= nil;
       ConfigureEditor;
@@ -948,6 +954,9 @@ begin
       PopulateEntriesToShow;
       if Length(FEntriesShown) <= 1 then
          FMode := meSingleEntry;
+
+      if not EditorOptions.SaveCaretPos then
+         PanelConfig.SelNEntry:= nil;
    end;
 
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
@@ -979,7 +988,7 @@ begin
 
 
      fImagesReferenceCount:= nil;
-     FiEntry:= 0;
+     FiEntry:= -1;
      iEntry:= -1;
 
      if ReconsiderOnlyContentInSelectedEntry then begin
@@ -1004,7 +1013,7 @@ begin
             if (FNEntry = nil) or (FMode = meMultipleEntries) then
                break
             else
-            if (FNEntry.ID = PanelConfig.NEntryID) then
+            if (FNEntry = PanelConfig.SelNEntry) then
                break;
 
          until false;
@@ -1013,12 +1022,7 @@ begin
 
          FEntriesShown[iEntry].StartingPos:= Editor.SelStart;
 
-         if CalculateEntriesToShow then begin
-            if FNEntry.ID = PanelConfig.SelNEntryID then
-               FiEntry:= iEntry;
-         end
-         else
-         if FNEntry.ID = PanelConfig.NEntryID then
+         if FNEntry = PanelConfig.SelNEntry then
             FiEntry:= iEntry;
 
 
@@ -1050,10 +1054,16 @@ begin
               UpdateEditor (Editor, FKntFolder, false);
        end
        else
-       if CalculateEntriesToShow and (PanelConfig.SelNEntryID < 0) then begin
+       if FiEntry < 0 then begin
           FiEntry:= 0;
-          if not PanelConfig.DescendingOrder then
-             FiEntry:= Length(FEntriesShown)-1;
+          if not Folder.NoteAdvOptions.ShowNewestEntryInSingleEntry then begin
+             if not PanelConfig.DescendingOrder then
+                 FiEntry:= Length(FEntriesShown)-1;
+          end
+          else begin
+             if PanelConfig.DescendingOrder then
+                 FiEntry:= Length(FEntriesShown)-1;
+          end;
        end;
 
        Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
@@ -1064,7 +1074,7 @@ begin
 
        SS:= 0;
        SL:= 0;
-       if CalculateEntriesToShow then begin
+       if CalculateEntriesToShow and EditorOptions.SaveCaretPos then begin
           SS:= PanelConfig.SelStart;
           SL:= PanelConfig.SelLength;
        end;
@@ -1077,18 +1087,6 @@ begin
           Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos + SS;
           Editor.SelLength := SL;
        end;
-
-{
-       if (PanelConfig.Mode = meSingleEntry) and (FNote.SelEntry = FNEntry) then begin
-          Editor.SelStart := FNote.SelStart;
-          Editor.SelLength := FNote.SelLength;
-       end
-       else begin
-          Editor.SelStart := FEntriesShown[FiEntry].StartingPos;
-          Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos;
-          Editor.SelLength := 0;
-       end;
-}
      end
      else begin                    // FEntriesShown = nil and not: (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)
         if CannotShow_Encrypted then begin
@@ -1153,7 +1151,7 @@ begin
    FNEntry:= FNote.AddNewEntry;
    NEntry.Tags:= PanelConfig.VinculatedTags;
    Folder.Modified:= True;
-   PanelConfig.NEntryID:= NEntry.ID;
+   PanelConfig.SelNEntry:= NEntry;
    ReloadMetadataFromDataModel;
    ConfigureEditor;
 end;
@@ -1315,10 +1313,10 @@ begin
   Encoding:= nil;
 
   if assigned(NNode) and (FNEntry <> nil) then begin
-     if (FEditor.FloatingEditor <> nil) and (FMode = meMultipleEntries) then
+     if (FEditor.FloatingEditor <> nil) then
         FEditor.DoSaveChangesInFloatingEditor;
 
-     if FEditor.Modified and (FMode = meMultipleEntries)then begin
+     if FEditor.Modified then begin
         FEditor.BeginUpdate;
         try
            KeepUTF8:= False;
@@ -1379,9 +1377,7 @@ end;
 procedure TKntNoteEntriesUI.SavePositionInPanel;
 begin
    PanelConfig.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
-   PanelConfig.SelNEntryID := -1;
-   if FNEntry <> nil then
-      PanelConfig.SelNEntryID := FNEntry.ID;
+   PanelConfig.SelNEntry := FNEntry;
    PanelConfig.SelStart  := Editor.SelStart;
    PanelConfig.SelLength := Editor.SelLength;
    if FMode = meMultipleEntries then begin
@@ -1434,7 +1430,7 @@ begin
    end
    else begin
        SaveToDataModel();
-       PanelConfig.NEntryID:= FEntriesShown[iNextEntry].NEntry.ID;
+       PanelConfig.SelNEntry:= FEntriesShown[iNextEntry].NEntry;
        btnToggleMulti.Caption:= (iNextEntry+1).ToString;
        Editor.HideNestedFloatingEditor;
        ReloadFromDataModel(false);
@@ -1450,7 +1446,7 @@ begin
    SS:= Editor.SelStart;
    if (FMode = meMultipleEntries) then begin
       FMode:= meSingleEntry;
-      PanelConfig.NEntryID:= NEntry.ID;
+      PanelConfig.SelNEntry:= NEntry;
       SSinEntry:= SS - FEntriesShown[FiEntry].StartingContentPos;
    end
    else begin
@@ -1552,7 +1548,7 @@ begin
       SaveToDataModel();
       Editor.HideNestedFloatingEditor;
 
-      PanelConfig.NEntryID:= FEntriesShown[FiEntry].NEntry.ID;
+      PanelConfig.SelNEntry:= FEntriesShown[FiEntry].NEntry;
       ReloadFromDataModel(false, not CtrlDown);
 
       Sleep(100);

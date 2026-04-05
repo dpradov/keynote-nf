@@ -4173,7 +4173,7 @@ var
 begin
   if (Key = VK_RETURN) and (shift = []) and FMultiEntries and (FNNodeObj <> nil) then begin
        key:= 0;
-       ActiveFolder.NoteUI.IntroInEditorMultiEntries(ActiveEditor);
+       ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, False);
        exit;
   end;
 

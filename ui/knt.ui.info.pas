@@ -30,6 +30,8 @@ uses
 
 
 type
+  TEditingMode = (eEditingMode, eReadingMode, eLastMode);
+
   INoteUI = interface
      ['{8D9BDE14-3373-482A-B097-0C1E4F4A981C}']
      procedure SetFocusOnEditor;
@@ -45,13 +47,13 @@ type
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
 
-     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingMode: boolean=false);
+     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingModeToUse: TEditingMode);
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
      procedure ReloadNoteName;
      procedure SaveToDataModel;
      procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit);
-     procedure IntroInEditorMultiEntries(RequestedFromEditor: TKntRichEdit);
+     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
      procedure Refresh;
 
      procedure SetImagesMode(ImagesMode: TImagesMode);
@@ -95,7 +97,7 @@ type
   TContentInMultipleMode = (
     cmOnlyHeader,
     cmWholeEntry,
-    cmOnlyFirstLine
+    cmOnlyFirstLines
   );
 
   TOrderInEntriesInPanel = (
@@ -129,7 +131,6 @@ type
     Mode: TModeEntriesUI;
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
-    NEntryID: integer;
     VinculatedTags: TNoteTagArray;
     MMContent: TContentInMultipleMode;
     MMShowDateInHeader: boolean;
@@ -137,10 +138,11 @@ type
     Order: TOrderInEntriesInPanel;
     DescendingOrder: boolean;
     Filter: TFilterOptionsInPanel;
-    SelNEntryID: integer;
-    SelStart : integer;
-    SelLength : integer;
-    ScrollPosInEditor: TPoint;
+
+    SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
+    SelStart : integer;               // ,,
+    SelLength : integer;              // ,,
+    ScrollPosInEditor: TPoint;        // ,,
   end;
 
 

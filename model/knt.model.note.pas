@@ -138,6 +138,7 @@ type
     procedure SetModified_(value: boolean);
 
     function GetSelEntry : TNoteEntry;
+    procedure SetSelEntry(value: TNoteEntry);
     function GetNumEntries: integer; inline;
     function GetNextNumEntry: Word;
     function GetDateCreated: TDateTime;
@@ -161,7 +162,7 @@ type
     property LastModified: TDateTime read fLastModified write fLastModified;
     property DateCreated: TDateTime read GetDateCreated;
 
-    property SelEntry : TNoteEntry read GetSelEntry write fSelEntry;
+    property SelEntry : TNoteEntry read GetSelEntry write {$IFDEF KNT_DEBUG}SetSelEntry{$ELSE}fSelEntry{$ENDIF};
     property SelStart : Cardinal read fSelStart write fSelStart;
     property SelLength : Cardinal read fSelLength write fSelLength;
     property ScrollPosInEditor: TPoint read fScrollPosInEditor write fScrollPosInEditor;
@@ -647,6 +648,28 @@ begin
    if (Result = nil) and (fEntries <> nil) then
       Result:= Entries[0];
 end;
+
+procedure TNote.SetSelEntry(value: TNoteEntry);
+var
+  i: integer;
+  ok: boolean;
+begin
+   fSelEntry:= value;
+
+ {$IFDEF KNT_DEBUG}
+   if fSelEntry = nil then
+      exit;
+   for i:= 0 to High(fEntries) do
+      if fSelEntry = fEntries[i] then begin
+         exit;
+      end;
+
+  App.ErrorPopup('Entry not belongs to Note');
+ {$ENDIF}
+
+end;
+
+
 
 function TNote.GetNumEntries: integer;
 begin

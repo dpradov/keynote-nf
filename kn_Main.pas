@@ -3149,7 +3149,7 @@ begin
               if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and
                   ActiveEditor.MultiEntries and (ActiveEditor.NNodeObj <> nil) then begin
 
-                  ActiveFolder.NoteUI.IntroInEditorMultiEntries(ActiveEditor);
+                  ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, True);
                   Handled:= true;
               end
               else
