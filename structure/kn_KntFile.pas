@@ -108,7 +108,7 @@ type
     fNotes: TNoteList;
     fNextNNodeGID: Cardinal;     // Global ID of next note node to be created
     fNotesSorted: boolean;       // Normally notes are ordered by GID
-    fNotesOnEditionMode: TNoteList;
+    fNotesOnEditingLayout: TNoteList;
 
     FBookmarks : TBookmarks;
     FTextPlainVariablesInitialized: boolean;
@@ -295,9 +295,9 @@ type
     function GetVirtualNoteByFileName( const aNote : TNote; FN : string ): TNote;
     procedure ConvertOldMirrorNodesToNNodes;
   public
-    property NotesOnEditionMode: TNoteList read fNotesOnEditionMode;
-    function GetNoteIsOnEditionMode(Note: TNote): Boolean;
-    procedure SetNoteIsOnEditionMode(Note: TNote; OnEditionMode: boolean);
+    property NotesOnEditingLayout: TNoteList read fNotesOnEditingLayout;
+    function GetNoteIsOnEditingLayout(Note: TNote): Boolean;
+    procedure SetNoteIsOnEditingLayout(Note: TNote; OnEditingLayout: boolean);
 
     procedure TryToDeduceDates(RemoveDateFromName: boolean);
 
@@ -383,7 +383,7 @@ begin
   fNoteTags:= TNoteTagList.Create;
   fFolders := TFolderList.Create;
   fNotes := TNoteList.Create;
-  fNotesOnEditionMode:= TNoteList.Create;
+  fNotesOnEditingLayout:= TNoteList.Create;
 
   for i:= 0 to MAX_BOOKMARKS do
      FBookmarks[i]:= nil;
@@ -423,8 +423,8 @@ begin
     fFolders := nil;
   end;
 
-  if fNotesOnEditionMode <> nil then
-     fNotesOnEditionMode.Free;
+  if fNotesOnEditingLayout <> nil then
+     fNotesOnEditingLayout.Free;
 
   if fNotes <> nil then begin
      for i := 0 to fNotes.Count-1 do begin
@@ -1638,18 +1638,18 @@ begin
 end;
 
 
-function TKntFile.GetNoteIsOnEditionMode(Note: TNote): Boolean;
+function TKntFile.GetNoteIsOnEditingLayout(Note: TNote): Boolean;
 begin
-    Result:= FNotesOnEditionMode.IndexOf(Note) >= 0;
+    Result:= FNotesOnEditingLayout.IndexOf(Note) >= 0;
 end;
 
-procedure TKntFile.SetNoteIsOnEditionMode(Note: TNote; OnEditionMode: boolean);
+procedure TKntFile.SetNoteIsOnEditingLayout(Note: TNote; OnEditingLayout: boolean);
 begin
-  if not OnEditionMode then
-     FNotesOnEditionMode.Remove(Note)
+  if not OnEditingLayout then
+     FNotesOnEditingLayout.Remove(Note)
   else
-  if FNotesOnEditionMode.IndexOf(Note) < 0 then
-     FNotesOnEditionMode.Add(Note);
+  if FNotesOnEditingLayout.IndexOf(Note) < 0 then
+     FNotesOnEditingLayout.Add(Note);
 end;
 
 
@@ -3865,7 +3865,7 @@ begin
      myFolder := FFolders[i];
      NNode:= myFolder.FocusedNNode;
      if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted) then
-        myFolder.NoteUI.LoadFromNNode(NNode, True, eLastMode);
+        myFolder.NoteUI.LoadFromNNode(NNode, True, neLastLayout);
 
      if myFolder.Filtered then begin
         if myFolder.TreeUI.TagFilterApplied then

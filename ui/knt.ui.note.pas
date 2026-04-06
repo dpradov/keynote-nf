@@ -77,7 +77,7 @@ type
     FNNodeUIConfig: TNNodeUIConfiguration;
     FNewNNodeUIConfig: boolean;
     FSelectedNEntriesUI: TKntNoteEntriesUI;
-    FEditingMode: boolean;
+    FQueryLayout: boolean;
 
     fSplitterNoteMoving: boolean;
     FUpdatingOnResize: boolean;
@@ -101,7 +101,7 @@ type
     function GetNNode: TNoteNode;
     function GetFolder: TObject;
     function GetSelectedNEntry: TNoteEntry;
-    function GetEditingMode: boolean;
+    function GetBasicNEntriesLayout: boolean;
 
   public
     constructor Create(AOwner: TComponent; KntFolder: TKntFolder);
@@ -115,7 +115,7 @@ type
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
-    procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean; EditingModeToUse: TEditingMode; EditingNEntry: TNoteEntry = nil);
+    procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean; QueryLayoutToUse: TBasicNEntriesLayout; EditingNEntry: TNoteEntry = nil);
     procedure ReloadFromDataModel;
     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
     procedure SaveToDataModel;
@@ -673,17 +673,17 @@ begin
 
   else begin
      NEntry:= NEntriesUI.NEntry;
-     if not FEditingMode then begin
+     if FQueryLayout then begin
         NEntriesUI.SavePositionInPanel;
         SS:= NEntriesUI.PanelConfig.SelStart;
         SL:= NEntriesUI.PanelConfig.SelLength;
-        LoadFromNNode(FNNode, True, eEditingMode, NEntry);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
+        LoadFromNNode(FNNode, True, neEditingLayout, NEntry);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
         EditInInMultiEntries(NEntriesUI, NEntry, false, SS, SL);
      end
      else
-     if CtrlDown then begin                            // Change to Not EditingMode
-        ActiveFile.SetNoteIsOnEditionMode(FNote, false);
-        LoadFromNNode(FNNode, True, eReadingMode);
+     if CtrlDown then begin                            // Change to QueryLayout
+        ActiveFile.SetNoteIsOnEditingLayout(FNote, false);
+        LoadFromNNode(FNNode, True, neQueryLayout);
         FSelectedNEntriesUI.SetFocusOnEditor;
      end
      else
@@ -708,8 +708,6 @@ begin
    if (NEntriesUI.NEntry = nil) and (NEntriesUI.Note <> nil) then
       NEntriesUI.AddNewEntryInTagVinculatedPanel;
 
-//   LoadFromNNode(FNNode, False, True);
-
 end;
 
 
@@ -729,8 +727,15 @@ begin
    if RequestedFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
       NEntry.Tags:= RequestedFromNEntriesUI.PanelConfig.VinculatedTags;
 
-   if not FEditingMode then
-     LoadFromNNode(FNNode, False, eEditingMode);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
+   {
+   LoadFromNNode(.., True, neEditingLayout) if FQueryLayout:
+   The Query mode does allow modifications from the visible panels, but only while mode = meSingleEntry.
+   It's simply a different configuration/layout, designed for viewing notes as we navigate through the tree.
+   This mode is typically configured to offer fewer panels, or only when there is data to display.
+   For example, if the note has only one entry, normally only one panel will be shown.
+   }
+   if FQueryLayout then
+      LoadFromNNode(FNNode, True, neEditingLayout);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
 
    EditInInMultiEntries(RequestedFromNEntriesUI, NEntry, true);
 end;
@@ -870,12 +875,12 @@ begin
    Result:= FSelectedNEntriesUI.NEntry;
 end;
 
-function TKntNoteUI.GetEditingMode: boolean;
+function TKntNoteUI.GetBasicNEntriesLayout: boolean;
 begin
-   Result:= FEditingMode;
+   Result:= FQueryLayout;
 end;
 
-procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingModeToUse: TEditingMode; EditingNEntry: TNoteEntry = nil);
+procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; QueryLayoutToUse: TBasicNEntriesLayout; EditingNEntry: TNoteEntry = nil);
 var
    ShowPanels: boolean;
    P: TNEntriesPanel;
@@ -883,7 +888,7 @@ var
    PanelConfig: TPanelConfiguration;
    ShowPanel: array[TNEntriesPanel] of boolean;
    NEntriesUI: TKntNoteEntriesUI;
-   EditingMode: boolean;
+   QueryLayout: boolean;
 begin
    if SavePreviousContent and (FNNode <> nil) then
       SaveToDataModel;
@@ -893,26 +898,26 @@ begin
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
    FSelectedNEntriesUI:= GetNEntriesUI(pnCenter);
-   EditingMode:= False;
+   QueryLayout:= True;
 
    if assigned(NNode) then begin
      FNote:= NNode.Note;
-     if EditingModeToUse = eLastMode then
-        EditingMode:= ActiveFile.GetNoteIsOnEditionMode(FNote)
+     if QueryLayoutToUse = neLastLayout then
+        QueryLayout:= not ActiveFile.GetNoteIsOnEditingLayout(FNote)
      else
-        EditingMode:= (EditingModeToUse = eEditingMode);
+        QueryLayout:= (QueryLayoutToUse = neQueryLayout);
 
-     FNNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, EditingMode);
+     FNNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, QueryLayout);
      FNewNNodeUIConfig:= false;
      if FNNodeUIConfig = nil then begin
-        FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, EditingMode);
+        FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, QueryLayout);
         FNewNNodeUIConfig:= true;
      end;
    end
    else
-      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, EditingMode);
+      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, QueryLayout);
 
-   FEditingMode:= EditingMode;
+   FQueryLayout:= QueryLayout;
 
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       ShowPanel[p]:= false;
@@ -928,17 +933,17 @@ begin
              ShowPanel[PanelConfig.Panel]:= True;
              PanelConfig.ShowEditorInfoPanel:= (p = PanelConfig.Panel);
              NEntriesUI:= GetNEntriesUI(PanelConfig.Panel);
-             if not EditingMode and (PanelConfig.VinculatedTags = nil) then
+             if not QueryLayout and (PanelConfig.VinculatedTags = nil) then
                 PanelConfig.SelNEntry:= FNote.SelEntry;
 
-             if EditingMode and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
+             if QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
                 SetLength(PanelConfig.EntriesOnlyHeader, Length(PanelConfig.EntriesOnlyHeader)+1);
                 PanelConfig.EntriesOnlyHeader[Length(PanelConfig.EntriesOnlyHeader)-1]:= EditingNEntry;
              end;
 
              NEntriesUI.LoadFromDataModel(PanelConfig, False);
 
-             if EditingMode and (NEntriesUI.NEntry <> nil) then        // NEntriesUI.NEntry = nil => Vinculated to tags, with no one entry
+             if not QueryLayout and (NEntriesUI.NEntry <> nil) then        // NEntriesUI.NEntry = nil => Vinculated to tags, with no one entry
                 NEntriesUI.Editor.OnEditorChanged := nil
              else
                 NEntriesUI.Editor.OnEditorChanged := ModeChangedToEditing;
@@ -959,13 +964,13 @@ begin
    ShowPanelsBottom(ShowPanel[pnBL], ShowPanel[pnBR]);
    FrameResize(nil);
 
-   if EditingMode and not Folder.EditorInfoPanelHidden then
+   if not QueryLayout and not Folder.EditorInfoPanelHidden then
       KeepInfoPanelTemporarilyVisible
    else
       TimerInfoTimer(nil);
 
-   if EditingMode then
-      ActiveFile.SetNoteIsOnEditionMode(FNote, True);
+   if not QueryLayout then
+      ActiveFile.SetNoteIsOnEditingLayout(FNote, True);
 
 {$IFDEF KNT_DEBUG}
    GetDBG_NEntriesUI;

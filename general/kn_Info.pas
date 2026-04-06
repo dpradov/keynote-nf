@@ -881,7 +881,7 @@ type
      pnuHidePanel                  //  Keep panel hidden
   );
 
-  // (*) In DefaultUseWhenEditing, you can define one panel (and only one) with one of this option.
+  // (*) In DefaultUseForEditingLayout, you can define one panel (and only one) with one of this option.
   //     If there is none with this option, there must necessarily be one defined with pnuShowAllEntries
   //     The corresponding panel will be used to edit entries or create new entries.
   // Newest/oldest/last selected, depending on TNoteAdvancedOptions.ShowNewestEntryInSingleEntry and TEditorOptions.SaveCaretPos
@@ -889,11 +889,11 @@ type
 type
    TNoteAdvancedOptions = packed record
 
-     DefaultUseWhenReading: array[TNEntriesMainPanel] of TNEntriesPanelUse;
-     VinculatedTagsWhenReading: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
+     DefaultUseForQueryLayout: array[TNEntriesMainPanel] of TNEntriesPanelUse;
+     VinculatedTagsForQueryLayout: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
 
-     DefaultUseWhenEditing: array[TNEntriesMainPanel] of TNEntriesPanelUse;
-     VinculatedTagsWhenEditing: array[TNEntriesMainPanel] of TNoteTagArray;
+     DefaultUseForEditingLayout: array[TNEntriesMainPanel] of TNEntriesPanelUse;
+     VinculatedTagsForEditingLayout: array[TNEntriesMainPanel] of TNoteTagArray;
 
      DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
 
@@ -1152,15 +1152,15 @@ var
   p: TNEntriesPanel;
 begin
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-       DefaultUseWhenReading[p] := pnuHidePanel;
-       DefaultUseWhenEditing[p] := pnuHidePanel;
-       VinculatedTagsWhenReading[p]:= nil;
-       VinculatedTagsWhenEditing[p]:= nil;
+       DefaultUseForQueryLayout[p] := pnuHidePanel;
+       DefaultUseForEditingLayout[p] := pnuHidePanel;
+       VinculatedTagsForQueryLayout[p]:= nil;
+       VinculatedTagsForEditingLayout[p]:= nil;
     end;
-    DefaultUseWhenReading[pnCenter] := pnuShowAllEntries;
+    DefaultUseForQueryLayout[pnCenter] := pnuShowAllEntries;
 
-    DefaultUseWhenEditing[pnTL] := pnuShowSelectedEntry;
-    DefaultUseWhenEditing[pnCenter] := pnuShowAllEntries;
+    DefaultUseForEditingLayout[pnTL] := pnuShowSelectedEntry;
+    DefaultUseForEditingLayout[pnCenter] := pnuShowAllEntries;
 
     DefaultTagsOrder:= nil;
 

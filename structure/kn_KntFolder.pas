@@ -76,7 +76,7 @@ type
     private
       FNNode: TNoteNode;
       FFolder: TKntFolder;
-      FEditingMode: boolean;
+      FQueryLayout: boolean;
 
       FTop_Ratio: Single;
       FBottom_Ratio: Single;
@@ -90,7 +90,7 @@ type
       function GetBLBR_Ratio: Single;
 
     protected
-      constructor Create (NNode: TNoteNode; Folder: TKntFolder; EditingMode: boolean);
+      constructor Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
       destructor Destroy; override;
       function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
 
@@ -98,7 +98,7 @@ type
       PanelsConfig: array of TPanelConfiguration;
 
 
-      class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; EditingMode: boolean): TNNodeUIConfiguration;
+      class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
       function GetVisibleBottomPanel: TNEntriesPanel;
@@ -307,7 +307,7 @@ type
     function GetFocusedNNode : TNoteNode;
     property FocusedNNode : TNoteNode read GetFocusedNNode;
 
-    function GetNNodeUIConfig(NNode : TNoteNode; EditingMode: boolean): TNNodeUIConfiguration;
+    function GetNNodeUIConfig(NNode : TNoteNode; QueryLayout: boolean): TNNodeUIConfiguration;
     function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
 
     procedure NoteNameModified(NNode: TNoteNode);
@@ -882,13 +882,13 @@ begin
   var Tags: TNoteTagArray;
   SetLength(Tags, 1);
   Tags[0]:= TKntFile(FKntFile).NoteTags[0];
-  NoteAdvOptions.DefaultUseWhenReading[pnTL]:= pnuShowVinculatedWithTags;
-  NoteAdvOptions.VinculatedTagsWhenReading[pnTL]:= Tags;
+  NoteAdvOptions.DefaultUseForQueryLayout[pnTL]:= pnuShowVinculatedWithTags;
+  NoteAdvOptions.VinculatedTagsForQueryLayout[pnTL]:= Tags;
 
-  NoteAdvOptions.DefaultUseWhenEditing[pnTL] := pnuShowVinculatedWithTags;
-  NoteAdvOptions.DefaultUseWhenEditing[pnCenter] := pnuShowSelectedEntry;
-  NoteAdvOptions.DefaultUseWhenEditing[pnBL] := pnuShowAllEntries;
-  NoteAdvOptions.VinculatedTagsWhenEditing[pnTL]:= Tags;
+  NoteAdvOptions.DefaultUseForEditingLayout[pnTL] := pnuShowVinculatedWithTags;
+  NoteAdvOptions.DefaultUseForEditingLayout[pnCenter] := pnuShowSelectedEntry;
+  NoteAdvOptions.DefaultUseForEditingLayout[pnBL] := pnuShowAllEntries;
+  NoteAdvOptions.VinculatedTagsForEditingLayout[pnTL]:= Tags;
 
 end; // CREATE
 
@@ -1277,7 +1277,7 @@ end;
 
 procedure TKntFolder.NoNodeInTree;
 begin
-   NoteUI.LoadFromNNode(nil, true, eReadingMode);
+   NoteUI.LoadFromNNode(nil, true, neQueryLayout);
 end;
 
 
@@ -1341,14 +1341,14 @@ end;
 
 {$REGION NNodes UI Config }
 
-function TKntFolder.GetNNodeUIConfig(NNode : TNoteNode; EditingMode: boolean): TNNodeUIConfiguration;
+function TKntFolder.GetNNodeUIConfig(NNode : TNoteNode; QueryLayout: boolean): TNNodeUIConfiguration;
 var
   i: integer;
   GID: Cardinal;
 begin
   for i:= 0 to NNodesUIConfig.Count-1 do begin
      Result:= NNodesUIConfig[i];
-     if (Result.NNode = NNode) and (Result.FEditingMode = EditingMode) then exit;
+     if (Result.NNode = NNode) and (Result.FQueryLayout = QueryLayout) then exit;
   end;
   Result:= nil;
 end;
@@ -1745,7 +1745,7 @@ begin
 
   with Form_Main do begin
       try
-        NoteUI.LoadFromNNode(NNode, SavePreviousContent, eLastMode);
+        NoteUI.LoadFromNNode(NNode, SavePreviousContent, neLastLayout);
 
         if assigned(NNode) then begin
              Node:= NNode.TVNode;
@@ -3173,7 +3173,7 @@ end;
 
 //=====  TNNodeUIConfiguration ================
 
-constructor TNNodeUIConfiguration.Create (NNode: TNoteNode; Folder: TKntFolder; EditingMode: boolean);
+constructor TNNodeUIConfiguration.Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
 begin
   FNNode:= NNode;
   FTop_Ratio:= 0;
@@ -3181,7 +3181,7 @@ begin
   FTLTR_Ratio:= 0;
   FBLBR_Ratio:= 0;
   FFolder:= Folder;
-  FEditingMode:= EditingMode;
+  FQueryLayout:= QueryLayout;
 end;
 
 destructor TNNodeUIConfiguration.Destroy;
@@ -3253,10 +3253,10 @@ begin
        Mode:= aMode;
        SelectedNNode:= NNode;
        NNodes:= nil;
-       if FEditingMode then
-          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenEditing[aPanel]
+       if FQueryLayout then
+          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForQueryLayout[aPanel]
        else
-          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsWhenReading[aPanel];
+		  VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[aPanel];
 
        MMContent:= cmWholeEntry;
        MMShowDateInHeader:= true;
@@ -3292,14 +3292,14 @@ begin
 end;
 
 
-class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode; Folder: TKntFolder; EditingMode: boolean): TNNodeUIConfiguration;
+class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
 var
    p: TNEntriesPanel;
    EntryID: Word;
    PnlUse: TNEntriesPanelUse;
    N: integer;
 begin
-    Result:= TNNodeUIConfiguration.Create(NNode, Folder, EditingMode);
+    Result:= TNNodeUIConfiguration.Create(NNode, Folder, QueryLayout);
     if NNode = nil then begin
        Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, nil);
        exit;
@@ -3314,10 +3314,10 @@ begin
 
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-       if EditingMode then
-          PnlUse:= Folder.NoteAdvOptions.DefaultUseWhenEditing[p]
+       if QueryLayout then
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQueryLayout[p]		  
        else
-          PnlUse:= Folder.NoteAdvOptions.DefaultUseWhenReading[p];
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForEditingLayout[p];
 
        case PnlUse of
          pnuShowVinculatedWithTags,

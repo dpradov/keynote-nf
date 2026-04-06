@@ -4287,7 +4287,7 @@ begin
 
       if Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
          if ActiveFile.CheckAuthorized(True) then
-            ActiveFolder.NoteUI.LoadFromNNode(ActiveFolder.FocusedNNode, True, eLastMode)
+            ActiveFolder.NoteUI.LoadFromNNode(ActiveFolder.FocusedNNode, True, neLastLayout)
          else
             exit;
       end;

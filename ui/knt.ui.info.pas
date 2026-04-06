@@ -30,7 +30,7 @@ uses
 
 
 type
-  TEditingMode = (eEditingMode, eReadingMode, eLastMode);
+  TBasicNEntriesLayout = (neQueryLayout, neEditingLayout, neLastLayout);
 
   INoteUI = interface
      ['{8D9BDE14-3373-482A-B097-0C1E4F4A981C}']
@@ -42,12 +42,12 @@ type
      function GetFolder: TObject;
      function GetSelectedNEntry: TNoteEntry;
      function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
-     function GetEditingMode: boolean;
+     function GetBasicNEntriesLayout: boolean;
      property Editor: TKntRichEdit read GetEditor;
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
 
-     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingModeToUse: TEditingMode; EditingNEntry: TNoteEntry = nil);
+     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; NEntriesLayout: TBasicNEntriesLayout; EditingNEntry: TNoteEntry = nil);
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
      procedure ReloadNoteName;
