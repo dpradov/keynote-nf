@@ -125,6 +125,7 @@ type
     procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
     procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true; ReconsiderOnlyContentInSelectedEntry: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
+    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
     procedure AddNewEntryInTagVinculatedPanel;
     procedure SaveToDataModel;
     procedure SavePositionInPanel;
@@ -133,6 +134,8 @@ type
     procedure IntroInEditorMultiEntries;
     procedure EditorDblClickInMultiEntries;
     function VinculatedToMultipleEntries: boolean;
+    function GetIndexOfVisibleEntry(NEntry: TNoteEntry): integer;
+    procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
     procedure ConfigureEditor;
     //procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
   protected
@@ -145,7 +148,7 @@ type
     procedure OnEndEditTagsIntroduction(PressedReturn: boolean);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure ShowEntriesButtons(Show: boolean);
-    procedure SelectINextEntry(iNextEntry: integer);
+    procedure SelectEntry(iEntry: integer);
     procedure FrameResize(Sender: TObject);
   public
     procedure EditTags;
@@ -626,6 +629,26 @@ end;
 {$REGION Load, save and configure Editor for a Note node }
 
 
+function TKntNoteEntriesUI.GetIndexOfVisibleEntry(NEntry: TNoteEntry): integer;
+var
+   i: integer;
+begin
+   for i:= Length(FEntriesShown)-1 downto 0 do
+      if FEntriesShown[i].NEntry = NEntry then
+         exit(i);
+
+   Result:= -1;
+end;
+
+procedure TKntNoteEntriesUI.ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
+var
+   iNEntry: integer;
+begin
+    iNEntry:= GetIndexOfVisibleEntry(NEntry);
+    if iNEntry >= 0 then
+       FEntriesShown[iNEntry].Content:= NewContent;
+end;
+
 procedure TKntNoteEntriesUI.LoadFromDataModel(APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
 var
   NEntry: TNoteEntry;
@@ -761,7 +784,7 @@ var
  procedure PopulateEntriesToShow;
  var
    N: integer;
-   iEntry: integer;
+   iEntry, j: integer;
    Tags: TNoteTagArray;
    FindTags: TFindTags;
    NEntry: TNoteEntry;
@@ -822,6 +845,14 @@ var
       fsFolder: ;
       fsFile: ;
     end;
+
+
+    for j:= 0 to Length(PanelConfig.EntriesOnlyHeader)-1 do
+      for iEntry:= 0 to Length(FEntriesShown)-1 do
+         if FEntriesShown[iEntry].NEntry = PanelConfig.EntriesOnlyHeader[j] then begin
+            FEntriesShown[iEntry].Content:= cmOnlyHeader;
+            break;
+         end;
 
  end;
 
@@ -935,6 +966,21 @@ var
     if (FMode = meSingleEntry) then
        ConfigureEditor;
  end;
+
+ procedure SaveContentStateOfEntries;
+ var
+    i, N: integer;
+ begin
+    SetLength(PanelConfig.EntriesOnlyHeader, Length(FEntriesShown));
+    N:= 0;
+    for i:= 0 to Length(FEntriesShown)-1 do
+        if FEntriesShown[i].Content = cmOnlyHeader then begin
+           PanelConfig.EntriesOnlyHeader[N]:= FEntriesShown[i].NEntry;
+           inc(N);
+        end;
+    SetLength(PanelConfig.EntriesOnlyHeader, N);
+ end;
+
 
 begin
    if (PanelConfig = nil) or ((PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)) then begin
@@ -1137,6 +1183,7 @@ begin
      if not ClipCapMng.IsBusy then
         App.EditorReloaded(Editor, Editor.Focused);
 
+     SaveContentStateOfEntries;
      fChangingInCode:= false;
    end;
 
@@ -1407,7 +1454,7 @@ begin
       iNextEntry:= FiEntry;
       if (FMode = meSingleEntry) or (SS <= FEntriesShown[FiEntry].StartingContentPos) then
          dec(iNextEntry);
-      SelectINextEntry(iNextEntry);
+      SelectEntry(iNextEntry);
    end;
    FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
@@ -1416,22 +1463,22 @@ end;
 procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
 begin
    if FiEntry < Length(FEntriesShown) -1 then
-      SelectINextEntry(FiEntry+1);
+      SelectEntry(FiEntry+1);
    FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
 
 
-procedure TKntNoteEntriesUI.SelectINextEntry(iNextEntry: integer);
+procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer);
 begin
    if (FMode = meMultipleEntries) then begin
-       Editor.SelStart:= FEntriesShown[iNextEntry].StartingPos;
-       if FEntriesShown[iNextEntry].Content <> cmOnlyHeader then
-          Editor.SelStart:= FEntriesShown[iNextEntry].StartingContentPos;
+       Editor.SelStart:= FEntriesShown[iEntry].StartingPos;
+       if FEntriesShown[iEntry].Content <> cmOnlyHeader then
+          Editor.SelStart:= FEntriesShown[iEntry].StartingContentPos;
    end
    else begin
        SaveToDataModel();
-       PanelConfig.SelNEntry:= FEntriesShown[iNextEntry].NEntry;
-       btnToggleMulti.Caption:= (iNextEntry+1).ToString;
+       PanelConfig.SelNEntry:= FEntriesShown[iEntry].NEntry;
+       btnToggleMulti.Caption:= (iEntry+1).ToString;
        Editor.HideNestedFloatingEditor;
        ReloadFromDataModel(false);
    end;
@@ -1540,26 +1587,36 @@ begin
       else
          NewCont:= cmWholeEntry;
 
-      FEntriesShown[FiEntry].Content:= NewCont;
-      if CtrlDown then
-         for i:=0 to High(FEntriesShown) do
-             FEntriesShown[i].Content:= NewCont;
-
-      SaveToDataModel();
-      Editor.HideNestedFloatingEditor;
-
-      PanelConfig.SelNEntry:= FEntriesShown[FiEntry].NEntry;
-      ReloadFromDataModel(false, not CtrlDown);
-
-      Sleep(100);
-      Application.ProcessMessages;
-      if FEntriesShown[FiEntry].Content = cmWholeEntry then
-         Editor.SelStart:= FEntriesShown[FiEntry].StartingContentPos
-      else
-         Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
-      Editor.SelLength:= 0;
-      exit;
+      ReloadVisibleContentOfEntries (CtrlDown, NewCont, FiEntry);
    end;
+end;
+
+
+procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
+var
+   SS, i: integer;
+begin
+   if not ModifyAll and (FEntriesShown[iEntry].Content = NewContent) then exit;
+
+   FEntriesShown[iEntry].Content:= NewContent;
+   if ModifyAll then
+      for i:=0 to High(FEntriesShown) do
+          FEntriesShown[i].Content:= NewContent;
+
+   SaveToDataModel();
+   Editor.HideNestedFloatingEditor;
+
+   if not ModifyAll then
+      PanelConfig.SelNEntry:= FEntriesShown[iEntry].NEntry;
+   ReloadFromDataModel(false, not ModifyAll);
+
+   Sleep(100);
+   Application.ProcessMessages;
+   if FEntriesShown[FiEntry].Content = cmWholeEntry then
+      Editor.SelStart:= FEntriesShown[FiEntry].StartingContentPos
+   else
+      Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
+   Editor.SelLength:= 0;
 end;
 
 

@@ -47,7 +47,7 @@ type
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
 
-     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingModeToUse: TEditingMode);
+     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; EditingModeToUse: TEditingMode; EditingNEntry: TNoteEntry = nil);
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
      procedure ReloadNoteName;
@@ -138,6 +138,7 @@ type
     Order: TOrderInEntriesInPanel;
     DescendingOrder: boolean;
     Filter: TFilterOptionsInPanel;
+    EntriesOnlyHeader: TNoteEntryArray;
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
     SelStart : integer;               // ,,
