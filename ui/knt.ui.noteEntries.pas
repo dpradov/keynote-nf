@@ -359,7 +359,7 @@ begin
   if Assigned(FOnEnterOnEditor) then
     FOnEnterOnEditor(Self);
 
-  TKntNoteUI(FNoteUI).NEntryUIEditorEnter(Self);
+  TKntNoteUI(FNoteUI).NEntriesUIEditorEnter(Self);
 
   if FloatingEditorCannotBeSaved then
      Editor.ActivateFloatingEditor;

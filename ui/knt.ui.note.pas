@@ -73,10 +73,10 @@ type
     FKntFolder: TKntFolder;
     FNNodeDeleted: boolean;
 
-    FNEntryUI: array[TNEntriesPanel] of TKntNoteEntriesUI;
+    FNEntriesUI: array[TNEntriesPanel] of TKntNoteEntriesUI;
     FNNodeUIConfig: TNNodeUIConfiguration;
     FNewNNodeUIConfig: boolean;
-    FSelectedNEntryUI: TKntNoteEntriesUI;
+    FSelectedNEntriesUI: TKntNoteEntriesUI;
     FEditingMode: boolean;
 
     fSplitterNoteMoving: boolean;
@@ -126,17 +126,17 @@ type
     procedure SetInfoPanelHidden(value: boolean);
 
   protected
-    function GetNEntryUI (Panel: TNEntriesPanel): TKntNoteEntriesUI; overload;
-    function GetNEntryUI (Editor: TKntRichEdit): TKntNoteEntriesUI; overload;
+    function GetNEntriesUI (Panel: TNEntriesPanel): TKntNoteEntriesUI; overload;
+    function GetNEntriesUI (Editor: TKntRichEdit): TKntNoteEntriesUI; overload;
     procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit); overload;
-    procedure CreateNewEntry(RequestedFromNEntryUI: TKntNoteEntriesUI); overload;
-    procedure EditInInMultiEntries(RequestedFromNEntryUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean);
+    procedure CreateNewEntry(RequestedFromNEntriesUI: TKntNoteEntriesUI); overload;
+    procedure EditInInMultiEntries(RequestedFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean);
     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
     procedure ModeChangedToEditing(Editor: TKntRichEdit);
     procedure TimerInfoTimer(Sender: TObject);
  public
-    procedure NEntryUIEditorEnter(Sender: TObject);
-    function GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
+    procedure NEntriesUIEditorEnter(Sender: TObject);
+    function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
     procedure KeepInfoPanelTemporarilyVisible;
    {$IFDEF KNT_DEBUG}
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
@@ -204,11 +204,11 @@ begin
    FKntFolder:= KntFolder;
 
    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
-      FNEntryUI[p]:= nil;
+      FNEntriesUI[p]:= nil;
 
-   FNEntryUI[pnCenter]:= TKntNoteEntriesUI.Create( PnlCenter, Self );
-   FNEntryUI[pnCenter].Parent:= PnlCenter;
-   FSelectedNEntryUI:= FNEntryUI[pnCenter];
+   FNEntriesUI[pnCenter]:= TKntNoteEntriesUI.Create( PnlCenter, Self );
+   FNEntriesUI[pnCenter].Parent:= PnlCenter;
+   FSelectedNEntriesUI:= FNEntriesUI[pnCenter];
 
    //TestCreatePanel;
 
@@ -226,8 +226,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FreeAndNil(FNEntryUI[p]);
+      if FNEntriesUI[p] <> nil then
+         FreeAndNil(FNEntriesUI[p]);
 
    TimerInfoPanel.Free;
 
@@ -269,18 +269,18 @@ end;
 
 function TKntNoteUI.GetEditor: TKntRichEdit;
 begin
-  Result:= FSelectedNEntryUI.Editor;
+  Result:= FSelectedNEntriesUI.Editor;
 end;
 
 
 function TKntNoteUI.GetReadOnly: boolean;
 begin
-   Result:= FNEntryUI[pnCenter].ReadOnly;
+   Result:= FNEntriesUI[pnCenter].ReadOnly;
 end;
 
 procedure TKntNoteUI.SetReadOnly( AReadOnly : boolean );
 begin
-   FNEntryUI[pnCenter].ReadOnly:= AReadOnly;
+   FNEntriesUI[pnCenter].ReadOnly:= AReadOnly;
 end;
 
 
@@ -289,8 +289,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].SetOnEnter(AEvent);
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].SetOnEnter(AEvent);
 end;
 
 procedure TKntNoteUI.SetOnMouseUpOnNote(AEvent: TNotifyEvent);
@@ -298,8 +298,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].SetOnMouseUpOnNote(AEvent);
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].SetOnMouseUpOnNote(AEvent);
 end;
 
 procedure TKntNoteUI.SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
@@ -307,8 +307,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].SetOnMouseMoveOnNote(AEvent);
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].SetOnMouseMoveOnNote(AEvent);
 end;
 
 
@@ -317,8 +317,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].InfoPanelHidden:= value;
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].InfoPanelHidden:= value;
 
    if not value then
       TimerInfoPanel.Enabled:= True;
@@ -327,7 +327,7 @@ end;
 
 procedure TKntNoteUI.SetFocusOnEditor;
 begin
-   FSelectedNEntryUI.SetFocusOnEditor;
+   FSelectedNEntriesUI.SetFocusOnEditor;
 end;
 
 
@@ -396,11 +396,11 @@ procedure TKntNoteUI.splTCanResize(Sender: TObject; var NewSize: Integer; var Ac
 begin
   IncResize:= (NewSize - pnlTop.Height);
   if not FUpdatingOnResize and pnlBottom.Visible then begin
-    FNEntryUI[pnCenter].Editor.BeginUpdate;
-    if FNEntryUI[pnBL] <> nil then
-       FNEntryUI[pnBL].Editor.BeginUpdate;
-    if FNEntryUI[pnBR] <> nil then
-       FNEntryUI[pnBR].Editor.BeginUpdate;
+    FNEntriesUI[pnCenter].Editor.BeginUpdate;
+    if FNEntriesUI[pnBL] <> nil then
+       FNEntriesUI[pnBL].Editor.BeginUpdate;
+    if FNEntriesUI[pnBR] <> nil then
+       FNEntriesUI[pnBR].Editor.BeginUpdate;
     FUpdatingOnResize:= True;
   end;
 end;
@@ -419,11 +419,11 @@ begin
 
   if pnlBottom.Visible then begin
      pnlCenter.Height:= pnlCenter.Height - IncResize;
-     FNEntryUI[pnCenter].Editor.EndUpdate;
-    if FNEntryUI[pnBL] <> nil then
-       FNEntryUI[pnBL].Editor.EndUpdate;
-    if FNEntryUI[pnBR] <> nil then
-       FNEntryUI[pnBR].Editor.EndUpdate;
+     FNEntriesUI[pnCenter].Editor.EndUpdate;
+    if FNEntriesUI[pnBL] <> nil then
+       FNEntriesUI[pnBL].Editor.EndUpdate;
+    if FNEntriesUI[pnBR] <> nil then
+       FNEntriesUI[pnBR].Editor.EndUpdate;
   end;
 
   FUpdatingOnResize:= False;
@@ -596,35 +596,35 @@ end;
 
 {$REGION Entries }
 
-function TKntNoteUI.GetNEntryUI (Panel: TNEntriesPanel): TKntNoteEntriesUI;
+function TKntNoteUI.GetNEntriesUI (Panel: TNEntriesPanel): TKntNoteEntriesUI;
 var
   pnl: TPanel;
 begin
    pnl:= GetPanel(panel);
-   if FNEntryUI[Panel] =  nil then begin
-      FNEntryUI[Panel]:= TKntNoteEntriesUI.Create(pnl, Self );
-      SetUpEditor(FNEntryUI[Panel].Editor, FNEntryUI[pnCenter].Editor.ZoomGoal);
-      FNEntryUI[Panel].Parent:= pnl;
+   if FNEntriesUI[Panel] =  nil then begin
+      FNEntriesUI[Panel]:= TKntNoteEntriesUI.Create(pnl, Self );
+      SetUpEditor(FNEntriesUI[Panel].Editor, FNEntriesUI[pnCenter].Editor.ZoomGoal);
+      FNEntriesUI[Panel].Parent:= pnl;
    end;
 
-   Result:= FNEntryUI[Panel];
+   Result:= FNEntriesUI[Panel];
 end;
 
 
-function TKntNoteUI.GetNEntryUI (Editor: TKntRichEdit): TKntNoteEntriesUI;
+function TKntNoteUI.GetNEntriesUI (Editor: TKntRichEdit): TKntNoteEntriesUI;
 var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if (FNEntryUI[p] <> nil) and (FNEntryUI[p].Editor = Editor) then
-         exit (FNEntryUI[p]);
+      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].Editor = Editor) then
+         exit (FNEntriesUI[p]);
 
    Result:= nil;
 end;
 
-function TKntNoteUI.GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
+function TKntNoteUI.GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
 begin
-   Result:= GetNEntryUI(Editor);
+   Result:= GetNEntriesUI(Editor);
 end;
 
 {$IFDEF KNT_DEBUG}
@@ -636,8 +636,8 @@ begin
    SetLength(FDBGEntriesUI, TNEntriesPanel_Count);
    i:= 0;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then begin
-          FDBGEntriesUI[i]:= FNEntryUI[p];
+      if FNEntriesUI[p] <> nil then begin
+          FDBGEntriesUI[i]:= FNEntriesUI[p];
           inc(i);
       end;
    SetLength(FDBGEntriesUI, i);
@@ -653,8 +653,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].RefreshEntry;
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].RefreshEntry;
 end;
 
 
@@ -665,7 +665,7 @@ var
    NEntriesUI: TKntNoteEntriesUI;
    NEntry: TNoteEntry;
 begin
-  NEntriesUI:= GetNEntryUI(RequestedFromEditor);
+  NEntriesUI:= GetNEntriesUI(RequestedFromEditor);
   if NEntriesUI.Mode = meSingleEntry then              // Ctrl+INTRO
      NEntriesUI.IntroInEditorMultiEntries
 
@@ -679,7 +679,7 @@ begin
      if CtrlDown then begin                            // Change to Not EditingMode
         ActiveFile.SetNoteIsOnEditionMode(FNote, false);
         LoadFromNNode(FNNode, True, eReadingMode);
-        FSelectedNEntryUI.SetFocusOnEditor;
+        FSelectedNEntriesUI.SetFocusOnEditor;
      end
      else
         EditInInMultiEntries(NEntriesUI, NEntry, false);
@@ -695,11 +695,11 @@ var
 begin
    Editor.OnEditorChanged:= nil;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
-      if (FNEntryUI[p] <> nil) and ((FNEntryUI[p].NEntry <> nil)) then
-         FNEntryUI[p].Editor.OnEditorChanged:= nil;
+      if (FNEntriesUI[p] <> nil) and ((FNEntriesUI[p].NEntry <> nil)) then
+         FNEntriesUI[p].Editor.OnEditorChanged:= nil;
    end;
 
-   NEntriesUI:= GetNEntryUI(Editor);
+   NEntriesUI:= GetNEntriesUI(Editor);
    if (NEntriesUI.NEntry = nil) and (NEntriesUI.Note <> nil) then
       NEntriesUI.AddNewEntryInTagVinculatedPanel;
 
@@ -710,28 +710,28 @@ end;
 
 procedure TKntNoteUI.CreateNewEntry(RequestedFromEditor: TKntRichEdit);
 begin
-   CreateNewEntry(GetNEntryUI(RequestedFromEditor));
+   CreateNewEntry(GetNEntriesUI(RequestedFromEditor));
 end;
 
-procedure TKntNoteUI.CreateNewEntry(RequestedFromNEntryUI: TKntNoteEntriesUI);
+procedure TKntNoteUI.CreateNewEntry(RequestedFromNEntriesUI: TKntNoteEntriesUI);
 var
   NEntry: TNoteEntry;
 begin
-   if (RequestedFromNEntryUI = nil) or (Note = nil) then exit;
+   if (RequestedFromNEntriesUI = nil) or (Note = nil) then exit;
 
    NEntry:= Note.AddNewEntry;
    Folder.Modified:= True;
-   if RequestedFromNEntryUI.PanelConfig.VinculatedTags <> nil then
-      NEntry.Tags:= RequestedFromNEntryUI.PanelConfig.VinculatedTags;
+   if RequestedFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
+      NEntry.Tags:= RequestedFromNEntriesUI.PanelConfig.VinculatedTags;
 
    if not FEditingMode then
      LoadFromNNode(FNNode, False, eEditingMode);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
 
-   EditInInMultiEntries(RequestedFromNEntryUI, NEntry, true);
+   EditInInMultiEntries(RequestedFromNEntriesUI, NEntry, true);
 end;
 
 
-procedure TKntNoteUI.EditInInMultiEntries(RequestedFromNEntryUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean);
+procedure TKntNoteUI.EditInInMultiEntries(RequestedFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean);
 var
   NEntriesUI: TKntNoteEntriesUI;
   PanelConfig: TPanelConfiguration;
@@ -739,22 +739,22 @@ var
   RequestedFromMultiEntry: boolean;
 
 begin
-   if (RequestedFromNEntryUI = nil) or (Note = nil) then exit;
+   if (RequestedFromNEntriesUI = nil) or (Note = nil) then exit;
 
-   RequestedFromMultiEntry:= (RequestedFromNEntryUI.Mode = meMultipleEntries);
+   RequestedFromMultiEntry:= (RequestedFromNEntriesUI.Mode = meMultipleEntries);
 
-   if (RequestedFromNEntryUI.Mode = meMultipleEntries) and (RequestedFromNEntryUI.PanelConfig.VinculatedTags = nil) then begin
+   if (RequestedFromNEntriesUI.Mode = meMultipleEntries) and (RequestedFromNEntriesUI.PanelConfig.VinculatedTags = nil) then begin
       if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
-         PnlEdit:= RequestedFromNEntryUI.PanelConfig.Panel;
+         PnlEdit:= RequestedFromNEntriesUI.PanelConfig.Panel;
          if not NewEntry then begin
-            RequestedFromNEntryUI.IntroInEditorMultiEntries;       // Use requested NEntriesUI for editing
+            RequestedFromNEntriesUI.IntroInEditorMultiEntries;       // Use requested NEntriesUI for editing
             exit;
          end;
       end;
-      NEntriesUI:= GetNEntryUI(PnlEdit);
+      NEntriesUI:= GetNEntriesUI(PnlEdit);
    end
    else
-      NEntriesUI:= RequestedFromNEntryUI;
+      NEntriesUI:= RequestedFromNEntriesUI;
 
    PanelConfig:= NEntriesUI.PanelConfig;
    PanelConfig.SelNEntry:= NEntry;
@@ -768,17 +768,17 @@ begin
 end;
 
 
-procedure TKntNoteUI.NEntryUIEditorEnter(Sender: TObject);
+procedure TKntNoteUI.NEntriesUIEditorEnter(Sender: TObject);
 var
   p: TNEntriesPanel;
 begin
    if not FloatingEditorCannotBeSaved then
       for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-        if FNEntryUI[p] <> nil then
-           if not FNEntryUI[p].HideNestedFloatingEditor then
+        if FNEntriesUI[p] <> nil then
+           if not FNEntriesUI[p].HideNestedFloatingEditor then
               exit;
 
-  FSelectedNEntryUI:= TKntNoteEntriesUI(Sender);
+  FSelectedNEntriesUI:= TKntNoteEntriesUI(Sender);
   TimerInfoPanel.Enabled:= False;
   TimerInfoPanel.Enabled:= True;
 end;
@@ -790,8 +790,8 @@ var
 begin
    KeepEnabled:= False;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if (FNEntryUI[p] <> nil) and (FNEntryUI[p].PanelConfig <> nil) and not FNEntryUI[p].PanelConfig.ShowEditorInfoPanel then
-         if not FNEntryUI[p].HideTemporarilyInfoPanel then
+      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].PanelConfig <> nil) and not FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel then
+         if not FNEntriesUI[p].HideTemporarilyInfoPanel then
             KeepEnabled:= True;
 
    if not KeepEnabled then
@@ -817,13 +817,13 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].RefreshTags;
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].RefreshTags;
 end;
 
 procedure TKntNoteUI.EditTags;
 begin
-   FSelectedNEntryUI.EditTags;
+   FSelectedNEntriesUI.EditTags;
 end;
 
 
@@ -848,7 +848,7 @@ end;
 
 function TKntNoteUI.GetSelectedNEntry: TNoteEntry;
 begin
-   Result:= FSelectedNEntryUI.NEntry;
+   Result:= FSelectedNEntriesUI.NEntry;
 end;
 
 function TKntNoteUI.GetEditingMode: boolean;
@@ -873,7 +873,7 @@ begin
 
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
-   FSelectedNEntryUI:= GetNEntryUI(pnCenter);
+   FSelectedNEntriesUI:= GetNEntriesUI(pnCenter);
    EditingMode:= False;
 
    if assigned(NNode) then begin
@@ -897,7 +897,7 @@ begin
 
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       ShowPanel[p]:= false;
-      if (FNEntryUI[p] <> nil) and not FNEntryUI[p].HideNestedFloatingEditor then
+      if (FNEntriesUI[p] <> nil) and not FNEntriesUI[p].HideNestedFloatingEditor then
          exit;
    end;
 
@@ -908,7 +908,7 @@ begin
           if PanelConfig.Visible then begin
              ShowPanel[PanelConfig.Panel]:= True;
              PanelConfig.ShowEditorInfoPanel:= (p = PanelConfig.Panel);
-             NEntriesUI:= GetNEntryUI(PanelConfig.Panel);
+             NEntriesUI:= GetNEntriesUI(PanelConfig.Panel);
              if not EditingMode and (PanelConfig.VinculatedTags = nil) then
                 PanelConfig.SelNEntry:= FNote.SelEntry;
              NEntriesUI.LoadFromDataModel(PanelConfig, False);
@@ -920,13 +920,13 @@ begin
       end;
    end
    else
-      GetNEntryUI(pnCenter).LoadFromDataModel(nil, False);
+      GetNEntriesUI(pnCenter).LoadFromDataModel(nil, False);
 
 
    // Clear unused editors  (##)
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-       if not ShowPanel[p] and (FNEntryUI[p] <> nil) then
-         FNEntryUI[p].SetAsUnused;
+       if not ShowPanel[p] and (FNEntriesUI[p] <> nil) then
+         FNEntriesUI[p].SetAsUnused;
 
    ShowLeftPanel(False);
    ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);
@@ -950,7 +950,7 @@ end;
 
 procedure TKntNoteUI.ReloadMetadataFromDataModel(ReloadTags: boolean = true);
 begin
-   FNEntryUI[pnCenter].ReloadMetadataFromDataModel(ReloadTags);        //***
+   FNEntriesUI[pnCenter].ReloadMetadataFromDataModel(ReloadTags);        //***
 end;
 
 
@@ -959,8 +959,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].ReloadFromDataModel;
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].ReloadFromDataModel;
 end;
 
 procedure TKntNoteUI.SaveToDataModel;
@@ -977,21 +977,21 @@ begin
    iOnUse:= 0;
    SelNEntriesUI:= nil;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then begin
-         FNEntryUI[p].SaveToDataModel;
-         if FNEntryUI[p].OnUse then begin
-            FNEntryUI[p].SavePositionInPanel;
-            FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntryUI[p].PanelConfig;
+      if FNEntriesUI[p] <> nil then begin
+         FNEntriesUI[p].SaveToDataModel;
+         if FNEntriesUI[p].OnUse then begin
+            FNEntriesUI[p].SavePositionInPanel;
+            FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntriesUI[p].PanelConfig;
             inc(iOnUse);
             if p in MainPanels then begin                              // Main panels: [pnTL..pnBR]
-               if FNEntryUI[p].PanelConfig.VinculatedTags = nil then
-                  SelNEntriesUI:= FNEntryUI[p];
+               if FNEntriesUI[p].PanelConfig.VinculatedTags = nil then
+                  SelNEntriesUI:= FNEntriesUI[p];
             end;
          end;
       end;
 
-   if (FSelectedNEntryUI <> nil) and (FSelectedNEntryUI.PanelConfig.Panel in MainPanels) and (FSelectedNEntryUI.PanelConfig.VinculatedTags = nil) then
-      SelNEntriesUI:= FSelectedNEntryUI;
+   if (FSelectedNEntriesUI <> nil) and (FSelectedNEntriesUI.PanelConfig.Panel in MainPanels) and (FSelectedNEntriesUI.PanelConfig.VinculatedTags = nil) then
+      SelNEntriesUI:= FSelectedNEntriesUI;
 
    if SelNEntriesUI <> nil then
       with SelNEntriesUI do begin
@@ -1015,7 +1015,7 @@ end;
 
 procedure TKntNoteUI.ReloadNoteName;
 begin
-   FNEntryUI[pnCenter].ReloadNoteName;
+   FNEntriesUI[pnCenter].ReloadNoteName;
 end;
 
 
@@ -1031,7 +1031,7 @@ end;
 
 procedure TKntNoteUI.ConfigureEditor;
 begin
-  FNEntryUI[pnCenter].ConfigureEditor;
+  FNEntriesUI[pnCenter].ConfigureEditor;
 end;
 
 
@@ -1047,8 +1047,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         CombineImagesInstances(FNEntryUI[p].ImagesInstances, Result);
+      if FNEntriesUI[p] <> nil then
+         CombineImagesInstances(FNEntriesUI[p].ImagesInstances, Result);
 end;
 
 
@@ -1057,8 +1057,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].ResetImagesReferenceCount;
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].ResetImagesReferenceCount;
 end;
 
 
@@ -1067,13 +1067,13 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].ReloadImagesOnEditor;
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].ReloadImagesOnEditor;
 end;
 
 procedure TKntNoteUI.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
 begin
-   FSelectedNEntryUI.ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
+   FSelectedNEntriesUI.ReconsiderImageDimensionGoalsOnEditor(Selection, ImagesMode);
 end;
 
 procedure TKntNoteUI.SetImagesMode(ImagesMode: TImagesMode);
@@ -1081,8 +1081,8 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if FNEntryUI[p] <> nil then
-         FNEntryUI[p].SetImagesMode(ImagesMode);
+      if FNEntriesUI[p] <> nil then
+         FNEntriesUI[p].SetImagesMode(ImagesMode);
 end;
 
 

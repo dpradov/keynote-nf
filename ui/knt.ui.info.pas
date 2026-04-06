@@ -41,7 +41,7 @@ type
      function GetNNode: TNoteNode;
      function GetFolder: TObject;
      function GetSelectedNEntry: TNoteEntry;
-     function GetSelectedNEntryUI (Editor: TKntRichEdit): TObject;
+     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
      function GetEditingMode: boolean;
      property Editor: TKntRichEdit read GetEditor;
      property NNode: TNoteNode read GetNNode;
