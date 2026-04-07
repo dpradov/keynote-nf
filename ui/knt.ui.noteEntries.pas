@@ -119,14 +119,15 @@ type
     property Folder: TKntFolder read FKntFolder;
     property Note: TNote read FNote;
     property NNode: TNoteNode read FNNode;
-    property NEntry: TNoteEntry read FNEntry;
+    property NEntry: TNoteEntry read FNEntry write FNEntry;
     property Mode: TModeEntriesUI read FMode write FMode;
     property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;
     procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
-    procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true; ReconsiderOnlyContentInSelectedEntry: boolean = false);
+    procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
+                                   ReconsiderOnlyContentInSelectedEntry: boolean = false;
+                                   NewNEntryToAdd: TNoteEntry = nil);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
-    procedure AddNewEntryInTagVinculatedPanel;
     procedure SaveToDataModel;
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
@@ -758,11 +759,14 @@ end;
 
 
 procedure TKntNoteEntriesUI.ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
-                                                 ReconsiderOnlyContentInSelectedEntry: boolean = false);
+                                                 ReconsiderOnlyContentInSelectedEntry: boolean = false;
+                                                 NewNEntryToAdd: TNoteEntry = nil);
+
+                                                 // NewNEntryToAdd: A new created entry (more recent than the others)
 var
   ReadOnlyBAK: boolean;
   str: String;
-  
+
 {$IFDEF KNT_DEBUG}
  dataSize: integer;
 {$ENDIF}
@@ -777,11 +781,11 @@ var
  iEntry: integer;
  ImagesAux: TImageIDs;
  CannotShow_Encrypted: boolean;
- SS, SL: integer;
+ SS, SL, Offset: integer;
 
 
- // -> FEntriesShown, FNNode, FNote, [FNEntry, ReadOnlyBAK]
- procedure PopulateEntriesToShow;
+ // -> FEntriesShown, FNNode, FNote, [FNEntry, CannotShow_Encrypted]
+ function PopulateEntriesToShow: boolean;
  var
    N: integer;
    iEntry, j: integer;
@@ -803,33 +807,62 @@ var
 
 
  begin
+    Result:= false;
+
     case PanelConfig.Scope of
       fsSelectedNode: begin
          FNNode:= PanelConfig.SelectedNNode;
          FNote:= FNNode.Note;
 
-         FEntriesShown:= nil;
-
-         if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
-            CannotShow_Encrypted:= True;
-            exit;
-         end;
-
-         SetLength(FEntriesShown, Note.NumEntries);
-
          Tags:= PanelConfig.VinculatedTags;
          if (Tags <> nil) then
             FindTags:= FindTagsGetModeAND(Tags);
 
-         N:= 0;
-         if PanelConfig.DescendingOrder then
-             for iEntry:= Length(FEntriesShown)-1 downto 0 do
-                CheckCandidateEntry
-         else
-             for iEntry:= 0 to Length(FEntriesShown)-1 do
-                CheckCandidateEntry;
+         if NewNEntryToAdd <> nil then begin
+            for iEntry:= 0 to Length(FEntriesShown)-1 do
+                if FEntriesShown[iEntry].NEntry = NewNEntryToAdd then exit;
+            if (FindTags <> nil) and not NewNEntryToAdd.MatchesTags(FindTags) then
+               exit;
+         end;
 
-         SetLength(FEntriesShown, N);
+         Result:= true;
+
+         if NewNEntryToAdd = nil then begin
+             FEntriesShown:= nil;
+
+             if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
+                CannotShow_Encrypted:= True;
+                exit;
+             end;
+
+             SetLength(FEntriesShown, Note.NumEntries);
+
+             N:= 0;
+             if PanelConfig.DescendingOrder then
+                 for iEntry:= Length(FEntriesShown)-1 downto 0 do
+                    CheckCandidateEntry
+             else
+                 for iEntry:= 0 to Length(FEntriesShown)-1 do
+                    CheckCandidateEntry;
+
+             SetLength(FEntriesShown, N);
+         end
+         else begin                                         // NewNEntryToAdd <> nil
+            N:= Length(FEntriesShown)+1;
+            SetLength(FEntriesShown, N);
+            if not PanelConfig.DescendingOrder then
+               iEntry:= N-1
+            else begin
+               for iEntry:= N-1 downto 1 do
+                  FEntriesShown[iEntry]:= FEntriesShown[iEntry-1];
+               inc(FiEntry);
+               iEntry:= 0;
+            end;
+            FEntriesShown[iEntry].NEntry:= NewNEntryToAdd;
+            FEntriesShown[iEntry].NNode:= FNNode;
+            FEntriesShown[iEntry].Note:= FNote;
+            FEntriesShown[iEntry].Content:= cmOnlyHeader;
+         end;
 
 //       case PanelConfig.Order of
 //          eoDateCreation: ;
@@ -935,7 +968,7 @@ var
        iEntry:= i;
        if (FEntriesShown[iEntry].NEntry = PanelConfig.SelNEntry) then begin
            FiEntry:= iEntry;
-           FNEntry:= FEntriesShown[iEntry].NEntry;
+           FNEntry:= PanelConfig.SelNEntry;
            ConfigureEditor;
            PrepareEntryContent;
            if StrRTF = '' then
@@ -982,6 +1015,42 @@ var
  end;
 
 
+ procedure ShowNewEntryToAdd;
+ var
+   iEntry: integer;
+ begin
+    iEntry:= 0;
+    if PanelConfig.DescendingOrder then
+       FEntriesShown[iEntry].StartingPos:= 0
+    else begin
+       iEntry:= Length(FEntriesShown)-1;
+       FEntriesShown[iEntry].StartingPos:= FEntriesShown[iEntry-1].FinalPos + 1;
+    end;
+    Editor.SelStart:= FEntriesShown[iEntry].StartingPos;
+    Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, NewNEntryToAdd, false), True,True);
+    FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
+    cEditor.StreamFormat:= sfRichText;
+    strRTF:= cEditor.RtfText;
+    Editor.PutRtfText(strRTF,True,True);
+    FEntriesShown[iEntry].FinalPos:= Editor.SelStart -1;
+
+    if PanelConfig.DescendingOrder then begin
+       Offset:= FEntriesShown[iEntry].FinalPos+1;
+       for iEntry:= 1 to Length(FEntriesShown)-1 do begin
+           inc(FEntriesShown[iEntry].StartingPos, Offset);
+           inc(FEntriesShown[iEntry].StartingContentPos, Offset);
+           inc(FEntriesShown[iEntry].FinalPos, Offset);
+       end;
+    end;
+
+    Editor.SelStart := FEntriesShown[FiEntry].StartingPos;
+    Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos + PanelConfig.SelStart;
+    Editor.SelLength := PanelConfig.SelLength;
+    inc(PanelConfig.ScrollPosInEditor.Y, 35);                    // TODO ***
+    Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
+ end;
+
+
 begin
    if (PanelConfig = nil) or ((PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)) then begin
       FNNode:= nil;
@@ -1003,7 +1072,13 @@ begin
 
       if not EditorOptions.SaveCaretPos then
          PanelConfig.SelNEntry:= nil;
+   end
+   else
+   if NewNEntryToAdd <> nil then begin
+      if not PopulateEntriesToShow then exit;
+      SavePositionInPanel;
    end;
+
 
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
@@ -1027,20 +1102,26 @@ begin
      fChangingInCode:= True;
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
 
-     if not ReconsiderOnlyContentInSelectedEntry then begin
+     if not (ReconsiderOnlyContentInSelectedEntry or (NewNEntryToAdd <> nil)) then begin
         Editor.Clear;
         Editor.ClearUndo;
      end;
 
 
      fImagesReferenceCount:= nil;
-     FiEntry:= -1;
-     iEntry:= -1;
 
      if ReconsiderOnlyContentInSelectedEntry then begin
         ReconsiderSelectedEntry;
         exit;
      end;
+
+     if (NewNEntryToAdd <> nil) and (FMode = meMultipleEntries) then begin
+        ShowNewEntryToAdd;
+        exit;
+     end;
+
+     FiEntry:= -1;
+     iEntry:= -1;
 
 
      if FEntriesShown <> nil then begin
@@ -1192,16 +1273,6 @@ begin
   txtName.Enabled:= True;
 end;
 
-
-procedure TKntNoteEntriesUI.AddNewEntryInTagVinculatedPanel;
-begin
-   FNEntry:= FNote.AddNewEntry;
-   NEntry.Tags:= PanelConfig.VinculatedTags;
-   Folder.Modified:= True;
-   PanelConfig.SelNEntry:= NEntry;
-   ReloadMetadataFromDataModel;
-   ConfigureEditor;
-end;
 
 function TKntNoteEntriesUI.VinculatedToMultipleEntries: boolean;
 begin

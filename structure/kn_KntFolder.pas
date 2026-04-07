@@ -881,6 +881,8 @@ begin
   // Example ***
   var Tags: TNoteTagArray;
   SetLength(Tags, 1);
+  if TKntFile(FKntFile).NoteTags.Count = 0 then
+     TKntFile(FKntFile).AddNTag('ToDO', 'TEST');
   Tags[0]:= TKntFile(FKntFile).NoteTags[0];
   NoteAdvOptions.DefaultUseForQueryLayout[pnTL]:= pnuShowVinculatedWithTags;
   NoteAdvOptions.VinculatedTagsForQueryLayout[pnTL]:= Tags;

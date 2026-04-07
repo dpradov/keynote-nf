@@ -129,11 +129,11 @@ type
     function GetNEntriesUI (Panel: TNEntriesPanel): TKntNoteEntriesUI; overload;
     function GetNEntriesUI (Editor: TKntRichEdit): TKntNoteEntriesUI; overload;
     procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit); overload;
-    procedure CreateNewEntry(RequestedFromNEntriesUI: TKntNoteEntriesUI); overload;
-    procedure EditInInMultiEntries(RequestedFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
+    procedure CreateNewEntry(ReqFromNEntriesUI: TKntNoteEntriesUI); overload;
+    procedure EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
                                    SS: integer=-1; SL: integer=-1);
     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
-    procedure ModeChangedToEditing(Editor: TKntRichEdit);
+    procedure EditorChangedInEmptyTagVinculatedPanel(Editor: TKntRichEdit);
     procedure TimerInfoTimer(Sender: TObject);
  public
     procedure NEntriesUIEditorEnter(Sender: TObject);
@@ -693,10 +693,9 @@ begin
 end;
 
 
-procedure TKntNoteUI.ModeChangedToEditing(Editor: TKntRichEdit);
+procedure TKntNoteUI.EditorChangedInEmptyTagVinculatedPanel(Editor: TKntRichEdit);
 var
   p: TNEntriesPanel;
-  NEntriesUI: TKntNoteEntriesUI;
 begin
    Editor.OnEditorChanged:= nil;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
@@ -704,10 +703,8 @@ begin
          FNEntriesUI[p].Editor.OnEditorChanged:= nil;
    end;
 
-   NEntriesUI:= GetNEntriesUI(Editor);
-   if (NEntriesUI.NEntry = nil) and (NEntriesUI.Note <> nil) then
-      NEntriesUI.AddNewEntryInTagVinculatedPanel;
-
+   // This handler is configured only to 'listen' for editor changes in 'empty' panels, linked to tags, but without any entry set yet.
+   CreateNewEntry(Editor);
 end;
 
 
@@ -716,32 +713,51 @@ begin
    CreateNewEntry(GetNEntriesUI(RequestedFromEditor));
 end;
 
-procedure TKntNoteUI.CreateNewEntry(RequestedFromNEntriesUI: TKntNoteEntriesUI);
+procedure TKntNoteUI.CreateNewEntry(ReqFromNEntriesUI: TKntNoteEntriesUI);
 var
-  NEntry: TNoteEntry;
+  NewNEntry: TNoteEntry;
+  p: TNEntriesPanel;
 begin
-   if (RequestedFromNEntriesUI = nil) or (Note = nil) then exit;
+   if (ReqFromNEntriesUI = nil) or (Note = nil) then exit;
 
-   NEntry:= Note.AddNewEntry;
+   NewNEntry:= Note.AddNewEntry;
    Folder.Modified:= True;
-   if RequestedFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
-      NEntry.Tags:= RequestedFromNEntriesUI.PanelConfig.VinculatedTags;
+   if ReqFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
+      NewNEntry.Tags:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
 
-   {
-   LoadFromNNode(.., True, neEditingLayout) if FQueryLayout:
-   The Query mode does allow modifications from the visible panels, but only while mode = meSingleEntry.
-   It's simply a different configuration/layout, designed for viewing notes as we navigate through the tree.
-   This mode is typically configured to offer fewer panels, or only when there is data to display.
-   For example, if the note has only one entry, normally only one panel will be shown.
-   }
-   if FQueryLayout then
-      LoadFromNNode(FNNode, True, neEditingLayout);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
+   if ReqFromNEntriesUI.NEntry = nil then begin
+      // Add new entry in a tag vinculated panel (the user has just started making changes in the empty panel of the associated panel)
+      ReqFromNEntriesUI.PanelConfig.SelNEntry:= NewNEntry;
+      ReqFromNEntriesUI.NEntry:= NewNEntry;
+      ReqFromNEntriesUI.ReloadMetadataFromDataModel;
+      ReqFromNEntriesUI.ConfigureEditor;
+   end
+   else begin
+       {
+       LoadFromNNode(.., True, neEditingLayout) if FQueryLayout:
+       The Query mode does allow modifications from the visible panels, but only while mode = meSingleEntry.
+       It's simply a different configuration/layout, designed for viewing notes as we navigate through the tree.
+       This mode is typically configured to offer fewer panels, or only when there is data to display.
+       For example, if the note has only one entry, normally only one panel will be shown.
+       }
+       if FQueryLayout then
+          LoadFromNNode(FNNode, True, neEditingLayout);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
 
-   EditInInMultiEntries(RequestedFromNEntriesUI, NEntry, true);
+       EditInInMultiEntries(ReqFromNEntriesUI, NewNEntry, true);
+   end;
+
+
+   // Inform the panels that a new entry has been added. Those panels where it fits will include it, initially only showing the header
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+      if FNEntriesUI[p] = ReqFromNEntriesUI then continue;
+      if (FNEntriesUI[p] <> nil) and ((FNEntriesUI[p].OnUse)) then
+         FNEntriesUI[p].ReloadFromDataModel(false, false, NewNEntry);
+   end;
+
 end;
 
 
-procedure TKntNoteUI.EditInInMultiEntries(RequestedFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
+procedure TKntNoteUI.EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
                                           SS: integer=-1; SL: integer=-1);
 var
   NEntriesUI: TKntNoteEntriesUI;
@@ -750,33 +766,33 @@ var
   RequestedFromMultiEntry: boolean;
 
 begin
-   if (RequestedFromNEntriesUI = nil) or (Note = nil) then exit;
+   if (ReqFromNEntriesUI = nil) or (Note = nil) then exit;
 
-   RequestedFromMultiEntry:= (RequestedFromNEntriesUI.Mode = meMultipleEntries);
+   RequestedFromMultiEntry:= (ReqFromNEntriesUI.Mode = meMultipleEntries);
 
-   if (RequestedFromNEntriesUI.Mode = meMultipleEntries) and (RequestedFromNEntriesUI.PanelConfig.VinculatedTags = nil) then begin
+   if (ReqFromNEntriesUI.Mode = meMultipleEntries) and (ReqFromNEntriesUI.PanelConfig.VinculatedTags = nil) then begin
       if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
-         PnlEdit:= RequestedFromNEntriesUI.PanelConfig.Panel;
+         PnlEdit:= ReqFromNEntriesUI.PanelConfig.Panel;
          if not NewEntry then begin
-            RequestedFromNEntriesUI.IntroInEditorMultiEntries;       // Use requested NEntriesUI for editing
+            ReqFromNEntriesUI.IntroInEditorMultiEntries;       // Use requested NEntriesUI for editing
             exit;
          end;
       end;
       NEntriesUI:= GetNEntriesUI(PnlEdit);
    end
    else
-      NEntriesUI:= RequestedFromNEntriesUI;
+      NEntriesUI:= ReqFromNEntriesUI;
 
    NEntriesUI.SaveToDataModel();
 
    PanelConfig:= NEntriesUI.PanelConfig;
    PanelConfig.SelNEntry:= NEntry;
 
-   if NEntriesUI <> RequestedFromNEntriesUI then begin
-      RequestedFromNEntriesUI.SavePositionInPanel;
-      RequestedFromNEntriesUI.ReloadVisibleContentOfEntries(false, cmOnlyHeader, RequestedFromNEntriesUI.GetIndexOfVisibleEntry(NEntry));
-      PanelConfig.SelStart:= RequestedFromNEntriesUI.PanelConfig.SelStart;
-      PanelConfig.SelLength:= RequestedFromNEntriesUI.PanelConfig.SelLength;
+   if NEntriesUI <> ReqFromNEntriesUI then begin
+      ReqFromNEntriesUI.SavePositionInPanel;
+      ReqFromNEntriesUI.ReloadVisibleContentOfEntries(false, cmOnlyHeader, ReqFromNEntriesUI.GetIndexOfVisibleEntry(NEntry));
+      PanelConfig.SelStart:= ReqFromNEntriesUI.PanelConfig.SelStart;
+      PanelConfig.SelLength:= ReqFromNEntriesUI.PanelConfig.SelLength;
    end;
    if SS >= 0 then begin
       PanelConfig.SelStart:= SS;
@@ -936,17 +952,17 @@ begin
              if not QueryLayout and (PanelConfig.VinculatedTags = nil) then
                 PanelConfig.SelNEntry:= FNote.SelEntry;
 
-             if QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
+             if (EditingNEntry <> nil) and QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
                 SetLength(PanelConfig.EntriesOnlyHeader, Length(PanelConfig.EntriesOnlyHeader)+1);
                 PanelConfig.EntriesOnlyHeader[Length(PanelConfig.EntriesOnlyHeader)-1]:= EditingNEntry;
              end;
 
              NEntriesUI.LoadFromDataModel(PanelConfig, False);
 
-             if not QueryLayout and (NEntriesUI.NEntry <> nil) then        // NEntriesUI.NEntry = nil => Vinculated to tags, with no one entry
-                NEntriesUI.Editor.OnEditorChanged := nil
+             if (PanelConfig.VinculatedTags <> nil) and (NEntriesUI.NEntry = nil) then        // NEntriesUI.NEntry = nil => Vinculated to tags, with no one entry
+                NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyTagVinculatedPanel
              else
-                NEntriesUI.Editor.OnEditorChanged := ModeChangedToEditing;
+                NEntriesUI.Editor.OnEditorChanged := nil;
           end;
       end;
    end
