@@ -46,6 +46,7 @@ type
      property Editor: TKntRichEdit read GetEditor;
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
+     function MultipleVisibleEditors: boolean;
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; NEntriesLayout: TBasicNEntriesLayout; EditingNEntry: TNoteEntry = nil);
      procedure ReloadFromDataModel;

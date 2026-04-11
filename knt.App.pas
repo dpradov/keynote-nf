@@ -287,6 +287,7 @@ uses
    kn_NoteFileMng,
    knt.ui.TagMng,
    knt.ui.tagSelector,
+   knt.ui.noteEntries,
    knt.RS;
 
 
@@ -680,10 +681,10 @@ procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
 var
    NNodeSavedEditor, NNode: TNoteNode;
    NoteSavedEditor: TNote;
+   NEntrySaved: TNoteEntry;
    E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
    i: integer;
-   SP: TPoint;
-   SS,SL: integer;
 
 begin
    if Editor = nil then exit;
@@ -692,9 +693,13 @@ begin
    if NNodeSavedEditor = nil then exit;
    NoteSavedEditor:= NNodeSavedEditor.Note;
 
-   if NoteSavedEditor.NumNNodes <= 1 then exit;
+
+   NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
+   if not ( (NoteSavedEditor.NumNNodes > 1) or NEntriesUI.NoteUI.MultipleVisibleEditors) then exit;
 
    Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, +1);
+
+   NEntrySaved:= NEntriesUI.NEntry;
 
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
@@ -703,13 +708,9 @@ begin
       NNode:= TNoteNode(E.NNodeObj);
       if NNode = nil then continue;
       if NoteSavedEditor = NNode.Note then begin
-         SP:= E.GetScrollPosInEditor;
-         SS := E.SelStart;
-         SL := E.SelLength;
-         TKntFolder(E.FolderObj).ReloadEditorFromDataModel(false);
-         E.SelStart:= SS;
-         E.SelLength:= SL;
-         E.SetScrollPosInEditor(SP);
+         NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+         NEntriesUI.SavePositionInPanel;
+         NEntriesUI.ReloadFromDataModel(false, NEntrySaved);
       end;
    end;
 
@@ -723,6 +724,7 @@ var
    NNodeSelecEditor, NNode: TNoteNode;
    NoteSelecEditor: TNote;
    E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
    i: integer;
 begin
    if Editor = nil then exit;
@@ -731,7 +733,8 @@ begin
    if NNodeSelecEditor = nil then exit;
    NoteSelecEditor:= NNodeSelecEditor.Note;
 
-   if NoteSelecEditor.NumNNodes <= 1 then exit;
+   NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
+   if not ( (NoteSelecEditor.NumNNodes > 1) or NEntriesUI.NoteUI.MultipleVisibleEditors) then exit;
 
    Log_StoreTick('TKntApp.EnsureContentEditorUpdated - BEGIN', 4, +1);
 
@@ -742,7 +745,7 @@ begin
       NNode:= TNoteNode(E.NNodeObj);
       if NNode = nil then continue;
       if NoteSelecEditor = NNode.Note then begin
-         TKntFolder(E.FolderObj).SaveEditorToDataModel;   // Will force reload from any Editor with the same (linked) NNode open => App.EditorSaved()
+         TKntNoteEntriesUI(E.NEntriesUIObj).SaveToDataModel;
          exit;
       end;
    end;

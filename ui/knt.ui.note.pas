@@ -78,6 +78,7 @@ type
     FNewNNodeUIConfig: boolean;
     FSelectedNEntriesUI: TKntNoteEntriesUI;
     FQueryLayout: boolean;
+    FMultipleVisibleEditors: boolean;
 
     fSplitterNoteMoving: boolean;
     FUpdatingOnResize: boolean;
@@ -134,10 +135,12 @@ type
                                    SS: integer=-1; SL: integer=-1);
     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
     procedure EditorChangedInEmptyTagVinculatedPanel(Editor: TKntRichEdit);
+    procedure UpdateFMultipleVisibleEditors;
     procedure TimerInfoTimer(Sender: TObject);
  public
     procedure NEntriesUIEditorEnter(Sender: TObject);
     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
+    function MultipleVisibleEditors: boolean;
     procedure KeepInfoPanelTemporarilyVisible;
    {$IFDEF KNT_DEBUG}
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
@@ -203,6 +206,9 @@ begin
    inherited Create(AOwner);
 
    FKntFolder:= KntFolder;
+   FNNode:= nil;
+   FNote:= nil;
+   FMultipleVisibleEditors:= false;
 
    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
       FNEntriesUI[p]:= nil;
@@ -628,6 +634,30 @@ begin
    Result:= GetNEntriesUI(Editor);
 end;
 
+
+function TKntNoteUI.MultipleVisibleEditors: boolean;
+begin
+   Result:= FMultipleVisibleEditors;
+end;
+
+procedure TKntNoteUI.UpdateFMultipleVisibleEditors;
+var
+  p: TNEntriesPanel;
+  i: integer;
+begin
+   FMultipleVisibleEditors:= false;
+   i:= 0;
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].NEntry <> nil) then begin
+         inc(i);
+         if i > 1 then begin
+            FMultipleVisibleEditors:= True;
+            exit;
+         end;
+      end;
+end;
+
+
 {$IFDEF KNT_DEBUG}
 function TKntNoteUI.GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
 var
@@ -751,7 +781,7 @@ begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       if FNEntriesUI[p] = ReqFromNEntriesUI then continue;
       if (FNEntriesUI[p] <> nil) and ((FNEntriesUI[p].OnUse)) then
-         FNEntriesUI[p].ReloadFromDataModel(false, false, NewNEntry);
+         FNEntriesUI[p].ReloadFromDataModel(false, nil, NewNEntry);
    end;
 
 end;
@@ -949,8 +979,6 @@ begin
              ShowPanel[PanelConfig.Panel]:= True;
              PanelConfig.ShowEditorInfoPanel:= (p = PanelConfig.Panel);
              NEntriesUI:= GetNEntriesUI(PanelConfig.Panel);
-             if not QueryLayout and (PanelConfig.VinculatedTags = nil) then
-                PanelConfig.SelNEntry:= FNote.SelEntry;
 
              if (EditingNEntry <> nil) and QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
                 SetLength(PanelConfig.EntriesOnlyHeader, Length(PanelConfig.EntriesOnlyHeader)+1);
@@ -969,6 +997,7 @@ begin
    else
       GetNEntriesUI(pnCenter).LoadFromDataModel(nil, False);
 
+   UpdateFMultipleVisibleEditors;
 
    // Clear unused editors  (##)
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
