@@ -1221,7 +1221,7 @@ begin
 
      Editor.RestoreZoomGoal;
 
-     if CalculateEntriesToShow and (PanelConfig.ScrollPosInEditor.Y > 0) then
+     if (PanelConfig.ScrollPosInEditor.Y > 0) then
         Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
 
      if (FMode = meMultipleEntries) then begin

@@ -4680,6 +4680,9 @@ begin
   if fMultiEntries and (FNEntriesUIObj <> nil) then
      TKntNoteEntriesUI(FNEntriesUIObj).EditorChangedSelectionInMultiEntries;
 
+  if Self = EditorToBeCheckedForContentUpdate then
+     App.EnsureContentEditorUpdated (Self);
+
   if FLinkHover.cpMin <> -1 then begin
      App.ShowInfoInStatusBar('');
      FLinkHover.cpMin:= -1;

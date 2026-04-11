@@ -125,7 +125,6 @@ type
       procedure UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 
       procedure EditorSelected (Editor: TKntRichEdit; Focused: boolean); overload;
-      procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
       procedure FolderSelected(Folder: TKntFolder; PrevFolder: TKntFolder);
       procedure NNodeSelected(NNode: TNoteNode);
 
@@ -146,6 +145,7 @@ type
       procedure AuxEditorFocused(Sender: TObject);
       procedure SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
       procedure HideNestedFloatingEditors;
+      procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
 
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
@@ -248,6 +248,7 @@ var
 
    IgnoringEditorChanges: boolean;
    FloatingEditorCannotBeSaved: boolean;
+   EditorToBeCheckedForContentUpdate: TKntRichEdit;
 
    ExportingFormVisible: boolean;
    InformingSomeoneChangedOurFile: boolean;
@@ -389,6 +390,7 @@ begin
    fTagsState:= tsPendingUpdate;
    ExportingFormVisible:= false;
    InformingSomeoneChangedOurFile:= false;
+   EditorToBeCheckedForContentUpdate:= nil;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
@@ -627,7 +629,7 @@ var
 begin
     Log_StoreTick('TKntApp.EditorSelected - BEGIN', 4, +1);
 
-    EnsureContentEditorUpdated (Editor);
+    EditorToBeCheckedForContentUpdate:= Editor;
 
     ActiveEditor:= Editor;
 
@@ -727,6 +729,9 @@ var
    NEntriesUI: TKntNoteEntriesUI;
    i: integer;
 begin
+   if EditorToBeCheckedForContentUpdate = nil then exit;
+
+   EditorToBeCheckedForContentUpdate:= nil;
    if Editor = nil then exit;
 
    NNodeSelecEditor:= TNoteNode(Editor.NNodeObj);
