@@ -781,7 +781,7 @@ begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       if FNEntriesUI[p] = ReqFromNEntriesUI then continue;
       if (FNEntriesUI[p] <> nil) and ((FNEntriesUI[p].OnUse)) then
-         FNEntriesUI[p].ReloadFromDataModel(false, nil, NewNEntry);
+         FNEntriesUI[p].ReloadFromDataModel(false, NewNEntry, aCreated);
    end;
 
 end;

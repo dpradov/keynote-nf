@@ -55,6 +55,8 @@ type
     Content: TContentInMultipleMode;
   end;
 
+  TActionOnEntry = (aModified, aCreated, aDeleted, aChangedVisibility, aNull);
+
 type
   TKntNoteEntriesUI = class(TFrame)
     pnlEntries: TPanel;
@@ -125,8 +127,7 @@ type
     property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;
     procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
     procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
-                                   NEntryToReconsider: TNoteEntry = nil;
-                                   NewNEntryToAdd: TNoteEntry = nil);
+                                   NEntryToConsider: TNoteEntry = nil; ActionOnEntry: TActionOnEntry = aNull);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
     procedure SaveToDataModel;
@@ -763,10 +764,7 @@ end;
 
 
 procedure TKntNoteEntriesUI.ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
-                                                 NEntryToReconsider: TNoteEntry = nil;
-                                                 NewNEntryToAdd: TNoteEntry = nil);
-
-                                                 // NewNEntryToAdd: A new created entry (more recent than the others)
+                                                 NEntryToConsider: TNoteEntry = nil; ActionOnEntry: TActionOnEntry = aNull);
 var
   ReadOnlyBAK: boolean;
   str: String;
@@ -782,20 +780,30 @@ var
  OnEnterBak: TNotifyEvent;
 
  cEditor: TRxRichEdit;
- iEntry, iSelectedEntry: integer;
+ iEntry, iEntryToConsider, iEntryAdded, iSelectedEntry: integer;
  ImagesAux: TImageIDs;
  CannotShow_Encrypted: boolean;
  SS, SL, Offset: integer;
+ Tags: TNoteTagArray;
+ FindTags: TFindTags;
+ EntryToAdd, EntryToRemove, MustBeIncluded: boolean;
+
+
+ function NEntryMustBeIncludedInPanel (NEntry: TNoteEntry): boolean;
+ begin
+    Result:= True;
+    if (FindTags <> nil) and not NEntry.MatchesTags(FindTags) then
+        exit(false);
+ end;
 
 
  // -> FEntriesShown, FNNode, FNote, [FNEntry, CannotShow_Encrypted]
- function PopulateEntriesToShow: boolean;
+ procedure PopulateEntriesToShow;
  var
    N: integer;
    iEntry, j: integer;
-   Tags: TNoteTagArray;
-   FindTags: TFindTags;
    NEntry: TNoteEntry;
+   Created: TDateTime;
 
    procedure CheckCandidateEntry;
    begin
@@ -811,27 +819,22 @@ var
 
 
  begin
-    Result:= false;
 
     case PanelConfig.Scope of
       fsSelectedNode: begin
          FNNode:= PanelConfig.SelectedNNode;
          FNote:= FNNode.Note;
 
-         Tags:= PanelConfig.VinculatedTags;
-         if (Tags <> nil) then
-            FindTags:= FindTagsGetModeAND(Tags);
+         N:= Length(FEntriesShown);
 
-         if NewNEntryToAdd <> nil then begin
-            for iEntry:= 0 to Length(FEntriesShown)-1 do
-                if FEntriesShown[iEntry].NEntry = NewNEntryToAdd then exit;
-            if (FindTags <> nil) and not NewNEntryToAdd.MatchesTags(FindTags) then
-               exit;
-         end;
-
-         Result:= true;
-
-         if NewNEntryToAdd = nil then begin
+         if EntryToRemove then begin
+            for iEntry:= iEntryToConsider to Length(FEntriesShown)-2 do
+               FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
+            dec(N);
+            SetLength(FEntriesShown, N);
+         end
+         else
+         if not EntryToAdd then begin
              FEntriesShown:= nil;
 
              if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
@@ -851,21 +854,33 @@ var
 
              SetLength(FEntriesShown, N);
          end
-         else begin                                         // NewNEntryToAdd <> nil
-            N:= Length(FEntriesShown)+1;
+         else begin                                         // EntryToAdd = True
+            inc(N);
+            Created:= NEntryToConsider.Created;
             SetLength(FEntriesShown, N);
-            if not PanelConfig.DescendingOrder then
-               iEntry:= N-1
+
+            if not PanelConfig.DescendingOrder then begin
+               for iEntry:= N-2 downto 0 do
+                  if Created > FEntriesShown[iEntry].NEntry.Created then break;
+               iEntryAdded:= iEntry+1;
+               for iEntry:= iEntryAdded + 1 to N-1 do
+                  FEntriesShown[iEntry+1]:= FEntriesShown[iEntry];
+            end
             else begin
-               for iEntry:= N-1 downto 1 do
+               for iEntry:= 0 to N-2 do
+                  if Created > FEntriesShown[iEntry].NEntry.Created then break;
+               iEntryAdded:= iEntry;
+
+               for iEntry:= N-1 downto iEntryAdded + 1 do
                   FEntriesShown[iEntry]:= FEntriesShown[iEntry-1];
-               inc(FiEntry);
-               iEntry:= 0;
             end;
-            FEntriesShown[iEntry].NEntry:= NewNEntryToAdd;
-            FEntriesShown[iEntry].NNode:= FNNode;
-            FEntriesShown[iEntry].Note:= FNote;
-            FEntriesShown[iEntry].Content:= cmOnlyHeader;
+            if iEntryAdded <= FiEntry then
+               inc(FiEntry);
+
+            FEntriesShown[iEntryAdded].NEntry:= NEntryToConsider;
+            FEntriesShown[iEntryAdded].NNode:= FNNode;
+            FEntriesShown[iEntryAdded].Note:= FNote;
+            FEntriesShown[iEntryAdded].Content:= cmOnlyHeader;
          end;
 
 //       case PanelConfig.Order of
@@ -1000,8 +1015,14 @@ var
        if (i = iEntry) then begin
            L:= FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos;
            Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].FinalPos+1, false);
-           ShowEntry (i);
-           Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
+           if EntryToRemove then begin
+              Offset:= - L;
+              Editor.SelText:= '';
+           end
+           else begin
+              ShowEntry (i);
+              Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
+           end;
        end
        else
        if (Offset <> 0) then begin
@@ -1012,6 +1033,7 @@ var
     end;
 
  end;
+
 
  procedure SaveContentStateOfEntries;
  var
@@ -1032,28 +1054,17 @@ var
  var
    iEntry: integer;
  begin
-    iEntry:= 0;
-    if PanelConfig.DescendingOrder then
-       FEntriesShown[iEntry].StartingPos:= 0
-    else begin
-       iEntry:= Length(FEntriesShown)-1;
-       FEntriesShown[iEntry].StartingPos:= FEntriesShown[iEntry-1].FinalPos + 1;
-    end;
-    Editor.SelStart:= FEntriesShown[iEntry].StartingPos;
-    Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, NewNEntryToAdd, false), True,True);
-    FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
-    cEditor.StreamFormat:= sfRichText;
-    strRTF:= cEditor.RtfText;
-    Editor.PutRtfText(strRTF,True,True);
-    FEntriesShown[iEntry].FinalPos:= Editor.SelStart -1;
+    if iEntryAdded = 0 then
+       Editor.SelStart:= 0
+    else
+       Editor.SelStart:= FEntriesShown[iEntryAdded-1].FinalPos + 1;
 
-    if PanelConfig.DescendingOrder then begin
-       Offset:= FEntriesShown[iEntry].FinalPos+1;
-       for iEntry:= 1 to Length(FEntriesShown)-1 do begin
-           inc(FEntriesShown[iEntry].StartingPos, Offset);
-           inc(FEntriesShown[iEntry].StartingContentPos, Offset);
-           inc(FEntriesShown[iEntry].FinalPos, Offset);
-       end;
+    ShowEntry (iEntryAdded);
+    Offset:= (FEntriesShown[iEntryAdded].FinalPos - FEntriesShown[iEntryAdded].StartingPos);
+    for iEntry:= iEntryAdded+1 to Length(FEntriesShown)-1 do begin
+        inc(FEntriesShown[iEntry].StartingPos, Offset);
+        inc(FEntriesShown[iEntry].StartingContentPos, Offset);
+        inc(FEntriesShown[iEntry].FinalPos, Offset);
     end;
 
     Editor.SelStart := FEntriesShown[FiEntry].StartingPos;
@@ -1074,39 +1085,78 @@ begin
    end;
 
 
+   EntryToAdd:= false;
+   EntryToRemove:= false;
+
+   if CalculateEntriesToShow or (NEntryToConsider <> nil) then begin
+      Tags:= PanelConfig.VinculatedTags;
+      if (Tags <> nil) then
+         FindTags:= FindTagsGetModeAND(Tags);
+   end;
+
+
    CannotShow_Encrypted:= False;
    if CalculateEntriesToShow then begin
       FNNode:= nil;
       FNote:= nil;
       FNEntry:= nil;
+      NEntryToConsider:= nil;
+
       PopulateEntriesToShow;
       if Length(FEntriesShown) <= 1 then
          FMode := meSingleEntry;
 
       if not EditorOptions.SaveCaretPos then
          PanelConfig.SelNEntry:= nil;
-   end
-   else
-   if NewNEntryToAdd <> nil then begin
-      if not PopulateEntriesToShow then exit;
-      SavePositionInPanel;
    end;
 
-   // NEntryToReconsider: If it's included among the considered entries, check if it should remain so and, if so,redisplay it, using its current content and tags.
+
+   // NEntryToConsider: If it's included among the considered entries, check if it should remain so and, if so,redisplay it, using its current content and tags.
    //   If FMode = meSingleEntry, this NEntryToReconsider will be reflected in FEntriesShown, but it doesn't necessarily have to be reflected in the editor if
    //    the entry displayed there is different.
+   //   If aCreated  -> Check if it should be included in the panel
+   //   If aModified -> Check if it is included and if it should be included o removed
+   //   If aDeleted -> Remove if it is present
    //
    // PanelConfig.SelNEntry: Indicates which entry should be displayed, if FMode = meSingleEntry, or, in the case of FMode = meMultipleEntries, which entry
    //   should be selected, the one containing the cursor. In both cases, it will determine the number of the entry displayed on the button associated with btnToggleMulti.
 
-   if NEntryToReconsider <> nil then begin
-      iEntry:= GetIndexOfVisibleEntry(NEntryToReconsider);
-      if (iEntry < 0) then exit;
-   end;
    iSelectedEntry:= GetIndexOfVisibleEntry(PanelConfig.SelNEntry);
-   if (iSelectedEntry < 0) and (FMode = meSingleEntry) then exit;
+
+   if (NEntryToConsider <> nil) then begin
+       if (ActionOnEntry <> aDeleted) then
+          MustBeIncluded:= NEntryMustBeIncludedInPanel(NEntryToConsider);
+
+       if (ActionOnEntry = aCreated) then begin
+          if not MustBeIncluded then exit;
+          EntryToAdd:= true;
+          PopulateEntriesToShow;
+          if (FMode = meSingleEntry) then exit;
+       end
+       else begin
+          iEntryToConsider:= GetIndexOfVisibleEntry(NEntryToConsider);
+          if (ActionOnEntry = aDeleted) then begin
+             if (iEntryToConsider < 0) then exit;
+             EntryToRemove:= true;
+          end
+          else
+          if (ActionOnEntry = aModified) then begin
+             if MustBeIncluded and (iEntryToConsider < 0) then begin
+                EntryToAdd:= true;
+                PopulateEntriesToShow;
+                if (FMode = meSingleEntry) then exit;
+             end
+             else
+             if not MustBeIncluded and (iEntryToConsider >= 0) then
+                EntryToRemove:= true;
+          end;
+       end;
+   end;
 
 
+   if EntryToRemove and (FMode = meSingleEntry) then begin    // ToDO ****
+      exit;
+   end;
 
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
@@ -1130,18 +1180,30 @@ begin
      fChangingInCode:= True;
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
 
-     if (FMode = meSingleEntry) or ((NEntryToReconsider = nil) and (NewNEntryToAdd = nil)) then begin
+     if (FMode = meSingleEntry) or (NEntryToConsider = nil) then begin
         Editor.Clear;
         Editor.ClearUndo;
+
+        fImagesReferenceCount:= nil;
      end;
 
 
-     fImagesReferenceCount:= nil;
-
-     if (NewNEntryToAdd <> nil) and (FMode = meMultipleEntries) then begin
+     if EntryToAdd then begin             // and FMode = meMultipleEntries
         ShowNewEntryToAdd;
         exit;
      end;
+
+     if EntryToRemove then begin          // and FMode = meMultipleEntries
+        ReconsiderEntry(iEntryToConsider);
+        PopulateEntriesToShow;
+        if iEntryToConsider < FiEntry then
+           dec(FiEntry);
+        exit;
+     end;
+
+     if (iSelectedEntry < 0) then
+        iSelectedEntry:= 0;
+
 
      FiEntry:= -1;
 
@@ -1149,8 +1211,8 @@ begin
        FiEntry:= iSelectedEntry;
 
        if FMode = meMultipleEntries then begin    // --- meMultipleEntries
-          if NEntryToReconsider <> nil then
-             ReconsiderEntry(iEntry)
+          if NEntryToConsider <> nil then
+             ReconsiderEntry(iEntryToConsider)
 
           else begin
               for iEntry:= 0 to Length(FEntriesShown)-1 do
@@ -1172,8 +1234,8 @@ begin
           end;
        end
        else begin                              // --- meSingleEntry
-          if NEntryToReconsider <> nil then
-             ReconsiderEntry(iEntry);
+          if NEntryToConsider <> nil then
+             ReconsiderEntry(iEntryToConsider);
           ShowEntry (FiEntry);
        end;
 
@@ -1665,7 +1727,7 @@ begin
    NEntryToConsider:= nil;
    if not ModifyAll then
       NEntryToConsider:= FEntriesShown[iEntry].NEntry;
-   ReloadFromDataModel(false, NEntryToConsider);
+   ReloadFromDataModel(false, NEntryToConsider, aChangedVisibility);
 
    Sleep(100);
    Application.ProcessMessages;
