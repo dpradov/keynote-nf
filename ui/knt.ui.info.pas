@@ -48,12 +48,16 @@ type
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
      function MultipleVisibleEditors: boolean;
 
-     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; NEntriesLayout: TBasicNEntriesLayout; EditingNEntry: TNoteEntry = nil);
+     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
+                             NEntriesLayout: TBasicNEntriesLayout;
+                             EditingNEntry: TNoteEntry = nil;
+                             OfferEditorForNewEntry: boolean = False);
+
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
      procedure ReloadNoteName;
      procedure SaveToDataModel;
-     procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit);
+     procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
      procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
      procedure Refresh;
 

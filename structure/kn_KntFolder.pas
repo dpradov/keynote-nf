@@ -3310,7 +3310,7 @@ begin
 
     N:= NNode.Note.NumEntries;
 
-    if (N = 1) then begin                                                    // ToDO ***
+    if QueryLayout and (N = 1) then begin                                                    // ToDO ***
         Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode);
         exit;
     end;

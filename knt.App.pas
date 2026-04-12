@@ -712,7 +712,7 @@ begin
       if NoteSavedEditor = NNode.Note then begin
          NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
          NEntriesUI.SavePositionInPanel;
-         NEntriesUI.ReloadFromDataModel(false, NEntrySaved, aModified);
+         NEntriesUI.ReloadFromDataModel(false, NEntrySaved, aModified, false);
       end;
    end;
 

@@ -116,7 +116,10 @@ type
     property Note: TNote read FNote;
     property NNode: TNoteNode read GetNNode;
     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
-    procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean; QueryLayoutToUse: TBasicNEntriesLayout; EditingNEntry: TNoteEntry = nil);
+    procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean;
+                             QueryLayoutToUse: TBasicNEntriesLayout;
+                             EditingNEntry: TNoteEntry = nil;
+                             OfferEditorForNewEntry: boolean = False);
     procedure ReloadFromDataModel;
     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
     procedure SaveToDataModel;
@@ -129,12 +132,12 @@ type
   protected
     function GetNEntriesUI (Panel: TNEntriesPanel): TKntNoteEntriesUI; overload;
     function GetNEntriesUI (Editor: TKntRichEdit): TKntNoteEntriesUI; overload;
-    procedure CreateNewEntry(RequestedFromEditor: TKntRichEdit); overload;
+    procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
     procedure CreateNewEntry(ReqFromNEntriesUI: TKntNoteEntriesUI); overload;
     procedure EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
                                    SS: integer=-1; SL: integer=-1);
     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
-    procedure EditorChangedInEmptyTagVinculatedPanel(Editor: TKntRichEdit);
+    procedure EditorChangedInEmptyPanel(Editor: TKntRichEdit);
     procedure UpdateFMultipleVisibleEditors;
     procedure TimerInfoTimer(Sender: TObject);
  public
@@ -648,7 +651,7 @@ begin
    FMultipleVisibleEditors:= false;
    i:= 0;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].NEntry <> nil) then begin
+      if (FNEntriesUI[p] <> nil) and FNEntriesUI[p].OnUse then begin
          inc(i);
          if i > 1 then begin
             FMultipleVisibleEditors:= True;
@@ -707,7 +710,7 @@ begin
         NEntriesUI.SavePositionInPanel;
         SS:= NEntriesUI.PanelConfig.SelStart;
         SL:= NEntriesUI.PanelConfig.SelLength;
-        LoadFromNNode(FNNode, True, neEditingLayout, NEntry);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
+        LoadFromNNode(FNNode, True, neEditingLayout, NEntry);
         EditInInMultiEntries(NEntriesUI, NEntry, false, SS, SL);
      end
      else
@@ -723,24 +726,33 @@ begin
 end;
 
 
-procedure TKntNoteUI.EditorChangedInEmptyTagVinculatedPanel(Editor: TKntRichEdit);
+procedure TKntNoteUI.EditorChangedInEmptyPanel(Editor: TKntRichEdit);
 var
   p: TNEntriesPanel;
 begin
    Editor.OnEditorChanged:= nil;
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
-      if (FNEntriesUI[p] <> nil) and ((FNEntriesUI[p].NEntry <> nil)) then
-         FNEntriesUI[p].Editor.OnEditorChanged:= nil;
-   end;
 
-   // This handler is configured only to 'listen' for editor changes in 'empty' panels, linked to tags, but without any entry set yet.
-   CreateNewEntry(Editor);
+   // This handler is configured only to 'listen' for editor changes in 'empty' panels, without any entry set yet.
+   CreateNewEntry(GetNEntriesUI(Editor));
 end;
 
 
-procedure TKntNoteUI.CreateNewEntry(RequestedFromEditor: TKntRichEdit);
+procedure TKntNoteUI.NewEntryRequested(ReqFromEditor: TKntRichEdit);
+var
+  ReqFromNEntriesUI: TKntNoteEntriesUI;
 begin
-   CreateNewEntry(GetNEntriesUI(RequestedFromEditor));
+   ReqFromNEntriesUI:= GetNEntriesUI(ReqFromEditor);
+   { LoadFromNNode(.., True, neEditingLayout) if FQueryLayout:
+     The Query mode does allow modifications from the visible panels, but only while mode = meSingleEntry.
+     It's simply a different configuration/layout, designed for viewing notes as we navigate through the tree.
+     This mode is typically configured to offer fewer panels, or only when there is data to display.
+     For example, if the note has only one entry, normally only one panel will be shown. }
+   if FQueryLayout then
+      LoadFromNNode(FNNode, True, neEditingLayout, nil, true)
+   else
+      EditInInMultiEntries(ReqFromNEntriesUI, nil, true);
+
+   FSelectedNEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
 end;
 
 procedure TKntNoteUI.CreateNewEntry(ReqFromNEntriesUI: TKntNoteEntriesUI);
@@ -750,38 +762,25 @@ var
 begin
    if (ReqFromNEntriesUI = nil) or (Note = nil) then exit;
 
+   if (ReqFromNEntriesUI.Editor.TextLength=0) then exit;  // Do not create a new entry by mistake if the current entry is empty
+
    NewNEntry:= Note.AddNewEntry;
    Folder.Modified:= True;
    if ReqFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
       NewNEntry.Tags:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
 
    if ReqFromNEntriesUI.NEntry = nil then begin
-      // Add new entry in a tag vinculated panel (the user has just started making changes in the empty panel of the associated panel)
+      // Add new entry in panel (the user has just started making changes in the empty editor of the associated panel)
       ReqFromNEntriesUI.PanelConfig.SelNEntry:= NewNEntry;
       ReqFromNEntriesUI.NEntry:= NewNEntry;
       ReqFromNEntriesUI.ReloadMetadataFromDataModel;
       ReqFromNEntriesUI.ConfigureEditor;
-   end
-   else begin
-       {
-       LoadFromNNode(.., True, neEditingLayout) if FQueryLayout:
-       The Query mode does allow modifications from the visible panels, but only while mode = meSingleEntry.
-       It's simply a different configuration/layout, designed for viewing notes as we navigate through the tree.
-       This mode is typically configured to offer fewer panels, or only when there is data to display.
-       For example, if the note has only one entry, normally only one panel will be shown.
-       }
-       if FQueryLayout then
-          LoadFromNNode(FNNode, True, neEditingLayout);                      // TODO ** Optimize: If Ctrl Down doesn't load the panel we're going to use for editing...
-
-       EditInInMultiEntries(ReqFromNEntriesUI, NewNEntry, true);
    end;
-
 
    // Inform the panels that a new entry has been added. Those panels where it fits will include it, initially only showing the header
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
-      if FNEntriesUI[p] = ReqFromNEntriesUI then continue;
       if (FNEntriesUI[p] <> nil) and ((FNEntriesUI[p].OnUse)) then
-         FNEntriesUI[p].ReloadFromDataModel(false, NewNEntry, aCreated);
+         FNEntriesUI[p].ReloadFromDataModel(false, NewNEntry, aCreated, false);
    end;
 
 end;
@@ -820,7 +819,8 @@ begin
 
    if NEntriesUI <> ReqFromNEntriesUI then begin
       ReqFromNEntriesUI.SavePositionInPanel;
-      ReqFromNEntriesUI.ReloadVisibleContentOfEntries(false, cmOnlyHeader, ReqFromNEntriesUI.GetIndexOfVisibleEntry(NEntry));
+      if NEntry <> nil then
+         ReqFromNEntriesUI.ReloadVisibleContentOfEntries(false, cmOnlyHeader, ReqFromNEntriesUI.GetIndexOfVisibleEntry(NEntry));
       PanelConfig.SelStart:= ReqFromNEntriesUI.PanelConfig.SelStart;
       PanelConfig.SelLength:= ReqFromNEntriesUI.PanelConfig.SelLength;
    end;
@@ -926,15 +926,19 @@ begin
    Result:= FQueryLayout;
 end;
 
-procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; QueryLayoutToUse: TBasicNEntriesLayout; EditingNEntry: TNoteEntry = nil);
+procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
+                                   QueryLayoutToUse: TBasicNEntriesLayout;
+                                   EditingNEntry: TNoteEntry = nil;
+                                   OfferEditorForNewEntry: boolean = False);
 var
    ShowPanels: boolean;
-   P: TNEntriesPanel;
+   P, PnlEdit: TNEntriesPanel;
    i: integer;
    PanelConfig: TPanelConfiguration;
    ShowPanel: array[TNEntriesPanel] of boolean;
    NEntriesUI: TKntNoteEntriesUI;
    QueryLayout: boolean;
+   DefinedSingleEntryPanelForEditing: boolean;
 begin
    if SavePreviousContent and (FNNode <> nil) then
       SaveToDataModel;
@@ -973,6 +977,9 @@ begin
 
    if assigned(NNode) then begin
       p:= FNNodeUIConfig.GetVisibleBottomPanel;
+      if OfferEditorForNewEntry then
+         DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
+
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
           if PanelConfig.Visible then begin
@@ -985,10 +992,19 @@ begin
                 PanelConfig.EntriesOnlyHeader[Length(PanelConfig.EntriesOnlyHeader)-1]:= EditingNEntry;
              end;
 
+             if OfferEditorForNewEntry then begin
+                if DefinedSingleEntryPanelForEditing and (PanelConfig.Panel = PnlEdit) then
+                   PanelConfig.SelNEntry:= nil
+                else
+                if not DefinedSingleEntryPanelForEditing and (PanelConfig.Mode = meMultipleEntries) then begin
+                   PanelConfig.SelNEntry:= nil;
+                   NEntriesUI.Mode:= meSingleEntry;
+                end;
+             end;
              NEntriesUI.LoadFromDataModel(PanelConfig, False);
 
-             if (PanelConfig.VinculatedTags <> nil) and (NEntriesUI.NEntry = nil) then        // NEntriesUI.NEntry = nil => Vinculated to tags, with no one entry
-                NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyTagVinculatedPanel
+             if (NEntriesUI.NEntry = nil) then
+                NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel
              else
                 NEntriesUI.Editor.OnEditorChanged := nil;
           end;
@@ -997,12 +1013,13 @@ begin
    else
       GetNEntriesUI(pnCenter).LoadFromDataModel(nil, False);
 
-   UpdateFMultipleVisibleEditors;
 
    // Clear unused editors  (##)
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
        if not ShowPanel[p] and (FNEntriesUI[p] <> nil) then
-         FNEntriesUI[p].SetAsUnused;
+          FNEntriesUI[p].SetAsUnused;
+
+   UpdateFMultipleVisibleEditors;
 
    ShowLeftPanel(False);
    ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);

@@ -3164,7 +3164,7 @@ begin
       else begin
         if Msg.CharCode = VK_RETURN then begin
            if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) then begin
-              ActiveFolder.NoteUI.CreateNewEntry(ActiveEditor);
+              ActiveFolder.NoteUI.NewEntryRequested(ActiveEditor);
               Handled:= true;
            end;
         end;

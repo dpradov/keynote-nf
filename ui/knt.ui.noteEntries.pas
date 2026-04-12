@@ -127,7 +127,9 @@ type
     property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;
     procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
     procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
-                                   NEntryToConsider: TNoteEntry = nil; ActionOnEntry: TActionOnEntry = aNull);
+                                   NEntryToConsider: TNoteEntry = nil;
+                                   ActionOnEntry: TActionOnEntry = aNull;
+                                   InformReloaded: boolean = true);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
     procedure SaveToDataModel;
@@ -764,7 +766,9 @@ end;
 
 
 procedure TKntNoteEntriesUI.ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
-                                                 NEntryToConsider: TNoteEntry = nil; ActionOnEntry: TActionOnEntry = aNull);
+                                                 NEntryToConsider: TNoteEntry = nil;
+                                                 ActionOnEntry: TActionOnEntry = aNull;
+                                                 InformReloaded: boolean = true);
 var
   ReadOnlyBAK: boolean;
   str: String;
@@ -1066,7 +1070,7 @@ var
        Editor.SelStart:= FEntriesShown[iEntryAdded-1].FinalPos + 1;
 
     ShowEntry (iEntryAdded);
-    Offset:= (FEntriesShown[iEntryAdded].FinalPos - FEntriesShown[iEntryAdded].StartingPos);
+    Offset:= (FEntriesShown[iEntryAdded].FinalPos - FEntriesShown[iEntryAdded].StartingPos) + 1;
     for iEntry:= iEntryAdded+1 to Length(FEntriesShown)-1 do begin
         inc(FEntriesShown[iEntry].StartingPos, Offset);
         inc(FEntriesShown[iEntry].StartingContentPos, Offset);
@@ -1137,7 +1141,17 @@ begin
           if not MustBeIncluded then exit;
           EntryToAdd:= true;
           PopulateEntriesToShow;
-          if (FMode = meSingleEntry) then exit;
+          if (FMode = meSingleEntry) then begin
+             if (FiEntry = -1) and (FNEntry = NEntryToConsider) then begin
+                btnToggleMulti.Caption:= (iEntryAdded+1).ToString;
+                FiEntry:= iEntryAdded;
+                FNNode:= FEntriesShown[iEntryAdded].NNode;
+                FNote:= FEntriesShown[iEntryAdded].Note;
+                pnlIdentif.Visible:= true;
+                FNoteUI.KeepInfoPanelTemporarilyVisible;
+             end;
+             exit;
+          end;
        end
        else begin
           iEntryToConsider:= GetIndexOfVisibleEntry(NEntryToConsider);
@@ -1207,8 +1221,6 @@ begin
         exit;
      end;
 
-     if (iSelectedEntry < 0) then
-        iSelectedEntry:= 0;
 
 
      FiEntry:= -1;
@@ -1242,12 +1254,20 @@ begin
        else begin                              // --- meSingleEntry
           if NEntryToConsider <> nil then
              ReconsiderEntry(iEntryToConsider);
-          ShowEntry (FiEntry);
+          if FiEntry >= 0 then
+             ShowEntry (FiEntry)
+          else begin
+             ConfigureEditor (-1);
+             PanelConfig.SelStart:= 0;
+             PanelConfig.SelLength:= 0;
+          end;
        end;
 
-       FNNode:= FEntriesShown[FiEntry].NNode;
-       FNote:= FEntriesShown[FiEntry].Note;
-       FNEntry:= FEntriesShown[FiEntry].NEntry;
+       if FiEntry >= 0 then begin
+          FNNode:= FEntriesShown[FiEntry].NNode;
+          FNote:= FEntriesShown[FiEntry].Note;
+          FNEntry:= FEntriesShown[FiEntry].NEntry;
+       end;
        Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
 
        if (FMode = meSingleEntry) then begin
@@ -1314,7 +1334,7 @@ begin
      if RTFAux <> nil then
         RTFAux.Clear;
 
-     if not ClipCapMng.IsBusy then
+     if InformReloaded and not ClipCapMng.IsBusy then
         App.EditorReloaded(Editor, Editor.Focused);
 
      SaveContentStateOfEntries;
@@ -1461,7 +1481,7 @@ begin
    end;
    strInfo := strInfo + ' —';
 
-   if not FirstEntry and PanelConfig.MMShowLineInHeader then
+   if PanelConfig.MMShowLineInHeader then
       strLine:= '\fs1\par\trowd\trgaph0\cellx999999 \intbl\fs1\cell\row\pard';
 
    Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}' + StrLine + '\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';
@@ -1579,6 +1599,8 @@ var
    SS: integer;
 begin
    SS:= Editor.SelStart;
+   if (FiEntry = -1) and (Length(FEntriesShown) > 0) then
+       FiEntry := 1;
    if (FiEntry > 0) or ((FMode = meMultipleEntries) and (SS > FEntriesShown[FiEntry].StartingContentPos)) then begin
       iNextEntry:= FiEntry;
       if (FMode = meSingleEntry) or (SS <= FEntriesShown[FiEntry].StartingContentPos) then
