@@ -780,7 +780,7 @@ begin
    // Inform the panels that a new entry has been added. Those panels where it fits will include it, initially only showing the header
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       if (FNEntriesUI[p] <> nil) and ((FNEntriesUI[p].OnUse)) then
-         FNEntriesUI[p].ReloadFromDataModel(false, NewNEntry, aCreated, false);
+         FNEntriesUI[p].ReloadFromDataModel(false, NewNEntry, aCreated);
    end;
 
 end;
@@ -831,7 +831,7 @@ begin
 
    NEntriesUI.Editor.HideNestedFloatingEditor;
    NEntriesUI.Mode:= meSingleEntry;
-   NEntriesUI.ReloadFromDataModel(True);
+   NEntriesUI.ReloadFromDataModel(True, nil, aNull, true);
 
    FNNodeDeleted:= false;
    NEntriesUI.SetFocusOnEditor;
@@ -932,7 +932,7 @@ procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolea
                                    OfferEditorForNewEntry: boolean = False);
 var
    ShowPanels: boolean;
-   P, PnlEdit: TNEntriesPanel;
+   Pnl, PnlVisibleBottom, PnlEdit, MainPanel: TNEntriesPanel;
    i: integer;
    PanelConfig: TPanelConfiguration;
    ShowPanel: array[TNEntriesPanel] of boolean;
@@ -969,23 +969,25 @@ begin
 
    FQueryLayout:= QueryLayout;
 
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
-      ShowPanel[p]:= false;
-      if (FNEntriesUI[p] <> nil) and not FNEntriesUI[p].HideNestedFloatingEditor then
+   for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+      ShowPanel[Pnl]:= false;
+      if (FNEntriesUI[Pnl] <> nil) and not FNEntriesUI[Pnl].HideNestedFloatingEditor then
          exit;
    end;
 
    if assigned(NNode) then begin
-      p:= FNNodeUIConfig.GetVisibleBottomPanel;
+      PnlVisibleBottom:= FNNodeUIConfig.GetVisibleBottomPanel;
+      MainPanel:= FNNodeUIConfig.GetMainPanel;
       if OfferEditorForNewEntry then
          DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
 
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
+          Pnl:= PanelConfig.Panel;
           if PanelConfig.Visible then begin
-             ShowPanel[PanelConfig.Panel]:= True;
-             PanelConfig.ShowEditorInfoPanel:= (p = PanelConfig.Panel);
-             NEntriesUI:= GetNEntriesUI(PanelConfig.Panel);
+             ShowPanel[Pnl]:= True;
+             PanelConfig.ShowEditorInfoPanel:= (PnlVisibleBottom = Pnl);
+             NEntriesUI:= GetNEntriesUI(Pnl);
 
              if (EditingNEntry <> nil) and QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
                 SetLength(PanelConfig.EntriesOnlyHeader, Length(PanelConfig.EntriesOnlyHeader)+1);
@@ -993,7 +995,7 @@ begin
              end;
 
              if OfferEditorForNewEntry then begin
-                if DefinedSingleEntryPanelForEditing and (PanelConfig.Panel = PnlEdit) then
+                if DefinedSingleEntryPanelForEditing and (Pnl = PnlEdit) then
                    PanelConfig.SelNEntry:= nil
                 else
                 if not DefinedSingleEntryPanelForEditing and (PanelConfig.Mode = meMultipleEntries) then begin
@@ -1001,7 +1003,7 @@ begin
                    NEntriesUI.Mode:= meSingleEntry;
                 end;
              end;
-             NEntriesUI.LoadFromDataModel(PanelConfig, False);
+             NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = MainPanel));
 
              if (NEntriesUI.NEntry = nil) then
                 NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel
@@ -1015,9 +1017,9 @@ begin
 
 
    // Clear unused editors  (##)
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-       if not ShowPanel[p] and (FNEntriesUI[p] <> nil) then
-          FNEntriesUI[p].SetAsUnused;
+   for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+       if not ShowPanel[Pnl] and (FNEntriesUI[Pnl] <> nil) then
+          FNEntriesUI[Pnl].SetAsUnused;
 
    UpdateFMultipleVisibleEditors;
 
@@ -1053,7 +1055,7 @@ var
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if FNEntriesUI[p] <> nil then
-         FNEntriesUI[p].ReloadFromDataModel;
+         FNEntriesUI[p].ReloadFromDataModel(true,nil,aNull, (FNEntriesUI[p]=FSelectedNEntriesUI) );
 end;
 
 procedure TKntNoteUI.SaveToDataModel;

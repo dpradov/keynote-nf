@@ -101,6 +101,7 @@ type
       class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
+      function GetMainPanel: TNEntriesPanel;
       function GetVisibleBottomPanel: TNEntriesPanel;
       function SaveToString: string;
 
@@ -3348,6 +3349,19 @@ begin
    end;
 
    Result:= false;
+end;
+
+function TNNodeUIConfiguration.GetMainPanel: TNEntriesPanel;
+var
+  i: integer;
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= pnCenter;
+   for i := 0 to High(PanelsConfig) do begin
+       PanelConfig:= PanelsConfig[i];
+       if (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then
+          exit (PanelConfig.Panel);
+   end;
 end;
 
 

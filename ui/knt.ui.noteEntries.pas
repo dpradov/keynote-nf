@@ -125,11 +125,11 @@ type
     property NoteUI: INoteUI read FNoteUI;
     property Mode: TModeEntriesUI read FMode write FMode;
     property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;
-    procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
+    procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false);
     procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
                                    NEntryToConsider: TNoteEntry = nil;
                                    ActionOnEntry: TActionOnEntry = aNull;
-                                   InformReloaded: boolean = true);
+                                   InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
     procedure SaveToDataModel;
@@ -657,7 +657,7 @@ begin
        FEntriesShown[iNEntry].Content:= NewContent;
 end;
 
-procedure TKntNoteEntriesUI.LoadFromDataModel(APanelConfig: TPanelConfiguration; SavePreviousContent: boolean);
+procedure TKntNoteEntriesUI.LoadFromDataModel(APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false);
 var
   NEntry: TNoteEntry;
   KeepModified: boolean;
@@ -699,7 +699,7 @@ begin
              txtName.Visible:= True;
        end;
 
-       ReloadFromDataModel;
+       ReloadFromDataModel(true, nil, aNull, InformReloaded);
 
        { The normal thing is to set Editor.Modified = False at the end of the LoadFocusedNNodeIntoEditor method
          But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
@@ -768,7 +768,7 @@ end;
 procedure TKntNoteEntriesUI.ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
                                                  NEntryToConsider: TNoteEntry = nil;
                                                  ActionOnEntry: TActionOnEntry = aNull;
-                                                 InformReloaded: boolean = true);
+                                                 InformReloaded: boolean = false);
 var
   ReadOnlyBAK: boolean;
   str: String;
@@ -1576,6 +1576,7 @@ begin
    PanelConfig.SelNEntry := FNEntry;
    PanelConfig.SelStart  := Editor.SelStart;
    PanelConfig.SelLength := Editor.SelLength;
+
    if FMode = meMultipleEntries then begin
       dec(PanelConfig.SelStart, FEntriesShown[FiEntry].StartingContentPos);
       if PanelConfig.SelStart < 0 then begin
@@ -1742,7 +1743,13 @@ begin
       else
          NewCont:= cmWholeEntry;
 
+      Sleep(100);
+      Application.ProcessMessages;
+
+      PanelConfig.SelNEntry:= NEntry;
       ReloadVisibleContentOfEntries (CtrlDown, NewCont, FiEntry);
+
+      SelectEntry(FiEntry);
    end;
 end;
 
@@ -1766,14 +1773,6 @@ begin
    if not ModifyAll then
       NEntryToConsider:= FEntriesShown[iEntry].NEntry;
    ReloadFromDataModel(false, NEntryToConsider, aChangedVisibility);
-
-   Sleep(100);
-   Application.ProcessMessages;
-   if FEntriesShown[FiEntry].Content = cmWholeEntry then
-      Editor.SelStart:= FEntriesShown[FiEntry].StartingContentPos
-   else
-      Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
-   Editor.SelLength:= 0;
 end;
 
 
