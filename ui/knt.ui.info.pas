@@ -136,6 +136,7 @@ type
     MMContent: TContentInMultipleMode;
     MMShowDateInHeader: boolean;
     MMShowTagsInHeader: boolean;
+    MMShowLineInHeader: boolean;
     Order: TOrderInEntriesInPanel;
     DescendingOrder: boolean;
     Filter: TFilterOptionsInPanel;

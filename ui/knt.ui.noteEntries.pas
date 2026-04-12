@@ -144,7 +144,7 @@ type
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
-    function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
+    function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
@@ -980,14 +980,14 @@ var
 
  procedure ShowEntry(iEntry: integer);
  var
-   TL: integer;
+   TL, SS: integer;
  begin
      ConfigureEditor (iEntry);
      PrepareEntryContent (iEntry);         // -> strRTF or cEditor
 
      if (FMode = meMultipleEntries) then begin
         FEntriesShown[iEntry].StartingPos:= Editor.SelStart;
-        Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, FEntriesShown[iEntry].NEntry, false), True,True);
+        Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, FEntriesShown[iEntry].NEntry, (iEntry=0), (FEntriesShown[iEntry].Content=cmOnlyHeader)), True,True);
         FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
         if StrRTF = '' then begin
            if cEditor.StreamFormat = sfPlainText then begin
@@ -1000,7 +1000,13 @@ var
               strRTF:= cEditor.RtfText;
         end;
         Editor.PutRtfText(strRTF,True,True);
-        FEntriesShown[iEntry].FinalPos:= Editor.SelStart -1;
+        SS:= Editor.SelStart;
+        if Editor.GetTextRange(SS-1, SS) = #13 then begin
+           Editor.SetSelection(SS-1, SS, false);
+           Editor.SelAttributes.Size:= 1;
+           Editor.SelStart:= SS;
+        end;
+        FEntriesShown[iEntry].FinalPos:= SS -1;
      end;
  end;
 
@@ -1432,28 +1438,33 @@ end;
 *)
 
 
-function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
+function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
 var
-  str: AnsiString;
+  strLine: AnsiString;
   s, strInfo: string;
 
 begin
    // # ToDO —  08/11/2025 - 11:36  —
 
-   strInfo:= '';
+   if Folded then
+      strInfo:= ' \u10133+ '          // ➕
+   else
+      strInfo:= ' — ';
+
    if PanelConfig.MMShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
-      strInfo:= '# ' + Trim(NEntry.TagsNames) + '  ';
+      strInfo:= strInfo + '# ' + Trim(NEntry.TagsNames) + '  ';
    end;
    if PanelConfig.MMShowDateInHeader and (NEntry.Created <> 0) then begin
       if (NEntry.Created).GetTime <> 0 then
          S:= ' - ' + FormatSettings.ShortTimeFormat;
-      strInfo:= strInfo + ' — ' + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
+      strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
    end;
    strInfo := strInfo + ' —';
 
-   str:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';
+   if not FirstEntry and PanelConfig.MMShowLineInHeader then
+      strLine:= '\fs1\par\trowd\trgaph0\cellx999999 \intbl\fs1\cell\row\pard';
 
-   Result:= str;
+   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}' + StrLine + '\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';
 end;
 
 
@@ -1587,9 +1598,14 @@ end;
 
 
 procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer);
+var
+  SS: integer;
 begin
    if (FMode = meMultipleEntries) then begin
-       Editor.SelStart:= FEntriesShown[iEntry].StartingPos;
+       SS:= FEntriesShown[iEntry].StartingPos;
+       if (PanelConfig.MMShowLineInHeader) and (FEntriesShown[iEntry].Content = cmOnlyHeader) then
+          inc(SS, 6);
+       Editor.SelStart:= SS;
        if FEntriesShown[iEntry].Content <> cmOnlyHeader then
           Editor.SelStart:= FEntriesShown[iEntry].StartingContentPos;
    end

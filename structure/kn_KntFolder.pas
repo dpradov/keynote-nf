@@ -3263,6 +3263,7 @@ begin
        MMContent:= cmWholeEntry;
        MMShowDateInHeader:= true;
        MMShowTagsInHeader:= true;
+       MMShowLineInHeader:= true;
        Order:= eoDateCreation;
        DescendingOrder:= True;
        with Filter do begin
