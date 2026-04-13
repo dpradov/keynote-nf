@@ -105,6 +105,7 @@ type
 
     fChangingInCode: boolean;
     FReadOnly: boolean;
+    FPanelInitialized: boolean;
 
     FOnEnterOnEditor: TNotifyEvent;
     FOnMouseUpOnNoteEntries: TNotifyEvent;
@@ -283,6 +284,7 @@ begin
    //FLastEditorUIWidth:= '';
    FPanelConfig:= nil;
    FOnUse:= False;
+   FPanelInitialized:= false;
 
    UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
 
@@ -624,6 +626,7 @@ begin
    if Note <> nil then begin
       ShowEntriesButtons(Length(FEntriesShown) > 1);
       AdjustTxtTagsWidth(txtTags.Focused);
+      FPanelInitialized:= true;
    end;
 end;
 
@@ -863,20 +866,26 @@ var
             Created:= NEntryToConsider.Created;
             SetLength(FEntriesShown, N);
 
-            if not PanelConfig.DescendingOrder then begin
-               for iEntry:= N-2 downto 0 do
-                  if Created > FEntriesShown[iEntry].NEntry.Created then break;
-               iEntryAdded:= iEntry+1;
-               for iEntry:= iEntryAdded + 1 to N-1 do
-                  FEntriesShown[iEntry+1]:= FEntriesShown[iEntry];
-            end
-            else begin
-               for iEntry:= 0 to N-2 do
-                  if Created > FEntriesShown[iEntry].NEntry.Created then break;
-               iEntryAdded:= iEntry;
+            if N = 1 then
+               iEntryAdded:= 0
 
-               for iEntry:= N-1 downto iEntryAdded + 1 do
-                  FEntriesShown[iEntry]:= FEntriesShown[iEntry-1];
+            else begin
+
+              if not PanelConfig.DescendingOrder then begin
+                 for iEntry:= N-2 downto 0 do
+                    if Created > FEntriesShown[iEntry].NEntry.Created then break;
+                 iEntryAdded:= iEntry+1;
+                 for iEntry:= iEntryAdded + 1 to N-1 do
+                    FEntriesShown[iEntry+1]:= FEntriesShown[iEntry];
+              end
+              else begin
+                 for iEntry:= 0 to N-2 do
+                    if Created > FEntriesShown[iEntry].NEntry.Created then break;
+                 iEntryAdded:= iEntry;
+
+                 for iEntry:= N-1 downto iEntryAdded + 1 do
+                    FEntriesShown[iEntry]:= FEntriesShown[iEntry-1];
+              end;
             end;
             if iEntryAdded <= FiEntry then
                inc(FiEntry);
@@ -910,6 +919,8 @@ var
             break;
          end;
 
+    if FPanelInitialized then
+       ShowEntriesButtons(Length(FEntriesShown) > 1);
  end;
 
 
@@ -1150,7 +1161,6 @@ begin
                 pnlIdentif.Visible:= true;
                 FNoteUI.KeepInfoPanelTemporarilyVisible;
              end;
-             exit;
           end;
        end
        else begin
@@ -1173,10 +1183,23 @@ begin
        end;
    end;
 
+   if not CalculateEntriesToShow and (FiEntry < 0) and (FMode = meSingleEntry) then exit;
+
 
    if EntryToRemove and (FMode = meSingleEntry) then begin    // ToDO ****
       exit;
    end;
+
+   if EntryToAdd then begin
+      if (Length(FEntriesShown) = 2) and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
+         FMode:= meMultipleEntries;
+         EntryToAdd:= false;          // Process the two entries, not just the one to add
+         NEntryToConsider:= nil;
+      end;
+      if (FMode = meSingleEntry) then
+         exit;
+   end;
+
 
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 

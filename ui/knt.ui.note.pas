@@ -817,6 +817,7 @@ begin
    PanelConfig:= NEntriesUI.PanelConfig;
    PanelConfig.SelNEntry:= NEntry;
 
+  { AutoCollapseEntryOnEditing
    if NEntriesUI <> ReqFromNEntriesUI then begin
       ReqFromNEntriesUI.SavePositionInPanel;
       if NEntry <> nil then
@@ -824,6 +825,7 @@ begin
       PanelConfig.SelStart:= ReqFromNEntriesUI.PanelConfig.SelStart;
       PanelConfig.SelLength:= ReqFromNEntriesUI.PanelConfig.SelLength;
    end;
+   }
    if SS >= 0 then begin
       PanelConfig.SelStart:= SS;
       PanelConfig.SelLength:= SL;
@@ -989,10 +991,12 @@ begin
              PanelConfig.ShowEditorInfoPanel:= (PnlVisibleBottom = Pnl);
              NEntriesUI:= GetNEntriesUI(Pnl);
 
-             if (EditingNEntry <> nil) and QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
+             { AutoCollapseEntryOnEditing
+             if (EditingNEntry <> nil) and not QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
                 SetLength(PanelConfig.EntriesOnlyHeader, Length(PanelConfig.EntriesOnlyHeader)+1);
                 PanelConfig.EntriesOnlyHeader[Length(PanelConfig.EntriesOnlyHeader)-1]:= EditingNEntry;
              end;
+             }
 
              if OfferEditorForNewEntry then begin
                 if DefinedSingleEntryPanelForEditing and (Pnl = PnlEdit) then

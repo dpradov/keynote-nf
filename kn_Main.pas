@@ -2457,6 +2457,10 @@ begin
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;
 
+    if EditorToBeCheckedForContentUpdate <> nil then
+       App.EnsureContentEditorUpdated (EditorToBeCheckedForContentUpdate);
+
+
    Done := True;
 
  except
