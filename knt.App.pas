@@ -795,7 +795,7 @@ begin
   if CopyFormatMode= cfEnabled then
      EnableCopyFormat(False);
 
-  if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad)
+  if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad) (or a 'blank' editor of a panel, with NEntryObj= nil)
 
   NEntryModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
 end;

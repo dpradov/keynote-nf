@@ -429,7 +429,7 @@ var
 begin
   KeepVisible:= (txtTags.Focused or txtName.Focused or txtCreationDate.Focused);
   if not KeepVisible then
-     KeepVisible:= IsMouseOver(pnlIdentif);
+     KeepVisible:= IsMouseOver(pnlIdentif) or IsMouseOver(txtTags) or IsMouseOver(txtCreationDate);
 
   if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel and not KeepVisible then
      pnlIdentif.Visible := False;
@@ -1254,6 +1254,18 @@ begin
 
      if FEntriesShown <> nil then begin
        FiEntry:= iSelectedEntry;
+       if (FiEntry < 0) and ((FMode = meMultipleEntries) or (PanelConfig.SelNEntry <> nil)) then begin
+           FiEntry:= 0;
+           if not Folder.NoteAdvOptions.ShowNewestEntryInSingleEntry then begin
+              if not PanelConfig.DescendingOrder then
+                  FiEntry:= Length(FEntriesShown)-1;
+           end
+           else begin
+              if PanelConfig.DescendingOrder then
+                  FiEntry:= Length(FEntriesShown)-1;
+           end;
+       end;
+
 
        if FMode = meMultipleEntries then begin    // --- meMultipleEntries
           if NEntryToConsider <> nil then
@@ -1264,18 +1276,6 @@ begin
                  ShowEntry (iEntry);
 
               inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
-
-              if FiEntry < 0 then begin
-                 FiEntry:= 0;
-                 if not Folder.NoteAdvOptions.ShowNewestEntryInSingleEntry then begin
-                    if not PanelConfig.DescendingOrder then
-                        FiEntry:= Length(FEntriesShown)-1;
-                 end
-                 else begin
-                    if PanelConfig.DescendingOrder then
-                        FiEntry:= Length(FEntriesShown)-1;
-                 end;
-              end;
           end;
        end
        else begin                              // --- meSingleEntry

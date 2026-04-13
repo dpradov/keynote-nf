@@ -934,7 +934,7 @@ procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolea
                                    OfferEditorForNewEntry: boolean = False);
 var
    ShowPanels: boolean;
-   Pnl, PnlVisibleBottom, PnlEdit, MainPanel: TNEntriesPanel;
+   Pnl, PnlVisibleBottom, PnlEdit, PnlToSetFocus: TNEntriesPanel;
    i: integer;
    PanelConfig: TPanelConfiguration;
    ShowPanel: array[TNEntriesPanel] of boolean;
@@ -979,9 +979,12 @@ begin
 
    if assigned(NNode) then begin
       PnlVisibleBottom:= FNNodeUIConfig.GetVisibleBottomPanel;
-      MainPanel:= FNNodeUIConfig.GetMainPanel;
-      if OfferEditorForNewEntry then
+      PnlToSetFocus:= FNNodeUIConfig.GetMainPanel;
+      if OfferEditorForNewEntry then begin
          DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
+         if DefinedSingleEntryPanelForEditing then
+            PnlToSetFocus:= PnlEdit;
+      end;
 
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
@@ -997,17 +1000,11 @@ begin
                 PanelConfig.EntriesOnlyHeader[Length(PanelConfig.EntriesOnlyHeader)-1]:= EditingNEntry;
              end;
              }
-
-             if OfferEditorForNewEntry then begin
-                if DefinedSingleEntryPanelForEditing and (Pnl = PnlEdit) then
-                   PanelConfig.SelNEntry:= nil
-                else
-                if not DefinedSingleEntryPanelForEditing and (PanelConfig.Mode = meMultipleEntries) then begin
-                   PanelConfig.SelNEntry:= nil;
-                   NEntriesUI.Mode:= meSingleEntry;
-                end;
+             if OfferEditorForNewEntry and (Pnl = PnlToSetFocus) then begin
+                PanelConfig.SelNEntry:= nil;
+                NEntriesUI.Mode:= meSingleEntry;
              end;
-             NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = MainPanel));
+             NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus));
 
              if (NEntriesUI.NEntry = nil) then
                 NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel

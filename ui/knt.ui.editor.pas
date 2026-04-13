@@ -614,7 +614,7 @@ begin
        NNodeObj:= Self.NNodeObj;
        NEntryObj:= Self.NEntryObj;
        FolderObj:= Self.FolderObj;
-       Result:= True;
+       Result:= (Self.NEntryObj <> nil);
    end
    else
    if (ParentEditor <> nil) then
