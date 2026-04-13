@@ -1739,9 +1739,24 @@ begin
              FNote:= FEntriesShown[i].Note;
              FNEntry:= FEntriesShown[i].NEntry;
              ReloadMetadataFromDataModel();
-             exit;
+             break;
           end;
    end;
+
+   if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
+       if (FiEntry > 0) and (VKeyDown(VK_LEFT) or VKeyDown(VK_UP)) then begin
+          SelectEntry(FiEntry-1);
+          Editor.SelStart:= FEntriesShown[FiEntry].FinalPos;
+       end
+       else
+       if (FiEntry <= Length(FEntriesShown) -1) and (VKeyDown(VK_RIGHT) or VKeyDown(VK_DOWN)) then begin
+           if (SS = (FEntriesShown[FiEntry].StartingPos + 6)) and (FiEntry < (Length(FEntriesShown) -1)) then
+              SelectEntry(FiEntry + 1)
+           else
+              SelectEntry(FiEntry);
+       end;
+   end;
+
 end;
 
 
