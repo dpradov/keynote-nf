@@ -745,12 +745,13 @@ begin
 
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
-      if (E = Editor) or (not E.Modified) then continue;
+      if (E = Editor) then continue;
 
       NNode:= TNoteNode(E.NNodeObj);
       if NNode = nil then continue;
-      if NoteSelecEditor = NNode.Note then begin
-         TKntNoteEntriesUI(E.NEntriesUIObj).SaveToDataModel;
+      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if (NoteSelecEditor = NNode.Note) and (E.Modified or NEntriesUI.TagsOfEntryModified) then begin
+         NEntriesUI.SaveToDataModel;
          exit;
       end;
    end;

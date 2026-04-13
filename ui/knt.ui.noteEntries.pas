@@ -94,6 +94,7 @@ type
     FiEntry: integer;
     FMode: TModeEntriesUI;        // To not modify (and not saved) the value in PanelConfig
     FPanelConfig: TPanelConfiguration;
+    FTagsOfEntryModified: boolean;
 
     RTFAux: TAuxRichEdit;
 
@@ -162,6 +163,7 @@ type
     function HideTemporarilyInfoPanel: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
     procedure RefreshEntry;
+    property TagsOfEntryModified: boolean read FTagsOfEntryModified;
 
   protected
     function GetReadOnly: boolean;
@@ -562,6 +564,7 @@ begin
   if PressedReturn then
      Editor.SetFocus;
 
+   FTagsOfEntryModified:= True;
    txtTags.Color:= FColorTxts;
    AdjustTxtTagsWidth;
 
@@ -1121,6 +1124,7 @@ begin
       FNNode:= nil;
       FNote:= nil;
       FNEntry:= nil;
+      FTagsOfEntryModified:= false;
       NEntryToConsider:= nil;
 
       PopulateEntriesToShow;
@@ -1536,6 +1540,8 @@ begin
         FEditor.DoSaveChangesInFloatingEditor;
 
      if FEditor.Modified then begin
+        FTagsOfEntryModified:= false;
+
         FEditor.BeginUpdate;
         try
            KeepUTF8:= False;
@@ -1585,9 +1591,15 @@ begin
           App.EditorSaved(FEditor);
         end;
      end
-     else
+     else begin
+       if FTagsOfEntryModified then begin
+          FTagsOfEntryModified:= false;
+          App.EditorSaved(FEditor);
+       end;
+
        if (FNEntry <> nil) and (FNEntry.TextPlain = '') then
           InitializeTextPlain(FNEntry, RTFAux_Note);
+     end;
 
   end;
 end;
