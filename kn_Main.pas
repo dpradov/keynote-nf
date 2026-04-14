@@ -3150,8 +3150,7 @@ begin
 
         else begin
            if Msg.CharCode = VK_RETURN then begin
-              if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and
-                  ActiveEditor.MultiEntries and (ActiveEditor.NNodeObj <> nil) then begin
+              if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) then begin
 
                   ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, True);
                   Handled:= true;

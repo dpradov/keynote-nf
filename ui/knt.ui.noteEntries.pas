@@ -138,7 +138,6 @@ type
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
-    procedure IntroInEditorMultiEntries;
     procedure EditorDblClickInMultiEntries;
     function VinculatedToMultipleEntries: boolean;
     function GetIndexOfVisibleEntry(NEntry: TNoteEntry): integer;
@@ -1769,12 +1768,6 @@ begin
        end;
    end;
 
-end;
-
-
-procedure TKntNoteEntriesUI.IntroInEditorMultiEntries;
-begin
-   btnToggleMultiClick(nil);
 end;
 
 

@@ -701,24 +701,35 @@ var
    SS, SL: integer;
 begin
   NEntriesUI:= GetNEntriesUI(RequestedFromEditor);
-  if NEntriesUI.Mode = meSingleEntry then              // Ctrl+INTRO
-     NEntriesUI.IntroInEditorMultiEntries
+  NEntry:= NEntriesUI.NEntry;
 
-  else begin
-     NEntry:= NEntriesUI.NEntry;
-     if FQueryLayout then begin
-        NEntriesUI.SavePositionInPanel;
-        SS:= NEntriesUI.PanelConfig.SelStart;
-        SL:= NEntriesUI.PanelConfig.SelLength;
-        LoadFromNNode(FNNode, True, neEditingLayout, NEntry);
-        EditInInMultiEntries(NEntriesUI, NEntry, false, SS, SL);
+  if CtrlDown then begin                            // QueryLayout <-> EditingLoayout
+     if (NEntriesUI.Mode = meSingleEntry) then begin
+        if FQueryLayout or (NEntriesUI.PanelConfig.VinculatedTags <> nil) then
+           NEntriesUI.btnToggleMultiClick(nil)
+        else begin
+           ActiveFile.SetNoteIsOnEditingLayout(FNote, false);
+           LoadFromNNode(FNNode, True, neQueryLayout);
+        end;
      end
-     else
-     if CtrlDown then begin                            // Change to QueryLayout
-        ActiveFile.SetNoteIsOnEditingLayout(FNote, false);
-        LoadFromNNode(FNNode, True, neQueryLayout);
-        FSelectedNEntriesUI.SetFocusOnEditor;
-     end
+     else begin
+       if FQueryLayout then begin
+          NEntriesUI.SavePositionInPanel;
+          SS:= NEntriesUI.PanelConfig.SelStart;
+          SL:= NEntriesUI.PanelConfig.SelLength;
+          LoadFromNNode(FNNode, True, neEditingLayout, NEntry);
+          EditInInMultiEntries(NEntriesUI, NEntry, false, SS, SL);
+       end
+       else begin
+          ActiveFile.SetNoteIsOnEditingLayout(FNote, false);
+          LoadFromNNode(FNNode, True, neQueryLayout);
+       end;
+     end;
+
+  end
+  else begin                                        // Not CtrlDown => Mode= meMultiEntries
+     if FQueryLayout then
+        NEntriesUI.btnToggleMultiClick(nil)
      else
         EditInInMultiEntries(NEntriesUI, NEntry, false);
   end;
@@ -803,7 +814,7 @@ begin
       if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
          PnlEdit:= ReqFromNEntriesUI.PanelConfig.Panel;
          if not NewEntry then begin
-            ReqFromNEntriesUI.IntroInEditorMultiEntries;       // Use requested NEntriesUI for editing
+            ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
             exit;
          end;
       end;
@@ -934,22 +945,26 @@ procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolea
                                    OfferEditorForNewEntry: boolean = False);
 var
    ShowPanels: boolean;
-   Pnl, PnlVisibleBottom, PnlEdit, PnlToSetFocus: TNEntriesPanel;
+   Pnl, PnlVisibleBottom, PnlEdit, PnlToSetFocus, MainPanel: TNEntriesPanel;
    i: integer;
    PanelConfig: TPanelConfiguration;
    ShowPanel: array[TNEntriesPanel] of boolean;
    NEntriesUI: TKntNoteEntriesUI;
    QueryLayout: boolean;
    DefinedSingleEntryPanelForEditing: boolean;
+   SetNoteSelEntryOnMainPanel: boolean;
 begin
    if SavePreviousContent and (FNNode <> nil) then
       SaveToDataModel;
 
    if FloatingEditorCannotBeSaved then exit;
 
+   // When switching from EditingLayout to QueryLayout -> Set the NEntry of the current panel to the one selected in the main panel
+   // This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
+   SetNoteSelEntryOnMainPanel:= (QueryLayoutToUse = neQueryLayout) and not FQueryLayout;
+
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
-   FSelectedNEntriesUI:= GetNEntriesUI(pnCenter);
    QueryLayout:= True;
 
    if assigned(NNode) then begin
@@ -979,7 +994,8 @@ begin
 
    if assigned(NNode) then begin
       PnlVisibleBottom:= FNNodeUIConfig.GetVisibleBottomPanel;
-      PnlToSetFocus:= FNNodeUIConfig.GetMainPanel;
+      MainPanel:= FNNodeUIConfig.GetMainPanel;
+      PnlToSetFocus:= MainPanel;
       if OfferEditorForNewEntry then begin
          DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
          if DefinedSingleEntryPanelForEditing then
@@ -1000,6 +1016,13 @@ begin
                 PanelConfig.EntriesOnlyHeader[Length(PanelConfig.EntriesOnlyHeader)-1]:= EditingNEntry;
              end;
              }
+             if SetNoteSelEntryOnMainPanel and (Pnl = MainPanel) then begin
+                PanelConfig.SelNEntry:= FNote.SelEntry;
+                PanelConfig.SelStart:= FNote.SelStart;
+                PanelConfig.SelLength:= FNote.SelLength;
+                PanelConfig.ScrollPosInEditor.Y:= 0;
+             end;
+
              if OfferEditorForNewEntry and (Pnl = PnlToSetFocus) then begin
                 PanelConfig.SelNEntry:= nil;
                 NEntriesUI.Mode:= meSingleEntry;
@@ -1028,6 +1051,11 @@ begin
    ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);
    ShowPanelsBottom(ShowPanel[pnBL], ShowPanel[pnBR]);
    FrameResize(nil);
+
+   if EditingNEntry = nil then begin                       // If <> nil -> Focus in FSelectedNEntriesUI will be set from EditInInMultiEntries
+      FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
+      FSelectedNEntriesUI.SetFocusOnEditor;
+   end;
 
    if not QueryLayout and not Folder.EditorInfoPanelHidden then
       KeepInfoPanelTemporarilyVisible
