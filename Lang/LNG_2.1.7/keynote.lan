@@ -26,7 +26,7 @@ RTL=0
 Comment=Русский перевод интерфейса для версии 2.1.5.01
 Name=Русский
 LangFile=Keynote.russian.lng
-TipFile=Keynote.english.tip
+TipFile=Keynote.russian.tip
 Translator=https://forum.ru-board.com/topic.cgi?forum=5&topic=2649
 RTL=0
 
