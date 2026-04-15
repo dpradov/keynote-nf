@@ -133,6 +133,8 @@ type
     function GetNEntriesUI (Panel: TNEntriesPanel): TKntNoteEntriesUI; overload;
     function GetNEntriesUI (Editor: TKntRichEdit): TKntNoteEntriesUI; overload;
     procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
+    procedure SelectNextEntry;
+    procedure SelectPreviousEntry;
     procedure CreateNewEntry(ReqFromNEntriesUI: TKntNoteEntriesUI); overload;
     procedure EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
                                    SS: integer=-1; SL: integer=-1);
@@ -765,6 +767,19 @@ begin
 
    FSelectedNEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
 end;
+
+
+procedure TKntNoteUI.SelectNextEntry;
+begin
+   FSelectedNEntriesUI.btnNextEntryClick(nil);
+end;
+
+
+procedure TKntNoteUI.SelectPreviousEntry;
+begin
+   FSelectedNEntriesUI.btnPrevEntryClick(nil);
+end;
+
 
 procedure TKntNoteUI.CreateNewEntry(ReqFromNEntriesUI: TKntNoteEntriesUI);
 var

@@ -59,6 +59,8 @@ type
      procedure SaveToDataModel;
      procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
      procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
+     procedure SelectNextEntry;
+     procedure SelectPreviousEntry;
      procedure Refresh;
 
      procedure SetImagesMode(ImagesMode: TImagesMode);

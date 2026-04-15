@@ -2908,7 +2908,10 @@ begin
 
     VK_PRIOR : if ( shift = [ssCtrl] ) then begin // Page Up
       key := 0;
-      Pages.SelectNextPage( false );
+      if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and (ActiveNNode.Note.NumEntries > 1) then
+         ActiveFolder.NoteUI.SelectPreviousEntry
+      else
+         Pages.SelectNextPage( false );
     end
     else
     if ( KeyOptions.ResPanelShow and ( shift = [ssAlt] )) then begin
@@ -2918,7 +2921,10 @@ begin
 
     VK_NEXT : if ( shift = [ssCtrl] ) then begin // Page Down
       key := 0;
-      Pages.SelectNextPage( true );
+      if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and (ActiveNNode.Note.NumEntries > 1) then
+         ActiveFolder.NoteUI.SelectNextEntry
+      else
+         Pages.SelectNextPage( true );
     end
     else
     if ( KeyOptions.ResPanelShow and ( shift = [ssAlt] )) then begin
