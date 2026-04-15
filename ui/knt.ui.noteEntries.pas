@@ -154,7 +154,7 @@ type
     procedure OnEndEditTagsIntroduction(PressedReturn: boolean);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure ShowEntriesButtons(Show: boolean);
-    procedure SelectEntry(iEntry: integer);
+    procedure SelectEntry(iEntry: integer; LastPos: boolean = false);
     procedure FrameResize(Sender: TObject);
   public
     procedure EditTags;
@@ -1654,17 +1654,21 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer);
+procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer; LastPos: boolean = false);
 var
   SS: integer;
 begin
    if (FMode = meMultipleEntries) then begin
-       SS:= FEntriesShown[iEntry].StartingPos;
-       if (PanelConfig.MMShowLineInHeader) and (FEntriesShown[iEntry].Content = cmOnlyHeader) then
-          inc(SS, 6);
-       Editor.SelStart:= SS;
-       if FEntriesShown[iEntry].Content <> cmOnlyHeader then
-          Editor.SelStart:= FEntriesShown[iEntry].StartingContentPos;
+       if LastPos then
+          Editor.SelStart:= FEntriesShown[iEntry].FinalPos
+       else begin
+          SS:= FEntriesShown[iEntry].StartingPos;
+          if (PanelConfig.MMShowLineInHeader) and (FEntriesShown[iEntry].Content = cmOnlyHeader) then
+             inc(SS, 6);
+          Editor.SelStart:= SS;
+          if FEntriesShown[iEntry].Content <> cmOnlyHeader then
+             Editor.SelStart:= FEntriesShown[iEntry].StartingContentPos;
+       end;
    end
    else begin
        SaveToDataModel();
@@ -1755,10 +1759,8 @@ begin
    end;
 
    if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
-       if (FiEntry > 0) and (VKeyDown(VK_LEFT) or VKeyDown(VK_UP)) then begin
-          SelectEntry(FiEntry-1);
-          Editor.SelStart:= FEntriesShown[FiEntry].FinalPos;
-       end
+       if (FiEntry > 0) and (VKeyDown(VK_LEFT) or VKeyDown(VK_UP)) then
+          SelectEntry(FiEntry-1, True)
        else
        if (FiEntry <= Length(FEntriesShown) -1) and (VKeyDown(VK_RIGHT) or VKeyDown(VK_DOWN)) then begin
            if (SS = (FEntriesShown[FiEntry].StartingPos + 6)) and (FiEntry < (Length(FEntriesShown) -1)) then
