@@ -103,9 +103,13 @@ type
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
       function GetMainPanel: TNEntriesPanel;
       function GetVisibleBottomPanel: TNEntriesPanel;
+      //function GetVisibleTopPanel: TNEntriesPanel;
+      function GetUpperVisiblePanel (Pnl: TNEntriesPanel; var UpperPnl: TNEntriesPanel): boolean;
+      function GetBelowVisiblePanel (Pnl: TNEntriesPanel; var BelowPnl: TNEntriesPanel): boolean;
       function SaveToString: string;
 
       property NNode: TNoteNode read FNNode;
+      function GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
       function PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
 
       property Top_Ratio: Single read GetTop_Ratio write FTop_Ratio;
@@ -3224,7 +3228,8 @@ begin
       Result:= FFolder.NoteAdvOptions.PnlBLBRRatio;
 end;
 
-function TNNodeUIConfiguration.PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+
+function TNNodeUIConfiguration.GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
 var
   i: integer;
 begin
@@ -3232,9 +3237,15 @@ begin
        if PanelsConfig[i].Panel = Panel then
           exit(PanelsConfig[i]);
    end;
+   Result:= nil;
+end;
 
-   Result:= CreateDefaultPanelConfig(Panel, meMultipleEntries, FNNode);
-   exit;
+
+function TNNodeUIConfiguration.PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+begin
+   Result:= GetCreatedPanelConfig(Panel);
+   if Result = nil then
+      Result:= CreateDefaultPanelConfig(Panel, meMultipleEntries, FNNode);
 end;
 
 
@@ -3364,6 +3375,33 @@ begin
    end;
 end;
 
+{
+function TNNodeUIConfiguration.GetVisibleTopPanel: TNEntriesPanel;
+var
+  i: integer;
+  TLv,TRv,CenterV: boolean;
+  PanelConfig: TPanelConfiguration;
+begin
+   TLv:= False;
+   TRv:= False;
+   CenterV:= False;
+   for i := 0 to High(PanelsConfig) do begin
+       PanelConfig:= PanelsConfig[i];
+       case PanelConfig.Panel of
+          pnTL: TLv:= PanelConfig.VisibLe;
+          pnTR: TRv:= PanelConfig.VisibLe;
+          pnCenter: CenterV:= PanelConfig.VisibLe;
+       end;
+   end;
+
+   if TLv and not TRv then
+      exit(pnTL);
+   if TRv and not TLv then
+      exit(pnTR);
+   if CenterV then
+      exit(pnCenter);
+end;
+}
 
 function TNNodeUIConfiguration.GetVisibleBottomPanel: TNEntriesPanel;
 var
@@ -3390,6 +3428,66 @@ begin
    if CenterV then
       exit(pnCenter);
 end;
+
+
+function TNNodeUIConfiguration.GetUpperVisiblePanel (Pnl: TNEntriesPanel; var UpperPnl: TNEntriesPanel): boolean;
+var
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= False;
+
+   if Pnl in [pnTL, pnTR] then
+      exit
+   else
+   if Pnl = pnCenter then begin
+      UpperPnl:= pnTL;
+      PanelConfig:= GetCreatedPanelConfig(UpperPnl);
+      if (PanelConfig = nil) or not PanelConfig.Visible then begin
+         UpperPnl:= pnTR;
+         PanelConfig:= GetCreatedPanelConfig(UpperPnl);
+         if (PanelConfig = nil) or not PanelConfig.Visible then exit;
+      end;
+      Result:= True;
+   end
+   else
+   if Pnl in [pnBL, pnBR] then begin
+      UpperPnl:= pnCenter;
+      PanelConfig:= GetCreatedPanelConfig(UpperPnl);
+      if (PanelConfig <> nil) and PanelConfig.Visible then
+         Result:= True;
+   end
+end;
+
+
+function TNNodeUIConfiguration.GetBelowVisiblePanel (Pnl: TNEntriesPanel; var BelowPnl: TNEntriesPanel): boolean;
+var
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= False;
+
+   if Pnl in [pnBL, pnBR] then
+      exit
+   else
+   if Pnl = pnCenter then begin
+      BelowPnl:= pnBL;
+      PanelConfig:= GetCreatedPanelConfig(BelowPnl);
+      if (PanelConfig = nil) or not PanelConfig.Visible then begin
+         BelowPnl:= pnBR;
+         PanelConfig:= GetCreatedPanelConfig(BelowPnl);
+         if (PanelConfig = nil) or not PanelConfig.Visible then exit;
+      end;
+      Result:= True;
+   end
+   else
+   if Pnl in [pnTL, pnTR] then begin
+      BelowPnl:= pnCenter;
+      PanelConfig:= GetCreatedPanelConfig(BelowPnl);
+      if (PanelConfig <> nil) and PanelConfig.Visible then
+         Result:= True;
+   end;
+
+end;
+
 
 
 class function TNNodeUIConfiguration.CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;

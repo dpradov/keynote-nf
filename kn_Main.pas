@@ -7422,18 +7422,23 @@ end;
 
 
 procedure TForm_Main.MMTreeNavRightClick(Sender: TObject);
+var
+  NavDir: TNavDirection;
 begin
   {
     If the tree has focus, Alt+arrow scrolls the editor;         (Alt+Up, ALt+Down, Alt+Shift+Left,Alt+Shift+Right)
-    if the editor is focused, Alt+arrow scrolls the tree
+    if the editor is focused, navigate the panels or scroll the tree
   }
 
   if ( sender is TMenuItem ) then begin
     if Assigned(ActiveTreeUI) and ActiveTreeUI.Focused then
        ActiveEditor.Navigate(TNavDirection((sender as TMenuItem ).Tag))
     else
-    if Assigned(ActiveEditor) then
-       ActiveTreeUI.Navigate(TNavDirection((sender as TMenuItem).Tag ));
+    if Assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then begin
+       NavDir:= TNavDirection((sender as TMenuItem).Tag);
+       if not ActiveFolder.NoteUI.NavigatePanels(NavDir) then
+          ActiveTreeUI.Navigate(NavDir);
+    end;
   end;
 end;
 

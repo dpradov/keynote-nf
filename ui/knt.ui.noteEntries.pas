@@ -1695,6 +1695,7 @@ begin
       FMode:= meMultipleEntries;
    end;
 
+   Editor.NavigatePanelsEnabled:= True;
    Editor.HideNestedFloatingEditor;
    ReloadFromDataModel(false);
 end;

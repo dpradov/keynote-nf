@@ -47,6 +47,7 @@ type
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
      function MultipleVisibleEditors: boolean;
+     function NavigatePanels(NavDirection: TNavDirection): boolean;
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                              NEntriesLayout: TBasicNEntriesLayout;

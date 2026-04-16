@@ -99,6 +99,8 @@ type
     FTabSize : byte;
     FRecreateWndProtect : boolean;
 
+    FNavigatePanelsEnabled: boolean;
+
    	// Fields initialized in Folder.ConfigureEditor. Also in CreateScratchEditor()
     FPlainText: boolean;
     FSupportsRegisteredImages: boolean;
@@ -184,6 +186,7 @@ type
     procedure ChangedSelection; virtual;
     procedure Change; override;
     function GetSelectedImageID: integer;
+    property NavigatePanelsEnabled: boolean read FNavigatePanelsEnabled write FNavigatePanelsEnabled;
 
     function FontInfoString : string;
     function ParaInfoString : string;
@@ -533,6 +536,7 @@ begin
   FEditorChanged:= nil;
   FChangedSelection:= nil;
   FIgnoreSelectionChange:= false;
+  FNavigatePanelsEnabled:= False;
   DraggingImageID:= 0;
 
   FZoomGoal:= 100;
@@ -4666,6 +4670,9 @@ var
 begin
   if FUpdating > 0 then exit;
   if FIgnoreSelectionChange then exit;
+
+  FNavigatePanelsEnabled:= True;
+
   if (IntroducingTagsState <> itDisabled) then
      if (IntroducingTagsState <> itNoTags) and (cTagSelector.EditorCtrlUI = Self) then begin
         if (Self.SelLength > 0) then

@@ -146,6 +146,7 @@ type
     procedure NEntriesUIEditorEnter(Sender: TObject);
     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
     function MultipleVisibleEditors: boolean;
+    function NavigatePanels(NavDirection: TNavDirection): boolean;
     procedure KeepInfoPanelTemporarilyVisible;
    {$IFDEF KNT_DEBUG}
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
@@ -663,6 +664,56 @@ begin
 end;
 
 
+function TKntNoteUI.NavigatePanels(NavDirection: TNavDirection): boolean;
+var
+  pnl, nextPnl: TNEntriesPanel;
+  panelConfig: TPanelConfiguration;
+
+begin
+  Result:= false;
+  if not FMultipleVisibleEditors then exit;
+  if (FSelectedNEntriesUI = nil) or not FSelectedNEntriesUI.Editor.NavigatePanelsEnabled then exit;
+
+  pnl:= FSelectedNEntriesUI.PanelConfig.Panel;
+
+  case NavDirection of
+     navUp  :  if not FNNodeUIConfig.GetUpperVisiblePanel(pnl, nextPnl) then
+                  exit;
+
+     navDown:  if not FNNodeUIConfig.GetBelowVisiblePanel(pnl, nextPnl) then
+                  exit;
+
+     navLeft:  begin
+                 if pnl = pnTR then
+                    nextPnl:= pnTL
+                 else
+                 if pnl = pnBR then
+                    nextPnl:= pnBL
+                 else
+                    exit;
+               end;
+
+     navRight: begin
+                 if pnl = pnTL then
+                    nextPnl:= pnTR
+                 else
+                 if pnl = pnBL then
+                    nextPnl:= pnBR
+                 else
+                    exit;
+               end;
+  end;
+
+
+  panelConfig:= FNNodeUIConfig.GetCreatedPanelConfig(nextPnl);
+  if (panelConfig <> nil) and panelConfig.Visible then begin
+     FNEntriesUI[nextPnl].SetFocusOnEditor;
+     Result:= True;
+  end;
+end;
+
+
+
 {$IFDEF KNT_DEBUG}
 function TKntNoteUI.GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
 var
@@ -872,9 +923,11 @@ var
 begin
    if not FloatingEditorCannotBeSaved then
       for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-        if FNEntriesUI[p] <> nil then
+        if FNEntriesUI[p] <> nil then begin
+           FNEntriesUI[p].Editor.NavigatePanelsEnabled:= True;
            if not FNEntriesUI[p].HideNestedFloatingEditor then
               exit;
+        end;
 
   FSelectedNEntriesUI:= TKntNoteEntriesUI(Sender);
   TimerInfoPanel.Enabled:= False;
@@ -968,7 +1021,10 @@ var
    QueryLayout: boolean;
    DefinedSingleEntryPanelForEditing: boolean;
    SetNoteSelEntryOnMainPanel: boolean;
+   EnableNavigatePanels: boolean;
 begin
+   EnableNavigatePanels:= (QueryLayoutToUse <> neLastLayout);
+
    if SavePreviousContent and (FNNode <> nil) then
       SaveToDataModel;
 
@@ -1048,6 +1104,8 @@ begin
                 NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel
              else
                 NEntriesUI.Editor.OnEditorChanged := nil;
+
+             NEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
           end;
       end;
    end
@@ -1070,6 +1128,7 @@ begin
    if EditingNEntry = nil then begin                       // If <> nil -> Focus in FSelectedNEntriesUI will be set from EditInInMultiEntries
       FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
       FSelectedNEntriesUI.SetFocusOnEditor;
+      FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
    end;
 
    if not QueryLayout and not Folder.EditorInfoPanelHidden then
