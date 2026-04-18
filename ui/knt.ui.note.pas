@@ -147,6 +147,7 @@ type
     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
     function MultipleVisibleEditors: boolean;
     function NavigatePanels(NavDirection: TNavDirection): boolean;
+    procedure ToggleMaximizeSelectedPanel;
     procedure KeepInfoPanelTemporarilyVisible;
    {$IFDEF KNT_DEBUG}
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
@@ -161,6 +162,8 @@ type
     procedure ShowBottomPanels(value: boolean);
     procedure ShowPanelsTop(TL, TR: boolean);
     procedure ShowPanelsBottom(BL, BR: boolean);
+    procedure ToggleMaximizePanel (Panel: TNEntriesPanel);
+    procedure RestoreSplits;
     function GetPanel (Panel: TNEntriesPanel): TPanel;
     //procedure TestPanels;
 
@@ -200,6 +203,7 @@ uses
   kn_VCLControlsMng,
   knt.RS;
 
+const SPLT_WIDTH = 2;
 
 // Create  / Destroy =========================================
 
@@ -210,6 +214,12 @@ var
   p: TNEntriesPanel;
 begin
    inherited Create(AOwner);
+
+   splL.Width:=  SPLT_WIDTH;
+   splTC.Width:= SPLT_WIDTH;
+   splBC.Width:= SPLT_WIDTH;
+   splT.Height:= SPLT_WIDTH;
+   splB.Height:= SPLT_WIDTH;
 
    FKntFolder:= KntFolder;
    FNNode:= nil;
@@ -375,7 +385,7 @@ begin
    IncResize:= pnlTop.Height;
    if value then begin
       pnlTop.Height:= Round(Self.Height * FNNodeUIConfig.Top_Ratio);
-      splT.Top := pnlTop.Height + 3;
+      splT.Top := pnlTop.Height + SPLT_WIDTH;
       IncResize:= - IncResize;
    end;
 
@@ -452,8 +462,8 @@ begin
    pnlBottom.Visible:= value;
    if value then begin
       pnlCenter.Align:= alTop;
-      pnlCenter.Height:= pnlAuxC3.Height - Round(Self.Height * FNNodeUIConfig.Bottom_Ratio) - 3;
-      splB.Top := pnlBottom.Top - 3;
+      pnlCenter.Height:= pnlAuxC3.Height - Round(Self.Height * FNNodeUIConfig.Bottom_Ratio) - SPLT_WIDTH;
+      splB.Top := pnlBottom.Top - SPLT_WIDTH;
    end
    else
       pnlCenter.Align:= alClient;
@@ -521,6 +531,8 @@ end;
 
 
 procedure TKntNoteUI.FrameResize(Sender: TObject);
+var
+   H: integer;
 begin
    if pnlBL.Visible and pnlBR.Visible then
       pnlBL.Width:= Round(pnlBottom.Width * FNNodeUIConfig.BLBR_Ratio);
@@ -528,8 +540,12 @@ begin
       pnlTL.Width:= Round(pnlTop.Width * FNNodeUIConfig.TLTR_Ratio);
    if pnlTop.Visible then
       pnlTop.Height:= Round(Self.Height * FNNodeUIConfig.Top_Ratio);
-   if pnlBottom.Visible then
-      pnlCenter.Height:= pnlAuxC3.Height - Round(Self.Height * FNNodeUIConfig.Bottom_Ratio) - 3;
+   if pnlBottom.Visible then begin
+      H:= pnlAuxC3.Height - Round(Self.Height * FNNodeUIConfig.Bottom_Ratio);
+      if not FNNodeUIConfig.SelectedPanelMaximized then
+         dec(H, SPLT_WIDTH);
+      pnlCenter.Height:= H;
+   end;
 end;
 
 
@@ -543,6 +559,71 @@ begin
      pnBR: Result:= pnlBR;
    end;
 end;
+
+procedure TKntNoteUI.RestoreSplits;
+var
+  TL, TR: boolean;
+  BL, BR: boolean;
+begin
+   if pnlTop.Visible then begin
+       splT.Visible:= True;
+       splT.Top := pnlTop.Height + SPLT_WIDTH;
+       TL:= pnlTL.Visible;
+       TR:= pnlTR.Visible;
+       if TL and TR then begin
+          splTC.Visible:= True;
+          splTC.Left:= pnlTL.Width;
+       end
+       else
+         splTC.Visible:= False;
+   end;
+
+   if pnlBottom.Visible then begin
+       splB.Top := pnlBottom.Top - SPLT_WIDTH;
+       splB.Visible:= true;
+       if BL and BR then begin
+          splBC.Visible:= True;
+          splBC.Left:= pnlBL.Width;
+       end
+       else
+         splBC.Visible:= False;
+   end;
+
+end;
+
+procedure TKntNoteUI.ToggleMaximizePanel (Panel: TNEntriesPanel);
+var
+  pnl: TPanel;
+begin
+   if not MultipleVisibleEditors then exit;
+
+   pnl:= GetPanel(panel);
+   if not (pnl.Visible and (FNEntriesUI[Panel] <> nil)) then exit;
+
+   if not FNNodeUIConfig.SelectedPanelMaximized then begin
+      FNNodeUIConfig.PanelMaximized:= Panel;
+      if not ActiveFolder.EditorInfoPanelHidden then
+        FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= True;
+   end
+   else begin
+      FNNodeUIConfig.SelectedPanelMaximized:= False;
+      FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= (not ActiveFolder.EditorInfoPanelHidden and (FNNodeUIConfig.GetVisibleBottomPanel = Panel));
+   end;
+
+   FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
+
+   splT.Visible:= False;
+   splB.Visible:= False;
+   splBC.Visible:= False;
+   splTC.Visible:= False;
+
+
+   FrameResize(nil);
+   if not FNNodeUIConfig.SelectedPanelMaximized then
+       RestoreSplits;
+end;
+
+
 
 {
 procedure TKntNoteUI.TestPanels;
@@ -671,7 +752,7 @@ var
 
 begin
   Result:= false;
-  if not FMultipleVisibleEditors then exit;
+  if not FMultipleVisibleEditors or FNNodeUIConfig.SelectedPanelMaximized then exit;
   if (FSelectedNEntriesUI = nil) or not FSelectedNEntriesUI.Editor.NavigatePanelsEnabled then exit;
 
   pnl:= FSelectedNEntriesUI.PanelConfig.Panel;
@@ -712,6 +793,11 @@ begin
   end;
 end;
 
+
+procedure TKntNoteUI.ToggleMaximizeSelectedPanel;
+begin
+   ToggleMaximizePanel(FSelectedNEntriesUI.PanelConfig.Panel);
+end;
 
 
 {$IFDEF KNT_DEBUG}
@@ -1072,13 +1158,15 @@ begin
          if DefinedSingleEntryPanelForEditing then
             PnlToSetFocus:= PnlEdit;
       end;
+      if FNNodeUIConfig.SelectedPanelMaximized then
+         PnlToSetFocus:= FNNodeUIConfig.PanelMaximized;
 
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
           Pnl:= PanelConfig.Panel;
           if PanelConfig.Visible then begin
              ShowPanel[Pnl]:= True;
-             PanelConfig.ShowEditorInfoPanel:= (PnlVisibleBottom = Pnl);
+             PanelConfig.ShowEditorInfoPanel:= (PnlVisibleBottom = Pnl) or (FNNodeUIConfig.SelectedPanelMaximized and (FNNodeUIConfig.PanelMaximized= Pnl));
              NEntriesUI:= GetNEntriesUI(Pnl);
 
              { AutoCollapseEntryOnEditing
@@ -1127,7 +1215,8 @@ begin
 
    if EditingNEntry = nil then begin                       // If <> nil -> Focus in FSelectedNEntriesUI will be set from EditInInMultiEntries
       FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
-      FSelectedNEntriesUI.SetFocusOnEditor;
+      if not ActiveTreeUI.Focused then
+         FSelectedNEntriesUI.SetFocusOnEditor;
       FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
    end;
 

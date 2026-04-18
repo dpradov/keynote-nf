@@ -116,6 +116,7 @@ type
     FChangedSelection: TChangedSelectionEvent;
     FEditorChanged: TEditorChangedEvent;
     FLinkHover: TCharRange;
+    FIgnoreNextKeyPress: boolean;
 
     FKeepEndCR: boolean;       // in folded block open in floating editor
 
@@ -537,6 +538,7 @@ begin
   FChangedSelection:= nil;
   FIgnoreSelectionChange:= false;
   FNavigatePanelsEnabled:= False;
+  FIgnoreNextKeyPress:= false;
   DraggingImageID:= 0;
 
   FZoomGoal:= 100;
@@ -4177,6 +4179,7 @@ var
 begin
   if (Key = VK_RETURN) and (shift = []) and FMultiEntries and (FNNodeObj <> nil) then begin
        key:= 0;
+       FIgnoreNextKeyPress:= true;
        ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, False);
        exit;
   end;
@@ -4345,6 +4348,18 @@ begin
            PopupMenu.Popup(ptCursor.X, ptCursor.Y);
       end;
     end;
+  end
+  else
+  if ( shift = [ssCtrl] ) then begin
+    case key of
+      VK_SPACE : begin
+         key := 0;
+         FIgnoreNextKeyPress:= true;
+         if (fNNodeObj <> nil) and TKntNoteEntriesUI(fNEntriesUIObj).NoteUI.MultipleVisibleEditors then
+            TKntNoteEntriesUI(fNEntriesUIObj).NoteUI.ToggleMaximizeSelectedPanel;
+         exit;
+      end;
+    end;
   end;
 
   inherited;
@@ -4435,6 +4450,12 @@ var
 
 
 begin
+  if FIgnoreNextKeyPress then begin
+     FIgnoreNextKeyPress:= false;
+     Key:= #0;
+     exit;
+  end;
+
   if ( App.Kbd.RxRTFKeyProcessed or ((Key = #9) and (GetKeyState(VK_CONTROL) < 0)) ) then begin
     Key := #0;
     App.Kbd.RxRTFKeyProcessed := false;

@@ -83,11 +83,15 @@ type
       FTLTR_Ratio: Single;
       FBLBR_Ratio: Single;
 
+      FSelectedPanelMaximized: boolean;
+      FPanelMaximized: TNEntriesPanel;
+
     protected
       function GetTop_Ratio: Single;
       function GetBottom_Ratio: Single;
       function GetTLTR_Ratio: Single;
       function GetBLBR_Ratio: Single;
+      procedure SetPanelMaximized(value: TNEntriesPanel);
 
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
@@ -116,6 +120,8 @@ type
       property Bottom_Ratio: Single read GetBottom_Ratio write FBottom_Ratio;
       property TLTR_Ratio: Single read GetTLTR_Ratio write FTLTR_Ratio;
       property BLBR_Ratio: Single read GetBLBR_Ratio write FBLBR_Ratio;
+      property SelectedPanelMaximized: boolean read FSelectedPanelMaximized write FSelectedPanelMaximized;
+      property PanelMaximized: TNEntriesPanel read FPanelMaximized write SetPanelMaximized;
   end;
 
   TNNodeUIConfigList = TSimpleObjList<TNNodeUIConfiguration>;   // TList<TNNodeUIConfiguration>;
@@ -884,18 +890,25 @@ begin
   FEditorInfoPanelHidden:= false;
 
   // Example ***
-  var Tags: TNoteTagArray;
-  SetLength(Tags, 1);
+  var Tags1, Tags2: TNoteTagArray;
+  SetLength(Tags1, 1);
   if TKntFile(FKntFile).NoteTags.Count = 0 then
      TKntFile(FKntFile).AddNTag('ToDO', 'TEST');
-  Tags[0]:= TKntFile(FKntFile).NoteTags[0];
+  Tags1[0]:= TKntFile(FKntFile).NoteTags[0];
   NoteAdvOptions.DefaultUseForQueryLayout[pnTL]:= pnuShowVinculatedWithTags;
-  NoteAdvOptions.VinculatedTagsForQueryLayout[pnTL]:= Tags;
+  NoteAdvOptions.VinculatedTagsForQueryLayout[pnTL]:= Tags1;
 
   NoteAdvOptions.DefaultUseForEditingLayout[pnTL] := pnuShowVinculatedWithTags;
   NoteAdvOptions.DefaultUseForEditingLayout[pnCenter] := pnuShowSelectedEntry;
   NoteAdvOptions.DefaultUseForEditingLayout[pnBL] := pnuShowAllEntries;
-  NoteAdvOptions.VinculatedTagsForEditingLayout[pnTL]:= Tags;
+  NoteAdvOptions.VinculatedTagsForEditingLayout[pnTL]:= Tags1;
+
+  SetLength(Tags2, 1);
+  if TKntFile(FKntFile).NoteTags.Count <= 1 then
+     TKntFile(FKntFile).AddNTag('BUG', 'TEST');
+  Tags2[0]:= TKntFile(FKntFile).NoteTags[1];
+  NoteAdvOptions.DefaultUseForEditingLayout[pnTR] := pnuShowVinculatedWithTags;
+  NoteAdvOptions.VinculatedTagsForEditingLayout[pnTR]:= Tags2;
 
 end; // CREATE
 
@@ -3189,6 +3202,7 @@ begin
   FBLBR_Ratio:= 0;
   FFolder:= Folder;
   FQueryLayout:= QueryLayout;
+  FSelectedPanelMaximized:= false;
 end;
 
 destructor TNNodeUIConfiguration.Destroy;
@@ -3199,33 +3213,96 @@ begin
        PanelsConfig[i].Free;
 end;
 
+{
+   Panel P Maximized =>
+   case P of
+     pnCenter: begin
+       FNNodeUIConfig.Bottom_Ratio:= 0;
+       FNNodeUIConfig.Top_Ratio:= 0;
+     end;
+     pnTL: begin
+       FNNodeUIConfig.Top_Ratio:= 1;
+       FNNodeUIConfig.TLTR_Ratio:= 1;
+     end;
+     pnTR: begin
+       FNNodeUIConfig.Top_Ratio:= 1;
+       FNNodeUIConfig.TLTR_Ratio:= 0;
+     end;
+     pnBL: begin
+       FNNodeUIConfig.Bottom_Ratio:= 1;
+       FNNodeUIConfig.Top_Ratio:= 0;
+       FNNodeUIConfig.BLBR_Ratio:= 1;
+     end;
+     pnBR: begin
+       FNNodeUIConfig.Bottom_Ratio:= 1;
+       FNNodeUIConfig.Top_Ratio:= 0;
+       FNNodeUIConfig.BLBR_Ratio:= 0;
+     end;
+   end;
+
+}
 
 function TNNodeUIConfiguration.GetTop_Ratio: Single;
 begin
-   Result:= FTop_Ratio;
+   if not FSelectedPanelMaximized then begin
+      Result:= FTop_Ratio;
       if Result = 0 then
-      Result:= FFolder.NoteAdvOptions.PnlTopRatio;
+         Result:= FFolder.NoteAdvOptions.PnlTopRatio;
+   end
+   else
+   if FPanelMaximized in [pnTL, pnTR] then
+      Result:= 1
+   else
+      Result:= 0;
 end;
 
 function TNNodeUIConfiguration.GetBottom_Ratio: Single;
 begin
-   Result:= FBottom_Ratio;
-   if Result = 0 then
-      Result:= FFolder.NoteAdvOptions.PnlBottomRatio;
+   if not FSelectedPanelMaximized then begin
+      Result:= FBottom_Ratio;
+      if Result = 0 then
+         Result:= FFolder.NoteAdvOptions.PnlBottomRatio;
+   end
+   else
+   if FPanelMaximized in [pnBL, pnBR] then
+      Result:= 1
+   else
+      Result:= 0;
 end;
 
 function TNNodeUIConfiguration.GetTLTR_Ratio: Single;
 begin
-   Result:= FTLTR_Ratio;
-   if Result = 0 then
-      Result:= FFolder.NoteAdvOptions.PnlTLTRRatio;
+   if not FSelectedPanelMaximized then begin
+      Result:= FTLTR_Ratio;
+      if Result = 0 then
+         Result:= FFolder.NoteAdvOptions.PnlTLTRRatio;
+   end
+   else
+   if FPanelMaximized in [pnTL] then
+      Result:= 1
+   else
+      Result:= 0;
 end;
 
 function TNNodeUIConfiguration.GetBLBR_Ratio: Single;
 begin
-   Result:= FBLBR_Ratio;
-   if Result = 0 then
-      Result:= FFolder.NoteAdvOptions.PnlBLBRRatio;
+   if not FSelectedPanelMaximized then begin
+      Result:= FBLBR_Ratio;
+      if Result = 0 then
+         Result:= FFolder.NoteAdvOptions.PnlBLBRRatio;
+   end
+   else
+   if FPanelMaximized in [pnBL] then
+      Result:= 1
+   else
+      Result:= 0;
+end;
+
+
+procedure TNNodeUIConfiguration.SetPanelMaximized(value: TNEntriesPanel);
+begin
+   FPanelMaximized:= Value;
+   FSelectedPanelMaximized:= True;
 end;
 
 

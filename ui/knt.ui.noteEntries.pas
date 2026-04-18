@@ -161,6 +161,7 @@ type
     procedure RefreshTags;
     function HideTemporarilyInfoPanel: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
+    procedure ReconsiderInfoPanelVisibility;
     procedure RefreshEntry;
     property TagsOfEntryModified: boolean read FTagsOfEntryModified;
 
@@ -377,11 +378,7 @@ begin
   if FloatingEditorCannotBeSaved then
      Editor.ActivateFloatingEditor;
 
-  if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel then begin
-     pnlIdentif.Visible := True;     // Temporarily..
-     if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil) then
-        FrameResize(nil);
-  end;
+  ReconsiderInfoPanelVisibility;
 end;
 
 
@@ -434,6 +431,19 @@ begin
      pnlIdentif.Visible := False;
 
   Result:= not KeepVisible;
+end;
+
+
+procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
+begin
+  if FInfoPanelHidden then exit;
+
+  pnlIdentif.Visible := True;     // Temporarily if not PanelConfig.ShowEditorInfoPanel
+  if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil) then
+     FrameResize(nil);
+
+  txtName.Visible:= (PanelConfig.ShowEditorInfoPanel);
+  FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
 
 
