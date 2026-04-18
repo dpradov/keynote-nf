@@ -3344,6 +3344,7 @@ begin
        Mode:= aMode;
        SelectedNNode:= NNode;
        NNodes:= nil;
+       EditingLayout:= not FQueryLayout;
        if FQueryLayout then
           VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForQueryLayout[aPanel]
        else

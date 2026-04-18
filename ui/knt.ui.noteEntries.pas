@@ -68,6 +68,7 @@ type
     btnPrevEntry: TToolbarButton97;
     btnOptions: TToolbarButton97;
     btnToggleMulti: TToolbarButton97;
+    cFocusedFlag: TPaintBox;
     procedure txtNameChange(Sender: TObject);
     procedure txtEnter(Sender: TObject);
     procedure txtNameMouseEnter(Sender: TObject);
@@ -78,6 +79,7 @@ type
     procedure btnNextEntryClick(Sender: TObject);
     procedure btnToggleMultiClick(Sender: TObject);
     procedure btnOptionsClick(Sender: TObject);
+    procedure cFocusedFlagPaint(Sender: TObject);
 
   private class var
     FColorTxts: TColor;
@@ -378,6 +380,7 @@ begin
   if FloatingEditorCannotBeSaved then
      Editor.ActivateFloatingEditor;
 
+  cFocusedFlag.Refresh;
   ReconsiderInfoPanelVisibility;
 end;
 
@@ -397,6 +400,7 @@ end;
 
 procedure TKntNoteEntriesUI.NoteEntriesUIExit(Sender: TObject);
 begin
+   cFocusedFlag.Refresh;
    if FNote = nil then exit;
    HideTemporarilyInfoPanel;
 end;
@@ -435,6 +439,8 @@ end;
 
 
 procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
+var
+  colorEdLay, colorMax: TColor;
 begin
   if FInfoPanelHidden then exit;
 
@@ -443,8 +449,38 @@ begin
      FrameResize(nil);
 
   txtName.Visible:= (PanelConfig.ShowEditorInfoPanel);
+  colorEdLay:= txtName.Color;
+  colorMax:= clBtnFace;
+  if PanelConfig.ShowEditorInfoPanel then begin
+    if PanelConfig.EditingLayout then
+       colorEdLay:= clMedGray;
+    if PanelConfig.Maximized then
+       colorMax:= clLtGray;
+  end;
+  pnlIdentif.Color:= colorEdLay;
+  btnPrevEntry.Color:= colorMax;
+  btnNextEntry.Color:= colorMax;
+  btnToggleMulti.Color:= colorMax;
+  btnOptions.Color:= colorMax;
+
   FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
+
+
+procedure TKntNoteEntriesUI.cFocusedFlagPaint(Sender: TObject);
+begin
+  with cFocusedFlag.Canvas do
+  begin
+    if not PanelConfig.Maximized and NoteUI.MultipleVisibleEditors and not NoteUI.HideFocusFlag and Editor.Focused then
+       Brush.Color := clRed
+    else
+       Brush.Color := clBtnFace;
+    Brush.Style := bsSolid;
+    Pen.Style   := psClear;
+    FillRect(cFocusedFlag.ClientRect);
+  end;
+end;
+
 
 
 procedure TKntNoteEntriesUI.txtNameChange(Sender: TObject);
@@ -1652,7 +1688,7 @@ begin
          dec(iNextEntry);
       SelectEntry(iNextEntry);
    end;
-   FNoteUI.KeepInfoPanelTemporarilyVisible;
+   ReconsiderInfoPanelVisibility;
 end;
 
 
@@ -1660,7 +1696,7 @@ procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
 begin
    if FiEntry < Length(FEntriesShown) -1 then
       SelectEntry(FiEntry+1);
-   FNoteUI.KeepInfoPanelTemporarilyVisible;
+   ReconsiderInfoPanelVisibility;
 end;
 
 
@@ -1707,6 +1743,9 @@ begin
 
    Editor.NavigatePanelsEnabled:= True;
    Editor.HideNestedFloatingEditor;
+
+   NoteUI.HideFocusFlag:= false;
+   cFocusedFlag.Refresh;
    ReloadFromDataModel(false);
 end;
 
@@ -1765,6 +1804,7 @@ begin
              FNote:= FEntriesShown[i].Note;
              FNEntry:= FEntriesShown[i].NEntry;
              ReloadMetadataFromDataModel();
+             ReconsiderInfoPanelVisibility;
              break;
           end;
    end;

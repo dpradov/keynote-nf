@@ -47,6 +47,9 @@ type
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
      function MultipleVisibleEditors: boolean;
+     function GetHideFocusFlag: boolean;
+     procedure SetHideFocusFlag(value: boolean);
+     property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
      function NavigatePanels(NavDirection: TNavDirection): boolean;
      procedure ToggleMaximizeSelectedPanel;
 
@@ -136,6 +139,8 @@ type
     Panel: TNEntriesPanel;
     Visible: boolean;
     ShowEditorInfoPanel: boolean;
+    Maximized: boolean;
+    EditingLayout: boolean;
     Scope : TScopeInEntriesPanel;
     Mode: TModeEntriesUI;
     NNodes: TNoteNodeList;             // *1

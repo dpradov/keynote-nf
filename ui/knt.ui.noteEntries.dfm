@@ -13,10 +13,18 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
   ParentBiDiMode = False
   ParentFont = False
   TabOrder = 0
-  object pnlEntries: TPanel
+  object cFocusedFlag: TPaintBox
     Left = 0
     Top = 0
-    Width = 659
+    Width = 1
+    Height = 456
+    Align = alLeft
+    OnPaint = cFocusedFlagPaint
+  end
+  object pnlEntries: TPanel
+    Left = 1
+    Top = 0
+    Width = 658
     Height = 456
     Align = alClient
     BevelOuter = bvNone
@@ -39,55 +47,51 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
       24)
     object btnNextEntry: TToolbarButton97
       Left = 639
-      Top = 2
-      Width = 18
-      Height = 22
+      Top = 3
+      Width = 19
+      Height = 21
       Hint = 'Next entry [Ctrl: Last]'
       Anchors = [akTop, akRight]
       ImageIndex = 56
       Images = Form_Main.IMG_Toolbar
       OnClick = btnNextEntryClick
-      ExplicitLeft = 642
     end
     object btnPrevEntry: TToolbarButton97
-      Left = 599
-      Top = 2
-      Width = 18
-      Height = 22
+      Left = 598
+      Top = 3
+      Width = 19
+      Height = 21
       Hint = 'Previous entry [Ctrl: First]'
       Anchors = [akTop, akRight]
       DropdownArrowWidth = 12
       ImageIndex = 55
       Images = Form_Main.IMG_Toolbar
       OnClick = btnPrevEntryClick
-      ExplicitLeft = 602
     end
     object btnOptions: TToolbarButton97
-      Left = 577
-      Top = 2
-      Width = 20
-      Height = 22
+      Left = 576
+      Top = 3
+      Width = 22
+      Height = 21
       Anchors = [akTop, akRight]
       Caption = '...'
       ImageIndex = 39
       OnClick = btnOptionsClick
-      ExplicitLeft = 580
     end
     object btnToggleMulti: TToolbarButton97
-      Left = 618
-      Top = 2
-      Width = 20
-      Height = 22
+      Left = 617
+      Top = 3
+      Width = 22
+      Height = 21
       Anchors = [akTop, akRight]
       Caption = '1'
       ImageIndex = 39
       OnClick = btnToggleMultiClick
-      ExplicitLeft = 621
     end
     object txtCreationDate: TEdit
       Left = 455
       Top = 2
-      Width = 120
+      Width = 119
       Height = 22
       TabStop = False
       Alignment = taCenter

@@ -79,6 +79,7 @@ type
     FSelectedNEntriesUI: TKntNoteEntriesUI;
     FQueryLayout: boolean;
     FMultipleVisibleEditors: boolean;
+    FHideFocusFlag: boolean;
 
     fSplitterNoteMoving: boolean;
     FUpdatingOnResize: boolean;
@@ -142,6 +143,9 @@ type
     procedure EditorChangedInEmptyPanel(Editor: TKntRichEdit);
     procedure UpdateFMultipleVisibleEditors;
     procedure TimerInfoTimer(Sender: TObject);
+    function GetHideFocusFlag: boolean;
+    procedure SetHideFocusFlag(value: boolean);
+
  public
     procedure NEntriesUIEditorEnter(Sender: TObject);
     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
@@ -149,6 +153,8 @@ type
     function NavigatePanels(NavDirection: TNavDirection): boolean;
     procedure ToggleMaximizeSelectedPanel;
     procedure KeepInfoPanelTemporarilyVisible;
+    property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
+
    {$IFDEF KNT_DEBUG}
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
    {$ENDIF}
@@ -225,6 +231,7 @@ begin
    FNNode:= nil;
    FNote:= nil;
    FMultipleVisibleEditors:= false;
+   FHideFocusFlag:= false;
 
    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
       FNEntriesUI[p]:= nil;
@@ -597,19 +604,21 @@ var
 begin
    if not MultipleVisibleEditors then exit;
 
+   FHideFocusFlag:= false;
    pnl:= GetPanel(panel);
    if not (pnl.Visible and (FNEntriesUI[Panel] <> nil)) then exit;
 
    if not FNNodeUIConfig.SelectedPanelMaximized then begin
       FNNodeUIConfig.PanelMaximized:= Panel;
       if not ActiveFolder.EditorInfoPanelHidden then
-        FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= True;
+         FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= True;
    end
    else begin
       FNNodeUIConfig.SelectedPanelMaximized:= False;
       FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= (not ActiveFolder.EditorInfoPanelHidden and (FNNodeUIConfig.GetVisibleBottomPanel = Panel));
    end;
 
+   FSelectedNEntriesUI.PanelConfig.Maximized:= (FNNodeUIConfig.SelectedPanelMaximized);
    FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
 
    splT.Visible:= False;
@@ -843,6 +852,7 @@ begin
 
   NEntriesUI:= GetNEntriesUI(RequestedFromEditor);
   NEntry:= NEntriesUI.NEntry;
+  FHideFocusFlag:= false;
 
   if CtrlDown then begin                            // QueryLayout <-> EditingLoayout
      if (NEntriesUI.Mode = meSingleEntry) then begin
@@ -1011,6 +1021,11 @@ procedure TKntNoteUI.NEntriesUIEditorEnter(Sender: TObject);
 var
   p: TNEntriesPanel;
 begin
+   FHideFocusFlag:= false;
+
+   if FSelectedNEntriesUI <> nil then
+     FSelectedNEntriesUI.cFocusedFlag.Color:= clBtnFace;
+
    if not FloatingEditorCannotBeSaved then
       for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
         if FNEntriesUI[p] <> nil then begin
@@ -1020,9 +1035,23 @@ begin
         end;
 
   FSelectedNEntriesUI:= TKntNoteEntriesUI(Sender);
+  FSelectedNEntriesUI.cFocusedFlag.Color:= clSkyBlue;
+
   TimerInfoPanel.Enabled:= False;
   TimerInfoPanel.Enabled:= True;
 end;
+
+function TKntNoteUI.GetHideFocusFlag: boolean;
+begin
+   Result:= FHideFocusFlag;
+end;
+
+procedure TKntNoteUI.SetHideFocusFlag(value: boolean);
+begin
+   FHideFocusFlag:= value;
+   KeepInfoPanelTemporarilyVisible;
+end;
+
 
 procedure TKntNoteUI.TimerInfoTimer(Sender: TObject);
 var
@@ -1030,12 +1059,19 @@ var
   KeepEnabled: boolean;
 begin
    KeepEnabled:= False;
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].PanelConfig <> nil) and not FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel then
-         if not FNEntriesUI[p].HideTemporarilyInfoPanel then
-            KeepEnabled:= True;
 
-   if not KeepEnabled then
+   if Sender <> nil then
+      FHideFocusFlag:= true;
+
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].PanelConfig <> nil) then begin
+         FNEntriesUI[p].cFocusedFlag.Refresh;
+         if not FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel and not FNEntriesUI[p].HideTemporarilyInfoPanel then
+            KeepEnabled:= True;
+      end;
+   end;
+
+   if not KeepEnabled and (Sender <> nil) then
       TimerInfoPanel.Enabled:= False;
 end;
 
@@ -1118,6 +1154,7 @@ begin
    if SavePreviousContent and (FNNode <> nil) then
       SaveToDataModel;
 
+   FHideFocusFlag:= false;
    if FloatingEditorCannotBeSaved then exit;
 
    // When switching from EditingLayout to QueryLayout -> Set the NEntry of the current panel to the one selected in the main panel
@@ -1198,6 +1235,8 @@ begin
                 NEntriesUI.Editor.OnEditorChanged := nil;
 
              NEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
+             if PanelConfig.ShowEditorInfoPanel then
+                NEntriesUI.ReconsiderInfoPanelVisibility;
           end;
       end;
    end
