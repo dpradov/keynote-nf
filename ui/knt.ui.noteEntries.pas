@@ -1669,7 +1669,7 @@ var
   SS: integer;
 begin
    if (FMode = meMultipleEntries) then begin
-       if LastPos then
+       if LastPos and (FEntriesShown[iEntry].Content <> cmOnlyHeader) then
           Editor.SelStart:= FEntriesShown[iEntry].FinalPos
        else begin
           SS:= FEntriesShown[iEntry].StartingPos;

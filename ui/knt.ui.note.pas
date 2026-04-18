@@ -839,6 +839,8 @@ var
    NEntry: TNoteEntry;
    SS, SL: integer;
 begin
+  if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
+
   NEntriesUI:= GetNEntriesUI(RequestedFromEditor);
   NEntry:= NEntriesUI.NEntry;
 
@@ -891,6 +893,8 @@ procedure TKntNoteUI.NewEntryRequested(ReqFromEditor: TKntRichEdit);
 var
   ReqFromNEntriesUI: TKntNoteEntriesUI;
 begin
+   if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
+
    ReqFromNEntriesUI:= GetNEntriesUI(ReqFromEditor);
    { LoadFromNNode(.., True, neEditingLayout) if FQueryLayout:
      The Query mode does allow modifications from the visible panels, but only while mode = meSingleEntry.
