@@ -63,9 +63,11 @@ procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
 procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
 function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
-function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
+function GetCellxEditorWidth(Editor: TRxRichEdit): integer;
 function GetRTFLine(Editor: TRxRichEdit): AnsiString;
-function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
+function GetRTFPrintableLineAux(WidthTwips: integer): AnsiString;
+function GetRTFPrintableLine(Editor: TRxRichEdit; ColorLine: TColor; WidthTwips: integer): AnsiString; overload;
+function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString; overload;
 function GetRTFTable(Editor: TRxRichEdit; Printable: boolean): AnsiString;
 
 type
@@ -1555,7 +1557,7 @@ begin
 end;
 
 
-function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
+function GetCellxEditorWidth(Editor: TRxRichEdit): integer;
 var
   widthTwips: integer;
 begin
@@ -1563,29 +1565,41 @@ begin
       widthTwips := GetEditorWidthInTwips(Editor)
    else
       widthTwips := 999999;
-   Result:= '\cellx' + widthTwips.ToString;
+   Result:= widthTwips;
 end;
 
 
 function GetRTFLine(Editor: TRxRichEdit): AnsiString;
 begin
-  Result:= '{\rtf1\ansi\trowd' + GetCellxEditorWidth(Editor) + ' \pard\intbl\fs1\cell\row \pard}';
+  Result:= '{\rtf1\ansi\trowd\cellx' + GetCellxEditorWidth(Editor).ToString + ' \pard\intbl\fs1\cell\row \pard}';
+end;
+
+function GetRTFPrintableLineAux(WidthTwips: integer): AnsiString;
+begin
+  Result:=
+      '\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3'+
+      '\clbrdrt\brdrw10\brdrcf2'+
+      '\clbrdrb\brdrw1\brdrcf1'+
+      '\clbrdrl\brdrw1\brdrcf1'+
+      '\clbrdrr\brdrw1\brdrcf1\cellx'+
+      WidthTwips.ToString +
+      ' \pard\intbl\fs1\cell\row\pard';
+end;
+
+
+function GetRTFPrintableLine(Editor: TRxRichEdit; ColorLine: TColor; WidthTwips: integer): AnsiString;
+begin
+  Result:=
+      '{\rtf1\ansi{\colortbl ;'
+          + GetRTFColor(ColorToRGB(Editor.Color)) + ';'
+          + GetRTFColor(ColorToRGB(ColorLine))   + ';}' +
+       GetRTFPrintableLineAux(WidthTwips) + '}';
 end;
 
 
 function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
 begin
-  Result:=
-      '{\rtf1\ansi{\colortbl ;'
-          + GetRTFColor(ColorToRGB(Editor.Color)) + ';'
-          + GetRTFColor(ColorToRGB(Form_Main.TB_Color.ActiveColor))   + ';}' +
-      '\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3'+
-      '\clbrdrt\brdrw10\brdrcf2'+
-      '\clbrdrb\brdrw1\brdrcf1'+
-      '\clbrdrl\brdrw1\brdrcf1'+
-      '\clbrdrr\brdrw1\brdrcf1'+
-      GetCellxEditorWidth(Editor) +
-      ' \pard\intbl\fs1\cell\row \pard}';
+   GetRTFPrintableLine(Editor, Form_Main.TB_Color.ActiveColor, GetCellxEditorWidth(Editor));
 end;
 
 

@@ -1634,10 +1634,20 @@ begin
    end;
    strInfo := strInfo + ' —';
 
+   (*
    if PanelConfig.MMShowLineInHeader then
       strLine:= '\fs1\par\trowd\trgaph0\cellx999999 \intbl\fs1\cell\row\pard';
 
-   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}' + StrLine + '\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';
+   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}' + StrLine + '\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';' +
+   *)
+
+   if PanelConfig.MMShowLineInHeader then
+      strLine:= GetRTFPrintableLineAux(999999);
+
+   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(ColorToRGB(Editor.Color)) + ';' +
+                                        GetRTFColor(clSilver) + ';' +
+                                        GetRTFColor(RGB(100,100,100)) + ';}\fs1\par' +
+              StrLine + '\qr\cf3\b\fs18 ' + strInfo + '\sa80\par}';
 end;
 
 
@@ -1827,7 +1837,7 @@ begin
 
    NoteUI.HideFocusFlag:= false;
    cFocusedFlag.Refresh;
-   ReloadFromDataModel(false);
+   ReloadFromDataModel(false, nil, aNull, True);
    ReconsiderInfoPanelVisibility;
 end;
 
