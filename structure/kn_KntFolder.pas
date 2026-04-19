@@ -83,15 +83,15 @@ type
       FTLTR_Ratio: Single;
       FBLBR_Ratio: Single;
 
-      FSelectedPanelMaximized: boolean;
-      FPanelMaximized: TNEntriesPanel;
+      FMaximizedPanel: TNEntriesPanelBase;
+      FFocusedPanel: TNEntriesPanelBase;
 
     protected
       function GetTop_Ratio: Single;
       function GetBottom_Ratio: Single;
       function GetTLTR_Ratio: Single;
       function GetBLBR_Ratio: Single;
-      procedure SetPanelMaximized(value: TNEntriesPanel);
+      procedure SetMaximizedPanel(value: TNEntriesPanelBase);
 
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
@@ -120,8 +120,8 @@ type
       property Bottom_Ratio: Single read GetBottom_Ratio write FBottom_Ratio;
       property TLTR_Ratio: Single read GetTLTR_Ratio write FTLTR_Ratio;
       property BLBR_Ratio: Single read GetBLBR_Ratio write FBLBR_Ratio;
-      property SelectedPanelMaximized: boolean read FSelectedPanelMaximized write FSelectedPanelMaximized;
-      property PanelMaximized: TNEntriesPanel read FPanelMaximized write SetPanelMaximized;
+      property MaximizedPanel: TNEntriesPanelBase read FMaximizedPanel write SetMaximizedPanel;
+      property FocusedPanel: TNEntriesPanelBase read FFocusedPanel write FFocusedPanel;
   end;
 
   TNNodeUIConfigList = TSimpleObjList<TNNodeUIConfiguration>;   // TList<TNNodeUIConfiguration>;
@@ -3202,7 +3202,6 @@ begin
   FBLBR_Ratio:= 0;
   FFolder:= Folder;
   FQueryLayout:= QueryLayout;
-  FSelectedPanelMaximized:= false;
 end;
 
 destructor TNNodeUIConfiguration.Destroy;
@@ -3244,13 +3243,13 @@ end;
 
 function TNNodeUIConfiguration.GetTop_Ratio: Single;
 begin
-   if not FSelectedPanelMaximized then begin
+   if FMaximizedPanel = pnNone then begin
       Result:= FTop_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlTopRatio;
    end
    else
-   if FPanelMaximized in [pnTL, pnTR] then
+   if FMaximizedPanel in [pnTL, pnTR] then
       Result:= 1
    else
       Result:= 0;
@@ -3258,13 +3257,13 @@ end;
 
 function TNNodeUIConfiguration.GetBottom_Ratio: Single;
 begin
-   if not FSelectedPanelMaximized then begin
+   if FMaximizedPanel = pnNone then begin
       Result:= FBottom_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlBottomRatio;
    end
    else
-   if FPanelMaximized in [pnBL, pnBR] then
+   if FMaximizedPanel in [pnBL, pnBR] then
       Result:= 1
    else
       Result:= 0;
@@ -3272,13 +3271,13 @@ end;
 
 function TNNodeUIConfiguration.GetTLTR_Ratio: Single;
 begin
-   if not FSelectedPanelMaximized then begin
+   if FMaximizedPanel = pnNone then begin
       Result:= FTLTR_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlTLTRRatio;
    end
    else
-   if FPanelMaximized in [pnTL] then
+   if FMaximizedPanel in [pnTL] then
       Result:= 1
    else
       Result:= 0;
@@ -3286,23 +3285,22 @@ end;
 
 function TNNodeUIConfiguration.GetBLBR_Ratio: Single;
 begin
-   if not FSelectedPanelMaximized then begin
+   if FMaximizedPanel = pnNone then begin
       Result:= FBLBR_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlBLBRRatio;
    end
    else
-   if FPanelMaximized in [pnBL] then
+   if FMaximizedPanel in [pnBL] then
       Result:= 1
    else
       Result:= 0;
 end;
 
 
-procedure TNNodeUIConfiguration.SetPanelMaximized(value: TNEntriesPanel);
+procedure TNNodeUIConfiguration.SetMaximizedPanel(value: TNEntriesPanelBase);
 begin
-   FPanelMaximized:= Value;
-   FSelectedPanelMaximized:= True;
+   FMaximizedPanel:= Value;
 end;
 
 

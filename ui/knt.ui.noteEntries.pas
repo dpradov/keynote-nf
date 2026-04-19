@@ -166,6 +166,7 @@ type
     procedure RefreshTags;
     function HideTemporarilyInfoPanel: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
+    procedure ReconsiderColorInfoPanel;
     procedure ReconsiderInfoPanelVisibility;
     procedure SetTopIncControlsOfInfoPanel;
     procedure RefreshEntry;
@@ -478,16 +479,10 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
+procedure TKntNoteEntriesUI.ReconsiderColorInfoPanel;
 var
   colorEdLay, colorMax: TColor;
 begin
-  if FInfoPanelHidden then exit;
-
-  ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
-  if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil) then
-     FrameResize(nil);
-
   colorEdLay:= txtName.Color;
   colorMax:= clBtnFace;
   if PanelConfig.ShowEditorInfoPanel then begin
@@ -501,6 +496,20 @@ begin
   btnNextEntry.Color:= colorMax;
   btnToggleMulti.Color:= colorMax;
   btnOptions.Color:= colorMax;
+end;
+
+
+procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
+var
+  colorEdLay, colorMax: TColor;
+begin
+  if FInfoPanelHidden then exit;
+
+  ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
+  if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil) then
+     FrameResize(nil);
+
+  ReconsiderColorInfoPanel;
 
   FNoteUI.KeepInfoPanelTemporarilyVisible;
 end;
@@ -657,7 +666,10 @@ end;
 
 procedure TKntNoteEntriesUI.txtTagsEnter(Sender: TObject);
 begin
-   if txtTags.ReadOnly then exit;
+   if (FNEntry = nil) or txtTags.ReadOnly then begin
+      SetFocusOnEditor;
+      exit;
+   end;
 
    TagMng.StartTxtEditTagIntrod(txtTags, OnEndEditTagsIntroduction, FNote, FNEntry, Folder);
    AdjustTxtTagsWidth(True);

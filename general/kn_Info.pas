@@ -864,7 +864,8 @@ type
 
 
 type
-  TNEntriesPanel    = (pnTL, pnTR, pnCenter, pnBL, pnBR,  pnLeft, pnR1, pnR2, pnR3);
+  TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnCenter, pnBL, pnBR,  pnLeft, pnR1, pnR2, pnR3);
+  TNEntriesPanel     = pnTL..pnR3;
   TNEntriesMainPanel = pnTL..pnBR;
   TNEntriesAuxPanel  = pnLeft..pnR3;
 

@@ -552,7 +552,7 @@ begin
       pnlTop.Height:= Round(Self.Height * FNNodeUIConfig.Top_Ratio);
    if pnlBottom.Visible then begin
       H:= pnlAuxC3.Height - Round(Self.Height * FNNodeUIConfig.Bottom_Ratio);
-      if not FNNodeUIConfig.SelectedPanelMaximized then
+      if FNNodeUIConfig.MaximizedPanel = pnNone then
          dec(H, SPLT_WIDTH);
       pnlCenter.Height:= H;
    end;
@@ -616,9 +616,10 @@ procedure TKntNoteUI.FixPossibleProblemWith0HeigthPanels;
 var
   Pnl: TNEntriesPanel;
   Fixed, TreeWasFocused: boolean;
-  NEntriesUI: TKntNoteEntriesUI;
+  NEntriesUI, FocusedNEntriesUI: TKntNoteEntriesUI;
 begin
    TreeWasFocused:= ActiveTreeUI.Focused;
+   FocusedNEntriesUI:= FSelectedNEntriesUI;
 
    Fixed:= false;
    for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
@@ -633,6 +634,7 @@ begin
    end;
 
    if Fixed then begin
+      FSelectedNEntriesUI:= FocusedNEntriesUI;
       FSelectedNEntriesUI.SetFocusOnEditor;
       if TreeWasFocused then
          ActiveFolder.SetFocusOnTree;
@@ -653,17 +655,18 @@ begin
    pnl:= GetPanel(panel);
    if not (pnl.Visible and (FNEntriesUI[Panel] <> nil)) then exit;
 
-   if not FNNodeUIConfig.SelectedPanelMaximized then begin
-      FNNodeUIConfig.PanelMaximized:= Panel;
+   if FNNodeUIConfig.MaximizedPanel = pnNone then begin
+      FNNodeUIConfig.MaximizedPanel:= Panel;
       if not ActiveFolder.EditorInfoPanelHidden then
          FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= True;
    end
    else begin
-      FNNodeUIConfig.SelectedPanelMaximized:= False;
+      FNNodeUIConfig.MaximizedPanel:= pnNone;
       FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= (not ActiveFolder.EditorInfoPanelHidden and (FNNodeUIConfig.GetVisibleBottomPanel = Panel));
    end;
 
-   FSelectedNEntriesUI.PanelConfig.Maximized:= (FNNodeUIConfig.SelectedPanelMaximized);
+   FSelectedNEntriesUI.PanelConfig.Maximized:= (FNNodeUIConfig.MaximizedPanel <> pnNone);
+   FSelectedNEntriesUI.ReconsiderColorInfoPanel;
 
    splT.Visible:= False;
    splB.Visible:= False;
@@ -672,7 +675,7 @@ begin
 
 
    FrameResize(nil);
-   if not FNNodeUIConfig.SelectedPanelMaximized then
+   if FNNodeUIConfig.MaximizedPanel = pnNone then
        RestoreSplits;
 
    FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
@@ -812,7 +815,7 @@ var
 
 begin
   Result:= false;
-  if not FMultipleVisibleEditors or FNNodeUIConfig.SelectedPanelMaximized then exit;
+  if not FMultipleVisibleEditors or (FNNodeUIConfig.MaximizedPanel <> pnNone) then exit;
   if (FSelectedNEntriesUI = nil) or not FSelectedNEntriesUI.Editor.NavigatePanelsEnabled then exit;
 
   pnl:= FSelectedNEntriesUI.PanelConfig.Panel;
@@ -1088,6 +1091,7 @@ begin
 
   FSelectedNEntriesUI:= TKntNoteEntriesUI(Sender);
   FSelectedNEntriesUI.cFocusedFlag.Color:= clSkyBlue;
+  FNNodeUIConfig.FocusedPanel:= FSelectedNEntriesUI.PanelConfig.Panel;
 
   TimerInfoPanel.Enabled:= False;
   TimerInfoPanel.Enabled:= True;
@@ -1254,15 +1258,17 @@ begin
          if DefinedSingleEntryPanelForEditing then
             PnlToSetFocus:= PnlEdit;
       end;
-      if FNNodeUIConfig.SelectedPanelMaximized then
-         PnlToSetFocus:= FNNodeUIConfig.PanelMaximized;
+      if FNNodeUIConfig.FocusedPanel <> pnNone then
+         PnlToSetFocus:= FNNodeUIConfig.FocusedPanel;
+      if FNNodeUIConfig.MaximizedPanel <> pnNone then
+         PnlToSetFocus:= FNNodeUIConfig.MaximizedPanel;
 
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
           Pnl:= PanelConfig.Panel;
           if PanelConfig.Visible then begin
              ShowPanel[Pnl]:= True;
-             PanelConfig.ShowEditorInfoPanel:= (PnlVisibleBottom = Pnl) or (FNNodeUIConfig.SelectedPanelMaximized and (FNNodeUIConfig.PanelMaximized= Pnl));
+             PanelConfig.ShowEditorInfoPanel:= (PnlVisibleBottom = Pnl) or ((FNNodeUIConfig.MaximizedPanel <> pnNone) and (FNNodeUIConfig.MaximizedPanel= Pnl));
              NEntriesUI:= GetNEntriesUI(Pnl);
 
              { AutoCollapseEntryOnEditing
