@@ -23,6 +23,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
 
   gf_misc,
+  gf_miscvcl,
   kn_info,
   kn_Const,
   kn_Global,
@@ -159,10 +160,10 @@ type
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
    {$ENDIF}
 
-
- public
-    procedure Refresh;
+  protected
+    procedure FixPossibleProblemWith0HeigthPanels;
   public
+    procedure Refresh;
     procedure ShowLeftPanel(value: boolean);
     procedure ShowTopPanels(value: boolean);
     procedure ShowBottomPanels(value: boolean);
@@ -246,7 +247,7 @@ begin
    FUpdatingOnResize:= false;
    TimerInfoPanel:= TTimer.Create(Self);
    TimerInfoPanel.Enabled := false;
-   TimerInfoPanel.Interval := 2000;  // 2 seconds
+   TimerInfoPanel.Interval := 1300;  // 1,3 seconds
    TimerInfoPanel.OnTimer:= TimerInfoTimer;
 end;
 
@@ -541,6 +542,8 @@ procedure TKntNoteUI.FrameResize(Sender: TObject);
 var
    H: integer;
 begin
+   if FNNodeUIConfig = nil then exit;
+
    if pnlBL.Visible and pnlBR.Visible then
       pnlBL.Width:= Round(pnlBottom.Width * FNNodeUIConfig.BLBR_Ratio);
    if pnlTL.Visible and pnlTR.Visible then
@@ -571,6 +574,7 @@ procedure TKntNoteUI.RestoreSplits;
 var
   TL, TR: boolean;
   BL, BR: boolean;
+  pnl: TNEntriesPanel;
 begin
    if pnlTop.Visible then begin
        splT.Visible:= True;
@@ -596,13 +600,54 @@ begin
          splBC.Visible:= False;
    end;
 
+   FixPossibleProblemWith0HeigthPanels;
 end;
+
+
+{
+ If, while a panel is maximized (which forces splits using ratios —e.g., FNNodeUIConfig.BLBR_Ratio— which can be 0),
+ we move to another node and then restore it, some editors don't seem to register the change. Even though the height of the panel
+ containing them is greater than 0, they continue to display a height of 0. I've verified that assigning them focus reactivates
+ them and restores the correct height. We should also check the .Top properties of the information bar controls, as they might be
+ displaying negative values for those properties for a similar reason.
+ None of this occurs if we use maximize/restore without leaving the node.
+}
+procedure TKntNoteUI.FixPossibleProblemWith0HeigthPanels;
+var
+  Pnl: TNEntriesPanel;
+  Fixed, TreeWasFocused: boolean;
+  NEntriesUI: TKntNoteEntriesUI;
+begin
+   TreeWasFocused:= ActiveTreeUI.Focused;
+
+   Fixed:= false;
+   for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+       NEntriesUI:= FNEntriesUI[Pnl];
+       if (NEntriesUI <> nil) and (GetPanel(Pnl).Height > 0) and
+           ((NEntriesUI.txtTags.Top < 0) or (NEntriesUI.Editor.Height = 0)) then begin
+
+           NEntriesUI.SetFocusOnEditor;
+           NEntriesUI.SetTopIncControlsOfInfoPanel;
+           Fixed:= true;
+       end;
+   end;
+
+   if Fixed then begin
+      FSelectedNEntriesUI.SetFocusOnEditor;
+      if TreeWasFocused then
+         ActiveFolder.SetFocusOnTree;
+   end;
+end;
+
 
 procedure TKntNoteUI.ToggleMaximizePanel (Panel: TNEntriesPanel);
 var
   pnl: TPanel;
 begin
-   if not MultipleVisibleEditors then exit;
+ if not MultipleVisibleEditors then exit;
+
+ LockControl(pnlAuxC, True);
+ try
 
    FHideFocusFlag:= false;
    pnl:= GetPanel(panel);
@@ -619,7 +664,6 @@ begin
    end;
 
    FSelectedNEntriesUI.PanelConfig.Maximized:= (FNNodeUIConfig.SelectedPanelMaximized);
-   FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
 
    splT.Visible:= False;
    splB.Visible:= False;
@@ -630,6 +674,13 @@ begin
    FrameResize(nil);
    if not FNNodeUIConfig.SelectedPanelMaximized then
        RestoreSplits;
+
+   FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
+
+ finally
+    LockControl(pnlAuxC, False);
+    FrameResize(nil);
+ end;
 end;
 
 
@@ -1014,6 +1065,7 @@ begin
 
    FNNodeDeleted:= false;
    NEntriesUI.SetFocusOnEditor;
+   NEntriesUI.ReconsiderInfoPanelVisibility;
 end;
 
 
@@ -1149,13 +1201,16 @@ var
    SetNoteSelEntryOnMainPanel: boolean;
    EnableNavigatePanels: boolean;
 begin
-   EnableNavigatePanels:= (QueryLayoutToUse <> neLastLayout);
+ EnableNavigatePanels:= (QueryLayoutToUse <> neLastLayout);
 
-   if SavePreviousContent and (FNNode <> nil) then
-      SaveToDataModel;
+ if SavePreviousContent and (FNNode <> nil) then
+    SaveToDataModel;
 
-   FHideFocusFlag:= false;
-   if FloatingEditorCannotBeSaved then exit;
+ FHideFocusFlag:= false;
+ if FloatingEditorCannotBeSaved then exit;
+
+ LockControl(pnlAuxC, True);
+ try
 
    // When switching from EditingLayout to QueryLayout -> Set the NEntry of the current panel to the one selected in the main panel
    // This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
@@ -1235,7 +1290,7 @@ begin
                 NEntriesUI.Editor.OnEditorChanged := nil;
 
              NEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
-             if PanelConfig.ShowEditorInfoPanel then
+             if PanelConfig.ShowEditorInfoPanel or EnableNavigatePanels then
                 NEntriesUI.ReconsiderInfoPanelVisibility;
           end;
       end;
@@ -1254,7 +1309,7 @@ begin
    ShowLeftPanel(False);
    ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);
    ShowPanelsBottom(ShowPanel[pnBL], ShowPanel[pnBR]);
-   FrameResize(nil);
+   FixPossibleProblemWith0HeigthPanels;
 
    if EditingNEntry = nil then begin                       // If <> nil -> Focus in FSelectedNEntriesUI will be set from EditInInMultiEntries
       FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
@@ -1276,6 +1331,11 @@ begin
 {$ENDIF}
 
    FNNodeDeleted:= false;
+
+ finally
+    LockControl(pnlAuxC, False);
+    FrameResize(nil);
+ end;
 end;
 
 procedure TKntNoteUI.ReloadMetadataFromDataModel(ReloadTags: boolean = true);

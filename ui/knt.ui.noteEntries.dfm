@@ -13,11 +13,14 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
   ParentBiDiMode = False
   ParentFont = False
   TabOrder = 0
+  DesignSize = (
+    659
+    480)
   object cFocusedFlag: TPaintBox
     Left = 0
     Top = 0
     Width = 1
-    Height = 456
+    Height = 480
     Align = alLeft
     OnPaint = cFocusedFlagPaint
   end
@@ -26,110 +29,106 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
     Top = 0
     Width = 658
     Height = 456
-    Align = alClient
+    Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     Ctl3D = True
     ParentCtl3D = False
-    TabOrder = 1
+    TabOrder = 3
   end
-  object pnlIdentif: TPanel
-    Left = 0
-    Top = 456
-    Width = 659
+  object txtCreationDate: TEdit
+    Left = 455
+    Top = 458
+    Width = 119
     Height = 24
-    Align = alBottom
+    TabStop = False
+    Alignment = taCenter
+    Anchors = [akRight, akBottom]
+    ParentShowHint = False
+    ReadOnly = True
+    ShowHint = True
+    TabOrder = 0
+    OnEnter = txtEnter
+    OnMouseEnter = txtCreationDateMouseEnter
+  end
+  object txtName: TEdit
+    Left = 37
+    Top = 458
+    Width = 416
+    Height = 24
+    TabStop = False
+    Alignment = taCenter
+    Anchors = [akLeft, akRight, akBottom]
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 1
+    OnChange = txtNameChange
+    OnEnter = txtEnter
+    OnExit = txtNameExit
+    OnMouseEnter = txtNameMouseEnter
+  end
+  object txtTags: TEdit
+    Left = 2
+    Top = 458
+    Width = 33
+    Height = 24
+    HelpContext = 122
+    TabStop = False
+    Anchors = [akLeft, akBottom]
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 2
+    OnEnter = txtTagsEnter
+    OnExit = txtTagsExit
+  end
+  object pnlButtons: TPanel
+    Left = 576
+    Top = 458
+    Width = 82
+    Height = 24
+    Anchors = [akRight, akBottom]
     BevelOuter = bvNone
+    BorderStyle = bsSingle
     Ctl3D = False
     ParentCtl3D = False
-    TabOrder = 0
-    DesignSize = (
-      659
-      24)
+    TabOrder = 4
     object btnNextEntry: TToolbarButton97
-      Left = 639
-      Top = 3
+      Left = 63
+      Top = 0
       Width = 19
-      Height = 21
+      Height = 22
       Hint = 'Next entry [Ctrl: Last]'
-      Anchors = [akTop, akRight]
       ImageIndex = 56
       Images = Form_Main.IMG_Toolbar
       OnClick = btnNextEntryClick
     end
+    object btnToggleMulti: TToolbarButton97
+      Left = 41
+      Top = 0
+      Width = 22
+      Height = 22
+      Caption = '1'
+      ImageIndex = 39
+      OnClick = btnToggleMultiClick
+    end
     object btnPrevEntry: TToolbarButton97
-      Left = 598
-      Top = 3
+      Left = 22
+      Top = 0
       Width = 19
-      Height = 21
+      Height = 22
       Hint = 'Previous entry [Ctrl: First]'
-      Anchors = [akTop, akRight]
       DropdownArrowWidth = 12
       ImageIndex = 55
       Images = Form_Main.IMG_Toolbar
       OnClick = btnPrevEntryClick
     end
     object btnOptions: TToolbarButton97
-      Left = 576
-      Top = 3
+      Left = 0
+      Top = 0
       Width = 22
-      Height = 21
-      Anchors = [akTop, akRight]
+      Height = 22
       Caption = '...'
       ImageIndex = 39
       OnClick = btnOptionsClick
-    end
-    object btnToggleMulti: TToolbarButton97
-      Left = 617
-      Top = 3
-      Width = 22
-      Height = 21
-      Anchors = [akTop, akRight]
-      Caption = '1'
-      ImageIndex = 39
-      OnClick = btnToggleMultiClick
-    end
-    object txtCreationDate: TEdit
-      Left = 455
-      Top = 2
-      Width = 119
-      Height = 22
-      TabStop = False
-      Alignment = taCenter
-      Anchors = [akTop, akRight]
-      ParentShowHint = False
-      ReadOnly = True
-      ShowHint = True
-      TabOrder = 0
-      OnEnter = txtEnter
-      OnMouseEnter = txtCreationDateMouseEnter
-    end
-    object txtName: TEdit
-      Left = 35
-      Top = 2
-      Width = 418
-      Height = 22
-      TabStop = False
-      Alignment = taCenter
-      Anchors = [akLeft, akTop, akRight]
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
-      OnChange = txtNameChange
-      OnEnter = txtEnter
-      OnExit = txtNameExit
-      OnMouseEnter = txtNameMouseEnter
-    end
-    object txtTags: TEdit
-      Left = 0
-      Top = 2
-      Width = 33
-      Height = 22
-      HelpContext = 122
-      TabStop = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-      OnEnter = txtTagsEnter
     end
   end
 end

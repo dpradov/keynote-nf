@@ -76,7 +76,6 @@ object KntNoteUI: TKntNoteUI
           Align = alLeft
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitHeight = 129
         end
         object pnlTR: TPanel
           Left = 236
@@ -86,7 +85,6 @@ object KntNoteUI: TKntNoteUI
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 1
-          ExplicitHeight = 129
         end
       end
       object pnlAuxC3: TPanel
@@ -97,8 +95,6 @@ object KntNoteUI: TKntNoteUI
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 1
-        ExplicitTop = 132
-        ExplicitHeight = 348
         object splB: TSplitter
           Left = 0
           Top = 337
@@ -127,8 +123,6 @@ object KntNoteUI: TKntNoteUI
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 1
-          ExplicitTop = 233
-          ExplicitHeight = 115
           object splBC: TSplitter
             Left = 233
             Top = 0
@@ -146,7 +140,6 @@ object KntNoteUI: TKntNoteUI
             Align = alLeft
             BevelOuter = bvNone
             TabOrder = 0
-            ExplicitHeight = 115
           end
           object pnlBR: TPanel
             Left = 236
@@ -156,7 +149,6 @@ object KntNoteUI: TKntNoteUI
             Align = alClient
             BevelOuter = bvNone
             TabOrder = 1
-            ExplicitHeight = 115
           end
         end
       end

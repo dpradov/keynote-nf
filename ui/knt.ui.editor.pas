@@ -199,6 +199,7 @@ type
     procedure GetIndentInformation(var Indent: integer; var NextIndent: integer;
                                    var LineStr: string; var posBegin : integer;
                                    paragraphMode: boolean= false);
+    function IsVerticalScrollBarVisible: boolean;
 
     procedure GetLinkAtCursor(var URL: string; var TextURL: string;
                               var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
@@ -6168,6 +6169,11 @@ begin
         NextIndent:= Indent;
 end;
 
+
+function TKntRichEdit.IsVerticalScrollBarVisible: boolean;
+begin
+   Result := (GetWindowLong(Self.Handle, GWL_STYLE) and WS_VSCROLL) <> 0;
+end;
 
 //--------------------------------------------------------------------------
 

@@ -60,7 +60,7 @@ type
 type
   TKntNoteEntriesUI = class(TFrame)
     pnlEntries: TPanel;
-    pnlIdentif: TPanel;
+    pnlButtons: TPanel;
     txtCreationDate: TEdit;
     txtName: TEdit;
     txtTags: TEdit;
@@ -80,6 +80,7 @@ type
     procedure btnToggleMultiClick(Sender: TObject);
     procedure btnOptionsClick(Sender: TObject);
     procedure cFocusedFlagPaint(Sender: TObject);
+    procedure txtTagsExit(Sender: TObject);
 
   private class var
     FColorTxts: TColor;
@@ -153,6 +154,8 @@ type
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
+    procedure ShowControlsPanelIdentif(Show: boolean);
+    procedure CheckPnlButtonsLocation;
     procedure OnEndEditTagsIntroduction(PressedReturn: boolean);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure ShowEntriesButtons(Show: boolean);
@@ -164,6 +167,7 @@ type
     function HideTemporarilyInfoPanel: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
     procedure ReconsiderInfoPanelVisibility;
+    procedure SetTopIncControlsOfInfoPanel;
     procedure RefreshEntry;
     property TagsOfEntryModified: boolean read FTagsOfEntryModified;
 
@@ -274,12 +278,8 @@ begin
    txtName.Color:= FColorTxts;
    txtCreationDate.Color:= FColorTxts;
    txtTags.Color:= FColorTxts;
-   if KeyOptions.EditorInfoPanelTop then begin
-      txtName.Top:= 0;
-      txtCreationDate.Top:= 0;
-      txtTags.Top:= 0;
-      pnlIdentif.Align:= alTop;
-   end;
+
+   SetTopIncControlsOfInfoPanel;
 
    btnToggleMulti.Font.Size:= 8;
 
@@ -420,19 +420,59 @@ end;
 procedure TKntNoteEntriesUI.SetInfoPanelHidden(value: boolean);
 begin
    FInfoPanelHidden:= value;
-   pnlIdentif.Visible := not value;
+   ShowControlsPanelIdentif(not value);
+end;
+
+
+procedure TKntNoteEntriesUI.CheckPnlButtonsLocation;
+var
+  W, SW, X: integer;
+begin
+   if pnlButtons.Visible then begin
+      W:= 0;
+      SW:= GetSystemMetrics(SM_CXVSCROLL);
+      if not txtName.Visible and Editor.IsVerticalScrollBarVisible then
+         W:= SW;
+      X:= (Self.Width-W) - (pnlButtons.Left + pnlButtons.Width);
+      if X > 1 then begin
+         pnlButtons.Left:= pnlButtons.Left + SW;
+         txtCreationDate.Left:= txtCreationDate.Left + SW;
+      end
+      else
+      if X < 1 then begin
+         pnlButtons.Left:= pnlButtons.Left - SW;
+         txtCreationDate.Left:= txtCreationDate.Left - SW;
+      end;
+   end;
+end;
+
+
+procedure TKntNoteEntriesUI.ShowControlsPanelIdentif(Show: boolean);
+var
+  W, SW, X: integer;
+begin
+   txtName.Visible:= Show and ((PanelConfig = nil) or PanelConfig.ShowEditorInfoPanel);
+   txtCreationDate.Visible:= Show and ((PanelConfig = nil) or PanelConfig.ShowEditorInfoPanel); // or (Mode = meSingleEntry));
+   txtTags.Visible:= Show;
+   pnlButtons.Visible:= Show;
+   CheckPnlButtonsLocation;
+
+  if not txtName.Visible then
+     pnlEntries.Height:= Self.Height
+  else
+     pnlEntries.Height:= Self.Height - txtTags.Height -2; //txtTags.Top -2;
 end;
 
 function TKntNoteEntriesUI.HideTemporarilyInfoPanel: boolean;
 var
   KeepVisible: boolean;
 begin
-  KeepVisible:= (txtTags.Focused or txtName.Focused or txtCreationDate.Focused);
+  KeepVisible:= txtTags.Focused or txtName.Focused; // or txtCreationDate.Focused;
   if not KeepVisible then
-     KeepVisible:= IsMouseOver(pnlIdentif) or IsMouseOver(txtTags) or IsMouseOver(txtCreationDate);
+     KeepVisible:= IsMouseOver(txtTags) or IsMouseOver(pnlButtons);
 
   if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel and not KeepVisible then
-     pnlIdentif.Visible := False;
+     ShowControlsPanelIdentif(false);
 
   Result:= not KeepVisible;
 end;
@@ -444,11 +484,10 @@ var
 begin
   if FInfoPanelHidden then exit;
 
-  pnlIdentif.Visible := True;     // Temporarily if not PanelConfig.ShowEditorInfoPanel
+  ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
   if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil) then
      FrameResize(nil);
 
-  txtName.Visible:= (PanelConfig.ShowEditorInfoPanel);
   colorEdLay:= txtName.Color;
   colorMax:= clBtnFace;
   if PanelConfig.ShowEditorInfoPanel then begin
@@ -457,7 +496,7 @@ begin
     if PanelConfig.Maximized then
        colorMax:= clLtGray;
   end;
-  pnlIdentif.Color:= colorEdLay;
+  Self.Color:= colorEdLay;
   btnPrevEntry.Color:= colorMax;
   btnNextEntry.Color:= colorMax;
   btnToggleMulti.Color:= colorMax;
@@ -467,11 +506,31 @@ begin
 end;
 
 
+procedure TKntNoteEntriesUI.SetTopIncControlsOfInfoPanel;
+var
+  T, T2: integer;
+begin
+     if KeyOptions.EditorInfoPanelTop then begin
+      T:= 0;
+      T2:= txtCreationDate.Height + 2;
+   end
+   else begin
+      T:= Self.Height - txtCreationDate.Height;
+      T2:= 0;
+   end;
+   txtName.Top:= T;
+   txtCreationDate.Top:= T;
+   txtTags.Top:= T;
+   pnlButtons.Top:= T;
+   pnlEntries.Top:= T2;
+end;
+
+
 procedure TKntNoteEntriesUI.cFocusedFlagPaint(Sender: TObject);
 begin
   with cFocusedFlag.Canvas do
   begin
-    if not PanelConfig.Maximized and NoteUI.MultipleVisibleEditors and not NoteUI.HideFocusFlag and Editor.Focused then
+    if (PanelConfig <> nil) and not PanelConfig.Maximized and NoteUI.MultipleVisibleEditors and not NoteUI.HideFocusFlag and Editor.Focused then
        Brush.Color := clRed
     else
        Brush.Color := clBtnFace;
@@ -604,6 +663,11 @@ begin
    AdjustTxtTagsWidth(True);
 end;
 
+procedure TKntNoteEntriesUI.txtTagsExit(Sender: TObject);
+begin
+   ReconsiderInfoPanelVisibility;
+end;
+
 procedure TKntNoteEntriesUI.OnEndEditTagsIntroduction(PressedReturn: boolean);
 begin
   if PressedReturn then
@@ -624,14 +688,12 @@ begin
    if btnPrevEntry.Visible = Show then exit;
 
    btnPrevEntry.Visible:= Show;
-   btnNextEntry.Visible:= Show;
-   btnToggleMulti.Visible:= Show;
-
    W:= btnPrevEntry.Width*2 + btnToggleMulti.Width;
    if Show then
       W:= W * -1;
 
-   btnOptions.Left:= btnOptions.Left + W;
+   pnlButtons.Left:= pnlButtons.Left + W;
+   pnlButtons.Width:= pnlButtons.Width - W;
    txtCreationDate.Left:= txtCreationDate.Left + W;
    txtName.Width:= txtName.Width + W;
 end;
@@ -640,14 +702,18 @@ procedure TKntNoteEntriesUI.AdjustTxtTagsWidth (AllowEdition: boolean = False);
 var
   MinNoteNameWidth, MaxAvailableWidth: integer;
   MaxAvailableForTags, TagsWidth: integer;
-
 begin
-  MinNoteNameWidth:= TagMng.GetTextWidth(Note.Name, txtName) + 10;
+  MinNoteNameWidth:= 0;
+  if txtName.Visible then
+     MinNoteNameWidth:= TagMng.GetTextWidth(Note.Name, txtName) + 10;
   TagsWidth:=   MIN_TAGS_WIDTH;
   if txtTags.Text <> EMPTY_TAGS then
      TagsWidth:= TagMng.GetTextWidth(txtTags.Text, txtTags) + 10;
 
-  MaxAvailableWidth:= (btnOptions.Left-2) - txtCreationDate.Width -4;
+  MaxAvailableWidth:= (pnlButtons.Left-4);
+  if txtCreationDate.Visible then
+     dec(MaxAvailableWidth, (txtCreationDate.Width + 4));
+
   MaxAvailableForTags:= MaxAvailableWidth;
 
   if not AllowEdition then
@@ -664,8 +730,10 @@ begin
      TagsWidth := MIN_TAGS_WIDTH;
 
   txtTags.Width:= TagsWidth;
-  txtName.Width:= MaxAvailableWidth - TagsWidth;
-  txtName.Left:= txtTags.Left + TagsWidth + 2;
+  if txtName.Visible then begin
+     txtName.Width:= MaxAvailableWidth - TagsWidth;
+     txtName.Left:= txtTags.Left + TagsWidth + 2;
+  end;
 end;
 
 
@@ -673,6 +741,7 @@ procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
 begin
    if Note <> nil then begin
       ShowEntriesButtons(Length(FEntriesShown) > 1);
+      CheckPnlButtonsLocation;
       AdjustTxtTagsWidth(txtTags.Focused);
       FPanelInitialized:= true;
    end;
@@ -736,10 +805,9 @@ begin
            FMode:= PanelConfig.Mode;
            if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
               FOnUse:= True;
-              if not FInfoPanelHidden then
-                 pnlIdentif.Visible := True;
+              if FInfoPanelHidden or not PanelConfig.ShowEditorInfoPanel then
+                 ShowControlsPanelIdentif(false);
 
-              txtName.Visible := PanelConfig.ShowEditorInfoPanel;
               case PanelConfig.SelectedNNode.WordWrap of
                 wwAsFolder : Editor.WordWrap := FKntFolder.WordWrap;
                 wwYes : Editor.WordWrap := true;
@@ -792,7 +860,8 @@ begin
    try
       txtName.Text:= FNote.Name;
 
-      txtCreationDate.Visible:= (FNEntry <> nil);
+      if (FNEntry = nil) then
+         txtCreationDate.Visible:= False;
       if FNEntry <> nil then begin
         if (FMode = meMultipleEntries) then
            Created:= FNote.DateCreated
@@ -1207,7 +1276,7 @@ begin
                 FiEntry:= iEntryAdded;
                 FNNode:= FEntriesShown[iEntryAdded].NNode;
                 FNote:= FEntriesShown[iEntryAdded].Note;
-                pnlIdentif.Visible:= true;
+                ShowControlsPanelIdentif(True);
                 FNoteUI.KeepInfoPanelTemporarilyVisible;
              end;
           end;
@@ -1747,6 +1816,7 @@ begin
    NoteUI.HideFocusFlag:= false;
    cFocusedFlag.Refresh;
    ReloadFromDataModel(false);
+   ReconsiderInfoPanelVisibility;
 end;
 
 

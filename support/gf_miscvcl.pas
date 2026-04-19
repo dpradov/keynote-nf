@@ -109,6 +109,7 @@ procedure EnableShadow(FormHandle: HWND);
 procedure EnableTopMost(hWND: HWND; Enable: boolean);
 
 function IsMouseOver(Control: TWinControl): Boolean;
+procedure LockControl(AControl: TWinControl; ALock: Boolean);
 
 
 var
@@ -920,6 +921,15 @@ var
 begin
   GetCursorPos(MousePos);
   Result := FindVCLWindow(MousePos) = Control;
+end;
+
+
+procedure LockControl(AControl: TWinControl; ALock: Boolean);
+begin
+  SendMessage(AControl.Handle, WM_SETREDRAW, WPARAM(not ALock), 0);
+  if not ALock then
+    RedrawWindow(AControl.Handle, nil, 0,
+      RDW_ERASE or RDW_FRAME or RDW_INVALIDATE or RDW_ALLCHILDREN);
 end;
 
 
