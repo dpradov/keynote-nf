@@ -55,7 +55,7 @@ type
     Content: TContentInMultipleMode;
   end;
 
-  TActionOnEntry = (aModified, aCreated, aDeleted, aChangedVisibility, aNull);
+  TActionOnEntry = (aModified, aCreated, aDeleted, aChangedVisibility, aModifiedMetadata, aNull);
 
 type
   TKntNoteEntriesUI = class(TFrame)
@@ -137,6 +137,7 @@ type
                                    InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
+    procedure ModifiedMetadataOfEntries(Note: TNote);
     procedure SaveToDataModel;
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
@@ -968,6 +969,10 @@ var
                FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
             dec(N);
             SetLength(FEntriesShown, N);
+            if N = 0 then begin
+               FiEntry:= -1;
+               FNEntry:= nil;
+            end;
          end
          else
          if not EntryToAdd then begin
@@ -1018,6 +1023,8 @@ var
             end;
             if iEntryAdded <= FiEntry then
                inc(FiEntry);
+            if FiEntry < 0 then
+               FiEntry:= 0;
 
             FEntriesShown[iEntryAdded].NEntry:= NEntryToConsider;
             FEntriesShown[iEntryAdded].NNode:= FNNode;
@@ -1122,6 +1129,12 @@ var
 
  end;
 
+ procedure ShowHeader(iEntry: integer);
+ begin
+    Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, FEntriesShown[iEntry].NEntry, (iEntry=0), (FEntriesShown[iEntry].Content=cmOnlyHeader)), True,True);
+    FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
+ end;
+
  procedure ShowEntry(iEntry: integer);
  var
    TL, SS: integer;
@@ -1131,8 +1144,7 @@ var
 
      if (FMode = meMultipleEntries) then begin
         FEntriesShown[iEntry].StartingPos:= Editor.SelStart;
-        Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, FEntriesShown[iEntry].NEntry, (iEntry=0), (FEntriesShown[iEntry].Content=cmOnlyHeader)), True,True);
-        FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
+        ShowHeader(iEntry);
         if StrRTF = '' then begin
            if cEditor.StreamFormat = sfPlainText then begin
               TL:= cEditor.TextLength;
@@ -1159,19 +1171,32 @@ var
    i: integer;
    L, Offset, TL: integer;
  begin
-
     Offset:= 0;
     for i:= 0 to High(FEntriesShown) do begin
        if (i = iEntry) then begin
-           L:= FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos;
-           Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].FinalPos+1, false);
+           if EntryToRemove or (ActionOnEntry <> aModifiedMetadata) then begin
+              L:= FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos;
+              Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].FinalPos+1, false);
+           end
+           else begin
+              L:= FEntriesShown[i].StartingContentPos - FEntriesShown[i].StartingPos;
+              Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].StartingContentPos, false);
+           end;
+
            if EntryToRemove then begin
               Offset:= - L;
               Editor.SelText:= '';
            end
            else begin
-              ShowEntry (i);
-              Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
+              if (ActionOnEntry <> aModifiedMetadata) then begin
+                 ShowEntry (i);
+                 Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
+              end
+              else begin
+                 ShowHeader(i);
+                 Offset:= (FEntriesShown[i].StartingContentPos - FEntriesShown[i].StartingPos) - L;
+                 inc(FEntriesShown[i].FinalPos, Offset);
+              end;
            end;
        end
        else
@@ -1266,7 +1291,8 @@ begin
    //   If FMode = meSingleEntry, this NEntryToReconsider will be reflected in FEntriesShown, but it doesn't necessarily have to be reflected in the editor if
    //    the entry displayed there is different.
    //   If aCreated  -> Check if it should be included in the panel
-   //   If aModified -> Check if it is included and if it should be included o removed
+   //   If aModified -> Check if it is included and if it should be included o removed. Content will be updated if added or maintained.
+   //   If aModifiedMetadata -> Check if it is included and if it should be included o removed. If already included , content doesn't need to be updated
    //   If aDeleted -> Remove if it is present
    //
    // PanelConfig.SelNEntry: Indicates which entry should be displayed, if FMode = meSingleEntry, or, in the case of FMode = meMultipleEntries, which entry
@@ -1300,7 +1326,7 @@ begin
              EntryToRemove:= true;
           end
           else
-          if (ActionOnEntry = aModified) then begin
+          if (ActionOnEntry in [aModified, aModifiedMetadata]) then begin
              if MustBeIncluded and (iEntryToConsider < 0) then begin
                 EntryToAdd:= true;
                 PopulateEntriesToShow;
@@ -1371,6 +1397,9 @@ begin
         PopulateEntriesToShow;
         if iEntryToConsider < FiEntry then
            dec(FiEntry);
+        if FEntriesShown = nil then
+           FNEntry:= nil;
+
         exit;
      end;
 
@@ -1736,7 +1765,7 @@ begin
      else begin
        if FTagsOfEntryModified then begin
           FTagsOfEntryModified:= false;
-          App.EditorSaved(FEditor);
+          App.EditorSaved(FEditor, True);
        end;
 
        if (FNEntry <> nil) and (FNEntry.TextPlain = '') then
@@ -1749,12 +1778,17 @@ end;
 
 procedure TKntNoteEntriesUI.SavePositionInPanel;
 begin
+   if FEntriesShown = nil then begin
+      FNEntry:= nil;
+      FiEntry:= -1;
+   end;
+
    PanelConfig.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
    PanelConfig.SelNEntry := FNEntry;
    PanelConfig.SelStart  := Editor.SelStart;
    PanelConfig.SelLength := Editor.SelLength;
 
-   if FMode = meMultipleEntries then begin
+   if (FMode = meMultipleEntries) and (FEntriesShown <> nil) and (FiEntry >= 0) then begin
       dec(PanelConfig.SelStart, FEntriesShown[FiEntry].StartingContentPos);
       if PanelConfig.SelStart < 0 then begin
          PanelConfig.SelStart := 0;        // Can occur if the entry is collapsed and only shown its header
@@ -1950,7 +1984,7 @@ end;
 
 procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
 var
-   SS, i: integer;
+   i: integer;
    NEntryToConsider: TNoteEntry;
 begin
    if not ModifyAll and (FEntriesShown[iEntry].Content = NewContent) then exit;
@@ -1967,6 +2001,27 @@ begin
    if not ModifyAll then
       NEntryToConsider:= FEntriesShown[iEntry].NEntry;
    ReloadFromDataModel(false, NEntryToConsider, aChangedVisibility);
+end;
+
+
+procedure TKntNoteEntriesUI.ModifiedMetadataOfEntries (Note: TNote);
+var
+   i, N: integer;
+begin
+   SavePositionInPanel;
+   N:= Length(FEntriesShown);
+
+   LockControl(Editor, True);
+   try
+      for i:=0 to High(Note.Entries) do
+          ReloadFromDataModel(false, Note.Entries[i], aModifiedMetadata);
+
+      if (N = 0) and (Length(FEntriesShown) > 0) then
+         SelectEntry(0);
+
+   finally
+      LockControl(Editor, False);
+   end;
 end;
 
 

@@ -146,12 +146,13 @@ type
       procedure SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
       procedure HideNestedFloatingEditors;
       procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
+      procedure ModifiedMetadataOfEntries(Note: TNote);
 
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
       procedure EditorFocused (Editor: TKntRichEdit);
       procedure EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
-      procedure EditorSaved (Editor: TKntRichEdit);
+      procedure EditorSaved (Editor: TKntRichEdit; OnlyMetadaModified: boolean = false);
       procedure ChangeInEditor (Editor: TKntRichEdit);
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
@@ -679,7 +680,7 @@ begin
    fAvailableEditors.Remove(Editor);
 end;
 
-procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
+procedure TKntApp.EditorSaved (Editor: TKntRichEdit; OnlyMetadaModified: boolean = false);
 var
    NNodeSavedEditor, NNode: TNoteNode;
    NoteSavedEditor: TNote;
@@ -687,6 +688,7 @@ var
    E: TKntRichEdit;
    NEntriesUI: TKntNoteEntriesUI;
    i: integer;
+   Action: TActionOnEntry;
 
 begin
    if Editor = nil then exit;
@@ -703,6 +705,10 @@ begin
 
    NEntrySaved:= NEntriesUI.NEntry;
 
+   Action:= aModified;
+   if OnlyMetadaModified then
+      Action:= aModifiedMetadata;
+
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
       if (E = Editor) then continue;
@@ -712,7 +718,7 @@ begin
       if NoteSavedEditor = NNode.Note then begin
          NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
          NEntriesUI.SavePositionInPanel;
-         NEntriesUI.ReloadFromDataModel(false, NEntrySaved, aModified, false);
+         NEntriesUI.ReloadFromDataModel(false, NEntrySaved, Action, false);
       end;
    end;
 
@@ -760,6 +766,24 @@ begin
 
 end;
 
+
+procedure TKntApp.ModifiedMetadataOfEntries(Note: TNote);
+var
+   E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   Log_StoreTick('TKntApp.ModifiedMetadataOfEntries - BEGIN', 4, +1);
+
+   for i:= 0 to fAvailableEditors.Count-1 do begin
+      E:= fAvailableEditors[i];
+      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if NEntriesUI <> nil then
+         NEntriesUI.ModifiedMetadataOfEntries(Note);
+   end;
+
+   Log_StoreTick('TKntApp.ModifiedMetadataOfEntries - END', 4, -1);
+end;
 
 procedure TKntApp.NNodeFocused(NNode: TNoteNode);
 begin

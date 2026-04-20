@@ -6148,13 +6148,17 @@ var
   var
     NNode: TNoteNode;
     NEntry: TNoteEntry;
+    i: integer;
   begin
      NNode:= ActiveTreeUI.GetNNode(Node);
-     NEntry:= NNode.Note.Entries[0];                          //%%%
-     if Add then
-        NEntry.AddTags(SelectedTags)
-     else
-        NEntry.RemoveTags(SelectedTags);
+     for i := 0 to High(NNode.Note.Entries) do begin
+        NEntry:= NNode.Note.Entries[i];
+        if Add then
+           NEntry.AddTags(SelectedTags)
+        else
+           NEntry.RemoveTags(SelectedTags);
+     end;
+     App.ModifiedMetadataOfEntries(NNode.Note);
   end;
 
 begin
@@ -6173,7 +6177,6 @@ begin
   end;
 
   ClearFindTags;
-  ActiveFolder.NoteUI.RefreshTags;
 end;
 
 
