@@ -1622,17 +1622,23 @@ begin
    if Folded then
       strInfo:= ' \u10133+ '          // ➕
    else
-      strInfo:= ' — ';
+   if not PanelConfig.MMShowLineInHeader then
+      strInfo:= ' — '
+   else
+      strInfo:= '   ';
 
    if PanelConfig.MMShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
-      strInfo:= strInfo + '# ' + Trim(NEntry.TagsNames) + '  ';
+      strInfo:= strInfo + '# ' + Trim(NEntry.TagsNames) + '  · ';
    end;
    if PanelConfig.MMShowDateInHeader and (NEntry.Created <> 0) then begin
       if (NEntry.Created).GetTime <> 0 then
          S:= ' - ' + FormatSettings.ShortTimeFormat;
       strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
    end;
-   strInfo := strInfo + ' —';
+   if PanelConfig.MMShowLineInHeader then
+      strInfo := strInfo + ' \u8203.'                      // '\u200B'  Zero-Width Space  (invisible)
+   else
+      strInfo := strInfo + ' —';
 
    (*
    if PanelConfig.MMShowLineInHeader then
@@ -1814,7 +1820,7 @@ begin
        PanelConfig.SelNEntry:= FEntriesShown[iEntry].NEntry;
        PanelConfig.SelStart:= 0;
        PanelConfig.SelLength:= 0;
-       ReloadFromDataModel(false);
+       ReloadFromDataModel(false, nil, aNull, True);
    end;
 end;
 

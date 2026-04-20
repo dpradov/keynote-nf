@@ -1207,7 +1207,7 @@ var
 begin
  EnableNavigatePanels:= (QueryLayoutToUse <> neLastLayout);
 
- if SavePreviousContent and (FNNode <> nil) then
+ if SavePreviousContent and (FNNode <> nil) and not FNNodeDeleted then
     SaveToDataModel;
 
  FHideFocusFlag:= false;
