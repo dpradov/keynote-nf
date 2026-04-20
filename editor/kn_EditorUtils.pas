@@ -1183,6 +1183,7 @@ var
   PageRect: TRect;
   DPI: Integer;
   PrnPreviews: TList;
+  i: integer;
 
 begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
@@ -1260,25 +1261,33 @@ begin
            Node := TV.GetNextNotHidden(Node);
 
         while assigned( Node ) do begin
-           RTFAux.Clear;
            NNode:= TreeUI.GetNNode(Node);
-           NEntry:= NNode.Note.Entries[0];            // %%%
-           NEntry.Stream.Position := 0;
-           RTFwithImages:= '';
-           NEntryText:= '';
-           NEntryTextSize := NEntry.Stream.Size;
-           if NEntry.Stream.Size > 0 then begin
-               SetLength( NEntryText, NEntryTextSize );
-               move( NEntry.Stream.Memory^, NEntryText[1], NEntryTextSize );
+           RTFAux.Clear;
+
+           for i := 0 to High(NNode.Note.Entries) do begin
+               NEntry:= NNode.Note.Entries[i];
+               NEntry.Stream.Position := 0;
+               RTFwithImages:= '';
+               NEntryText:= '';
+               NEntryTextSize := NEntry.Stream.Size;
+               if NEntry.Stream.Size > 0 then begin
+                   SetLength( NEntryText, NEntryTextSize );
+                   move( NEntry.Stream.Memory^, NEntryText[1], NEntryTextSize );
+               end;
+
+               if NEntry.IsRTF then
+                  RTFwithImages:= ImageMng.ProcessImagesInRTF(NEntryText, '', imImage, '', 0, false);
+
+               if RTFwithImages <> '' then
+                  RTFAux.PutRtfText(RTFwithImages, false)
+               else
+                  RTFAux.PutRtfText(NEntryText, false);
+
+               if i < High(NNode.Note.Entries) then begin
+                  RTFAux.PutRtfText(#13, false);
+                  RTFAux.PutRtfText(GetRTFPrintableLine(RTFAux, clSilver, 99999), false);
+               end;
            end;
-
-           if NEntry.IsRTF then
-              RTFwithImages:= ImageMng.ProcessImagesInRTF(NEntryText, '', imImage, '', 0, false);
-
-           if RTFwithImages <> '' then
-              RTFAux.PutRtfText(RTFwithImages, false)
-           else
-              RTFAux.PutRtfText(NEntryText, false);
 
            if RTFAux.TextLength <> 0 then begin
               FirstPageMarginTop:= -1;
