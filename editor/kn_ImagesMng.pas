@@ -4195,17 +4195,23 @@ function TImageMng.ContainsEncryptedImages(Note: TNote): boolean;
 var
   NEntry: TNoteEntry;
   IDs: TImageIDs;
+  i: integer;
 begin
   Result:= False;
-  NEntry:= Note.Entries[0];               // ####
-  if not NEntry.IsRTF then exit;
 
-  if (NEntry.TextPlain <> '') then
-     IDs:= ImageMng.GetImagesIDInstancesFromTextPlain (NEntry.TextPlain)
-  else
-     IDs:= ImageMng.GetImagesIDInstancesFromRTF (NEntry.Stream);
+  for i := 0 to High(Note.Entries) do begin
+     NEntry:= Note.Entries[i];
+     if not NEntry.IsRTF then continue;
 
-  Result:= ContainsEncryptedImages(IDs);
+     if (NEntry.TextPlain <> '') then
+        IDs:= ImageMng.GetImagesIDInstancesFromTextPlain (NEntry.TextPlain)
+     else
+        IDs:= ImageMng.GetImagesIDInstancesFromRTF (NEntry.Stream);
+
+     if ContainsEncryptedImages(IDs) then
+        exit (true);
+  end;
+
 end;
 
 
