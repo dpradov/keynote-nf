@@ -1368,7 +1368,7 @@ begin
            
            if CreationDate <> 0 then begin
               if (N.DateCreated = 0) or ForceReconsidere then begin
-                 N.Entries[0].Created:= CreationDate;
+                 N.Entries[0].Created:= CreationDate;      // It is intended for old files, without that information, and where there were no multiple entries.
                  N.LastModified:= LastModif;
               end;
               if RemoveDateFromName and (DateFoundInName <> 0) then begin
@@ -1959,7 +1959,7 @@ end;
 
 procedure TKntFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToFolder: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
 var
-  i, j: integer;
+  i, j, k: integer;
   myFolder: TKntFolder;
   Note: TNote;
   NNode: TNoteNode;
@@ -1997,12 +1997,14 @@ begin
          Note:= NNode.Note;
          if not Note.IsVirtual then begin
             if Note.NNodes[0].NNode <> NNode then continue;
-            NEntry:= NNode.Note.Entries[0];                     //%%%
-            if NEntry.IsPlainTXT or (NEntry.Stream.Size = 0) then continue;
 
-            UpdateImagesStorageMode (NEntry.Stream);
-            if Length(ImagesIDs) > 0 then
-               NEntry.TextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+            for k := 0 to High(Note.Entries) do begin
+               NEntry:= Note.Entries[k];
+               if NEntry.IsPlainTXT or (NEntry.Stream.Size = 0) then continue;
+               UpdateImagesStorageMode (NEntry.Stream);
+               if Length(ImagesIDs) > 0 then
+                  NEntry.TextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+            end;
 
             if NNode = myFolder.FocusedNNode  then
                myFolder.ReloadEditorFromDataModel (false);
@@ -2108,17 +2110,18 @@ var
   NEntry: TNoteEntry;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
-
+  i: integer;
 begin
-   if not Note.IsVirtual then begin
-      NEntry:= Note.Entries[0];        // %%%
-      if not NEntry.IsRTF then exit;
+   if not Note.IsVirtual then
+      for i := 0 to High(Note.Entries) do begin
+         NEntry:= Note.Entries[i];
+         if not NEntry.IsRTF then continue;
 
-      Stream:= NEntry.Stream;
-      ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
-      if Length(ImagesIDs) > 0 then
-         ImageMng.RemoveImagesReferences (ImagesIDs);
-   end;
+         Stream:= NEntry.Stream;
+         ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+         if Length(ImagesIDs) > 0 then
+            ImageMng.RemoveImagesReferences (ImagesIDs);
+      end;
 end;
 
 procedure TKntFile.UpdateImagesCountReferences (Note: TNote);
@@ -2126,14 +2129,16 @@ var
   NEntry: TNoteEntry;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
-
+  i: integer;
 begin
-   NEntry:= Note.Entries[0];        // %%%
-   if not NEntry.IsRTF then exit;
-   Stream:= NEntry.Stream;
-   ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
-   if Length(ImagesIDs) > 0 then
-      ImageMng.UpdateImagesCountReferences (nil, ImagesIDs);
+   for i := 0 to High(Note.Entries) do begin
+      NEntry:= Note.Entries[i];
+      if not NEntry.IsRTF then continue;
+      Stream:= NEntry.Stream;
+      ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+      if Length(ImagesIDs) > 0 then
+         ImageMng.UpdateImagesCountReferences (nil, ImagesIDs);
+   end;
 end;
 
 
@@ -2612,9 +2617,9 @@ begin
    except
      on E : Exception do begin
        str:= GetRS(sFld39) + _CRLF + Note.VirtualFN + _CRLF + E.Message;
-       Note.Entries[0].Stream.WriteBuffer(str[1], Length(str));
+       Note.Entries[0].Stream.WriteBuffer(str[1], Length(str));                  // Virtual notes always have a single entry, 0.
        Note.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + Note.VirtualFN;
-       Note.Entries[0].IsRTF:= False;
+       Note.Entries[0].IsRTF:= False;                                            // ,,
      end;
    end;
 end;
@@ -3059,7 +3064,7 @@ end;
 
 function TKntFile.ConvertKNTLinksToNewFormatInNotes (FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
 var
-  i, j: integer;
+  i, j, k: integer;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
   Folder: TKntFolder;
@@ -3074,16 +3079,20 @@ begin
 
      for j := 0 to Folder.NNodes.Count-1 do begin
         NNode := Folder.NNodes[j];
-        NEntry:= NNode.Note.Entries[0];          // %%%
-        if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
 
-        NewRTF:= ConvertKNTLinksToNewFormat(NEntry.Stream.Memory, NEntry.Stream.Size, NoteGIDs, FolderIDs, GIDsNotConverted);
-        if NewRTF <> '' then begin
-           NEntry.Stream.SetSize(Length(NewRTF));
-           NEntry.Stream.Position:= 0;
-           StringToMemoryStream(NewRTF, NEntry.Stream);
-           Result:= true;
+        for k := 0 to High(NNode.Note.Entries) do begin
+           NEntry:= NNode.Note.Entries[k];
+           if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
+
+           NewRTF:= ConvertKNTLinksToNewFormat(NEntry.Stream.Memory, NEntry.Stream.Size, NoteGIDs, FolderIDs, GIDsNotConverted);
+           if NewRTF <> '' then begin
+              NEntry.Stream.SetSize(Length(NewRTF));
+              NEntry.Stream.Position:= 0;
+              StringToMemoryStream(NewRTF, NEntry.Stream);
+              Result:= true;
+           end;
         end;
+
      end;
   end;
 
@@ -3094,7 +3103,7 @@ end;
 
 function TKntFile.ConvertLinksForColorInNotes: boolean;
 var
-  i, j: integer;
+  i, j, k: integer;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
   Folder: TKntFolder;
@@ -3108,16 +3117,20 @@ begin
 
      for j := 0 to Folder.NNodes.Count-1 do begin
         NNode := Folder.NNodes[j];
-        NEntry:= NNode.Note.Entries[0];          // %%%
-        if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
 
-        RTF:= MemoryStreamToString(NEntry.Stream);
-        if AdaptLinksForColor(RTF, NewRTF) then begin
-           NEntry.Stream.SetSize(Length(NewRTF));
-           NEntry.Stream.Position:= 0;
-           StringToMemoryStream(NewRTF, NEntry.Stream);
-           Result:= true;
+        for k := 0 to High(NNode.Note.Entries) do begin
+           NEntry:= NNode.Note.Entries[k];
+           if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
+
+           RTF:= MemoryStreamToString(NEntry.Stream);
+           if AdaptLinksForColor(RTF, NewRTF) then begin
+              NEntry.Stream.SetSize(Length(NewRTF));
+              NEntry.Stream.Position:= 0;
+              StringToMemoryStream(NewRTF, NEntry.Stream);
+              Result:= true;
+           end;
         end;
+
      end;
   end;
 
