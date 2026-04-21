@@ -355,7 +355,7 @@ type
 
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit ): boolean;
-    function PrepareTextPlain (NNode: TNoteNode; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
+    function PrepareTextPlain (NNode: TNoteNode; RTFAux: TAuxRichEdit; iEntry: integer = 0; ClearRTFAux: boolean= False): string;
 
   end; // TKntFolder
 
@@ -1266,7 +1266,7 @@ begin
    end;
 
    if (CopyFromNNode = nil) then
-       NNode.Note.Entries[0].IsPlainTXT := Self.DefaultPlainText;
+       NNode.Note.Entries[0].IsPlainTXT := Self.DefaultPlainText;     // New created note, with a single entry at first
 
    Result:= NNode;
 end;
@@ -1919,7 +1919,7 @@ end;
 
 function TKntFolder.InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit): boolean;
 var
-  i, N: integer;
+  i, j, N: integer;
   NEntry: TNoteEntry;
   LastTick, Tick: integer;
 
@@ -1939,25 +1939,31 @@ begin
         end;
      end;
 
-     NEntry:= NNodes[i].Note.Entries[0];                  // %%%
-     if InitializeTextPlain (NEntry, RTFAux) then
-        inc (N);
+     for j := 0 to High(NNodes[i].Note.Entries) do begin
+        NEntry:= NNodes[i].Note.Entries[j];
+        if InitializeTextPlain (NEntry, RTFAux) then
+           inc (N);
 
-     if N >= nMax then Exit;
+        if N >= nMax then Exit;
+     end;
+
   end;
 
   Result:= true;
 end;
 
 // myTreeNode must be active node in folder, so that the Editor is showing its content
-function TKntFolder.PrepareTextPlain(NNode: TNoteNode; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
+function TKntFolder.PrepareTextPlain(NNode: TNoteNode; RTFAux: TAuxRichEdit; iEntry: integer = 0; ClearRTFAux: boolean= False): string;
 var
    NEntry: TNoteEntry;
+   i: integer;
 begin
+   assert((iEntry >= 0) and (iEntry < NNode.Note.NumEntries) );
+
    if NoteUI.Editor.Modified then
       NoteUI.SaveToDataModel;
 
-   NEntry:= NNode.Note.Entries[0];         // %%%
+   NEntry:= NNode.Note.Entries[iEntry];
    InitializeTextPlain(NEntry, RTFAux);
    if ClearRTFAux and (RTFAux.TextLength > 0) then
       RTFAux.Clear;
@@ -2632,7 +2638,7 @@ begin
                 FIconKind := niCustom;
                 NNode:= TKntFile(KntFile).AddLoadedNote(Self);    // create a new blank node (=> TNote, TNoteEntry, TNoteNode)
                 Note:= NNode.Note;
-				NEntry:= Note.Entries[0];
+                NEntry:= Note.Entries[0];
                 Note.Name:= FName;
                 LoadingLevels.Add(0);
                 inc(iNNode);
@@ -2645,7 +2651,7 @@ begin
              InNoteNode := true;
              NNode:= TKntFile(KntFile).AddLoadedNote(Self);
              Note:= NNode.Note;
-			 NEntry:= Note.Entries[0];
+             NEntry:= Note.Entries[0];
              LoadingLevels.Add(0);
              inc(iNNode);
              continue;
@@ -2772,7 +2778,7 @@ begin
               if ( key = _NodeDC_DM ) then begin
                   var DC,DM: TDateTime;
                   if OldCreationAndModificationDates( s, DC, DM) then begin
-                     Note.Entries[0].Created:= DC;
+                     Note.Entries[0].Created:= DC;             // _NodeDC_DM: "NT" Used in Keynote v.1.6.9: creation and modification dates of nodes  (No multiple entries in that version)
                      Note.LastModified:= DM;
                   end;
               end;
@@ -3056,7 +3062,7 @@ begin
                 level := StrToIntDef(s, 0);
                 NNode:= TKntFile(KntFile).AddLoadedNote(Self);
                 Note:= NNode.Note;
-				NEntry:= Note.Entries[0];
+                NEntry:= Note.Entries[0];       // A TreePad file does not use multiple entries
                 Note.Name:= nodeName;
                 LoadingLevels.Add(level);
 

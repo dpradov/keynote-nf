@@ -2894,7 +2894,7 @@ begin
                             if TextPlainToUse <> '' then
                                TextPlainBAK:= TextPlainToUse
                             else
-                               TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, ClearRTFAux);
+                               TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, 0, ClearRTFAux);
                             TextPlain:= TextPlainBAK;
                             if not myFindOptions.MatchCase then
                                TextPlain:=  AnsiUpperCase(TextPlain);
