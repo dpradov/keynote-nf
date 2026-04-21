@@ -1949,7 +1949,7 @@ begin
                   if ImportFileType <> itTreePad then begin
                      CreateVCLControlsForFolder( myFolder );
                      NNode:= myFolder.TreeUI.NewNode(tnTop, nil, s, true );
-                     NEntry:= NNode.Note.Entries[0];        //%%%
+                     NEntry:= NNode.Note.Entries[0];         // First entry of the created note
                      myFolder.TreeHidden:= true;
                   end;
 
@@ -2489,7 +2489,7 @@ begin
                    end;
 
                    NNode := ActiveTreeUI.NewNode(TKntTreeUI.DropTargetNodeInsMode, TKntTreeUI.DropTargetNode, '', true);
-                   NEntry:= NNode.Note.Entries[0];       //%%%
+                   NEntry:= NNode.Note.Entries[0];       // First entry of the created note
 
                    if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
                      NEntry.Stream.LoadFromStream(OutStream);
