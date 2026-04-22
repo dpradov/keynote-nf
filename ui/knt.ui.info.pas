@@ -42,6 +42,7 @@ type
      function GetFolder: TObject;
      function GetSelectedNEntry: TNoteEntry;
      function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
+     function GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
      function GetBasicNEntriesLayout: boolean;
      property Editor: TKntRichEdit read GetEditor;
      property NNode: TNoteNode read GetNNode;
@@ -143,6 +144,7 @@ type
     EditingLayout: boolean;
     Scope : TScopeInEntriesPanel;
     Mode: TModeEntriesUI;
+    CurrentModeInSession: TModeEntriesUI;
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
     VinculatedTags: TNoteTagArray;

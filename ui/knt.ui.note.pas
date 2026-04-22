@@ -28,6 +28,7 @@ uses
   kn_Const,
   kn_Global,
   kn_KntFolder,
+  kn_LocationObj,
   knt.model.note,
   knt.ui.info,
   knt.ui.editor,
@@ -150,6 +151,7 @@ type
  public
     procedure NEntriesUIEditorEnter(Sender: TObject);
     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
+    function GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
     function MultipleVisibleEditors: boolean;
     function NavigatePanels(NavDirection: TNavDirection): boolean;
     procedure ToggleMaximizeSelectedPanel;
@@ -785,6 +787,128 @@ begin
 end;
 
 
+function TKntNoteUI.GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
+var
+  CheckOnlySingleEntry, CheckOnlyEntrySelected: boolean;
+  OnlyHeader: boolean;
+  MainEntriesUI: TKntNoteEntriesUI;
+  NEntry: TNoteEntry;
+  Location: TLocation;
+
+  function CheckNEntriesUI(NEntriesUI: TKntNoteEntriesUI): boolean;
+  begin
+      Result:= false;
+      if CheckOnlySingleEntry then
+         Result:= (NEntriesUI.PanelConfig.CurrentModeInSession = meSingleEntry) and (not CheckOnlyEntrySelected or (NEntriesUI.NEntry = NEntry))
+      else
+         if CheckOnlyEntrySelected then
+            Result:= (NEntriesUI.NEntry = NEntry)
+         else
+            Result:= (NEntriesUI.IsDisplayingEntry(NEntry, OnlyHeader));
+  end;
+
+  function FindNEntriesUI: TKntNoteEntriesUI;
+  var
+    CheckTagsVinc, CheckMain: boolean;
+
+    function FindNEntriesUIAux: TKntNoteEntriesUI;
+    var
+      p : TNEntriesPanel;
+      NEntrUI: TKntNoteEntriesUI;
+    begin
+        Result:= nil;
+        for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+           NEntrUI:= FNEntriesUI[p];
+           if NEntrUI = nil then continue;
+           if CheckTagsVinc and
+                      ( (NEntrUI.PanelConfig.VinculatedTags = nil) or
+                         not NEntry.MatchesTags(FindTagsGetModeAND(NEntrUI.PanelConfig.VinculatedTags)) ) then continue;
+           if CheckMain and (NEntrUI <> MainEntriesUI) then continue;
+           if CheckNEntriesUI(NEntrUI) then
+              exit (NEntrUI);
+        end;
+    end;
+
+  begin
+     Result:= nil;
+
+     CheckTagsVinc:= False;
+     CheckMain:= False;
+
+     if CheckOnlyEntrySelected then
+        Result:= FindNEntriesUIAux
+
+     else begin
+        CheckTagsVinc:= True;
+        Result:= FindNEntriesUIAux;
+        if Result = nil then begin
+           CheckTagsVinc:= False;
+           CheckMain:= True;
+           Result:= FindNEntriesUIAux;
+           if Result = nil then begin
+              //CheckTagsVinc:= False;
+              CheckMain:= False;
+              Result:= FindNEntriesUIAux;
+           end;
+        end;
+     end;
+  end;
+
+begin                                                                           // ** TODO: Inmersive Mode
+
+ {
+  Search order:
+  - Single Entry with searched entry
+  - Multi-Entry (including the searched entry)
+    - Panel with that entry selected
+    - Panel linked to Tags
+    - Main panel
+    - Other
+  - Single Entry including the searched entry
+    - Panel linked to Tags
+    - Main panel
+    - Other 
+  }
+
+   Location:= TLocation(LocationObj);
+   NEntry:= Location.NEntry;
+
+
+   CheckOnlyEntrySelected:= true;
+   CheckOnlySingleEntry:= false;
+
+   if (Location.NEntriesUIObj <> nil) and CheckNEntriesUI(TKntNoteEntriesUI(Location.NEntriesUIObj)) then
+      Result:= TKntNoteEntriesUI(Location.NEntriesUIObj)
+
+   else begin
+      //CheckOnlyEntrySelected:= true;
+      CheckOnlySingleEntry:= true;
+      Result:= FindNEntriesUI;
+
+      if Result = nil then begin
+         CheckOnlySingleEntry:= false;
+         //CheckOnlyEntrySelected:= true;
+         Result:= FindNEntriesUI;
+
+         if Result = nil then begin
+            MainEntriesUI:= GetNEntriesUI(FNNodeUIConfig.GetMainPanel);
+
+            //CheckOnlySingleEntry:= false;
+            CheckOnlyEntrySelected:= false;
+            Result:= FindNEntriesUI;
+
+            if Result = nil then begin
+               CheckOnlySingleEntry:= true;
+               //CheckOnlyEntrySelected:= false;
+               Result:= FindNEntriesUI;
+            end;
+        end;
+     end;
+   end;
+
+end;
+
+
 function TKntNoteUI.MultipleVisibleEditors: boolean;
 begin
    Result:= FMultipleVisibleEditors;
@@ -909,7 +1033,7 @@ begin
   FHideFocusFlag:= false;
 
   if CtrlDown then begin                            // QueryLayout <-> EditingLoayout
-     if (NEntriesUI.Mode = meSingleEntry) then begin
+     if (NEntriesUI.PanelConfig.CurrentModeInSession = meSingleEntry) then begin
         if FQueryLayout or (NEntriesUI.PanelConfig.VinculatedTags <> nil) then
            NEntriesUI.btnToggleMultiClick(nil)
         else begin
@@ -1023,14 +1147,11 @@ var
   NEntriesUI: TKntNoteEntriesUI;
   PanelConfig: TPanelConfiguration;
   PnlEdit: TNEntriesPanel;
-  RequestedFromMultiEntry: boolean;
 
 begin
    if (ReqFromNEntriesUI = nil) or (Note = nil) then exit;
 
-   RequestedFromMultiEntry:= (ReqFromNEntriesUI.Mode = meMultipleEntries);
-
-   if (ReqFromNEntriesUI.Mode = meMultipleEntries) and (ReqFromNEntriesUI.PanelConfig.VinculatedTags = nil) then begin
+   if (ReqFromNEntriesUI.PanelConfig.CurrentModeInSession = meMultipleEntries) and (ReqFromNEntriesUI.PanelConfig.VinculatedTags = nil) then begin
       if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
          PnlEdit:= ReqFromNEntriesUI.PanelConfig.Panel;
          if not NewEntry then begin
@@ -1048,22 +1169,23 @@ begin
    PanelConfig:= NEntriesUI.PanelConfig;
    PanelConfig.SelNEntry:= NEntry;
 
-  { AutoCollapseEntryOnEditing
    if NEntriesUI <> ReqFromNEntriesUI then begin
       ReqFromNEntriesUI.SavePositionInPanel;
+      {  // AutoCollapseEntryOnEditing
       if NEntry <> nil then
          ReqFromNEntriesUI.ReloadVisibleContentOfEntries(false, cmOnlyHeader, ReqFromNEntriesUI.GetIndexOfVisibleEntry(NEntry));
+      }
       PanelConfig.SelStart:= ReqFromNEntriesUI.PanelConfig.SelStart;
       PanelConfig.SelLength:= ReqFromNEntriesUI.PanelConfig.SelLength;
    end;
-   }
+
    if SS >= 0 then begin
       PanelConfig.SelStart:= SS;
       PanelConfig.SelLength:= SL;
    end;
 
    NEntriesUI.Editor.HideNestedFloatingEditor;
-   NEntriesUI.Mode:= meSingleEntry;
+   NEntriesUI.PanelConfig.CurrentModeInSession:= meSingleEntry;
    NEntriesUI.ReloadFromDataModel(True, nil, aNull, true);
 
    FNNodeDeleted:= false;
@@ -1286,7 +1408,7 @@ begin
 
              if OfferEditorForNewEntry and (Pnl = PnlToSetFocus) then begin
                 PanelConfig.SelNEntry:= nil;
-                NEntriesUI.Mode:= meSingleEntry;
+                NEntriesUI.PanelConfig.CurrentModeInSession:= meSingleEntry;
              end;
              NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus));
 

@@ -3346,6 +3346,7 @@ begin
        Visible:= True;
        Scope:= fsSelectedNode;
        Mode:= aMode;
+       CurrentModeInSession:= aMode;
        SelectedNNode:= NNode;
        NNodes:= nil;
        EditingLayout:= not FQueryLayout;

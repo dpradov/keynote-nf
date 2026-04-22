@@ -53,7 +53,8 @@ type
     FolderID : Cardinal;
     NNodeID : Word;
     NNodeGID : Cardinal;
-    NEntryID : Word;        // %%%
+    NEntryID : Word;
+    NEntriesUIObj: TObject;
     Mark : byte;            // To be used with KNT links (InsertOrMarkKNTLink)
     CaretPos : integer;
     SelLength : integer;
@@ -131,6 +132,7 @@ begin
             myFav.NoteName := readstring( section, 'Node', '' );
             myFav.NNodeID := readinteger( section, 'NodeID', 0 );
             myFav.NNodeGID := readinteger( section, 'NodeGID', 0 );
+            myFav.NEntryID := readinteger( section, 'NEntryID', 0 );
             myFav.CaretPos := readinteger( section, 'Pos', 0 );
             myFav.SelLength := readinteger( section, 'Len', 0 );
             myFav.ExternalDoc := readbool( section, 'ExternalDoc', false );
@@ -182,6 +184,7 @@ begin
           writeinteger( section, 'NoteID', myFav.FolderID );      // Knt FolderID...
           writeinteger( section, 'NodeID', myFav.NNodeID );
           writeinteger( section, 'NodeGID', myFav.NNodeGID );
+          writeinteger( section, 'NEntryID', myFav.NEntryID );
           writestring( section, 'Node', myFav.NoteName );
           writeinteger( section, 'Pos', myFav.CaretPos );
           writeinteger( section, 'Len', myFav.SelLength );
@@ -235,6 +238,7 @@ begin
   Folder:= nil;
   NNode:= nil;
   NEntry:= nil;
+  NEntriesUIObj:= nil;
   Calculated:= false;
 
 end; // create
@@ -260,6 +264,7 @@ begin
   Folder:= aLocation.Folder;
   NNode:= aLocation.NNode;
   NEntry:= aLocation.NEntry;
+  NEntriesUIObj:= aLocation.NEntriesUIObj;
   Calculated:= aLocation.Calculated;
 
 end; // SetKNTLocation
