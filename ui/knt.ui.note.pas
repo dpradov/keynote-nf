@@ -1437,22 +1437,25 @@ begin
    ShowLeftPanel(False);
    ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);
    ShowPanelsBottom(ShowPanel[pnBL], ShowPanel[pnBR]);
-   FixPossibleProblemWith0HeigthPanels;
 
-   if EditingNEntry = nil then begin                       // If <> nil -> Focus in FSelectedNEntriesUI will be set from EditInInMultiEntries
-      FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
-      if not ActiveTreeUI.Focused then
-         FSelectedNEntriesUI.SetFocusOnEditor;
-      FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
+   if assigned(NNode) then begin
+      FixPossibleProblemWith0HeigthPanels;
+
+      if EditingNEntry = nil then begin                       // If <> nil -> Focus in FSelectedNEntriesUI will be set from EditInInMultiEntries
+         FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
+         if not ActiveTreeUI.Focused then
+            FSelectedNEntriesUI.SetFocusOnEditor;
+         FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
+      end;
+
+      if not QueryLayout and not Folder.EditorInfoPanelHidden then
+         KeepInfoPanelTemporarilyVisible
+      else
+         TimerInfoTimer(nil);
+
+      if not QueryLayout then
+         ActiveFile.SetNoteIsOnEditingLayout(FNote, True);
    end;
-
-   if not QueryLayout and not Folder.EditorInfoPanelHidden then
-      KeepInfoPanelTemporarilyVisible
-   else
-      TimerInfoTimer(nil);
-
-   if not QueryLayout then
-      ActiveFile.SetNoteIsOnEditingLayout(FNote, True);
 
 {$IFDEF KNT_DEBUG}
    GetDBG_NEntriesUI;

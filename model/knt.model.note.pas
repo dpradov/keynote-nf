@@ -148,6 +148,9 @@ type
     function GetIsEncrypted: boolean;
     procedure SetIsEncrypted(value: boolean);
 
+    function GetTags: TNoteTagArray;
+    procedure SetTags(value: TNoteTagArray);
+
 
   public
     constructor Create;
@@ -161,6 +164,8 @@ type
     property States: TNoteStates read fStates;
     property LastModified: TDateTime read fLastModified write fLastModified;
     property DateCreated: TDateTime read GetDateCreated;
+    property Tags: TNoteTagArray read GetTags write SetTags;
+
 
     property SelEntry : TNoteEntry read GetSelEntry write {$IFDEF KNT_DEBUG}SetSelEntry{$ELSE}fSelEntry{$ENDIF};
     property SelStart : Cardinal read fSelStart write fSelStart;
@@ -178,6 +183,8 @@ type
 
    protected
     function InternalAddEntry(Entry: TNoteEntry): integer;
+    function GetMainEntry: TNoteEntry;
+    procedure SetMainEntry(value: TNoteEntry);
    public
     property NumEntries: integer read GetNumEntries;
     property Entries: TNoteEntryArray read fEntries;
@@ -185,6 +192,7 @@ type
     function AddNewEntry: TNoteEntry;
     procedure DeleteEntry(IndexToRemove: integer);
     function GetEntry(ID: Word): TNoteEntry;
+    property MainEntry: TNoteEntry read GetMainEntry write SetMainEntry;
     function IsValid(Entry: TNoteEntry): Boolean;
 
 
@@ -224,19 +232,20 @@ type
 
     nesEncrypted,      // Entry marked as encrypted
 
+    nesIsMain,         // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
+
  // TODO ------------ :
     nesReadOnly,       // Entry marked as read-only
   //--
     nesArchived,       // Entry that we do not want to appear by default in searches or complicate the display of notes
-    nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself 
+    nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself
                        // (it is the 'first' entry of that one, or its Main entry, and that it may have other Entries)
-    nesFixed,          // When viewing the note, pin to the top. Can also be used as a search criterion 
-  //--  
-  
-    // Internal and basic way of categorizing the entries of a note. Can also be used as a search criterion	
+    nesFixed,          // When viewing the note, pin to the top. Can also be used as a search criterion
+  //--
+
+    // Internal and basic way of categorizing the entries of a note. Can also be used as a search criterion
     // (and complemented with the use of custom tags):
-  
-    nesIsMain,         // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
+
     nesIsSummary,      // Only one entry can be used as Summary in a note
     nesIsStarred,
     nesIsDoc,
@@ -332,11 +341,13 @@ type
     function GetIsPlainTXT: boolean; inline;
     function GetIsHTML: boolean; inline;
     function GetIsEncrypted: boolean; inline;
+    function GetIsMain: boolean; inline;
     procedure SetModified_(value: boolean);
     procedure SetIsRTF(value: boolean);
     procedure SetIsPlainTXT(value: boolean);
     procedure SetIsHTML(value: boolean);
     procedure SetIsEncrypted(value: boolean);
+    procedure SetIsMain(value: boolean);
     function GetTags: TNoteTagArray;
 
   public
@@ -358,6 +369,7 @@ type
     property IsPlainTXT: boolean read GetIsPlainTXT write SetIsPlainTXT;
     property IsHTML: boolean read GetIsHTML write SetIsHTML;
     property IsEncrypted: boolean read GetIsEncrypted write SetIsEncrypted;
+    property IsMain: boolean read GetIsMain write SetIsMain;
 
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
@@ -792,6 +804,40 @@ begin
       if fEntries[i].ID = ID then
          exit(fEntries[i]);
 end;
+
+
+function TNote.GetMainEntry: TNoteEntry;
+var
+   i: integer;
+begin
+   Result:= nil;
+   for i:= 0 to High(fEntries) do
+      if fEntries[i].IsMain then
+         exit(fEntries[i]);
+
+   Result:= fEntries[0];
+   fEntries[0].IsMain:= True;
+end;
+
+procedure TNote.SetMainEntry(value: TNoteEntry);
+begin
+   if not IsValid(value) then exit;
+
+   MainEntry.IsMain:= False;
+   value.IsMain:= True;
+end;
+
+
+function TNote.GetTags: TNoteTagArray;
+begin
+   Result:= MainEntry.Tags;
+end;
+
+procedure TNote.SetTags(value: TNoteTagArray);
+begin
+   MainEntry.Tags:= value;
+end;
+
 
 
 function TNote.AddResource(Resource: TNote): integer;
@@ -1289,6 +1335,11 @@ begin
   Result:= (nesEncrypted in fStates);
 end;
 
+function TNoteEntry.GetIsMain: boolean;
+begin
+  Result:= (nesIsMain in fStates);
+end;
+
 procedure TNoteEntry.SetIsRTF(value: boolean);
 begin
   if value then begin
@@ -1323,6 +1374,14 @@ begin
      Include(fStates, nesEncrypted)
   else
      Exclude(fStates, nesEncrypted);
+end;
+
+procedure TNoteEntry.SetIsMain(value: boolean);
+begin
+  if value then
+     Include(fStates, nesIsMain)
+  else
+     Exclude(fStates, nesIsMain);
 end;
 
 

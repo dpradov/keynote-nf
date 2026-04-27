@@ -3073,7 +3073,7 @@ begin
          TV.InvalidateNode(NNode.TVNode);
       end;
 
-      NEntry:= Note.Entries[0];                                      // %%%
+      NEntry:= Note.Entries[0];         // New created note, with a single entry at first
       NEntry.Stream.Position := 0;
       NEntry.Stream.WriteBuffer(myRTFTExt[1], length(myRTFTExt));
       TKntFolder(Folder).ReloadEditorFromDataModel;
@@ -4250,19 +4250,19 @@ var
   var
      Node : PVirtualNode;
      NNode: TNoteNode;
-     NEntry: TNoteEntry;
+     Tags: TNoteTagArray;
      InheritedTagsForChildren: ^TNoteTagArray;
   begin
     for Node in TV.ChildNodes(ParentNode) do begin
        if vsHasChildren in Node.States then begin
           NNode:= GetNNode(Node);
-          NEntry:= NNode.Note.Entries[0];                          //%%%
-          if (NEntry.Tags <> nil) then begin
+          Tags:= NNode.Note.Tags;
+          if (Tags <> nil) then begin
              fParentNodesWithInheritedTags.Add(Node);
              InheritedTagsForChildren:= @fInheritedTags[I];
              if ParentInheritedTags <> nil then
                 TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, ParentInheritedTags);
-             TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, NEntry.Tags);
+             TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, Tags);
              inc(I);
 
              PopulateInheritedTags(Node, InheritedTagsForChildren^);
@@ -4300,7 +4300,7 @@ var
    end;
 
 begin
-  NodeTags:= NNode.Note.Entries[0].Tags;                  //%%%
+  NodeTags:= NNode.Note.Tags;
 
   for i:= 0 to High(NodeTags) do
      AddUseOfTag(NodeTags[i]);
@@ -4325,7 +4325,7 @@ begin
        NTag:= ActiveFile.NoteTags[i];
        Used:= false;
        for j := 0 to NNodes.Count-1 do begin
-           if NNodes[j].Note.Entries[0].HasTag(NTag) then begin
+           if NNodes[j].Note.MainEntry.HasTag(NTag) then begin
               Used:= True;
               break;
            end;

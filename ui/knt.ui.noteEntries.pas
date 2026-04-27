@@ -135,7 +135,7 @@ type
                                    InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
-    procedure ModifiedMetadataOfEntries(Note: TNote);
+    procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure SaveToDataModel;
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
@@ -163,6 +163,7 @@ type
     procedure ShowEntriesButtons(Show: boolean);
     procedure SelectEntry(iEntry: integer; LastPos: boolean = false);
     procedure FrameResize(Sender: TObject);
+    function InfoPanelShowingNoteMetadata: boolean;
   public
     procedure EditTags;
     procedure RefreshTags;
@@ -345,9 +346,11 @@ end;
 procedure TKntNoteEntriesUI.SetAsUnused;
 begin
   FOnUse:= False;
-  Editor.Clear;
   FNNode:= nil;
   FNEntry:= nil;
+  Editor.BeginUpdate;
+  Editor.Clear;
+  Editor.EndUpdate;
 end;
 
 
@@ -637,14 +640,35 @@ begin
 end;
 
 
+function TKntNoteEntriesUI.InfoPanelShowingNoteMetadata: boolean;
+begin
+   if FNNode.Note.MainEntry = FNEntry then
+      Result:= True
+   else
+      Result:= PanelConfig.ShowEditorInfoPanel and
+              ((PanelConfig.CurrentModeInSession = meMultipleEntries) or (FNNode.Note.NumEntries = 1));
+end;
+
+
 procedure TKntNoteEntriesUI.RefreshTags;
 var
    S: string;
    Color: TColor;
+   NEntry: TNoteEntry;
 begin
-   if FNEntry <> nil then begin
-      S:= FNEntry.TagsNames;
-      Color:= clWindowText;
+   if FNNode = nil then exit;
+
+   Color:= clWindowText;
+
+   if InfoPanelShowingNoteMetadata then
+      NEntry:= FNNode.Note.MainEntry
+   else begin
+      NEntry:= FNEntry;
+      Color:= RGB(0,0, 170);
+   end;
+
+   if NEntry <> nil then begin
+      S:= NEntry.TagsNames;
    end
    else
    if PanelConfig.VinculatedTags <> nil then begin
@@ -667,13 +691,22 @@ begin
 end;
 
 procedure TKntNoteEntriesUI.txtTagsEnter(Sender: TObject);
+var
+   NEntry: TNoteEntry;
 begin
-   if (FNEntry = nil) or txtTags.ReadOnly then begin
+   if PanelConfig = nil then exit;
+
+   if InfoPanelShowingNoteMetadata then
+      NEntry:= FNNode.Note.MainEntry
+   else
+      NEntry:= FNEntry;
+
+   if (NEntry = nil) or txtTags.ReadOnly then begin
       SetFocusOnEditor;
       exit;
    end;
 
-   TagMng.StartTxtEditTagIntrod(txtTags, OnEndEditTagsIntroduction, FNote, FNEntry, Folder);
+   TagMng.StartTxtEditTagIntrod(txtTags, OnEndEditTagsIntroduction, FNote, NEntry, Folder);
    AdjustTxtTagsWidth(True);
 end;
 
@@ -689,6 +722,9 @@ begin
 
    FTagsOfEntryModified:= True;
    txtTags.Color:= FColorTxts;
+   if not InfoPanelShowingNoteMetadata then
+      txtTags.Font.Color:= RGB(0,0, 170);
+
    AdjustTxtTagsWidth;
 
    InfoPanelHidden:= Folder.EditorInfoPanelHidden;
@@ -929,9 +965,20 @@ var
 
  function NEntryMustBeIncludedInPanel (NEntry: TNoteEntry): boolean;
  begin
-    Result:= True;
-    if (FindTags <> nil) and not NEntry.MatchesTags(FindTags) then
-        exit(false);
+   Result:= False;
+
+   case PanelConfig.Scope of
+      fsSelectedNode: begin
+          Result:= FNote.IsValid(NEntry) and  not ((FindTags <> nil) and not NEntry.MatchesTags(FindTags));
+      end;
+
+      fsSelectedNodeAndSubtree: ;
+      fsSelectedNodeAndAncestors: ;
+      fsSelectedNodes: ;      // -> PanelConfig.NNodes
+      fsFolder: ;
+      fsFile: ;
+   end;
+
  end;
 
 
@@ -1364,7 +1411,11 @@ begin
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
    if (Mode = meMultipleEntries) then begin
-      SetReadOnly(true);
+      if not FKntFolder.ReadOnly then
+         Editor.ReadOnly:= true
+      else
+         SetReadOnly(true);
+
       if RTFAux = nil then
          RTFAux:= CreateAuxRichEdit();
       cEditor:= RTFAux;
@@ -1530,6 +1581,9 @@ begin
 
   Editor.Enabled:= true;
   txtName.Enabled:= True;
+  txtTags.Enabled:= true;
+  txtCreationDate.Enabled:= True;
+  btnOptions.Enabled:= true;
 end;
 
 
@@ -1956,9 +2010,12 @@ begin
   if FNNode = nil then begin
      FEditor.SupportsRegisteredImages:= false;
      FEditor.SupportsImages:= false;
-     FEditor.SetVinculatedObjs(nil, nil, nil, nil, nil, (PanelConfig.CurrentModeInSession=meMultipleEntries));
+     FEditor.SetVinculatedObjs(nil, nil, nil, nil, nil, false);
      FEditor.Enabled:= False;
+     txtTags.Enabled:= False;
      txtName.Enabled:= False;
+     txtCreationDate.Enabled:= False;
+     btnOptions.Enabled:= false;
   end
   else begin
      if iEntry >= 0 then
@@ -2063,17 +2120,16 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.ModifiedMetadataOfEntries (Note: TNote);
+procedure TKntNoteEntriesUI.ModifiedMetadataOfEntry(NEntry: TNoteEntry);
 var
-   i, N: integer;
+   N: integer;
 begin
    SavePositionInPanel;
    N:= Length(FEntriesShown);
 
    LockControl(Editor, True);
    try
-      for i:=0 to High(Note.Entries) do
-          ReloadFromDataModel(false, Note.Entries[i], aModifiedMetadata);
+      ReloadFromDataModel(false, NEntry, aModifiedMetadata);
 
       if (N = 0) and (Length(FEntriesShown) > 0) then
          SelectEntry(0);

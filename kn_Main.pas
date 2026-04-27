@@ -6151,6 +6151,9 @@ var
     i: integer;
   begin
      NNode:= ActiveTreeUI.GetNNode(Node);
+     // *1 We will only act on the tags directly associated with the note itself, that is, its main entry ([0] by default)
+
+  {  *1
      for i := 0 to High(NNode.Note.Entries) do begin
         NEntry:= NNode.Note.Entries[i];
         if Add then
@@ -6158,7 +6161,14 @@ var
         else
            NEntry.RemoveTags(SelectedTags);
      end;
-     App.ModifiedMetadataOfEntries(NNode.Note);
+  }
+     NEntry:= NNode.Note.MainEntry;
+     if Add then
+        NEntry.AddTags(SelectedTags)
+     else
+        NEntry.RemoveTags(SelectedTags);
+
+     App.ModifiedMetadataOfEntry(NEntry);
   end;
 
 begin
