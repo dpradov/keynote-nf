@@ -852,7 +852,8 @@ begin
 
         if not FNEntry.HaveSameTags(TagsAssigned) then begin
            FNEntry.Tags:= TagsAssigned;
-           App.NEntryModified(FNEntry, FNote, TKntFolder(FFolder));
+           App.ModifiedMetadataOfEntry(FNEntry, FNote, TKntFolder(FFolder));
+
            Form_Main.ClearFindTags;
            if TKntFolder(FFolder).TreeUI.ShowUseOfTags then
               Form_Main.RefreshFilterOnTags;

@@ -1816,10 +1816,9 @@ var
    TextPlain: string;
 
 begin
-  if (PanelConfig.CurrentModeInSession = meMultipleEntries) then exit;
   Encoding:= nil;
 
-  if assigned(NNode) and (FNEntry <> nil) then begin
+  if assigned(NNode) and (FNEntry <> nil) and (PanelConfig.CurrentModeInSession <> meMultipleEntries) then begin
      if (FEditor.FloatingEditor <> nil) then
         FEditor.DoSaveChangesInFloatingEditor;
 

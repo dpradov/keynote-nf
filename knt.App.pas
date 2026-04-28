@@ -146,7 +146,7 @@ type
       procedure SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
       procedure HideNestedFloatingEditors;
       procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
-      procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
+      procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
@@ -767,13 +767,15 @@ begin
 end;
 
 
-procedure TKntApp.ModifiedMetadataOfEntry(NEntry: TNoteEntry);
+procedure TKntApp.ModifiedMetadataOfEntry(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 var
    E: TKntRichEdit;
    NEntriesUI: TKntNoteEntriesUI;
    i: integer;
 begin
    Log_StoreTick('TKntApp.ModifiedMetadataOfEntry - BEGIN', 4, +1);
+
+   NEntryModified(NEntry, Note, Folder);
 
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];

@@ -6168,7 +6168,7 @@ var
      else
         NEntry.RemoveTags(SelectedTags);
 
-     App.ModifiedMetadataOfEntry(NEntry);
+     App.ModifiedMetadataOfEntry(NEntry, NNode.Note, ActiveFolder);
   end;
 
 begin
