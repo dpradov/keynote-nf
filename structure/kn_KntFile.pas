@@ -1334,7 +1334,7 @@ begin
         if (N.DateCreated = 0) or RemoveDateFromName or ForceReconsidere then begin
            
            if (N.DateCreated = 0) or ForceReconsidere then begin     // Search in note content
-              TextPlain:= F.PrepareTextPlain(NN, RTFAux);
+              TextPlain:= PrepareTextPlain(N.MainEntry, RTFAux);
               posLastCR:= 0;
               repeat
                  posCR:= Pos(#13, TextPlain, posLastCR+1);

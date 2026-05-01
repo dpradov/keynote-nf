@@ -355,11 +355,10 @@ type
 
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit ): boolean;
-    function PrepareTextPlain (NNode: TNoteNode; RTFAux: TAuxRichEdit; iEntry: integer = 0; ClearRTFAux: boolean= False): string;
-
   end; // TKntFolder
 
   function InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
+  function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
   procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
 
 implementation
@@ -1953,17 +1952,10 @@ begin
 end;
 
 // myTreeNode must be active node in folder, so that the Editor is showing its content
-function TKntFolder.PrepareTextPlain(NNode: TNoteNode; RTFAux: TAuxRichEdit; iEntry: integer = 0; ClearRTFAux: boolean= False): string;
-var
-   NEntry: TNoteEntry;
-   i: integer;
+function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
 begin
-   assert((iEntry >= 0) and (iEntry < NNode.Note.NumEntries) );
+   App.SaveEditorModifiedWithNEntry(NEntry);
 
-   if NoteUI.Editor.Modified then
-      NoteUI.SaveToDataModel;
-
-   NEntry:= NNode.Note.Entries[iEntry];
    InitializeTextPlain(NEntry, RTFAux);
    if ClearRTFAux and (RTFAux.TextLength > 0) then
       RTFAux.Clear;

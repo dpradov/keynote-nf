@@ -102,7 +102,6 @@ type
 
     FInfoPanelHidden: boolean;
     fImagesReferenceCount: TImageIDs;
-    FEditor_SupportsRegisteredImages: boolean;       // For use with meMultipleEntries
 
     //FLastEditorUIWidth: string;
 
@@ -954,6 +953,7 @@ var
 
  cEditor: TRxRichEdit;
  iEntry, iEntryToConsider, iEntryAdded, iSelectedEntry: integer;
+ ChangeInSelectedEntry: boolean;
  ImagesAux: TImageIDs;
  CannotShow_Encrypted: boolean;
  SS, SL, Offset: integer;
@@ -1113,11 +1113,8 @@ var
  var
    NEntry: TNoteEntry;
  begin
-     if (Mode = meMultipleEntries) then begin
+     if (Mode = meMultipleEntries) then
         cEditor.Clear;
-        if FEditor.SupportsRegisteredImages then
-           FEditor_SupportsRegisteredImages:= True;
-     end;
 
      NEntry:= FEntriesShown[iEntry].NEntry;
      NEntry.Stream.Position := 0;
@@ -1352,7 +1349,7 @@ begin
    iSelectedEntry:= GetIndexOfVisibleEntry(PanelConfig.SelNEntry);
 
    if (NEntryToConsider <> nil) then begin
-       if (ActionOnEntry <> aDeleted) then
+       if not (ActionOnEntry in [aDeleted, aChangedVisibility]) then
           MustBeIncluded:= NEntryMustBeIncludedInPanel(NEntryToConsider);
 
        if (ActionOnEntry = aCreated) then begin
@@ -1408,6 +1405,8 @@ begin
    end;
 
 
+   // Content of editor must be reviewed
+
    Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
 
    if (Mode = meMultipleEntries) then begin
@@ -1420,7 +1419,6 @@ begin
          RTFAux:= CreateAuxRichEdit();
       cEditor:= RTFAux;
       cEditor.BeginUpdate;
-      FEditor_SupportsRegisteredImages:= False;
    end
    else begin
       SetReadOnly(FKntFolder.ReadOnly);
@@ -1450,10 +1448,14 @@ begin
      if EntryToRemove then begin          // and FMode = meMultipleEntries
         ReconsiderEntry(iEntryToConsider);
         PopulateEntriesToShow;
-        if iEntryToConsider < FiEntry then
+        ChangeInSelectedEntry:= (iEntryToConsider = FiEntry);
+        if iEntryToConsider <= FiEntry then
            dec(FiEntry);
         if FEntriesShown = nil then
-           FNEntry:= nil;
+           FNEntry:= nil
+        else
+        if ChangeInSelectedEntry then
+           FNEntry:= FEntriesShown[FiEntry].NEntry;
 
         exit;
      end;
@@ -1472,7 +1474,7 @@ begin
            end
            else begin
               if PanelConfig.DescendingOrder then
-                  FiEntry:= Length(FEntriesShown)-1;
+                 FiEntry:= Length(FEntriesShown)-1;
            end;
        end;
 
@@ -1494,23 +1496,21 @@ begin
           if FiEntry >= 0 then
              ShowEntry (FiEntry)
           else begin
-             ConfigureEditor (-1);
              PanelConfig.SelStart:= 0;
              PanelConfig.SelLength:= 0;
           end;
        end;
+
 
        if FiEntry >= 0 then begin
           FNNode:= FEntriesShown[FiEntry].NNode;
           FNote:= FEntriesShown[FiEntry].Note;
           FNEntry:= FEntriesShown[FiEntry].NEntry;
        end;
-       Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
 
-       if (Mode = meSingleEntry) then begin
-          if (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
-              UpdateEditor (Editor, FKntFolder, false);
-       end;
+       Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
+       if (Mode = meSingleEntry) and (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+          UpdateEditor (Editor, FKntFolder, false);
 
 
        SS:= PanelConfig.SelStart;
@@ -1533,7 +1533,6 @@ begin
            FEditor.AddText(GetRS(sEdt52));
            ReadOnlyBAK:= True;
         end;
-        ConfigureEditor;
      end;
 
      ReloadMetadataFromDataModel;
@@ -1549,11 +1548,10 @@ begin
      if (PanelConfig.ScrollPosInEditor.Y > 0) then
         Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
 
-     if (Mode = meMultipleEntries) then begin
-        Editor.StreamFormat:= sfRichText;
-        Editor.PlainText:= False;
-        Editor.SupportsRegisteredImages:= FEditor_SupportsRegisteredImages;
-     end;
+     ConfigureEditor;
+     if ChangeInSelectedEntry then                  // In meMultipleEntries
+        App.NEntrySelected(FEditor, FNEntry);
+
 
      btnToggleMulti.Caption:= (FiEntry+1).ToString;
 
@@ -2005,6 +2003,7 @@ procedure TKntNoteEntriesUI.ConfigureEditor (iEntry: integer = -1);
 var
    plainTxt: boolean;
    NEntry: TNoteEntry;
+   i: integer;
 begin
   if FNNode = nil then begin
      FEditor.SupportsRegisteredImages:= false;
@@ -2022,13 +2021,29 @@ begin
      else
         NEntry:= FNEntry;
 
-     plainTxt:= false;
-     if NEntry <> nil then
-        plainTxt:= NEntry.IsPlainTXT;
-     FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, NEntry, Self, (PanelConfig.CurrentModeInSession=meMultipleEntries));
-     FEditor.PlainText:= plainTxt;
-     FEditor.Chrome:= FKntFolder.EditorChrome;
 
+     if (iEntry >=0) or (PanelConfig.CurrentModeInSession = meSingleEntry) then begin
+        plainTxt:= (NEntry <> nil) and NEntry.IsPlainTXT;
+
+     end
+     else begin
+        plainTxt:= true;
+        for i:= 0 to Length(FEntriesShown)-1 do begin
+           if FEntriesShown[i].Content = cmOnlyHeader then continue;
+           NEntry:= FEntriesShown[i].NEntry;
+           if not NEntry.IsPlainTXT then begin
+              plainTxt:= false;
+              break;
+           end;
+        end;
+
+        if (PanelConfig.CurrentModeInSession = meMultipleEntries) then
+           FEditor.StreamFormat:= sfRichText;
+     end;
+
+     FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, NEntry, Self, (PanelConfig.CurrentModeInSession = meMultipleEntries));
+     FEditor.Chrome:= FKntFolder.EditorChrome;
+     FEditor.PlainText:= plainTxt;
      FEditor.SupportsRegisteredImages:= (ImageMng.StorageMode <> smEmbRTF) and not plainTxt and not FNNode.IsVirtual;
      FEditor.SupportsImages:= not plainTxt;
   end;
@@ -2052,6 +2067,8 @@ begin
              FNEntry:= FEntriesShown[i].NEntry;
              ReloadMetadataFromDataModel();
              ReconsiderInfoPanelVisibility;
+             FEditor.SetVinculatedEntryObj(FNEntry);
+             App.NEntrySelected(Editor, FNEntry);
              break;
           end;
    end;
@@ -2116,6 +2133,8 @@ begin
    if not ModifyAll then
       NEntryToConsider:= FEntriesShown[iEntry].NEntry;
    ReloadFromDataModel(false, NEntryToConsider, aChangedVisibility);
+
+   App.EditorReloaded(Editor, Editor.Focused);
 end;
 
 
@@ -2160,7 +2179,7 @@ end;
 
 function TKntNoteEntriesUI.GetImagesInstances: TImageIDs;
 begin
-   if FEditor_SupportsRegisteredImages and FEditor.Modified then
+   if FEditor.SupportsRegisteredImages and FEditor.Modified then
       fImagesReferenceCount:= GetImagesIDInstances (nil, FEditor.TextPlain);
 
    Result:= fImagesReferenceCount;
@@ -2229,40 +2248,48 @@ var
    RestoreRO: boolean;
 
 begin
+    if (FNEntry = nil) or not FEditor.SupportsRegisteredImages then exit;
+
     SS:= FEditor.SelStart;
-    if ImagesMode = imLink then                                       // imImage --> imLink
-       SS:= PositionInImLinkTextPlain (FKntFolder, NNode, SS, True);   // True: Force calculation
 
-    if (FiEntry >= 0) and (FEntriesShown <> nil) and (PanelConfig.CurrentModeInSession = meMultipleEntries) then begin
-       dec(SS, FEntriesShown[FiEntry].StartingContentPos);
-       SavePositionInPanel;
-       ReloadFromDataModel(false, nil, aNull, false);
-       SearchCaretPos(Editor, SS + FEntriesShown[FiEntry].StartingContentPos, 0, true, Point(-1,-1), true,true,true);
-       exit;
-    end;
+    if (PanelConfig.CurrentModeInSession = meMultipleEntries) then begin
+       if (FiEntry >= 0) and (FEntriesShown <> nil) then begin
+          dec(SS, FEntriesShown[FiEntry].StartingContentPos);
+          if (ImagesMode = imLink) then                                       // imImage --> imLink
+             SS:= PositionInImLinkTextPlain (FEditor, FNEntry, SS, True);   // True: Force calculation
 
-    RTFIn:= Editor.RtfText;
-    RTFOut:= ImageMng.ProcessImagesInRTF(RTFIn, Self.Name, ImagesMode, '', 0, true);
-    if RTFOut <> '' then begin
-       Editor.BeginUpdate;
-       try
-          RestoreRO:= Editor.ReadOnly;
-          try
-             Editor.ReadOnly:= False;                     // We must allow images to be shown or hidden even if the note is read only
-
-             IgnoringEditorChanges:= True;
-             Editor.PutRtfText(RTFout,True,False);
-          finally
-             IgnoringEditorChanges:= False;
-             if RestoreRO then begin
-                Editor.ReadOnly:= True;
-                Editor.Modified:= False;
-             end;
-          end;
-          SearchCaretPos(Self.Editor, SS, 0, true, Point(-1,-1), true,true,true);
-       finally
-         Editor.EndUpdate;
+          SavePositionInPanel;
+          ReloadFromDataModel(false, nil, aNull, false);
+          SearchCaretPos(Editor, SS, 0, true, Point(-1,-1), true,true,true, FNEntry, FEntriesShown[FiEntry].StartingContentPos);
        end;
+    end
+    else begin
+        if (ImagesMode = imLink) then                                       // imImage --> imLink
+           SS:= PositionInImLinkTextPlain (FEditor, FNEntry, SS, True);   // True: Force calculation
+
+        RTFIn:= Editor.RtfText;
+        RTFOut:= ImageMng.ProcessImagesInRTF(RTFIn, Self.Name, ImagesMode, '', 0, true);
+        if RTFOut <> '' then begin
+           Editor.BeginUpdate;
+           try
+              RestoreRO:= Editor.ReadOnly;
+              try
+                 Editor.ReadOnly:= False;                     // We must allow images to be shown or hidden even if the note is read only
+
+                 IgnoringEditorChanges:= True;
+                 Editor.PutRtfText(RTFout,True,False);
+              finally
+                 IgnoringEditorChanges:= False;
+                 if RestoreRO then begin
+                    Editor.ReadOnly:= True;
+                    Editor.Modified:= False;
+                 end;
+              end;
+              SearchCaretPos(Self.Editor, SS, 0, true, Point(-1,-1), true,true,true, FNEntry);
+           finally
+             Editor.EndUpdate;
+           end;
+        end;
     end;
 end;
 

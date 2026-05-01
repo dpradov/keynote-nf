@@ -917,6 +917,7 @@ type
     txtTagsExcl: TEdit;
     lbl9: TLabel;
     chkTagsMetad: TCheckBox;
+    chkTagsEntries: TCheckBox;
     chkTagsText: TCheckBox;
     lbl4: TLabel;
     chkInhTagsFind: TCheckBox;
@@ -6753,6 +6754,7 @@ begin
   myFindOptions.FindTagsInclNotReg:= FindTagsIncl_NotRegistered;
   myFindOptions.FindTagsExclNotReg:= FindTagsExcl_NotRegistered;
   myFindOptions.TagsMetadata:= chkTagsMetad.Checked;
+  myFindOptions.TagsEntriesMetadata:= chkTagsEntries.Checked;
   myFindOptions.TagsText:= chkTagsText.Checked;
   myFindOptions.InheritedTags:= FindOptions.InheritedTags;
   myFindOptions.TagsModeOR:= (cbTagFindMode.ItemIndex = 1);
@@ -6826,7 +6828,7 @@ end;
 procedure TForm_Main.CheckFindAllEnabled;
 begin
    if CB_LastModifFrom.Enabled or CB_LastModifUntil.Enabled or CB_CreatedFrom.Enabled or CB_CreatedUntil.Enabled or
-      ( (chkTagsMetad.Checked or chkTagsText.Checked) and
+      ( (chkTagsMetad.Checked or chkTagsEntries.Checked or chkTagsText.Checked) and
          ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsIncl_NotRegistered <> '') or (FindTagsExcl_NotRegistered <> '')  )) then
       Btn_ResFind.Enabled := true
    else
@@ -6837,7 +6839,7 @@ procedure TForm_Main.CheckTxtTagsEnabled;
 var
   Enable: boolean;
 begin
-  Enable:= (chkTagsMetad.Checked or chkTagsText.Checked);
+  Enable:= (chkTagsMetad.Checked or chkTagsEntries.Checked or chkTagsText.Checked);
   txtTagsIncl.Enabled:= Enable;
   txtTagsExcl.Enabled:= Enable;
   lbl8.Enabled:= Enable;
@@ -7103,9 +7105,13 @@ begin
   if SS = ssOnlyNodeName then begin
      chkTagsText.Checked:= False;
      chkTagsText.Enabled:= False;
+     chkTagsEntries.Checked:= False;
+     chkTagsEntries.Enabled:= False;
   end
-  else
+  else begin
      chkTagsText.Enabled:= True;
+     chkTagsEntries.Enabled:= True;
+  end;
 end;
 
 procedure TForm_Main.ChangeFindInclToModeOR;
@@ -7223,6 +7229,7 @@ end;
 
 procedure TForm_Main.chkTagsMetadClick(Sender: TObject);
 begin
+   chkInhTagsFind.Enabled:= chkTagsMetad.Checked;
    CheckFindAllEnabled;
    CheckTxtTagsEnabled;
 end;

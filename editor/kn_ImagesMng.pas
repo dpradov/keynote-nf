@@ -449,9 +449,9 @@ type
 
     procedure ReloadImages(const IDs: TImageIDs);
 
-    function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
-    function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
-    function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+    function GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+    function GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+    function GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 
 
     procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
@@ -3828,7 +3828,7 @@ begin
 end;
 
 
-function TImageMng.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 var
   pID,pIDr: integer;
   pID_e,pIDr_e: integer;
@@ -3968,7 +3968,7 @@ begin
     if Pos(beginIDImgChar, imLinkTextPlain, 1) = 0 then
        exit;
 
-    TextPlainInEditor:= ActiveEditor.TextPlain;
+    TextPlainInEditor:= Editor.TextPlain;
 
     { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
       are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
@@ -4063,15 +4063,15 @@ begin
 end;
 
 
-function TImageMng.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 begin
-   Result:= GetPositionOffset(Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc);
+   Result:= GetPositionOffset(Editor, Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc);
 end;
 
 
-function TImageMng.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
 begin
-   Result:= GetPositionOffset(Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc);
+   Result:= GetPositionOffset(Editor, Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc);
 end;
 
 

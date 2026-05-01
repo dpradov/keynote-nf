@@ -154,10 +154,12 @@ type
       procedure EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
       procedure EditorSaved (Editor: TKntRichEdit; OnlyMetadaModified: boolean = false);
       procedure ChangeInEditor (Editor: TKntRichEdit);
+      procedure NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
+      procedure SaveEditorModifiedWithNEntry (NEntry: TNoteEntry);
 
       procedure TreeFocused (Tree: TKntTreeUI);
       procedure NNodeFocused(NNode: TNoteNode);
@@ -666,6 +668,30 @@ begin
           NNodeSelected(ActiveNNode);
     end;
 
+{$IFDEF KNT_DEBUG}
+{
+   var str: string;
+   if Editor = nil then
+      str:= 'EditorSelected: nil'
+   else begin
+      str:= Editor.GetTextRange(0,20) + '...';
+      if ActiveNNode = nil then
+         str:= #13 + '- ActiveNNode: nil '
+      else
+         str:= #13 + '- ActiveNNode.Note: ' + ActiveNNode.NoteName;
+
+      if ActiveNEntry = nil then
+         str:= str + #13 + '- ActiveNEntry: nil '
+      else
+         str:= str + #13 + '- ActiveNEntry.ID: ' + ActiveNEntry.ID.ToString + ' TextPlain: ' + ActiveNEntry.TextPlain.Substring(0,10) + '...';
+
+      str:= str + #13 + '- EditorSelected: ' + Editor.GetTextRange(0,20) + '...';
+
+   end;
+   Form_Main.Res_RTF.Text:= '=========     ' + str + #13#13 + Form_Main.Res_RTF.Text;
+}
+{$ENDIF}
+
     Log_StoreTick('TKntApp.EditorSelected - END', 4, -1);
 end;
 
@@ -787,6 +813,24 @@ begin
    Log_StoreTick('TKntApp.ModifiedMetadataOfEntry - END', 4, -1);
 end;
 
+procedure TKntApp.SaveEditorModifiedWithNEntry (NEntry: TNoteEntry);
+var
+   E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   for i:= 0 to fAvailableEditors.Count-1 do begin
+      E:= fAvailableEditors[i];
+      if not E.Modified then continue;
+      if TNoteEntry(E.NEntryObj) <> NEntry then continue;
+
+      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if NEntriesUI <> nil then
+         NEntriesUI.SaveToDataModel;
+   end;
+end;
+
+
 procedure TKntApp.NNodeFocused(NNode: TNoteNode);
 begin
    ActiveNNode:= NNode;
@@ -824,6 +868,28 @@ begin
   if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad) (or a 'blank' editor of a panel, with NEntryObj= nil)
 
   NEntryModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
+end;
+
+
+procedure TKntApp.NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
+begin
+   if (Editor = nil) or (ActiveEditor <> Editor) then exit;
+
+   ActiveNEntry:= NEntry;
+
+{$IFDEF KNT_DEBUG}
+{
+   var str: string;
+
+   if ActiveNEntry = nil then
+      str:= str + #13 + '- New ActiveNEntry: nil '
+   else
+      str:= str + #13 + '- New ActiveNEntry.ID: ' + ActiveNEntry.ID.ToString + ' TextPlain: ' + ActiveNEntry.TextPlain.Substring(0,10) + '...';
+
+   Form_Main.Res_RTF.Text:= '-------     ' + str + #13#13 + Form_Main.Res_RTF.Text;
+}
+{$ENDIF}
+
 end;
 
 

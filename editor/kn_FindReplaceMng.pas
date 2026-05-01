@@ -1166,12 +1166,15 @@ var
   myFolder : TKntFolder;
   myTreeNode : PVirtualNode;
   myNNode : TNoteNode;
+  myNEntry: TNoteEntry;
+  k: integer;
   LastFolderID, lastNoteGID : Cardinal;
   lastTag : integer;
   numNodosNoLimpiables: integer;
   thisWord : string;
   wordList : TSearchWordList;
   wordcnt : integer;
+  Match, MatchName: boolean;
   MultiMatchOK : boolean;
   nodeToFilter: boolean;
   nodesSelected: boolean;
@@ -1210,12 +1213,12 @@ var
   Paragraph: string;
   PositionsLastLocationAdded: array of integer;
 
-  SearchTagsInText, SearchTagsInMetadata, UseInheritedTags: boolean;
+  SearchTagsInText, SearchTagsInNotesMetadata, SearchTagsInEntriesMetadata, UseInheritedTags: boolean;
   UsingTags: boolean;
-  ConsiderNode, ConsiderAllTextInNode: boolean;
-  IgnoreWithTagsInText: boolean;
+  ConsiderNode, ConsiderNEntry, ConsiderAllTextInNEntry, ConsiderAllTextInNEntry_Node: boolean;
+  IgnoreWithTagsInText_Node, IgnoreWithTagsInText: boolean;
   IgnoreWithoutTagsInText: boolean;
-  InheritedTags: TNoteTagArray;
+  InheritedTags, TagsInNote: TNoteTagArray;
   iNode: integer;
 
   FindAllSearch: boolean;          // Excecuted with Find All - Search (in contrast with TreeFilter or OnlyGetIntervalFragments)
@@ -1335,15 +1338,16 @@ type
              nodesSelected:= true;
              nodeToFilter:= false;
           end;
-          Location.NEntry:= myNNode.Note.Entries[0];       // %%%
           Location.Calculated:= True;
 
           if not SearchingInNodeName then begin
+             Location.NEntry:= myNEntry;
              str:= TextPlainBAK;                                                      // original text, without case change
              Location.CaretPos := PatternPos;
              Location.SelLength := Length(FirstPattern) + SizeInternalHiddenTextInPos1;
           end
           else begin
+             Location.NEntry:= myNNode.Note.MainEntry;
              //str:= myNNode.NoteName;
              str:= NodeNameInSearch;
              Location.SelLength := 0;
@@ -1553,7 +1557,7 @@ type
             // Position starts at zero
 
             if (pI = -99) or not ((Position >= pI) and (Position <= pF)) then begin
-               if not ConsiderAllTextInNode then
+               if not ConsiderAllTextInNEntry then
                   // It will look for ..#$13 instead of ...#$13, in case the temporary break (#0) added from FindPatternInTextFragments might override the final string of a folded block.
                   InFolded:= PositionInFoldedBlock_FindAll(TextPlain, Position, pI, pF)
                else
@@ -2163,26 +2167,29 @@ type
        end;
 
 
-       procedure FindPatternInText (SearchingInNodeName: boolean; SearchingInNonRTFText: boolean);
+       function FindPatternInText (SearchingInNodeName: boolean; SearchingInNonRTFText: boolean): boolean;
        var
           wordidx : integer;
           IgnoreKNTHiddenMarks: boolean;
 
        begin
+          Result:= false;
           IgnoreKNTHiddenMarks:= not (SearchingInNodeName or SearchingInNonRTFText);
           case SearchModeToApply of
               smPhrase :
                   begin
                       repeat
-                         PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1, IgnoreKNTHiddenMarks, ConsiderAllTextInNode) -1;
+                         PatternPos:= FindPattern(TextToFind, TextPlain, SearchOrigin+1, SizeInternalHiddenTextInPos1, IgnoreKNTHiddenMarks, ConsiderAllTextInNEntry) -1;
                          { PatternPos := EditControl.FindText(myFindOptions.Pattern, SearchOrigin, -1, SearchOpts ); }
                          if ( PatternPos >= 0 ) then begin
                              SearchOrigin := PatternPos + PatternLen; // move forward in text
                              if myFindOptions.EmphasizedSearch = esParagraph then
                                 Paragraph:= GetTextScope(TextPlain, dsParagraph, PatternPos + 1, pL_DScope, pR_DScope, 1);
                              if CheckFolded(SearchingInNodeName, PatternPos,-1) and
-                                CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, TextToFind, PatternPos,'',-1, pL_DScope, pR_DScope) then
+                                CheckEmphasized(myFindOptions.EmphasizedSearch, SearchingInNodeName, TextToFind, PatternPos,'',-1, pL_DScope, pR_DScope) then begin
                                 AddLocation(SearchingInNodeName, lsNormal, TextToFind, PatternPos,nil,-1,-1,'',-1,Paragraph);
+                                Result:= true;
+                             end;
                          end;
                          Application.ProcessMessages;
                       until UserBreak or (PatternPos < 0);
@@ -2251,7 +2258,7 @@ type
                              ReusedWordPos:= true;
                           end
                           else
-                             PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText, IgnoreKNTHiddenMarks, ConsiderAllTextInNode) -1;
+                             PatternPos:= FindPattern(thisWord, SearchIn, SearchOriginDScope, SizeInternalHiddenText, IgnoreKNTHiddenMarks, ConsiderAllTextInNEntry) -1;
                           { PatternPos := EditControl.FindText(thisWord, 0, -1, SearchOpts); }
 
                           if (CurrentDScope <> dsAll) then begin
@@ -2416,6 +2423,8 @@ type
                           end
                           else
                              SearchOrigin:= 1 + AddLocation (SearchingInNodeName, lsMultimatch, PatternInPos1, PatternPos1, wordList, -1, -1, PatternInPosN, PatternPosN, SearchIn);
+
+                          Result:= true;
                        end;
 
                        Application.ProcessMessages;
@@ -2569,7 +2578,7 @@ type
        procedure CleanTagsTextFoundInfo;
        var
          i, j: integer;
-         NEntry: TNoteEntry;
+         MainNEntry: TNoteEntry;
          NTag: TNoteTag;
        begin
          // myNNode: TNoteNode where we are searching, whose tags (metadata) we have verified
@@ -2588,7 +2597,7 @@ type
 
 
           if not IgnoreWithTagsInText then begin
-             NEntry:= myNNode.Note.Entries[0];               //%%%
+             MainNEntry:= myNNode.Note.MainEntry;               // MainNEntry -> Notes's tags
 
              for i:= 0 to High(SearchTagsInclInfo) do begin
                 NTag:= nil;
@@ -2601,7 +2610,14 @@ type
                       sI:= -1;
                       sFtag:= 0;
                    end;
-                   if SearchTagsInMetadata and (NTag <> nil) and (NEntry.HasTag(NTag) or TNoteTagArrayUtils.HasTag(InheritedTags, NTag)) then begin
+                   if NTag = nil then continue;
+
+                   if SearchTagsInNotesMetadata and (MainNEntry.HasTag(NTag) or TNoteTagArrayUtils.HasTag(InheritedTags, NTag)) then begin
+                      SearchTagsInclInfo[i].InMetadata:= True;
+                      break;
+                   end;
+                   if SearchTagsInEntriesMetadata and (myNEntry.HasTag(NTag) or
+                                                        (not SearchTagsInNotesMetadata and TNoteTagArrayUtils.HasTag(InheritedTags, NTag)) ) then begin
                       SearchTagsInclInfo[i].InMetadata:= True;
                       break;
                    end;
@@ -2636,14 +2652,17 @@ begin
   with myFindOptions do begin
      UsingTags:= ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsInclNotReg <> '') or (FindTagsExclNotReg <> ''));
      SearchTagsInText:=     TagsText and UsingTags;
-     SearchTagsInMetadata:= TagsMetadata and UsingTags;
-     UseInheritedTags:=  InheritedTags and SearchTagsInMetadata;
+     SearchTagsInNotesMetadata:= TagsMetadata and UsingTags;
+     SearchTagsInEntriesMetadata:= TagsEntriesMetadata and UsingTags;
+     UseInheritedTags:=  InheritedTags and SearchTagsInNotesMetadata;
      if SearchTagsInText then
         PrepareTagsTextFoundInfo;       // -> TagsTextFoundInfo
      SearchingByDates:= (LastModifFrom <> 0) or (LastModifUntil <> 0) or (CreatedFrom <> 0) or (CreatedUntil <> 0);
   end;
 
-  if (myFindOptions.Pattern = '') and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText ) and not myFindOptions.ProtectedNodesOnly then exit;
+  if (myFindOptions.Pattern = '')
+      and not SearchingByDates and not (SearchTagsInNotesMetadata or SearchTagsInEntriesMetadata or SearchTagsInText )
+      and not myFindOptions.ProtectedNodesOnly then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
@@ -2663,6 +2682,7 @@ begin
      FindOptions.HiddenNodes:= myFindOptions.HiddenNodes;
      FindOptions.SearchPathInNodeNames:= myFindOptions.SearchPathInNodeNames;
      FindOptions.TagsMetadata:= myFindOptions.TagsMetadata;
+     FindOptions.TagsEntriesMetadata:= myFindOptions.TagsEntriesMetadata;
      FindOptions.TagsText:= myFindOptions.TagsText;
 
      FindOptions.FindAllMatches := false;
@@ -2733,7 +2753,9 @@ begin
          TextToFind:= wordList[0].word;           // '"Windows 10"' --> 'Windows 10'
       end;
 
-      if (wordcnt = 0) and not SearchingByDates and not (SearchTagsInMetadata or SearchTagsInText) and not myFindOptions.ProtectedNodesOnly then begin
+      if (wordcnt = 0) and not SearchingByDates and not (SearchTagsInNotesMetadata or SearchTagsInEntriesMetadata or SearchTagsInText)
+                       and not myFindOptions.ProtectedNodesOnly then begin
+
          Form_Main.Combo_ResFind.Text:= '';
          Form_Main.Btn_ResFind.Enabled:= False;
          exit;
@@ -2786,8 +2808,6 @@ begin
             // Go through each Note Node (NNode)
             repeat
                 nodeToFilter:= true;               // I assume the pattern will not be found, so the node will be filtered (if ApplyFilter=True)
-                SearchOrigin := 0;                 // starting a new node
-
                 SearchModeToApply := myFindOptions.SearchMode;    // Within each NNode we can temporarily switch from smAll to smAny
 
                 if assigned(myTreeNode) then
@@ -2823,11 +2843,16 @@ begin
                    }
 
                    ConsiderNode:= True;
+                   InheritedTags:= nil;
+                   TagsInNote:= nil;
 
-                   if SearchTagsInMetadata then begin
-                      ConsiderAllTextInNode:= True;
+                   ConsiderAllTextInNEntry:= not SearchTagsInText;
+                   IgnoreWithTagsInText:= (myFindOptions.FindTagsIncl = nil) and (myFindOptions.FindTagsInclNotReg = '');
 
-                      InheritedTags:= nil;
+
+                   if SearchTagsInNotesMetadata then begin
+                      ConsiderAllTextInNEntry:= True;
+
                       if UseInheritedTags then begin
                          iNode:= TreeUI.ParentNodesWithInheritedTags.IndexOf(myTreeNode.Parent);
                          if iNode >= 0 then
@@ -2837,13 +2862,13 @@ begin
                       if (myFindOptions.FindTagsExcl <> nil) then begin
                          ConsiderNode:= not myNNode.MatchesTags(myFindOptions.FindTagsExcl, InheritedTags);
                          if SearchTagsInText then
-                            ConsiderAllTextInNode:= False;    // Fragments that may have the tags to be excluded should be ignored.
+                            ConsiderAllTextInNEntry:= False;    // Fragments that may have the tags to be excluded should be ignored.
                       end;
 
                       IgnoreWithTagsInText:= True;
                       if ConsiderNode and ((myFindOptions.FindTagsInclNotReg <> '') or (myFindOptions.FindTagsIncl <> nil)) then begin
                          IgnoreWithTagsInText:= False;
-                         ConsiderNode:= myNNode.MatchesTags(myFindOptions.FindTagsIncl, InheritedTags);
+                         ConsiderNode:= myNNode.MatchesTags(myFindOptions.FindTagsIncl, InheritedTags);        // Look in MainEntry.Tags
                          if ConsiderNode and ((myFindOptions.FindTagsInclNotReg = '') or
                                               (myFindOptions.TagsModeOR and (myFindOptions.FindTagsIncl <> nil)) ) then
                             IgnoreWithTagsInText:= True       // The WITH condition is met with the metadata. It is sufficient.
@@ -2851,83 +2876,145 @@ begin
                             // Unregistered tags cannot be linked to notes. If having an unregistered tag is a requirement,
                             // it can only be fulfilled through some fragment
                             ConsiderNode:= False;
-                            if SearchTagsInText then begin
+                            if SearchTagsInEntriesMetadata or SearchTagsInText then begin
                                ConsiderNode:= True;
-                               ConsiderAllTextInNode:= False;
+                               ConsiderAllTextInNEntry:= False;
                                IgnoreWithTagsInText:= False;     // We will have to try to meet the condition by looking at the metadata
                             end
                          end;
                       end;
 
                       if ConsiderNode and SearchTagsInText and not IgnoreWithoutTagsInText then     // IgnoreWithoutTagsInText is set in PrepareTagsTextFoundInfo
-                         ConsiderAllTextInNode:= False;
+                         ConsiderAllTextInNEntry:= False;
 
-                   end
-                   else begin
-                      ConsiderAllTextInNode:= not SearchTagsInText;
-                      IgnoreWithTagsInText:= (myFindOptions.FindTagsIncl = nil) and (myFindOptions.FindTagsInclNotReg = '');
+                      if ConsiderNode then begin
+                         TNoteTagArrayUtils.AddTags(TagsInNote, myNNode.Note.MainEntry.Tags);
+                         if InheritedTags <> nil then
+                            TNoteTagArrayUtils.AddTags(TagsInNote, InheritedTags);
+                      end;
+
                    end;
-
 
                    if ConsiderNode then begin
 
-                      if (TextToFind = '') and ConsiderAllTextInNode then begin
-                         NodeNameInSearch:= myNNode.NoteName;
-                         AddLocation(true, lsNormal, TextToFind, 0);      // => nodeToFilter = False
-                      end
-                      else begin
+                       IgnoreWithTagsInText_Node:= IgnoreWithTagsInText;
+                       ConsiderAllTextInNEntry_Node:= ConsiderAllTextInNEntry;
 
-                         if (myFindOptions.SearchScope <> ssOnlyContent) and (TextToFind <> '') and (myFindOptions.FoldedMode <> sfOnlyFolded) then begin
-                           if myFindOptions.SearchPathInNodeNames then
-                              TextPlain:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, true )
-                           else
-                              TextPlain:= myNNode.NoteName;
 
-                           NodeNameInSearch:= TextPlain;
-                           if not myFindOptions.MatchCase then
-                              TextPlain:= AnsiUpperCase( TextPlain);
+                       Match:= False;
+                       MatchName:= False;
 
-                           FindPatternInText(true, true);
-                         end;
+                       // Go through each Entry in the Note (NEntry)
+                       for k:= 0 to High(myNNode.Note.Entries) do begin
+                           SearchOrigin := 0;                 // starting a new entry
 
-                         if (myFindOptions.SearchScope <> ssOnlyNodeName) and not (HideEncrypted and myNNode.Note.IsEncrypted) then begin
-                            if TextPlainToUse <> '' then
-                               TextPlainBAK:= TextPlainToUse
-                            else
-                               TextPlainBAK:= myFolder.PrepareTextPlain(myNNode, RTFAux, 0, ClearRTFAux);
-                            TextPlain:= TextPlainBAK;
-                            if not myFindOptions.MatchCase then
-                               TextPlain:=  AnsiUpperCase(TextPlain);
+                           myNEntry:= myNNode.Note.Entries[k];
+                           ConsiderNEntry:= true;
 
-                            SearchOrigin := 0;
-                            SearchingInNonRTFText:= myNNode.Note.Entries[0].IsPlainTXT;   // ### Entries[0]
 
-                            if ConsiderAllTextInNode then
-                                FindPatternInText(false, SearchingInNonRTFText)
+                           if SearchTagsInEntriesMetadata then begin
 
-                            else begin
-                                if not myFindOptions.MatchCase then
-                                   TextPlainInUpperCase:= TextPlain                    // In upper case, to be used if looking for Tags
-                                else
-                                   TextPlainInUpperCase:=  AnsiUpperCase(TextPlain);
+                              ConsiderAllTextInNEntry:= True;
+                              if (myFindOptions.FindTagsExcl <> nil) then begin
+                                 ConsiderNEntry:= not myNEntry.MatchesTags(myFindOptions.FindTagsExcl, TagsInNote);
+                                 if SearchTagsInText then
+                                    ConsiderAllTextInNEntry:= False;    // Fragments that may have the tags to be excluded should be ignored.
+                              end;
 
-                                CleanTagsTextFoundInfo;
-                                FindPatternInTextFragments(SearchingInNonRTFText);
-                            end;
+                              IgnoreWithTagsInText:= True;
+                              if ConsiderNEntry and not IgnoreWithTagsInText_Node and ((myFindOptions.FindTagsInclNotReg <> '') or (myFindOptions.FindTagsIncl <> nil)) then begin
+                                 IgnoreWithTagsInText:= False;
+                                 ConsiderNEntry:= myNEntry.MatchesTags(myFindOptions.FindTagsIncl, TagsInNote);
+                                 if ConsiderNEntry and ((myFindOptions.FindTagsInclNotReg = '') or
+                                                      (myFindOptions.TagsModeOR and (myFindOptions.FindTagsIncl <> nil)) ) then
+                                    IgnoreWithTagsInText:= True       // The WITH condition is met with the metadata. It is sufficient.
+                                 else begin
+                                    // Unregistered tags cannot be linked to notes. If having an unregistered tag is a requirement,
+                                    // it can only be fulfilled through some fragment
+                                    ConsiderNEntry:= False;
+                                    if SearchTagsInText then begin
+                                       ConsiderNEntry:= True;
+                                       if not ConsiderAllTextInNEntry_Node then
+                                          ConsiderAllTextInNEntry:= False;
+                                       IgnoreWithTagsInText:= False;     // We will have to try to meet the condition by looking at the metadata
+                                    end
+                                 end;
+                              end;
 
-                         end;
-                      end;
+                              if ConsiderNEntry and SearchTagsInText and not IgnoreWithoutTagsInText then     // IgnoreWithoutTagsInText is set in PrepareTagsTextFoundInfo
+                                 ConsiderAllTextInNEntry:= False;
+                           end;
 
-                      if ApplyFilter and (not nodeToFilter) then begin
-                         if TreeFilter then
-                            myNNode.TreeFilterMatch := True
-                         else
-                            myNNode.FindFilterMatch := True;
 
-                         if not myFolder.ReadOnly then
-                            myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
-                      end;
-                   end;
+                           if ConsiderNEntry then begin
+
+                              if (TextToFind = '') and ConsiderAllTextInNEntry then begin
+                                 if not Match then begin
+                                    NodeNameInSearch:= myNNode.NoteName;
+                                    AddLocation(true, lsNormal, TextToFind, 0);      // => nodeToFilter = False
+                                 end;
+                              end
+                              else begin
+
+                                 if not MatchName and (myFindOptions.SearchScope <> ssOnlyContent) and (TextToFind <> '') and (myFindOptions.FoldedMode <> sfOnlyFolded) then begin
+                                   if myFindOptions.SearchPathInNodeNames then
+                                      TextPlain:= myFolder.TreeUI.GetNodePath( myTreeNode, KntTreeOptions.NodeDelimiter, true )
+                                   else
+                                      TextPlain:= myNNode.NoteName;
+
+                                   NodeNameInSearch:= TextPlain;
+                                   if not myFindOptions.MatchCase then
+                                      TextPlain:= AnsiUpperCase( TextPlain);
+
+                                   if FindPatternInText(true, true) then
+                                      MatchName:= True;
+                                 end;
+
+                                 if (myFindOptions.SearchScope <> ssOnlyNodeName) and not (HideEncrypted and myNNode.Note.IsEncrypted) then begin
+                                    if TextPlainToUse <> '' then
+                                       TextPlainBAK:= TextPlainToUse
+                                    else
+                                       TextPlainBAK:= PrepareTextPlain(myNEntry, RTFAux, ClearRTFAux);
+                                    TextPlain:= TextPlainBAK;
+                                    if not myFindOptions.MatchCase then
+                                       TextPlain:=  AnsiUpperCase(TextPlain);
+
+                                    SearchOrigin := 0;
+                                    SearchingInNonRTFText:= myNEntry.IsPlainTXT;
+
+                                    if ConsiderAllTextInNEntry then
+                                        FindPatternInText(false, SearchingInNonRTFText)
+
+                                    else begin
+                                        if not myFindOptions.MatchCase then
+                                           TextPlainInUpperCase:= TextPlain                    // In upper case, to be used if looking for Tags
+                                        else
+                                           TextPlainInUpperCase:=  AnsiUpperCase(TextPlain);
+
+                                        CleanTagsTextFoundInfo;
+                                        FindPatternInTextFragments(SearchingInNonRTFText);
+                                    end;
+
+                                 end;
+                              end;
+
+                              if not Match and ApplyFilter and (not nodeToFilter) then begin
+                                 Match:= True;
+
+                                 if TreeFilter then
+                                    myNNode.TreeFilterMatch := True
+                                 else
+                                    myNNode.FindFilterMatch := True;
+
+                                 if not myFolder.ReadOnly then
+                                    myFolder.Modified:= True;    // Filter matches won't be saved in read only folders
+                              end;
+                           end;
+
+                           if UserBreak then break;
+                       end;                                    // For... each Entry in the Note (NEntry)
+                   end;            // If ConsiderNode
+
                 end;
 
                 if OnlyNode <> nil then
@@ -3389,6 +3476,7 @@ var
   TreeUI: TKntTreeUI;
   TV: TVTree;
   NNode: TNoteNode;
+  NEntry: TNoteEntry;
   SearchInImLinkTextPlain: boolean;  // True: PatternPos is a position in imLinkTextPlain
   IgnoreKNTHiddenMarks: boolean;
   HideEncrypted: boolean;
@@ -3591,8 +3679,9 @@ begin
 
       else begin
           SearchOrigin := Editor.SelStart;
+          NEntry:= NNode.Note.MainEntry;                            // ##### ToDO  Multiple Entries
           if ReplacingLastNodeHasRegImg then
-             SearchOrigin:= PositionInImLinkTextPlain (myFolder, NNode, SearchOrigin);
+             SearchOrigin:= PositionInImLinkTextPlain (Editor, NEntry, SearchOrigin);
 
           l1:= length(Editor.SelVisibleText);
           if l1 = length( Text_To_Find)  then begin
@@ -3627,11 +3716,12 @@ begin
                    ReplacingLastNodeHasRegImg:= true;   // We can't know this unless we query NNode.TextPlain because the Editor will still be 'pointing' to another node
 
                 if ReplacingLastNodeHasRegImg then begin
-                   TextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux);
+                   NEntry:= NNode.Note.MainEntry;                            // ##### ToDO  Multiple Entries
+                   TextPlain:= PrepareTextPlain(NEntry, RTFAux);
                    SearchInImLinkTextPlain:= true;
                 end
                 else
-                   TextPlain:= GetTextPlainFromNode(NNode, RTFAux);
+                   TextPlain:= GetTextPlainFromNode(NNode, RTFAux);          // ##### ToDO  Multiple Entries
 
                 if PositionInFoldedBlock(TextPlain, Editor.SelStart, nil, pI, pF) then
                    SearchOrigin:= pF + 1;

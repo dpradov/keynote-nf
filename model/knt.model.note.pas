@@ -1791,7 +1791,7 @@ end;
 
 function TNoteNode.MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
 begin
-  Result:= Note.Entries[0].MatchesTags(FindTags, InheritedTags);        // %%%
+  Result:= Note.MainEntry.MatchesTags(FindTags, InheritedTags);
 end;
 
 

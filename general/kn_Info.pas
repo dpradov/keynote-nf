@@ -858,6 +858,7 @@ type
     FindTagsExclNotReg: string;
     TagsModeOR: boolean;       // Tags include, ¿mode OR? (vs ALL)
     TagsMetadata: boolean;     // Tags will be searched for in the notes' metadata
+    TagsEntriesMetadata: boolean;  // Tags will be searched for in all entries' metadata
     TagsText: boolean;         // Tags will be searched for in the notes' text
     DefaultTagsExcl: TNoteTagArray;    // Saved in .ini as string: "TagID1,TagID2,..."
   end;

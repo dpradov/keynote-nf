@@ -173,6 +173,7 @@ type
     property ZoomCurrent: integer read FZoomCurrent;
 
     procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
+    procedure SetVinculatedEntryObj(NEntryObj: TObject);
     function ContainsRegisteredImages: boolean;
 
     procedure SetLangOptions(AfterChangeRTL: boolean);
@@ -585,6 +586,10 @@ begin
    fMultiEntries:= MultiEntries;
 end;
 
+procedure TKntRichEdit.SetVinculatedEntryObj(NEntryObj: TObject);
+begin
+  fNEntryObj:= NEntryObj;
+end;
 
 procedure TKntRichEdit.SetLangOptions(AfterChangeRTL: boolean);
 var
