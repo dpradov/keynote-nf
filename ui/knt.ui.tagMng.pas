@@ -553,7 +553,7 @@ var
    i, SS: integer;
    txt: string;
 begin
-   SS:= txtTags.SelStart;
+   SS:= txtTags.SelStart + 1;
    txt:= txtTags.Text;
 
    for i:= SS to txtTags.GetTextLen do

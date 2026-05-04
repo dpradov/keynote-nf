@@ -192,6 +192,7 @@ type
     function AddNewEntry: TNoteEntry;
     procedure DeleteEntry(IndexToRemove: integer);
     function GetEntry(ID: Word): TNoteEntry;
+    function GetEntryIndex(Entry: TNoteEntry): integer;
     property MainEntry: TNoteEntry read GetMainEntry write SetMainEntry;
     function IsValid(Entry: TNoteEntry): Boolean;
 
@@ -280,6 +281,7 @@ type
    public
      class function HasTag(Tags: TNoteTagArray; TagName: string): boolean; overload;
      class function HasTag(Tags: TNoteTagArray; Tag: TNoteTag): boolean; overload;
+     class function HasTags(Tags: TNoteTagArray; TagsIncluded: TNoteTagArray): boolean; overload;
      class procedure AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
      class function ToNames(Tags: TNoteTagArray): string;
      class function ToString(Tags: TNoteTagArray): string;
@@ -783,16 +785,22 @@ begin
 end;
 
 
-function TNote.IsValid(Entry: TNoteEntry): Boolean;
+function TNote.GetEntryIndex(Entry: TNoteEntry): integer;
 var
    i: integer;
 begin
-   Result:= false;
+   Result:= -1;
    if (Entry = nil) then exit;
 
    for i:= 0 to High(fEntries) do
       if fEntries[i] = Entry then
-         exit(true)
+         exit(i)
+end;
+
+
+function TNote.IsValid(Entry: TNoteEntry): Boolean;
+begin
+   Result:= GetEntryIndex(Entry) >= 0;
 end;
 
 function TNote.GetEntry(ID: Word): TNoteEntry;
@@ -1101,6 +1109,19 @@ begin
          if Tags[i] = Tag then
             exit(True);
    end;
+end;
+
+
+class function TNoteTagArrayUtils.HasTags(Tags: TNoteTagArray; TagsIncluded: TNoteTagArray): boolean;
+var
+   i: integer;
+begin
+   Result:= True;
+   if TagsIncluded = nil then exit;
+
+   for i:= 0 to High(TagsIncluded) do
+      if not TNoteTagArrayUtils.HasTag(Tags, TagsIncluded[i]) then
+         exit (False);
 end;
 
 

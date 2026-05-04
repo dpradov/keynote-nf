@@ -89,8 +89,9 @@ type
                              ContainsRegImages: boolean = true;
                              ConsiderOffset: boolean = false;
                              NEntry: TNoteEntry = nil;
-                             PosStartEntry: integer = 0): integer;
-    function PositionInImLinkTextPlain (Editor: TKntRichEdit; NEntry: TNoteEntry; CaretPosition: integer; ForceCalc: boolean = false): integer;
+                             PosStartEntry: integer = 0; PosEndEntry: integer= -1): integer;
+    function PositionInImLinkTextPlain (Editor: TKntRichEdit; NEntry: TNoteEntry; CaretPosition: integer; ForceCalc: boolean = false;
+                                        PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
@@ -565,7 +566,7 @@ end; // InsertFileOrLink
 procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil; aNEntry: TNoteEntry = nil);
 var
   NoteEntriesUI: TKntNoteEntriesUI;
-  OffsetOfEntry: integer;
+  PosStartEntry, PosEndEntry: integer;
 begin
 {$IFDEF DEBUG_HISTORY}
    Simplified:= false;
@@ -588,7 +589,7 @@ begin
       NNodeID := 0;
       NNodeGID:= 0;
       NEntryID:= 0;
-      OffsetOfEntry:= 0;
+      PosStartEntry:= 0;
       if aNNode <> nil then begin
          NNodeID := NNode.ID;
          NNodeGID:= NNode.GID;
@@ -598,7 +599,7 @@ begin
             NoteEntriesUI:= TKntNoteEntriesUI(aFolder.Editor.NEntriesUIObj);
             if NoteEntriesUI <> nil then begin
                NEntry:= NoteEntriesUI.NEntry;
-               OffsetOfEntry:= NoteEntriesUI.GetOffsetEntry(NEntry);
+               NoteEntriesUI.GetEntryBoundaries(NEntry, PosStartEntry, PosEndEntry);
                NEntriesUIObj:= NoteEntriesUI;
             end;
          end;
@@ -607,7 +608,7 @@ begin
          else
             NEntryID:= NEntry.ID;
       end;
-      CaretPos := aFolder.Editor.SelStart - OffsetOfEntry;            // aFolder.Editor: Selected Editor (of a TKntNoteEntriesUI) in the folder
+      CaretPos := aFolder.Editor.SelStart - PosStartEntry;            // aFolder.Editor: Selected Editor (of a TKntNoteEntriesUI) in the folder
       SelLength := aFolder.Editor.SelLength;
       Mark := 0;
 
@@ -1578,7 +1579,8 @@ begin
 end;
 
 
-function GetPositionOffset (Editor: TKntRichEdit; NEntry: TNoteEntry; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function GetPositionOffset (Editor: TKntRichEdit; NEntry: TNoteEntry; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false;
+                            PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 var
   Stream: TMemoryStream;
   imLinkTextPlain: String;
@@ -1616,9 +1618,9 @@ begin
    // See notes in ImagesManager.GetPositionOffset
 
    if CaretPosition >= 0 then
-      Offset:= ImageMng.GetPositionOffset_FromEditorTP (Editor, Stream, CaretPosition, imLinkTextPlain, Modified, ForceCalc)
+      Offset:= ImageMng.GetPositionOffset_FromEditorTP (Editor, Stream, CaretPosition, imLinkTextPlain, Modified, ForceCalc, PosStartEntry, PosEndEntry)
    else
-      Offset:= ImageMng.GetPositionOffset_FromImLinkTP (Editor, Stream, Pos_ImLinkTextPlain, imLinkTextPlain, Modified, ForceCalc);
+      Offset:= ImageMng.GetPositionOffset_FromImLinkTP (Editor, Stream, Pos_ImLinkTextPlain, imLinkTextPlain, Modified, ForceCalc, PosStartEntry, PosEndEntry);
 
 
    Result:= Offset;
@@ -1632,7 +1634,7 @@ function SearchCaretPos (Editor: TKntRichEdit;
                          ContainsRegImages: boolean = true;
                          ConsiderOffset: boolean = false;
                          NEntry: TNoteEntry = nil;
-                         PosStartEntry: integer = 0): integer;
+                         PosStartEntry: integer = 0; PosEndEntry: integer= -1): integer;
 var
   Offset: integer;
   Pos_ImLinkTextPlain: integer;
@@ -1649,7 +1651,7 @@ begin
      Pos_ImLinkTextPlain:= CaretPosition;
      myFolder:= TKntFolder(Editor.FolderObj);
      if (myFolder <> nil) then
-        Offset:= GetPositionOffset(Editor, NEntry, Pos_ImLinkTextPlain, -1);
+        Offset:= GetPositionOffset(Editor, NEntry, Pos_ImLinkTextPlain, -1, False, PosStartEntry, PosEndEntry);
   end;
 
   if PlaceCaret then
@@ -1691,12 +1693,25 @@ begin
   Result:= Offset;
 end;
 
-function PositionInImLinkTextPlain (Editor: TKntRichEdit; NEntry: TNoteEntry; CaretPosition: integer; ForceCalc: boolean = false): integer;
+{
+  This function retrieves the position relative to text, based on the format used when saving an entry, with images folded: ImLink
+  starting from a position in an editor (CaretPosition).
+  For this calculation, the provided NEntry is used only to compare the sizes of Editor.TextPlain and NEntry.TextPlain and quickly determine
+  whether further calculation is needed. Beyond that, this calculation (supported by GetPositionOffset, which in turn relies on
+  ImageMng.GetPositionOffset_FromEditorTP) relies solely on the content of the editor, adding to the provided position (CaretPosition)
+  the offset corresponding to the images found (and whether they are visible or not) up to that position.
+
+  By default, it is assumed that the editor includes only the content of the specified entry. If this is not the case, it is necessary
+  to define the limits within which to search the editor. In the case of using editors with multiple entries, the beginning and end of
+  the entry should be specified.
+}
+function PositionInImLinkTextPlain (Editor: TKntRichEdit; NEntry: TNoteEntry; CaretPosition: integer; ForceCalc: boolean = false;
+                                    PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 var
    Offset: integer;
 begin
-   Offset:= GetPositionOffset(Editor, NEntry, -1, CaretPosition, ForceCalc);
-   Result:= CaretPosition + Offset;
+   Offset:= GetPositionOffset(Editor, NEntry, -1, CaretPosition, ForceCalc, PosStartEntry, PosEndEntry);
+   Result:= CaretPosition + Offset - PosStartEntry;
 end;
 
 
@@ -1805,7 +1820,7 @@ begin
    myTreeNode : PVirtualNode;
    NoteEntriesUI: TKntNoteEntriesUI;
    TargetEditor: TKntRichEdit;
-   OffsetEntry: integer;
+   PosStartEntry, PosEndEntry: integer;
    origLocationStr : string;
    LocBeforeJump: TLocation;
    FN, FN_ActiveFile: string;
@@ -1828,7 +1843,7 @@ begin
       if Location.Mark > 0 then begin
         TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KeyBookmark + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
         with TargetEditor do begin
-          p:= FindText(TargetMark, OffsetEntry, -1, [stMatchCase]);
+          p:= FindText(TargetMark, PosStartEntry, -1, [stMatchCase]);
           if p > 0 then begin
             BeginUpdate;
             try
@@ -1978,17 +1993,17 @@ begin
            TargetEditor:= NoteEntriesUI.Editor;
            LockControl(TargetEditor, True);
            try
-             if NoteEntriesUI.GetPreparedForJump(Location.NEntry, OffsetEntry) then begin
+             if NoteEntriesUI.GetPreparedForJump(Location.NEntry, PosStartEntry, PosEndEntry) then begin
                 if not SearchTargetMark (Location.Bookmark09) then begin
                    if WordInRS <> nil then begin                             // Jump to a word in a search result
                       if WordInRS.BeginOfParagraph >= 0 then
-                         SearchCaretPos(TargetEditor, WordInRS.BeginOfParagraph, 0, True, Location.ScrollPosInEditor, true, true, true, Location.NEntry, OffsetEntry);
+                         SearchCaretPos(TargetEditor, WordInRS.BeginOfParagraph, 0, True, Location.ScrollPosInEditor, true, true, true, Location.NEntry, PosStartEntry, PosEndEntry);
                       SearchCaretPos(TargetEditor, WordInRS.WordPos, WordInRS.WordSel, True, Location.ScrollPosInEditor,
-                                     false, true, true,Location.NEntry, OffsetEntry);
+                                     false, true, true,Location.NEntry, PosStartEntry, PosEndEntry);
                    end
                    else
                       SearchCaretPos(TargetEditor, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
-                                    AdjustVisiblePosition, true, ConsiderOffset, Location.NEntry, OffsetEntry);
+                                    AdjustVisiblePosition, true, ConsiderOffset, Location.NEntry, PosStartEntry, PosEndEntry);
                 end;
 
                 TargetEditor.SetFocus;

@@ -449,9 +449,12 @@ type
 
     procedure ReloadImages(const IDs: TImageIDs);
 
-    function GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
-    function GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
-    function GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+    function GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
+    function GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                             PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
+    function GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                             PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 
 
     procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
@@ -3828,7 +3831,8 @@ begin
 end;
 
 
-function TImageMng.GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                      PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 var
   pID,pIDr: integer;
   pID_e,pIDr_e: integer;
@@ -3838,6 +3842,7 @@ var
   TextPlainInEditor: String;
   ImagesVisible: Array of integer;
   SomeImagesAreVisible: boolean;
+  SS, SL: integer;
 
 
 const
@@ -3968,12 +3973,31 @@ begin
     if Pos(beginIDImgChar, imLinkTextPlain, 1) = 0 then
        exit;
 
-    TextPlainInEditor:= Editor.TextPlain;
+    if (PosStartEntry <> 0) or (PosEndEntry <> -1) then begin
+       Editor.BeginUpdate;
+
+       if PosEndEntry= -1 then
+          PosEndEntry := Editor.TextLength;
+       SS:= Editor.SelStart;
+       SL:= Editor.SelLength;
+
+       Editor.SetSelection(PosStartEntry, PosEndEntry, False);
+       TextPlainInEditor:= Editor.TextPlain(true);
+
+       Editor.SelStart:= SS;
+       Editor.SelLength:= SL;
+
+       Editor.EndUpdate;
+    end
+    else
+       TextPlainInEditor:= Editor.TextPlain;
 
     { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
       are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
-      of visible images equal to the number of characters added to the folder/node and not yet saved to the stream. }
-    if (not ForceCalc) and (Length(imLinkTextPlain) = Length(TextPlainInEditor)) then
+      of visible images equal to the number of characters added to the folder/node and not yet saved to the stream.
+      - Editor.TextPlain(true) can add an extra #$D at the end
+      }
+    if (not ForceCalc) and (Abs(Length(TextPlainInEditor) - Length(imLinkTextPlain)) <= 1) then
        exit;
 
 
@@ -3984,6 +4008,7 @@ begin
 
 
     if CaretPos >= 0 then begin
+       dec(CaretPos, PosStartEntry);
 
        repeat
           pID_e:= Pos(beginIDImgChar, TextPlainInEditor, pID_e + 1);
@@ -4063,15 +4088,17 @@ begin
 end;
 
 
-function TImageMng.GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                                   PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 begin
-   Result:= GetPositionOffset(Editor, Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc);
+   Result:= GetPositionOffset(Editor, Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc, PosStartEntry, PosEndEntry);
 end;
 
 
-function TImageMng.GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                                   PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 begin
-   Result:= GetPositionOffset(Editor, Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc);
+   Result:= GetPositionOffset(Editor, Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc, PosStartEntry, PosEndEntry);
 end;
 
 

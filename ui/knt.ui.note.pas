@@ -152,6 +152,10 @@ type
     procedure NEntriesUIEditorEnter(Sender: TObject);
     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
     function GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
+    procedure GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray;
+              var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+    function GetPanelConfigForFindSelection(NNodeUIConfig: TNNodeUIConfiguration; NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TPanelConfiguration;
+    function GetNEntriesUITargetForFindSelection(NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TObject;
     function MultipleVisibleEditors: boolean;
     function NavigatePanels(NavDirection: TNavDirection): boolean;
     procedure ToggleMaximizeSelectedPanel;
@@ -906,6 +910,65 @@ begin                                                                           
      end;
    end;
 
+end;
+
+
+function TKntNoteUI.GetPanelConfigForFindSelection(NNodeUIConfig: TNNodeUIConfiguration; NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TPanelConfiguration;
+
+  function FindPanelConfigVinculatedToTags: TPanelConfiguration;
+  var
+    i: integer;
+    PanelConfig: TPanelConfiguration;
+  begin
+      Result:= nil;
+
+      for i := 0 to High(NNodeUIConfig.PanelsConfig) do begin
+          PanelConfig:= NNodeUIConfig.PanelsConfig[i];
+          if not PanelConfig.Visible then continue;
+          if TNoteTagArrayUtils.HasTags(PanelConfig.VinculatedTags, TagsIncl) then
+             exit (PanelConfig);
+      end;
+  end;
+
+begin
+
+   if (FSelectedNEntriesUI.NEntry = NEntry) and (FSelectedNEntriesUI.PanelConfig.CurrentModeInSession = meSingleEntry) then
+      Result:= FSelectedNEntriesUI.PanelConfig
+
+   else
+   if TagsIncl <> nil then
+      Result:= FindPanelConfigVinculatedToTags
+
+   else
+      Result:= NNodeUIConfig.PanelConfig(NNodeUIConfig.GetMainPanel);
+end;
+
+
+function TKntNoteUI.GetNEntriesUITargetForFindSelection(NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TObject;
+begin
+   Result:= GetNEntriesUI(GetPanelConfigForFindSelection(FNNodeUIConfig, NEntry, TagsIncl).Panel);
+end;
+
+
+procedure TKntNoteUI.GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray;
+                                                      var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+var
+   QueryLayout: boolean;
+   NNodeUIConfig: TNNodeUIConfiguration;
+   PanelConfig: TPanelConfiguration;
+begin
+   if NNode = nil then exit;
+
+   QueryLayout:= not ActiveFile.GetNoteIsOnEditingLayout(NNode.Note);
+
+   NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, QueryLayout);     // Get current layout
+   if NNodeUIConfig <> nil then begin
+      PanelConfig:= GetPanelConfigForFindSelection(NNodeUIConfig, NEntry, TagsIncl);
+      Order:= PanelConfig.Order;
+      DescendingOrder:= PanelConfig.DescendingOrder;
+   end
+   else
+      TNNodeUIConfiguration.GetDefaultPanelOrder(NNode, Folder, Order, DescendingOrder);
 end;
 
 

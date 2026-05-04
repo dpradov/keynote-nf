@@ -5,6 +5,7 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
   Height = 480
   Align = alClient
   BiDiMode = bdLeftToRight
+  Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -13

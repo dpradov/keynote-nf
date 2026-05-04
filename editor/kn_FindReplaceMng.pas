@@ -50,6 +50,7 @@ var
     SearchNode_Text, SearchNode_TextPrev : string;
     StartFolder: TKntFolder;
     StartNode: PVirtualNode;
+    StartNEntry: TObject;
 
 type
    TDistanceScope = (dsAll, dsSentence, dsParagraph);
@@ -133,7 +134,9 @@ uses
    knt.model.note,
    kn_LocationObj,
    kn_EditorUtils,
+   knt.ui.info,
    knt.ui.editor,
+   knt.ui.noteEntries,
    kn_RTFUtils,
    kn_VCLControlsMng,
    kn_MacroMng,
@@ -153,10 +156,11 @@ var
    FollowMatch: boolean;
    LastFindNextAt: TDateTime;
 
-   ReplacingLastNode: PVirtualNode;                 // ReplaceLastSearchedNode ReplaceLastNode
-   ReplacingLastNodeHasRegImg: Boolean;
+   ReplacingLastNEntry: TNoteEntry;
+   ReplacingLastNEntryHasRegImg: Boolean;
    SearchingFolder: TKntFolder;
    SearchingInEditor: TKntRichEdit;
+   SearchAllEntries: boolean;
 
 type
   CharacterSet = set of char;
@@ -3451,18 +3455,55 @@ function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 begin
    if ActiveEditor = nil then exit(false);
 
-   if ActiveEditor.NNodeObj <> nil then
-      Result:= RunFindNextInNotes (Is_ReplacingAll)
+   if (ActiveEditor.NNodeObj = nil) or (not ActiveEditor.MultiEntries and not FindOptions.AllEntries_FindReplace) then
+      Result:= RunFindNextInEditor (Is_ReplacingAll)
    else
-      Result:= RunFindNextInEditor (Is_ReplacingAll);
+      Result:= RunFindNextInNotes (Is_ReplacingAll);
+
 end;
 
 
+
+{
+  We will start from the selected entry in the current editor, which has focus, therefore considering the panel we are currently in.
+  If the panel scope is fsSelectedNode, we will consider the options 'Search all entries', 'Search hidden entries', as well as other
+  higher-level options: 'Search all tree nodes', 'Search hidden nodes', and 'Search all folders'.
+  Otherwise, these options will be ignored (they will appear disabled).
+
+  If it is a panel linked to tags, e.g., the TL panel linked to #ToDO, the search will be restricted to those entries
+  that contain the tag #ToDO.
+
+  If the 'Search all entries' option is selected, the pattern will be searched for in all entries of the note, regardless of whether the panel
+  is displaying a single entry.
+  We can only select 'Search all tree nodes' if 'Search all entries' is selected beforehand.
+  If 'Search all entries' is selected and the panel is in single-entry mode, the patterns found in subsequent entries of that note will be displayed
+  in the same way, on the single entry. If the panel is in multi-entry mode, that display mode will be respected.
+  * If we are replacing content, the panel will always switch to single-entry mode to allow to make the changes.
+
+  If the 'Search all entries' option is deselected, the search will be restricted to the single displayed entry if the panel is in single-entry mode,
+  or to entries with visible content (i.e., those not only showing the header) if the panel is in multi-entry mode.
+
+  When browsing the entries in the panel, we will proceed in the order in which they are displayed, from top to bottom, considering the criteria
+  indicated in the panel regarding whether to sort by creation date (increasing or decreasing order).
+  If, in addition to 'Search all entries', the 'Search hidden entries' option is selected, all entries in the note will be considered,
+  including those not currently displayed in the panel based on any of the filtering options set in the panel. If thatn entry contains the searched
+  pattern, it will be displayed in the panel with the selected text.
+
+  If the 'Search all tree nodes' option is selected, the process will continue similarly with the remaining nodes, according to their order in the tree,
+  in the usual way. Within these subsequent nodes, the same procedure will be followed, restricting the search to certain tags (if it started
+  in a panel linked to them), and traversing all entries, etc.
+  For these other nodes, the traversal will be performed on the panel linked to the tags, if it is visible, or, failing that, on its main panel.
+  If that node has been accessed during the session, the active Layout, QueryLayout or EditingLayout, will be used.
+  If it hasn't been queried during the session, its QueryLayout will be used. The order in which those entries are iterated will be the one
+  that applies according to that panel (PanelConfiguration.Order).
+}
+
 function RunFindNextInNotes (Is_ReplacingAll: Boolean= False): boolean;
 var
-  myFolder : TKntFolder;
   Editor: TKntRichEdit;
+  myFolder : TKntFolder;
   myTreeNode : PVirtualNode;
+  myNEntry: TNoteEntry;
   FindDone, Found : boolean;
   PatternPos : integer;
   SearchOrigin : integer;
@@ -3474,13 +3515,18 @@ var
   TextPlain: string;
   RTFAux: TAuxRichEdit;
   TreeUI: TKntTreeUI;
+  NEntriesUI: TKntNoteEntriesUI;
   TV: TVTree;
   NNode: TNoteNode;
-  NEntry: TNoteEntry;
   SearchInImLinkTextPlain: boolean;  // True: PatternPos is a position in imLinkTextPlain
+  PosStartEntry, PosEndEntry: integer;
   IgnoreKNTHiddenMarks: boolean;
   HideEncrypted: boolean;
   pI, pF: integer;
+  i: integer;
+  Order: TOrderInEntriesInPanel;
+  DescendingOrder: boolean;
+
 
   function LoopCompleted(Wrap: boolean): Boolean;
   begin
@@ -3489,35 +3535,119 @@ var
       if not assigned(myFolder) then exit;
 
       if not (
-         (myFolder = StartFolder)
-          and (myTreeNode = StartNode)    ) then
+         (myFolder = StartFolder) and (myTreeNode = StartNode) and (myNEntry = StartNEntry)   ) then
          Result:= False
       else
-          if Wrap and (NumberFoundItems > 0) then begin    // Wrap será siempre false si Is_ReplacingAll = True
+          if Wrap and (NumberFoundItems > 0) then begin    // Wrap will always be false if Is_ReplacingAll = True
              Result:= False;
              NumberFoundItems:= 0;
           end;
   end;
 
 
+  function CheckEntry(i: integer): boolean;
+  var
+     NEntry: TNoteEntry;
+     OnlyHeader: boolean;
+  begin
+     Result:= false;
+     NEntry:= NNode.Note.Entries[i];
+     if (FindOptions.FindTagsIncl_FindReplace = nil) or
+         TNoteTagArrayUtils.HasTags(NEntry.Tags, FindOptions.FindTagsIncl_FindReplace) then begin
+
+        // If "Search all note Entries" is not checked but the editor is in multi-entry mode,
+        // only the expanded editor nodes will be traversed, so the result is equivalent to
+        // what would be obtained if we searched the editor as if it were a single entry.
+        if FindOptions.AllEntries_FindReplace or (NEntriesUI.IsDisplayingEntry(NEntry, OnlyHeader) and not OnlyHeader) then begin
+           myNEntry:= NEntry;
+           Result:= True;
+        end;
+     end;
+
+  end;
+
+  procedure GetNextEntry_Aux();
+  var
+     i, N, iEntry: integer;
+  begin
+     // ToDO: FindOptions.HiddenEntries_FindReplace
+     // ToDO: FindOptions.FindTagsIncl_FindReplace
+     // ToDO: "Search Hidden Entries"
+     // ToDO: Order (TOrderInEntriesInPanel)
+
+    iEntry:= NNode.Note.GetEntryIndex(myNEntry);
+    N:= NNode.Note.NumEntries;
+    myNEntry:= nil;
+
+    if DescendingOrder then begin
+        if iEntry < 0 then iEntry:= N;
+        for i:= iEntry-1 downto 0 do begin
+           if CheckEntry(i) then break;
+        end
+    end
+    else begin
+       for i:= iEntry+1 to N-1 do
+          if CheckEntry(i) then break;
+    end;
+  end;
+
+
+  procedure GetFirstEntry();
+  begin
+     myNEntry:= nil;
+     GetNextEntry_Aux;
+  end;
+
+  procedure GetNextEntry();
+  var
+     Wrap: boolean;
+  begin
+     if NNode = nil then exit;
+
+     FindDone:= True;             // We will initially assume that it will not be possible to continue
+
+     if not assigned(myNEntry) or FindOptions.SelectedText then exit;
+
+     Wrap:= FindOptions.Wrap and not Is_ReplacingAll;
+     if not (SearchAllEntries or Wrap) then exit;
+
+     if SearchAllEntries then begin
+         GetNextEntry_Aux;
+         if not assigned( myNEntry) then
+            if (Wrap or Is_ReplacingAll) and (not FindOptions.AllNodes) then  // If AllNodes -> continue to next node
+               GetFirstEntry;
+     end;
+
+     if not LoopCompleted(Wrap) then begin
+        FindDone:= False;
+        SearchOrigin := 0;
+     end;
+
+  end;
+
   procedure GetFirstNode();
   begin
       myTreeNode := myFolder.TreeUI.GetFirstNode;
       if assigned(myTreeNode) and not TV.IsVisible[myTreeNode] and (not FindOptions.HiddenNodes) then
          myTreeNode := TV.GetNextNotHidden(myTreeNode);
+
+      if assigned(myTreeNode) then begin
+         NNode:= TreeUI.GetNNode(myTreeNode);
+         GetFirstEntry;
+      end;
   end;
 
 
-  // Actualiza el siguiente nodo a utilizar, que podrá ser nil si no se puede avanzar hacia
-  // ningún nodo de la nota actual.
-  // También puede establecer FindDone a True indicando que la búsqueda ha finalizado.
-  // Si FindDone = False y el nodo = nil implicará que debe continuarse con la siguiente nota.
+  // Updates the next node to use, which can be nil if it is not possible to move to
+  // any node in the current note.
+  // It can also set FindDone to True, indicating that the search has finished.
+  // If FindDone = False and the node = nil, it means that should continue with the next folder
   //
   procedure GetNextNode();
   var
      Wrap: boolean;
   begin
-     FindDone:= True;     // Supondremos inicialmente que no se podrá avanzar más
+     FindDone:= True;     // We will initially assume that it will not be possible to continue
 
      if not assigned(myTreeNode) or FindOptions.SelectedText then exit;
 
@@ -3531,9 +3661,14 @@ var
             myTreeNode := TV.GetNextNotHidden(myTreeNode);
 
          if not assigned( myTreeNode) then
-            if (Wrap or Is_ReplacingAll) and (not FindOptions.AllTabs_FindReplace) then  // Si AllTabs -> pasaremos a otra nota
+            if (Wrap or Is_ReplacingAll) and (not FindOptions.AllTabs_FindReplace) then  // If AllTabs -> continue to next folder
                GetFirstNode;
      end;
+
+     if assigned( myTreeNode) then
+        NNode:= TreeUI.GetNNode(myTreeNode);
+
+     GetFirstEntry;
 
      if not LoopCompleted(Wrap) then begin
         FindDone:= False;
@@ -3543,12 +3678,13 @@ var
 
   end;
 
+
   procedure GetNextFolder();
   var
      tabidx : integer;
      wrap: boolean;
   begin
-      FindDone:= True;   // Supondremos inicialmente que no se podrá avanzar más
+      FindDone:= True;   // We will initially assume that it will not be possible to continue
 
       Wrap:= FindOptions.Wrap and not Is_ReplacingAll;
 
@@ -3576,7 +3712,7 @@ var
   procedure SelectPatternFound();
   var
      ContainsRegImages: boolean;       // True: 'Can' contain images
-     incSel: integer;
+     PosStartEntry, PosEndEntry, incSel: integer;
   begin
       if (myFolder <> ActiveFolder) then
          App.ActivateFolder(myFolder);
@@ -3586,32 +3722,52 @@ var
          myFolder.TreeUI.SelectAlone(myTreeNode);
       end;
 
-      ContainsRegImages:= (not Is_ReplacingAll) or ReplacingLastNodeHasRegImg;
+      ContainsRegImages:= (not Is_ReplacingAll) or ReplacingLastNEntryHasRegImg;
 
-     // If a tag is being removed (replacing it with ""), FindTag can have located a block closures associated
-     // with that tag. Ex: #Tag --> ##Tag. In this case we must expand the text to be selected by 1
-      incSel:= 0;
-      if FindOptions.TagSearch and FoundClosingTag and (FindOptions.ReplaceWith = '') then
-         inc(incSel);
 
-      SearchCaretPos (myFolder.Editor, PatternPos - incSel, length( Text_To_Find) + SizeInternalHiddenText + incSel, true, Point(-1,-1),
-                      false, ContainsRegImages, SearchInImLinkTextPlain);
+      NEntriesUI:= TKntNoteEntriesUI(myFolder.NoteUI.GetNEntriesUITargetForFindSelection(myNEntry, FindOptions.FindTagsIncl_FindReplace));
+      if assigned(NEntriesUI) and NEntriesUI.GetPreparedForJump(myNEntry, PosStartEntry, PosEndEntry, Is_Replacing) then begin
+
+        // If a tag is being removed (replacing it with ""), FindTag can have located a block closures associated
+        // with that tag. Ex: #Tag --> ##Tag. In this case we must expand the text to be selected by 1
+         incSel:= 0;
+         if FindOptions.TagSearch and FoundClosingTag and (FindOptions.ReplaceWith = '') then
+            inc(incSel);
+
+         if not NEntriesUI.Editor.MultiEntries then begin
+            PosStartEntry:= 0;                   // PatternPos has been calculated considering only the text of the entry, and NEntriesUI.Editor is showing only that entry
+            PosEndEntry:= -1;
+         end;
+
+         SearchCaretPos (NEntriesUI.Editor, PatternPos - incSel, length( Text_To_Find) + SizeInternalHiddenText + incSel, true, Point(-1,-1),
+                        false, ContainsRegImages, SearchInImLinkTextPlain,
+                        myNEntry, PosStartEntry, PosEndEntry);
+
+         if myFolder.Editor <> NEntriesUI.Editor then
+            NEntriesUI.Editor.SetFocus;
+      end;
   end;
 
-  function GetTextPlainFromNode(NNode: TNoteNode; RTFAux: TAuxRichEdit): string;
+  function GetTextPlainFromNEntry: string;
   var
-     NEntry: TNoteEntry;
+    NEntryInCurrentSinglePanelEditor: boolean;
+    Editor: TKntRichEdit;
 
   begin
-     if myFolder.NoteUI.NNode = NNode then begin
+     NEntryInCurrentSinglePanelEditor:= False;
+     if (myFolder.NoteUI.NNode = NNode) then begin
+        Editor:= myFolder.NoteUI.Editor;
+        if not Editor.MultiEntries and (TNoteEntry(Editor.NEntryObj) = myNEntry)  then
+           NEntryInCurrentSinglePanelEditor:= True;
+     end;
+
+     if NEntryInCurrentSinglePanelEditor  then begin
         SearchInImLinkTextPlain:= false;
-        Result:= myFolder.NoteUI.Editor.TextPlain;
+        Result:= Editor.TextPlain;
      end
      else begin
-        NEntry:= NNode.Note.Entries[0];         // %%%
-        LoadStreamInRTFAux (NEntry.Stream, RTFAux);
         SearchInImLinkTextPlain:= true;
-        Result:= RTFAux.TextPlain;
+        Result:= PrepareTextPlain(myNEntry, RTFAux)
      end;
   end;
 
@@ -3619,7 +3775,6 @@ var
 begin
   result := false;
   if ( SearchInProgress or ActiveFileIsBusy or ( Text_To_Find = '' )) then exit;
-
 
   if assigned( Form_FindReplace ) then
       handle:= Form_FindReplace.Handle
@@ -3662,26 +3817,36 @@ begin
       Editor:= myFolder.Editor;
       myTreeNode := TreeUI.FocusedNode;
       NNode:= TreeUI.GetNNode(myTreeNode);
+      myNEntry:= TNoteEntry(Editor.NEntryObj);
+      NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
 
-      ReplacingLastNodeHasRegImg:= false;
+
+      ReplacingLastNEntryHasRegImg:= false;
       if Is_ReplacingAll then begin
          if not Editor.SupportsRegisteredImages then
-            ReplacingLastNodeHasRegImg:= false
+            ReplacingLastNEntryHasRegImg:= false
          else
-            ReplacingLastNodeHasRegImg:= Editor.ContainsRegisteredImages;
-         ReplacingLastNode:= myTreeNode;
+            ReplacingLastNEntryHasRegImg:= Editor.ContainsRegisteredImages;
+         ReplacingLastNEntry:= myNEntry;
       end;
 
 
-      // Identificación de la posición de inicio de la búsqueda ---------------------------
-      if ( FindOptions.FindNew and FindOptions.EntireScope ) then
-          SearchOrigin := 0
-
+      // Identifying the starting position of the search ---------------------------
+      if ( FindOptions.FindNew and FindOptions.EntireScope ) then begin
+          SearchOrigin := 0;
+          if Editor.MultiEntries then begin
+             myFolder.NoteUI.GetPanelConfigOrderForFindSearch(NNode, myNEntry, FindOptions.FindTagsIncl_FindReplace, Order, DescendingOrder);
+             GetFirstEntry;                // Start from first entry in the panel/editor
+             if myNEntry = nil then
+                myNEntry:= TNoteEntry(Editor.NEntryObj);
+          end;
+      end
       else begin
           SearchOrigin := Editor.SelStart;
-          NEntry:= NNode.Note.MainEntry;                            // ##### ToDO  Multiple Entries
-          if ReplacingLastNodeHasRegImg then
-             SearchOrigin:= PositionInImLinkTextPlain (Editor, NEntry, SearchOrigin);
+          if ReplacingLastNEntryHasRegImg or Editor.MultiEntries then begin
+             NEntriesUI.GetEntryBoundaries(myNEntry, PosStartEntry, PosEndEntry);
+             SearchOrigin:= PositionInImLinkTextPlain (Editor, myNEntry, SearchOrigin, False, PosStartEntry, PosEndEntry);
+          end;
 
           l1:= length(Editor.SelVisibleText);
           if l1 = length( Text_To_Find)  then begin
@@ -3696,42 +3861,44 @@ begin
       if FindOptions.FindNew then begin
          StartFolder:= myFolder;
          StartNode:= myTreeNode;
+         StartNEntry:= myNEntry;
          NumberFoundItems:= 0;
          FindOptions.FindNew := False;
+         SearchAllEntries:= FindOptions.AllEntries_FindReplace or Editor.MultiEntries;
       end;
 
 
       HideEncrypted:= ActiveFile.EncryptedContentMustBeHidden;
 
-      // Búsqueda del patrón iterando sobre los nodos / notas hasta encontrar uno -------------
-      // Según las opciones establecidas así podrán recorrerse o no todos los nodos de una nota, todas las notas
-      // o incluso continuar buscando desde el punto de partida, de manera cíclica.
+      // Searching for the pattern by iterating over the entries until one is found -------------
+      // Depending on the options set, it may or may not traverse all the entries in the note, all the nodes in a folder, all folders
+      // or even continue searching from the starting point, cyclically.
 
       repeat
-            NNode:= TreeUI.GetNNode(myTreeNode);
+            myFolder.NoteUI.GetPanelConfigOrderForFindSearch(NNode, myNEntry, FindOptions.FindTagsIncl_FindReplace, Order, DescendingOrder);
+
 
             if not (HideEncrypted and NNode.Note.IsEncrypted) then begin
 
-                if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then
-                   ReplacingLastNodeHasRegImg:= true;   // We can't know this unless we query NNode.TextPlain because the Editor will still be 'pointing' to another node
+                if Is_ReplacingAll and (ReplacingLastNEntry <> myNEntry) then
+                   ReplacingLastNEntryHasRegImg:= true;   // We can't know this unless we query NEntry.TextPlain because the Editor will still be 'pointing' to another node or entry
 
-                if ReplacingLastNodeHasRegImg then begin
-                   NEntry:= NNode.Note.MainEntry;                            // ##### ToDO  Multiple Entries
-                   TextPlain:= PrepareTextPlain(NEntry, RTFAux);
+                if ReplacingLastNEntryHasRegImg then begin
+                   TextPlain:= PrepareTextPlain(myNEntry, RTFAux);
                    SearchInImLinkTextPlain:= true;
                 end
                 else
-                   TextPlain:= GetTextPlainFromNode(NNode, RTFAux);          // ##### ToDO  Multiple Entries
+                   TextPlain:= GetTextPlainFromNEntry;
 
-                if PositionInFoldedBlock(TextPlain, Editor.SelStart, nil, pI, pF) then
+                if PositionInFoldedBlock(TextPlain, SearchOrigin, nil, pI, pF) then
                    SearchOrigin:= pF + 1;
 
-                if Is_ReplacingAll and (ReplacingLastNode <> myTreeNode) then begin
-                   ReplacingLastNode:= myTreeNode;
-                   ReplacingLastNodeHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same node will be optimized if this node has no images
+                if Is_ReplacingAll and (ReplacingLastNEntry <> myNEntry) then begin
+                   ReplacingLastNEntry:= myNEntry;
+                   ReplacingLastNEntryHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same entry will be optimized if this entry has no images
                 end;
 
-                IgnoreKNTHiddenMarks:= NNode.Note.Entries[0].IsRTF;   // ### Entries[0]
+                IgnoreKNTHiddenMarks:= myNEntry.IsRTF;
 
                 if FindOptions.MatchCase then
                    PatternPos:= FindPattern(Text_To_Find, TextPlain, SearchOrigin+1, SizeInternalHiddenText, IgnoreKNTHiddenMarks, True) -1
@@ -3748,11 +3915,14 @@ begin
             end;
 
             if PatternPos < 0 then begin
-               GetNextNode;                 // Podrá actualizar FindDone
-               while (not FindDone) and (not assigned(myTreeNode)) do
-                   GetNextFolder();
+               GetNextEntry;                                                    // It can update FindDone
+               while (not FindDone) and (not assigned(myNEntry)) do begin
+                  GetNextNode;                                                  // ,,
+                  while (not FindDone) and (not assigned(myTreeNode)) do
+                      GetNextFolder();
+               end;
             end;
-            Application.ProcessMessages;    // Para permitir que el usuario cancele (UserBreak)
+            Application.ProcessMessages;    // To allow the user to cancel (UserBreak)
 
       until FindDone or (PatternPos >= 0) or UserBreak;
 
@@ -3983,8 +4153,11 @@ var
   AppliedBeginUpdate: Boolean;
   Editor: TKntRichEdit;
   pI, pF: integer;
-  SS: integer;
+  SS, SL: integer;
   Selection: TInsideOrPartialSelection;
+  NEntriesUI: TKntNoteEntriesUI;
+  PosStartEntry, PosEndEntry: integer;
+  RestoreMultiEntriesInEditor: boolean;
 
 
   procedure BeginUpdateOnFolders;
@@ -4099,13 +4272,14 @@ begin
 
   Is_Replacing := true;
   AppliedBeginUpdate:= False;
-  ReplacingLastNode:= nil;
-  ReplacingLastNodeHasRegImg:= true;
+  ReplacingLastNEntry:= nil;
+  ReplacingLastNEntryHasRegImg:= true;
+  RestoreMultiEntriesInEditor:= false;
 
   try
     DoReplace:= True;
 
-    // Verificamos si hay que restringir la búsqueda a la selección actual
+    // Check if the search needs to be restricted to the current selection.
     if FindOptions.FindNew then begin
         if ReplaceAll and FindOptions.SelectedText then begin
            FindOptions.SelectionStart:= Editor.SelStart;
@@ -4114,14 +4288,14 @@ begin
         end;
     end;
 
-    // Comprobamos (si no se ha pulsado ReplaceAll) en primer lugar si el texto que se encuentra
-    // seleccionado es el que hay que buscar y reemplazar. Si es así, haremos el reemplazo con éste,
-    // directamente.
+    // We first check (if ReplaceAll hasn't been pressed) whether the selected text is the one to be searched
+    // for and replaced. If so, we'll replace it directly.
     SelectedTextToReplace:= False;
     if not ReplaceAll then
        SelectedTextToReplace:= IdentifySelectedTextToReplace
     else
         if not FindOptions.ReplaceConfirm then begin
+           RestoreMultiEntriesInEditor:= Editor.MultiEntries and assigned(Editor.NEntriesUIObj) and not FindOptions.AllEntries_FindReplace;
            BeginUpdateOnFolders;
            screen.Cursor := crHourGlass;
         end;
@@ -4131,9 +4305,8 @@ begin
        SelectedTextToReplace:= RunFindNext(ReplaceAll);
        Editor:= SearchingInEditor;
        if not ReplaceAll then
-          DoReplace:= False;   // Lo dejaremos seleccionado pero no lo reemplazaremos. El usuario no ha llegado
-                               //a ver ese texto y debe confirmarlo pulsando conscientemente en Replace (el
-                               // checkbox 'confirm replace' sólo se aplica a ReplaceAll)
+          DoReplace:= False;   // We'll leave it selected but won't replace it. The user hasn't seen that text and must confirm by
+                               // consciously pressing Replace (the 'confirm replace' checkbox only applies to ReplaceAll)
     end;
 
 
@@ -4141,14 +4314,25 @@ begin
         while SelectedTextToReplace do begin
             try
                 SS:= Editor.SelStart;
+                SL:= Editor.SelLength;
 
-                // ¿Hay que restringirse al texto inicialmente seleccionado?
+                // Do we have to restrict it to the initially selected text?
                 if ReplaceAll and FindOptions.SelectedText then
                    if (SS < FindOptions.SelectionStart) or
-                     ((SS + Editor.SelLength) > FindOptions.SelectionEnd) then
+                     ((SS + SL) > FindOptions.SelectionEnd) then
                        break;
 
                 if GetReplacementConfirmation then begin
+                   if Editor.MultiEntries then begin
+                      NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
+                      if assigned(NEntriesUI) and NEntriesUI.GetPreparedForJump(NEntriesUI.NEntry, PosStartEntry, PosEndEntry, True) then begin
+                         dec(SS, PosStartEntry);
+                         Editor.SetSelection(SS, SS+SL, false);
+                      end
+                      else
+                         break;
+                   end;
+
                    Selection:= InsideOrPartiallySelectedProtectedBlock(Editor, True);
                    if Selection = ipsNone then begin
                       inc(ReplaceCnt);
@@ -4170,10 +4354,10 @@ begin
                 Application.ProcessMessages;
                 if UserBreak then break;
 
-                SelectedTextToReplace:= RunFindNext(ReplaceAll);     // Localizamos el siguiente patrón a remplazar
+                SelectedTextToReplace:= RunFindNext(ReplaceAll);     // Locate the next pattern to replace
                 Editor:= SearchingInEditor;
 
-                if (not ReplaceAll) then break;          // Dejamos simplemente localizado el texto si no ReplaceAll
+                if (not ReplaceAll) then break;          // We simply leave the text located if not ReplaceAll
 
             except
                On E : Exception do begin
@@ -4187,6 +4371,10 @@ begin
 
   finally
     screen.Cursor := crDefault;
+    if RestoreMultiEntriesInEditor and not Editor.MultiEntries then begin
+       NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
+       NEntriesUI.btnToggleMultiClick(nil);
+    end;
     EndUpdateOnFolders;
     Is_Replacing := false;
     UserBreak := false;
@@ -4205,6 +4393,7 @@ begin
      if Editor.ParentEditor <> nil then
         Editor.Parent.SetFocus
      else
+     if Editor.NNodeObj <> nil then
         App.ActivateFolder(ActiveFolder);
   end
   else

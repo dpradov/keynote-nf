@@ -818,7 +818,9 @@ type
     AllNodes : boolean; // search all nodes in tree
     AllTabs : boolean;   // search all folders in file (resource panel)
     AllTabs_FindReplace : boolean; // search all folders in file (FindReplace dialog)
+    AllEntries_FindReplace: boolean;   // search all entries in note (FindReplace dialog)
     CurrentNodeAndSubtree : boolean;   // search only in current node and subtree
+    HiddenEntries_FindReplace: boolean;
     AutoClose : boolean; // auto close find dialog box when Find button clicked
     EntireScope : boolean; // search from top of text rather than from current position in active note
     FindAllHistory : string;
@@ -856,6 +858,7 @@ type
     FindTagsExcl: TFindTags;   // Exclude text/notes with ANY of the selected tags
     FindTagsInclNotReg: string;
     FindTagsExclNotReg: string;
+    FindTagsIncl_FindReplace: TNoteTagArray; // Consider entries with ALL the selected tags (for use with Find/Replace)
     TagsModeOR: boolean;       // Tags include, ¿mode OR? (vs ALL)
     TagsMetadata: boolean;     // Tags will be searched for in the notes' metadata
     TagsEntriesMetadata: boolean;  // Tags will be searched for in all entries' metadata

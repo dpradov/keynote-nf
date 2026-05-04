@@ -62,8 +62,9 @@ type
     TntLabel1: TLabel;
     TntLabel2: TLabel;
     TntLabel3: TLabel;
+    CB_AllEntries: TCheckBox;
+    CB_HiddenEntries: TCheckBox;
     procedure PagesChange(Sender: TObject);
-    procedure CheckBox_AllNodesClick(Sender: TObject);
     procedure CheckBox_ScopeChanged(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
@@ -180,7 +181,7 @@ begin
 
   CheckEnableChkControls;
 
-  if not App.CheckActiveEditorNotReadOnly then begin
+  if not (Editor.MultiEntries and not ActiveFolder.Readonly) and not App.CheckActiveEditorNotReadOnly then begin
      modeReplace:= False;
      Tab_Replace.Enabled:= False;
   end
@@ -215,9 +216,15 @@ begin
   SearchInNotes:= assigned(Folder);
   CheckBox_AllTabs.Enabled:= SearchInNotes;
   CheckBox_AllNodes.Enabled := SearchInNotes and not CheckBox_AllTabs.Checked;
+  CB_AllEntries.Enabled := SearchInNotes and not CheckBox_AllNodes.Checked;
+
   if CheckBox_AllTabs.Checked then
      CheckBox_AllNodes.Checked:= true;
-  CheckBox_HiddenNodes.Enabled := SearchInNotes and (CheckBox_AllNodes.Checked or CheckBox_AllTabs.Checked);
+  if CheckBox_AllNodes.Checked then
+     CB_AllEntries.Checked:= true;
+
+  CheckBox_HiddenNodes.Enabled := SearchInNotes and CheckBox_AllNodes.Checked;
+  CB_HiddenEntries.Enabled := SearchInNotes and CB_AllEntries.Checked;
 end;
 
 procedure TForm_FindReplace.FormCloseQuery(Sender: TObject;
@@ -261,12 +268,6 @@ begin
 
 end;
 
-
-procedure TForm_FindReplace.CheckBox_AllNodesClick(Sender: TObject);
-begin
-   myFindOptions.FindNew := true;
-   CheckEnableChkControls;
-end;
 
 procedure TForm_FindReplace.CheckBox_ScopeChanged(Sender: TObject);
 begin
@@ -312,7 +313,9 @@ begin
     CheckBox_AllTabs.Checked := AllTabs_FindReplace and not IsRecordingMacro;
     CheckBox_EntireScope.Checked := EntireScope and not IsRecordingMacro;
     CheckBox_AllNodes.Checked := AllNodes and not IsRecordingMacro;
+    CB_AllEntries.Checked := AllEntries_FindReplace and not IsRecordingMacro;
     CheckBox_HiddenNodes.Checked := HiddenNodes and not IsRecordingMacro;
+    CB_HiddenEntries.Checked := HiddenEntries_FindReplace and not IsRecordingMacro;
     CheckBox_Wrap.Checked:= Wrap and not IsRecordingMacro;
     CheckBox_Confirm.Checked := ReplaceConfirm and not IsRecordingMacro;
   end;
@@ -355,6 +358,7 @@ procedure TForm_FindReplace.FormToOptions;
 begin
   with myFindOptions do begin
     AllNodes := CheckBox_AllNodes.Checked;
+    AllEntries_FindReplace := CB_AllEntries.Checked;
     AllTabs_FindReplace := CheckBox_AllTabs.Checked;
     EntireScope := CheckBox_EntireScope.Checked;
     MatchCase := CheckBox_MatchCase.Checked;
@@ -363,6 +367,7 @@ begin
     Pattern := Combo_Text.Text;
     ReplaceWith := Combo_Replace.Text;
     HiddenNodes:= CheckBox_HiddenNodes.Checked;
+    HiddenEntries_FindReplace:= CB_HiddenEntries.Checked;
     SelectedText:= CheckBox_SelectedText.Checked;
     Wrap := CheckBox_Wrap.Checked;
   end;

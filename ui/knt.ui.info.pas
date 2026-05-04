@@ -32,66 +32,6 @@ uses
 type
   TBasicNEntriesLayout = (neQueryLayout, neEditingLayout, neLastLayout);
 
-  INoteUI = interface
-     ['{8D9BDE14-3373-482A-B097-0C1E4F4A981C}']
-     procedure SetFocusOnEditor;
-     procedure ConfigureEditor;
-
-     function GetEditor: TKntRichEdit;
-     function GetNNode: TNoteNode;
-     function GetFolder: TObject;
-     function GetSelectedNEntry: TNoteEntry;
-     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
-     function GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
-     function GetBasicNEntriesLayout: boolean;
-     property Editor: TKntRichEdit read GetEditor;
-     property NNode: TNoteNode read GetNNode;
-     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
-     function MultipleVisibleEditors: boolean;
-     function GetHideFocusFlag: boolean;
-     procedure SetHideFocusFlag(value: boolean);
-     property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
-     function NavigatePanels(NavDirection: TNavDirection): boolean;
-     procedure ToggleMaximizeSelectedPanel;
-
-     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
-                             NEntriesLayout: TBasicNEntriesLayout;
-                             EditingNEntry: TNoteEntry = nil;
-                             OfferEditorForNewEntry: boolean = False);
-
-     procedure ReloadFromDataModel;
-     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
-     procedure ReloadNoteName;
-     procedure SaveToDataModel;
-     procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
-     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
-     procedure SelectNextEntry;
-     procedure SelectPreviousEntry;
-     procedure Refresh;
-
-     procedure SetImagesMode(ImagesMode: TImagesMode);
-     procedure ResetImagesReferenceCount;
-     function  GetImagesInstances: TImageIDs;
-     procedure ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
-     procedure ReloadImagesOnEditor;
-
-     procedure EditTags;
-     procedure RefreshTags;
-     procedure SetInfoPanelHidden(value: boolean);
-     procedure KeepInfoPanelTemporarilyVisible;
-
-     procedure SetReadOnly( AReadOnly : boolean );
-     procedure NNodeDeleted;
-     function GetNNodeDeleted: boolean;
-
-     procedure SetOnEnter(AEvent: TNotifyEvent);
-     procedure SetOnMouseUpOnNote(AEvent: TNotifyEvent);
-     procedure SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
-
-     //procedure TestPanels;
-  end;
-
-
 type
   TModeEntriesUI = (
     meMultipleEntries,
@@ -162,6 +102,72 @@ type
     SelLength : integer;              // ,,
     ScrollPosInEditor: TPoint;        // ,,
   end;
+
+
+type
+  INoteUI = interface
+     ['{8D9BDE14-3373-482A-B097-0C1E4F4A981C}']
+     procedure SetFocusOnEditor;
+     procedure ConfigureEditor;
+
+     function GetEditor: TKntRichEdit;
+     function GetNNode: TNoteNode;
+     function GetFolder: TObject;
+     function GetSelectedNEntry: TNoteEntry;
+     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
+     function GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
+     procedure GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray;
+              var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+     function GetNEntriesUITargetForFindSelection(NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TObject;
+     function GetBasicNEntriesLayout: boolean;
+     property Editor: TKntRichEdit read GetEditor;
+     property NNode: TNoteNode read GetNNode;
+     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
+     function MultipleVisibleEditors: boolean;
+     function GetHideFocusFlag: boolean;
+     procedure SetHideFocusFlag(value: boolean);
+     property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
+     function NavigatePanels(NavDirection: TNavDirection): boolean;
+     procedure ToggleMaximizeSelectedPanel;
+
+     procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
+                             NEntriesLayout: TBasicNEntriesLayout;
+                             EditingNEntry: TNoteEntry = nil;
+                             OfferEditorForNewEntry: boolean = False);
+
+     procedure ReloadFromDataModel;
+     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
+     procedure ReloadNoteName;
+     procedure SaveToDataModel;
+     procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
+     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
+     procedure SelectNextEntry;
+     procedure SelectPreviousEntry;
+     procedure Refresh;
+
+     procedure SetImagesMode(ImagesMode: TImagesMode);
+     procedure ResetImagesReferenceCount;
+     function  GetImagesInstances: TImageIDs;
+     procedure ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
+     procedure ReloadImagesOnEditor;
+
+     procedure EditTags;
+     procedure RefreshTags;
+     procedure SetInfoPanelHidden(value: boolean);
+     procedure KeepInfoPanelTemporarilyVisible;
+
+     procedure SetReadOnly( AReadOnly : boolean );
+     procedure NNodeDeleted;
+     function GetNNodeDeleted: boolean;
+
+     procedure SetOnEnter(AEvent: TNotifyEvent);
+     procedure SetOnMouseUpOnNote(AEvent: TNotifyEvent);
+     procedure SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
+
+     //procedure TestPanels;
+  end;
+
+
 
 
 implementation

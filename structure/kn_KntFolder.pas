@@ -104,6 +104,8 @@ type
 
       class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
+      class procedure GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder;
+                                            var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
       function GetMainPanel: TNEntriesPanel;
       function GetVisibleBottomPanel: TNEntriesPanel;
@@ -3405,7 +3407,7 @@ begin
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
        if QueryLayout then
-          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQueryLayout[p]		  
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQueryLayout[p]
        else
           PnlUse:= Folder.NoteAdvOptions.DefaultUseForEditingLayout[p];
 
@@ -3417,6 +3419,15 @@ begin
        end;
     end;
 
+end;
+
+
+class procedure TNNodeUIConfiguration.GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder;
+                                                            var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+
+begin
+   Order:= eoDateCreation;
+   DescendingOrder:= True;
 end;
 
 
