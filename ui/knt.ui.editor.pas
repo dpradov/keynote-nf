@@ -609,7 +609,7 @@ function TKntRichEdit.ContainsRegisteredImages: boolean;
 var
   ImgIDs: TImageIDs;
 begin
-  ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain (TextPlain);
+  ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain (TextPlain, True);
   Result:= (ImgIDs <> nil);
 end;
 
@@ -4916,7 +4916,7 @@ begin
 
       else if SL > 1 then begin
          if Length(txt) < SL then begin
-           ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain(SelText);
+           ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain(SelText, True);
            if ImgIDs <> nil then
               ImgID:= ImgIDs[0];
          end

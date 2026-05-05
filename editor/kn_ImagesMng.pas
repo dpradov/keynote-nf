@@ -443,7 +443,7 @@ type
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
     function  GetImagesIDInstancesFromRTF (Stream: TMemoryStream): TImageIDs;
-    function  GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
+    function  GetImagesIDInstancesFromTextPlain (TextPlain: String; GetOnlyFirstImgID: boolean = false): TImageIDs;
     procedure UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
     function  ImageInCurrentEditors (ImgID: integer; UseFreshTextPlain: boolean= false): Boolean;
 
@@ -3704,7 +3704,7 @@ begin
 end;
 
 
-function TImageMng.GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
+function TImageMng.GetImagesIDInstancesFromTextPlain (TextPlain: String; GetOnlyFirstImgID: boolean = false): TImageIDs;
 var
   pID,pIDr: integer;
   ImgID, Num: integer;
@@ -3728,6 +3728,7 @@ begin
                Inc(Num);
                SetLength(Result, Num);
                Result[Num-1]:= ImgID;
+               if GetOnlyFirstImgID then exit;
             end;
          end;
       end;

@@ -157,7 +157,7 @@ var
    LastFindNextAt: TDateTime;
 
    ReplacingLastNEntry: TNoteEntry;
-   ReplacingLastNEntryHasRegImg: Boolean;
+   ReplacingLastNEntryHasRegImg, CalculatedReplacingLastNEntryHasRegImg: Boolean;
    SearchingFolder: TKntFolder;
    SearchingInEditor: TKntRichEdit;
    SearchAllEntries: boolean;
@@ -221,6 +221,8 @@ var
   SecondNextTextIntervalToConsider: TTextInterval;
 
   ExcludedUntilTheEnd: boolean;
+
+  RTFAux : TAuxRichEdit;                 // For use with FindNexInNotes
 
 
 
@@ -3496,6 +3498,38 @@ end;
   If that node has been accessed during the session, the active Layout, QueryLayout or EditingLayout, will be used.
   If it hasn't been queried during the session, its QueryLayout will be used. The order in which those entries are iterated will be the one
   that applies according to that panel (PanelConfiguration.Order).
+
+  [*1]
+  ReplacingLastNEntryHasRegImg:
+    It allows implementing an optimization that is only possible when RunFindNextInNotes is running with Is_ReplacingAll=True, since
+    in other cases we cannot guarantee that the last node (and entry) considered remains the last, as the user can select any
+    other node after executing FindNext. However, all calls made from Replace All occur at once. The desired optimization is as follows:
+      Once a match is located, we must select it in the editor, either to display it to the user or to allow its replacement
+    with other text. In both cases, it is necessary to activate focus on the node/entry/editor to be able to act upon it.
+    Pattern searches are performed with the FindPattern method on text obtained through TextPlain, on the editor, or on
+    the entry. Assuming, for simplicity, that the editor is only displaying one entry, Editor.TextPlain will be equal to NEntry.TextPlain
+    only if the entry does not contain images or if all images are hidden in the editor. Being hidden means that they are displayed in the
+    form of a hyperlink, which is how they are stored in the entry (and what NEntry.TextPlain always provides).
+
+    If the search was performed on a TextPlain obtained from the editor, the resulting position allows for easy selection.
+    However, if the search was performed on a TextPlain obtained from the entry (NEntry), then it's necessary to make the adjustment to adapt
+    the position returned by FindPattern to the corresponding position in the editor, since some of the images may be visible there.
+    Calculating this offset requires processing that should be minimized when numerous searches need to be performed continuously, as might happen
+    if Replace All is executed.
+    But in the second case (using TextPlain from NEntry), if we know that it doesn't support registered images or, if it does, doesn't contain
+    any, we can avoid calculating that offset. We can use this in the SearchCaretPos call, where the parameters we're passing, in the values
+    ​​of ContainsRegImages and SearchInImLinkTextPlain, allow us to indicate whether to perform that offset calculation.
+
+    When RunFindNextInNotes is called with Is_ReplacingAll, we only need to determine if the entry contains images if we are using
+    the TextPlain of the entry for the first time (in this execution of Replacing All), for which we will use ReplacingLastNEntry, since
+    we only need to check if there are images if we have not already calculated it in that entry.
+
+    Related commits:
+     * Fixed: Find Next could incorrectly select the first pattern found in a note with images (when traversing from another node)
+          SHA-1: 3039d70f97cc00  (4/12/24)
+     * Fixed: Replace All could apply the replacement at an offset position when traversing from another node, if the current node has images
+          SHA-1: 4ac5db35304c83  (4/12/24)
+
 }
 
 function RunFindNextInNotes (Is_ReplacingAll: Boolean= False): boolean;
@@ -3513,7 +3547,6 @@ var
   l1, l2: integer;
   SizeInternalHiddenText: integer;
   TextPlain: string;
-  RTFAux: TAuxRichEdit;
   TreeUI: TKntTreeUI;
   NEntriesUI: TKntNoteEntriesUI;
   TV: TVTree;
@@ -3722,11 +3755,20 @@ var
          myFolder.TreeUI.SelectAlone(myTreeNode);
       end;
 
-      ContainsRegImages:= (not Is_ReplacingAll) or ReplacingLastNEntryHasRegImg;
-
 
       NEntriesUI:= TKntNoteEntriesUI(myFolder.NoteUI.GetNEntriesUITargetForFindSelection(myNEntry, FindOptions.FindTagsIncl_FindReplace));
       if assigned(NEntriesUI) and NEntriesUI.GetPreparedForJump(myNEntry, PosStartEntry, PosEndEntry, Is_Replacing) then begin
+
+         // See the explanation of the optimization performed with ReplacingLastNEntryHasRegImg in the comment [*1] included in the observations at the beginning of this method
+         if not Is_ReplacingAll or not SearchInImLinkTextPlain then
+            ContainsRegImages:= True
+         else begin
+            if not CalculatedReplacingLastNEntryHasRegImg then
+               ReplacingLastNEntryHasRegImg:= NEntriesUI.Editor.SupportsRegisteredImages and (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain, True) <> nil);
+            CalculatedReplacingLastNEntryHasRegImg:= true;
+            ContainsRegImages:= ReplacingLastNEntryHasRegImg;
+         end;
+
 
         // If a tag is being removed (replacing it with ""), FindTag can have located a block closures associated
         // with that tag. Ex: #Tag --> ##Tag. In this case we must expand the text to be selected by 1
@@ -3766,6 +3808,10 @@ var
         Result:= Editor.TextPlain;
      end
      else begin
+        if (RTFAux = nil) then begin
+           RTFAux:= CreateAuxRichEdit;
+           RTFAux.BeginUpdate;
+        end;
         SearchInImLinkTextPlain:= true;
         Result:= PrepareTextPlain(myNEntry, RTFAux)
      end;
@@ -3796,9 +3842,9 @@ begin
   if FindOptions.MatchCase then
      SearchOpts := SearchOpts + [stMatchCase];
 
-  App.ShowInfoInStatusBar(GetRS(sFnd07));
+  if not Is_ReplacingAll or FindOptions.FindNew then
+     App.ShowInfoInStatusBar(GetRS(sFnd07));
 
-  RTFAux:= CreateAuxRichEdit;
   SearchInProgress := true;
   try
     try
@@ -3820,13 +3866,14 @@ begin
       myNEntry:= TNoteEntry(Editor.NEntryObj);
       NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
 
+      // See the explanation of the optimization performed with ReplacingLastNEntryHasRegImg in the comment [*1] included in the observations at the beginning of this method
+      if FindOptions.FindNew then begin
+         ReplacingLastNEntry:= nil;
+         CalculatedReplacingLastNEntryHasRegImg:= False;
+      end;
 
-      ReplacingLastNEntryHasRegImg:= false;
-      if Is_ReplacingAll then begin
-         if not Editor.SupportsRegisteredImages then
-            ReplacingLastNEntryHasRegImg:= false
-         else
-            ReplacingLastNEntryHasRegImg:= Editor.ContainsRegisteredImages;
+      if Is_ReplacingAll and (ReplacingLastNEntry <> myNEntry) then begin
+         CalculatedReplacingLastNEntryHasRegImg:= False;
          ReplacingLastNEntry:= myNEntry;
       end;
 
@@ -3843,9 +3890,12 @@ begin
       end
       else begin
           SearchOrigin := Editor.SelStart;
-          if ReplacingLastNEntryHasRegImg or Editor.MultiEntries then begin
+          if Editor.MultiEntries then begin                                       // -> Will use SearchInImLinkTextPlain:= true; (TextPlain from NEntry)
              NEntriesUI.GetEntryBoundaries(myNEntry, PosStartEntry, PosEndEntry);
-             SearchOrigin:= PositionInImLinkTextPlain (Editor, myNEntry, SearchOrigin, False, PosStartEntry, PosEndEntry);
+             if not CalculatedReplacingLastNEntryHasRegImg or ReplacingLastNEntryHasRegImg then
+                SearchOrigin:= PositionInImLinkTextPlain (Editor, myNEntry, SearchOrigin, False, PosStartEntry, PosEndEntry)
+             else
+                dec(SearchOrigin, PosStartEntry);   // It really shouldn't come in here, because to edit an entry in a multi-entry editor, we first need to switch to single-entry mode.
           end;
 
           l1:= length(Editor.SelVisibleText);
@@ -3880,22 +3930,14 @@ begin
 
             if not (HideEncrypted and NNode.Note.IsEncrypted) then begin
 
-                if Is_ReplacingAll and (ReplacingLastNEntry <> myNEntry) then
-                   ReplacingLastNEntryHasRegImg:= true;   // We can't know this unless we query NEntry.TextPlain because the Editor will still be 'pointing' to another node or entry
-
-                if ReplacingLastNEntryHasRegImg then begin
-                   TextPlain:= PrepareTextPlain(myNEntry, RTFAux);
-                   SearchInImLinkTextPlain:= true;
-                end
-                else
-                   TextPlain:= GetTextPlainFromNEntry;
+                TextPlain:= GetTextPlainFromNEntry;
 
                 if PositionInFoldedBlock(TextPlain, SearchOrigin, nil, pI, pF) then
                    SearchOrigin:= pF + 1;
 
                 if Is_ReplacingAll and (ReplacingLastNEntry <> myNEntry) then begin
+                   CalculatedReplacingLastNEntryHasRegImg:= False;
                    ReplacingLastNEntry:= myNEntry;
-                   ReplacingLastNEntryHasRegImg:= (ImageMng.GetImagesIDInstancesFromTextPlain(TextPlain) <> nil);  // Next replacements on the same entry will be optimized if this entry has no images
                 end;
 
                 IgnoreKNTHiddenMarks:= myNEntry.IsRTF;
@@ -3962,7 +4004,8 @@ begin
       result := Found;
       SearchInProgress := false;
       UserBreak := false;
-      RTFAux.Free;
+      if not Is_ReplacingAll and (RTFAux <> nil) then
+         FreeAndNil(RTFAux);
   end;
 
 end;
@@ -4158,6 +4201,7 @@ var
   NEntriesUI: TKntNoteEntriesUI;
   PosStartEntry, PosEndEntry: integer;
   RestoreMultiEntriesInEditor: boolean;
+  LastNEntryModif: TNoteEntry;
 
 
   procedure BeginUpdateOnFolders;
@@ -4272,8 +4316,7 @@ begin
 
   Is_Replacing := true;
   AppliedBeginUpdate:= False;
-  ReplacingLastNEntry:= nil;
-  ReplacingLastNEntryHasRegImg:= true;
+  LastNEntryModif:= nil;
   RestoreMultiEntriesInEditor:= false;
 
   try
@@ -4337,8 +4380,9 @@ begin
                    if Selection = ipsNone then begin
                       inc(ReplaceCnt);
                       Editor.AddText(ReplaceWith);
-                      if Editor.NNodeObj <> nil then
+                      if (LastNEntryModif <> ReplacingLastNEntry) and (Editor.NNodeObj <> nil) then
                          App.ChangeInEditor(Editor);
+                      LastNEntryModif:= ReplacingLastNEntry;
                    end
                    else begin
                       if Selection = ipsFolded then begin
@@ -4380,6 +4424,9 @@ begin
     UserBreak := false;
     FindOptions.ReplaceConfirm := Original_Confirm;
     FindOptions.EntireScope := Original_EntireScope;
+    if RTFAux <> nil then
+       FreeAndNil(RTFAux);
+
   end;
 
   txtMessage:= Format( GetRS(sFnd11), [ReplaceCnt] );
@@ -4444,4 +4491,5 @@ Initialization
     NextTextIntervalToConsider.PosI:= 0;
     FoundNodes:= nil;
     FragmentsInNodes:= nil;
+    RTFAux:= nil;
 end.
