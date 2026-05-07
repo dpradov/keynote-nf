@@ -133,6 +133,7 @@ type
     cbTagFindMode: TComboBox;
     CB_UseNote: TCheckBox;
     chkEncrypted: TCheckBox;
+    chkTagsEntries: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -188,7 +189,7 @@ type
 
     UsingTags: boolean;
     ExportTextFragments: boolean;
-    FilterNodesByTag: boolean;
+    FilterNodesByTag, FilterEntriesByTag: boolean;
     FindTagsIncl: TFindTags;
     FindTagsExcl: TFindTags;
     FindTagsIncl_NotRegistered: string;
@@ -235,7 +236,7 @@ function EscapeTextForRTF( const Txt : string ) : string;
 function MergeHeadingWithRTFTemplate( const Heading, RTFTemplate : string ) : string;
 
 procedure ExportNotesEx (PrinterMode: boolean = false);
-procedure ExportTreeNode;
+procedure ExportSelectedEditor;
 procedure ReadConfig (var ExportOptions: TExportOptions; const myINIFN: string; PrinterMode: boolean);
 
 var
@@ -1535,6 +1536,7 @@ begin
   UsingTags:= ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsIncl_NotRegistered <> '') or (FindTagsExcl_NotRegistered <> ''));
   ExportTextFragments:= UsingTags and chkTagsText.Checked;
   FilterNodesByTag:=    UsingTags and chkTagsMetad.Checked;
+  FilterEntriesByTag:=  UsingTags and chkTagsEntries.Checked;
 
   RTFAuxFrag:= nil;
 
@@ -1610,7 +1612,7 @@ begin
   RTFAux.BeginUpdate;
   RTFAux.OnProtectChangeEx:= RxRTFProtectChangeEx;
 
-  if ExportTextFragments or FilterNodesByTag then begin
+  if ExportTextFragments or FilterNodesByTag or FilterEntriesByTag then begin
      if not GetFilterInfUsingFindAll or (FoundNodes.Count = 0) then begin
         App.InfoPopup(GetRS(sExpFrm23));
         ActiveFile.IsBusy := false;
@@ -2629,10 +2631,9 @@ begin
 end;
 
 
-procedure ExportTreeNode;
+procedure ExportSelectedEditor;
 var
   NNode : TNoteNode;
-  NEntry: TNoteEntry;
   oldFilter, ext, RTFText, Txt: string;
   ExportFN : string;
   exportformat : TExportFmt;
@@ -2659,9 +2660,6 @@ begin
 
   ActiveFolder.SaveEditorToDataModel;
 
-  NEntry:= NNode.Note.Entries[0];          //%%%
-  NEntry.Stream.Position := 0;
-
   // {N}
   ExportFN := MakeValidFileName(NNode.NodeName(ActiveTreeUI), [' '], MAX_FILENAME_LENGTH );
 
@@ -2671,8 +2669,14 @@ begin
       oldFilter := Filter;
       Filter := FILTER_EXPORT;
       FilterIndex := KeyOptions.LastExportFormat;
-      if NEntry.IsPlainTXT then
-         FilterIndex := 2;  // Plain text
+
+      if Editor.MultiEntries then
+         FilterIndex := 1  // RTF Text
+
+      else begin
+         if Editor.PlainText then
+            FilterIndex := 2;  // Plain text
+      end;
 
       if ( KeyOptions.LastExportPath <> '' ) then
         InitialDir := KeyOptions.LastExportPath
@@ -2726,7 +2730,7 @@ begin
     ExportSelectionOnly := ( Editor.SelLength > 0 );
 
     if exportformat in [xfRTF, xfHTML] then begin
-       if NEntry.IsPlainTXT then begin
+       if not Editor.MultiEntries and Editor.PlainText then begin
           RTFAux:= CreateAuxRichEdit;
           RTFAux.PrepareEditorforPlainText(Editor.Chrome);
           if ExportSelectionOnly then
@@ -2867,6 +2871,7 @@ begin
   myFindOptions.FindTagsInclNotReg:= FindTagsIncl_NotRegistered;
   myFindOptions.FindTagsExclNotReg:= FindTagsExcl_NotRegistered;
   myFindOptions.TagsMetadata:= chkTagsMetad.Checked;
+  myFindOptions.TagsEntriesMetadata:= chkTagsEntries.Checked;
   myFindOptions.TagsText:= chkTagsText.Checked;
   myFindOptions.InheritedTags:= chkInhTagsFind.Checked;
   myFindOptions.TagsModeOR:= (cbTagFindMode.ItemIndex = 1);

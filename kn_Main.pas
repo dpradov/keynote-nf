@@ -8350,7 +8350,7 @@ end;
 
 procedure TForm_Main.actTVExportExecute(Sender: TObject);
 begin
-  ExportTreeNode;
+  ExportSelectedEditor;
 end;
 
 procedure TForm_Main.actTVSortSubtreeExecute(Sender: TObject);
