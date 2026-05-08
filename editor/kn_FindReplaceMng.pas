@@ -30,6 +30,7 @@ uses
    VirtualTrees,
    gf_misc,
    knt.ui.tree,
+   knt.model.note,
    RxRichEd,
    kn_Info,
    kn_KntFolder,
@@ -79,21 +80,30 @@ type
      PosF:    integer;
   end;
 
-  TNoteFragments = class
+  TEntryFragments = class
      NumFrag: integer;
      Fragments: Array of TTextInterval;
   end;
-  TNoteFragmentsList = TSimpleObjList<TNoteFragments>;
 
-procedure FreeFragments(var FoundNodes: TNodeList; var FragmentsInNodes: TNoteFragmentsList);
+  TFoundEntry = class
+     NEntry: TNoteEntry;
+     FragmentsInEntry: TEntryFragments;
+  end;
+  TFoundEntryInNoteList = TSimpleObjList<TFoundEntry>;
+  TFoundEntriesInNotesList = TSimpleObjList<TFoundEntryInNoteList>;
+
+
+procedure FreeFragments(var FoundNodes: TNodeList; var FoundEntriesInNotes: TFoundEntriesInNotesList);
 
 
 
 var
   FoundNodes: TNodeList;
-  FragmentsInNodes: TNoteFragmentsList;
+  FoundEntriesInNotes: TFoundEntriesInNotesList;
   Fragments_LastNodeProcessed: PVirtualNode;
   Fragments_iLastNodeProcessed: integer;
+  Fragments_LastEntryProcessed: TNoteEntry;
+  Fragments_iLastEntryProcessed: integer;
 
 
 
@@ -131,7 +141,6 @@ uses
    kn_const,
    kn_Global,
    kn_Cmd,
-   knt.model.note,
    kn_LocationObj,
    kn_EditorUtils,
    knt.ui.info,
@@ -244,17 +253,25 @@ const
    FIND_ONLY_PROTECTED_NODES_CHR = '*?';
 
 
-procedure FreeFragments(var FoundNodes: TNodeList; var FragmentsInNodes: TNoteFragmentsList);
+procedure FreeFragments(var FoundNodes: TNodeList; var FoundEntriesInNotes: TFoundEntriesInNotesList);
 var
-  i: integer;
+  i, j: integer;
+  EntriesInNote: TFoundEntryInNoteList;
+  FoundEntry: TFoundEntry;
 begin
    if FoundNodes <> nil then
       FreeAndNil(FoundNodes);
 
-   if FragmentsInNodes <> nil then begin
-      for i:= 0 to FragmentsInNodes.Count-1 do
-         FragmentsInNodes[i].Free;
-      FreeAndNil(FragmentsInNodes);
+   if FoundEntriesInNotes <> nil then begin
+      for i:= 0 to FoundEntriesInNotes.Count - 1 do begin
+         EntriesInNote:= FoundEntriesInNotes[i];
+         for j:= 0 to EntriesInNote.Count - 1 do begin
+            FoundEntry:= EntriesInNote[j];
+            FoundEntry.FragmentsInEntry.Free;
+         end;
+         EntriesInNote.Free;
+      end;
+      FreeAndNil(FoundEntriesInNotes);
    end;
 end;
 
@@ -1304,31 +1321,51 @@ type
        var
          str, strExtract : string;
          iLast: integer;
-         NoteFrags: TNoteFragments;
+         EntryFrags: TEntryFragments;
+         FoundEntry: TFoundEntry;
+         FoundEntriesInNote: TFoundEntryInNoteList;
 
        begin
 
           if OnlyGetFragmentsInfo then begin
              if not assigned(myTreeNode) then exit;
-             if Fragments_LastNodeProcessed <> myTreeNode then begin
-                if Fragments_LastNodeProcessed <> nil then begin
-                   NoteFrags:= FragmentsInNodes[Fragments_iLastNodeProcessed];
-                   SetLength(NoteFrags.Fragments, NoteFrags.NumFrag);
-                end;
-                Fragments_iLastNodeProcessed:= FoundNodes.Add(myTreeNode);
-                Fragments_LastNodeProcessed := myTreeNode;
-                NoteFrags:= TNoteFragments.Create;
-                NoteFrags.NumFrag:= 0;
-                SetLength(NoteFrags.Fragments, 10);
-                FragmentsInNodes.Add(NoteFrags);
-             end;
-             NoteFrags:= FragmentsInNodes[Fragments_iLastNodeProcessed];
-             inc(NoteFrags.NumFrag);
-             if NoteFrags.NumFrag > Length(NoteFrags.Fragments) then
-                SetLength(NoteFrags.Fragments, Length(NoteFrags.Fragments) + 10);
 
-             NoteFrags.Fragments[NoteFrags.NumFrag-1].PosI:= PatternPos;
-             NoteFrags.Fragments[NoteFrags.NumFrag-1].PosF:= pR_Extract;
+             if Fragments_LastEntryProcessed <> myNEntry then begin
+                if Fragments_LastEntryProcessed <> nil then begin
+                   FoundEntry:= FoundEntriesInNotes[Fragments_iLastNodeProcessed][Fragments_iLastEntryProcessed];
+                   EntryFrags:= FoundEntry.FragmentsInEntry;
+                   SetLength(EntryFrags.Fragments, EntryFrags.NumFrag);
+                end;
+
+                if Fragments_LastNodeProcessed <> myTreeNode then begin
+                   Fragments_iLastNodeProcessed:= FoundNodes.Add(myTreeNode);
+                   Fragments_LastNodeProcessed := myTreeNode;
+                   FoundEntriesInNote:= TFoundEntryInNoteList.Create;
+                   FoundEntriesInNotes.Add(FoundEntriesInNote);
+                end;
+
+                FoundEntriesInNote:= FoundEntriesInNotes[Fragments_iLastNodeProcessed];
+
+                FoundEntry:= TFoundEntry.Create;
+                FoundEntry.NEntry:= myNEntry;
+
+                EntryFrags:= TEntryFragments.Create;
+                EntryFrags.NumFrag:= 0;
+                SetLength(EntryFrags.Fragments, 10);
+                FoundEntry.FragmentsInEntry:= EntryFrags;
+
+                Fragments_iLastEntryProcessed:= FoundEntriesInNote.Add(FoundEntry);
+                Fragments_LastEntryProcessed := myNEntry;
+             end;
+
+             FoundEntry:= FoundEntriesInNotes[Fragments_iLastNodeProcessed][Fragments_iLastEntryProcessed];
+             EntryFrags:= FoundEntry.FragmentsInEntry;
+             inc(EntryFrags.NumFrag);
+             if EntryFrags.NumFrag > Length(EntryFrags.Fragments) then
+                SetLength(EntryFrags.Fragments, Length(EntryFrags.Fragments) + 10);
+
+             EntryFrags.Fragments[EntryFrags.NumFrag-1].PosI:= PatternPos;
+             EntryFrags.Fragments[EntryFrags.NumFrag-1].PosF:= pR_Extract;
              exit;
           end;
 
@@ -2770,11 +2807,13 @@ begin
 
 
       if OnlyGetFragmentsInfo then begin
-         FreeFragments (FoundNodes, FragmentsInNodes);
+         FreeFragments (FoundNodes, FoundEntriesInNotes);
          FoundNodes:= TNodeList.Create;
-         FragmentsInNodes:= TNoteFragmentsList.Create;
+         FoundEntriesInNotes:= TFoundEntriesInNotesList.Create;
          Fragments_LastNodeProcessed:= nil;
          Fragments_iLastNodeProcessed:= -1;
+         Fragments_LastEntryProcessed:= nil;
+         Fragments_iLastEntryProcessed:= -1;
       end;
 
 
@@ -4490,6 +4529,6 @@ Initialization
     LastWordFollowed.iResults:= -1;
     NextTextIntervalToConsider.PosI:= 0;
     FoundNodes:= nil;
-    FragmentsInNodes:= nil;
+    FoundEntriesInNotes:= nil;
     RTFAux:= nil;
 end.

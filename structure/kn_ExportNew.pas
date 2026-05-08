@@ -295,7 +295,7 @@ var
   FontSizes_Max, FontSizes_Inc, FontSizes_Min: integer;
 
   ExpFoundNodes: TNodeList;
-  ExpFragmentsInNodes: TNoteFragmentsList;
+  ExpFoundEntriesInNotes: TFoundEntriesInNotesList;
 
 {$R *.DFM}
 
@@ -1132,9 +1132,9 @@ var
   FolderHeadingTpl, NodeHeadingTpl : string;
   NodeLevelHeadingTpl : array of string;
   NodeHeadingTpl_Aux: string;
-  NodeText: AnsiString;
+  EntryText: AnsiString;
   ExitMessage : string;
-  NodeTextSize : integer;
+  EntryTextSize : integer;
   StartLevel, Level, ThisNodeIndex : integer;
   tmpStream : TMemoryStream;
   ExportedFolders, ExportedNotes, tmpExportedNodes : integer;
@@ -1145,7 +1145,7 @@ var
   TreePadFile : TTextfile;
   TreePadFN : string;
   TreePadNodeLevelInc : integer; // 0 or 1
-  NodeStreamIsRTF : boolean;
+  EntryStreamIsRTF : boolean;
   Encoding: TEncoding;
   FN, ext: string;
   OnlyNotHiddenNodes, OnlyCheckedNodes: boolean;
@@ -1161,14 +1161,16 @@ var
   PageHeader: string;
   S: String;
 
-  iNode: integer;
-  NoteFragments: TNoteFragments;
+  iEntry: integer;
+  EntryFragments: TEntryFragments;
   RTFAuxFrag : TAuxRichEdit;
   RTFFrag: AnsiString;
-  ExportWholeNoteText: boolean;
+  ExportWholeEntryText: boolean;
   FoldedMode: TSearchFoldedMode;
   L: integer;
   pFLastExportedFragm, Offset: integer;
+  ExportedEntriesInNote: integer;
+  PageContentWidthInTwips: integer;
 
 
   procedure LoadNodeLevelTemplates;
@@ -1335,7 +1337,7 @@ var
            (( TreeSelection = tsCheckedNodes ) and (Node.CheckState = csCheckedNormal)) or
            (( TreeSelection = tsSubtree ) and ( TreeUI.TV.HasAsParent(Node, StartTreeNode) or ( StartTreeNode = Node )))) then
 
-         if FilterNodesByTag or ExportTextFragments then begin
+         if FilterNodesByTag or FilterEntriesByTag or ExportTextFragments then begin
              iNode:= ExpFoundNodes.IndexOf(Node);
              if iNode >= 0 then
                 Result:= True;
@@ -1344,6 +1346,34 @@ var
             Result:= True;
      end;
   end;
+
+  function NEntryToBeExported(Node: PVirtualNode; NEntry: TNoteEntry; var EntryFragments: TEntryFragments): boolean;
+  var
+    EntriesInNote: TFoundEntryInNoteList;
+    iNode, i: integer;
+  begin
+     Result:= False;
+     if NEntry = nil then exit;
+
+     if ActiveFile.EncryptedContentEnabled then begin
+        if not IncludeEncrypted and NEntry.IsEncrypted then
+           exit;
+     end;
+
+     if FilterNodesByTag or FilterEntriesByTag or ExportTextFragments then begin
+        iNode:= ExpFoundNodes.IndexOf(Node);
+        if iNode < 0 then exit;                             // It should'nt..
+        EntriesInNote:= ExpFoundEntriesInNotes[iNode];
+        for i:= 0 to EntriesInNote.Count-1 do
+            if EntriesInNote[i].NEntry = NEntry then begin
+               EntryFragments:= EntriesInNote[i].FragmentsInEntry;
+               exit(True);
+            end;
+     end
+     else
+        Result:= True;
+  end;
+
 
   procedure InsertTableOfContents (FolderIdx: integer; AllExportedFolder: boolean);
   var
@@ -1368,6 +1398,7 @@ var
     end;
 
   begin
+      if ExportOptions.TargetFormat = xfOPML then exit;
       if ExportOptions.TableContMaxDepth <= 0 then exit;
 
       InsertCaption(myKntFile.File_NameNoExt + #13#13, 20);
@@ -1522,9 +1553,22 @@ var
      end;
 
      if not GetFilterInfUsingFindAll(myTreeNode, myFolder, RTFAuxFrag.TextPlain) or (FoundNodes.Count = 0) then
-        NoteFragments.NumFrag:= 0
+        EntryFragments.NumFrag:= 0
      else
-        NoteFragments:= FragmentsInNodes[0];
+        EntryFragments:= FoundEntriesInNotes[0][0].FragmentsInEntry;
+  end;
+
+
+  function GetPageContentWidthInTwips: integer;
+  var
+     DPI: integer;
+     Rect: TRect;
+  begin
+     DPI:= -1;
+     if PreviewMode or (ExportOptions.TargetFormat <> xfPrinter) then
+        DPI:= Screen.PixelsPerInch;
+     Rect:= GetPrintAreaInPixels(DPI, IgnorePrinterOffset);
+     Result:= PixelsToTwips(Rect.Right-Rect.Left, Screen.PixelsPerInch);
   end;
 
 
@@ -1620,9 +1664,9 @@ begin
         exit;
      end;
      ExpFoundNodes:= FoundNodes;
-     ExpFragmentsInNodes:= FragmentsInNodes;
+     ExpFoundEntriesInNotes:= FoundEntriesInNotes;
      FoundNodes:= nil;                              // We'll free the list from here. We do this in case we need to call GetFilterInfUsingFindAll again with a single node.
-     FragmentsInNodes:= nil;                        // ,,
+     FoundEntriesInNotes:= nil;                     // ,,
 
      RTFAuxFrag:= CreateAuxRichEdit;
      RTFAuxFrag.BeginUpdate;
@@ -1680,6 +1724,7 @@ begin
          LoadNodeLevelTemplates;
 
       PrepareExportOptions (ExportOptions.LengthHeading, ExportOptions.FontSizesInHeading);
+      PageContentWidthInTwips:= GetPageContentWidthInTwips();
 
       for FolderIdx := 1 to myKntFile.Folders.Count do begin             // ----------------------------------------------------------- FOR EACH FOLDER :
         Application.ProcessMessages;
@@ -1732,242 +1777,256 @@ begin
 
 
               while assigned( myTreeNode ) do begin          // ---------------------- Iterate each node
-                NNode:= TreeUI.GetNNode(myTreeNode);
+                 NNode:= TreeUI.GetNNode(myTreeNode);
 
-                // check if we should export this node
-                if NodeToBeExported(myTreeNode, StartTreeNode, TreeUI) then begin
-                  NEntry:= NNode.Note.Entries[0];          //%%%
-                  NEntry.Stream.Position := 0;
-                  inc( ThisNodeIndex );
+                 // check if we should export this node
+                 if NodeToBeExported(myTreeNode, StartTreeNode, TreeUI) then begin
+                    inc( ThisNodeIndex );
 
-                  if ExportOptions.IncludeNodeHeadings then begin
-                     NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), NNode.NodeName(TreeUI), (Level+1) - StartLevel, ThisNodeIndex, myFolder.TabSize );
-                     if ShowHiddenMarkers then begin
-                        NodeHeading:= NodeHeading + Format(' [%u]', [NNode.GID]);
-                        if NNode.ID > 0 then
-                           NodeHeading:= NodeHeading + Format('(id:%d)', [NNode.ID]);
-                     end;
-                     NodeHeadingTpl_Aux := '';
-                     if ExportOptions.NodeLevelTemplates then
-                        NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[Level];
-                     if NodeHeadingTpl_Aux = '' then
-                        NodeHeadingTpl_Aux:= NodeHeadingTpl;
-                     NodeHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NodeHeading ), NodeHeadingTpl_Aux );
-                  end;
-
-                  NodeTextSize := NEntry.Stream.Size;
-                  if NodeTextSize > 0 then begin
-                     SetLength( NodeText, NodeTextSize );
-                     move( NEntry.Stream.Memory^, NodeText[1], NodeTextSize );   // transfer stream contents to temp string
-                     NodeStreamIsRTF := (copy(NodeText, 1, 6) = '{\rtf1');       // *2
-                  end;
-
-                  // now for some treachery. In KeyNote, a user can mark a note as "plain text only". In such a node, all nodes are stored as
-                  // plain text, not RTF. However, the change from RTF to text (or back) occurs only when a node is DISPLAYED. So, it is possible
-                  // that user enabled "plain text only", but some tree nodes have not been viewed, hence are still in RTF. So, at this point
-                  // we cannot know if the node data we're about to export is RTF or plain text data. Yet we must pass the correct information
-                  // to PutRichText. Which is why we must check manually, like so:
-                  // NodeStreamIsRTF := ( copy( NodeText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
-                  //
-                  // *2 :
-                  // <<the change from RTF to text (or back) occurs only when a node is DISPLAYED>> That is not true currently. However:
-                  //  Folder can be PlainText and include a virtual node with RTF content
-                  //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
-
-                  FormatCommnd:= '';
-
-                  FirstNodeExportedInSection:= FirstNodeExportedInFolder or ((Level - StartLevel) < ExportOptions.SectionOnDepth);
-                  FirstNodeExportedInFile:= (FirstNodeExportedInFolder and ((NumFoldersExported=1) or ExportOptions.FilePerFolder))
-                                           or
-                                            (FirstNodeExportedInSection and ExportOptions.SectionToFile);
+                   if ExportOptions.IncludeNodeHeadings then begin
+                      NodeHeading := ExpandExpTokenString( ExportOptions.NodeHeading, myKntFile.Filename, RemoveAccelChar( myFolder.Name ), NNode.NodeName(TreeUI), (Level+1) - StartLevel, ThisNodeIndex, myFolder.TabSize );
+                      if ShowHiddenMarkers then begin
+                         NodeHeading:= NodeHeading + Format(' [%u]', [NNode.GID]);
+                         if NNode.ID > 0 then
+                            NodeHeading:= NodeHeading + Format('(id:%d)', [NNode.ID]);
+                      end;
+                      NodeHeadingTpl_Aux := '';
+                      if ExportOptions.NodeLevelTemplates then
+                         NodeHeadingTpl_Aux:= NodeLevelHeadingTpl[Level];
+                      if NodeHeadingTpl_Aux = '' then
+                         NodeHeadingTpl_Aux:= NodeHeadingTpl;
+                      NodeHeadingRTF := MergeHeadingWithRTFTemplate( EscapeTextForRTF( NodeHeading ), NodeHeadingTpl_Aux );
+                   end;
 
 
-                  if (tmpExportedNodes > 0) and (
-                      (FirstNodeExportedInSection and (ExportOptions.SectionToFile or (ExportOptions.TargetFormat = xfPrinter)) )
-                      or
-                      (ExportOptions.EachNoteNewPg and (ExportOptions.TargetFormat = xfPrinter)) ) then
+                   FormatCommnd:= '';
 
-                     FlushNotesToFile;
-
-
-                  if FirstNodeExportedInFile then begin
-                     FormatCommnd:= FormatCommnd + 'D+';
-                     if ExportOptions.ShowPageNumber then
-                        FormatCommnd:= FormatCommnd + 'F+';
-                     FN:= RemoveAccelChar(myFolder.Name);
-                     if ExportOptions.SectionToFile and (ExportOptions.SectionOnDepth > 0) or
-                        ( (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection <> tsFullTree)) then
-                           if ExportOptions.SimpleFileName then
-                              FN:= NNode.NodeName(TreeUI)
-                           else
-                              FN:= FN + ' - ' +  NNode.NodeName(TreeUI);
-                     FolderNameExported:= myFolder.Name;
-                  end;
-
-                  if FirstNodeExportedInSection then begin
-                     if (not FirstNodeExportedInFile or TableOfContentsPendingToFlush) then
-                        FormatCommnd:= FormatCommnd + 'S+';
-
-                     if CB_Header.Checked and CB_Header.Enabled and (ExportOptions.TopLvlAsPgHeader > 0) then begin
-                        var MaxDepth: Integer:= ExportOptions.TopLvlAsPgHeader;
-                        var relativeLevel: integer:= Level-StartLevel+1;              // beginning by 1
-                        if (MaxDepth > 1) and (MaxDepth >= relativeLevel) then
-                           MaxDepth:= relativeLevel-1;
-                        if (MaxDepth < ExportOptions.TopLvlAsPgHeader) and HasChildrenExported(NNode.TVNode) then
-                           inc(MaxDepth);
-                        PageHeader:= TreeUI.GetNodeAncestorsPath(NNode.TVNode, ' - ', MaxDepth, StartLevel+1);
-                        FormatCommnd:= FormatCommnd + 'H'+ PageHeader;
-                     end;
-                  end
-                  else
-                     if ExportOptions.EachNoteNewPg and not TableOfContentsPendingToFlush then
-                        FormatCommnd:= FormatCommnd + 'P';
+                   FirstNodeExportedInSection:= FirstNodeExportedInFolder or ((Level - StartLevel) < ExportOptions.SectionOnDepth);
+                   FirstNodeExportedInFile:= (FirstNodeExportedInFolder and ((NumFoldersExported=1) or ExportOptions.FilePerFolder))
+                                            or
+                                             (FirstNodeExportedInSection and ExportOptions.SectionToFile);
 
 
-                  inc(tmpExportedNodes);
-                  if ExportOptions.TargetFormat in [xfRTF, xfPrinter] then
-                     SetLength(InfoExportedNotes, tmpExportedNodes);
+                   if (tmpExportedNodes > 0) and (
+                       (FirstNodeExportedInSection and (ExportOptions.SectionToFile or (ExportOptions.TargetFormat = xfPrinter)) )
+                       or
+                       (ExportOptions.EachNoteNewPg and (ExportOptions.TargetFormat = xfPrinter)) ) then
 
-                  if not FirstNodeExportedInFile then
-                      SSNode:= RTFAux.SelStart
-                  else
-                      SSNode:= 0;
+                      FlushNotesToFile;
 
 
-                  if FormatCommnd <> '' then
-                     InsertHiddenKntCommand(RTFAux, KNT_RTF_HIDDEN_FORMAT, FormatCommnd);
-                  if FirstNodeExportedInFolder then
-                     InsertFolderHeading;
-                  InsertNodeHeading;
+                   if FirstNodeExportedInFile then begin
+                      FormatCommnd:= FormatCommnd + 'D+';
+                      if ExportOptions.ShowPageNumber then
+                         FormatCommnd:= FormatCommnd + 'F+';
+                      FN:= RemoveAccelChar(myFolder.Name);
+                      if ExportOptions.SectionToFile and (ExportOptions.SectionOnDepth > 0) or
+                         ( (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection <> tsFullTree)) then
+                            if ExportOptions.SimpleFileName then
+                               FN:= NNode.NodeName(TreeUI)
+                            else
+                               FN:= FN + ' - ' +  NNode.NodeName(TreeUI);
+                      FolderNameExported:= myFolder.Name;
+                   end;
 
-                  if ExportOptions.TargetFormat = xfRTF then begin
-                     InsertMarker(RTFAux, KNT_RTF_HIDDEN_DATA, NNode.GID);
-                     InfoExportedNotes[tmpExportedNodes-1].NNodeGID:= NNode.GID;
-                  end;
+                   if FirstNodeExportedInSection then begin
+                      if (not FirstNodeExportedInFile or TableOfContentsPendingToFlush) then
+                         FormatCommnd:= FormatCommnd + 'S+';
 
-                  if (ExportOptions.TargetFormat = xfOPML) and not UseNoteAttr then
-                      NodeTextSize:= 0;
+                      if CB_Header.Checked and CB_Header.Enabled and (ExportOptions.TopLvlAsPgHeader > 0) then begin
+                         var MaxDepth: Integer:= ExportOptions.TopLvlAsPgHeader;
+                         var relativeLevel: integer:= Level-StartLevel+1;              // beginning by 1
+                         if (MaxDepth > 1) and (MaxDepth >= relativeLevel) then
+                            MaxDepth:= relativeLevel-1;
+                         if (MaxDepth < ExportOptions.TopLvlAsPgHeader) and HasChildrenExported(NNode.TVNode) then
+                            inc(MaxDepth);
+                         PageHeader:= TreeUI.GetNodeAncestorsPath(NNode.TVNode, ' - ', MaxDepth, StartLevel+1);
+                         FormatCommnd:= FormatCommnd + 'H'+ PageHeader;
+                      end;
+                   end
+                   else
+                      if ExportOptions.EachNoteNewPg and not TableOfContentsPendingToFlush then
+                         FormatCommnd:= FormatCommnd + 'P';
 
 
-                  if NodeTextSize > 0 then begin
-                    ExportWholeNoteText:= True;
+                   inc(tmpExportedNodes);
+                   if ExportOptions.TargetFormat in [xfRTF, xfPrinter] then
+                      SetLength(InfoExportedNotes, tmpExportedNodes);
 
-                    if ExportTextFragments then begin
-                       ExportWholeNoteText:= False;
-                       iNode:= ExpFoundNodes.IndexOf(myTreeNode);
-                       NoteFragments:= ExpFragmentsInNodes[iNode];
-                       if (NoteFragments.NumFrag = 1) and (NoteFragments.Fragments[0].PosF < 0) then
-                          ExportWholeNoteText:= True
+                   if not FirstNodeExportedInFile then
+                       SSNode:= RTFAux.SelStart
+                   else
+                       SSNode:= 0;
 
-                       else begin
-                          RTFAuxFrag.Clear;
-                          RTFAuxFrag.PutRtfText(NodeText, false);
-                          SSNodeContent:= RTFAux.SelStart;
 
-                          PreprocessFoldedFragments;
+                   if FormatCommnd <> '' then
+                      InsertHiddenKntCommand(RTFAux, KNT_RTF_HIDDEN_FORMAT, FormatCommnd);
+                   if FirstNodeExportedInFolder then
+                      InsertFolderHeading;
+                   InsertNodeHeading;
 
-                          { *3  This can occur if the initially located fragments are in folded blocks, and FoldedMode = Unfold has not been selected.
-                            In these cases (we are using fragments because we are searching for tags in the text of the notes), the note header will 
-                            be exported, but without content. It should be noted that this is the reason: there are fragments with the desired tagging,
-                            but they are in folded blocks. }
-                          if NoteFragments.NumFrag = 0 then        // *3
-                             RTFAux.AddText(#13)
+                   if ExportOptions.TargetFormat = xfRTF then begin
+                      InsertMarker(RTFAux, KNT_RTF_HIDDEN_DATA, NNode.GID);
+                      InfoExportedNotes[tmpExportedNodes-1].NNodeGID:= NNode.GID;
+                   end;
 
-                          else begin
-                             pFLastExportedFragm:= 0;
-                             Offset:= 0;
-                             for i:= 0 to NoteFragments.NumFrag - 1 do begin
-                                if NoteFragments.Fragments[i].PosI > pFLastExportedFragm +1 then begin
-                                   RTFAuxFrag.SelStart:=  pFLastExportedFragm - Offset;
-                                   if i = 0 then
-                                      pFLastExportedFragm:= -1;
-                                   RTFAuxFrag.SelLength:= NoteFragments.Fragments[i].PosI - pFLastExportedFragm -1;
-                                   inc(Offset, RTFAuxFrag.SelLength);
-                                   RTFAuxFrag.SelText:= '';
-                                end;
-                                pFLastExportedFragm:= NoteFragments.Fragments[i].PosF;
-                             end;
-                             RTFAuxFrag.SetSelection(0, pFLastExportedFragm - Offset, False);
+                   // --------------
+                   ExportedEntriesInNote:= 0;
 
-                             RTFFrag:= RTFAuxFrag.RtfSelText;
+                   for iEntry := 0 to High(NNode.Note.Entries) do begin                   // ---------------------- Iterate each Entry in the note
+                      NEntry:= NNode.Note.Entries[iEntry];
+                      if not NEntryToBeExported(myTreeNode, NEntry, EntryFragments) then continue;
+                      if (ExportOptions.TargetFormat = xfOPML) and not UseNoteAttr then continue;
 
-                             RTFwithImages:= '';
-                             if NodeStreamIsRTF then
-                                RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
+                      inc(ExportedEntriesInNote);
+                      if (iEntry < High(NNode.Note.Entries)) and (ExportedEntriesInNote > 1) then begin
+                         if ExportOptions.TargetFormat in [xfPlainText, xfOPML] then
+                            RTFAux.AddText(#13 + StringOfChar('_', 50) + #13)
+                         else begin
+                            RTFAux.PutRtfText(GetRTFPrintableLine(RTFAux, clSilver, PageContentWidthInTwips), false);
+                            RTFAux.PutRtfText(#13, false);
+                         end;
+                      end;
 
-                             if RTFwithImages <> '' then
-                                RTFFrag:= RTFwithImages;
+                      NEntry.Stream.Position := 0;
+                      EntryTextSize := NEntry.Stream.Size;
+                      if EntryTextSize > 0 then begin
+                         SetLength( EntryText, EntryTextSize );
+                         move( NEntry.Stream.Memory^, EntryText[1], EntryTextSize );   // transfer stream contents to temp string
+                         EntryStreamIsRTF := (copy(EntryText, 1, 6) = '{\rtf1');       // *2
+                      end;
 
-                             if ExportOptions.TargetFormat = xfRTF then
-                                GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
+                      // now for some treachery. In KeyNote, a user can mark a note as "plain text only". In such a node, all nodes are stored as
+                      // plain text, not RTF. However, the change from RTF to text (or back) occurs only when a node is DISPLAYED. So, it is possible
+                      // that user enabled "plain text only", but some tree nodes have not been viewed, hence are still in RTF. So, at this point
+                      // we cannot know if the node data we're about to export is RTF or plain text data. Yet we must pass the correct information
+                      // to PutRichText. Which is why we must check manually, like so:
+                      // EntryStreamIsRTF := ( copy( EntryText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
+                      //
+                      // *2 :
+                      // <<the change from RTF to text (or back) occurs only when a node is DISPLAYED>> That is not true currently. However:
+                      //  Folder can be PlainText and include a virtual node with RTF content
+                      //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
 
-                             RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
 
-                             L:= RTFAux.TextLength;
-                             if RTFAux.GetTextRange(L-1, L) <> #13 then
-                                RTFAux.AddText(#13);
-                          end;
-                       end;
-                    end;
+                      if EntryTextSize > 0 then begin
+                        ExportWholeEntryText:= True;
 
-                    if ExportWholeNoteText then begin
-                       RTFwithImages:= '';
-                       SSNodeContent:= RTFAux.SelStart;
-                       if NodeStreamIsRTF then
-                          RTFwithImages:= ImageMng.ProcessImagesInRTF(NodeText, '', imImage, '', 0, false);
+                        if ExportTextFragments then begin
+                           ExportWholeEntryText:= False;
+                           if (EntryFragments.NumFrag = 1) and (EntryFragments.Fragments[0].PosF < 0) then    // EntryFragments: Obtained from NEntryToBeExported
+                              ExportWholeEntryText:= True
 
-                       if RTFwithImages <> '' then
-                          NodeText:= RTFwithImages;
+                           else begin
+                              RTFAuxFrag.Clear;
+                              RTFAuxFrag.PutRtfText(EntryText, false);
+                              SSNodeContent:= RTFAux.SelStart;
 
-                       if ExportOptions.TargetFormat = xfRTF then
-                          GetInfoKNTLinksWithoutMarker(NodeText, InfoExportedNotes);
+                              PreprocessFoldedFragments;
 
-                       RTFAux.PutRtfText(NodeText, false);          // All hidden KNT characters are now removed from FlushExportFile
-                                                                    // Append to end of existing data
-                    end;
+                              { *3  This can occur if the initially located fragments are in folded blocks, and FoldedMode = Unfold has not been selected.
+                                In these cases (we are using fragments because we are searching for tags in the text of the notes), the note header will
+                                be exported, but without content. It should be noted that this is the reason: there are fragments with the desired tagging,
+                                but they are in folded blocks. }
+                              if EntryFragments.NumFrag = 0 then        // *3
+                                 RTFAux.AddText(#13)
 
-                    if ExportOptions.TargetFormat = xfOPML then begin
-                       L:= RTFAux.TextLength;
-                       if RTFAux.TextPlain[L] = #13 then begin
-                          RTFAux.SelStart:= L;
-                          RTFAux.SetSelection(L-1, L, False);
-                          RTFAux.SelText:= '';
-                       end;
+                              else begin
+                                 pFLastExportedFragm:= 0;
+                                 Offset:= 0;
+                                 for i:= 0 to EntryFragments.NumFrag - 1 do begin
+                                    if EntryFragments.Fragments[i].PosI > pFLastExportedFragm +1 then begin
+                                       RTFAuxFrag.SelStart:=  pFLastExportedFragm - Offset;
+                                       if i = 0 then
+                                          pFLastExportedFragm:= -1;
+                                       RTFAuxFrag.SelLength:= EntryFragments.Fragments[i].PosI - pFLastExportedFragm -1;
+                                       inc(Offset, RTFAuxFrag.SelLength);
+                                       RTFAuxFrag.SelText:= '';
+                                    end;
+                                    pFLastExportedFragm:= EntryFragments.Fragments[i].PosF;
+                                 end;
+                                 RTFAuxFrag.SetSelection(0, pFLastExportedFragm - Offset, False);
 
-                       RTFAux.SelStart:= SSNodeContent;
-                       EscapeXMLspecialCharactersInEditor;
-                       RTFAux.SelStart:= RTFAux.TextLength;
-                    end;
+                                 RTFFrag:= RTFAuxFrag.RtfSelText;
 
-                    ChangeFont;
-                  end;
+                                 RTFwithImages:= '';
+                                 if EntryStreamIsRTF then
+                                    RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
 
-                  var Depth: integer:= ExportOptions.SectionOnDepth;
-                  if Depth = 0 then Depth:= 1;
-                  if ExportOptions.IndentNestedNodes and ((Level - StartLevel) + 1 > Depth) then
-                     IndentContent((Level - StartLevel) + 1 - Depth);
+                                 if RTFwithImages <> '' then
+                                    RTFFrag:= RTFwithImages;
 
-                  FirstNodeExportedInFolder:= False;
-                  FirstNodeExportedInSection:= False;
-                  TableOfContentsPendingToFlush:= False;
-                end;
+                                 if ExportOptions.TargetFormat = xfRTF then
+                                    GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
 
-                // access next node
-                myTreeNode := TreeUI.TV.GetNext(myTreeNode);
-                Level:= TreeUI.TV.GetNodeLevel(myTreeNode);
+                                 RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
 
-                Application.ProcessMessages;
-                if DoAbort then break;
+                                 L:= RTFAux.TextLength;
+                                 if RTFAux.GetTextRange(L-1, L) <> #13 then
+                                    RTFAux.AddText(#13);
+                              end;
+                           end;
+                        end;                                      // if ExportTextFragments ...
 
-                // check break conditions
-                if ( ExportOptions.ExportSource = expCurrentFolder ) then begin
-                  if ( not assigned( myTreeNode )) then
-                    break;
-                  case ExportOptions.TreeSelection of
-                    tsNode : break;
-                    tsSubtree : if (Level <= StartLevel ) then break;
-                  end;
-                end;
+                        if ExportWholeEntryText then begin
+                           RTFwithImages:= '';
+                           SSNodeContent:= RTFAux.SelStart;
+                           if EntryStreamIsRTF then
+                              RTFwithImages:= ImageMng.ProcessImagesInRTF(EntryText, '', imImage, '', 0, false);
+
+                           if RTFwithImages <> '' then
+                              EntryText:= RTFwithImages;
+
+                           if ExportOptions.TargetFormat = xfRTF then
+                              GetInfoKNTLinksWithoutMarker(EntryText, InfoExportedNotes);
+
+                           RTFAux.PutRtfText(EntryText, false);          // All hidden KNT characters are now removed from FlushExportFile
+                                                                        // Append to end of existing data
+                        end;
+
+                        if ExportOptions.TargetFormat = xfOPML then begin
+                           L:= RTFAux.TextLength;
+                           if RTFAux.TextPlain[L] = #13 then begin
+                              RTFAux.SelStart:= L;
+                              RTFAux.SetSelection(L-1, L, False);
+                              RTFAux.SelText:= '';
+                           end;
+
+                           RTFAux.SelStart:= SSNodeContent;
+                           EscapeXMLspecialCharactersInEditor;
+                           RTFAux.SelStart:= RTFAux.TextLength;
+                        end;
+
+                        ChangeFont;
+                      end;                      // if EntryTextSize > 0 .....
+                   end;                                                                 // <<<<<------------------ Iterate each Entry in the note
+
+                   var Depth: integer:= ExportOptions.SectionOnDepth;
+                   if Depth = 0 then Depth:= 1;
+                   if ExportOptions.IndentNestedNodes and ((Level - StartLevel) + 1 > Depth) then
+                      IndentContent((Level - StartLevel) + 1 - Depth);
+
+                   FirstNodeExportedInFolder:= False;
+                   FirstNodeExportedInSection:= False;
+                   TableOfContentsPendingToFlush:= False;
+                 end;                                            // if NodeToBeExported  ......
+
+                 // access next node
+                 myTreeNode := TreeUI.TV.GetNext(myTreeNode);
+                 Level:= TreeUI.TV.GetNodeLevel(myTreeNode);
+
+                 Application.ProcessMessages;
+                 if DoAbort then break;
+
+                 // check break conditions
+                 if ( ExportOptions.ExportSource = expCurrentFolder ) then begin
+                   if ( not assigned( myTreeNode )) then
+                     break;
+                   case ExportOptions.TreeSelection of
+                     tsNode : break;
+                     tsSubtree : if (Level <= StartLevel ) then break;
+                   end;
+                 end;
 
               end;                                   // <<<<<------------------ Iterate each node  (xfPlainText, xfRTF, xfHTML, xfPrinter / ntTree)
 
@@ -2064,20 +2123,31 @@ begin
 
                  while assigned( myTreeNode ) do begin
                    NNode := TreeUI.GetNNode(myTreeNode);
-                   if not IncludeEncrypted and NNode.Note.IsEncrypted then continue;
-                   NEntry:= NNode.Note.Entries[0];              //%%%
 
-                   NodeTextSize := NEntry.Stream.Size;
-                   NodeText:= '';
-                   if NodeTextSize > 0 then begin
-                     SetLength( NodeText, NodeTextSize );
-                     move(NEntry.Stream.Memory^, NodeText[1], NodeTextSize );
-                     RTFAux.PutRtfText(NodeText, false);   // append to end of existing data
+                   if IncludeEncrypted or not NNode.Note.IsEncrypted then begin
+                      ExportedEntriesInNote:= 0;
+                      for iEntry := 0 to High(NNode.Note.Entries) do begin                   // ---------------------- Iterate each Entry in the note
+                         NEntry:= NNode.Note.Entries[iEntry];
+                         if not IncludeEncrypted and NEntry.IsEncrypted then continue;
+
+                         inc(ExportedEntriesInNote);
+                         if (iEntry < High(NNode.Note.Entries)) and (ExportedEntriesInNote > 1) then begin
+                            RTFAux.PutRtfText(#13, false);
+                            RTFAux.PutRtfText(GetRTFPrintableLine(RTFAux, clSilver, PageContentWidthInTwips), false);
+                         end;
+
+                         EntryTextSize := NEntry.Stream.Size;
+                         EntryText:= '';
+                         if EntryTextSize > 0 then begin
+                            SetLength( EntryText, EntryTextSize );
+                            move(NEntry.Stream.Memory^, EntryText[1], EntryTextSize );
+                            RTFAux.PutRtfText(EntryText, false);   // append to end of existing data
+                         end;
+                      end;
+                      FlushTreePadData( TreePadFile, NNode.NodeName(TreeUI), TreeUI.TV.GetNodeLevel(myTreeNode) + TreePadNodeLevelInc, RTFAux, true );
+
+                      inc( ExportedNotes );
                    end;
-                   FlushTreePadData( TreePadFile, NNode.NodeName(TreeUI), TreeUI.TV.GetNodeLevel(myTreeNode) + TreePadNodeLevelInc, RTFAux, true );
-
-
-                   inc( ExportedNotes );
                    myTreeNode := TreeUI.TV.GetNext(myTreeNode);
                  end;
 
@@ -2427,7 +2497,7 @@ begin
 
         NodeText:= ReplaceHyperlinksWithStandardBookmarks(NodeText);
         if InfoExportedNotes <> nil then
-           NodeText:= ConvertToStandardBookmarks(NodeText, InfoExportedNotes, true, ExportOptions);
+           NodeText:= ConvertToStandardBookmarks(NodeText, InfoExportedNotes, true, ExportOptions);   // => RemoveKNTHiddenCharactersInRTF -> GetRTFCommands -> GetPageDimensionesInRTF
         TFile.WriteAllText(FN, NodeText);
         {
         RTF.RemoveKNTHiddenCharacters(false);
@@ -2829,7 +2899,7 @@ begin
     end;
 
   finally
-    FreeFragments (ExpFoundNodes, ExpFragmentsInNodes);
+    FreeFragments (ExpFoundNodes, ExpFoundEntriesInNotes);
     Form_Export.Free;
     Form_Export:= nil;
 
