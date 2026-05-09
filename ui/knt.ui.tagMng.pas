@@ -553,7 +553,9 @@ var
    i, SS: integer;
    txt: string;
 begin
-   SS:= txtTags.SelStart + 1;
+   SS:= txtTags.SelStart;
+   if SS = 0 then
+      SS:= 1;
    txt:= txtTags.Text;
 
    for i:= SS to txtTags.GetTextLen do
@@ -595,8 +597,11 @@ end;
 
 procedure TTagMng.txtTagsChange(Sender: TObject);
 begin
-  if not ActiveFileIsBusy and not fChangingInCode then
+  if not ActiveFileIsBusy and not fChangingInCode then begin
      CheckBeginOfTag;
+     if (txtTags.SelStart = 0) and (txtTags.SelLength = 0) then
+        cTagSelector.CloseTagSelector(false);
+  end;
 end;
 
 
