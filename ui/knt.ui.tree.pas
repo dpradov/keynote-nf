@@ -420,6 +420,7 @@ uses
    gf_Lang,
    kn_Global,
    kn_EditorUtils,
+   knt.ui.info,
    knt.ui.editor,
    kn_Chest,
    kn_clipUtils,
@@ -639,6 +640,10 @@ begin
    ApplyBiDiMode;
 
    PopulateTV;
+
+   if TV.VisibleCount = 0 then
+      Folder.NoteUI.LoadFromNNode(nil, true, neQueryLayout);
+
    SetupTreeHandlers;
 
    TB_HideChecked.Down:= Folder.HideCheckedNodes;
