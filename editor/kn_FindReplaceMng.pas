@@ -1510,7 +1510,6 @@ type
                                 pR_Parag: integer = -1): boolean;
        var
          FontStyles: TFontStyles;
-         NEntry: TNoteEntry;
          FontSizeNextParag: integer;
 
          function CheckPattern(PatternPos: integer): boolean;
@@ -1541,10 +1540,8 @@ type
            Result:= False;
 
            with RTFAux do begin
-               if RTFAux.TextLength = 0 then begin
-                  NEntry:= myNNode.Note.Entries[0];         // %%%
-                  LoadStreamInRTFAux (NEntry.Stream, RTFAux);
-               end;
+               if RTFAux.TextLength = 0 then
+                  LoadStreamInRTFAux (myNEntry.Stream, RTFAux);
 
                FontSizeNextParag:= 9999;
                if (EmphasizedSearch = esParagraph) then begin
