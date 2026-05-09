@@ -795,7 +795,7 @@ function TKntNoteUI.GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
 var
   CheckOnlySingleEntry, CheckOnlyEntrySelected: boolean;
   OnlyHeader: boolean;
-  MainEntriesUI: TKntNoteEntriesUI;
+  MainEntriesUI, MaximizedEntriesUI: TKntNoteEntriesUI;
   NEntry: TNoteEntry;
   Location: TLocation;
 
@@ -862,6 +862,7 @@ begin                                                                           
 
  {
   Search order:
+  - Maximized panel (including the searched entry)
   - Single Entry with searched entry
   - Multi-Entry (including the searched entry)
     - Panel with that entry selected
@@ -871,15 +872,26 @@ begin                                                                           
   - Single Entry including the searched entry
     - Panel linked to Tags
     - Main panel
-    - Other 
+    - Other
   }
 
    Location:= TLocation(LocationObj);
    NEntry:= Location.NEntry;
 
+   CheckOnlyEntrySelected:= false;
+   CheckOnlySingleEntry:= false;
+
+   if FNNodeUIConfig.MaximizedPanel <> pnNone then begin
+      MaximizedEntriesUI:= GetNEntriesUI(FNNodeUIConfig.MaximizedPanel);
+      if CheckNEntriesUI(MaximizedEntriesUI) then begin
+         Result:= MaximizedEntriesUI;
+         exit;
+      end;
+   end;
+
 
    CheckOnlyEntrySelected:= true;
-   CheckOnlySingleEntry:= false;
+   //CheckOnlySingleEntry:= false;
 
    if (Location.NEntriesUIObj <> nil) and CheckNEntriesUI(TKntNoteEntriesUI(Location.NEntriesUIObj)) then
       Result:= TKntNoteEntriesUI(Location.NEntriesUIObj)
@@ -909,6 +921,9 @@ begin                                                                           
         end;
      end;
    end;
+
+   if (Result <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone) then
+      ToggleMaximizeSelectedPanel;
 
 end;
 
