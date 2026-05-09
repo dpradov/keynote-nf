@@ -18,6 +18,7 @@
 interface
 uses
    Winapi.Windows,
+   Winapi.Messages,
    System.Classes,
    System.SysUtils,
    System.IniFiles,
@@ -47,6 +48,7 @@ uses
    knt.model.note,
    knt.ui.info,
    knt.ui.editor,
+   knt.ui.tree,
    kn_ImagesMng,
    kn_LinksMng
    ;
@@ -211,7 +213,9 @@ type
                   var SavedFolders: integer; var SavedNodes: integer;
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
-                  ExportEncryptedContent: boolean = false): integer;
+                  ExportEncryptedContent: boolean = false;
+                  ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                  ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged; ExportRemoveTags: boolean = false): integer;
     function  Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
     procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; FromEncryptedContent: boolean);
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
@@ -325,7 +329,6 @@ uses
    kn_Global,
    kn_Main,
    kn_EditorUtils,
-   knt.ui.tree,
    kn_AlertMng,
    kn_BookmarksMng,
    kn_FindReplaceMng,
@@ -3155,11 +3158,14 @@ end;
       files nodes must be backed (if it applies, based on configuration), it is done.
       The assingment of _VNKeyKntFileName ensures it (must be done by the caller)
 }
-function TKntFile.Save(FN: string;
+function TKntFile.Save (FN: string;
                         var SavedFolders: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
-                        ExportEncryptedContent: boolean = false): integer;
+                        ExportEncryptedContent: boolean = false;
+                        ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                        ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged;
+                        ExportRemoveTags: boolean = false): integer;
 var
   i : integer;
   Stream : TFileStream;
@@ -3169,9 +3175,111 @@ var
   AuxStream : TMemoryStream;
   NotesToSave: TNoteList;
   ToEncryptStream, EncryptedStream, AuxEncryptStream : TMemoryStream;
+  EntryFragments: TEntryFragments;
+  RTFAuxFrag : TAuxRichEdit;
+  FragStream: TMemoryStream;
+
+
+  procedure PrepareAuxObjectsFragment;
+  begin
+     RTFAuxFrag:= nil;
+     FragStream:= nil;
+
+     if ExportingMode and (ExportFoundEntriesInNotes <> nil)  then begin
+        RTFAuxFrag:= CreateAuxRichEdit;
+        RTFAuxFrag.BeginUpdate;
+        FragStream:= TMemoryStream.Create;
+     end;
+  end;
+
+
+  function NEntryToBeSaved(Note: TNote; NEntry: TNoteEntry; var EntryFragments: TEntryFragments): boolean;
+  var
+    EntriesInNote: TFoundEntryInNoteList;
+    iNote, i: integer;
+  begin
+     Result:= False;
+     if NEntry = nil then exit;
+
+     if not ExportEncryptedContent and NEntry.IsEncrypted then exit;
+     if ExportFoundNotes = nil then exit (true);
+
+     iNote:= ExportFoundNotes.IndexOf(Note);
+     if iNote < 0 then exit;                        // It shouldn't
+     EntriesInNote:= ExportFoundEntriesInNotes[iNote];
+     for i:= 0 to EntriesInNote.Count-1 do
+        if EntriesInNote[i].NEntry = NEntry then begin
+           EntryFragments:= EntriesInNote[i].FragmentsInEntry;
+           exit(True);
+        end;
+  end;
 
 
   procedure WriteNEntry (NEntry: TNoteEntry; Note: TNote);
+
+     procedure SaveFragments;
+     var
+        i, EntryTextSize: integer;
+        pFLastExportedFragm, Offset: integer;
+        EntryText: AnsiString;
+        RTFFrag: AnsiString;
+        Encoding: TEncoding;
+     begin
+        if NEntry.Stream.Size = 0 then exit;
+
+        Encoding:= nil;
+        if NEntry.IsPlainTXT then
+           RTFAuxFrag.StreamFormat:= sfPlainText
+        else
+           RTFAuxFrag.StreamFormat:= sfRichText;
+
+        NEntry.Stream.Position := 0;
+        RTFAuxFrag.Lines.LoadFromStream( NEntry.Stream );
+
+
+        if (EntryFragments.NumFrag = 1) and (EntryFragments.Fragments[0].PosI = 0) and (EntryFragments.Fragments[0].PosF = -1) then
+           // Use the whole content
+
+        else begin
+            pFLastExportedFragm:= 0;
+            Offset:= 0;
+            for i:= 0 to EntryFragments.NumFrag - 1 do begin
+               if EntryFragments.Fragments[i].PosI > pFLastExportedFragm +1 then begin
+                  RTFAuxFrag.SelStart:=  pFLastExportedFragm - Offset;
+                  if i = 0 then
+                     pFLastExportedFragm:= -1;
+                  RTFAuxFrag.SelLength:= EntryFragments.Fragments[i].PosI - pFLastExportedFragm -1;
+                  inc(Offset, RTFAuxFrag.SelLength);
+                  RTFAuxFrag.SelText:= '';
+               end;
+               pFLastExportedFragm:= EntryFragments.Fragments[i].PosF;
+            end;
+            RTFAuxFrag.SetSelection(pFLastExportedFragm - Offset + 1, RTFAuxFrag.TextLength, False);
+            RTFAuxFrag.SelText:= '';
+        end;
+
+        if ExportFoldedTextMode <> fmKeepUnchanged then begin
+            case ExportFoldedTextMode of
+               fmUnfold:        ExpandFoldedText(RTFAuxFrag);            // Unfold
+               fmRemoveTagged:  RemoveFoldedText(RTFAuxFrag, true);      // Remove "tagged"
+               fmRemoveAll:     RemoveFoldedText(RTFAuxFrag, false);     // Remove all
+            end;
+        end;
+        if ExportRemoveTags then
+           RemoveTags(RTFAuxFrag);
+
+        if RTFAuxFrag.TextLength = 0 then exit;
+
+        FragStream.Clear;
+        if RTFAuxFrag.StreamFormat = sfPlainText then begin
+           if not CanSaveAsANSI(RTFAuxFrag.Text) then
+              Encoding:= TEncoding.UTF8;
+        end;
+        RTFAuxFrag.Lines.SaveToStream( FragStream, Encoding);
+
+        SaveTextToFile(t, FragStream, NEntry.IsPlainTXT);             // Saved in tf or tfC
+     end;
+
   begin
      t:= tf;
      if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
@@ -3193,8 +3301,21 @@ var
      if NEntry.Tags <> nil then
         t.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);            // Saved in tf or tfC
 
-     if not Note.IsVirtual then
-        SaveTextToFile(t, NEntry.Stream, NEntry.IsPlainTXT);             // Saved in tf or tfC
+     if not Note.IsVirtual then begin
+        if NEntry.IsPlainTXT then
+           t.WriteLine(_NF_TxtContent)     // end of TNoteEntry header; Plain Text data follows       Saved in tf or tfC
+        else
+           t.WriteLine(_NF_RTFContent);    // end of TNoteEntry header; RTF data follows                    ,,
+
+        if ExportingMode and (EntryFragments <> nil) and
+               ( (EntryFragments.NumFrag > 1) or
+                 ExportRemoveTags or (ExportFoldedTextMode <> fmKeepUnchanged) or
+                ((EntryFragments.NumFrag = 1) and ((EntryFragments.Fragments[0].PosI <> 0) or (EntryFragments.Fragments[0].PosF <> -1)))
+               )  then
+           SaveFragments
+        else
+           SaveTextToFile(t, NEntry.Stream, NEntry.IsPlainTXT);             // Saved in tf or tfC
+     end;
   end;
 
 
@@ -3254,20 +3375,28 @@ var
           end;
     end;
 
-    for i := 0 to High(Note.Entries) do
+    EntryFragments:= nil;
+    for i := 0 to High(Note.Entries) do begin
+       if ExportingMode and not NEntryToBeSaved(Note, Note.Entries[i], EntryFragments) then continue;
        WriteNEntry(Note.Entries[i], Note);
+    end;
 
   end;
 
   procedure WriteFolder (myFolder: TKntFolder);
+  var
+     NumNodes: integer;
   begin
       try
         if assigned( myFolder ) then begin
           if ExportingMode and not (myFolder.Info > 0) then     // Folders to be exported are marked with Info=1
              Exit;
 
-          SavedNodes:= SavedNodes + myFolder.SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
-          inc (SavedFolders);
+          NumNodes:= myFolder.SaveToFile( tf, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent, ExportFoundNodes);
+          if not ExportingMode or (NumNodes > 0) then begin
+             inc(SavedNodes, NumNodes);
+             inc (SavedFolders);
+          end;
         end;
       except
         on E : Exception do begin
@@ -3302,6 +3431,8 @@ var
        tfC.assignstream( ToEncryptStream );
        tfC.rewrite;
     end;
+
+    PrepareAuxObjectsFragment;
 
     try
         //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
@@ -3350,7 +3481,7 @@ var
            NotesToSave:= TNoteList.Create;
            for i := 0 to FFolders.Count -1 do
               if FFolders[i].Info > 0 then          // Folders to be exported are marked with Info=1
-                 FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+                 FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent, ExportFoundNotes);
 
            // Save Notes (TNote) with its Entries (TNoteEntry)
            tf.WriteLine(_NumNotes + '=' + NotesToSave.Count.ToString);
@@ -3443,6 +3574,10 @@ var
           FreeAndNil(EncryptedStream);
           FreeAndNil(tfC);
        end;
+       if FragStream <> nil then
+          FragStream.Free;
+       if RTFAuxFrag <> nil then
+          RTFAuxFrag.Free;
     end;
   end;
 
@@ -3634,10 +3769,6 @@ begin
 
     DataStream.Position := 0;
 
-    if PlainText then
-       tf.WriteLine(_NF_TxtContent)     // end of TNoteEntry header; Plain Text data follows
-    else
-       tf.WriteLine(_NF_RTFContent);    // end of TNoteEntry header; RTF data follows
 
 
     if PlainText then begin

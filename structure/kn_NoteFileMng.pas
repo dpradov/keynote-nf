@@ -33,7 +33,9 @@ uses
 
    kn_const,
    kn_Info,
-   knt.ui.editor
+   knt.model.note,
+   knt.ui.editor,
+   knt.ui.tree
    ;
 
 
@@ -48,7 +50,9 @@ uses
                             OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                             OnlyNotHiddenNodes: boolean= false;
                             OnlyCheckedNodes: boolean= false;
-                            ExportEncryptedContent: boolean = false);
+                            ExportEncryptedContent: boolean = false;
+                            ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                            ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged; RemoveTags: boolean = false);
 
     procedure EnsureNodeAndCaretVisibleInFolders;
 
@@ -92,7 +96,6 @@ uses
    kn_filemgr,
    kn_KntFile,
    kn_FileInfo,
-   knt.model.note,
    kn_EditorUtils,
    kn_TabSelect,
    kn_FileDropAction,
@@ -110,7 +113,6 @@ uses
    kn_PluginsMng,
    kn_ImagesMng,
    kn_FindReplaceMng,
-   knt.ui.tree,
    knt.App,
    knt.RS
    ;
@@ -1167,7 +1169,9 @@ procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                         OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                         OnlyNotHiddenNodes: boolean= false;
                         OnlyCheckedNodes: boolean= false;
-                        ExportEncryptedContent: boolean = false);
+                        ExportEncryptedContent: boolean = false;
+                        ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                        ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged; RemoveTags: boolean = false);
 var
   currentFN, newFN : string;
   cr : integer;
@@ -1229,7 +1233,8 @@ begin
             try
               ImageMng.ExportingMode:= true;
               try
-                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent);
+                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent,
+                                     ExportFoundNodes, ExportFoundNotes, ExportFoundEntriesInNotes, ExportFoldedTextMode, RemoveTags);
               finally
                  ImageMng.ExportingMode:= false;
               end;

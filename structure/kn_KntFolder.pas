@@ -335,12 +335,18 @@ type
 
     procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; LoadOldSimpleNote: boolean= false);
     procedure LoadFromTreePadFile( const FN : string );
-    function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
+    function SaveToFile(var tf : TTextFile;
+                        ExportingMode: boolean = false;
+                        OnlyCurrentNodeAndSubtree: PVirtualNode= nil; OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
+                        ExportEncryptedContent: boolean = false;
+                        ExportFoundNodes: TNodeList = nil ): integer;
+
     procedure GetNotesToBeSaved(NoteList: TNoteList;
                                 OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                                 OnlyNotHiddenNodes: boolean= false;
-                                OnlyCheckedNodes: boolean= false );
+                                OnlyCheckedNodes: boolean= false;
+                                ExportEncryptedContent: boolean = false;
+                                SaveFoundNotes: TNoteList = nil);
 
     property LoadingLevels: TIntegerList read FLoadingLevels;
   protected
@@ -2306,13 +2312,17 @@ end;
 
 {$REGION Load / Save }
 
-function TKntFolder.SaveToFile( var tf : TTextFile; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                               OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false ): integer;
+function TKntFolder.SaveToFile(var tf : TTextFile;
+                               ExportingMode: boolean = false;
+                               OnlyCurrentNodeAndSubtree: PVirtualNode= nil; OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
+                               ExportEncryptedContent: boolean = false;
+                               ExportFoundNodes: TNodeList = nil ): integer;
 var
   Node : PVirtualNode;
   nodessaved : integer;
   wasmismatch : boolean;
   LastSavedLevel: integer;
+  NumNodesToSave: integer;
 
   procedure SaveNNode(Node: PVirtualNode);
   var
@@ -2357,6 +2367,48 @@ var
       inc(nodessaved);
   end;
 
+  function SaveNNodes(DoSave: boolean): integer;
+  begin
+    Result:= 0;
+
+    if not ExportingMode then begin
+       Node := TV.GetFirst;
+       while assigned(Node) do begin
+           inc(Result);
+           SaveNNode(Node);
+           Node := TV.GetNext(Node);
+       end;
+    end
+    else begin
+        // obtain first node
+        if OnlyCurrentNodeAndSubtree <> nil then
+           Node := OnlyCurrentNodeAndSubtree
+        else
+           Node := TV.GetFirst;
+
+        while assigned(Node) do begin
+          if not ( (OnlyCheckedNodes   and (Node.CheckState <> csCheckedNormal)) or
+                   (OnlyNotHiddenNodes and not TV.IsVisible[Node])                     )  then begin
+              if ((ExportFoundNodes = nil) or (ExportFoundNodes.IndexOf(Node) >= 0)) and
+                 (ExportEncryptedContent or not GetNNode(Node).Note.IsEncrypted )        then begin
+
+                 inc(Result);
+                 if DoSave then
+                    SaveNNode(Node);
+              end;
+          end;
+
+          // obtain next node, or bail out if NIL
+          Node := TV.GetNext(Node);
+          if OnlyCurrentNodeAndSubtree <> nil then begin
+              if (OnlyCurrentNodeAndSubtree.NextSibling = Node) then
+                 Node := nil;
+          end;
+        end;
+
+    end
+
+  end;
 
 begin
   nodessaved := 0;
@@ -2369,6 +2421,15 @@ begin
          raise EKntFolderError.Create(GetRS(sFld07));
 
   end;
+
+  if ExportingMode then begin
+     NumNodesToSave:= SaveNNodes(False);      // False: only count
+     if NumNodesToSave = 0 then
+        exit;
+  end
+  else
+     NumNodesToSave:= fNNodes.Count;
+
 
 
   if assigned( TV.FocusedNode ) then
@@ -2417,29 +2478,11 @@ begin
     tf.WriteLine( _CHTRFontStyle + '=' + FontStyleToStr( FTreeChrome.Font.Style ) );
 
 
-    tf.WriteLine(_NumNNodes + '=' + fNNodes.Count.ToString);
+    tf.WriteLine(_NumNNodes + '=' + NumNodesToSave.ToString);
 
     LastSavedLevel:= -1;
 
-    // obtain first node
-    if OnlyCurrentNodeAndSubtree <> nil then
-       Node := OnlyCurrentNodeAndSubtree
-    else
-       Node := TV.GetFirst;
-
-    while assigned(Node) do begin
-      if not ( (OnlyCheckedNodes   and (Node.CheckState <> csCheckedNormal)) or
-               (OnlyNotHiddenNodes and not TV.IsVisible[Node])
-                )  then
-          SaveNNode(Node);
-
-      // obtain next node, or bail out if NIL
-      Node := TV.GetNext(Node);
-      if OnlyCurrentNodeAndSubtree <> nil then begin
-          if (OnlyCurrentNodeAndSubtree.NextSibling = Node) then
-             Node := nil;
-      end;
-    end;
+    NumNodesToSave:= SaveNNodes(True);      // True: Do Save
 
     Modified := false;
 
@@ -2455,12 +2498,14 @@ end; // SaveToFile
 
 
 procedure TKntFolder.GetNotesToBeSaved(NoteList: TNoteList;
-                                      OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                                      OnlyNotHiddenNodes: boolean= false;
-                                      OnlyCheckedNodes: boolean= false );
+                                       OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
+                                       OnlyNotHiddenNodes: boolean= false;
+                                       OnlyCheckedNodes: boolean= false;
+                                       ExportEncryptedContent: boolean = false;
+                                       SaveFoundNotes: TNoteList = nil);
 var
   Node : PVirtualNode;
-  NNode: TNoteNode;
+  Note: TNote;
 
 begin
 
@@ -2474,9 +2519,12 @@ begin
     if not ( (OnlyCheckedNodes   and (Node.CheckState <> csCheckedNormal)) or
              (OnlyNotHiddenNodes and not TV.IsVisible[Node])
               )  then begin
-        NNode:= TreeUI.GetNNode(Node);
-        if NoteList.IndexOf(NNode.Note) < 0 then
-           NoteList.Add(NNode.Note);
+        Note:= TreeUI.GetNNode(Node).Note;
+
+        if ((SaveFoundNotes = nil) or (SaveFoundNotes.IndexOf(Note) >= 0)) and
+            (ExportEncryptedContent or not Note.IsEncrypted) then
+          if NoteList.IndexOf(Note) < 0 then
+             NoteList.Add(Note);
     end;
 
     // obtain next node, or bail out if NIL

@@ -226,8 +226,6 @@ type
     procedure EnableDefaultButton (Enable: boolean);
 
     procedure RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
-    procedure ExpandFoldedText(RTF : TAuxRichEdit);
-    procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
   end;
 
 
@@ -295,6 +293,7 @@ var
   FontSizes_Max, FontSizes_Inc, FontSizes_Min: integer;
 
   ExpFoundNodes: TNodeList;
+  ExpFoundNotes: TNoteList;
   ExpFoundEntriesInNotes: TFoundEntriesInNotesList;
 
 {$R *.DFM}
@@ -582,7 +581,7 @@ begin
   Combo_Format.OnClick := CtrlUI_Changed;
 
   cbTagFindMode.ItemIndex:= 0;
-  cbFoldedText.ItemIndex:= 0;        // 0:  Keep folded text unchanged
+  cbFoldedText.ItemIndex:= Ord(fmKeepUnchanged);        // 0:  Keep folded text unchanged
   chkEncrypted.Visible:= ActiveFile.EncryptedContentEnabled;
   IncludeEncrypted:= False;
 
@@ -605,6 +604,7 @@ begin
   if CanClose then begin
      Button_Cancel.SetFocus;
      ExportingFormVisible:= false;
+     FreeFragments (ExpFoundNodes, ExpFoundNotes, ExpFoundEntriesInNotes);
   end;
 end; // CloseQuery
 
@@ -1540,16 +1540,14 @@ var
   procedure PreprocessFoldedFragments;
   var
      TxtPlain: string;
-     FoldedMode: integer;
   begin
      TxtPlain:= RTFAuxFrag.TextPlain;
      if Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain) <= 0 then exit;
 
-     FoldedMode:= cbFoldedText.ItemIndex;
-     case FoldedMode of
-        1: ExpandFoldedText(RTFAuxFrag);            // Unfold
-        2: RemoveFoldedText(RTFAuxFrag, true);      // Remove "tagged"
-        3: RemoveFoldedText(RTFAuxFrag, false);     // Remove all
+     case TExportFoldedTextMode(cbFoldedText.ItemIndex) of
+        fmUnfold:        ExpandFoldedText(RTFAuxFrag);            // Unfold
+        fmRemoveTagged:  RemoveFoldedText(RTFAuxFrag, true);      // Remove "tagged"
+        fmRemoveAll:     RemoveFoldedText(RTFAuxFrag, false);     // Remove all
      end;
 
      if not GetFilterInfUsingFindAll(myTreeNode, myFolder, RTFAuxFrag.TextPlain) or (FoundNodes.Count = 0) then
@@ -1664,8 +1662,10 @@ begin
         exit;
      end;
      ExpFoundNodes:= FoundNodes;
+     ExpFoundNotes:= FoundNotes;
      ExpFoundEntriesInNotes:= FoundEntriesInNotes;
      FoundNodes:= nil;                              // We'll free the list from here. We do this in case we need to call GetFilterInfUsingFindAll again with a single node.
+     FoundNotes:= nil;
      FoundEntriesInNotes:= nil;                     // ,,
 
      RTFAuxFrag:= CreateAuxRichEdit;
@@ -1705,7 +1705,8 @@ begin
          if FN <> ''  then begin
             ext := Extractfileext( FN );
             if (ext = '') then FN := FN + ext_KeyNote;
-            KntFileCopy (ExportedFolders, ExportedNotes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes, IncludeEncrypted );
+            KntFileCopy (ExportedFolders, ExportedNotes, FN, true, myTreeNode, OnlyNotHiddenNodes, OnlyCheckedNodes, IncludeEncrypted,
+                         ExpFoundNodes, ExpFoundNotes, ExpFoundEntriesInNotes, TExportFoldedTextMode(cbFoldedText.ItemIndex), chkRemoveTags.Checked );
          end;
 
          exit;                                                                    // ------------
@@ -2202,6 +2203,7 @@ begin
     if RTFAuxFrag <> nil then
        RTFAuxFrag.Free;
     FreeInfoExportedNotes;
+    FreeFragments (ExpFoundNodes, ExpFoundNotes, ExpFoundEntriesInNotes);
 
     ExitMessage := Format(GetRS(sExpFrm12), [ExportedFolders, ExportedNotes] );
     if WasError then
@@ -2373,13 +2375,13 @@ var
 
 begin
 
-  case cbFoldedText.ItemIndex of
-     0: if ExportOptions.TargetFormat in [xfPlainText, xfOPML, xfHTML] then                // 0: Keep unchanged
-           RemoveFoldedText(RTF, false, true);   // Remove all, but keep visible text
+  case TExportFoldedTextMode(cbFoldedText.ItemIndex) of
+     fmKeepUnchanged: if ExportOptions.TargetFormat in [xfPlainText, xfOPML, xfHTML] then                // 0: Keep unchanged
+                         RemoveFoldedText(RTF, false, true);   // Remove all, but keep visible text
 
-     1: ExpandFoldedText(RTF);            // Unfold
-     2: RemoveFoldedText(RTF, true);      // Remove "tagged"
-     3: RemoveFoldedText(RTF, false);     // Remove all
+     fmUnfold:        ExpandFoldedText(RTF);            // Unfold
+     fmRemoveTagged:  RemoveFoldedText(RTF, true);      // Remove "tagged"
+     fmRemoveAll:     RemoveFoldedText(RTF, false);     // Remove all
   end;
 
   if chkRemoveTags.Checked then
@@ -2899,7 +2901,7 @@ begin
     end;
 
   finally
-    FreeFragments (ExpFoundNodes, ExpFoundEntriesInNotes);
+    FreeFragments (ExpFoundNodes, ExpFoundNotes, ExpFoundEntriesInNotes);
     Form_Export.Free;
     Form_Export:= nil;
 
@@ -3075,7 +3077,7 @@ procedure TForm_ExportNew.CheckTxtTagsEnabled;
 var
   Enable: boolean;
 begin
-  Enable:= (chkTagsMetad.Checked or chkTagsText.Checked);
+  Enable:= (chkTagsMetad.Checked or chkTagsEntries.Checked or chkTagsText.Checked);
   txtTagsIncl.Enabled:= Enable;
   txtTagsExcl.Enabled:= Enable;
   lbl8.Enabled:= Enable;
@@ -3083,35 +3085,6 @@ begin
   cbTagFindMode.Enabled:= Enable;
 end;
 
-
-procedure TForm_ExportNew.ExpandFoldedText(RTF : TAuxRichEdit);
-var
-  TxtPlain: string;
-  SS: integer;
-begin
-  SS:= 1;
-  repeat
-     TxtPlain:= RTF.TextPlain;
-     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
-     if SS > 0 then
-        Unfold(RTF, TxtPlain, SS);
-  until SS = 0;
-end;
-
-
-procedure TForm_ExportNew.RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
-var
-  TxtPlain: string;
-  SS: integer;
-begin
-  SS:= 1;
-  repeat
-     TxtPlain:= RTF.TextPlain;
-     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
-     if SS > 0 then
-        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS, OnlyIfTaggedFolded, KeepVisibleText);
-  until SS = 0;
-end;
 
 procedure TForm_ExportNew.RxRTFProtectChangeEx(Sender: TObject; const Message: TMessage; StartPos, EndPos: Integer; var AllowChange: Boolean);
 begin

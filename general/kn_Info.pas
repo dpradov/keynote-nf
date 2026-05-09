@@ -868,6 +868,29 @@ type
 
 
 type
+  TTextInterval = record
+     PosI:    integer;
+     PosF:    integer;
+  end;
+
+  TEntryFragments = class
+     NumFrag: integer;
+     Fragments: Array of TTextInterval;
+  end;
+
+  TFoundEntry = class
+     NEntry: TNoteEntry;
+     FragmentsInEntry: TEntryFragments;
+  end;
+  TFoundEntryInNoteList = TSimpleObjList<TFoundEntry>;
+  TFoundEntriesInNotesList = TSimpleObjList<TFoundEntryInNoteList>;
+
+
+type
+  TExportFoldedTextMode = (fmKeepUnchanged, fmUnfold, fmRemoveTagged, fmRemoveAll);
+
+
+type
   TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnCenter, pnBL, pnBR,  pnLeft, pnR1, pnR2, pnR3);
   TNEntriesPanel     = pnTL..pnR3;
   TNEntriesMainPanel = pnTL..pnBR;

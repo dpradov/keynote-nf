@@ -1554,6 +1554,8 @@ var
   SelNEntriesUI: TKntNoteEntriesUI;
 
 begin
+   if FNNode = nil then exit;
+
    Log_StoreTick('TKntNoteUI.SaveToDataModel - BEGIN', 4, +1);
 
    SetLength(FNNodeUIConfig.PanelsConfig, TNEntriesPanel_Count);

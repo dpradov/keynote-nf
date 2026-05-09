@@ -70,6 +70,9 @@ function GetRTFPrintableLine(Editor: TRxRichEdit; ColorLine: TColor; WidthTwips:
 function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString; overload;
 function GetRTFTable(Editor: TRxRichEdit; Printable: boolean): AnsiString;
 
+procedure ExpandFoldedText(RTF : TAuxRichEdit);
+procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
+
 type
    TClipCapMng = class
    private
@@ -1656,6 +1659,35 @@ begin
   Result:= Result + '}';
 end;
 
+
+procedure ExpandFoldedText(RTF : TAuxRichEdit);
+var
+  TxtPlain: string;
+  SS: integer;
+begin
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then
+        Unfold(RTF, TxtPlain, SS);
+  until SS = 0;
+end;
+
+
+procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
+var
+  TxtPlain: string;
+  SS: integer;
+begin
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then
+        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS, OnlyIfTaggedFolded, KeepVisibleText);
+  until SS = 0;
+end;
 
 
 initialization

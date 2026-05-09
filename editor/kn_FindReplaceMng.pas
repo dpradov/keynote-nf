@@ -74,31 +74,13 @@ var
    ResultsSearch: TResultsSearch;
 
 
-type
-  TTextInterval = record
-     PosI:    integer;
-     PosF:    integer;
-  end;
-
-  TEntryFragments = class
-     NumFrag: integer;
-     Fragments: Array of TTextInterval;
-  end;
-
-  TFoundEntry = class
-     NEntry: TNoteEntry;
-     FragmentsInEntry: TEntryFragments;
-  end;
-  TFoundEntryInNoteList = TSimpleObjList<TFoundEntry>;
-  TFoundEntriesInNotesList = TSimpleObjList<TFoundEntryInNoteList>;
-
-
-procedure FreeFragments(var FoundNodes: TNodeList; var FoundEntriesInNotes: TFoundEntriesInNotesList);
+procedure FreeFragments(var FoundNodes: TNodeList; var FoundNotes: TNoteList; var FoundEntriesInNotes: TFoundEntriesInNotesList);
 
 
 
 var
   FoundNodes: TNodeList;
+  FoundNotes: TNoteList;    // Parallel list to FoundNodes
   FoundEntriesInNotes: TFoundEntriesInNotesList;
   Fragments_LastNodeProcessed: PVirtualNode;
   Fragments_iLastNodeProcessed: integer;
@@ -253,7 +235,7 @@ const
    FIND_ONLY_PROTECTED_NODES_CHR = '*?';
 
 
-procedure FreeFragments(var FoundNodes: TNodeList; var FoundEntriesInNotes: TFoundEntriesInNotesList);
+procedure FreeFragments(var FoundNodes: TNodeList; var FoundNotes: TNoteList; var FoundEntriesInNotes: TFoundEntriesInNotesList);
 var
   i, j: integer;
   EntriesInNote: TFoundEntryInNoteList;
@@ -261,6 +243,9 @@ var
 begin
    if FoundNodes <> nil then
       FreeAndNil(FoundNodes);
+
+   if FoundNotes <> nil then
+      FreeAndNil(FoundNotes);
 
    if FoundEntriesInNotes <> nil then begin
       for i:= 0 to FoundEntriesInNotes.Count - 1 do begin
@@ -1342,6 +1327,7 @@ type
                    Fragments_LastNodeProcessed := myTreeNode;
                    FoundEntriesInNote:= TFoundEntryInNoteList.Create;
                    FoundEntriesInNotes.Add(FoundEntriesInNote);
+                   FoundNotes.Add(myFolder.GetNNode(myTreeNode).Note );
                 end;
 
                 FoundEntriesInNote:= FoundEntriesInNotes[Fragments_iLastNodeProcessed];
@@ -2807,8 +2793,9 @@ begin
 
 
       if OnlyGetFragmentsInfo then begin
-         FreeFragments (FoundNodes, FoundEntriesInNotes);
+         FreeFragments (FoundNodes, FoundNotes, FoundEntriesInNotes);
          FoundNodes:= TNodeList.Create;
+         FoundNotes:= TNoteList.Create;
          FoundEntriesInNotes:= TFoundEntriesInNotesList.Create;
          Fragments_LastNodeProcessed:= nil;
          Fragments_iLastNodeProcessed:= -1;
