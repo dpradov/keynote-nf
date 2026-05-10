@@ -2933,8 +2933,8 @@ begin
                        Match:= False;
                        MatchName:= False;
 
-                       // Go through each Entry in the Note (NEntry)
-                       for k:= 0 to High(myNNode.Note.Entries) do begin
+                       // Go through each Entry in the Note (NEntry), from the most recent to the oldest
+                       for k:= High(myNNode.Note.Entries) downto 0 do begin
                            SearchOrigin := 0;                 // starting a new entry
 
                            myNEntry:= myNNode.Note.Entries[k];
