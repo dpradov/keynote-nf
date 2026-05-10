@@ -543,7 +543,7 @@ object Form_ExportNew: TForm_ExportNew
         Left = 14
         Top = 11
         Width = 272
-        Height = 253
+        Height = 374
         Caption = ' Optional headings '
         DefaultHeaderFont = False
         HeaderFont.Charset = DEFAULT_CHARSET
@@ -553,7 +553,7 @@ object Form_ExportNew: TForm_ExportNew
         HeaderFont.Style = [fsBold]
         TabOrder = 0
         object lblSymbols: TLabel
-          Left = 25
+          Left = 17
           Top = 212
           Width = 39
           Height = 13
@@ -561,7 +561,7 @@ object Form_ExportNew: TForm_ExportNew
           FocusControl = Edit_Folder
         end
         object lblLength: TLabel
-          Left = 25
+          Left = 17
           Top = 188
           Width = 74
           Height = 13
@@ -569,9 +569,9 @@ object Form_ExportNew: TForm_ExportNew
           FocusControl = Edit_Folder
         end
         object CB_IncNoteHeading: TCheckBox
-          Left = 25
+          Left = 17
           Top = 30
-          Width = 182
+          Width = 202
           Height = 17
           Hint = 'Include folder headings'
           HelpType = htKeyword
@@ -580,7 +580,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 0
         end
         object CB_IncNodeHeading: TCheckBox
-          Left = 25
+          Left = 17
           Top = 80
           Width = 182
           Height = 17
@@ -591,7 +591,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 2
         end
         object Edit_NodeHead: TComboBox
-          Left = 48
+          Left = 40
           Top = 101
           Width = 179
           Height = 21
@@ -606,7 +606,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 3
         end
         object Edit_NoteHead: TComboBox
-          Left = 48
+          Left = 40
           Top = 51
           Width = 181
           Height = 21
@@ -621,9 +621,9 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 1
         end
         object CB_LevelTemplates: TCheckBox
-          Left = 25
+          Left = 17
           Top = 131
-          Width = 183
+          Width = 204
           Height = 17
           Hint = 'Try to use files "nodehead_1.rtf", "nodehead_2.rtf", ...'
           HelpType = htKeyword
@@ -632,7 +632,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 4
         end
         object CB_FontSizes: TCheckBox
-          Left = 25
+          Left = 17
           Top = 159
           Width = 148
           Height = 17
@@ -645,7 +645,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 5
         end
         object Edit_FontSizes: TEdit
-          Left = 172
+          Left = 164
           Top = 156
           Width = 55
           Height = 21
@@ -661,7 +661,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 6
         end
         object Edit_LengthHeading: TEdit
-          Left = 172
+          Left = 164
           Top = 183
           Width = 55
           Height = 21
@@ -680,7 +680,7 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 7
         end
         object Edit_Symbols: TEdit
-          Left = 172
+          Left = 164
           Top = 210
           Width = 55
           Height = 21
@@ -696,10 +696,34 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 8
           OnExit = Edit_SymbolsExit
         end
+        object CB_EntryLine: TCheckBox
+          Left = 17
+          Top = 254
+          Width = 250
+          Height = 17
+          Caption = 'Line between entries'
+          TabOrder = 9
+        end
+        object CB_EntryCreation: TCheckBox
+          Left = 17
+          Top = 278
+          Width = 250
+          Height = 17
+          Caption = 'Date and time the entry was created'
+          TabOrder = 10
+        end
+        object CB_EntriesAsc: TCheckBox
+          Left = 17
+          Top = 302
+          Width = 250
+          Height = 17
+          Caption = 'Entries in ascending order of creation date'
+          TabOrder = 11
+        end
       end
       object Btn_TknHlp: TBitBtn
         Left = 252
-        Top = 59
+        Top = 62
         Width = 24
         Height = 22
         ImageIndex = 60

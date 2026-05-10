@@ -24,6 +24,7 @@ uses
    System.IniFiles,
    System.IOUtils,
    System.SysUtils,
+   System.DateUtils,
    Vcl.Graphics,
    Vcl.Controls,
    Vcl.Forms,
@@ -134,6 +135,9 @@ type
     CB_UseNote: TCheckBox;
     chkEncrypted: TCheckBox;
     chkTagsEntries: TCheckBox;
+    CB_EntryLine: TCheckBox;
+    CB_EntryCreation: TCheckBox;
+    CB_EntriesAsc: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -1570,6 +1574,159 @@ var
   end;
 
 
+  procedure ProcessNoteEntry;
+  var
+    i: integer;
+  begin
+      NEntry:= NNode.Note.Entries[iEntry];
+      if not NEntryToBeExported(myTreeNode, NEntry, EntryFragments) then exit;
+      if (ExportOptions.TargetFormat = xfOPML) and not UseNoteAttr then exit;
+
+      inc(ExportedEntriesInNote);
+
+      if (ExportOptions.TargetFormat = xfOPML) and (CB_EntryLine.Checked or CB_EntryCreation.Checked) then
+         RTFAux.AddText(#13);
+      if CB_EntryLine.Checked and (iEntry < High(NNode.Note.Entries)) and (ExportedEntriesInNote > 1) then begin
+         if ExportOptions.TargetFormat in [xfPlainText, xfOPML] then
+            RTFAux.AddText(StringOfChar('_', 50) + #13)
+         else begin
+            RTFAux.PutRtfText(GetRTFPrintableLine(RTFAux, clSilver, PageContentWidthInTwips), false);
+            if not CB_EntryCreation.Checked then
+               RTFAux.PutRtfText(#13, false);
+         end;
+      end;
+      if CB_EntryCreation.Checked then begin
+         var Str: string;
+         if (NEntry.Created).GetTime <> 0 then
+             Str:= ' - ' + FormatSettings.ShortTimeFormat;
+         Str:= FormatDateTime(FormatSettings.ShortDateFormat + Str, NEntry.Created);
+
+         if ExportOptions.TargetFormat in [xfPlainText, xfOPML] then
+            RTFAux.AddText(Str + ':' + #13#13)
+         else begin
+            Str:= '{\rtf1\ansi{\colortbl ;' +  GetRTFColor(clSilver) + ';}\qr\cf1\b\fs18 ' + Str + '\sa80\par}';
+            RTFAux.PutRtfText(Str, false);
+         end;
+      end;
+      if not (CB_EntryLine.Checked or CB_EntryCreation.Checked) then
+         RTFAux.AddText(#13);
+
+
+      NEntry.Stream.Position := 0;
+      EntryTextSize := NEntry.Stream.Size;
+      if EntryTextSize > 0 then begin
+         SetLength( EntryText, EntryTextSize );
+         move( NEntry.Stream.Memory^, EntryText[1], EntryTextSize );   // transfer stream contents to temp string
+         EntryStreamIsRTF := (copy(EntryText, 1, 6) = '{\rtf1');       // *2
+      end;
+
+      // now for some treachery. In KeyNote, a user can mark a note as "plain text only". In such a node, all nodes are stored as
+      // plain text, not RTF. However, the change from RTF to text (or back) occurs only when a node is DISPLAYED. So, it is possible
+      // that user enabled "plain text only", but some tree nodes have not been viewed, hence are still in RTF. So, at this point
+      // we cannot know if the node data we're about to export is RTF or plain text data. Yet we must pass the correct information
+      // to PutRichText. Which is why we must check manually, like so:
+      // EntryStreamIsRTF := ( copy( EntryText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
+      //
+      // *2 :
+      // <<the change from RTF to text (or back) occurs only when a node is DISPLAYED>> That is not true currently. However:
+      //  Folder can be PlainText and include a virtual node with RTF content
+      //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
+
+
+      if EntryTextSize > 0 then begin
+        ExportWholeEntryText:= True;
+
+        if ExportTextFragments then begin
+           ExportWholeEntryText:= False;
+           if (EntryFragments.NumFrag = 1) and (EntryFragments.Fragments[0].PosF < 0) then    // EntryFragments: Obtained from NEntryToBeExported
+              ExportWholeEntryText:= True
+
+           else begin
+              RTFAuxFrag.Clear;
+              RTFAuxFrag.PutRtfText(EntryText, false);
+              SSNodeContent:= RTFAux.SelStart;
+
+              PreprocessFoldedFragments;
+
+              { *3  This can occur if the initially located fragments are in folded blocks, and FoldedMode = Unfold has not been selected.
+                In these cases (we are using fragments because we are searching for tags in the text of the notes), the note header will
+                be exported, but without content. It should be noted that this is the reason: there are fragments with the desired tagging,
+                but they are in folded blocks. }
+              if EntryFragments.NumFrag = 0 then        // *3
+                 RTFAux.AddText(#13)
+
+              else begin
+                 pFLastExportedFragm:= 0;
+                 Offset:= 0;
+                 for i:= 0 to EntryFragments.NumFrag - 1 do begin
+                    if EntryFragments.Fragments[i].PosI > pFLastExportedFragm +1 then begin
+                       RTFAuxFrag.SelStart:=  pFLastExportedFragm - Offset;
+                       if i = 0 then
+                          pFLastExportedFragm:= -1;
+                       RTFAuxFrag.SelLength:= EntryFragments.Fragments[i].PosI - pFLastExportedFragm -1;
+                       inc(Offset, RTFAuxFrag.SelLength);
+                       RTFAuxFrag.SelText:= '';
+                    end;
+                    pFLastExportedFragm:= EntryFragments.Fragments[i].PosF;
+                 end;
+                 RTFAuxFrag.SetSelection(0, pFLastExportedFragm - Offset, False);
+
+                 RTFFrag:= RTFAuxFrag.RtfSelText;
+
+                 RTFwithImages:= '';
+                 if EntryStreamIsRTF then
+                    RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
+
+                 if RTFwithImages <> '' then
+                    RTFFrag:= RTFwithImages;
+
+                 if ExportOptions.TargetFormat = xfRTF then
+                    GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
+
+                 RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
+
+                 L:= RTFAux.TextLength;
+                 if RTFAux.GetTextRange(L-1, L) <> #13 then
+                    RTFAux.AddText(#13);
+              end;
+           end;
+        end;                                      // if ExportTextFragments ...
+
+        if ExportWholeEntryText then begin
+           RTFwithImages:= '';
+           SSNodeContent:= RTFAux.SelStart;
+           if EntryStreamIsRTF then
+              RTFwithImages:= ImageMng.ProcessImagesInRTF(EntryText, '', imImage, '', 0, false);
+
+           if RTFwithImages <> '' then
+              EntryText:= RTFwithImages;
+
+           if ExportOptions.TargetFormat = xfRTF then
+              GetInfoKNTLinksWithoutMarker(EntryText, InfoExportedNotes);
+
+           RTFAux.PutRtfText(EntryText, false);          // All hidden KNT characters are now removed from FlushExportFile
+                                                        // Append to end of existing data
+        end;
+
+        if ExportOptions.TargetFormat = xfOPML then begin
+           L:= RTFAux.TextLength;
+           if RTFAux.TextPlain[L] = #13 then begin
+              RTFAux.SelStart:= L;
+              RTFAux.SetSelection(L-1, L, False);
+              RTFAux.SelText:= '';
+           end;
+
+           RTFAux.SelStart:= SSNodeContent;
+           EscapeXMLspecialCharactersInEditor;
+           RTFAux.SelStart:= RTFAux.TextLength;
+        end;
+
+        ChangeFont;
+      end;                      // if EntryTextSize > 0 .....
+
+  end;
+
+
 begin
   FormToOptions;
   if ( not ValidatePath ) then exit;
@@ -1873,134 +2030,14 @@ begin
 
                    // --------------
                    ExportedEntriesInNote:= 0;
-
-                   for iEntry := 0 to High(NNode.Note.Entries) do begin                   // ---------------------- Iterate each Entry in the note
-                      NEntry:= NNode.Note.Entries[iEntry];
-                      if not NEntryToBeExported(myTreeNode, NEntry, EntryFragments) then continue;
-                      if (ExportOptions.TargetFormat = xfOPML) and not UseNoteAttr then continue;
-
-                      inc(ExportedEntriesInNote);
-                      if (iEntry < High(NNode.Note.Entries)) and (ExportedEntriesInNote > 1) then begin
-                         if ExportOptions.TargetFormat in [xfPlainText, xfOPML] then
-                            RTFAux.AddText(#13 + StringOfChar('_', 50) + #13)
-                         else begin
-                            RTFAux.PutRtfText(GetRTFPrintableLine(RTFAux, clSilver, PageContentWidthInTwips), false);
-                            RTFAux.PutRtfText(#13, false);
-                         end;
-                      end;
-
-                      NEntry.Stream.Position := 0;
-                      EntryTextSize := NEntry.Stream.Size;
-                      if EntryTextSize > 0 then begin
-                         SetLength( EntryText, EntryTextSize );
-                         move( NEntry.Stream.Memory^, EntryText[1], EntryTextSize );   // transfer stream contents to temp string
-                         EntryStreamIsRTF := (copy(EntryText, 1, 6) = '{\rtf1');       // *2
-                      end;
-
-                      // now for some treachery. In KeyNote, a user can mark a note as "plain text only". In such a node, all nodes are stored as
-                      // plain text, not RTF. However, the change from RTF to text (or back) occurs only when a node is DISPLAYED. So, it is possible
-                      // that user enabled "plain text only", but some tree nodes have not been viewed, hence are still in RTF. So, at this point
-                      // we cannot know if the node data we're about to export is RTF or plain text data. Yet we must pass the correct information
-                      // to PutRichText. Which is why we must check manually, like so:
-                      // EntryStreamIsRTF := ( copy( EntryText, 1, 6 ) = '{\rtf1' );        // Not necessary with (*1)
-                      //
-                      // *2 :
-                      // <<the change from RTF to text (or back) occurs only when a node is DISPLAYED>> That is not true currently. However:
-                      //  Folder can be PlainText and include a virtual node with RTF content
-                      //  Or it can be a RTF folder and include a virtual node with plaint text content (eg. .txt)
-
-
-                      if EntryTextSize > 0 then begin
-                        ExportWholeEntryText:= True;
-
-                        if ExportTextFragments then begin
-                           ExportWholeEntryText:= False;
-                           if (EntryFragments.NumFrag = 1) and (EntryFragments.Fragments[0].PosF < 0) then    // EntryFragments: Obtained from NEntryToBeExported
-                              ExportWholeEntryText:= True
-
-                           else begin
-                              RTFAuxFrag.Clear;
-                              RTFAuxFrag.PutRtfText(EntryText, false);
-                              SSNodeContent:= RTFAux.SelStart;
-
-                              PreprocessFoldedFragments;
-
-                              { *3  This can occur if the initially located fragments are in folded blocks, and FoldedMode = Unfold has not been selected.
-                                In these cases (we are using fragments because we are searching for tags in the text of the notes), the note header will
-                                be exported, but without content. It should be noted that this is the reason: there are fragments with the desired tagging,
-                                but they are in folded blocks. }
-                              if EntryFragments.NumFrag = 0 then        // *3
-                                 RTFAux.AddText(#13)
-
-                              else begin
-                                 pFLastExportedFragm:= 0;
-                                 Offset:= 0;
-                                 for i:= 0 to EntryFragments.NumFrag - 1 do begin
-                                    if EntryFragments.Fragments[i].PosI > pFLastExportedFragm +1 then begin
-                                       RTFAuxFrag.SelStart:=  pFLastExportedFragm - Offset;
-                                       if i = 0 then
-                                          pFLastExportedFragm:= -1;
-                                       RTFAuxFrag.SelLength:= EntryFragments.Fragments[i].PosI - pFLastExportedFragm -1;
-                                       inc(Offset, RTFAuxFrag.SelLength);
-                                       RTFAuxFrag.SelText:= '';
-                                    end;
-                                    pFLastExportedFragm:= EntryFragments.Fragments[i].PosF;
-                                 end;
-                                 RTFAuxFrag.SetSelection(0, pFLastExportedFragm - Offset, False);
-
-                                 RTFFrag:= RTFAuxFrag.RtfSelText;
-
-                                 RTFwithImages:= '';
-                                 if EntryStreamIsRTF then
-                                    RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFFrag, '', imImage, '', 0, false);
-
-                                 if RTFwithImages <> '' then
-                                    RTFFrag:= RTFwithImages;
-
-                                 if ExportOptions.TargetFormat = xfRTF then
-                                    GetInfoKNTLinksWithoutMarker(RTFFrag, InfoExportedNotes);
-
-                                 RTFAux.PutRtfText(RTFFrag, false);          // All hidden KNT characters are now removed from FlushExportFile.  Append to end of existing data
-
-                                 L:= RTFAux.TextLength;
-                                 if RTFAux.GetTextRange(L-1, L) <> #13 then
-                                    RTFAux.AddText(#13);
-                              end;
-                           end;
-                        end;                                      // if ExportTextFragments ...
-
-                        if ExportWholeEntryText then begin
-                           RTFwithImages:= '';
-                           SSNodeContent:= RTFAux.SelStart;
-                           if EntryStreamIsRTF then
-                              RTFwithImages:= ImageMng.ProcessImagesInRTF(EntryText, '', imImage, '', 0, false);
-
-                           if RTFwithImages <> '' then
-                              EntryText:= RTFwithImages;
-
-                           if ExportOptions.TargetFormat = xfRTF then
-                              GetInfoKNTLinksWithoutMarker(EntryText, InfoExportedNotes);
-
-                           RTFAux.PutRtfText(EntryText, false);          // All hidden KNT characters are now removed from FlushExportFile
-                                                                        // Append to end of existing data
-                        end;
-
-                        if ExportOptions.TargetFormat = xfOPML then begin
-                           L:= RTFAux.TextLength;
-                           if RTFAux.TextPlain[L] = #13 then begin
-                              RTFAux.SelStart:= L;
-                              RTFAux.SetSelection(L-1, L, False);
-                              RTFAux.SelText:= '';
-                           end;
-
-                           RTFAux.SelStart:= SSNodeContent;
-                           EscapeXMLspecialCharactersInEditor;
-                           RTFAux.SelStart:= RTFAux.TextLength;
-                        end;
-
-                        ChangeFont;
-                      end;                      // if EntryTextSize > 0 .....
-                   end;                                                                 // <<<<<------------------ Iterate each Entry in the note
+                                                                            // ---------------------- Iterate each Entry in the note
+                   if CB_EntriesAsc.Checked then
+                      for iEntry:= 0 to High(NNode.Note.Entries) do
+                         ProcessNoteEntry
+                   else
+                      for iEntry:= High(NNode.Note.Entries) downto 0 do
+                         ProcessNoteEntry;
+                                                                            // ---------------------------------------------------------
 
                    var Depth: integer:= ExportOptions.SectionOnDepth;
                    if Depth = 0 then Depth:= 1;
