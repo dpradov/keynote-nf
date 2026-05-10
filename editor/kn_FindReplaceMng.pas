@@ -3453,6 +3453,7 @@ begin
            HiddenNodes:= True;
            AllNodes:= True;
            AllTabs_FindReplace:= True;
+           AllEntries_FindReplace:= True;
            Wrap:= True;
         end;
         ReplaceEventProc(True);
