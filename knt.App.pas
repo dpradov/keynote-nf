@@ -152,7 +152,7 @@ type
       procedure EditorUnavailable (Editor: TKntRichEdit);
       procedure EditorFocused (Editor: TKntRichEdit);
       procedure EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
-      procedure EditorSaved (Editor: TKntRichEdit; OnlyMetadaModified: boolean = false);
+      procedure EditorSaved (Editor: TKntRichEdit);
       procedure ChangeInEditor (Editor: TKntRichEdit);
       procedure NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
@@ -706,7 +706,7 @@ begin
    fAvailableEditors.Remove(Editor);
 end;
 
-procedure TKntApp.EditorSaved (Editor: TKntRichEdit; OnlyMetadaModified: boolean = false);
+procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
 var
    NNodeSavedEditor, NNode: TNoteNode;
    NoteSavedEditor: TNote;
@@ -732,8 +732,6 @@ begin
    NEntrySaved:= NEntriesUI.NEntry;
 
    Action:= aModified;
-   if OnlyMetadaModified then
-      Action:= aModifiedMetadata;
 
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
@@ -782,7 +780,7 @@ begin
       NNode:= TNoteNode(E.NNodeObj);
       if NNode = nil then continue;
       NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
-      if (NoteSelecEditor = NNode.Note) and (E.Modified or NEntriesUI.TagsOfEntryModified) then begin
+      if (NoteSelecEditor = NNode.Note) and E.Modified then begin
          NEntriesUI.SaveToDataModel;
          exit;
       end;

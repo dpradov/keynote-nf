@@ -96,7 +96,6 @@ type
     FEntriesShown: Array of TEntryShown;
     FiEntry: integer;
     FPanelConfig: TPanelConfiguration;
-    FTagsOfEntryModified: boolean;
 
     RTFAux: TAuxRichEdit;
 
@@ -172,7 +171,6 @@ type
     procedure ReconsiderInfoPanelVisibility;
     procedure SetTopIncControlsOfInfoPanel;
     procedure RefreshEntry;
-    property TagsOfEntryModified: boolean read FTagsOfEntryModified;
 
   protected
     function GetReadOnly: boolean;
@@ -719,7 +717,6 @@ begin
   if PressedReturn then
      Editor.SetFocus;
 
-   FTagsOfEntryModified:= True;
    txtTags.Color:= FColorTxts;
    if not InfoPanelShowingNoteMetadata then
       txtTags.Font.Color:= RGB(0,0, 170);
@@ -961,6 +958,7 @@ var
  EntryToAdd, EntryToRemove, MustBeIncluded: boolean;
  Mode: TModeEntriesUI;
  FNEntry_Initial: TNoteEntry;
+ FiEntry_Initial: integer;
 
 
  function NEntryMustBeIncludedInPanel (NEntry: TNoteEntry): boolean;
@@ -1017,6 +1015,8 @@ var
                FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
             dec(N);
             SetLength(FEntriesShown, N);
+            if iEntryToConsider <= FiEntry then
+               dec(FiEntry);
             if N = 0 then begin
                FiEntry:= -1;
                FNEntry:= nil;
@@ -1321,7 +1321,6 @@ begin
       FNNode:= nil;
       FNote:= nil;
       FNEntry:= nil;
-      FTagsOfEntryModified:= false;
       NEntryToConsider:= nil;
 
       PopulateEntriesToShow;
@@ -1334,6 +1333,7 @@ begin
 
    Mode:= PanelConfig.CurrentModeInSession;
    FNEntry_Initial:= FNEntry;
+   FiEntry_Initial:= FiEntry;
 
 
    // NEntryToConsider: If it's included among the considered entries, check if it should remain so and, if so,redisplay it, using its current content and tags.
@@ -1386,14 +1386,27 @@ begin
                 EntryToRemove:= true;
           end;
        end;
-   end;
+
+       if (ActionOnEntry = aModifiedMetadata) and (Mode = meSingleEntry) and not EntryToRemove and not EntryToAdd then begin
+          ReloadMetadataFromDataModel;
+          exit;
+       end;
+    end;
 
    if not CalculateEntriesToShow and (FiEntry < 0) and (Mode = meSingleEntry) then exit;
 
 
-   if EntryToRemove and (Mode = meSingleEntry) then begin    // ToDO ****
-      exit;
+   if EntryToRemove and (Mode = meSingleEntry) then begin
+      PopulateEntriesToShow;
+      if iEntryToConsider <> FiEntry_Initial then
+         exit
+      else
+      if FEntriesShown <> nil then begin
+         btnToggleMultiClick(nil);
+         exit;
+      end;               // ELSE -> Conunue: Editor.Clear, ...
    end;
+
 
    if EntryToAdd then begin
       if (Length(FEntriesShown) = 2) and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
@@ -1423,7 +1436,9 @@ begin
    ReadOnlyBAK:= FReadOnly;
 
    ContainsImgIDsRemoved:= false;
-   try
+
+   try                                                         // -------------------------------- TRY
+
      fChangingInCode:= True;
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
 
@@ -1435,21 +1450,14 @@ begin
      end;
 
 
-     if EntryToAdd then begin             // and FMode = meMultipleEntries
+     if EntryToAdd then begin             // and Mode = meMultipleEntries
         ShowNewEntryToAdd;
         exit;
      end;
 
-     if EntryToRemove then begin          // and FMode = meMultipleEntries
+     if EntryToRemove and (Mode = meMultipleEntries) then begin
         ReconsiderEntry(iEntryToConsider);
         PopulateEntriesToShow;
-        if iEntryToConsider <= FiEntry then
-           dec(FiEntry);
-        if FEntriesShown = nil then
-           FNEntry:= nil
-        else
-           FNEntry:= FEntriesShown[FiEntry].NEntry;
-
         exit;
      end;
 
@@ -1485,13 +1493,15 @@ begin
        end
        else begin                              // --- meSingleEntry
           if NEntryToConsider <> nil then
-             ReconsiderEntry(iEntryToConsider);
+             ReconsiderEntry(iEntryToConsider)
+          else
           if FiEntry >= 0 then
              ShowEntry (FiEntry)
           else begin
              PanelConfig.SelStart:= 0;
              PanelConfig.SelLength:= 0;
           end;
+
        end;
 
 
@@ -1826,8 +1836,6 @@ begin
         FEditor.DoSaveChangesInFloatingEditor;
 
      if FEditor.Modified then begin
-        FTagsOfEntryModified:= false;
-
         FEditor.BeginUpdate;
         try
            KeepUTF8:= False;
@@ -1878,11 +1886,6 @@ begin
         end;
      end
      else begin
-       if FTagsOfEntryModified then begin
-          FTagsOfEntryModified:= false;
-          App.EditorSaved(FEditor, True);
-       end;
-
        if (FNEntry <> nil) and (FNEntry.TextPlain = '') then
           InitializeTextPlain(FNEntry, RTFAux_Note);
      end;
