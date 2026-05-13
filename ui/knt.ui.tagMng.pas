@@ -468,15 +468,18 @@ begin
 
       FindTags:= CommitIntroducedTags(true, FindTagsNotReg);
 
-      if FTagsMode = tmEdit then
-         UpdateTxtTagsHint;
-
       Color:= clWindowText;
       if txtTags.Text = '' then begin
          txtTags.Text := EMPTY_TAGS;
          Color:= clGray;
       end;
       txtTags.Font.Color:= Color;
+
+      if FTagsMode = tmEdit then begin
+         App.ModifiedMetadataOfEntry(FNEntry, FNote, TKntFolder(FFolder));
+         UpdateTxtTagsHint;
+      end;
+
 
       with txtTags do begin
          OnKeyDown:=  nil;
@@ -857,8 +860,6 @@ begin
 
         if not FNEntry.HaveSameTags(TagsAssigned) then begin
            FNEntry.Tags:= TagsAssigned;
-           App.ModifiedMetadataOfEntry(FNEntry, FNote, TKntFolder(FFolder));
-
            Form_Main.ClearFindTags;
            if TKntFolder(FFolder).TreeUI.ShowUseOfTags then
               Form_Main.RefreshFilterOnTags;

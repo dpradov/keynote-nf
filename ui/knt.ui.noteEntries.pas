@@ -55,7 +55,7 @@ type
     Content: TContentInMultipleMode;
   end;
 
-  TActionOnEntry = (aModified, aCreated, aDeleted, aChangedVisibility, aModifiedMetadata, aNull);
+  TActionOnEntry = (aModified, aCreating, aCreated, aDeleted, aChangedVisibility, aModifiedMetadata, aNull);
 
 type
   TKntNoteEntriesUI = class(TFrame)
@@ -93,6 +93,7 @@ type
     FEditor: TKntRichEdit;
     FNoteUI: INoteUI;
     FOnUse: boolean;
+    FPanelHidden: boolean;               // To mark panels, in QueryLayout, where no entry is available (panels not shown because of maximized other panel will not be marked)
     FEntriesShown: Array of TEntryShown;
     FiEntry: integer;
     FPanelConfig: TPanelConfiguration;
@@ -126,7 +127,7 @@ type
     property NEntry: TNoteEntry read FNEntry write FNEntry;
     property NoteUI: INoteUI read FNoteUI;
     property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;
-    procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false);
+    procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false; ActionOnEntry: TActionOnEntry = aNull);
     procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
                                    NEntryToConsider: TNoteEntry = nil;
                                    ActionOnEntry: TActionOnEntry = aNull;
@@ -159,7 +160,7 @@ type
     procedure OnEndEditTagsIntroduction(PressedReturn: boolean);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure ShowEntriesButtons(Show: boolean);
-    procedure SelectEntry(iEntry: integer; LastPos: boolean = false);
+    procedure SelectEntry(iEntry: integer; LastPos: boolean = false; InformReloaded: boolean = True);
     procedure FrameResize(Sender: TObject);
     function InfoPanelShowingNoteMetadata: boolean;
   public
@@ -179,6 +180,7 @@ type
   public
     property ReadOnly : boolean read GetReadOnly write SetReadOnly;
     property OnUse: boolean read FOnUse;
+    property PanelHidden: boolean read FPanelHidden write FPanelHidden;
     procedure SetAsUnused;
 
   protected
@@ -289,6 +291,7 @@ begin
    //FLastEditorUIWidth:= '';
    FPanelConfig:= nil;
    FOnUse:= False;
+   FPanelHidden:= True;
    FPanelInitialized:= false;
 
    UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
@@ -343,6 +346,7 @@ end;
 procedure TKntNoteEntriesUI.SetAsUnused;
 begin
   FOnUse:= False;
+  PanelHidden:= True;
   FNNode:= nil;
   FNEntry:= nil;
   Editor.BeginUpdate;
@@ -508,7 +512,7 @@ begin
   if FInfoPanelHidden then exit;
 
   ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
-  if (txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil) then
+  if (PanelConfig.Maximized) or ((txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil)) then
      FrameResize(nil);
 
   ReconsiderColorInfoPanel;
@@ -671,9 +675,7 @@ begin
    if PanelConfig.VinculatedTags <> nil then begin
       S:= TNoteTagArrayUtils.ToNames(PanelConfig.VinculatedTags);
       Color:= clMaroon;
-   end
-   else
-      exit;
+   end;
 
    txtTags.Text:= S;
    TagMng.UpdateTxtTagsHint(txtTags);
@@ -718,7 +720,7 @@ begin
      Editor.SetFocus;
 
    txtTags.Color:= FColorTxts;
-   if not InfoPanelShowingNoteMetadata then
+   if not InfoPanelShowingNoteMetadata and (FNEntry <> nil) then
       txtTags.Font.Color:= RGB(0,0, 170);
 
    AdjustTxtTagsWidth;
@@ -823,7 +825,7 @@ begin
        FEntriesShown[iNEntry].Content:= NewContent;
 end;
 
-procedure TKntNoteEntriesUI.LoadFromDataModel(APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false);
+procedure TKntNoteEntriesUI.LoadFromDataModel(APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false; ActionOnEntry: TActionOnEntry = aNull);
 var
   NEntry: TNoteEntry;
   KeepModified: boolean;
@@ -850,6 +852,7 @@ begin
        if FPanelConfig <> nil then begin
            if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
               FOnUse:= True;
+              FPanelHidden:= False;
               if FInfoPanelHidden or not PanelConfig.ShowEditorInfoPanel then
                  ShowControlsPanelIdentif(false);
 
@@ -863,7 +866,7 @@ begin
              txtName.Visible:= True;
        end;
 
-       ReloadFromDataModel(true, nil, aNull, InformReloaded);
+       ReloadFromDataModel(true, nil, ActionOnEntry, InformReloaded);
 
        { The normal thing is to set Editor.Modified = False at the end of the LoadFocusedNNodeIntoEditor method
          But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
@@ -1015,8 +1018,12 @@ var
                FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
             dec(N);
             SetLength(FEntriesShown, N);
-            if iEntryToConsider <= FiEntry then
+            if (iEntryToConsider < FiEntry) then
+               dec(FiEntry)
+            else
+            if FiEntry > N-1 then
                dec(FiEntry);
+
             if N = 0 then begin
                FiEntry:= -1;
                FNEntry:= nil;
@@ -1358,15 +1365,23 @@ begin
           EntryToAdd:= true;
           PopulateEntriesToShow;
           if (Mode = meSingleEntry) then begin
-             if (FiEntry = -1) and (FNEntry = NEntryToConsider) then begin
-                btnToggleMulti.Caption:= (iEntryAdded+1).ToString;
-                FiEntry:= iEntryAdded;
-                FNNode:= FEntriesShown[iEntryAdded].NNode;
-                FNote:= FEntriesShown[iEntryAdded].Note;
-                ShowControlsPanelIdentif(True);
-                FNoteUI.KeepInfoPanelTemporarilyVisible;
-             end;
-          end;
+              if (FiEntry_Initial = -1) and (FNEntry = NEntryToConsider) then begin
+                // We've already prepared the editor. Once the first modification is made, we'll enter
+                // here, and what we need to do is update the information corresponding to the entry, making
+                // the information panel temporarily visible
+                 btnToggleMulti.Caption:= (iEntryAdded+1).ToString;
+                 FiEntry:= iEntryAdded;
+                 FNNode:= FEntriesShown[iEntryAdded].NNode;
+                 FNote:= FEntriesShown[iEntryAdded].Note;
+                 ConfigureEditor;
+                 ShowControlsPanelIdentif(True);
+                 FNoteUI.KeepInfoPanelTemporarilyVisible;
+              end
+              else
+                 btnToggleMulti.Caption:= (FiEntry+1).ToString;
+
+              exit;
+           end;
        end
        else begin
           iEntryToConsider:= GetIndexOfVisibleEntry(NEntryToConsider);
@@ -1379,7 +1394,6 @@ begin
              if MustBeIncluded and (iEntryToConsider < 0) then begin
                 EntryToAdd:= true;
                 PopulateEntriesToShow;
-                if (Mode = meSingleEntry) then exit;
              end
              else
              if not MustBeIncluded and (iEntryToConsider >= 0) then
@@ -1387,13 +1401,21 @@ begin
           end;
        end;
 
-       if (ActionOnEntry = aModifiedMetadata) and (Mode = meSingleEntry) and not EntryToRemove and not EntryToAdd then begin
+       if (Mode = meSingleEntry) and not EntryToRemove and not EntryToAdd and
+           ( (ActionOnEntry = aModifiedMetadata) or
+             ((ActionOnEntry = aModified) and (FNEntry <> nil) and (FNEntry <> NEntryToConsider) )) then begin
+
           ReloadMetadataFromDataModel;
           exit;
        end;
-    end;
+   end;
 
-   if not CalculateEntriesToShow and (FiEntry < 0) and (Mode = meSingleEntry) then exit;
+   if FPanelHidden then
+      if EntryToAdd then
+         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True)
+      else
+         exit;
+
 
 
    if EntryToRemove and (Mode = meSingleEntry) then begin
@@ -1404,18 +1426,28 @@ begin
       if FEntriesShown <> nil then begin
          btnToggleMultiClick(nil);
          exit;
-      end;               // ELSE -> Conunue: Editor.Clear, ...
+      end;               // ELSE -> Continue: Editor.Clear, ...
    end;
 
 
    if EntryToAdd then begin
-      if (Length(FEntriesShown) = 2) and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
-         Mode:= meMultipleEntries;
+      if ( (Length(FEntriesShown) = 2) and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) ) then begin
          EntryToAdd:= false;          // Process the two entries, not just the one to add
          NEntryToConsider:= nil;
       end;
-      if (Mode = meSingleEntry) then
-         exit;
+      if (Mode = meSingleEntry) and (Length(FEntriesShown) = 2) then begin
+         if (PanelConfig.VinculatedTags <> nil) then begin
+            if FiEntry < 0 then
+               FiEntry:= 0;
+            FEntriesShown[FiEntry].Content:= cmWholeEntry;
+            PanelConfig.CurrentModeInSession:= meMultipleEntries;
+            Mode:= meMultipleEntries;
+            EntryToAdd:= false;
+            NEntryToConsider:= nil;
+         end
+         else
+         if (FNEntry <> nil) then exit;
+      end;
    end;
 
 
@@ -1442,32 +1474,43 @@ begin
      fChangingInCode:= True;
      Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
 
+     if (Mode = meMultipleEntries) then begin
+         if EntryToAdd then begin
+            ShowNewEntryToAdd;
+            if FNEntry = nil then
+               FiEntry:= 0;
+            exit;
+         end;
+
+         if EntryToRemove then begin
+            ReconsiderEntry(iEntryToConsider);
+            PopulateEntriesToShow;
+            if FNEntry <> nil then
+               exit
+
+            else begin
+               PanelConfig.CurrentModeInSession:= meSingleEntry;
+               Mode:= meSingleEntry;
+               NEntryToConsider:= nil;
+            end;
+         end;
+     end;
+
+
      if (Mode = meSingleEntry) or (NEntryToConsider = nil) then begin
         Editor.Clear;
         Editor.ClearUndo;
-
         fImagesReferenceCount:= nil;
-     end;
-
-
-     if EntryToAdd then begin             // and Mode = meMultipleEntries
-        ShowNewEntryToAdd;
-        exit;
-     end;
-
-     if EntryToRemove and (Mode = meMultipleEntries) then begin
-        ReconsiderEntry(iEntryToConsider);
-        PopulateEntriesToShow;
-        exit;
      end;
 
 
 
      FiEntry:= -1;
-
      if FEntriesShown <> nil then begin
        FiEntry:= iSelectedEntry;
-       if (FiEntry < 0) and ((Mode = meMultipleEntries) or (PanelConfig.SelNEntry <> nil)) then begin
+       if (FiEntry < 0) and (ActionOnEntry <> aCreating) and
+                   ( ((Mode = meMultipleEntries) or (PanelConfig.SelNEntry <> nil)) or
+                     ((Mode = meSingleEntry) and CalculateEntriesToShow ) ) then begin
            FiEntry:= 0;
            if not Folder.NoteAdvOptions.ShowNewestEntryInSingleEntry then begin
               if not PanelConfig.DescendingOrder then
@@ -1505,12 +1548,6 @@ begin
        end;
 
 
-       if FiEntry >= 0 then begin
-          FNNode:= FEntriesShown[FiEntry].NNode;
-          FNote:= FEntriesShown[FiEntry].Note;
-          FNEntry:= FEntriesShown[FiEntry].NEntry;
-       end;
-
        Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
        if (Mode = meSingleEntry) and (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
           UpdateEditor (Editor, FKntFolder, false);
@@ -1532,18 +1569,23 @@ begin
      end
      else begin                    // FEntriesShown = nil and not: (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)
         if CannotShow_Encrypted then begin
-           FNEntry:= FNote.Entries[0];
            FEditor.AddText(GetRS(sEdt52));
            ReadOnlyBAK:= True;
         end;
      end;
 
-     ReloadMetadataFromDataModel;
-
-     Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - END', 4, -1);
 
 
    finally
+
+     if (FEntriesShown <> nil) and (FiEntry >= 0) then begin
+        FNNode:= FEntriesShown[FiEntry].NNode;
+        FNote:= FEntriesShown[FiEntry].Note;
+        FNEntry:= FEntriesShown[FiEntry].NEntry;
+     end;
+
+     ReloadMetadataFromDataModel;
+
      ForceTempReadOnly(ReadOnlyBAK);
      if (Mode = meMultipleEntries) then
         Editor.ReadOnly:= true;
@@ -1579,6 +1621,11 @@ begin
 
      SaveContentStateOfEntries;
      fChangingInCode:= false;
+
+
+     if not FPanelHidden and (FNEntry = nil) then
+        FNoteUI.PanelEmpty(PanelConfig.Panel, (FEntriesShown = nil));
+
    end;
 
 
@@ -1949,7 +1996,7 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer; LastPos: boolean = false);
+procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer; LastPos: boolean = false; InformReloaded: boolean = True);
 var
   SS: integer;
 begin
@@ -1966,13 +2013,14 @@ begin
        end;
    end
    else begin
+       Editor.OnEditorChanged := nil;
        SaveToDataModel();
        btnToggleMulti.Caption:= (iEntry+1).ToString;
        Editor.HideNestedFloatingEditor;
        PanelConfig.SelNEntry:= FEntriesShown[iEntry].NEntry;
        PanelConfig.SelStart:= 0;
        PanelConfig.SelLength:= 0;
-       ReloadFromDataModel(false, nil, aNull, True);
+       ReloadFromDataModel(false, nil, aNull, InformReloaded);
    end;
 end;
 
@@ -2064,6 +2112,7 @@ var
    SS, i: integer;
 begin
    if fChangingInCode then exit;
+   if (FiEntry < 0) or (FEntriesShown = nil) then exit;
 
    SS:= Editor.SelStart;
    if (SS < FEntriesShown[FiEntry].StartingPos) or (SS > FEntriesShown[FiEntry].FinalPos) then begin
@@ -2159,7 +2208,7 @@ begin
       ReloadFromDataModel(false, NEntry, aModifiedMetadata);
 
       if (N = 0) and (Length(FEntriesShown) > 0) then
-         SelectEntry(0);
+         SelectEntry(0, false, false);
 
    finally
       LockControl(Editor, False);

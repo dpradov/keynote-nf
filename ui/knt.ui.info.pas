@@ -78,7 +78,7 @@ type
 
   TPanelConfiguration = class
     Panel: TNEntriesPanel;
-    Visible: boolean;
+    Visible: boolean;                 // It allows the user to temporarily hide one of the panels included in a layout
     ShowEditorInfoPanel: boolean;
     Maximized: boolean;
     EditingLayout: boolean;
@@ -129,6 +129,8 @@ type
      property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
      function NavigatePanels(NavDirection: TNavDirection): boolean;
      procedure ToggleMaximizeSelectedPanel;
+     procedure ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
+     procedure PanelEmpty(Panel: TNEntriesPanel; WithoutEntries: boolean);
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                              NEntriesLayout: TBasicNEntriesLayout;
