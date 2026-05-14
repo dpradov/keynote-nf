@@ -738,8 +738,12 @@ var
    str, strTargetMarker: string;
    RTFMarker: AnsiString;
    KEY_Marker: Char;
+   EditorBase: TRxRichEdit;
    Editor: TKntRichEdit;
    NEntriesUI: TKntNoteEntriesUI;
+   RTFAux: TAuxRichEdit;
+   SS, PosStartEntry, PosEndEntry: integer;
+
 
    function GetActualTargetMarker (Editor: TRxRichEdit): integer;
    var
@@ -811,30 +815,49 @@ begin
 
     // If we are pointing to the start of a node or a folder (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
     strTargetMarker:= '';
-    NEntriesUI:= TKntNoteEntriesUI(aLocation.NEntriesUIObj);      // ToDO: Allow to mark also in meMultipleEntries panel
+    NEntriesUI:= TKntNoteEntriesUI(aLocation.NEntriesUIObj);
 
-    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and (assigned(Editor.NNodeObj)) and
-       ((NEntriesUI = nil) or (NEntriesUI.PanelConfig.CurrentModeInSession <> meMultipleEntries))    then begin
-        // Allow the mark (hidden) although Folder is ReadOnly
-      if NumBookmark09 <= 0 then
-         TargetMarker:= GetActualTargetMarker(Editor);             // If a marker already exists at that position, we will use it
+    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and (assigned(Editor.NNodeObj)) then begin
 
-      if TargetMarker = 0 then begin
-         {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
-         if NumBookmark09 >= 1 then begin              // Bookmark0-9 -> [1-10]
-            TargetMarker:= NumBookmark09;
-            aLocation.Bookmark09:= true;
-            KEY_Marker:= KNT_RTF_HIDDEN_Bookmark09;
-         end
-         else begin
-            TargetMarker:= 1 + GetLastTargetMarker(Editor.TextPlain);
-            KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
-         end;
-
-         InsertMarker(Editor, KEY_Marker, TargetMarker);
+      // Allow the mark (hidden) although Folder is ReadOnly
+      EditorBase:= Editor;
+      RTFAux:= nil;
+      if ((NEntriesUI <> nil) and (NEntriesUI.PanelConfig.CurrentModeInSession = meMultipleEntries)) then begin
+         SS:= Editor.SelStart;
+         NEntriesUI.GetEntryBoundaries(NEntriesUI.NEntry, PosStartEntry, PosEndEntry);
+         RTFAux:= CreateAuxRichEdit;
+         RTFAux.BeginUpdate;
+         LoadStreamInRTFAux (NEntriesUI.NEntry.Stream, RTFAux);
+         EditorBase:= RTFAux;
+         EditorBase.SelStart:= PositionInImLinkTextPlain(Editor, NEntriesUI.NEntry, SS, false, PosStartEntry, PosEndEntry);
       end;
-      strTargetMarker:= Format(GetRS(sLnk31) + GetRS(sLnk32), [TargetMarker]);
-      aLocation.Mark:= TargetMarker;
+      try
+          if NumBookmark09 <= 0 then
+             TargetMarker:= GetActualTargetMarker(EditorBase);             // If a marker already exists at that position, we will use it
+
+          if TargetMarker = 0 then begin
+             {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
+             if NumBookmark09 >= 1 then begin              // Bookmark0-9 -> [1-10]
+                TargetMarker:= NumBookmark09;
+                aLocation.Bookmark09:= true;
+                KEY_Marker:= KNT_RTF_HIDDEN_Bookmark09;
+             end
+             else begin
+                TargetMarker:= 1 + GetLastTargetMarker(EditorBase.TextPlain);
+                KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
+             end;
+
+             InsertMarker(EditorBase, KEY_Marker, TargetMarker);
+          end;
+          strTargetMarker:= Format(GetRS(sLnk31) + GetRS(sLnk32), [TargetMarker]);
+          aLocation.Mark:= TargetMarker;
+      finally
+         if RTFAux <> nil then begin
+            NEntriesUI.SaveToDataModel(RTFAux, NEntriesUI.NEntry);
+            RTFAux.Free;
+         end;
+      end;
+
     end;
 
     App.ShowInfoInStatusBar(GetRS(sLnk10) + strTargetMarker);

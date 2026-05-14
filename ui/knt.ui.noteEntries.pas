@@ -135,7 +135,8 @@ type
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
-    procedure SaveToDataModel;
+    procedure SaveToDataModel; overload;
+    procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
@@ -1938,6 +1939,33 @@ begin
      end;
 
   end;
+end;
+
+
+procedure TKntNoteEntriesUI.SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry);
+var
+   KeepUTF8: boolean;
+   Encoding: TEncoding;
+
+begin
+   Encoding:= nil;
+
+   KeepUTF8:= False;
+   if FNNode.IsVirtual and NEntry.IsPlainTXT and NodeStreamIsUTF8WithBOM(NEntry.Stream) then
+      KeepUTF8:= True;
+
+   NEntry.Stream.Clear;
+   if RTFAux.StreamFormat = sfPlainText then begin
+      // If it is a virtual node we will respect the UTF8 encoding it may have.
+      // Otherwise it will only be saved as UTF8 if necessary
+      if KeepUTF8 or not CanSaveAsANSI(RTFAux.Text) then
+         Encoding:= TEncoding.UTF8;
+   end;
+
+   RTFAux.Lines.SaveToStream( NEntry.Stream, Encoding);
+
+   NEntry.TextPlain:= RTFAux.TextPlain;
+   NEntry.Stream.Position := 0;
 end;
 
 
