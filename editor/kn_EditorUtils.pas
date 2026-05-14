@@ -1611,7 +1611,7 @@ end;
 
 function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
 begin
-   GetRTFPrintableLine(Editor, Form_Main.TB_Color.ActiveColor, GetCellxEditorWidth(Editor));
+   Result:= GetRTFPrintableLine(Editor, Form_Main.TB_Color.ActiveColor, GetCellxEditorWidth(Editor));
 end;
 
 

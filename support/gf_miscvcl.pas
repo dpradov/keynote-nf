@@ -94,6 +94,8 @@ function DarkenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function GetHotColorFor(BackColor, FontColor: TColor): TColor;
 function InvertColor(Color: TColor): TColor;
+function GetColorLuminosity(Color: TColor): Double;
+function GetRelativeLuminosity(Color: TColor): Double;
 //function ColorInformation(Color: TColor): string;      // Included in ColorPicker
 
 function CheckCalendarInTDateTimePicker(AOwner: TWinControl): boolean;

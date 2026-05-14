@@ -1504,7 +1504,7 @@ begin
         fImagesReferenceCount:= nil;
      end;
 
-
+     Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
 
      FiEntry:= -1;
      if FEntriesShown <> nil then begin
@@ -1549,7 +1549,6 @@ begin
        end;
 
 
-       Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
        if (Mode = meSingleEntry) and (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
           UpdateEditor (Editor, FKntFolder, false);
 
@@ -1818,6 +1817,7 @@ function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; Firs
 var
   strLine: AnsiString;
   s, strInfo: string;
+  EditorBackColor, ColorLine, ColorInfo: TColor;
 
 begin
    // # ToDO —  08/11/2025 - 11:36  —
@@ -1850,12 +1850,26 @@ begin
    Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}' + StrLine + '\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';' +
    *)
 
+
+   // Change the header color according to the brightness of the background color, as happens with hyperlinks
+
+   EditorBackColor:= ColorToRGB(Editor.Color);
+   if GetRelativeLuminosity(EditorBackColor) >= 0.45 then begin
+      ColorLine:= clSilver;
+      ColorInfo:= RGB(100,100,100);
+   end
+   else begin
+      ColorLine:= RGB(155,155,155);
+      ColorInfo:= RGB(220,220,220);
+   end;
+
+
    if PanelConfig.MMShowLineInHeader then
       strLine:= GetRTFPrintableLineAux(999999);
 
-   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(ColorToRGB(Editor.Color)) + ';' +
-                                        GetRTFColor(clSilver) + ';' +
-                                        GetRTFColor(RGB(100,100,100)) + ';}\fs1\par' +
+   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(EditorBackColor) + ';' +
+                                        GetRTFColor(ColorLine) + ';' +
+                                        GetRTFColor(ColorInfo) + ';}\fs1\par' +
               StrLine + '\qr\cf3\b\fs18 ' + strInfo + '\sa80\par}';
 end;
 
