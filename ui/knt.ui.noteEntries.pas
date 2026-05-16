@@ -1094,7 +1094,10 @@ var
             FEntriesShown[iEntryAdded].NEntry:= NEntryToConsider;
             FEntriesShown[iEntryAdded].NNode:= FNNode;
             FEntriesShown[iEntryAdded].Note:= FNote;
-            FEntriesShown[iEntryAdded].Content:= cmOnlyHeader;
+            if Mode = meMultipleEntries then
+               FEntriesShown[iEntryAdded].Content:= cmOnlyHeader
+            else
+               FEntriesShown[iEntryAdded].Content:= cmWholeEntry;
          end;
 
 //       case PanelConfig.Order of
@@ -1393,7 +1396,7 @@ begin
                  btnToggleMulti.Caption:= (FiEntry+1).ToString;
 
               exit;
-           end;
+          end;
        end
        else begin
           iEntryToConsider:= GetIndexOfVisibleEntry(NEntryToConsider);
