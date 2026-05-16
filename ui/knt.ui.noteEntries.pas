@@ -97,6 +97,7 @@ type
     FEntriesShown: Array of TEntryShown;
     FiEntry: integer;
     FPanelConfig: TPanelConfiguration;
+    FTagsToUseOnNewEntry: TNoteTagArray;
 
     RTFAux: TAuxRichEdit;
 
@@ -141,10 +142,10 @@ type
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
     procedure EditorDblClickInMultiEntries;
-    function VinculatedToMultipleEntries: boolean;
     function GetIndexOfVisibleEntry(NEntry: TNoteEntry): integer;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
     function IsDisplayingEntry(NEntry: TNoteEntry; var OnlyHeader: boolean): boolean;
+    function NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
     procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
     procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
     procedure ConfigureEditor(iEntry: integer = -1);
@@ -167,6 +168,7 @@ type
   public
     procedure EditTags;
     procedure RefreshTags;
+    property TagsToUseOnNewEntry: TNoteTagArray read FTagsToUseOnNewEntry write FTagsToUseOnNewEntry;
     function HideTemporarilyInfoPanel: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
     procedure ReconsiderColorInfoPanel;
@@ -294,6 +296,7 @@ begin
    FOnUse:= False;
    FPanelHidden:= True;
    FPanelInitialized:= false;
+   FTagsToUseOnNewEntry:= nil;
 
    UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
 
@@ -375,6 +378,7 @@ end;
 procedure TKntNoteEntriesUI.NoteEntriesUIEnter(Sender: TObject);
 begin
   if FNote = nil then exit;
+  if TKntNoteUI(FNoteUI).ChangingLayout then exit;
 
   FloatingEditorCannotBeSaved:= False;
   Editor.HideNestedFloatingEditor;
@@ -657,6 +661,7 @@ var
    S: string;
    Color: TColor;
    NEntry: TNoteEntry;
+   Tags: TNoteTagArray;
 begin
    if FNNode = nil then exit;
 
@@ -672,10 +677,14 @@ begin
    if NEntry <> nil then begin
       S:= NEntry.TagsNames;
    end
-   else
-   if PanelConfig.VinculatedTags <> nil then begin
-      S:= TNoteTagArrayUtils.ToNames(PanelConfig.VinculatedTags);
-      Color:= clMaroon;
+   else begin
+      Tags:= TagsToUseOnNewEntry;
+      if Tags = nil then
+         Tags:= PanelConfig.VinculatedTags;
+      if (Tags <> nil) then begin
+         S:= TNoteTagArrayUtils.ToNames(Tags);
+         Color:= clMaroon;
+      end
    end;
 
    txtTags.Text:= S;
@@ -1366,7 +1375,7 @@ begin
           EntryToAdd:= true;
           PopulateEntriesToShow;
           if (Mode = meSingleEntry) then begin
-              if (FiEntry_Initial = -1) and (FNEntry = NEntryToConsider) then begin
+              if (FiEntry_Initial = -1) and ((FNEntry = nil) or (FNEntry = NEntryToConsider)) then begin
                 // We've already prepared the editor. Once the first modification is made, we'll enter
                 // here, and what we need to do is update the information corresponding to the entry, making
                 // the information panel temporarily visible
@@ -1374,6 +1383,8 @@ begin
                  FiEntry:= iEntryAdded;
                  FNNode:= FEntriesShown[iEntryAdded].NNode;
                  FNote:= FEntriesShown[iEntryAdded].Note;
+                 FNEntry:= NEntryToConsider;                   // In case FNEntry was nil (eg: Ctrl+Shift+Intro in empty panel vinculated to tags)
+                 FEditor.OnEditorChanged:= nil;                //  ,,
                  ConfigureEditor;
                  ShowControlsPanelIdentif(True);
                  FNoteUI.KeepInfoPanelTemporarilyVisible;
@@ -1436,18 +1447,24 @@ begin
          EntryToAdd:= false;          // Process the two entries, not just the one to add
          NEntryToConsider:= nil;
       end;
-      if (Mode = meSingleEntry) and (Length(FEntriesShown) = 2) then begin
-         if (PanelConfig.VinculatedTags <> nil) then begin
-            if FiEntry < 0 then
-               FiEntry:= 0;
-            FEntriesShown[FiEntry].Content:= cmWholeEntry;
-            PanelConfig.CurrentModeInSession:= meMultipleEntries;
-            Mode:= meMultipleEntries;
-            EntryToAdd:= false;
-            NEntryToConsider:= nil;
+
+      if (Mode = meSingleEntry) then begin
+         if (Length(FEntriesShown) = 2) then begin
+            if (PanelConfig.VinculatedTags <> nil) then begin
+               if FiEntry < 0 then
+                  FiEntry:= 0;
+               FEntriesShown[FiEntry].Content:= cmWholeEntry;
+               PanelConfig.CurrentModeInSession:= meMultipleEntries;
+               Mode:= meMultipleEntries;
+               EntryToAdd:= false;
+               NEntryToConsider:= nil;
+            end
          end
          else
-         if (FNEntry <> nil) then exit;
+         if (FNEntry <> nil) then begin
+            btnToggleMulti.Caption:= (FiEntry+1).ToString;     // First entry (1) can now be second entry (2). Show it in the navigate button
+            exit;
+         end;
       end;
    end;
 
@@ -1637,12 +1654,6 @@ begin
 end;
 
 
-function TKntNoteEntriesUI.VinculatedToMultipleEntries: boolean;
-begin
-   Result:= Length(FEntriesShown) > 1;
-end;
-
-
 function TKntNoteEntriesUI.IsDisplayingEntry(NEntry: TNoteEntry; var OnlyHeader: boolean): boolean;
 var
    i: integer;
@@ -1655,6 +1666,20 @@ begin
    end;
 end;
 
+
+function TKntNoteEntriesUI.NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
+var
+   i: integer;
+begin
+    if OnlyNotHidden then begin
+       Result:= 0;
+       for i:= Length(FEntriesShown)-1 downto 0 do
+          if FEntriesShown[i].Content <> cmHidden then
+             inc(Result);
+    end
+    else
+       Result:= Length(FEntriesShown);
+end;
 
 procedure TKntNoteEntriesUI.GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
 var

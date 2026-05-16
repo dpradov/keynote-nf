@@ -2461,6 +2461,8 @@ begin
     if EditorToBeCheckedForContentUpdate <> nil then
        App.EnsureContentEditorUpdated (EditorToBeCheckedForContentUpdate);
 
+    if (DisableChangedInEmptyPanelAt <> 0) and (MilliSecondsBetween(DisableChangedInEmptyPanelAt, now) > 200)  then
+       DisableChangedInEmptyPanelAt:= 0;
 
    Done := True;
 

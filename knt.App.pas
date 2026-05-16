@@ -252,6 +252,7 @@ var
    IgnoringEditorChanges: boolean;
    FloatingEditorCannotBeSaved: boolean;
    EditorToBeCheckedForContentUpdate: TKntRichEdit;
+   DisableChangedInEmptyPanelAt: TDateTime;
 
    ExportingFormVisible: boolean;
    InformingSomeoneChangedOurFile: boolean;
@@ -394,6 +395,7 @@ begin
    ExportingFormVisible:= false;
    InformingSomeoneChangedOurFile:= false;
    EditorToBeCheckedForContentUpdate:= nil;
+   DisableChangedInEmptyPanelAt:= 0;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
@@ -632,7 +634,8 @@ var
 begin
     Log_StoreTick('TKntApp.EditorSelected - BEGIN', 4, +1);
 
-    EditorToBeCheckedForContentUpdate:= Editor;
+    if Editor.NEntryObj <> nil then
+       EditorToBeCheckedForContentUpdate:= Editor;
 
     ActiveEditor:= Editor;
 

@@ -86,6 +86,7 @@ type
     fSplitterNoteMoving: boolean;
     FUpdatingOnResize: boolean;
     IncResize: integer;
+    FChangingLayout: boolean;
 
     TimerInfoPanel: TTimer;
 
@@ -122,7 +123,8 @@ type
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean;
                              LayoutToUse: TBasicNEntriesLayout;
                              EditingNEntry: TNoteEntry = nil;
-                             OfferEditorForNewEntry: boolean = False);
+                             OfferEditorForNewEntry: boolean = False;
+                             TagsToAddToNewEntry: TNoteTagArray = nil);
     procedure ReloadFromDataModel;
     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
     procedure SaveToDataModel;
@@ -140,6 +142,7 @@ type
     procedure SelectPreviousEntry;
     procedure CreateNewEntry(ReqFromNEntriesUI: TKntNoteEntriesUI); overload;
     procedure EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
+                                   TagsToAddToNewEntry: TNoteTagArray = nil;
                                    SS: integer=-1; SL: integer=-1);
     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
     procedure EditorChangedInEmptyPanel(Editor: TKntRichEdit);
@@ -180,6 +183,7 @@ type
     function GetPanel (Panel: TNEntriesPanel): TPanel;
     procedure ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
     procedure PanelEmpty(Panel: TNEntriesPanel; WithoutEntries: boolean);
+    property ChangingLayout: boolean read FChangingLayout;
     //procedure TestPanels;
 
   protected
@@ -241,6 +245,7 @@ begin
    FNote:= nil;
    FMultipleVisibleEditors:= false;
    FHideFocusFlag:= false;
+   FChangingLayout:= false;
 
    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
       FNEntriesUI[p]:= nil;
@@ -745,8 +750,10 @@ begin
 
    if FQueryLayout and WithoutEntries then
       ShowEntriesUIPanel(NEntriesUI.PanelConfig.Panel, False)
-   else
+   else begin
       NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
+      DisableChangedInEmptyPanelAt:= now;
+   end;
 end;
 
 
@@ -1173,27 +1180,30 @@ begin
 
   if CtrlDown then begin
      if (NEntriesUI.PanelConfig.CurrentModeInSession = meSingleEntry) then begin
-        if FQueryLayout or (NEntriesUI.PanelConfig.Mode = meMultipleEntries) then    // -> Single <> Multi
-           NEntriesUI.btnToggleMultiClick(nil)
-        else
-           ToQueryLayout:= True;
-     end
-     else begin
-       if FQueryLayout then
-          ToEditingLayout:= True
-       else
-          ToQueryLayout:= True;
+        if (FQueryLayout or (NEntriesUI.PanelConfig.Mode = meMultipleEntries)) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
+           NEntriesUI.btnToggleMultiClick(nil);
+           exit;
+        end;
      end;
+
+     if FQueryLayout then
+        ToEditingLayout:= True
+     else
+        ToQueryLayout:= True;
   end
   else begin                                        // Not CtrlDown => Mode= meMultiEntries
      if FQueryLayout then
         NEntriesUI.btnToggleMultiClick(nil)
      else
         EditInInMultiEntries(NEntriesUI, NEntry, false);
+
+     exit;
   end;
 
 
-  if (ToQueryLayout or ToEditingLayout) and (FNNodeUIConfig.MaximizedPanel <> pnNone) then
+  // (ToQueryLayout or ToEditingLayout) = True
+
+  if (FNNodeUIConfig.MaximizedPanel <> pnNone) then
       ToggleMaximizeSelectedPanel;
 
   if ToEditingLayout then begin
@@ -1201,7 +1211,7 @@ begin
      SS:= NEntriesUI.PanelConfig.SelStart;
      SL:= NEntriesUI.PanelConfig.SelLength;
      LoadFromNNode(FNNode, True, neEditingLayout, NEntry);
-     EditInInMultiEntries(NEntriesUI, NEntry, false, SS, SL);
+     EditInInMultiEntries(NEntriesUI, NEntry, false, nil, SS, SL);
   end
   else
   if ToQueryLayout then begin
@@ -1218,6 +1228,8 @@ var
   NEntriesUI: TKntNoteEntriesUI;
 
 begin
+   if DisableChangedInEmptyPanelAt <> 0 then exit;
+
    Editor.OnEditorChanged:= nil;
 
    NEntriesUI:= GetNEntriesUI(Editor);
@@ -1226,12 +1238,14 @@ begin
 
    // This handler is configured only to 'listen' for editor changes in 'empty' panels, without any entry set yet.
    CreateNewEntry(NEntriesUI);
+   NEntriesUI.TagsToUseOnNewEntry:= nil;
 end;
 
 
 procedure TKntNoteUI.NewEntryRequested(ReqFromEditor: TKntRichEdit);
 var
   ReqFromNEntriesUI: TKntNoteEntriesUI;
+  TagsToAddToNewEntry: TNoteTagArray;
 begin
    if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
 
@@ -1241,15 +1255,22 @@ begin
      It's simply a different configuration/layout, designed for viewing notes as we navigate through the tree.
      This mode is typically configured to offer fewer panels, or only when there is data to display.
      For example, if the note has only one entry, normally only one panel will be shown. }
+
+   TagsToAddToNewEntry:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
+
+
+   DisableChangedInEmptyPanelAt:= Now;              // Will be enabled in TForm_Main.ApplicationEventsIdle
    if FQueryLayout then begin
       if (FNNodeUIConfig.MaximizedPanel <> pnNone) then
           ToggleMaximizeSelectedPanel;
-      LoadFromNNode(FNNode, True, neEditingLayout, nil, true)
+      LoadFromNNode(FNNode, True, neEditingLayout, nil, true, TagsToAddToNewEntry)
    end
    else
-      EditInInMultiEntries(ReqFromNEntriesUI, nil, true);
+      EditInInMultiEntries(ReqFromNEntriesUI, nil, true, TagsToAddToNewEntry);
 
    FSelectedNEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
+   DisableChangedInEmptyPanelAt:= now;
+   sleep(50);
 end;
 
 
@@ -1276,6 +1297,10 @@ begin
 
    NewNEntry:= Note.AddNewEntry;
    Folder.Modified:= True;
+
+   if ReqFromNEntriesUI.TagsToUseOnNewEntry <> nil then
+      NewNEntry.Tags:= ReqFromNEntriesUI.TagsToUseOnNewEntry
+   else
    if ReqFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
       NewNEntry.Tags:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
 
@@ -1297,6 +1322,7 @@ end;
 
 
 procedure TKntNoteUI.EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; NEntry: TNoteEntry; NewEntry: boolean;
+                                          TagsToAddToNewEntry: TNoteTagArray = nil;
                                           SS: integer=-1; SL: integer=-1);
 var
   NEntriesUI: TKntNoteEntriesUI;
@@ -1307,18 +1333,14 @@ var
 begin
    if (ReqFromNEntriesUI = nil) or (Note = nil) then exit;
 
-   if (ReqFromNEntriesUI.PanelConfig.CurrentModeInSession = meMultipleEntries) and (ReqFromNEntriesUI.PanelConfig.VinculatedTags = nil) then begin
-      if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
-         PnlEdit:= ReqFromNEntriesUI.PanelConfig.Panel;
-         if not NewEntry then begin
-            ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
-            exit;
-         end;
+   if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
+      PnlEdit:= ReqFromNEntriesUI.PanelConfig.Panel;
+      if not NewEntry then begin
+         ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
+         exit;
       end;
-      NEntriesUI:= GetNEntriesUI(PnlEdit);
-   end
-   else
-      NEntriesUI:= ReqFromNEntriesUI;
+   end;
+   NEntriesUI:= GetNEntriesUI(PnlEdit);
 
    NEntriesUI.SaveToDataModel();
 
@@ -1341,8 +1363,10 @@ begin
    end;
 
    Action:= aNull;
-   if NewEntry then
+   if NewEntry then begin
       Action:= aCreating;
+      NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
+   end;
 
    NEntriesUI.Editor.HideNestedFloatingEditor;
    NEntriesUI.PanelConfig.CurrentModeInSession:= meSingleEntry;
@@ -1474,7 +1498,8 @@ end;
 procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                                    LayoutToUse: TBasicNEntriesLayout;
                                    EditingNEntry: TNoteEntry = nil;
-                                   OfferEditorForNewEntry: boolean = False);
+                                   OfferEditorForNewEntry: boolean = False;
+                                   TagsToAddToNewEntry: TNoteTagArray = nil);
 var
    ShowPanels: boolean;
    Pnl, PnlVisibleBottom, PnlEdit, PnlToSetFocus, MainPanel: TNEntriesPanel;
@@ -1497,6 +1522,7 @@ begin
  if FloatingEditorCannotBeSaved then exit;
 
  LockControl(pnlAuxC, True);
+ FChangingLayout:= True;
  try
 
    // When switching from EditingLayout to QueryLayout -> Set the NEntry of the current panel to the one selected in the main panel
@@ -1574,11 +1600,14 @@ begin
                 PanelConfig.SelNEntry:= nil;
                 PanelConfig.CurrentModeInSession:= meSingleEntry;
                 Action:= aCreating;
+                NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
              end;
              NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
 
-             if (NEntriesUI.NEntry = nil) then
-                NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel
+             if (NEntriesUI.NEntry = nil) then begin
+                NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
+                DisableChangedInEmptyPanelAt:= now;
+             end
              else
                 NEntriesUI.Editor.OnEditorChanged := nil;
 
@@ -1641,6 +1670,7 @@ begin
  finally
     LockControl(pnlAuxC, False);
     FrameResize(nil);
+    FChangingLayout:= False;
  end;
 end;
 

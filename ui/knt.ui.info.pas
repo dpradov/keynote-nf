@@ -50,7 +50,8 @@ type
   TContentInMultipleMode = (
     cmOnlyHeader,
     cmWholeEntry,
-    cmOnlyFirstLines
+    cmOnlyFirstLines,
+    cmHidden
   );
 
   TOrderInEntriesInPanel = (
@@ -135,7 +136,8 @@ type
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                              NEntriesLayout: TBasicNEntriesLayout;
                              EditingNEntry: TNoteEntry = nil;
-                             OfferEditorForNewEntry: boolean = False);
+                             OfferEditorForNewEntry: boolean = False;
+                             TagsToAddToNewEntry: TNoteTagArray = nil);
 
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
