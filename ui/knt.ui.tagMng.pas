@@ -454,6 +454,7 @@ var
   Color: TColor;
   FindTags: TFindTags;
   FindTagsNotReg: string;
+  InitialTags: TNoteTagArray;
 
   FOnEndEditTagsIntrodBAK: TOnEndEditTagsIntrod;
   FOnEndFindTagsIntrodBAK: TOnEndFindTagsIntrod;
@@ -466,6 +467,8 @@ begin
       fChangingInCode:= True;
       cTagSelector.CloseTagSelector(true);
 
+      if FTagsMode = tmEdit then
+         InitialTags:= FNEntry.Tags;
       FindTags:= CommitIntroducedTags(true, FindTagsNotReg);
 
       Color:= clWindowText;
@@ -475,7 +478,7 @@ begin
       end;
       txtTags.Font.Color:= Color;
 
-      if FTagsMode = tmEdit then begin
+      if (FTagsMode = tmEdit) and (InitialTags <> FNEntry.Tags) then begin
          App.ModifiedMetadataOfEntry(FNEntry, FNote, TKntFolder(FFolder));
          UpdateTxtTagsHint;
       end;
