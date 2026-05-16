@@ -482,7 +482,7 @@ begin
        exit;
     end;
 
-    if ActiveEditor.ReadOnly and ((ActiveEditor.NEntriesUIObj = nil) or not ActiveEditor.MultiEntries) then begin
+    if ActiveEditor.ReadOnly and not (AllowMultiEntries and ActiveEditor.MultiEntries) then begin
        WarnEditorIsReadOnly;
        exit;
     end;

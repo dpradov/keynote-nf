@@ -1695,7 +1695,7 @@ begin
   if ( App.Kbd.RTFUpdating or ActiveFileIsBusy ) then exit;
 
 
-  AllowMultiEntries:= aCmd in [ecBGColorDlg];
+  AllowMultiEntries:= aCmd in [ecBGColorDlg, ecWordWrap];
   if not App.CheckActiveEditorNotReadOnly(AllowMultiEntries) then exit;
 
   Editor:= ActiveEditor;

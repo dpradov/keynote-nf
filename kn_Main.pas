@@ -3255,7 +3255,7 @@ var
   Enabled: boolean;
 begin
   if assigned(ActiveEditor) then begin
-    Enabled:= ActiveEditor.Enabled and not ActiveEditor.ReadOnly;
+    Enabled:= ActiveEditor.Enabled and (not ActiveEditor.ReadOnly or (not ActiveFolder.ReadOnly and ActiveEditor.MultiEntries));
     MMFormatWordWrap.Enabled:= Enabled;
     TB_WordWrap.Enabled:= Enabled;
     RTFMWordwrap.Enabled:= Enabled;
@@ -8558,6 +8558,7 @@ begin
     RTFMPlainText.Enabled:= EditEnabled;
     RTFMFold.Enabled:= RTFandEnabled;
     RTFMUnfold.Enabled:= RTFandEnabled;
+    RTFMExpand.Enabled:= RTFandEnabled;
     RTFM_RTL.Enabled:= EditEnabled;
 end;
 
