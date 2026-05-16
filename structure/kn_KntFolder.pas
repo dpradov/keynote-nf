@@ -3387,8 +3387,8 @@ begin
        ShowEditorInfoPanel:= False;
        Visible:= True;
        Scope:= fsSelectedNode;
-       Mode:= aMode;
-       CurrentModeInSession:= aMode;
+       MainMode:= aMode;
+       CurrentMode:= aMode;
        SelectedNNode:= NNode;
        NNodes:= nil;
        EditingLayout:= not FQueryLayout;
@@ -3487,7 +3487,7 @@ begin
    Result:= true;
    for i := 0 to High(PanelsConfig) do begin
        PanelConfig:= PanelsConfig[i];
-       if (PanelConfig.Mode = meSingleEntry) and (PanelConfig.VinculatedTags = nil) then begin
+       if (PanelConfig.MainMode = meSingleEntry) and (PanelConfig.VinculatedTags = nil) then begin
           Pnl:= PanelConfig.Panel;
           exit;
        end;
@@ -3504,7 +3504,7 @@ begin
    Result:= pnCenter;
    for i := 0 to High(PanelsConfig) do begin
        PanelConfig:= PanelsConfig[i];
-       if (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then
+       if (PanelConfig.MainMode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then
           exit (PanelConfig.Panel);
    end;
 end;

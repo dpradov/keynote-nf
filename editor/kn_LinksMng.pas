@@ -822,7 +822,7 @@ begin
       // Allow the mark (hidden) although Folder is ReadOnly
       EditorBase:= Editor;
       RTFAux:= nil;
-      if ((NEntriesUI <> nil) and (NEntriesUI.PanelConfig.CurrentModeInSession = meMultipleEntries)) then begin
+      if ((NEntriesUI <> nil) and (NEntriesUI.PanelConfig.CurrentMode = meMultipleEntries)) then begin
          SS:= Editor.SelStart;
          NEntriesUI.GetEntryBoundaries(NEntriesUI.NEntry, PosStartEntry, PosEndEntry);
          RTFAux:= CreateAuxRichEdit;

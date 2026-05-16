@@ -84,8 +84,8 @@ type
     Maximized: boolean;
     EditingLayout: boolean;
     Scope : TScopeInEntriesPanel;
-    Mode: TModeEntriesUI;
-    CurrentModeInSession: TModeEntriesUI;
+    MainMode: TModeEntriesUI;
+    CurrentMode: TModeEntriesUI;
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
     VinculatedTags: TNoteTagArray;

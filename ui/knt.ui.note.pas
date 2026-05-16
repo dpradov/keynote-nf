@@ -866,7 +866,7 @@ var
   begin
       Result:= false;
       if CheckOnlySingleEntry then
-         Result:= (NEntriesUI.PanelConfig.CurrentModeInSession = meSingleEntry) and (not CheckOnlyEntrySelected or (NEntriesUI.NEntry = NEntry))
+         Result:= (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) and (not CheckOnlyEntrySelected or (NEntriesUI.NEntry = NEntry))
       else
          if CheckOnlyEntrySelected then
             Result:= (NEntriesUI.NEntry = NEntry)
@@ -1011,7 +1011,7 @@ function TKntNoteUI.GetPanelConfigForFindSelection(NNodeUIConfig: TNNodeUIConfig
 
 begin
 
-   if (FSelectedNEntriesUI.NEntry = NEntry) and (FSelectedNEntriesUI.PanelConfig.CurrentModeInSession = meSingleEntry) then
+   if (FSelectedNEntriesUI.NEntry = NEntry) and (FSelectedNEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then
       Result:= FSelectedNEntriesUI.PanelConfig
 
    else
@@ -1179,8 +1179,8 @@ begin
   FHideFocusFlag:= false;
 
   if CtrlDown then begin
-     if (NEntriesUI.PanelConfig.CurrentModeInSession = meSingleEntry) then begin
-        if (FQueryLayout or (NEntriesUI.PanelConfig.Mode = meMultipleEntries)) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
+     if (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then begin
+        if (FQueryLayout or (NEntriesUI.PanelConfig.MainMode = meMultipleEntries)) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
            NEntriesUI.btnToggleMultiClick(nil);
            exit;
         end;
@@ -1369,7 +1369,7 @@ begin
    end;
 
    NEntriesUI.Editor.HideNestedFloatingEditor;
-   NEntriesUI.PanelConfig.CurrentModeInSession:= meSingleEntry;
+   NEntriesUI.PanelConfig.CurrentMode:= meSingleEntry;
    NEntriesUI.ReloadFromDataModel(True, nil, Action, true);
 
    FNNodeDeleted:= false;
@@ -1598,7 +1598,7 @@ begin
              Action:= aNull;
              if OfferEditorForNewEntry and (Pnl = PnlToSetFocus) then begin
                 PanelConfig.SelNEntry:= nil;
-                PanelConfig.CurrentModeInSession:= meSingleEntry;
+                PanelConfig.CurrentMode:= meSingleEntry;
                 Action:= aCreating;
                 NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
              end;

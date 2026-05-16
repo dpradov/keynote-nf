@@ -591,7 +591,7 @@ var
   s, lm: string;
 begin
   if (FNote <> nil) then begin
-      if (PanelConfig.CurrentModeInSession = meMultipleEntries) or (FNote.NumEntries = 1) then begin
+      if (PanelConfig.CurrentMode = meMultipleEntries) or (FNote.NumEntries = 1) then begin
          if FNote.LastModified <> 0 then begin
             if (FNote.LastModified).GetTime <> 0 then
                 S:= ' - ' + FormatSettings.ShortTimeFormat;
@@ -652,7 +652,7 @@ begin
       Result:= True
    else
       Result:= PanelConfig.ShowEditorInfoPanel and
-              ((PanelConfig.CurrentModeInSession = meMultipleEntries) or (FNNode.Note.NumEntries = 1));
+              ((PanelConfig.CurrentMode = meMultipleEntries) or (FNNode.Note.NumEntries = 1));
 end;
 
 
@@ -921,7 +921,7 @@ begin
       if (FNEntry = nil) then
          txtCreationDate.Visible:= False;
       if FNEntry <> nil then begin
-        if (PanelConfig.CurrentModeInSession = meMultipleEntries) then
+        if (PanelConfig.CurrentMode = meMultipleEntries) then
            Created:= FNote.DateCreated
         else
            Created:= FNEntry.Created;
@@ -1324,7 +1324,7 @@ begin
 
    EntryToAdd:= false;
    EntryToRemove:= false;
-   Mode:= PanelConfig.CurrentModeInSession;
+   Mode:= PanelConfig.CurrentMode;
 
    if CalculateEntriesToShow or (NEntryToConsider <> nil) then begin
       Tags:= PanelConfig.VinculatedTags;
@@ -1342,13 +1342,13 @@ begin
 
       PopulateEntriesToShow;
       if Length(FEntriesShown) <= 1 then
-         PanelConfig.CurrentModeInSession:= meSingleEntry;
+         PanelConfig.CurrentMode:= meSingleEntry;
 
       if not EditorOptions.SaveCaretPos then
          PanelConfig.SelNEntry:= nil;
    end;
 
-   Mode:= PanelConfig.CurrentModeInSession;
+   Mode:= PanelConfig.CurrentMode;
    FNEntry_Initial:= FNEntry;
    FiEntry_Initial:= FiEntry;
 
@@ -1443,7 +1443,7 @@ begin
 
 
    if EntryToAdd then begin
-      if ( (Length(FEntriesShown) = 2) and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) ) then begin
+      if ( (Length(FEntriesShown) = 2) and (PanelConfig.MainMode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) ) then begin
          EntryToAdd:= false;          // Process the two entries, not just the one to add
          NEntryToConsider:= nil;
       end;
@@ -1454,7 +1454,7 @@ begin
                if FiEntry < 0 then
                   FiEntry:= 0;
                FEntriesShown[FiEntry].Content:= cmWholeEntry;
-               PanelConfig.CurrentModeInSession:= meMultipleEntries;
+               PanelConfig.CurrentMode:= meMultipleEntries;
                Mode:= meMultipleEntries;
                EntryToAdd:= false;
                NEntryToConsider:= nil;
@@ -1507,7 +1507,7 @@ begin
                exit
 
             else begin
-               PanelConfig.CurrentModeInSession:= meSingleEntry;
+               PanelConfig.CurrentMode:= meSingleEntry;
                Mode:= meSingleEntry;
                NEntryToConsider:= nil;
             end;
@@ -1688,7 +1688,7 @@ begin
    PosStartEntry:= 0;
    PosEndEntry:= -1;
 
-   if PanelConfig.CurrentModeInSession = meSingleEntry then exit;
+   if PanelConfig.CurrentMode = meSingleEntry then exit;
 
    i:= GetIndexOfVisibleEntry(NEntry);
    if i >= 0 then begin
@@ -1708,14 +1708,14 @@ function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEn
     PosStartEntry:= 0;
     PosEndEntry:= -1;
 
-    if (PanelConfig.CurrentModeInSession = meSingleEntry) and (FNEntry = NEntry) then
+    if (PanelConfig.CurrentMode = meSingleEntry) and (FNEntry = NEntry) then
        exit (true)
 
     else begin
        i:= GetIndexOfVisibleEntry(NEntry);
        if i >= 0 then begin
           Result:= True;
-          if (PanelConfig.CurrentModeInSession = meMultipleEntries) then begin
+          if (PanelConfig.CurrentMode = meMultipleEntries) then begin
              if (FEntriesShown[i].Content = cmOnlyHeader) then begin
                 PanelConfig.SelNEntry:= NEntry;
                 ReloadVisibleContentOfEntries (false, cmWholeEntry, i);
@@ -1918,7 +1918,7 @@ var
 begin
   Encoding:= nil;
 
-  if assigned(NNode) and (FNEntry <> nil) and (PanelConfig.CurrentModeInSession <> meMultipleEntries) then begin
+  if assigned(NNode) and (FNEntry <> nil) and (PanelConfig.CurrentMode <> meMultipleEntries) then begin
      if (FEditor.FloatingEditor <> nil) then
         FEditor.DoSaveChangesInFloatingEditor;
 
@@ -2020,7 +2020,7 @@ begin
    PanelConfig.SelStart  := Editor.SelStart;
    PanelConfig.SelLength := Editor.SelLength;
 
-   if (PanelConfig.CurrentModeInSession = meMultipleEntries) and (FEntriesShown <> nil) and (FiEntry >= 0) then begin
+   if (PanelConfig.CurrentMode = meMultipleEntries) and (FEntriesShown <> nil) and (FiEntry >= 0) then begin
       dec(PanelConfig.SelStart, FEntriesShown[FiEntry].StartingContentPos);
       if PanelConfig.SelStart < 0 then begin
          PanelConfig.SelStart := 0;        // Can occur if the entry is collapsed and only shown its header
@@ -2045,9 +2045,9 @@ begin
    SS:= Editor.SelStart;
    if (FiEntry = -1) and (Length(FEntriesShown) > 0) then
        FiEntry := 1;
-   if (FiEntry > 0) or ((PanelConfig.CurrentModeInSession = meMultipleEntries) and (SS > FEntriesShown[FiEntry].StartingContentPos)) then begin
+   if (FiEntry > 0) or ((PanelConfig.CurrentMode = meMultipleEntries) and (SS > FEntriesShown[FiEntry].StartingContentPos)) then begin
       iNextEntry:= FiEntry;
-      if (PanelConfig.CurrentModeInSession = meSingleEntry) or (SS <= FEntriesShown[FiEntry].StartingContentPos) then
+      if (PanelConfig.CurrentMode = meSingleEntry) or (SS <= FEntriesShown[FiEntry].StartingContentPos) then
          dec(iNextEntry);
       SelectEntry(iNextEntry);
    end;
@@ -2067,7 +2067,7 @@ procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer; LastPos: boolean = fals
 var
   SS: integer;
 begin
-   if (PanelConfig.CurrentModeInSession = meMultipleEntries) then begin
+   if (PanelConfig.CurrentMode = meMultipleEntries) then begin
        if LastPos and (FEntriesShown[iEntry].Content <> cmOnlyHeader) then
           Editor.SelStart:= FEntriesShown[iEntry].FinalPos
        else begin
@@ -2097,12 +2097,12 @@ procedure TKntNoteEntriesUI.btnToggleMultiClick(Sender: TObject);
 begin
    SavePositionInPanel;
 
-   if (PanelConfig.CurrentModeInSession = meMultipleEntries) then begin
-      PanelConfig.CurrentModeInSession:= meSingleEntry;
+   if (PanelConfig.CurrentMode = meMultipleEntries) then begin
+      PanelConfig.CurrentMode:= meSingleEntry;
    end
    else begin
       SaveToDataModel();
-      PanelConfig.CurrentModeInSession:= meMultipleEntries;
+      PanelConfig.CurrentMode:= meMultipleEntries;
    end;
 
    Editor.NavigatePanelsEnabled:= True;
@@ -2145,10 +2145,10 @@ begin
         NEntry:= FNEntry;
 
 
-     FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, NEntry, Self, (PanelConfig.CurrentModeInSession = meMultipleEntries));
+     FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, NEntry, Self, (PanelConfig.CurrentMode = meMultipleEntries));
      FEditor.Chrome:= FKntFolder.EditorChrome;
 
-     if (iEntry >=0) or (PanelConfig.CurrentModeInSession = meSingleEntry) then begin
+     if (iEntry >=0) or (PanelConfig.CurrentMode = meSingleEntry) then begin
         plainTxt:= (NEntry <> nil) and NEntry.IsPlainTXT;
 
      end
@@ -2163,7 +2163,7 @@ begin
            end;
         end;
 
-        if (PanelConfig.CurrentModeInSession = meMultipleEntries) then
+        if (PanelConfig.CurrentMode = meMultipleEntries) then
            FEditor.StreamFormat:= sfRichText;
      end;
 
@@ -2377,7 +2377,7 @@ begin
 
     SS:= FEditor.SelStart;
 
-    if (PanelConfig.CurrentModeInSession = meMultipleEntries) then begin
+    if (PanelConfig.CurrentMode = meMultipleEntries) then begin
        if (FiEntry >= 0) and (FEntriesShown <> nil) then begin
           if (ImagesMode = imLink) then                                       // imImage --> imLink
              SS:= PositionInImLinkTextPlain (FEditor, FNEntry, SS, True, FEntriesShown[FiEntry].StartingContentPos, FEntriesShown[FiEntry].FinalPos);   // True: Force calculation
