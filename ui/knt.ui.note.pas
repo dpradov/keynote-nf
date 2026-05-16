@@ -171,6 +171,7 @@ type
 
   protected
     procedure FixPossibleProblemWith0HeigthPanels;
+    procedure CancelMaximizedPanel;
   public
     procedure Refresh;
     procedure ShowLeftPanel(value: boolean);
@@ -701,6 +702,16 @@ begin
  end;
 end;
 
+
+procedure TKntNoteUI.CancelMaximizedPanel;
+begin
+   splT.Visible:= False;
+   splB.Visible:= False;
+   splBC.Visible:= False;
+   splTC.Visible:= False;
+   FrameResize(nil);
+   RestoreSplits;
+end;
 
 procedure TKntNoteUI.ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
 var
@@ -1512,6 +1523,7 @@ var
    SetNoteSelEntryOnMainPanel: boolean;
    EnableNavigatePanels: boolean;
    Action: TActionOnEntry;
+   CancelMaximizedPanelNeeded: boolean;
 begin
  EnableNavigatePanels:= (LayoutToUse <> neLastLayout);
 
@@ -1524,6 +1536,8 @@ begin
  LockControl(pnlAuxC, True);
  FChangingLayout:= True;
  try
+   CancelMaximizedPanelNeeded:= (FNNodeUIConfig <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone);
+
 
    // When switching from EditingLayout to QueryLayout -> Set the NEntry of the current panel to the one selected in the main panel
    // This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
@@ -1551,6 +1565,10 @@ begin
       FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, QueryLayout);
 
    FQueryLayout:= QueryLayout;
+
+   if CancelMaximizedPanelNeeded then
+      CancelMaximizedPanel;
+
 
    for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       ShowPanel[Pnl]:= false;
