@@ -134,7 +134,7 @@ type
                                    ActionOnEntry: TActionOnEntry = aNull;
                                    InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
-    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
+    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true);
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure SaveToDataModel; overload;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
@@ -1248,9 +1248,14 @@ var
               Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].StartingContentPos, false);
            end;
 
-           if EntryToRemove then begin
+           if EntryToRemove or ((ActionOnEntry = aChangedVisibility) and (FEntriesShown[i].Content = cmHidden)) then begin
               Offset:= - L;
               Editor.SelText:= '';
+              if not EntryToRemove then begin
+                 FEntriesShown[i].StartingContentPos:= FEntriesShown[i].StartingPos;
+                 FEntriesShown[i].FinalPos:= FEntriesShown[i].StartingPos;
+                 dec(Offset);
+              end;
            end
            else begin
               if (ActionOnEntry <> aModifiedMetadata) then begin
@@ -1545,12 +1550,37 @@ begin
 
 
        if Mode = meMultipleEntries then begin    // --- meMultipleEntries
-          if NEntryToConsider <> nil then
-             ReconsiderEntry(iEntryToConsider)
-
+          if NEntryToConsider <> nil then begin
+             ReconsiderEntry(iEntryToConsider);
+             if (ActionOnEntry = aChangedVisibility) and (NumberOfIncludedEntries(true) = 0) then begin
+                Editor.Clear;
+                fImagesReferenceCount:= nil;
+                PanelConfig.CurrentMode:= meSingleEntry;
+                Mode:= meSingleEntry;
+                FiEntry:= -1;
+                FNEntry:= nil;
+             end;
+          end
           else begin
-              for iEntry:= 0 to Length(FEntriesShown)-1 do
-                 ShowEntry (iEntry);
+              var pos: integer:= 0;
+              FEntriesShown[0].StartingContentPos:= 0;
+              FEntriesShown[0].FinalPos:= 0;
+              FEntriesShown[0].StartingContentPos:= 0;
+
+              for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                 if (FEntriesShown[iEntry].Content <> cmHidden) then
+                    ShowEntry (iEntry)
+                 else begin
+                    if (iEntry > 0) then begin
+                       pos:= FEntriesShown[iEntry-1].FinalPos;
+                       if FEntriesShown[iEntry-1].Content <> cmHidden then
+                          inc(pos);
+                       FEntriesShown[iEntry].StartingPos:= pos;
+                       FEntriesShown[iEntry].StartingContentPos:= pos;
+                       FEntriesShown[iEntry].FinalPos:= pos;
+                    end;
+                 end;
+              end;
 
               inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
           end;
@@ -1719,7 +1749,7 @@ function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEn
        if i >= 0 then begin
           Result:= True;
           if (PanelConfig.CurrentMode = meMultipleEntries) then begin
-             if (FEntriesShown[i].Content = cmOnlyHeader) then begin
+             if (FEntriesShown[i].Content in [cmOnlyHeader, cmHidden]) then begin
                 PanelConfig.SelNEntry:= NEntry;
                 ReloadVisibleContentOfEntries (false, cmWholeEntry, i);
              end;
@@ -2046,22 +2076,46 @@ var
    SS: integer;
 begin
    SS:= Editor.SelStart;
-   if (FiEntry = -1) and (Length(FEntriesShown) > 0) then
-       FiEntry := 1;
+
    if (FiEntry > 0) or ((PanelConfig.CurrentMode = meMultipleEntries) and (SS > FEntriesShown[FiEntry].StartingContentPos)) then begin
       iNextEntry:= FiEntry;
-      if (PanelConfig.CurrentMode = meSingleEntry) or (SS <= FEntriesShown[FiEntry].StartingContentPos) then
-         dec(iNextEntry);
-      SelectEntry(iNextEntry);
+      repeat
+         if (PanelConfig.CurrentMode = meSingleEntry) or (SS <= FEntriesShown[iNextEntry].StartingContentPos) then
+            dec(iNextEntry);
+         if FEntriesShown[iNextEntry].Content <> cmHidden then begin
+            SelectEntry(iNextEntry);
+            break;
+         end
+         else
+            dec(iNextEntry);
+      until iNextEntry <= 0;
+
+      if iNextEntry <> FiEntry then
+         SelectEntry(iNextEntry);
    end;
+
    ReconsiderInfoPanelVisibility;
 end;
 
 
 procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
+var
+   iNextEntry: integer;
 begin
-   if FiEntry < Length(FEntriesShown) -1 then
-      SelectEntry(FiEntry+1);
+   if FiEntry < Length(FEntriesShown) -1 then begin
+      iNextEntry:= FiEntry;
+      repeat
+         inc(iNextEntry);
+         if FEntriesShown[iNextEntry].Content <> cmHidden then begin
+            SelectEntry(iNextEntry);
+            break;
+         end;
+      until iNextEntry >= Length(FEntriesShown) - 1;
+
+      if iNextEntry <> FiEntry then
+         SelectEntry(iNextEntry);
+   end;
+
    ReconsiderInfoPanelVisibility;
 end;
 
@@ -2221,28 +2275,42 @@ procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries;
 var
    SS, i: integer;
    NewCont: TContentInMultipleMode;
+   Alt, Ctrl: boolean;
 begin
+   {
+                 DblClick -> Toggle between cmOnlyHeader and cmWholeEntry, on selected entry
+          Ctrl + DblClick ->                   ,,                        , on all not hidden entries
+           Alt + DblClick -> Hide selected entry (-> cmHidden)
+    Ctrl + Alt + DblClick -> Toggle between cmOnlyHeader and cmWholeEntry, on all entries (included hidden)
+   }
+
    SS:= Editor.SelStart;
 
    if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
+      Alt:= AltDown;
+      Ctrl:= CtrlDown;
 
       if FEntriesShown[FiEntry].Content <> cmOnlyHeader then
          NewCont:= cmOnlyHeader
       else
          NewCont:= cmWholeEntry;
 
+      if Alt and not Ctrl then
+         NewCont:= cmHidden;
+
       Sleep(100);
       Application.ProcessMessages;
 
       PanelConfig.SelNEntry:= NEntry;
-      ReloadVisibleContentOfEntries (CtrlDown, NewCont, FiEntry);
+      ReloadVisibleContentOfEntries (Ctrl, NewCont, FiEntry, not Alt);
 
-      SelectEntry(FiEntry);
+      if FiEntry >= 0 then           // It could be the last visible, and Alt+DblClick was pressed on it
+         SelectEntry(FiEntry);
    end;
 end;
 
 
-procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1);
+procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true);
 var
    i: integer;
    NEntryToConsider: TNoteEntry;
@@ -2251,8 +2319,10 @@ begin
 
    FEntriesShown[iEntry].Content:= NewContent;
    if ModifyAll then
-      for i:=0 to High(FEntriesShown) do
-          FEntriesShown[i].Content:= NewContent;
+      for i:=0 to High(FEntriesShown) do begin
+         if IgnoreHiddenEntries and (FEntriesShown[i].Content = cmHidden) then continue;
+         FEntriesShown[i].Content:= NewContent;
+      end;
 
    SaveToDataModel();
    Editor.HideNestedFloatingEditor;
