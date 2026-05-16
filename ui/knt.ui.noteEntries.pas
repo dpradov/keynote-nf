@@ -55,7 +55,7 @@ type
     Content: TContentInMultipleMode;
   end;
 
-  TActionOnEntry = (aModified, aCreating, aCreated, aDeleted, aChangedVisibility, aModifiedMetadata, aNull);
+  TActionOnEntry = (aModified, aCreating, aCreated, aDeleted, aModifiedMetadata, aChangedVisibility, aRefreshHeader, aNull);
 
 type
   TKntNoteEntriesUI = class(TFrame)
@@ -135,6 +135,7 @@ type
                                    InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true);
+    procedure RefreshHeaderOfEntries;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure SaveToDataModel; overload;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
@@ -1239,7 +1240,7 @@ var
     Offset:= 0;
     for i:= 0 to High(FEntriesShown) do begin
        if (i = iEntry) then begin
-           if EntryToRemove or (ActionOnEntry <> aModifiedMetadata) then begin
+           if EntryToRemove or not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
               L:= FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos;
               Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].FinalPos+1, false);
            end
@@ -1258,7 +1259,7 @@ var
               end;
            end
            else begin
-              if (ActionOnEntry <> aModifiedMetadata) then begin
+              if (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
                  ShowEntry (i);
                  Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
               end
@@ -2333,6 +2334,12 @@ begin
    ReloadFromDataModel(false, NEntryToConsider, aChangedVisibility);
 
    App.EditorReloaded(Editor, Editor.Focused);
+end;
+
+
+procedure TKntNoteEntriesUI.RefreshHeaderOfEntries;
+begin
+   ReloadFromDataModel(false, nil, aRefreshHeader);
 end;
 
 

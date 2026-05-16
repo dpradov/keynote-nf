@@ -1664,6 +1664,7 @@ var
   Folder: TKntFolder;
   TreeUI: TKntTreeUI;
   NNode: TNoteNode;
+  AllowMultiEntries: boolean;
 
     Procedure CmdNumbering(tipo : TRxNumbering);
     var
@@ -1692,7 +1693,10 @@ begin
   // The command MODIFIES the folder if the ActiveEditor is vinculated to a folder,
   // hence cannot be executed when that folder is set to ReadOnly.
   if ( App.Kbd.RTFUpdating or ActiveFileIsBusy ) then exit;
-  if not App.CheckActiveEditorNotReadOnly then exit;
+
+
+  AllowMultiEntries:= aCmd in [ecBGColorDlg];
+  if not App.CheckActiveEditorNotReadOnly(AllowMultiEntries) then exit;
 
   Editor:= ActiveEditor;
   TreeUI:= ActiveTreeUI;
@@ -2073,13 +2077,16 @@ begin
               tempChrome.BGColor  := Form_Main.ColorDlg.Color;
               CommandRecall.Color := Form_Main.ColorDlg.Color;
 
-              Editor.Color := tempChrome.BGColor;
+              if not assigned(ActiveFolder) then
+                 Editor.Color := tempChrome.BGColor
 
-              if assigned(ActiveFolder) then begin
+              else begin
                  ActiveFolder.Modified:= true;
                  NNode:= TreeUI.GetFocusedNNode;
-                 if assigned(NNode) then
+                 if assigned(NNode) then begin
                     NNode.EditorBGColor := tempChrome.BGColor;
+                    ActiveFolder.NoteUI.SetBGColorInEditors(tempChrome.BGColor);
+                 end;
 
                  if ShiftWasDown then begin
                    if ( App.DoMessageBox( format(GetRS(sMacM55), [ActiveFolder.Name]),

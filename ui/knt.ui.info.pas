@@ -22,6 +22,7 @@ uses
    System.Classes,
    System.SysUtils,
    Vcl.Controls,
+   Vcl.Graphics,
    kn_Const,
    kn_Info,
    knt.model.note,
@@ -148,6 +149,8 @@ type
      procedure SelectNextEntry;
      procedure SelectPreviousEntry;
      procedure Refresh;
+
+     procedure SetBGColorInEditors(Color: TColor);
 
      procedure SetImagesMode(ImagesMode: TImagesMode);
      procedure ResetImagesReferenceCount;

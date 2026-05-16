@@ -164,6 +164,7 @@ type
     procedure ToggleMaximizeSelectedPanel;
     procedure KeepInfoPanelTemporarilyVisible;
     property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
+    procedure SetBGColorInEditors(Color: TColor);
 
    {$IFDEF KNT_DEBUG}
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
@@ -1137,6 +1138,24 @@ end;
 procedure TKntNoteUI.ToggleMaximizeSelectedPanel;
 begin
    ToggleMaximizePanel(FSelectedNEntriesUI.PanelConfig.Panel);
+end;
+
+
+procedure TKntNoteUI.SetBGColorInEditors(Color: TColor);
+var
+  p: TNEntriesPanel;
+begin
+   LockControl(pnlAuxC, True);
+   try
+      for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+         if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
+            FNEntriesUI[p].Editor.Color:= Color;
+            FNEntriesUI[p].RefreshHeaderOfEntries;
+         end;
+
+   finally
+      LockControl(pnlAuxC, False);
+   end;
 end;
 
 

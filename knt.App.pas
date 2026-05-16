@@ -193,7 +193,7 @@ type
       procedure ShowTipOfTheDay;
 
       function CheckActiveEditor: boolean;
-      function CheckActiveEditorNotReadOnly: boolean;
+      function CheckActiveEditorNotReadOnly(AllowMultiEntries: boolean = false): boolean;
 
       procedure TagsUpdated;
       property TagsState: TTagsState read fTagsState write fTagsState;
@@ -474,7 +474,7 @@ begin
     Result:= True;
 end;
 
-function TKntApp.CheckActiveEditorNotReadOnly: boolean;
+function TKntApp.CheckActiveEditorNotReadOnly(AllowMultiEntries: boolean = false): boolean;
 begin
     Result:= False;
     if not assigned(ActiveEditor) then begin
@@ -482,7 +482,7 @@ begin
        exit;
     end;
 
-    if ActiveEditor.ReadOnly then begin
+    if ActiveEditor.ReadOnly and ((ActiveEditor.NEntriesUIObj = nil) or not ActiveEditor.MultiEntries) then begin
        WarnEditorIsReadOnly;
        exit;
     end;
