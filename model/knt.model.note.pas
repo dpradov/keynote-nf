@@ -232,8 +232,8 @@ type
     nesHTML,           // If assigned => content is HTML
 
     nesEncrypted,      // Entry marked as encrypted
-
-    nesIsMain,         // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
+    nesMain,           // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
+    nesHidden,         // Entry won't be displayed by default (not allowed if Main)
 
  // TODO ------------ :
     nesReadOnly,       // Entry marked as read-only
@@ -251,8 +251,7 @@ type
     nesIsStarred,
     nesIsDoc,
   //--
-    nesIsToDO,
-    nesIsRequirements
+    nesIsToDO
   );
 
   TNoteEntryStates = set of TNoteEntryState;
@@ -344,12 +343,14 @@ type
     function GetIsHTML: boolean; inline;
     function GetIsEncrypted: boolean; inline;
     function GetIsMain: boolean; inline;
+    function GetIsHidden: boolean; inline;
     procedure SetModified_(value: boolean);
     procedure SetIsRTF(value: boolean);
     procedure SetIsPlainTXT(value: boolean);
     procedure SetIsHTML(value: boolean);
     procedure SetIsEncrypted(value: boolean);
     procedure SetIsMain(value: boolean);
+    procedure SetIsHidden(value: boolean);
     function GetTags: TNoteTagArray;
 
   public
@@ -372,6 +373,7 @@ type
     property IsHTML: boolean read GetIsHTML write SetIsHTML;
     property IsEncrypted: boolean read GetIsEncrypted write SetIsEncrypted;
     property IsMain: boolean read GetIsMain write SetIsMain;
+    property IsHidden: boolean read GetIsHidden write SetIsHidden;
 
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
@@ -1358,8 +1360,14 @@ end;
 
 function TNoteEntry.GetIsMain: boolean;
 begin
-  Result:= (nesIsMain in fStates);
+  Result:= (nesMain in fStates);
 end;
+
+function TNoteEntry.GetIsHidden: boolean;
+begin
+  Result:= (nesHidden in fStates);
+end;
+
 
 procedure TNoteEntry.SetIsRTF(value: boolean);
 begin
@@ -1400,9 +1408,19 @@ end;
 procedure TNoteEntry.SetIsMain(value: boolean);
 begin
   if value then
-     Include(fStates, nesIsMain)
+     Include(fStates, nesMain)
   else
-     Exclude(fStates, nesIsMain);
+     Exclude(fStates, nesMain);
+end;
+
+procedure TNoteEntry.SetIsHidden(value: boolean);
+begin
+  if IsMain then exit;
+
+  if value then
+     Include(fStates, nesHidden)
+  else
+     Exclude(fStates, nesHidden);
 end;
 
 

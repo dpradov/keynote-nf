@@ -145,7 +145,7 @@ type
     procedure EditorDblClickInMultiEntries;
     function GetIndexOfVisibleEntry(NEntry: TNoteEntry): integer;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
-    function IsDisplayingEntry(NEntry: TNoteEntry; var OnlyHeader: boolean): boolean;
+    function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultipleMode): boolean;
     function NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
     procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
     procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
@@ -1689,7 +1689,7 @@ begin
 end;
 
 
-function TKntNoteEntriesUI.IsDisplayingEntry(NEntry: TNoteEntry; var OnlyHeader: boolean): boolean;
+function TKntNoteEntriesUI.IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultipleMode): boolean;
 var
    i: integer;
 begin
@@ -1697,7 +1697,7 @@ begin
    i:= GetIndexOfVisibleEntry(NEntry);
    if i >= 0 then begin
       Result:= True;
-      OnlyHeader:= (FEntriesShown[i].Content = cmOnlyHeader);
+      Content:= FEntriesShown[i].Content;
    end;
 end;
 

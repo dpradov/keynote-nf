@@ -3606,16 +3606,27 @@ var
   var
      NEntry: TNoteEntry;
      OnlyHeader: boolean;
+     Content: TContentInMultipleMode;
   begin
      Result:= false;
      NEntry:= NNode.Note.Entries[i];
+
      if (FindOptions.FindTagsIncl_FindReplace = nil) or
          TNoteTagArrayUtils.HasTags(NEntry.Tags, FindOptions.FindTagsIncl_FindReplace) then begin
 
-        // If "Search all note Entries" is not checked but the editor is in multi-entry mode,
-        // only the expanded editor nodes will be traversed, so the result is equivalent to
-        // what would be obtained if we searched the editor as if it were a single entry.
-        if FindOptions.AllEntries_FindReplace or (NEntriesUI.IsDisplayingEntry(NEntry, OnlyHeader) and not OnlyHeader) then begin
+        { If "Search all note Entries" is not checked but the editor is in multi-entry mode,
+          only the expanded editor nodes will be traversed, so the result is equivalent to
+          what would be obtained if we searched the editor as if it were a single entry.
+
+          Note that there are two ways to hide an entry:
+          - In a specific panel (ALT+DblClick on the header), which will hide it in the panel.
+          - By directly marking the entry as hidden. This modifies the entry's state (TNoteEntryState).
+          If we search in a multi-entry editor and "Search all note entries" is not selected, both collapsed
+          and hidden entries will be ignored.
+        }
+
+        if (FindOptions.AllEntries_FindReplace and (FindOptions.HiddenEntries_FindReplace or not NEntry.IsHidden)) or
+           (NEntriesUI.IsDisplayingEntry(NEntry, Content) and (Content in [cmWholeEntry, cmOnlyFirstLines]))  then begin
            myNEntry:= NEntry;
            Result:= True;
         end;
@@ -3627,9 +3638,7 @@ var
   var
      i, N, iEntry: integer;
   begin
-     // ToDO: FindOptions.HiddenEntries_FindReplace
      // ToDO: FindOptions.FindTagsIncl_FindReplace
-     // ToDO: "Search Hidden Entries"
      // ToDO: Order (TOrderInEntriesInPanel)
 
     iEntry:= NNode.Note.GetEntryIndex(myNEntry);

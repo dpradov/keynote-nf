@@ -872,7 +872,7 @@ end;
 function TKntNoteUI.GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
 var
   CheckOnlySingleEntry, CheckOnlyEntrySelected: boolean;
-  OnlyHeader: boolean;
+  Content: TContentInMultipleMode;
   MainEntriesUI, MaximizedEntriesUI: TKntNoteEntriesUI;
   NEntry: TNoteEntry;
   Location: TLocation;
@@ -886,7 +886,7 @@ var
          if CheckOnlyEntrySelected then
             Result:= (NEntriesUI.NEntry = NEntry)
          else
-            Result:= (NEntriesUI.IsDisplayingEntry(NEntry, OnlyHeader));
+            Result:= (NEntriesUI.IsDisplayingEntry(NEntry, Content));
   end;
 
   function FindNEntriesUI: TKntNoteEntriesUI;
