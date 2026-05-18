@@ -247,7 +247,6 @@ type
     MMInsertTime: TMenuItem;
     MMFindGoTo: TMenuItem;
     N25: TMenuItem;
-    RTFMProperties: TMenuItem;
     MMCopyFormat_: TMenuItem;
     MMPasteFormat_: TMenuItem;
     MMFormatCopyFont: TMenuItem;

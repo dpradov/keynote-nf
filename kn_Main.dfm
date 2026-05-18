@@ -4175,11 +4175,6 @@ object Form_Main: TForm_Main
     object N21: TMenuItem
       Caption = '-'
     end
-    object RTFMProperties: TMenuItem
-      Caption = 'Folder P&roperties...'
-      Hint = 'Edit folder properties'
-      OnClick = MMNotePropertiesClick
-    end
     object RTFMPlainText: TMenuItem
       Caption = 'Plain Text'
       Hint = 'Convert to plain text or rich text format (RTF)'
