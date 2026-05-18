@@ -170,7 +170,7 @@ type
     property DoRegisterNewImages: boolean read GetDoRegisterNewImages;
     property Chrome: TChrome read FChrome write FChrome;
     property ZoomGoal: integer read FZoomGoal;
-    property ZoomCurrent: integer read FZoomCurrent;
+    property ZoomCurrent: integer read FZoomCurrent write FZoomCurrent;
 
     procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
     procedure SetVinculatedEntryObj(NEntryObj: TObject);

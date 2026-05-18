@@ -165,6 +165,9 @@ type
     procedure KeepInfoPanelTemporarilyVisible;
     property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
     procedure SetBGColorInEditors(Color: TColor);
+    procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
+    procedure RestoreZoomGoal;
+
 
    {$IFDEF KNT_DEBUG}
     function GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
@@ -841,7 +844,7 @@ begin
    pnl:= GetPanel(panel);
    if FNEntriesUI[Panel] =  nil then begin
       FNEntriesUI[Panel]:= TKntNoteEntriesUI.Create(pnl, Self );
-      SetUpEditor(FNEntriesUI[Panel].Editor, FNEntriesUI[pnCenter].Editor.ZoomGoal);
+      SetUpEditor(FNEntriesUI[Panel].Editor, Folder.ZoomGoal);
       FNEntriesUI[Panel].Parent:= pnl;
    end;
 
@@ -1156,6 +1159,25 @@ begin
    finally
       LockControl(pnlAuxC, False);
    end;
+end;
+
+procedure TKntNoteUI.SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].Editor.SetZoom(ZoomValue, ZoomString, Increment);
+end;
+
+
+procedure TKntNoteUI.RestoreZoomGoal;
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].Editor.RestoreZoomGoal;
 end;
 
 
@@ -1770,7 +1792,7 @@ begin
 
 
    SetLength(FNNodeUIConfig.PanelsConfig, iOnUse);
-   if FNewNNodeUIConfig and (NNode.Note.NumEntries > 1) then begin
+   if FNewNNodeUIConfig and ((NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal)) then begin
       Folder.AddNNodeUIConfig(FNNodeUIConfig);
       FNewNNodeUIConfig:= false;
    end;
@@ -1845,6 +1867,7 @@ procedure TKntNoteUI.SetImagesMode(ImagesMode: TImagesMode);
 var
   p: TNEntriesPanel;
 begin
+   SaveToDataModel;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
          FNEntriesUI[p].SetImagesMode(ImagesMode);

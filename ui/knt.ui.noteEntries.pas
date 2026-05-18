@@ -1259,7 +1259,7 @@ var
               end;
            end
            else begin
-              if (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
+              if not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
                  ShowEntry (i);
                  Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
               end
@@ -1641,7 +1641,8 @@ begin
      if (Mode = meMultipleEntries) then
         Editor.ReadOnly:= true;
 
-     Editor.RestoreZoomGoal;
+     Editor.ZoomCurrent:= PanelConfig.ZoomCurrent;
+     Editor.RestoreZoomCurrent;
 
      if (PanelConfig.ScrollPosInEditor.Y > 0) then
         Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
@@ -2053,6 +2054,8 @@ begin
    PanelConfig.SelNEntry := FNEntry;
    PanelConfig.SelStart  := Editor.SelStart;
    PanelConfig.SelLength := Editor.SelLength;
+   Editor.GetAndRememberCurrentZoom;
+   PanelConfig.ZoomCurrent:= Editor.ZoomCurrent;
 
    if (PanelConfig.CurrentMode = meMultipleEntries) and (FEntriesShown <> nil) and (FiEntry >= 0) then begin
       dec(PanelConfig.SelStart, FEntriesShown[FiEntry].StartingContentPos);
@@ -2409,12 +2412,18 @@ end;
 procedure TKntNoteEntriesUI.ReloadImagesOnEditor;
 var
    ImgeIDs: TImageIDs;
+   SS: integer;
 begin
+   SS:= Editor.SelStart;
+
    ImgeIDs:= ImageMng.GetImagesIDInstancesFromTextPlain (Editor.TextPlain);
    ImageMng.ReloadImages(ImgeIDs);
 
    SaveToDataModel;
    ReloadFromDataModel;
+
+   Editor.SelStart:= SS;
+
 end;
 
 
@@ -2460,7 +2469,9 @@ begin
     if (PanelConfig.CurrentMode = meMultipleEntries) then begin
        if (FiEntry >= 0) and (FEntriesShown <> nil) then begin
           if (ImagesMode = imLink) then                                       // imImage --> imLink
-             SS:= PositionInImLinkTextPlain (FEditor, FNEntry, SS, True, FEntriesShown[FiEntry].StartingContentPos, FEntriesShown[FiEntry].FinalPos);   // True: Force calculation
+             SS:= PositionInImLinkTextPlain (FEditor, FNEntry, SS, True, FEntriesShown[FiEntry].StartingContentPos, FEntriesShown[FiEntry].FinalPos)   // True: Force calculation
+          else
+             dec(SS, FEntriesShown[FiEntry].StartingContentPos);
 
           SavePositionInPanel;
           ReloadFromDataModel(false, nil, aNull, false);
@@ -2475,6 +2486,7 @@ begin
         RTFOut:= ImageMng.ProcessImagesInRTF(RTFIn, Self.Name, ImagesMode, '', 0, true);
         if RTFOut <> '' then begin
            Editor.BeginUpdate;
+           FEditor.GetAndRememberCurrentZoom;
            try
               RestoreRO:= Editor.ReadOnly;
               try
@@ -2489,8 +2501,9 @@ begin
                     Editor.Modified:= False;
                  end;
               end;
-              SearchCaretPos(Self.Editor, SS, 0, true, Point(-1,-1), true,true,true, FNEntry);
+              SearchCaretPos(Editor, SS, 0, true, Point(-1,-1), true,true,true, FNEntry);
            finally
+             FEditor.RestoreZoomCurrent;
              Editor.EndUpdate;
            end;
         end;

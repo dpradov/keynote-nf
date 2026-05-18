@@ -940,6 +940,8 @@ begin
   else
      ActiveFolder.FocusMemory:= focTree;
 
+  ShowCurrentZoom(ActiveFolder.ZoomGoal);
+
   if ActiveFolder.FocusMemory = focTree then
      Form_Main.EnableActionsForTree(Tree, ActiveFolder.ReadOnly);
 
@@ -1304,16 +1306,27 @@ begin
 
   if CtrlDown then begin
      if assigned(ActiveEditor) then
-        ActiveEditor.SetZoom (ZoomValue, ZoomString, Increment)
+        if ActiveEditor.NNodeObj <> nil then begin
+           ActiveFolder.NoteUI.SetEditorZoom (ZoomValue, ZoomString, Increment);
+           ActiveFolder.ZoomGoal:= ActiveFolder.NoteUI.Editor.ZoomGoal;
+           ActiveFolder.ResetZoomCurrent(ActiveFolder.ZoomGoal);
+        end
+        else
+           ActiveEditor.SetZoom (ZoomValue, ZoomString, Increment);
   end
   else begin
      if assigned(ActiveFile) then
-        for i := 0 to ActiveFile.Folders.Count -1 do
-           ActiveFile.Folders[i].Editor.SetZoom (ZoomValue, ZoomString, Increment);
+        for i := 0 to ActiveFile.Folders.Count -1 do begin
+           ActiveFile.Folders[i].NoteUI.SetEditorZoom (ZoomValue, ZoomString, Increment);
+           ActiveFile.Folders[i].ZoomGoal:= ActiveFile.Folders[i].NoteUI.Editor.ZoomGoal;
+           ActiveFile.Folders[i].ResetZoomCurrent(ActiveFile.Folders[i].ZoomGoal);
+        end;
+
 
      Form_Main.Res_RTF.SetZoom (ZoomValue, ZoomString, Increment);
   end;
 
+  ActiveEditor.Refresh;
 end;
 
 

@@ -103,6 +103,7 @@ type
     SelStart : integer;               // ,,
     SelLength : integer;              // ,,
     ScrollPosInEditor: TPoint;        // ,,
+    ZoomCurrent: integer;
   end;
 
 
@@ -151,6 +152,8 @@ type
      procedure Refresh;
 
      procedure SetBGColorInEditors(Color: TColor);
+     procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
+     procedure RestoreZoomGoal;
 
      procedure SetImagesMode(ImagesMode: TImagesMode);
      procedure ResetImagesReferenceCount;

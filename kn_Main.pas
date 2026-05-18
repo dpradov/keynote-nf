@@ -7573,23 +7573,19 @@ begin
    ForceMode:= false;
    Show:= not MMShowImages.Checked;
 
-   try
-      if CtrlDown then begin
-         if ImageMng.ImagesMode = imImage then begin
-            ActiveFolder.NoteUI.ReloadImagesOnEditor;
-            exit;
-         end
-         else begin
-            Show:= false;
-            ForceMode:= true;
-         end;
+   if CtrlDown then begin
+      if ImageMng.ImagesMode = imImage then begin
+         ActiveFolder.NoteUI.ReloadImagesOnEditor;
+         exit;
+      end
+      else begin
+         Show:= false;
+         ForceMode:= true;
       end;
-
-     ShowImages (Show, ForceMode);
-
-   finally
-     ActiveEditor.RestoreZoomCurrent;
    end;
+
+  ShowImages (Show, ForceMode);
+
 
 end;
 
@@ -7621,7 +7617,6 @@ begin
    Editor:= ActiveEditor;
 
    if CtrlDown or AltDown then begin
-      SS:= Editor.SelStart;
       TB_Images.Down:= not TB_Images.Down;
 
       if CtrlDown then begin
@@ -7633,14 +7628,10 @@ begin
       else
          ActiveFolder.ReconsiderImageDimensionGoalsOnEditor (Editor.SelLength > 0);
 
-      Editor.SelStart:= SS;
-      Application.ProcessMessages;
-      Editor.SelLength:= 0;
    end
    else
       ShowImages (TB_Images.Down, False);
 
-   Editor.RestoreZoomCurrent;
 end;
 
 

@@ -154,6 +154,7 @@ type
     FTabSize : byte;               // [*]
     FUseTabChar : boolean;         // [*]
     FRTL : boolean;                // [*]
+    FZoomGoal: integer;
 
     FIsInsertMode : boolean;
     FInfo : Byte;                 // internal use only
@@ -259,6 +260,7 @@ type
     property TagSelectorDisabled : boolean read FTagSelectorDisabled write FTagSelectorDisabled;
     property IsInsertMode : boolean read FIsInsertMode write FIsInsertMode;
     property FocusMemory : TFocusMemory read FFocusMemory write FFocusMemory;
+    property ZoomGoal: integer read FZoomGoal write FZoomGoal;
 
     property IconKind : TNodeIconKind read FIconKind write FIconKind;
     property TreeWidth : integer read FTreeWidth write FTreeWidth;
@@ -322,6 +324,7 @@ type
 
     function GetNNodeUIConfig(NNode : TNoteNode; QueryLayout: boolean): TNNodeUIConfiguration;
     function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
+    procedure ResetZoomCurrent(Zoom: integer);
 
     procedure NoteNameModified(NNode: TNoteNode);
 
@@ -800,7 +803,7 @@ begin
           end;
 
           if myFolder <> nil then
-             myFolder.Editor.RestoreZoomGoal;
+             myFolder.NoteUI.RestoreZoomGoal;
 
         end;
 
@@ -870,6 +873,7 @@ begin
   FTabSize := DEF_TAB_SIZE;
   FUseTabChar := false;
   FIsInsertMode := true;
+  FZoomGoal:= DefaultEditorProperties.DefaultZoom;
 
   FHistory := TKNTHistory.Create;
 
@@ -1371,7 +1375,6 @@ end;
 function TKntFolder.GetNNodeUIConfig(NNode : TNoteNode; QueryLayout: boolean): TNNodeUIConfiguration;
 var
   i: integer;
-  GID: Cardinal;
 begin
   for i:= 0 to NNodesUIConfig.Count-1 do begin
      Result:= NNodesUIConfig[i];
@@ -1383,6 +1386,17 @@ end;
 function TKntFolder.AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
 begin
   Result:= NNodesUIConfig.Add(NNodeUIConfig);
+end;
+
+
+procedure TKntFolder.ResetZoomCurrent(Zoom: integer);
+var
+  i, j: integer;
+begin
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do
+        NNodesUIConfig[i].PanelsConfig[j].ZoomCurrent:= Zoom;
+  end;
 end;
 
 
@@ -3418,6 +3432,7 @@ begin
           SelLength:= NNode.Note.SelLength;
           SelNEntry:= NNode.Note.SelEntry;
           ScrollPosInEditor:= NNode.Note.ScrollPosInEditor;
+          ZoomCurrent:= FFolder.ZoomGoal;
        end
        else begin
           SelStart:= 0;
