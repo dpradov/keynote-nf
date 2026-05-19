@@ -950,4 +950,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55148,  "Click to change text color"
 55149,  "Click to add or remove highlight"
 55150,  "[Entry] Created: %s"
+55151,  "OK to delete entry?\n\n%s ..."
+55152,  "Cannot perform operation: entry '%s' is read-only"
+55153,  "Entry contains encrypted content! CONTINUE?"
+55154,  "Error deleting entry:"
 }

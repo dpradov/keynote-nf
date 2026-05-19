@@ -137,6 +137,8 @@ type
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true);
     procedure RefreshHeaderOfEntries;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
+    procedure NEntryDeleted(NEntry: TNoteEntry);
+    procedure NEntryHidden(NEntry: TNoteEntry);
     procedure SaveToDataModel; overload;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
     procedure SavePositionInPanel;
@@ -1142,6 +1144,12 @@ var
      strRTF:= '';
 
      if (Mode = meSingleEntry) or (FEntriesShown[iEntry].Content <> cmOnlyHeader) then begin
+
+         if ActiveFile.EncryptedContentMustBeHidden and NEntry.IsEncrypted then begin
+            cEditor.AddText(GetRS(sEdt52));
+            exit;
+         end;
+
          if not NEntry.IsRTF then
             UpdateEditor (cEditor, FKntFolder, False);
 
@@ -1250,12 +1258,11 @@ var
            end;
 
            if EntryToRemove or ((ActionOnEntry = aChangedVisibility) and (FEntriesShown[i].Content = cmHidden)) then begin
-              Offset:= - L;
+              Offset:= - L - 1;
               Editor.SelText:= '';
               if not EntryToRemove then begin
                  FEntriesShown[i].StartingContentPos:= FEntriesShown[i].StartingPos;
                  FEntriesShown[i].FinalPos:= FEntriesShown[i].StartingPos;
-                 dec(Offset);
               end;
            end
            else begin
@@ -1512,9 +1519,15 @@ begin
          if EntryToRemove then begin
             ReconsiderEntry(iEntryToConsider);
             PopulateEntriesToShow;
-            if FNEntry <> nil then
-               exit
-
+            if FNEntry <> nil then begin
+               if iEntryToConsider = FiEntry_Initial then begin
+                  SS:= FEntriesShown[FiEntry].StartingContentPos;
+                  PanelConfig.SelStart:= SS;
+                  PanelConfig.SelLength:= 0;
+                  Editor.SelStart:= SS;
+               end;
+               exit;
+            end
             else begin
                PanelConfig.CurrentMode:= meSingleEntry;
                Mode:= meSingleEntry;
@@ -2363,6 +2376,25 @@ begin
    finally
       LockControl(Editor, False);
    end;
+end;
+
+
+procedure TKntNoteEntriesUI.NEntryDeleted(NEntry: TNoteEntry);
+begin
+   SavePositionInPanel;
+   ReloadFromDataModel(false, NEntry, aDeleted);
+end;
+
+procedure TKntNoteEntriesUI.NEntryHidden(NEntry: TNoteEntry);
+var
+   iEntry: integer;
+begin
+   iEntry:= GetIndexOfVisibleEntry(NEntry);
+   if iEntry < 0 then exit;
+
+   FEntriesShown[iEntry].Content:= cmHidden;
+   SavePositionInPanel;
+   ReloadFromDataModel(false, NEntry, aChangedVisibility);
 end;
 
 

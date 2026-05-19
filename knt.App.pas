@@ -156,6 +156,7 @@ type
       procedure ChangeInEditor (Editor: TKntRichEdit);
       procedure NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+      procedure DeleteActiveNEntry;
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
@@ -201,6 +202,7 @@ type
       procedure ShowInfoInStatusBar(const str: string);
       procedure WarnEditorIsReadOnly;
       procedure WarnNoTextSelected;
+      procedure WarnEntryIsReadOnly;
 
       function DoMessageBox(const Str: string; DlgType: TMsgDlgType;
                             const Buttons: TMsgDlgButtons;
@@ -561,14 +563,19 @@ end;
 procedure TKntApp.UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 var
   Edit_PlainText, Edit_SupportsImages, Edit_SupportsRegImages, Edit_NoteObj, Edit_Enabled: boolean;
+  Edit_HasMultipleEntries: boolean;
+  Edit_NumHiddenEntries: integer;
 
 begin
+  Edit_NumHiddenEntries:= 0;
   if (Editor = nil) or not Editor.Enabled then begin
       Edit_PlainText:= true;
       Edit_SupportsImages:= false;
       Edit_SupportsRegImages:= false;
       Edit_NoteObj:= false;
       Edit_Enabled:= false;
+      Edit_HasMultipleEntries:= false;
+
   end
   else begin
       Edit_PlainText:= Editor.PlainText;
@@ -576,10 +583,14 @@ begin
       Edit_SupportsRegImages:= Editor.SupportsRegisteredImages;
       Edit_NoteObj:= (Editor.NNodeObj <> nil);
       Edit_Enabled:= not Editor.ReadOnly;
+
+      Edit_HasMultipleEntries:= Edit_NoteObj and (TNoteNode(Editor.NNodeObj).Note.NumEntries > 1);
+      if Edit_NoteObj then
+         Edit_NumHiddenEntries:= (TNoteNode(Editor.NNodeObj).Note.NumHiddenEntries);
   end;
 
   Form_Main.EnableActionsForEditor(not Edit_PlainText, Edit_Enabled);
-  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages);
+  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages, Edit_HasMultipleEntries, Edit_NumHiddenEntries);
   Form_Main.RxChangedSelection(Editor, true);
   Form_Main.UpdateWordWrap;
   ClipCapMng.ShowState;
@@ -639,12 +650,6 @@ begin
 
     ActiveEditor:= Editor;
 
-    if Focused then begin
-       UpdateEnabledActionsAndRTFState(Editor);
-       ShowCurrentZoom(Editor.GetZoom);
-       Editor.UpdateCursorPos;
-    end;
-
     if assigned(Editor.NNodeObj) then begin
        OldFolder:= ActiveFolder;
        OldNNode:= ActiveNNode;
@@ -670,6 +675,13 @@ begin
        if OldNNode <> ActiveNNode then
           NNodeSelected(ActiveNNode);
     end;
+
+    if Focused then begin
+       UpdateEnabledActionsAndRTFState(Editor);
+       ShowCurrentZoom(Editor.GetZoom);
+       Editor.UpdateCursorPos;
+    end;
+
 
 {$IFDEF KNT_DEBUG}
 {
@@ -877,6 +889,7 @@ begin
    if (Editor = nil) or (ActiveEditor <> Editor) then exit;
 
    ActiveNEntry:= NEntry;
+   UpdateEnabledActionsAndRTFState(ActiveEditor);
 
 {$IFDEF KNT_DEBUG}
 {
@@ -902,6 +915,89 @@ begin
   Note.Modified:= true;         // Will also update last modified in note
   Folder.Modified := true;      // => KntFile.Modified := true;
 end;
+
+
+procedure TKntApp.DeleteActiveNEntry;
+var
+   NEntry: TNoteEntry;
+   E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+   wasMain: boolean;
+
+  function CheckEntryHasEncryptedContent: boolean;
+  var
+    HasEncrypContent: boolean;
+  begin
+    HasEncrypContent:= NEntry.IsEncrypted;
+    if not HasEncrypContent then begin
+       if ImageMng.FileContainsEncryptedImages then
+          HasEncrypContent:= ImageMng.ContainsEncryptedImages(NEntry);
+    end;
+    Result:= True;
+    if HasEncrypContent then
+       if (App.DoMessageBox (GetRS(sEntry03), mtWarning, [mbYes,mbNo]) <> mrYes) then
+          Result:= False
+       else
+          Result:= ActiveFile.CheckAuthorized(false);
+  end;
+
+  function GetExtractOfText: string;
+  var
+    RTFAux: TAuxRichEdit;
+  begin
+    RTFAux:= CreateAuxRichEdit;
+    try
+      RTFAux.BeginUpdate;
+      LoadStreamInRTFAux (NEntry.Stream, RTFAux);
+      Result:= RTFAux.GetTextRange(0, 30);
+    finally
+      RTFAux.Free;
+    end;
+  end;
+
+begin
+   NEntry:= ActiveNEntry;
+   if NEntry = nil then exit;
+   if ActiveTreeUI.CheckReadOnly then exit;
+   if NEntry.IsReadOnly then begin
+      WarnEntryIsReadOnly;
+      exit;
+   end;
+   if not CheckEntryHasEncryptedContent then exit;
+
+   if App.DoMessageBox(Format(GetRS(sEntry01), [GetExtractOfText]), mtWarning, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
+
+   try
+     Log_StoreTick('TKntApp.DeleteNEntry - BEGIN', 4, +1);
+     WasMain:= NEntry.IsMain;
+
+     for i:= 0 to fAvailableEditors.Count-1 do begin
+        E:= fAvailableEditors[i];
+        NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+        if NEntriesUI <> nil then
+           NEntriesUI.NEntryDeleted(NEntry);
+     end;
+
+     ActiveNNode.Note.DeleteEntry(ActiveNNode.Note.GetEntryIndex(NEntry));
+     ActiveFolder.Modified := true;      // => KntFile.Modified := true;
+
+     if WasMain then begin
+        ActiveFolder.NoteUI.RefreshTags;
+        for i := 0 to ActiveFile.Folders.Count -1 do
+            ActiveFile.Folders[i].NoteUI.RefreshTags;
+     end;
+
+     UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+     Log_StoreTick('TKntApp.DeleteNEntry - END', 4, -1);
+
+   except
+     on E : Exception do
+       App.ErrorPopup(E, GetRS(sEntry04));
+   end;
+end;
+
 
 
 procedure TKntApp.EditorPropertiesModified (Editor: TKntRichEdit);
@@ -1346,6 +1442,11 @@ end;
 procedure TKntApp.WarnEditorIsReadOnly;
 begin
    ShowInfoInStatusBar(GetRS(sApp01));
+end;
+
+procedure TKntApp.WarnEntryIsReadOnly;
+begin
+   ShowInfoInStatusBar(GetRS(sEntry02));
 end;
 
 procedure TKntApp.WarnNoTextSelected;

@@ -1034,6 +1034,11 @@ const
    sUInote01 = 54201;   // [Note] Created: %s  ==  Last modified: %s
    sUInote02 = 55150;   // [Entry] Created: %s
 
+   sEntry01 = 55151;   // OK to delete entry?\^\^%s ...
+   sEntry02 = 55152;   // Cannot perform operation: entry '%s' is read-only
+   sEntry03 = 55153;   // Entry contains encrypted content! CONTINUE?
+   sEntry04 = 55154;   // Error deleting entry:
+
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !
    sUpd03 = 55054;   // No Internet access

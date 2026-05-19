@@ -932,6 +932,15 @@ type
     actTVEncrypNode: TAction;
     RTFMEncryptImg: TMenuItem;
     MGRImages: TImageList;
+    RTFMEntry_: TMenuItem;
+    RTFMReadOnly: TMenuItem;
+    RTFMHidden: TMenuItem;
+    RTFMShowHidden: TMenuItem;
+    RTFMEncryp: TMenuItem;
+    RTFMMain: TMenuItem;
+    RTFMDeleteEntry: TMenuItem;
+    N93: TMenuItem;
+    N114: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1363,6 +1372,12 @@ type
     procedure MMViewEncryptedContClick(Sender: TObject);
     procedure actTVEncrypNodeExecute(Sender: TObject);
     procedure RTFMEncryptImgClick(Sender: TObject);
+    procedure RTFMReadOnlyClick(Sender: TObject);
+    procedure RTFMMainClick(Sender: TObject);
+    procedure RTFMHiddenClick(Sender: TObject);
+    procedure RTFMShowHiddenClick(Sender: TObject);
+    procedure RTFMEncrypClick(Sender: TObject);
+    procedure RTFMDeleteEntryClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1440,7 +1455,8 @@ type
     procedure UpdateFolderDisplay (OnlyActionsState: boolean = false);
     procedure UpdateWordWrap;
     procedure EnableActionsForEditor(SupportsRTF: boolean; EditEnabled: boolean); overload;
-    procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean); overload;
+    procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
+                                     HasMultipleEntries: boolean; NumHiddenEntries: integer); overload;
     procedure EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
     procedure ShowNodeChromeState(TreeUI: TKntTreeUI);
     procedure EnsureCalendarSupported;
@@ -4719,6 +4735,54 @@ begin
    {if not KeyOptions.IMEAutoKeyboard then
       ActivateKeyboardLayout(CurrentLayout, 0);}
 end;
+
+
+procedure TForm_Main.RTFMReadOnlyClick(Sender: TObject);
+begin
+   ActiveNEntry.IsReadOnly:= not ActiveNEntry.IsReadOnly;
+end;
+
+procedure TForm_Main.RTFMMainClick(Sender: TObject);
+begin
+   ActiveNEntry.IsMain:= not ActiveNEntry.IsMain;
+end;
+
+procedure TForm_Main.RTFMHiddenClick(Sender: TObject);
+var
+   NEntriesUI: TKntNoteEntriesUI;
+begin
+   ActiveNEntry.IsHidden:= not ActiveNEntry.IsHidden;
+   NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
+   NEntriesUI.NEntryHidden(ActiveNEntry);
+end;
+
+procedure TForm_Main.RTFMShowHiddenClick(Sender: TObject);
+begin
+//
+end;
+
+procedure TForm_Main.RTFMEncrypClick(Sender: TObject);
+var
+  WasClosed, MustReload: boolean;
+  NEntriesUI: TKntNoteEntriesUI;
+begin
+  WasClosed:= not ActiveFile.EncryptedContentOpened;
+  if not ActiveFile.CheckAuthorized(True) then exit;
+  MustReload:= WasClosed and ActiveNEntry.IsEncrypted;
+
+  ActiveNEntry.IsEncrypted:= not ActiveNEntry.IsEncrypted;
+
+  if MustReload then begin
+     NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
+     NEntriesUI.ReloadFromDataModel(false, ActiveNEntry, aChangedVisibility);
+  end;
+end;
+
+procedure TForm_Main.RTFMDeleteEntryClick(Sender: TObject);
+begin
+   App.DeleteActiveNEntry;
+end;
+
 
 
 procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
@@ -8552,7 +8616,8 @@ begin
     RTFM_RTL.Enabled:= EditEnabled;
 end;
 
-procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean);
+procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
+                                            HasMultipleEntries: boolean; NumHiddenEntries: integer);
 begin
     MMInsertMarkLocation.Enabled := VinculatedToNote;
     MMBkmSet_.Enabled:= VinculatedToNote;
@@ -8564,6 +8629,15 @@ begin
     RTFMTags.Enabled:= VinculatedToNote;
     if (not VinculatedToNote) then
        RTFMTags.Hint:= '';
+
+    RTFMEntry_.Visible:=   HasMultipleEntries;
+    RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
+    RTFMHidden.Enabled:=   (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
+    RTFMShowHidden.Enabled:= NumHiddenEntries > 0;
+    RTFMMain.Enabled:=     (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
+    RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
+    RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
+    RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);

@@ -482,6 +482,7 @@ type
     function FileContainsEncryptedImages: boolean;
     function ContainsEncryptedImages(const IDs: TImageIDs): boolean; overload;
     function ContainsEncryptedImages(Note: TNote): boolean; overload;
+    function ContainsEncryptedImages(NEntry: TNoteEntry): boolean; overload;
   end;
 
 
@@ -4221,26 +4222,35 @@ end;
 
 function TImageMng.ContainsEncryptedImages(Note: TNote): boolean;
 var
-  NEntry: TNoteEntry;
-  IDs: TImageIDs;
   i: integer;
 begin
   Result:= False;
 
   for i := 0 to High(Note.Entries) do begin
-     NEntry:= Note.Entries[i];
-     if not NEntry.IsRTF then continue;
-
-     if (NEntry.TextPlain <> '') then
-        IDs:= ImageMng.GetImagesIDInstancesFromTextPlain (NEntry.TextPlain)
-     else
-        IDs:= ImageMng.GetImagesIDInstancesFromRTF (NEntry.Stream);
-
-     if ContainsEncryptedImages(IDs) then
-        exit (true);
+     if ContainsEncryptedImages(Note.Entries[i]) then
+        exit(true);
   end;
 
 end;
+
+
+function TImageMng.ContainsEncryptedImages(NEntry: TNoteEntry): boolean;
+var
+  IDs: TImageIDs;
+begin
+  Result:= False;
+  if not NEntry.IsRTF then exit;
+
+  if (NEntry.TextPlain <> '') then
+     IDs:= ImageMng.GetImagesIDInstancesFromTextPlain (NEntry.TextPlain)
+  else
+     IDs:= ImageMng.GetImagesIDInstancesFromRTF (NEntry.Stream);
+
+  if ContainsEncryptedImages(IDs) then
+     exit (true);
+end;
+
+
 
 
 //-----------------------------------------

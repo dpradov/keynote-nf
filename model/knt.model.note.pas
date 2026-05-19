@@ -140,6 +140,7 @@ type
     function GetSelEntry : TNoteEntry;
     procedure SetSelEntry(value: TNoteEntry);
     function GetNumEntries: integer; inline;
+    function GetNumHiddenEntries: integer;
     function GetNextNumEntry: Word;
     function GetDateCreated: TDateTime;
 
@@ -187,6 +188,7 @@ type
     procedure SetMainEntry(value: TNoteEntry);
    public
     property NumEntries: integer read GetNumEntries;
+    property NumHiddenEntries: integer read GetNumHiddenEntries;
     property Entries: TNoteEntryArray read fEntries;
     function AddEntry(Entry: TNoteEntry; ID: Word): integer;
     function AddNewEntry: TNoteEntry;
@@ -195,7 +197,7 @@ type
     function GetEntryIndex(Entry: TNoteEntry): integer;
     property MainEntry: TNoteEntry read GetMainEntry write SetMainEntry;
     function IsValid(Entry: TNoteEntry): Boolean;
-
+    function HasEncryptedEntries: boolean;
 
     property Resources: TResourceList read fResources;
     function AddResource(Resource: TNote): integer;
@@ -234,9 +236,10 @@ type
     nesEncrypted,      // Entry marked as encrypted
     nesMain,           // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
     nesHidden,         // Entry won't be displayed by default (not allowed if Main)
+    nesReadOnly,       // Entry marked as read-only
 
  // TODO ------------ :
-    nesReadOnly,       // Entry marked as read-only
+
   //--
     nesArchived,       // Entry that we do not want to appear by default in searches or complicate the display of notes
     nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself
@@ -344,6 +347,7 @@ type
     function GetIsEncrypted: boolean; inline;
     function GetIsMain: boolean; inline;
     function GetIsHidden: boolean; inline;
+    function GetIsReadOnly: boolean; inline;
     procedure SetModified_(value: boolean);
     procedure SetIsRTF(value: boolean);
     procedure SetIsPlainTXT(value: boolean);
@@ -351,6 +355,7 @@ type
     procedure SetIsEncrypted(value: boolean);
     procedure SetIsMain(value: boolean);
     procedure SetIsHidden(value: boolean);
+    procedure SetIsReadOnly(value: boolean);
     function GetTags: TNoteTagArray;
 
   public
@@ -374,6 +379,7 @@ type
     property IsEncrypted: boolean read GetIsEncrypted write SetIsEncrypted;
     property IsMain: boolean read GetIsMain write SetIsMain;
     property IsHidden: boolean read GetIsHidden write SetIsHidden;
+    property IsReadOnly: boolean read GetIsReadOnly write SetIsReadOnly;
 
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
@@ -692,6 +698,29 @@ begin
    Result:= Length(fEntries);
 end;
 
+function TNote.GetNumHiddenEntries: integer;
+var
+  i: integer;
+begin
+   Result:= 0;
+   if (fEntries = nil) then exit;
+
+   for i:= 0 to High(fEntries) do
+      if fEntries[i].IsHidden then
+         inc(Result);
+end;
+
+function TNote.HasEncryptedEntries: boolean;
+var
+  i: integer;
+begin
+   Result:= false;
+   if (fEntries = nil) then exit;
+
+   for i:= 0 to High(fEntries) do
+      if fEntries[i].IsEncrypted then
+         exit(true);
+end;
 
 function TNote.GetDateCreated: TDateTime;
 begin
@@ -773,6 +802,7 @@ end;
 procedure TNote.DeleteEntry(IndexToRemove: integer);
 var
   NEntry: TNoteEntry;
+  WasMain: boolean;
 begin
    if (fEntries = nil) then exit;
 
@@ -780,8 +810,12 @@ begin
    NEntry:= fEntries[IndexToRemove];
    Delete(fEntries, IndexToRemove, 1);
 
-   if NEntry <> nil then
+   if NEntry <> nil then begin
+      WasMain:= NEntry.IsMain;
       NEntry.Free;
+      if WasMain then
+         fEntries[0].IsMain:= True;
+   end;
 
    SetModified;
 end;
@@ -1368,6 +1402,10 @@ begin
   Result:= (nesHidden in fStates);
 end;
 
+function TNoteEntry.GetIsReadOnly: boolean;
+begin
+  Result:= (nesReadOnly in fStates);
+end;
 
 procedure TNoteEntry.SetIsRTF(value: boolean);
 begin
@@ -1422,6 +1460,15 @@ begin
   else
      Exclude(fStates, nesHidden);
 end;
+
+procedure TNoteEntry.SetIsReadOnly(value: boolean);
+begin
+  if value then
+     Include(fStates, nesReadOnly)
+  else
+     Exclude(fStates, nesReadOnly);
+end;
+
 
 
 function TNoteEntry.StatesToString: String;

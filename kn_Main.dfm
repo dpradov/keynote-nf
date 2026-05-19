@@ -2795,7 +2795,9 @@ object Form_Main: TForm_Main
       object MMViewEncryptedCont: TMenuItem
         Caption = 'Encrypted content'
         Enabled = False
-        Hint = 'Show or hide nodes, entries and images with encrypted content (Shift: highlight encrypted nodes)'
+        Hint = 
+          'Show or hide nodes, entries and images with encrypted content (S' +
+          'hift: highlight encrypted nodes)'
         OnClick = MMViewEncryptedContClick
       end
       object N106: TMenuItem
@@ -4183,6 +4185,44 @@ object Form_Main: TForm_Main
     object RTFM_RTL: TMenuItem
       Caption = 'Reading from right to left (RTL)'
       OnClick = RTFM_RTLClick
+    end
+    object RTFMEntry_: TMenuItem
+      Caption = 'Entry'
+      object RTFMReadOnly: TMenuItem
+        Caption = 'Read only'
+        OnClick = RTFMReadOnlyClick
+      end
+      object RTFMMain: TMenuItem
+        Caption = 'Main'
+        Hint = 'Set as main entry (its tags establish those of the note)'
+        OnClick = RTFMMainClick
+      end
+      object N114: TMenuItem
+        Caption = '-'
+      end
+      object RTFMHidden: TMenuItem
+        Caption = 'Hidden'
+        Hint = 
+          'Make entry hidden (Ctrl: Apply to selected entry and to all crea' +
+          'ted with a previous date)'
+        OnClick = RTFMHiddenClick
+      end
+      object RTFMShowHidden: TMenuItem
+        Caption = 'Show hidden'
+        Hint = 'Show hidden entries (Ctrl: Also undo hidden state)'
+        OnClick = RTFMShowHiddenClick
+      end
+      object RTFMEncryp: TMenuItem
+        Caption = 'Encrypted'
+        OnClick = RTFMEncrypClick
+      end
+      object N93: TMenuItem
+        Caption = '-'
+      end
+      object RTFMDeleteEntry: TMenuItem
+        Caption = 'Delete'
+        OnClick = RTFMDeleteEntryClick
+      end
     end
     object N88: TMenuItem
       Caption = '-'

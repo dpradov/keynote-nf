@@ -4008,7 +4008,7 @@ begin
   for i := 0 to FFolders.Count-1 do begin
      myFolder := FFolders[i];
      NNode:= myFolder.FocusedNNode;
-     if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted) then
+     if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted or NNode.Note.HasEncryptedEntries) then
         myFolder.NoteUI.LoadFromNNode(NNode, True, neLastLayout);
 
      if myFolder.Filtered then begin
