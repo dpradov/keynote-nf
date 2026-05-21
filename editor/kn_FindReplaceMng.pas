@@ -2940,6 +2940,8 @@ begin
                            myNEntry:= myNNode.Note.Entries[k];
                            ConsiderNEntry:= true;
 
+                           if (HideEncrypted and myNEntry.IsEncrypted) then continue;
+
 
                            if SearchTagsInEntriesMetadata then begin
 
@@ -3610,6 +3612,8 @@ var
   begin
      Result:= false;
      NEntry:= NNode.Note.Entries[i];
+
+     if (ActiveFile.EncryptedContentMustBeHidden and NEntry.IsEncrypted) then exit;
 
      if (FindOptions.FindTagsIncl_FindReplace = nil) or
          TNoteTagArrayUtils.HasTags(NEntry.Tags, FindOptions.FindTagsIncl_FindReplace) then begin

@@ -693,7 +693,7 @@ type
     Method : TCryptMethod;
     KeyDerivIterations: Cardinal;
     Hash : THash;                      // Verification hash
-    HideEncryptedNodes: boolean;       // To be used with encryption of notes or entries
+    HideEncryptedNodesAndEntries: boolean;       // To be used with encryption of notes or entries
     DataSize : integer;
   end;
 

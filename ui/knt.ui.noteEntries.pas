@@ -965,7 +965,7 @@ var
  OnEnterBak: TNotifyEvent;
 
  cEditor: TRxRichEdit;
- iEntry, iEntryToConsider, iEntryAdded, iSelectedEntry: integer;
+ i, iEntry, iEntryToConsider, iEntryAdded, iSelectedEntry: integer;
  ImagesAux: TImageIDs;
  CannotShow_Encrypted: boolean;
  SS, SL, Offset: integer;
@@ -1004,6 +1004,24 @@ var
    NEntry: TNoteEntry;
    Created: TDateTime;
 
+   function GetContentToAssign(NEntry: TNoteEntry; DefaultContentInME: TContentInMultipleMode): TContentInMultipleMode;
+   begin
+      if (NEntry.IsHidden) then
+         Result:= cmHidden
+      else
+      if (NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then begin
+         if ActiveFile.HideEncryptedNodesAndEntries then
+            Result:= cmHidden
+         else
+            Result:= cmOnlyHeader;
+      end
+      else
+      if Mode = meMultipleEntries then
+         Result:= DefaultContentInME
+      else
+         Result:= cmWholeEntry;
+   end;
+
    procedure CheckCandidateEntry;
    begin
       NEntry:= Note.Entries[iEntry];
@@ -1011,7 +1029,7 @@ var
          FEntriesShown[N].NEntry:= NEntry;
          FEntriesShown[N].NNode:= FNNode;
          FEntriesShown[N].Note:= FNote;
-         FEntriesShown[N].Content:= PanelConfig.MMContent;
+         FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MMContent);
          inc(N);
       end;
    end;
@@ -1097,10 +1115,7 @@ var
             FEntriesShown[iEntryAdded].NEntry:= NEntryToConsider;
             FEntriesShown[iEntryAdded].NNode:= FNNode;
             FEntriesShown[iEntryAdded].Note:= FNote;
-            if Mode = meMultipleEntries then
-               FEntriesShown[iEntryAdded].Content:= cmOnlyHeader
-            else
-               FEntriesShown[iEntryAdded].Content:= cmWholeEntry;
+            FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
          end;
 
 //       case PanelConfig.Order of
@@ -1122,7 +1137,7 @@ var
     for j:= 0 to Length(PanelConfig.EntriesOnlyHeader)-1 do
       for iEntry:= 0 to Length(FEntriesShown)-1 do
          if FEntriesShown[iEntry].NEntry = PanelConfig.EntriesOnlyHeader[j] then begin
-            FEntriesShown[iEntry].Content:= cmOnlyHeader;
+            FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, cmOnlyHeader);
             break;
          end;
 
@@ -1548,7 +1563,8 @@ begin
      FiEntry:= -1;
      if FEntriesShown <> nil then begin
        FiEntry:= iSelectedEntry;
-       if (FiEntry < 0) and (ActionOnEntry <> aCreating) and
+       if ((FiEntry < 0) or (FiEntry > Length(FEntriesShown)-1))
+                    and (ActionOnEntry <> aCreating) and
                    ( ((Mode = meMultipleEntries) or (PanelConfig.SelNEntry <> nil)) or
                      ((Mode = meSingleEntry) and CalculateEntriesToShow ) ) then begin
            FiEntry:= 0;
@@ -1561,6 +1577,28 @@ begin
                  FiEntry:= Length(FEntriesShown)-1;
            end;
        end;
+
+       // We might have an encrypted entry selected, which then becomes hidden. We must select a non-hidden entry.
+       // We'll start by selecting the entry immediately below it, and if there isn't one, the one immediately above it.
+       if (FEntriesShown[FiEntry].Content = cmHidden) then begin
+           PanelConfig.SelStart:= 0;
+           PanelConfig.SelLength:= 0;
+           iEntry:= FiEntry;
+           FiEntry:= -1;
+           for i:= iEntry + 1 to Length(FEntriesShown)-1 do
+              if (FEntriesShown[i].Content <> cmHidden) then begin
+                  FiEntry:= i;
+                  break;
+              end;
+           if FiEntry = -1 then begin
+              for i:= iEntry -1 downto 0 do
+                  if (FEntriesShown[i].Content <> cmHidden) then begin
+                      FiEntry:= i;
+                      break;
+                  end;
+           end;
+       end;
+
 
 
        if Mode = meMultipleEntries then begin    // --- meMultipleEntries
@@ -1613,7 +1651,7 @@ begin
        end;
 
 
-       if (Mode = meSingleEntry) and (NEntry <> nil) and (NEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+       if (Mode = meSingleEntry) and (FNEntry <> nil) and (FNEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
           UpdateEditor (Editor, FKntFolder, false);
 
 
@@ -1650,6 +1688,8 @@ begin
 
      ReloadMetadataFromDataModel;
 
+     if (FNEntry <> nil) and FNEntry.IsEncrypted and (Mode = meSingleEntry) and ActiveFile.EncryptedContentMustBeHidden then
+        ReadOnlyBAK:= True;
      ForceTempReadOnly(ReadOnlyBAK);
      if (Mode = meMultipleEntries) then
         Editor.ReadOnly:= true;
@@ -2318,7 +2358,7 @@ begin
       Sleep(100);
       Application.ProcessMessages;
 
-      PanelConfig.SelNEntry:= NEntry;
+      PanelConfig.SelNEntry:= FNEntry;
       ReloadVisibleContentOfEntries (Ctrl, NewCont, FiEntry, not Alt);
 
       if FiEntry >= 0 then           // It could be the last visible, and Alt+DblClick was pressed on it
@@ -2338,6 +2378,8 @@ begin
    if ModifyAll then
       for i:=0 to High(FEntriesShown) do begin
          if IgnoreHiddenEntries and (FEntriesShown[i].Content = cmHidden) then continue;
+         if FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
+
          FEntriesShown[i].Content:= NewContent;
       end;
 

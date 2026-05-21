@@ -370,6 +370,7 @@ type
     procedure SetModified;
     property Modified: boolean read GetModified write SetModified_;
     property Tags: TNoteTagArray read GetTags write fTags;
+    property TagsToSave: TNoteTagArray read fTags;
     property Created: TDateTime read fDateCreated write fDateCreated;
 
 
@@ -1572,7 +1573,7 @@ end;
 
 function TNoteEntry.TagsToString: string;
 begin
-  Result:= TNoteTagArrayUtils.ToString(Tags);
+  Result:= TNoteTagArrayUtils.ToString(fTags);
 end;
 
 procedure TNoteEntry.StringToTags(Str: string);

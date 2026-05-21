@@ -2709,7 +2709,7 @@ begin
                      KntFile.EncryptedContentOpened:= True;
                      KntFile.UpdateLoadedVerificationHash;
                   end;
-                  KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
+                  KntFile.HideEncryptedNodesAndEntries:= cbHideEncrNodes.Checked;
                end;
             end
             else begin

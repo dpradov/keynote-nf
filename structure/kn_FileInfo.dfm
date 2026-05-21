@@ -729,10 +729,10 @@ object Form_KntFileInfo: TForm_KntFileInfo
         object cbHideEncrNodes: TCheckBox
           Left = 34
           Top = 244
-          Width = 431
+          Width = 455
           Height = 17
           Caption = 
-            'Hide encrypted &nodes in the tree if the encrypted content remai' +
+            'Hide encrypted entries and &nodes if the encrypted content remai' +
             'ns '#8220'closed'#8221
           TabOrder = 7
         end

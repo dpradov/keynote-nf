@@ -332,7 +332,7 @@ begin
     CB_ShowTabIcons.OnClick := CheckBox_ShowTabIconsClick;
     cbEnableEncrCont.Enabled:= (myKntFile.FileFormat <> nffEncrypted);
     cbEnableEncrCont.Checked:= myKntFile.EncryptedContentEnabled;
-    cbHideEncrNodes.Checked:= myKntFile.HideEncryptedNodes;
+    cbHideEncrNodes.Checked:= myKntFile.HideEncryptedNodesAndEntries;
     cbHideEncrNodes.Visible:= False;
   end
   else begin

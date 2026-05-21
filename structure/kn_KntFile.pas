@@ -91,7 +91,7 @@ type
     FLoadedEncryptedContent: TMemoryStream;        // ,,
     FEncryptedContentEnabled: Boolean;             // ,,
     FEncryptedContentOpened: Boolean;              // ,,
-    FHideEncryptedNodes : Boolean;                 // ,,
+    FHideEncryptedNodesAndEntries : Boolean;                 // ,,
     FPassphraseFunc : TGetAccessPassphraseFunc;
     FCachedEncryptionKey: THash;
     FCachedVerificationHash: THash;
@@ -126,7 +126,7 @@ type
     procedure SetModified( AModified : boolean );
     procedure SetEncryptedContentEnabled(Value: boolean);
     procedure SetEncryptedContentOpened(Value: boolean);
-    procedure SetHideEncryptedNodes(Value: boolean);
+    procedure SetHideEncryptedNodesAndEntries(Value: boolean);
     function  GetEncryptedContentMustBeHidden: boolean;
     function  GetEncryptedNodesMustBeHidden: boolean;
     function  GetEncryptedContentMustBeGenerated: boolean;
@@ -176,7 +176,7 @@ type
     property PassphraseFunc : TGetAccessPassphraseFunc read FPassphraseFunc write FPassphraseFunc;
     property KeyDerivIterations: Cardinal read FKeyDerivIterations write FKeyDerivIterations;
     property EncryptedContentEnabled: boolean read FEncryptedContentEnabled write SetEncryptedContentEnabled;
-    property HideEncryptedNodes : Boolean read FHideEncryptedNodes write SetHideEncryptedNodes;
+    property HideEncryptedNodesAndEntries : Boolean read FHideEncryptedNodesAndEntries write SetHideEncryptedNodesAndEntries;
     property EncryptedContentOpened: boolean read FEncryptedContentOpened write SetEncryptedContentOpened;
     property EncryptedContentMustBeHidden: boolean read GetEncryptedContentMustBeHidden;
     property EncryptedNodesMustBeHidden: boolean read GetEncryptedNodesMustBeHidden;
@@ -365,7 +365,7 @@ begin
   FKeyDerivIterations := KEY_ITERATIONS_VERIF_DEFAULT;
   FEncryptedContentEnabled:= False;
   FEncryptedContentOpened:= True;
-  FHideEncryptedNodes:= False;
+  FHideEncryptedNodesAndEntries:= False;
   FHidingEncryptedNodes:= False;
   FHighlightProtectedNodes:= False;
   InvalidateKeyCache;
@@ -2948,7 +2948,7 @@ begin
 
 
     //FEncryptedContentEnabled:= True;                          // We will 'activate' at the end of KntFileOpen -> KntFile.InitialConfigurationEncryptedContent;
-    FHideEncryptedNodes:= EncrypInfo.HideEncryptedNodes;
+    FHideEncryptedNodesAndEntries:= EncrypInfo.HideEncryptedNodesAndEntries;
     FKeyDerivIterations:=  EncrypInfo.KeyDerivIterations;
     FLoadedVerificationHash:= EncrypInfo.Hash;
 
@@ -3282,7 +3282,7 @@ var
 
   begin
      t:= tf;
-     if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
+     if GetEncryptedContentMustBeGenerated and (Note.IsEncrypted or NEntry.IsEncrypted) then begin
         t:= tfC;
         tfC.WriteLine(_NF_NEntry);                              // TNoteEntry begins
         if NEntry.ID <> 0 then
@@ -3298,7 +3298,7 @@ var
      if (NEntry.States <> []) and (NEntry.States <> [nesModified]) then
        tf.WriteLine(_NEntryState + '=' + NEntry.StatesToString);
 
-     if NEntry.Tags <> nil then
+     if NEntry.TagsToSave <> nil then
         t.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);            // Saved in tf or tfC
 
      if not Note.IsVirtual then begin
@@ -3315,6 +3315,13 @@ var
            SaveFragments
         else
            SaveTextToFile(t, NEntry.Stream, NEntry.IsPlainTXT);             // Saved in tf or tfC
+
+        if t <> tf then begin
+           if NEntry.IsPlainTXT then
+              tf.WriteLine(_NF_TxtContent)
+           else
+              tf.WriteLine(_NF_RTFContent);
+        end;
      end;
   end;
 
@@ -3326,19 +3333,19 @@ var
     t:= nil;
     if not Note.IsEncrypted then
        t:= tf;
-    if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
+    if GetEncryptedContentMustBeGenerated and (Note.IsEncrypted or Note.HasEncryptedEntries) then begin
        t:= tfC;
        tfC.WriteLine(_NF_Note);              // TNote begins
        tfC.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
 
-       if FHideEncryptedNodes then
+       if FHideEncryptedNodesAndEntries then
           tfC.WriteLine(_NoteName + '=' + Note.Name, True);
     end;
 
     tf.WriteLine(_NF_Note);              // TNote begins
     tf.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
 
-    if not Note.IsEncrypted or not FHideEncryptedNodes then
+    if not Note.IsEncrypted or not FHideEncryptedNodesAndEntries then
        tf.WriteLine(_NoteName + '=' + Note.Name, True);
 
     if Note.Alias <> '' then
@@ -3931,7 +3938,7 @@ begin
       if not IsMergeFile then begin
          ReloadFocusedNodesWithEncryptedContent;
 
-         if FHideEncryptedNodes then
+         if FHideEncryptedNodesAndEntries then
             ShowOrHideEncryptedNodes;
 
          if Form_Main.chkFilterOnTags.Checked then   // -> ShowUseOfTags = True
@@ -3940,10 +3947,10 @@ begin
    end;
 end;
 
-procedure TKntFile.SetHideEncryptedNodes(Value: boolean);
+procedure TKntFile.SetHideEncryptedNodesAndEntries(Value: boolean);
 begin
-   if FHideEncryptedNodes <> Value then begin
-      FHideEncryptedNodes:= Value;
+   if FHideEncryptedNodesAndEntries <> Value then begin
+      FHideEncryptedNodesAndEntries:= Value;
 
       ShowOrHideEncryptedNodes;
    end;
@@ -3966,7 +3973,7 @@ end;
 
 function TKntFile.GetEncryptedNodesMustBeHidden: boolean;
 begin
-   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened and FHideEncryptedNodes;
+   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened and FHideEncryptedNodesAndEntries;
 end;
 
 function  TKntFile.GetEncryptedContentMustBeGenerated: boolean;
@@ -3982,7 +3989,7 @@ var
   myFolder : TKntFolder;
   Hide: boolean;
 begin
-  Hide:= not FEncryptedContentOpened and FHideEncryptedNodes;
+  Hide:= not FEncryptedContentOpened and FHideEncryptedNodesAndEntries;
   if FHidingEncryptedNodes = Hide then exit;
 
   for i := 0 to FFolders.Count-1 do begin
@@ -4235,7 +4242,7 @@ begin
       Method := FCryptMethod;
       KeyDerivIterations:= FKeyDerivIterations;
       Hash := FLoadedVerificationHash;
-      HideEncryptedNodes:= FHideEncryptedNodes;
+      HideEncryptedNodesAndEntries:= FHideEncryptedNodesAndEntries;
     end;
 end;
 

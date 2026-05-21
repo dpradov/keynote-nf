@@ -4602,7 +4602,7 @@ begin
 
      if not CheckedChanged then begin
 
-         if TV.IsEffectivelyFiltered[Node] or (HideEncrypted and GetNNode(Node).Note.IsEncrypted) then begin              // TV.IsEffectivelyFiltered[Node]= True => Node <> nil
+         if TV.IsEffectivelyFiltered[Node] or (HideEncrypted and (Node <> nil) and GetNNode(Node).Note.IsEncrypted) then begin              // TV.IsEffectivelyFiltered[Node]= True => Node <> nil
             Node := TV.GetNextNotHidden(Node);                     // By default, IncludeFiltered=False
             if Node = nil then
                Node := TV.GetPreviousNotHidden(TV.FocusedNode);    // ,,

@@ -4753,7 +4753,15 @@ var
 begin
    ActiveNEntry.IsHidden:= not ActiveNEntry.IsHidden;
    NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
-   NEntriesUI.NEntryHidden(ActiveNEntry);
+
+   if ActiveNEntry.IsHidden then begin
+     NEntriesUI.NEntryHidden(ActiveNEntry);
+     NEntriesUI.btnNextEntryClick(nil);
+   end;
+   App.NEntrySelected(ActiveEditor, ActiveNEntry);    // --> UpdateEnabledActionsAndRTFState
+
+   ActiveNNode.Note.SetModified;
+   ActiveFolder.Modified:= True;
 end;
 
 procedure TForm_Main.RTFMShowHiddenClick(Sender: TObject);
@@ -4762,20 +4770,13 @@ begin
 end;
 
 procedure TForm_Main.RTFMEncrypClick(Sender: TObject);
-var
-  WasClosed, MustReload: boolean;
-  NEntriesUI: TKntNoteEntriesUI;
 begin
-  WasClosed:= not ActiveFile.EncryptedContentOpened;
   if not ActiveFile.CheckAuthorized(True) then exit;
-  MustReload:= WasClosed and ActiveNEntry.IsEncrypted;
 
   ActiveNEntry.IsEncrypted:= not ActiveNEntry.IsEncrypted;
-
-  if MustReload then begin
-     NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
-     NEntriesUI.ReloadFromDataModel(false, ActiveNEntry, aChangedVisibility);
-  end;
+  ActiveNNode.Note.SetModified;
+  ActiveFolder.Modified:= True;
+  App.NEntrySelected(ActiveEditor, ActiveNEntry);    // --> UpdateEnabledActionsAndRTFState
 end;
 
 procedure TForm_Main.RTFMDeleteEntryClick(Sender: TObject);
