@@ -158,6 +158,7 @@ type
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
       procedure DeleteActiveNEntry;
       procedure ActiveNEntryHiddenChanged;
+      procedure ActiveNEntryReadOnlyChanged;
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
@@ -1023,6 +1024,35 @@ begin
        App.ErrorPopup(E, GetRS(sEntry06));
    end;
 end;
+
+
+procedure TKntApp.ActiveNEntryReadOnlyChanged;
+var
+   E: TKntRichEdit;
+   NEntry: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   NEntry:= ActiveNEntry;
+
+   Log_StoreTick('TKntApp.ActiveNEntryReadOnlyChanged - BEGIN', 4, +1);
+
+   NEntry.IsReadOnly:= not NEntry.IsReadOnly;
+   ActiveNNode.Note.SetModified;
+   ActiveFolder.Modified:= True;
+   UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+   for i:= 0 to fAvailableEditors.Count-1 do begin
+      E:= fAvailableEditors[i];
+      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if NEntriesUI <> nil then
+         NEntriesUI.NEntryReadOnlyChanged(NEntry);
+   end;
+
+   Log_StoreTick('TKntApp.ActiveNEntryReadOnlyChanged - END', 4, -1);
+
+end;
+
 
 
 procedure TKntApp.EditorPropertiesModified (Editor: TKntRichEdit);

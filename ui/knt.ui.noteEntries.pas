@@ -139,6 +139,7 @@ type
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure NEntryDeleted(NEntry: TNoteEntry);
     procedure NEntryHidden(NEntry: TNoteEntry; Hidden: boolean);
+    procedure NEntryReadOnlyChanged(NEntry: TNoteEntry);
     procedure SaveToDataModel; overload;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
     procedure SavePositionInPanel;
@@ -1692,8 +1693,10 @@ begin
 
      ReloadMetadataFromDataModel;
 
-     if (FNEntry <> nil) and FNEntry.IsEncrypted and (Mode = meSingleEntry) and ActiveFile.EncryptedContentMustBeHidden then
+     if (FNEntry <> nil) and (Mode = meSingleEntry) and
+        (FNEntry.IsReadOnly or (FNEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) ) then
         ReadOnlyBAK:= True;
+
      ForceTempReadOnly(ReadOnlyBAK);
      if (Mode = meMultipleEntries) then
         Editor.ReadOnly:= true;
@@ -2458,6 +2461,15 @@ begin
 
    SavePositionInPanel;
    ReloadFromDataModel(false, NEntry, aChangedVisibility);
+end;
+
+
+procedure TKntNoteEntriesUI.NEntryReadOnlyChanged(NEntry: TNoteEntry);
+begin
+   if PanelConfig.CurrentMode = meMultipleEntries then exit;
+   if GetIndexOfVisibleEntry(NEntry) < 0 then exit;
+
+   ForceTempReadOnly(FKntFolder.ReadOnly or NEntry.IsReadOnly);
 end;
 
 

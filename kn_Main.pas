@@ -4739,7 +4739,7 @@ end;
 
 procedure TForm_Main.RTFMReadOnlyClick(Sender: TObject);
 begin
-   ActiveNEntry.IsReadOnly:= not ActiveNEntry.IsReadOnly;
+   App.ActiveNEntryReadOnlyChanged;
 end;
 
 procedure TForm_Main.RTFMMainClick(Sender: TObject);
