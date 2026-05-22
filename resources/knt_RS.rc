@@ -956,4 +956,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55154,  "Error deleting entry:"
 55155,  "OK to set entry as hidden?\n\n%s ..."
 55156,  "Error hiding entry:"
+55157,  "Error setting main entry:"
 }

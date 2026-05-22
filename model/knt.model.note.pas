@@ -378,7 +378,7 @@ type
     property IsPlainTXT: boolean read GetIsPlainTXT write SetIsPlainTXT;
     property IsHTML: boolean read GetIsHTML write SetIsHTML;
     property IsEncrypted: boolean read GetIsEncrypted write SetIsEncrypted;
-    property IsMain: boolean read GetIsMain write SetIsMain;
+    property IsMain: boolean read GetIsMain;
     property IsHidden: boolean read GetIsHidden write SetIsHidden;
     property IsReadOnly: boolean read GetIsReadOnly write SetIsReadOnly;
 
@@ -818,7 +818,7 @@ begin
       WasMain:= NEntry.IsMain;
       NEntry.Free;
       if WasMain then
-         fEntries[0].IsMain:= True;
+         fEntries[0].SetIsMain(True);
    end;
 
    SetModified;
@@ -864,15 +864,15 @@ begin
          exit(fEntries[i]);
 
    Result:= fEntries[0];
-   fEntries[0].IsMain:= True;
+   fEntries[0].SetIsMain(True);
 end;
 
 procedure TNote.SetMainEntry(value: TNoteEntry);
 begin
    if not IsValid(value) then exit;
 
-   MainEntry.IsMain:= False;
-   value.IsMain:= True;
+   MainEntry.SetIsMain(False);
+   value.SetIsMain(True);
 end;
 
 

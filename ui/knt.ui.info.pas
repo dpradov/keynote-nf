@@ -163,6 +163,7 @@ type
 
      procedure EditTags;
      procedure RefreshTags;
+     procedure RefreshHeaderOfEntries;
      procedure SetInfoPanelHidden(value: boolean);
      procedure KeepInfoPanelTemporarilyVisible;
 

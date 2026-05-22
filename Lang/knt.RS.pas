@@ -1040,6 +1040,7 @@ const
    sEntry04 = 55154;   // Error deleting entry:
    sEntry05 = 55155;   // OK to set entry as hidden?\^\^%s ...
    sEntry06 = 55156;   // Error hiding entry:
+   sEntry07 = 55157;   // Error setting main entry:
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !

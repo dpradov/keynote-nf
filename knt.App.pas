@@ -159,6 +159,7 @@ type
       procedure DeleteActiveNEntry;
       procedure ActiveNEntryHiddenChanged;
       procedure ActiveNEntryReadOnlyChanged;
+      procedure ActiveNEntryMain;
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
@@ -957,8 +958,8 @@ begin
 
    if App.DoMessageBox(Format(GetRS(sEntry01), [NEntry.GetExtractOfText]), mtWarning, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
 
+   Log_StoreTick('TKntApp.DeleteNEntry - BEGIN', 4, +1);
    try
-     Log_StoreTick('TKntApp.DeleteNEntry - BEGIN', 4, +1);
      WasMain:= NEntry.IsMain;
 
      for i:= 0 to fAvailableEditors.Count-1 do begin
@@ -979,12 +980,12 @@ begin
 
      UpdateEnabledActionsAndRTFState(ActiveEditor);
 
-     Log_StoreTick('TKntApp.DeleteNEntry - END', 4, -1);
-
    except
      on E : Exception do
        App.ErrorPopup(E, GetRS(sEntry04));
    end;
+   Log_StoreTick('TKntApp.DeleteNEntry - END', 4, -1);
+
 end;
 
 
@@ -999,8 +1000,9 @@ begin
    if not NEntry.IsHidden then
      if App.DoMessageBox(Format(GetRS(sEntry05), [NEntry.GetExtractOfText]), mtConfirmation, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
 
+   Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - BEGIN', 4, +1);
    try
-     Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - BEGIN', 4, +1);
+
 
      NEntry.IsHidden:= not NEntry.IsHidden;
      ActiveNNode.Note.SetModified;
@@ -1017,12 +1019,12 @@ begin
         end
      end;
 
-     Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - END', 4, -1);
-
    except
      on E : Exception do
        App.ErrorPopup(E, GetRS(sEntry06));
    end;
+
+   Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - END', 4, -1);
 end;
 
 
@@ -1052,6 +1054,36 @@ begin
    Log_StoreTick('TKntApp.ActiveNEntryReadOnlyChanged - END', 4, -1);
 
 end;
+
+procedure TKntApp.ActiveNEntryMain;
+var
+   NEntry: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   NEntry:= ActiveNEntry;
+
+   Log_StoreTick('TKntApp.ActiveNEntryMain - BEGIN', 4, +1);
+   try
+      ActiveNNode.Note.MainEntry:= NEntry;
+      ActiveNNode.Note.SetModified;
+      ActiveFolder.Modified:= True;
+      UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+      ActiveFolder.NoteUI.RefreshTags;
+      for i := 0 to ActiveFile.Folders.Count -1 do
+         ActiveFile.Folders[i].NoteUI.RefreshHeaderOfEntries;
+
+      if ActiveTreeUI.ShowUseOfTags then
+         Form_Main.RefreshFilterOnTags;
+
+   except
+     on E : Exception do
+       App.ErrorPopup(E, GetRS(sEntry07));
+   end;
+   Log_StoreTick('TKntApp.ActiveNEntryMain - BEGIN', 4, +1);
+end;
+
 
 
 

@@ -2866,5 +2866,6 @@ Button_OK.Caption=&Close
 55154_knt_RS_sEntry04=Error deleting entry:
 55155_knt_RS_sEntry05=OK to set entry as hidden?\^\^%s ...
 55156_knt_RS_sEntry06=Error hiding entry:
+55157_knt_RS_sEntry07=Error setting main entry:
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

@@ -4744,7 +4744,7 @@ end;
 
 procedure TForm_Main.RTFMMainClick(Sender: TObject);
 begin
-   ActiveNEntry.IsMain:= not ActiveNEntry.IsMain;
+   App.ActiveNEntryMain;
 end;
 
 procedure TForm_Main.RTFMHiddenClick(Sender: TObject);

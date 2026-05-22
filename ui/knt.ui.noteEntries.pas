@@ -1936,11 +1936,16 @@ end;
 function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
 var
   strLine: AnsiString;
-  s, strInfo: string;
+  s, strInfo, MainIni, MainEnd: string;
   EditorBackColor, ColorLine, ColorInfo: TColor;
 
 begin
    // # ToDO —  08/11/2025 - 11:36  —
+
+   if NEntry.IsMain then begin
+      MainIni:= '{\ul ';
+      MainEnd:= '}';
+   end;
 
    if Folded then
       strInfo:= ' \u10133+ '          // ➕
@@ -1950,6 +1955,8 @@ begin
    else
       strInfo:= '   ';
 
+   strInfo:= strInfo + MainIni;
+
    if PanelConfig.MMShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
       strInfo:= strInfo + '# ' + Trim(NEntry.TagsNames) + '  · ';
    end;
@@ -1958,6 +1965,9 @@ begin
          S:= ' - ' + FormatSettings.ShortTimeFormat;
       strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
    end;
+
+   strInfo:= strInfo + MainEnd;
+
    if PanelConfig.MMShowLineInHeader then
       strInfo := strInfo + ' \u8203.'                      // '\u200B'  Zero-Width Space  (invisible)
    else
@@ -2412,6 +2422,7 @@ end;
 
 procedure TKntNoteEntriesUI.RefreshHeaderOfEntries;
 begin
+   SavePositionInPanel;
    ReloadFromDataModel(false, nil, aRefreshHeader);
 end;
 

@@ -167,6 +167,7 @@ type
     procedure SetBGColorInEditors(Color: TColor);
     procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
     procedure RestoreZoomGoal;
+    procedure RefreshHeaderOfEntries;
 
 
    {$IFDEF KNT_DEBUG}
@@ -1179,6 +1180,17 @@ begin
      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
         FNEntriesUI[p].Editor.RestoreZoomGoal;
 end;
+
+
+procedure TKntNoteUI.RefreshHeaderOfEntries;
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].RefreshHeaderOfEntries;
+end;
+
 
 
 {$IFDEF KNT_DEBUG}
