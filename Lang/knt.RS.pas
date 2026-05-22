@@ -1038,6 +1038,8 @@ const
    sEntry02 = 55152;   // Cannot perform operation: entry '%s' is read-only
    sEntry03 = 55153;   // Entry contains encrypted content! CONTINUE?
    sEntry04 = 55154;   // Error deleting entry:
+   sEntry05 = 55155;   // OK to set entry as hidden?\^\^%s ...
+   sEntry06 = 55156;   // Error hiding entry:
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !

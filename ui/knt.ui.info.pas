@@ -133,7 +133,7 @@ type
      function NavigatePanels(NavDirection: TNavDirection): boolean;
      procedure ToggleMaximizeSelectedPanel;
      procedure ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
-     procedure PanelEmpty(Panel: TNEntriesPanel; WithoutEntries: boolean);
+     procedure PanelEmpty(Panel: TNEntriesPanel; WithoutVisibleEntries: boolean);
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                              NEntriesLayout: TBasicNEntriesLayout;

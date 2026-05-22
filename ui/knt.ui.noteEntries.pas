@@ -138,7 +138,7 @@ type
     procedure RefreshHeaderOfEntries;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure NEntryDeleted(NEntry: TNoteEntry);
-    procedure NEntryHidden(NEntry: TNoteEntry);
+    procedure NEntryHidden(NEntry: TNoteEntry; Hidden: boolean);
     procedure SaveToDataModel; overload;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
     procedure SavePositionInPanel;
@@ -178,6 +178,8 @@ type
     procedure ReconsiderInfoPanelVisibility;
     procedure SetTopIncControlsOfInfoPanel;
     procedure RefreshEntry;
+    procedure SelectNextEntry(InformReloaded: boolean);
+    procedure SelectPrevEntry(InformReloaded: boolean);
 
   protected
     function GetReadOnly: boolean;
@@ -1484,7 +1486,8 @@ begin
             if (PanelConfig.VinculatedTags <> nil) then begin
                if FiEntry < 0 then
                   FiEntry:= 0;
-               FEntriesShown[FiEntry].Content:= cmWholeEntry;
+               if FEntriesShown[FiEntry].Content <> cmHidden then
+                  FEntriesShown[FiEntry].Content:= cmWholeEntry;
                PanelConfig.CurrentMode:= meMultipleEntries;
                Mode:= meMultipleEntries;
                EntryToAdd:= false;
@@ -1534,7 +1537,7 @@ begin
          if EntryToRemove then begin
             ReconsiderEntry(iEntryToConsider);
             PopulateEntriesToShow;
-            if FNEntry <> nil then begin
+            if (FiEntry >= 0) and (NumberOfIncludedEntries(true) > 0) then begin
                if iEntryToConsider = FiEntry_Initial then begin
                   SS:= FEntriesShown[FiEntry].StartingContentPos;
                   PanelConfig.SelStart:= SS;
@@ -1638,12 +1641,13 @@ begin
           end;
        end
        else begin                              // --- meSingleEntry
-          if NEntryToConsider <> nil then
+          if (NEntryToConsider <> nil) and (FEntriesShown[iEntryToConsider].Content <> cmHidden) then
              ReconsiderEntry(iEntryToConsider)
           else
           if FiEntry >= 0 then
              ShowEntry (FiEntry)
           else begin
+             FNEntry:= nil;
              PanelConfig.SelStart:= 0;
              PanelConfig.SelLength:= 0;
           end;
@@ -1729,7 +1733,7 @@ begin
 
 
      if not FPanelHidden and (FNEntry = nil) then
-        FNoteUI.PanelEmpty(PanelConfig.Panel, (FEntriesShown = nil));
+        FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0));
 
    end;
 
@@ -2126,8 +2130,7 @@ begin
    txtName.Text:= FNote.Name;
 end;
 
-
-procedure TKntNoteEntriesUI.btnPrevEntryClick(Sender: TObject);
+procedure TKntNoteEntriesUI.SelectPrevEntry(InformReloaded: boolean);
 var
    iNextEntry: integer;
    SS: integer;
@@ -2140,22 +2143,26 @@ begin
          if (PanelConfig.CurrentMode = meSingleEntry) or (SS <= FEntriesShown[iNextEntry].StartingContentPos) then
             dec(iNextEntry);
          if FEntriesShown[iNextEntry].Content <> cmHidden then begin
-            SelectEntry(iNextEntry);
+            SelectEntry(iNextEntry, false, InformReloaded);
             break;
          end
          else
             dec(iNextEntry);
       until iNextEntry <= 0;
 
-      if iNextEntry <> FiEntry then
-         SelectEntry(iNextEntry);
+      if (iNextEntry <> FiEntry) and (iNextEntry >= 0) then
+         SelectEntry(iNextEntry, false, InformReloaded);
    end;
 
    ReconsiderInfoPanelVisibility;
 end;
 
+procedure TKntNoteEntriesUI.btnPrevEntryClick(Sender: TObject);
+begin
+   SelectPrevEntry(True);
+end;
 
-procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
+procedure TKntNoteEntriesUI.SelectNextEntry(InformReloaded: boolean);
 var
    iNextEntry: integer;
 begin
@@ -2164,16 +2171,21 @@ begin
       repeat
          inc(iNextEntry);
          if FEntriesShown[iNextEntry].Content <> cmHidden then begin
-            SelectEntry(iNextEntry);
+            SelectEntry(iNextEntry, false, InformReloaded);
             break;
          end;
       until iNextEntry >= Length(FEntriesShown) - 1;
 
-      if iNextEntry <> FiEntry then
-         SelectEntry(iNextEntry);
+      if (iNextEntry <> FiEntry) and (iNextEntry <= Length(FEntriesShown) - 1) then
+         SelectEntry(iNextEntry, false, InformReloaded);
    end;
 
    ReconsiderInfoPanelVisibility;
+end;
+
+procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
+begin
+   SelectNextEntry(True);
 end;
 
 
@@ -2427,14 +2439,23 @@ begin
    ReloadFromDataModel(false, NEntry, aDeleted);
 end;
 
-procedure TKntNoteEntriesUI.NEntryHidden(NEntry: TNoteEntry);
+procedure TKntNoteEntriesUI.NEntryHidden(NEntry: TNoteEntry; Hidden: boolean);
 var
    iEntry: integer;
+   NewCont: TContentInMultipleMode;
 begin
    iEntry:= GetIndexOfVisibleEntry(NEntry);
    if iEntry < 0 then exit;
 
-   FEntriesShown[iEntry].Content:= cmHidden;
+   NewCont:= FEntriesShown[iEntry].Content;
+   if Hidden then
+      NewCont:= cmHidden
+   else
+   if NewCont = cmHidden then
+      NewCont:= cmOnlyHeader;
+
+   FEntriesShown[iEntry].Content:= NewCont;
+
    SavePositionInPanel;
    ReloadFromDataModel(false, NEntry, aChangedVisibility);
 end;

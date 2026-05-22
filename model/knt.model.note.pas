@@ -394,6 +394,8 @@ type
     function MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
+
+    function GetExtractOfText(Length: integer = 30): string;
   end;
 
 
@@ -419,7 +421,7 @@ type
     nnsShowOutlineOnlyNumber,    // ,,                                   only number
     nnsCustomNumberingSubtree,   // Node configured as start of numbering subtree
     nnsWordWrap,                 // Apply WordWrap in the node
-    
+
     nnsNoWordWrap,               // Do not apply WordWrap in the node (If neither WordWrap nor NoWordWrap => default value in folder)
     nnsFlagged,                  // Node is flagged
     nnsSaved_Expanded,           // Node is expanded in the folder tree (only updates when saving)
@@ -534,6 +536,7 @@ uses
    kn_LinksMng,
    knt.ui.tree,
    kn_KntFolder,
+   knt.ui.editor,
    knt.App,
    kn_Info
    ;
@@ -1607,7 +1610,7 @@ var
  i, j: integer;
 begin
  if FindTags = nil then exit(True);
- 
+
  Result:= False;
  if (Tags = nil) and (InheritedTags = nil) then exit;
 
@@ -1626,10 +1629,25 @@ begin
             break;
          end;
        end;
-     
+
     if not Result then
        exit;
  end;
+end;
+
+
+function TNoteEntry.GetExtractOfText (Length: integer = 30): string;
+var
+  RTFAux: TAuxRichEdit;
+begin
+  RTFAux:= CreateAuxRichEdit;
+  try
+    RTFAux.BeginUpdate;
+    LoadStreamInRTFAux (Stream, RTFAux);
+    Result:= RTFAux.GetTextRange(0, Length);
+  finally
+    RTFAux.Free;
+  end;
 end;
 
 

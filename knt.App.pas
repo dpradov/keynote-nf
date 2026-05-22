@@ -157,6 +157,7 @@ type
       procedure NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
       procedure DeleteActiveNEntry;
+      procedure ActiveNEntryHiddenChanged;
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
@@ -942,19 +943,6 @@ var
           Result:= ActiveFile.CheckAuthorized(false);
   end;
 
-  function GetExtractOfText: string;
-  var
-    RTFAux: TAuxRichEdit;
-  begin
-    RTFAux:= CreateAuxRichEdit;
-    try
-      RTFAux.BeginUpdate;
-      LoadStreamInRTFAux (NEntry.Stream, RTFAux);
-      Result:= RTFAux.GetTextRange(0, 30);
-    finally
-      RTFAux.Free;
-    end;
-  end;
 
 begin
    NEntry:= ActiveNEntry;
@@ -966,7 +954,7 @@ begin
    end;
    if not CheckEntryHasEncryptedContent then exit;
 
-   if App.DoMessageBox(Format(GetRS(sEntry01), [GetExtractOfText]), mtWarning, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
+   if App.DoMessageBox(Format(GetRS(sEntry01), [NEntry.GetExtractOfText]), mtWarning, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
 
    try
      Log_StoreTick('TKntApp.DeleteNEntry - BEGIN', 4, +1);
@@ -998,6 +986,43 @@ begin
    end;
 end;
 
+
+procedure TKntApp.ActiveNEntryHiddenChanged;
+var
+   E: TKntRichEdit;
+   NEntry: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   NEntry:= ActiveNEntry;
+   if not NEntry.IsHidden then
+     if App.DoMessageBox(Format(GetRS(sEntry05), [NEntry.GetExtractOfText]), mtConfirmation, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
+
+   try
+     Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - BEGIN', 4, +1);
+
+     NEntry.IsHidden:= not NEntry.IsHidden;
+     ActiveNNode.Note.SetModified;
+     ActiveFolder.Modified:= True;
+     UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+     for i:= 0 to fAvailableEditors.Count-1 do begin
+        E:= fAvailableEditors[i];
+        NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+        if NEntriesUI <> nil then begin
+           NEntriesUI.NEntryHidden(NEntry, NEntry.IsHidden);
+           if E = ActiveEditor then
+              NEntriesUI.SelectNextEntry(false);
+        end
+     end;
+
+     Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - END', 4, -1);
+
+   except
+     on E : Exception do
+       App.ErrorPopup(E, GetRS(sEntry06));
+   end;
+end;
 
 
 procedure TKntApp.EditorPropertiesModified (Editor: TKntRichEdit);

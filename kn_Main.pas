@@ -4748,20 +4748,8 @@ begin
 end;
 
 procedure TForm_Main.RTFMHiddenClick(Sender: TObject);
-var
-   NEntriesUI: TKntNoteEntriesUI;
 begin
-   ActiveNEntry.IsHidden:= not ActiveNEntry.IsHidden;
-   NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
-
-   if ActiveNEntry.IsHidden then begin
-     NEntriesUI.NEntryHidden(ActiveNEntry);
-     NEntriesUI.btnNextEntryClick(nil);
-   end;
-   App.NEntrySelected(ActiveEditor, ActiveNEntry);    // --> UpdateEnabledActionsAndRTFState
-
-   ActiveNNode.Note.SetModified;
-   ActiveFolder.Modified:= True;
+   App.ActiveNEntryHiddenChanged;
 end;
 
 procedure TForm_Main.RTFMShowHiddenClick(Sender: TObject);

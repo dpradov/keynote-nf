@@ -954,4 +954,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55152,  "Cannot perform operation: entry '%s' is read-only"
 55153,  "Entry contains encrypted content! CONTINUE?"
 55154,  "Error deleting entry:"
+55155,  "OK to set entry as hidden?\n\n%s ..."
+55156,  "Error hiding entry:"
 }

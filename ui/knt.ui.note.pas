@@ -187,7 +187,7 @@ type
     procedure RestoreSplits;
     function GetPanel (Panel: TNEntriesPanel): TPanel;
     procedure ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
-    procedure PanelEmpty(Panel: TNEntriesPanel; WithoutEntries: boolean);
+    procedure PanelEmpty(Panel: TNEntriesPanel; WithoutVisibleEntries: boolean);
     property ChangingLayout: boolean read FChangingLayout;
     //procedure TestPanels;
 
@@ -756,14 +756,14 @@ begin
 end;
 
 
-procedure TKntNoteUI.PanelEmpty(Panel: TNEntriesPanel; WithoutEntries: boolean);
+procedure TKntNoteUI.PanelEmpty(Panel: TNEntriesPanel; WithoutVisibleEntries: boolean);
 var
   NEntriesUI: TKntNoteEntriesUI;
 begin
    NEntriesUI:= GetNEntriesUI(Panel);
    if NEntriesUI = nil then exit;
 
-   if FQueryLayout and WithoutEntries then
+   if FQueryLayout and WithoutVisibleEntries then
       ShowEntriesUIPanel(NEntriesUI.PanelConfig.Panel, False)
    else begin
       NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
