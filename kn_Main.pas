@@ -1814,6 +1814,7 @@ begin
   cbTagFilterMode.ItemIndex:= 0;
 
   Initializing := false;
+  EditorToBeCheckedForContentUpdate:= nil;
 
   if _GLOBAL_URLText = '' then
      App.ActivateFolder(nil);            // Activate (and focus) current active folder       View comment in KntFileOpen

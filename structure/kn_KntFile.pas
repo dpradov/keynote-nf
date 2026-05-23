@@ -3967,7 +3967,7 @@ end;
 
 function TKntFile.GetEncryptedContentMustBeHidden: boolean;
 begin
-   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened;
+   Result:= Initializing or (FEncryptedContentEnabled and not FEncryptedContentOpened);
 end;
 
 
@@ -3980,7 +3980,7 @@ function  TKntFile.GetEncryptedContentMustBeGenerated: boolean;
 begin
    // If FLoadedEncryptedContent <> nil => The content loaded when opening the file have not been opened and so it is not modified
 
-   Result:= FEncryptedContentEnabled and (FLoadedEncryptedContent = nil);
+   Result:= Initializing or (FEncryptedContentEnabled and (FLoadedEncryptedContent = nil));
 end;
 
 procedure TKntFile.ShowOrHideEncryptedNodes;
@@ -4009,6 +4009,8 @@ var
   ImgsEncr: boolean;
   CurrentEditor: TKntRichEdit;
 begin
+  if Initializing then exit;
+
   CurrentEditor:= ActiveFolder.Editor;
   ImgsEncr:= ImageMng.FileContainsEncryptedImages;
 

@@ -447,12 +447,12 @@ begin
            On the other hand, from the tests done it seems that it is when we establish Pages.ActivePage
            when the editor with its content becomes visible. We are interested in ensuring that when this happens,
            the editor displays the content taking into account the zoom to be applied and the possible alternative
-           margins. In EnsureCaretVisibleInEditors, both the zoom and the alternative margins are set and it is asked to
+           margins. In EnsureNodeAndCaretVisibleInEditors, both the zoom and the alternative margins are set and it is asked to
            make the cursor visible.
            It is also indicated in the call to LoadTrayIcon, with the second parameter set to False, that Application.ProcessMessages
            is not called, all of this to try to ensure that the editor is displayed from the beginning with the content adapted to
            the zoom and the corresponding margins, with the cursor correctly positioned.
-           Note: If this KntFileOpen ins called on initiating the application, then the above call to EnsureCaretVisibleInEditors
+           Note: If this KntFileOpen ins called on initiating the application, then the above call to EnsureNodeAndCaretVisibleInEditors
            and the below call to App.ActivateFolder will not ensure that the carets are visbile. For this reason there is also
            a call to these methods in Form_Main.Activate (they will run only the first time, when opening the app).
          }
