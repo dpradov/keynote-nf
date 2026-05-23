@@ -1611,13 +1611,13 @@ begin
            end;
        end;
 
-       if CalculateEntriesToShow and (FEntriesShown[FiEntry].Content = cmHidden) and
+       if CalculateEntriesToShow and (FiEntry >= 0) and (FEntriesShown[FiEntry].Content = cmHidden) and
           (not FEntriesShown[FiEntry].NEntry.IsEncrypted or not ActiveFile.EncryptedContentMustBeHidden)  then
           FEntriesShown[FiEntry].Content:= cmWholeEntry;
 
        // We might have an encrypted entry selected, which then becomes hidden. We must select a non-hidden entry.
        // We'll start by selecting the entry immediately below it, and if there isn't one, the one immediately above it.
-       if (FEntriesShown[FiEntry].Content = cmHidden) then begin
+       if (FiEntry >= 0) and (FEntriesShown[FiEntry].Content = cmHidden) then begin
            PanelConfig.SelStart:= 0;
            PanelConfig.SelLength:= 0;
            iEntry:= FiEntry;
