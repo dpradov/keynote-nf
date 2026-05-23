@@ -158,6 +158,7 @@ type
       procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
       procedure DeleteActiveNEntry;
       procedure ActiveNEntryHiddenChanged;
+      procedure ReconsiderVisibilityOfEntries(Note: TNote = nil);
       procedure ActiveNEntryReadOnlyChanged;
       procedure ActiveNEntryMain;
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
@@ -568,9 +569,12 @@ var
   Edit_PlainText, Edit_SupportsImages, Edit_SupportsRegImages, Edit_NoteObj, Edit_Enabled: boolean;
   Edit_HasMultipleEntries: boolean;
   Edit_NumHiddenEntries: integer;
+  Edit_DisplayingAnyHiddenEntry: boolean;
 
 begin
   Edit_NumHiddenEntries:= 0;
+  Edit_DisplayingAnyHiddenEntry:= false;
+
   if (Editor = nil) or not Editor.Enabled then begin
       Edit_PlainText:= true;
       Edit_SupportsImages:= false;
@@ -578,7 +582,6 @@ begin
       Edit_NoteObj:= false;
       Edit_Enabled:= false;
       Edit_HasMultipleEntries:= false;
-
   end
   else begin
       Edit_PlainText:= Editor.PlainText;
@@ -588,12 +591,14 @@ begin
       Edit_Enabled:= not Editor.ReadOnly;
 
       Edit_HasMultipleEntries:= Edit_NoteObj and (TNoteNode(Editor.NNodeObj).Note.NumEntries > 1);
-      if Edit_NoteObj then
+      if Edit_NoteObj then begin
          Edit_NumHiddenEntries:= (TNoteNode(Editor.NNodeObj).Note.NumHiddenEntries);
+         Edit_DisplayingAnyHiddenEntry:=(TKntNoteEntriesUI(Editor.NEntriesUIObj)).DisplayingAnyHiddenEntry;
+      end;
   end;
 
   Form_Main.EnableActionsForEditor(not Edit_PlainText, Edit_Enabled);
-  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages, Edit_HasMultipleEntries, Edit_NumHiddenEntries);
+  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages, Edit_HasMultipleEntries, Edit_NumHiddenEntries, Edit_DisplayingAnyHiddenEntry);
   Form_Main.RxChangedSelection(Editor, true);
   Form_Main.UpdateWordWrap;
   ClipCapMng.ShowState;
@@ -992,20 +997,44 @@ end;
 procedure TKntApp.ActiveNEntryHiddenChanged;
 var
    E: TKntRichEdit;
+   Note: TNote;
    NEntry: TNoteEntry;
    NEntriesUI: TKntNoteEntriesUI;
    i: integer;
+   CreatedBeforeIt: string;
+   CreatedBefore: TDateTime;
+   ToIsHidden: boolean;
+   AlsoToCreatedBeforeIt: boolean;
+
 begin
    NEntry:= ActiveNEntry;
-   if not NEntry.IsHidden then
-     if App.DoMessageBox(Format(GetRS(sEntry05), [NEntry.GetExtractOfText]), mtConfirmation, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
+   Note:= ActiveNNode.Note;
+
+   AlsoToCreatedBeforeIt:= CtrlDown;             // Ctrl : Apply to selected entry and to all created before it
+
+   if AlsoToCreatedBeforeIt then begin
+      CreatedBeforeIt:= GetRS(sEntry08);
+      CreatedBefore:= NEntry.Created;
+   end;
+
+   ToIsHidden:= not NEntry.IsHidden;
+   if ToIsHidden then
+     if App.DoMessageBox(Format(GetRS(sEntry05), [CreatedBeforeIt, NEntry.GetExtractOfText]), mtConfirmation, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
 
    Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - BEGIN', 4, +1);
    try
 
+     if AlsoToCreatedBeforeIt then begin
+        for i:= Note.NumEntries-1 downto 0 do begin
+            if (Note.Entries[i].Created <= CreatedBefore) and (not Note.Entries[i].IsMain) then
+                Note.Entries[i].IsHidden:= ToIsHidden;
+        end;
+        NEntry:= nil;
+     end
+     else
+        NEntry.IsHidden:= ToIsHidden;
 
-     NEntry.IsHidden:= not NEntry.IsHidden;
-     ActiveNNode.Note.SetModified;
+     Note.SetModified;
      ActiveFolder.Modified:= True;
      UpdateEnabledActionsAndRTFState(ActiveEditor);
 
@@ -1013,8 +1042,8 @@ begin
         E:= fAvailableEditors[i];
         NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
         if NEntriesUI <> nil then begin
-           NEntriesUI.NEntryHidden(NEntry, NEntry.IsHidden);
-           if E = ActiveEditor then
+           NEntriesUI.NEntryHidden(NEntry, ToIsHidden, CreatedBefore);
+           if ToIsHidden and (E = ActiveEditor) then
               NEntriesUI.SelectNextEntry(false);
         end
      end;
@@ -1025,6 +1054,22 @@ begin
    end;
 
    Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - END', 4, -1);
+end;
+
+
+procedure TKntApp.ReconsiderVisibilityOfEntries(Note: TNote = nil);
+var
+   i: integer;
+begin
+   if Note <> nil then begin
+      ActiveNNode.Note.SetModified;
+      ActiveFolder.Modified:= True;
+   end;
+
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].NoteUI.ReconsiderVisibilityOfEntries;
+
+   UpdateEnabledActionsAndRTFState(ActiveEditor);
 end;
 
 

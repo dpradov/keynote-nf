@@ -4204,7 +4204,7 @@ object Form_Main: TForm_Main
         Caption = 'Hidden'
         Hint = 
           'Make entry hidden (Ctrl: Apply to selected entry and to all crea' +
-          'ted with a previous date)'
+          'ted before it)'
         OnClick = RTFMHiddenClick
       end
       object RTFMShowHidden: TMenuItem
@@ -4212,8 +4212,14 @@ object Form_Main: TForm_Main
         Hint = 'Show hidden entries (Ctrl: Also undo hidden state)'
         OnClick = RTFMShowHiddenClick
       end
+      object RTFMHideAgain: TMenuItem
+        Caption = 'Hide revealed'
+        Hint = 'Hide entries displayed with "Show hidden" without Ctrl'
+        OnClick = RTFMHideAgainClick
+      end
       object RTFMEncryp: TMenuItem
         Caption = 'Encrypted'
+        Hint = 'The content of the entry, and optionally its tags, will be saved encrypted in the file'
         OnClick = RTFMEncrypClick
       end
       object N93: TMenuItem
@@ -4221,6 +4227,7 @@ object Form_Main: TForm_Main
       end
       object RTFMDeleteEntry: TMenuItem
         Caption = 'Delete'
+        Hint = 'Delete selected entry'
         OnClick = RTFMDeleteEntryClick
       end
     end

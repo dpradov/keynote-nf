@@ -168,6 +168,7 @@ type
     procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
     procedure RestoreZoomGoal;
     procedure RefreshHeaderOfEntries;
+    procedure ReconsiderVisibilityOfEntries;
 
 
    {$IFDEF KNT_DEBUG}
@@ -1191,6 +1192,14 @@ begin
         FNEntriesUI[p].RefreshHeaderOfEntries;
 end;
 
+procedure TKntNoteUI.ReconsiderVisibilityOfEntries;
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].ReloadFromDataModel(false, nil, aChangedVisibility);
+end;
 
 
 {$IFDEF KNT_DEBUG}

@@ -134,11 +134,12 @@ type
                                    ActionOnEntry: TActionOnEntry = aNull;
                                    InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
-    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true);
+    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false);
+    procedure ShowHiddenEntries(UndoHidden: boolean);
     procedure RefreshHeaderOfEntries;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure NEntryDeleted(NEntry: TNoteEntry);
-    procedure NEntryHidden(NEntry: TNoteEntry; Hidden: boolean);
+    procedure NEntryHidden(NEntry: TNoteEntry; Hidden: boolean; CreatedBefore: TDateTime = 0);
     procedure NEntryReadOnlyChanged(NEntry: TNoteEntry);
     procedure SaveToDataModel; overload;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
@@ -146,10 +147,11 @@ type
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
     procedure EditorDblClickInMultiEntries;
-    function GetIndexOfVisibleEntry(NEntry: TNoteEntry): integer;
+    function GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
     function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultipleMode): boolean;
     function NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
+    function DisplayingAnyHiddenEntry: boolean;
     procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
     procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
     procedure ConfigureEditor(iEntry: integer = -1);
@@ -820,7 +822,7 @@ end;
 {$REGION Load, save and configure Editor for a Note node }
 
 
-function TKntNoteEntriesUI.GetIndexOfVisibleEntry(NEntry: TNoteEntry): integer;
+function TKntNoteEntriesUI.GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
 var
    i: integer;
 begin
@@ -836,7 +838,7 @@ procedure TKntNoteEntriesUI.ModifyContentForNextReload(NEntry: TNoteEntry; NewCo
 var
    iNEntry: integer;
 begin
-    iNEntry:= GetIndexOfVisibleEntry(NEntry);
+    iNEntry:= GetIndexOfIncludedEntry(NEntry);
     if iNEntry >= 0 then
        FEntriesShown[iNEntry].Content:= NewContent;
 end;
@@ -1007,9 +1009,9 @@ var
    NEntry: TNoteEntry;
    Created: TDateTime;
 
-   function GetContentToAssign(NEntry: TNoteEntry; DefaultContentInME: TContentInMultipleMode): TContentInMultipleMode;
+   function GetContentToAssign(NEntry: TNoteEntry; DefaultContentInME: TContentInMultipleMode; IgnoreIsHidden: boolean = false): TContentInMultipleMode;
    begin
-      if (NEntry.IsHidden) then
+      if (NEntry.IsHidden) and not IgnoreIsHidden then
          Result:= cmHidden
       else
       if (NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then begin
@@ -1137,10 +1139,17 @@ var
     end;
 
 
+    for j:= 0 to Length(PanelConfig.HiddenEntriesDisplayed)-1 do
+       for iEntry:= 0 to Length(FEntriesShown)-1 do
+          if FEntriesShown[iEntry].NEntry = PanelConfig.HiddenEntriesDisplayed[j] then begin
+             FEntriesShown[iEntry].Content:= cmWholeEntry;
+             break;
+          end;
+
     for j:= 0 to Length(PanelConfig.EntriesOnlyHeader)-1 do
       for iEntry:= 0 to Length(FEntriesShown)-1 do
          if FEntriesShown[iEntry].NEntry = PanelConfig.EntriesOnlyHeader[j] then begin
-            FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, cmOnlyHeader);
+            FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, cmOnlyHeader, True);
             break;
          end;
 
@@ -1318,6 +1327,16 @@ var
            inc(N);
         end;
     SetLength(PanelConfig.EntriesOnlyHeader, N);
+
+
+    SetLength(PanelConfig.HiddenEntriesDisplayed, Length(FEntriesShown));
+    N:= 0;
+    for i:= 0 to Length(FEntriesShown)-1 do
+        if (FEntriesShown[i].NEntry.IsHidden) and (FEntriesShown[i].Content <> cmHidden) then begin
+           PanelConfig.HiddenEntriesDisplayed[N]:= FEntriesShown[i].NEntry;
+           inc(N);
+        end;
+    SetLength(PanelConfig.HiddenEntriesDisplayed, N);
  end;
 
 
@@ -1343,6 +1362,16 @@ var
     Editor.SelLength := PanelConfig.SelLength;
     inc(PanelConfig.ScrollPosInEditor.Y, 35);                    // TODO ***
     Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
+ end;
+
+ procedure ClearAndSetAsEmpty;
+ begin
+    Editor.Clear;
+    fImagesReferenceCount:= nil;
+    PanelConfig.CurrentMode:= meSingleEntry;
+    Mode:= meSingleEntry;
+    FiEntry:= -1;
+    FNEntry:= nil;
  end;
 
 
@@ -1398,7 +1427,7 @@ begin
    // PanelConfig.SelNEntry: Indicates which entry should be displayed, if FMode = meSingleEntry, or, in the case of FMode = meMultipleEntries, which entry
    //   should be selected, the one containing the cursor. In both cases, it will determine the number of the entry displayed on the button associated with btnToggleMulti.
 
-   iSelectedEntry:= GetIndexOfVisibleEntry(PanelConfig.SelNEntry);
+   iSelectedEntry:= GetIndexOfIncludedEntry(PanelConfig.SelNEntry);
 
    if (NEntryToConsider <> nil) then begin
        if not (ActionOnEntry in [aDeleted, aChangedVisibility]) then
@@ -1430,7 +1459,7 @@ begin
           end;
        end
        else begin
-          iEntryToConsider:= GetIndexOfVisibleEntry(NEntryToConsider);
+          iEntryToConsider:= GetIndexOfIncludedEntry(NEntryToConsider);
           if (ActionOnEntry = aDeleted) then begin
              if (iEntryToConsider < 0) then exit;
              EntryToRemove:= true;
@@ -1582,6 +1611,10 @@ begin
            end;
        end;
 
+       if CalculateEntriesToShow and (FEntriesShown[FiEntry].Content = cmHidden) and
+          (not FEntriesShown[FiEntry].NEntry.IsEncrypted or not ActiveFile.EncryptedContentMustBeHidden)  then
+          FEntriesShown[FiEntry].Content:= cmWholeEntry;
+
        // We might have an encrypted entry selected, which then becomes hidden. We must select a non-hidden entry.
        // We'll start by selecting the entry immediately below it, and if there isn't one, the one immediately above it.
        if (FEntriesShown[FiEntry].Content = cmHidden) then begin
@@ -1601,6 +1634,11 @@ begin
                       break;
                   end;
            end;
+
+           if FiEntry = -1 then begin
+              ClearAndSetAsEmpty;
+              exit;
+           end;
        end;
 
 
@@ -1608,14 +1646,8 @@ begin
        if Mode = meMultipleEntries then begin    // --- meMultipleEntries
           if NEntryToConsider <> nil then begin
              ReconsiderEntry(iEntryToConsider);
-             if (ActionOnEntry = aChangedVisibility) and (NumberOfIncludedEntries(true) = 0) then begin
-                Editor.Clear;
-                fImagesReferenceCount:= nil;
-                PanelConfig.CurrentMode:= meSingleEntry;
-                Mode:= meSingleEntry;
-                FiEntry:= -1;
-                FNEntry:= nil;
-             end;
+             if (ActionOnEntry = aChangedVisibility) and (NumberOfIncludedEntries(true) = 0) then
+                ClearAndSetAsEmpty;
           end
           else begin
               var pos: integer:= 0;
@@ -1754,7 +1786,7 @@ var
    i: integer;
 begin
    Result:= False;
-   i:= GetIndexOfVisibleEntry(NEntry);
+   i:= GetIndexOfIncludedEntry(NEntry);
    if i >= 0 then begin
       Result:= True;
       Content:= FEntriesShown[i].Content;
@@ -1776,6 +1808,18 @@ begin
        Result:= Length(FEntriesShown);
 end;
 
+function TKntNoteEntriesUI.DisplayingAnyHiddenEntry: boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   if FEntriesShown = nil then exit;
+
+   for i:= 0 to Length(FEntriesShown)-1 do
+      if FEntriesShown[i].NEntry.IsHidden and (FEntriesShown[i].Content <> cmHidden) then
+         exit(true);
+end;
+
 procedure TKntNoteEntriesUI.GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
 var
    i: integer;
@@ -1785,7 +1829,7 @@ begin
 
    if PanelConfig.CurrentMode = meSingleEntry then exit;
 
-   i:= GetIndexOfVisibleEntry(NEntry);
+   i:= GetIndexOfIncludedEntry(NEntry);
    if i >= 0 then begin
       PosStartEntry:= FEntriesShown[i].StartingContentPos;
       PosEndEntry:= FEntriesShown[i].FinalPos;
@@ -1807,7 +1851,7 @@ function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEn
        exit (true)
 
     else begin
-       i:= GetIndexOfVisibleEntry(NEntry);
+       i:= GetIndexOfIncludedEntry(NEntry);
        if i >= 0 then begin
           Result:= True;
           if (PanelConfig.CurrentMode = meMultipleEntries) then begin
@@ -2392,17 +2436,20 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true);
+procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false);
 var
    i: integer;
    NEntryToConsider: TNoteEntry;
 begin
-   if not ModifyAll and (FEntriesShown[iEntry].Content = NewContent) then exit;
+   if not ModifyAll and ((iEntry < 0) or (FEntriesShown[iEntry].Content = NewContent)) then exit;
 
-   FEntriesShown[iEntry].Content:= NewContent;
+   if iEntry >= 0 then
+      FEntriesShown[iEntry].Content:= NewContent;
+
    if ModifyAll then
       for i:=0 to High(FEntriesShown) do begin
          if IgnoreHiddenEntries and (FEntriesShown[i].Content = cmHidden) then continue;
+         if OnlyHiddenEntries and (not FEntriesShown[i].NEntry.IsHidden) then continue;
          if FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
 
          FEntriesShown[i].Content:= NewContent;
@@ -2418,6 +2465,38 @@ begin
 
    App.EditorReloaded(Editor, Editor.Focused);
 end;
+
+
+procedure TKntNoteEntriesUI.ShowHiddenEntries(UndoHidden: boolean);
+var
+   i: integer;
+begin
+   if not CtrlDown then
+      ReloadVisibleContentOfEntries(True, cmOnlyHeader, -1, false, true)
+
+   else begin
+      // Ctrl: Show and undo hidden
+
+      for i:=0 to High(FEntriesShown) do begin
+         if FEntriesShown[i].NEntry.IsHidden then begin
+            FEntriesShown[i].NEntry.IsHidden:= False;
+
+            if (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then begin
+               if ActiveFile.HideEncryptedNodesAndEntries then
+                  FEntriesShown[i].Content:= cmHidden
+               else
+                  FEntriesShown[i].Content:= cmOnlyHeader;
+            end
+            else
+            if FEntriesShown[i].Content = cmHidden then
+               FEntriesShown[i].Content:= cmOnlyHeader;
+         end;
+      end;
+      App.ReconsiderVisibilityOfEntries(FNote);
+   end;
+
+end;
+
 
 
 procedure TKntNoteEntriesUI.RefreshHeaderOfEntries;
@@ -2453,22 +2532,44 @@ begin
    ReloadFromDataModel(false, NEntry, aDeleted);
 end;
 
-procedure TKntNoteEntriesUI.NEntryHidden(NEntry: TNoteEntry; Hidden: boolean);
+procedure TKntNoteEntriesUI.NEntryHidden(NEntry: TNoteEntry; Hidden: boolean; CreatedBefore: TDateTime = 0);
 var
    iEntry: integer;
-   NewCont: TContentInMultipleMode;
+   Cont, NewCont: TContentInMultipleMode;
+   AnyEntryChanged: boolean;
+
+   procedure ChangeContent;
+   begin
+      Cont:= FEntriesShown[iEntry].Content;
+      NewCont:= Cont;
+      if Hidden then
+         NewCont:= cmHidden
+      else
+      if Cont = cmHidden then
+         NewCont:= cmOnlyHeader;
+
+      if Cont <> NewCont then begin
+         FEntriesShown[iEntry].Content:= NewCont;
+         AnyEntryChanged:= True;
+      end;
+   end;
+
 begin
-   iEntry:= GetIndexOfVisibleEntry(NEntry);
-   if iEntry < 0 then exit;
+   if NEntry <> nil then begin
+      iEntry:= GetIndexOfIncludedEntry(NEntry);
+      if iEntry < 0 then exit;
+      ChangeContent;
+   end
+   else begin
+      AnyEntryChanged:= False;
 
-   NewCont:= FEntriesShown[iEntry].Content;
-   if Hidden then
-      NewCont:= cmHidden
-   else
-   if NewCont = cmHidden then
-      NewCont:= cmOnlyHeader;
+      for iEntry:=0 to High(FEntriesShown) do begin
+         if (FEntriesShown[iEntry].NEntry.Created <= CreatedBefore) and not FEntriesShown[iEntry].NEntry.IsMain then
+            ChangeContent;
+      end;
 
-   FEntriesShown[iEntry].Content:= NewCont;
+      if not AnyEntryChanged then exit;
+   end;
 
    SavePositionInPanel;
    ReloadFromDataModel(false, NEntry, aChangedVisibility);
@@ -2478,7 +2579,7 @@ end;
 procedure TKntNoteEntriesUI.NEntryReadOnlyChanged(NEntry: TNoteEntry);
 begin
    if PanelConfig.CurrentMode = meMultipleEntries then exit;
-   if GetIndexOfVisibleEntry(NEntry) < 0 then exit;
+   if GetIndexOfIncludedEntry(NEntry) < 0 then exit;
 
    ForceTempReadOnly(FKntFolder.ReadOnly or NEntry.IsReadOnly);
 end;

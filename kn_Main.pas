@@ -941,6 +941,7 @@ type
     RTFMDeleteEntry: TMenuItem;
     N93: TMenuItem;
     N114: TMenuItem;
+    RTFMHideAgain: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1378,6 +1379,7 @@ type
     procedure RTFMShowHiddenClick(Sender: TObject);
     procedure RTFMEncrypClick(Sender: TObject);
     procedure RTFMDeleteEntryClick(Sender: TObject);
+    procedure RTFMHideAgainClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1456,7 +1458,7 @@ type
     procedure UpdateWordWrap;
     procedure EnableActionsForEditor(SupportsRTF: boolean; EditEnabled: boolean); overload;
     procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
-                                     HasMultipleEntries: boolean; NumHiddenEntries: integer); overload;
+                                     HasMultipleEntries: boolean; NumHiddenEntries: integer; DisplayingAnyHiddenEntry: boolean); overload;
     procedure EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
     procedure ShowNodeChromeState(TreeUI: TKntTreeUI);
     procedure EnsureCalendarSupported;
@@ -1583,6 +1585,7 @@ uses
    kn_AlertMng,
    kn_KntFile,
    kn_VCLControlsMng,
+   knt.ui.info,
    knt.ui.tagSelector,
    knt.ui.TagMng,
    knt.ui.noteEntries,
@@ -4752,14 +4755,20 @@ begin
    App.ActiveNEntryHiddenChanged;
 end;
 
+procedure TForm_Main.RTFMHideAgainClick(Sender: TObject);
+begin
+  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ReloadVisibleContentOfEntries(True, cmHidden, -1, false, true);
+end;
+
 procedure TForm_Main.RTFMShowHiddenClick(Sender: TObject);
 begin
-//
+   TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ShowHiddenEntries(CtrlDown);             // (Ctrl: Show and undo hidden)
 end;
 
 procedure TForm_Main.RTFMEncrypClick(Sender: TObject);
 begin
   if not ActiveFile.CheckAuthorized(True) then exit;
+  if ActiveNEntry.IsMain then exit;
 
   ActiveNEntry.IsEncrypted:= not ActiveNEntry.IsEncrypted;
   ActiveNNode.Note.SetModified;
@@ -8606,7 +8615,9 @@ begin
 end;
 
 procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
-                                            HasMultipleEntries: boolean; NumHiddenEntries: integer);
+                                            HasMultipleEntries: boolean; NumHiddenEntries: integer; DisplayingAnyHiddenEntry: boolean);
+var
+  IsNotMain: boolean;
 begin
     MMInsertMarkLocation.Enabled := VinculatedToNote;
     MMBkmSet_.Enabled:= VinculatedToNote;
@@ -8619,14 +8630,19 @@ begin
     if (not VinculatedToNote) then
        RTFMTags.Hint:= '';
 
+    IsNotMain:= (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
+
     RTFMEntry_.Visible:=   HasMultipleEntries;
     RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
-    RTFMHidden.Enabled:=   (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
+    RTFMHidden.Enabled:=   IsNotMain;
     RTFMShowHidden.Enabled:= NumHiddenEntries > 0;
-    RTFMMain.Enabled:=     (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
+    RTFMMain.Enabled:=     IsNotMain;
     RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
+    RTFMEncryp.Enabled:=   IsNotMain;
     RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
     RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
+    RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
+    RTFMDeleteEntry.Enabled:=   IsNotMain;
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);

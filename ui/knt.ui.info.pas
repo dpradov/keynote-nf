@@ -98,6 +98,7 @@ type
     DescendingOrder: boolean;
     Filter: TFilterOptionsInPanel;
     EntriesOnlyHeader: TNoteEntryArray;
+    HiddenEntriesDisplayed: TNoteEntryArray;
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
     SelStart : integer;               // ,,
@@ -164,6 +165,7 @@ type
      procedure EditTags;
      procedure RefreshTags;
      procedure RefreshHeaderOfEntries;
+     procedure ReconsiderVisibilityOfEntries;
      procedure SetInfoPanelHidden(value: boolean);
      procedure KeepInfoPanelTemporarilyVisible;
 
