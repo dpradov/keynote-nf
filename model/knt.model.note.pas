@@ -395,7 +395,7 @@ type
     function TagsToString: string;
     procedure StringToTags(Str: string);
 
-    function GetExtractOfText(Length: integer = 30): string;
+    function GetExtractOfText(MaxLength: integer = 30; MaxLines: integer = -1): string;
   end;
 
 
@@ -1636,15 +1636,34 @@ begin
 end;
 
 
-function TNoteEntry.GetExtractOfText (Length: integer = 30): string;
+function TNoteEntry.GetExtractOfText (MaxLength: integer = 30; MaxLines: integer = -1): string;
 var
   RTFAux: TAuxRichEdit;
+  i, p, LastPos: integer;
 begin
   RTFAux:= CreateAuxRichEdit;
   try
     RTFAux.BeginUpdate;
     LoadStreamInRTFAux (Stream, RTFAux);
-    Result:= RTFAux.GetTextRange(0, Length);
+    Result:= RTFAux.VisibleText;
+    if Result <> '' then
+       Result:= Copy(Result, 1, MaxLength);
+
+    if MaxLines > 0 then begin
+       p:= 0;
+       LastPos:= Length(Result);
+       for i:= 1 to MaxLines do begin
+          p:= Pos(#13, Result, p+1);
+          if p > 0 then
+             LastPos:= p
+          else begin
+             LastPos:= MaxLength;
+             break;
+          end;
+       end;
+       Result:= Copy(Result, 1, LastPos);
+    end;
+
   finally
     RTFAux.Free;
   end;

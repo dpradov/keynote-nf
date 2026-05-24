@@ -932,6 +932,9 @@ type
      PnlTLTRRatio:   Single;   // Ratio TL vs TR
      PnlBLBRRatio:   Single;   // Ratio BL vs BR
 
+     ExtractOfText_MaxLength: integer;
+     ExtractOfText_MaxLines: integer;
+
      public procedure Initialize;
   end;
 
@@ -1196,7 +1199,10 @@ begin
     PnlBLBRRatio:= 0.5;
     PnlTopRatio:= 0.1354;
     PnlBottomRatio:= 0.15;
-end;
+
+    ExtractOfText_MaxLength:= 250;
+    ExtractOfText_MaxLines:= 3;
+ end;
 
 
 Initialization

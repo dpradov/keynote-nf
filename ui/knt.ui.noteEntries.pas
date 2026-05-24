@@ -1164,6 +1164,7 @@ var
  procedure PrepareEntryContent (iEntry: integer);
  var
    NEntry: TNoteEntry;
+   str: string;
  begin
      if (Mode = meMultipleEntries) then
         cEditor.Clear;
@@ -1174,10 +1175,22 @@ var
 
      if (Mode = meSingleEntry) or (FEntriesShown[iEntry].Content <> cmOnlyHeader) then begin
 
-         if ActiveFile.EncryptedContentMustBeHidden and NEntry.IsEncrypted then begin
+         if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
             cEditor.AddText(GetRS(sEdt52));
             exit;
          end;
+
+         if (Mode = meMultipleEntries) and (FEntriesShown[iEntry].Content = cmOnlyFirstLines) then begin
+            str:= NEntry.GetExtractOfText(Folder.NoteAdvOptions.ExtractOfText_MaxLength, Folder.NoteAdvOptions.ExtractOfText_MaxLines);
+            if str <> '' then begin
+               if str[length(str)] <> #13 then
+                  str:= str + ' ';
+               str:= str + '(...)';
+               cEditor.AddText(str);
+            end;
+            exit;
+         end;
+
 
          if not NEntry.IsRTF then
             UpdateEditor (cEditor, FKntFolder, False);

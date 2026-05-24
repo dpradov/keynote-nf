@@ -3412,6 +3412,7 @@ begin
 		  VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[aPanel];
 
        MMContent:= cmWholeEntry;
+       //MMContent:= cmOnlyFirstLines;
        MMShowDateInHeader:= true;
        MMShowTagsInHeader:= true;
        MMShowLineInHeader:= true;
