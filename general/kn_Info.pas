@@ -935,6 +935,8 @@ type
      ExtractOfText_MaxLength: integer;
      ExtractOfText_MaxLines: integer;
 
+     NewEntriesAlwaysOnEdLayout: boolean;
+
      public procedure Initialize;
   end;
 
@@ -1194,6 +1196,8 @@ begin
     DefaultUseForEditingLayout[pnCenter] := pnuShowAllEntries;
 
     DefaultTagsOrder:= nil;
+
+    NewEntriesAlwaysOnEdLayout:= false;
 
     PnlTLTRRatio:= 0.5;
     PnlBLBRRatio:= 0.5;

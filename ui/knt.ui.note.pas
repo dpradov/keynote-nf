@@ -1333,7 +1333,7 @@ begin
 
 
    DisableChangedInEmptyPanelAt:= Now;              // Will be enabled in TForm_Main.ApplicationEventsIdle
-   if FQueryLayout then begin
+   if FQueryLayout and Folder.NoteAdvOptions.NewEntriesAlwaysOnEdLayout then begin
       if (FNNodeUIConfig.MaximizedPanel <> pnNone) then
           ToggleMaximizeSelectedPanel;
       LoadFromNNode(FNNode, True, neEditingLayout, nil, true, TagsToAddToNewEntry)
