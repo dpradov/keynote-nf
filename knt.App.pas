@@ -640,7 +640,7 @@ end;
 
 procedure TKntApp.EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
 begin
-   if Editor = nil then exit;
+   if (Editor = nil) then exit;
 
    EditorSelected(Editor, Focused);     // Focused=False: Will not set ActiveFolder.FocusMemory:= focRTF (but will not set := focTree either)
 end;
@@ -653,7 +653,7 @@ var
 begin
     Log_StoreTick('TKntApp.EditorSelected - BEGIN', 4, +1);
 
-    if Editor.NEntryObj <> nil then
+    if Focused and (Editor.NEntryObj <> nil) then
        EditorToBeCheckedForContentUpdate:= Editor;
 
     ActiveEditor:= Editor;
@@ -684,7 +684,7 @@ begin
           NNodeSelected(ActiveNNode);
     end;
 
-    if Focused then begin
+    if Focused and not Initializing then begin
        UpdateEnabledActionsAndRTFState(Editor);
        ShowCurrentZoom(Editor.GetZoom);
        Editor.UpdateCursorPos;

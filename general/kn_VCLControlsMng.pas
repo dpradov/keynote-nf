@@ -427,6 +427,11 @@ begin
 
           myNoteUI:= TKntNoteUI.Create( myTab, aFolder );
           myNoteUI.Parent:= myTab;
+          myNoteUI.pnlTL.Visible:= false;
+          myNoteUI.pnlTR.Visible:= false;
+          myNoteUI.pnlBL.Visible:= false;
+          myNoteUI.pnlBR.Visible:= false;
+          myNoteUI.pnlLeft.Visible:= false;
 
           aFolder.NoteUI := myNoteUI;
           myTab.PrimaryObject := aFolder;

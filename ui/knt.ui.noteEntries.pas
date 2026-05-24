@@ -1114,8 +1114,10 @@ var
             end;
             if iEntryAdded <= FiEntry then
                inc(FiEntry);
-            if FiEntry < 0 then
+            if FiEntry < 0 then begin
                FiEntry:= 0;
+               iEntryToConsider:= 0;
+            end;
 
             FEntriesShown[iEntryAdded].NEntry:= NEntryToConsider;
             FEntriesShown[iEntryAdded].NNode:= FNNode;
