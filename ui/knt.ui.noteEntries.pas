@@ -152,6 +152,7 @@ type
     function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultipleMode): boolean;
     function NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
     function DisplayingAnyHiddenEntry: boolean;
+    function HasAnyEntryNonVisible: boolean;
     procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
     procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
     procedure ConfigureEditor(iEntry: integer = -1);
@@ -1828,12 +1829,21 @@ var
    i: integer;
 begin
    Result:= False;
-   if FEntriesShown = nil then exit;
-
    for i:= 0 to Length(FEntriesShown)-1 do
       if FEntriesShown[i].NEntry.IsHidden and (FEntriesShown[i].Content <> cmHidden) then
          exit(true);
 end;
+
+function TKntNoteEntriesUI.HasAnyEntryNonVisible: boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   for i:= 0 to Length(FEntriesShown)-1 do
+      if (FEntriesShown[i].Content = cmHidden) and not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+         exit(true);
+end;
+
 
 procedure TKntNoteEntriesUI.GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
 var
@@ -2436,8 +2446,11 @@ begin
       else
          NewCont:= cmWholeEntry;
 
-      if Alt and not Ctrl then
+      if Alt and not Ctrl then begin
+         if FNEntry.IsMain then
+            exit;
          NewCont:= cmHidden;
+      end;
 
       Sleep(100);
       Application.ProcessMessages;
@@ -2464,8 +2477,9 @@ begin
    if ModifyAll then
       for i:=0 to High(FEntriesShown) do begin
          if IgnoreHiddenEntries and (FEntriesShown[i].Content = cmHidden) then continue;
-         if OnlyHiddenEntries and (not FEntriesShown[i].NEntry.IsHidden) then continue;
+         if OnlyHiddenEntries and not ((FEntriesShown[i].NEntry.IsHidden) or (FEntriesShown[i].Content = cmHidden)) then continue;
          if FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
+         if (NewContent = cmHidden) and (FEntriesShown[i].NEntry.IsMain) then continue;
 
          FEntriesShown[i].Content:= NewContent;
       end;
@@ -2485,14 +2499,24 @@ end;
 procedure TKntNoteEntriesUI.ShowHiddenEntries(UndoHidden: boolean);
 var
    i: integer;
+   Shift: boolean;
 begin
-   if not CtrlDown then
+   Shift:= ShiftDown;
+
+   if not (CtrlDown or Shift) then
       ReloadVisibleContentOfEntries(True, cmOnlyHeader, -1, false, true)
 
    else begin
       // Ctrl: Show and undo hidden
+      // Shift: Only not hidden (Alt+DblClick)
 
       for i:=0 to High(FEntriesShown) do begin
+         if Shift then begin
+            if (FEntriesShown[i].Content = cmHidden) and (not FEntriesShown[i].NEntry.IsHidden) and
+               not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+               FEntriesShown[i].Content:= cmOnlyHeader;
+         end
+         else  // Ctrl
          if FEntriesShown[i].NEntry.IsHidden then begin
             FEntriesShown[i].NEntry.IsHidden:= False;
 

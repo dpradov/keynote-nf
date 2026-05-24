@@ -568,11 +568,11 @@ procedure TKntApp.UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 var
   Edit_PlainText, Edit_SupportsImages, Edit_SupportsRegImages, Edit_NoteObj, Edit_Enabled: boolean;
   Edit_HasMultipleEntries: boolean;
-  Edit_NumHiddenEntries: integer;
+  Edit_HasAnyEntryNonVisible: boolean;
   Edit_DisplayingAnyHiddenEntry: boolean;
 
 begin
-  Edit_NumHiddenEntries:= 0;
+  Edit_HasAnyEntryNonVisible:= false;
   Edit_DisplayingAnyHiddenEntry:= false;
 
   if (Editor = nil) or not Editor.Enabled then begin
@@ -592,13 +592,13 @@ begin
 
       Edit_HasMultipleEntries:= Edit_NoteObj and (TNoteNode(Editor.NNodeObj).Note.NumEntries > 1);
       if Edit_NoteObj then begin
-         Edit_NumHiddenEntries:= (TNoteNode(Editor.NNodeObj).Note.NumHiddenEntries);
+         Edit_HasAnyEntryNonVisible:=   (TKntNoteEntriesUI(Editor.NEntriesUIObj)).HasAnyEntryNonVisible;
          Edit_DisplayingAnyHiddenEntry:=(TKntNoteEntriesUI(Editor.NEntriesUIObj)).DisplayingAnyHiddenEntry;
       end;
   end;
 
   Form_Main.EnableActionsForEditor(not Edit_PlainText, Edit_Enabled);
-  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages, Edit_HasMultipleEntries, Edit_NumHiddenEntries, Edit_DisplayingAnyHiddenEntry);
+  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages, Edit_HasMultipleEntries, Edit_HasAnyEntryNonVisible, Edit_DisplayingAnyHiddenEntry);
   Form_Main.RxChangedSelection(Editor, true);
   Form_Main.UpdateWordWrap;
   ClipCapMng.ShowState;

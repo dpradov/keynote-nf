@@ -1458,7 +1458,7 @@ type
     procedure UpdateWordWrap;
     procedure EnableActionsForEditor(SupportsRTF: boolean; EditEnabled: boolean); overload;
     procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
-                                     HasMultipleEntries: boolean; NumHiddenEntries: integer; DisplayingAnyHiddenEntry: boolean); overload;
+                                     HasMultipleEntries: boolean; HasAnyEntryNonVisible: boolean; DisplayingAnyHiddenEntry: boolean); overload;
     procedure EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
     procedure ShowNodeChromeState(TreeUI: TKntTreeUI);
     procedure EnsureCalendarSupported;
@@ -8616,7 +8616,7 @@ begin
 end;
 
 procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
-                                            HasMultipleEntries: boolean; NumHiddenEntries: integer; DisplayingAnyHiddenEntry: boolean);
+                                            HasMultipleEntries: boolean; HasAnyEntryNonVisible: boolean; DisplayingAnyHiddenEntry: boolean);
 var
   IsNotMain: boolean;
 begin
@@ -8636,7 +8636,7 @@ begin
     RTFMEntry_.Visible:=   HasMultipleEntries;
     RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
     RTFMHidden.Enabled:=   IsNotMain;
-    RTFMShowHidden.Enabled:= NumHiddenEntries > 0;
+    RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
     RTFMMain.Enabled:=     IsNotMain;
     RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
     RTFMEncryp.Enabled:=   IsNotMain;

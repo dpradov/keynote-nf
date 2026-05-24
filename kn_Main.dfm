@@ -4209,7 +4209,9 @@ object Form_Main: TForm_Main
       end
       object RTFMShowHidden: TMenuItem
         Caption = 'Show hidden'
-        Hint = 'Show hidden entries (Ctrl: Also undo hidden state)'
+        Hint = 
+          'Show hidden entries (Ctrl: Also undo hidden state) (Shift: Only ' +
+          'not "hidden" (Alt+DblClick)))'
         OnClick = RTFMShowHiddenClick
       end
       object RTFMHideAgain: TMenuItem
@@ -4219,7 +4221,9 @@ object Form_Main: TForm_Main
       end
       object RTFMEncryp: TMenuItem
         Caption = 'Encrypted'
-        Hint = 'The content of the entry, and optionally its tags, will be saved encrypted in the file'
+        Hint = 
+          'The content of the entry, and optionally its tags, will be saved' +
+          ' encrypted in the file'
         OnClick = RTFMEncrypClick
       end
       object N93: TMenuItem
