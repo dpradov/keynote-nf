@@ -932,6 +932,8 @@ type
      PnlTLTRRatio:   Single;   // Ratio TL vs TR
      PnlBLBRRatio:   Single;   // Ratio BL vs BR
 
+     AutoExpandInPanels: boolean;           // for TL,TR, BL and BR
+
      ExtractOfText_MaxLength: integer;
      ExtractOfText_MaxLines: integer;
 
@@ -1203,6 +1205,8 @@ begin
     PnlBLBRRatio:= 0.5;
     PnlTopRatio:= 0.1354;
     PnlBottomRatio:= 0.15;
+
+    AutoExpandInPanels:= true;
 
     ExtractOfText_MaxLength:= 250;
     ExtractOfText_MaxLines:= 3;

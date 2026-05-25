@@ -3309,6 +3309,12 @@ begin
       Result:= FTop_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlTopRatio;
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel in [pnTL, pnTR]) then
+            Result:= 0.5;
+      end;
+
    end
    else
    if FMaximizedPanel in [pnTL, pnTR] then
@@ -3323,6 +3329,12 @@ begin
       Result:= FBottom_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlBottomRatio;
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel in [pnBL, pnBR]) then
+            Result:= 0.5;
+      end;
+
    end
    else
    if FMaximizedPanel in [pnBL, pnBR] then
@@ -3337,6 +3349,14 @@ begin
       Result:= FTLTR_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlTLTRRatio;
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel = pnTL) then
+            Result:= 0.9
+         else
+         if (FFocusedPanel = pnTR) then
+            Result:= 0.1
+      end;
    end
    else
    if FMaximizedPanel in [pnTL] then
@@ -3351,6 +3371,15 @@ begin
       Result:= FBLBR_Ratio;
       if Result = 0 then
          Result:= FFolder.NoteAdvOptions.PnlBLBRRatio;
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel = pnBL) then
+            Result:= 0.9
+         else
+         if (FFocusedPanel = pnBR) then
+            Result:= 0.1
+      end;
+
    end
    else
    if FMaximizedPanel in [pnBL] then

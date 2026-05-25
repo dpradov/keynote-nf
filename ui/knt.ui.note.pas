@@ -191,6 +191,8 @@ type
     procedure ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
     procedure PanelEmpty(Panel: TNEntriesPanel; WithoutVisibleEntries: boolean);
     property ChangingLayout: boolean read FChangingLayout;
+    procedure RefreshPanelsLayout;
+    procedure TreeFocused;
     //procedure TestPanels;
 
   protected
@@ -773,6 +775,16 @@ begin
    end;
 end;
 
+
+procedure TKntNoteUI.RefreshPanelsLayout;
+begin
+   FrameResize(nil);
+end;
+
+procedure TKntNoteUI.TreeFocused;
+begin
+   FNNodeUIConfig.FocusedPanel:= pnNone;
+end;
 
 {
 procedure TKntNoteUI.TestPanels;
@@ -1471,6 +1483,9 @@ begin
   FSelectedNEntriesUI:= TKntNoteEntriesUI(Sender);
   FSelectedNEntriesUI.cFocusedFlag.Color:= clSkyBlue;
   FNNodeUIConfig.FocusedPanel:= FSelectedNEntriesUI.PanelConfig.Panel;
+
+  if (Folder.NoteAdvOptions.AutoExpandInPanels) then
+     FramResizePendingInNoteEntriesUI:= Self;
 
   TimerInfoPanel.Enabled:= False;
   TimerInfoPanel.Enabled:= True;

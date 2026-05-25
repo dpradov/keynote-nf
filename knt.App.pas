@@ -259,6 +259,7 @@ var
    FloatingEditorCannotBeSaved: boolean;
    EditorToBeCheckedForContentUpdate: TKntRichEdit;
    DisableChangedInEmptyPanelAt: TDateTime;
+   FramResizePendingInNoteEntriesUI: TObject;  // TKntNoteUI
 
    ExportingFormVisible: boolean;
    InformingSomeoneChangedOurFile: boolean;
@@ -298,6 +299,7 @@ uses
    kn_NoteFileMng,
    knt.ui.TagMng,
    knt.ui.tagSelector,
+   knt.ui.note,
    knt.ui.noteEntries,
    knt.RS;
 
@@ -402,6 +404,7 @@ begin
    InformingSomeoneChangedOurFile:= false;
    EditorToBeCheckedForContentUpdate:= nil;
    DisableChangedInEmptyPanelAt:= 0;
+   FramResizePendingInNoteEntriesUI:= nil;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
@@ -1170,8 +1173,11 @@ begin
 
   ShowCurrentZoom(ActiveFolder.ZoomGoal);
 
-  if ActiveFolder.FocusMemory = focTree then
+  if ActiveFolder.FocusMemory = focTree then begin
      Form_Main.EnableActionsForTree(Tree, ActiveFolder.ReadOnly);
+     TKntNoteUI(ActiveFolder.NoteUI).TreeFocused;
+     FramResizePendingInNoteEntriesUI:= TKntNoteUI(ActiveFolder.NoteUI);
+  end;
 
   if Form_Main.ShortcutAltDownMenuItem <> nil then
      Form_Main.ShortcutAltDownMenuItem.Enabled:= True;

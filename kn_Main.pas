@@ -1588,6 +1588,7 @@ uses
    knt.ui.info,
    knt.ui.tagSelector,
    knt.ui.TagMng,
+   knt.ui.note,
    knt.ui.noteEntries,
    knt.App,
    knt.RS
@@ -2482,6 +2483,11 @@ begin
 
     if (DisableChangedInEmptyPanelAt <> 0) and (MilliSecondsBetween(DisableChangedInEmptyPanelAt, now) > 200)  then
        DisableChangedInEmptyPanelAt:= 0;
+
+    if FramResizePendingInNoteEntriesUI <> nil then begin
+       TKntNoteUI(FramResizePendingInNoteEntriesUI).RefreshPanelsLayout;
+       FramResizePendingInNoteEntriesUI:= nil;
+    end;
 
    Done := True;
 

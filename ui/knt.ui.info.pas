@@ -168,6 +168,8 @@ type
      procedure ReconsiderVisibilityOfEntries;
      procedure SetInfoPanelHidden(value: boolean);
      procedure KeepInfoPanelTemporarilyVisible;
+     procedure RefreshPanelsLayout;
+     procedure TreeFocused;
 
      procedure SetReadOnly( AReadOnly : boolean );
      procedure NNodeDeleted;
