@@ -1408,9 +1408,9 @@ object Form_Main: TForm_Main
               Top = 95
               Width = 192
               Height = 17
-              Hint = 'Consider hidden nodes'
+              Hint = 'Consider hidden nodes and entries'
               Anchors = [akLeft, akTop, akRight]
-              Caption = 'Search hidden nodes'
+              Caption = 'Search hidden nodes/entries'
               Checked = True
               State = cbChecked
               TabOrder = 4

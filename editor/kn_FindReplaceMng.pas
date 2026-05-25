@@ -2941,6 +2941,7 @@ begin
                            ConsiderNEntry:= true;
 
                            if (HideEncrypted and myNEntry.IsEncrypted) then continue;
+                           if (not myFindOptions.HiddenNodes and myNEntry.IsHidden) then continue;
 
 
                            if SearchTagsInEntriesMetadata then begin

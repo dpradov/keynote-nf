@@ -579,8 +579,8 @@ Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_ResFind_CurrentNodeA
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.RG_ResFind_Type.Hint=Select type of search to perform
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.RG_ResFind_Scope.Hint=Select scope of search to perform
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.RG_ResFind_ChkMode.Hint=Select whether to consider nodes based on checked status
-Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_ResFind_HiddenNodes.Hint=Consider hidden nodes
-Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_ResFind_HiddenNodes.Caption=Search hidden nodes
+Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_ResFind_HiddenNodes.Hint=Consider hidden nodes and entries
+Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_ResFind_HiddenNodes.Caption=Search hidden nodes/entries
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_LastModifFrom.Hint=From
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_LastModifUntil.Hint=Until
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_CreatedFrom.Hint=From
