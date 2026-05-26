@@ -2485,6 +2485,7 @@ begin
        DisableChangedInEmptyPanelAt:= 0;
 
     if FramResizePendingInNoteEntriesUI <> nil then begin
+       sleep(75);
        TKntNoteUI(FramResizePendingInNoteEntriesUI).RefreshPanelsLayout;
        FramResizePendingInNoteEntriesUI:= nil;
     end;
@@ -6809,6 +6810,8 @@ var
 
 begin
   VisibilityControlsFindAllResults (true);
+
+  CheckFindTagsRecalc;
 
   // transfer FindAll options to myFindOptions
   myFindOptions.MatchCase := CB_ResFind_CaseSens.Checked;
