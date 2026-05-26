@@ -4780,6 +4780,8 @@ begin
   ActiveNEntry.IsEncrypted:= not ActiveNEntry.IsEncrypted;
   ActiveNNode.Note.SetModified;
   ActiveFolder.Modified:= True;
+  if ActiveFile.HighlightProtectedNodesAndEntries then
+     ActiveFolder.NoteUI.RefreshHeaderOfEntries(ActiveNEntry);
   App.NEntrySelected(ActiveEditor, ActiveNEntry);    // --> UpdateEnabledActionsAndRTFState
 end;
 
@@ -6845,7 +6847,7 @@ begin
 
   myFindOptions.EmphasizedSearch:= esNone;
   myFindOptions.FoldedMode:= TSearchFoldedMode(CbFindFoldedMode.ItemIndex);
-  myFindOptions.ProtectedNodesOnly:= false;
+  myFindOptions.ProtectedNodesAndEntriesOnly:= false;
   
 
   ApplyFilter:= CB_ResFind_Filter.Checked;

@@ -232,7 +232,7 @@ const
    FIND_PARAGRAPH_SCOPE_SEP = '...';
    FIND_EMPHASIZED_SEARCH_WORDS_CHR = '*';
    FIND_EMPHASIZED_SEARCH_PARAGRAPH_CHR = '**';
-   FIND_ONLY_PROTECTED_NODES_CHR = '*?';
+   FIND_ONLY_PROTECTED_NODES_AND_ENTRIES_CHR = '*?';
 
 
 procedure FreeFragments(var FoundNodes: TNodeList; var FoundNotes: TNoteList; var FoundEntriesInNotes: TFoundEntriesInNotesList);
@@ -947,8 +947,8 @@ begin
            wordList.delete(i);
         end
         else
-        if wordList[i].word = FIND_ONLY_PROTECTED_NODES_CHR then begin               // *?
-           myFindOptions.ProtectedNodesOnly:= True;
+        if wordList[i].word = FIND_ONLY_PROTECTED_NODES_AND_ENTRIES_CHR then begin               // *?
+           myFindOptions.ProtectedNodesAndEntriesOnly:= True;
            wordList.delete(i);
         end
         else begin
@@ -1111,8 +1111,8 @@ begin
      (myFindOptions.Pattern[1] = '"') and (myFindOptions.Pattern[Length(myFindOptions.Pattern)] = '"')  then
       myFindOptions.Pattern:= Copy(myFindOptions.Pattern,2,Length(myFindOptions.Pattern)-2)
   else
-  if str = FIND_ONLY_PROTECTED_NODES_CHR then begin               // *?
-     myFindOptions.ProtectedNodesOnly:= True;
+  if str = FIND_ONLY_PROTECTED_NODES_AND_ENTRIES_CHR then begin               // *?
+     myFindOptions.ProtectedNodesAndEntriesOnly:= True;
      myFindOptions.Pattern:= Copy(myFindOptions.Pattern, 3).TrimLeft;
   end;
 
@@ -2688,7 +2688,7 @@ begin
 
   if (myFindOptions.Pattern = '')
       and not SearchingByDates and not (SearchTagsInNotesMetadata or SearchTagsInEntriesMetadata or SearchTagsInText )
-      and not myFindOptions.ProtectedNodesOnly then exit;
+      and not myFindOptions.ProtectedNodesAndEntriesOnly then exit;
 
   UserBreak := false;
   Form_Main.CloseNonModalDialogs;
@@ -2780,7 +2780,7 @@ begin
       end;
 
       if (wordcnt = 0) and not SearchingByDates and not (SearchTagsInNotesMetadata or SearchTagsInEntriesMetadata or SearchTagsInText)
-                       and not myFindOptions.ProtectedNodesOnly then begin
+                       and not myFindOptions.ProtectedNodesAndEntriesOnly then begin
 
          Form_Main.Combo_ResFind.Text:= '';
          Form_Main.Btn_ResFind.Enabled:= False;
@@ -2847,7 +2847,7 @@ begin
                 // TODO: Consider the dates of the Entries of the note
                 if (not (HideEncrypted and myNNode.Note.IsEncrypted) or
                           (not ActiveFile.EncryptedNodesMustBeHidden and ((TextToFind = '') or (myFindOptions.SearchScope <> ssOnlyContent)) ) ) and
-                   (not myFindOptions.ProtectedNodesOnly or (not HideEncrypted and myNNode.Note.IsEncrypted)) and
+                   (not myFindOptions.ProtectedNodesAndEntriesOnly or (not HideEncrypted and (myNNode.Note.IsEncrypted or myNNode.Note.HasEncryptedEntries ))) and
                    (not SearchingByDates or (myNNode.Note.LastModified <> 0) ) and
                    (myNNode.Note.LastModified.GetDate  >= myFindOptions.LastModifFrom) and
                    ((myFindOptions.LastModifUntil = 0) or (myNNode.Note.LastModified.GetDate <= myFindOptions.LastModifUntil)) and
@@ -2942,6 +2942,7 @@ begin
 
                            if (HideEncrypted and myNEntry.IsEncrypted) then continue;
                            if (not myFindOptions.HiddenNodes and myNEntry.IsHidden) then continue;
+                           if myFindOptions.ProtectedNodesAndEntriesOnly and (HideEncrypted or not myNEntry.IsEncrypted) then continue;
 
 
                            if SearchTagsInEntriesMetadata then begin

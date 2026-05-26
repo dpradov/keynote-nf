@@ -164,7 +164,7 @@ type
 
      procedure EditTags;
      procedure RefreshTags;
-     procedure RefreshHeaderOfEntries;
+     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
      procedure ReconsiderVisibilityOfEntries;
      procedure SetInfoPanelHidden(value: boolean);
      procedure KeepInfoPanelTemporarilyVisible;

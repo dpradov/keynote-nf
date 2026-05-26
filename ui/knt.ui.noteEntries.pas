@@ -136,7 +136,7 @@ type
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false);
     procedure ShowHiddenEntries(UndoHidden: boolean);
-    procedure RefreshHeaderOfEntries;
+    procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure NEntryDeleted(NEntry: TNoteEntry);
     procedure NEntryHidden(NEntry: TNoteEntry; Hidden: boolean; CreatedBefore: TDateTime = 0);
@@ -2062,6 +2062,9 @@ begin
       ColorInfo:= RGB(220,220,220);
    end;
 
+   if NEntry.IsEncrypted and ActiveFile.HighlightProtectedNodesAndEntries then
+      ColorInfo:= clRed;
+
 
    if PanelConfig.MMShowLineInHeader then
       strLine:= GetRTFPrintableLineAux(999999);
@@ -2538,10 +2541,10 @@ end;
 
 
 
-procedure TKntNoteEntriesUI.RefreshHeaderOfEntries;
+procedure TKntNoteEntriesUI.RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
 begin
    SavePositionInPanel;
-   ReloadFromDataModel(false, nil, aRefreshHeader);
+   ReloadFromDataModel(false, OnlyNEntry, aRefreshHeader);
 end;
 
 

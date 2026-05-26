@@ -167,7 +167,7 @@ type
     procedure SetBGColorInEditors(Color: TColor);
     procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
     procedure RestoreZoomGoal;
-    procedure RefreshHeaderOfEntries;
+    procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
     procedure ReconsiderVisibilityOfEntries;
 
 
@@ -1195,13 +1195,13 @@ begin
 end;
 
 
-procedure TKntNoteUI.RefreshHeaderOfEntries;
+procedure TKntNoteUI.RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
 var
   p: TNEntriesPanel;
 begin
   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
-        FNEntriesUI[p].RefreshHeaderOfEntries;
+        FNEntriesUI[p].RefreshHeaderOfEntries(OnlyNEntry);
 end;
 
 procedure TKntNoteUI.ReconsiderVisibilityOfEntries;

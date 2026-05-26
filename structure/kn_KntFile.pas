@@ -97,7 +97,7 @@ type
     FCachedVerificationHash: THash;
     FKeysAreCached: Boolean;
     FHidingEncryptedNodes : Boolean;
-    FHighlightProtectedNodes : Boolean;
+    FHighlightProtectedNodesAndEntries : Boolean;
 
     FSavedActiveFolderID : Cardinal;
 
@@ -181,7 +181,7 @@ type
     property EncryptedContentMustBeHidden: boolean read GetEncryptedContentMustBeHidden;
     property EncryptedNodesMustBeHidden: boolean read GetEncryptedNodesMustBeHidden;
     property KeysAreCached: Boolean read FKeysAreCached;
-    property HighlightProtectedNodes: Boolean read FHighlightProtectedNodes;
+    property HighlightProtectedNodesAndEntries: Boolean read FHighlightProtectedNodesAndEntries;
 
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
@@ -367,7 +367,7 @@ begin
   FEncryptedContentOpened:= True;
   FHideEncryptedNodesAndEntries:= False;
   FHidingEncryptedNodes:= False;
-  FHighlightProtectedNodes:= False;
+  FHighlightProtectedNodesAndEntries:= False;
   InvalidateKeyCache;
   FReadOnly := false;
   FOpenAsReadOnly := false;
@@ -3932,7 +3932,7 @@ begin
 
       if not FEncryptedContentOpened then begin
          InvalidateKeyCache;
-         FHighlightProtectedNodes:= False;
+         FHighlightProtectedNodesAndEntries:= False;
       end;
 
       if not IsMergeFile then begin
@@ -4050,7 +4050,7 @@ begin
       end;
 
       if CheckPassword(GetEncryptionInfo) then begin
-         FHighlightProtectedNodes:= WasShiftDown;
+         FHighlightProtectedNodesAndEntries:= WasShiftDown;
          EncryptedContentOpened:= True;
          exit (True);
       end;
