@@ -134,7 +134,9 @@ type
                                    ActionOnEntry: TActionOnEntry = aNull;
                                    InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
-    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false);
+    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1;
+                                             IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;
+                                             LimitToCreatedBeforeSelectedEntry: boolean = false);
     procedure ShowHiddenEntries(UndoHidden: boolean);
     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
@@ -146,7 +148,7 @@ type
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
-    procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean);
+    procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
     procedure ToggleOnlyHeaders_WholeContent;
     function GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
@@ -2428,7 +2430,7 @@ end;
 
 
 
-procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries(Ctrl, Alt: boolean);
+procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
 var
    SS, i: integer;
    NewCont: TContentInMultipleMode;
@@ -2444,10 +2446,12 @@ begin
 
    if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
 
-      if FEntriesShown[FiEntry].Content <> cmOnlyHeader then
-         NewCont:= cmOnlyHeader
-      else
-         NewCont:= cmWholeEntry;
+      case FEntriesShown[FiEntry].Content of
+        cmOnlyHeader,
+        cmOnlyFirstLines: NewCont:= cmWholeEntry;
+        cmWholeEntry:     NewCont:= cmOnlyHeader;
+        cmHidden:         NewCont:= cmOnlyFirstLines;
+      end;
 
       if Alt and not Ctrl then begin
          if FNEntry.IsMain then
@@ -2459,7 +2463,7 @@ begin
       Application.ProcessMessages;
 
       PanelConfig.SelNEntry:= FNEntry;
-      ReloadVisibleContentOfEntries (Ctrl, NewCont, FiEntry, not Alt);
+      ReloadVisibleContentOfEntries (Ctrl, NewCont, FiEntry, not Alt,  false, LimitToCreatedBeforeSelectedEntry);
 
       if FiEntry >= 0 then           // It could be the last visible, and Alt+DblClick was pressed on it
          SelectEntry(FiEntry);
@@ -2472,28 +2476,39 @@ begin
    if (FiEntry < 0) or (PanelConfig.CurrentMode <> meMultipleEntries) then exit;
 
    Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
-   EditorDblClickInMultiEntries(True, False);
+   EditorDblClickInMultiEntries(True, False, CtrlDown);
 end;
 
-procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false);
+procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1;
+                                                           IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;
+                                                           LimitToCreatedBeforeSelectedEntry: boolean = false);
 var
    i: integer;
    NEntryToConsider: TNoteEntry;
+   NEntry: TNoteEntry;
+   CreatedDate: TDateTime;
 begin
    if not ModifyAll and ((iEntry < 0) or (FEntriesShown[iEntry].Content = NewContent)) then exit;
 
    if iEntry >= 0 then
       FEntriesShown[iEntry].Content:= NewContent;
 
-   if ModifyAll then
+   if ModifyAll then begin
+      CreatedDate:= 0;
+      if LimitToCreatedBeforeSelectedEntry then
+         CreatedDate:= FNEntry.Created;
+
       for i:=0 to High(FEntriesShown) do begin
          if IgnoreHiddenEntries and (FEntriesShown[i].Content = cmHidden) then continue;
-         if OnlyHiddenEntries and not ((FEntriesShown[i].NEntry.IsHidden) or (FEntriesShown[i].Content = cmHidden)) then continue;
-         if FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
-         if (NewContent = cmHidden) and (FEntriesShown[i].NEntry.IsMain) then continue;
+         NEntry:= FEntriesShown[i].NEntry;
+         if OnlyHiddenEntries and not ((NEntry.IsHidden) or (FEntriesShown[i].Content = cmHidden)) then continue;
+         if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
+         if (NewContent = cmHidden) and (NEntry.IsMain) then continue;
+         if LimitToCreatedBeforeSelectedEntry and (NEntry.Created > CreatedDate) then continue;
 
          FEntriesShown[i].Content:= NewContent;
       end;
+   end;
 
    SaveToDataModel();
    Editor.HideNestedFloatingEditor;
@@ -2515,7 +2530,7 @@ begin
    Shift:= ShiftDown;
 
    if not (CtrlDown or Shift) then
-      ReloadVisibleContentOfEntries(True, cmOnlyHeader, -1, false, true)
+      ReloadVisibleContentOfEntries(True, cmOnlyFirstLines, -1, false, true)
 
    else begin
       // Ctrl: Show and undo hidden
@@ -2525,7 +2540,7 @@ begin
          if Shift then begin
             if (FEntriesShown[i].Content = cmHidden) and (not FEntriesShown[i].NEntry.IsHidden) and
                not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
-               FEntriesShown[i].Content:= cmOnlyHeader;
+               FEntriesShown[i].Content:= cmOnlyFirstLines;
          end
          else  // Ctrl
          if FEntriesShown[i].NEntry.IsHidden then begin
@@ -2535,11 +2550,11 @@ begin
                if ActiveFile.HideEncryptedNodesAndEntries then
                   FEntriesShown[i].Content:= cmHidden
                else
-                  FEntriesShown[i].Content:= cmOnlyHeader;
+                  FEntriesShown[i].Content:= cmOnlyFirstLines;
             end
             else
             if FEntriesShown[i].Content = cmHidden then
-               FEntriesShown[i].Content:= cmOnlyHeader;
+               FEntriesShown[i].Content:= cmOnlyFirstLines;
          end;
       end;
       App.ReconsiderVisibilityOfEntries(FNote);

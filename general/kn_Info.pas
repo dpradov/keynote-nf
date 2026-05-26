@@ -1206,7 +1206,7 @@ begin
     PnlTopRatio:= 0.1354;
     PnlBottomRatio:= 0.15;
 
-    AutoExpandInPanels:= true;
+    AutoExpandInPanels:= false;
 
     ExtractOfText_MaxLength:= 250;
     ExtractOfText_MaxLines:= 3;

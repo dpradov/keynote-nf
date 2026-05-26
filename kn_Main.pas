@@ -4765,7 +4765,7 @@ end;
 
 procedure TForm_Main.RTFMOnlyFLinesClick(Sender: TObject);
 begin
-  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ReloadVisibleContentOfEntries(True, cmOnlyFirstLines);
+  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ReloadVisibleContentOfEntries(True, cmOnlyFirstLines,  -1,true,false,   CtrlDown);
 end;
 
 procedure TForm_Main.RTFMHdWhClick(Sender: TObject);

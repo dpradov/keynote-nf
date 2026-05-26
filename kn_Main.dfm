@@ -4232,15 +4232,15 @@ object Form_Main: TForm_Main
       object RTFMOnlyFLines: TMenuItem
         Caption = 'Show only first lines'
         Hint = 
-          'Show only an initial extract of the entries (length/lines accord' +
-          'ing to configuration)'
+          'Show only an initial extract of the entries (Ctrl: On selected e' +
+          'ntry and all created before it)'
         OnClick = RTFMOnlyFLinesClick
       end
       object RTFMHdWh: TMenuItem
         Caption = 'Only Headers / Whole content'
         Hint = 
-          'Toggle between showing only the headings or also all the content' +
-          ' of the entries.'
+          'Toggle between showing only the headers or all the content (Ctrl' +
+          ': On selected entry and all created before it)'
         OnClick = RTFMHdWhClick
       end
       object N93: TMenuItem
