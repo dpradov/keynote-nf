@@ -4226,6 +4226,23 @@ object Form_Main: TForm_Main
           ' encrypted in the file'
         OnClick = RTFMEncrypClick
       end
+      object N115: TMenuItem
+        Caption = '-'
+      end
+      object RTFMOnlyFLines: TMenuItem
+        Caption = 'Show only first lines'
+        Hint = 
+          'Show only an initial extract of the entries (length/lines accord' +
+          'ing to configuration)'
+        OnClick = RTFMOnlyFLinesClick
+      end
+      object RTFMHdWh: TMenuItem
+        Caption = 'Only Headers / Whole content'
+        Hint = 
+          'Toggle between showing only the headings or also all the content' +
+          ' of the entries.'
+        OnClick = RTFMHdWhClick
+      end
       object N93: TMenuItem
         Caption = '-'
       end

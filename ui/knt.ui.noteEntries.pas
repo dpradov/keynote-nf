@@ -146,7 +146,8 @@ type
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
-    procedure EditorDblClickInMultiEntries;
+    procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean);
+    procedure ToggleOnlyHeaders_WholeContent;
     function GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
     function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultipleMode): boolean;
@@ -2427,11 +2428,10 @@ end;
 
 
 
-procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries;
+procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries(Ctrl, Alt: boolean);
 var
    SS, i: integer;
    NewCont: TContentInMultipleMode;
-   Alt, Ctrl: boolean;
 begin
    {
                  DblClick -> Toggle between cmOnlyHeader and cmWholeEntry, on selected entry
@@ -2443,8 +2443,6 @@ begin
    SS:= Editor.SelStart;
 
    if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
-      Alt:= AltDown;
-      Ctrl:= CtrlDown;
 
       if FEntriesShown[FiEntry].Content <> cmOnlyHeader then
          NewCont:= cmOnlyHeader
@@ -2468,6 +2466,14 @@ begin
    end;
 end;
 
+
+procedure TKntNoteEntriesUI.ToggleOnlyHeaders_WholeContent;
+begin
+   if (FiEntry < 0) or (PanelConfig.CurrentMode <> meMultipleEntries) then exit;
+
+   Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
+   EditorDblClickInMultiEntries(True, False);
+end;
 
 procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1; IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false);
 var

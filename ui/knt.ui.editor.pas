@@ -4949,7 +4949,7 @@ begin
 
 
    if fMultiEntries and (FNEntriesUIObj <> nil) then
-     TKntNoteEntriesUI(FNEntriesUIObj).EditorDblClickInMultiEntries;
+     TKntNoteEntriesUI(FNEntriesUIObj).EditorDblClickInMultiEntries(CtrlDown, AltDown);
 
    inherited;
 end;

@@ -942,6 +942,9 @@ type
     N93: TMenuItem;
     N114: TMenuItem;
     RTFMHideAgain: TMenuItem;
+    N115: TMenuItem;
+    RTFMOnlyFLines: TMenuItem;
+    RTFMHdWh: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1380,6 +1383,8 @@ type
     procedure RTFMEncrypClick(Sender: TObject);
     procedure RTFMDeleteEntryClick(Sender: TObject);
     procedure RTFMHideAgainClick(Sender: TObject);
+    procedure RTFMOnlyFLinesClick(Sender: TObject);
+    procedure RTFMHdWhClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -2485,7 +2490,7 @@ begin
        DisableChangedInEmptyPanelAt:= 0;
 
     if FramResizePendingInNoteEntriesUI <> nil then begin
-       sleep(75);
+       sleep(85);
        TKntNoteUI(FramResizePendingInNoteEntriesUI).RefreshPanelsLayout;
        FramResizePendingInNoteEntriesUI:= nil;
     end;
@@ -4756,6 +4761,16 @@ end;
 procedure TForm_Main.RTFMMainClick(Sender: TObject);
 begin
    App.ActiveNEntryMain;
+end;
+
+procedure TForm_Main.RTFMOnlyFLinesClick(Sender: TObject);
+begin
+  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ReloadVisibleContentOfEntries(True, cmOnlyFirstLines);
+end;
+
+procedure TForm_Main.RTFMHdWhClick(Sender: TObject);
+begin
+  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ToggleOnlyHeaders_WholeContent;
 end;
 
 procedure TForm_Main.RTFMHiddenClick(Sender: TObject);
@@ -8655,6 +8670,8 @@ begin
     RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
     RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
     RTFMDeleteEntry.Enabled:=   IsNotMain;
+    RTFMHdWh.Enabled:=        ActiveEditor.MultiEntries;
+    RTFMOnlyFLines.Enabled:=  ActiveEditor.MultiEntries;
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);
