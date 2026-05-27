@@ -1810,7 +1810,10 @@ begin
                if FNEntriesUI[p].PanelConfig.VinculatedTags = nil then
                   SelNEntriesUI:= FNEntriesUI[p];
             end;
-         end;
+         end
+         else
+            FNEntriesUI[p].PanelConfig.Free;
+
       end;
 
    if (FSelectedNEntriesUI <> nil) and (FSelectedNEntriesUI.PanelConfig.Panel in MainPanels) and (FSelectedNEntriesUI.PanelConfig.VinculatedTags = nil) then
@@ -1828,10 +1831,16 @@ begin
 
 
    SetLength(FNNodeUIConfig.PanelsConfig, iOnUse);
-   if FNewNNodeUIConfig and ((NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal)) then begin
-      Folder.AddNNodeUIConfig(FNNodeUIConfig);
-      FNewNNodeUIConfig:= false;
-   end;
+   if FNewNNodeUIConfig then
+      if (NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) then begin
+         Folder.AddNNodeUIConfig(FNNodeUIConfig);
+         FNewNNodeUIConfig:= false;
+      end
+      else begin
+         for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+            if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+               FNEntriesUI[p].PanelConfig.Free;
+      end;
 
    Log_StoreTick('TKntNoteUI.SaveToDataModel - END', 4, -1);
 end;

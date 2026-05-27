@@ -105,6 +105,9 @@ type
     SelLength : integer;              // ,,
     ScrollPosInEditor: TPoint;        // ,,
     ZoomCurrent: integer;
+
+    constructor Create;
+    destructor Destroy; override;
   end;
 
 
@@ -186,6 +189,21 @@ type
 
 
 implementation
+
+constructor TPanelConfiguration.Create;
+begin
+  NNodes:= nil;
+end;
+
+destructor TPanelConfiguration.Destroy;
+begin
+    if assigned(NNodes) then begin
+      FreeAndNil(NNodes);
+    end;
+
+   inherited;
+end;
+
 
 end.
 
