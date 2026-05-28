@@ -225,7 +225,7 @@ const
    sDef28 = 54922;   // <no icon>
    sDef29 = 54923;   // Invalid zoom ratio:
    sDef30 = 54924;   //  (and apply to "%s" folder)
-   sDef31 = 54202;   // REMEMBER:\^\^- Folder settings apply only to NEW notes, except:\^   - 'Plain note only': modifies ALL the notes\^   - 'WordWrap': affects ALL the notes\^       (not explicitly set WordWrap previously)\^\^>> More info in Help File (F1)
+   sDef31 = 54202;   // REMEMBER:\^\^- Folder settings apply only to NEW notes, except:\^   - 'WordWrap': affects ALL the notes\^       (not explicitly set WordWrap previously)\^\^>> More info in Help File (F1)
    sDef32 = 54203;   // REMEMBER:\^\^- Font change affect only to NEW nodes (all if Plain note)\^- BG Color depends on 'Inherit BG color from active node':\^   - If set, background color of selected node is shown\^     (=> BG color of its new child nodes)\^   - If not set, default BG color for all NEW nodes is shown\^   * To edit this option -> F5 | General settings| Rich Text editor\^\^- BG Color can be changed for ALL nodes in a Folder:\^    [Shift] + "Format | Background color"\^\^>> More info in Help File (F1)
    sDef33 = 54204;   // REMEMBER:\^\^- BG Color sets backgroud color for the Tree Panel and\^  default BG color of tree nodes\^- Previous changes to individual nodes won't be affected\^- 'Inherit properties from active node' option is\^  considered in NEW nodes\^- Font and BG color can be changed for ALL tree panels at once:\^    "Apply to ALL folders"\^\^- Note: 'Inherit BG color from active node' option does NOT\^  affect (refers to Editor) \^\^>> More info in Help File (F1)
 
