@@ -273,7 +273,6 @@ type
     property Checkboxes : boolean read FCheckboxes write FCheckboxes;
     property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
     property DefaultNoteName : string read FDefaultNoteName write FDefaultNoteName;
-    //property AutoNumberNodes : boolean read FAutoNumberNotes write FAutoNumberNotes;
     property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
     property TreeHidden : boolean read FTreeHidden write FTreeHidden;
     property EditorInfoPanelHidden : boolean read FEditorInfoPanelHidden write SetEditorInfoPanelHidden;
@@ -1718,7 +1717,6 @@ begin
   FCheckboxes := aProps.CheckBoxes;
   FIconKind := aProps.IconKind;
   FDefaultNoteName := aProps.DefaultName;
-  //FAutoNumberNotes := aProps.AutoNumberNodes;
   if FVerticalLayout <> aProps.VerticalLayout then
      FTreeMaxWidth:= -Abs(FTreeMaxWidth);
   FVerticalLayout := aProps.VerticalLayout;
@@ -1733,7 +1731,6 @@ begin
   aProps.CheckBoxes := FCheckboxes;
   aProps.IconKind := FIconKind;
   aProps.DefaultName := FDefaultNoteName;
-  //aProps.AutoNumberNodes := FAutoNumberNotes;
   aProps.VerticalLayout := FVerticalLayout;
   aProps.HideChecked:= FHideCheckedNodes;
   aProps.PosDateCol := FPosDateCol;

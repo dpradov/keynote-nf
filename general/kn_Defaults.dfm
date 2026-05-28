@@ -120,7 +120,7 @@ object Form_Defaults: TForm_Defaults
           Left = 11
           Top = 21
           Width = 164
-          Height = 26
+          Height = 13
           Caption = 'Default &Name for new tree nodes:'
           FocusControl = Edit_NodeName
           WordWrap = True
@@ -156,7 +156,7 @@ object Form_Defaults: TForm_Defaults
           Height = 17
           Hint = 'Display or hide checkboxes in ALL nodes'
           Caption = '&Show checkboxes in all nodes'
-          TabOrder = 3
+          TabOrder = 2
         end
         object Edit_NodeName: TComboBox
           Left = 178
@@ -166,16 +166,6 @@ object Form_Defaults: TForm_Defaults
           Hint = 'Enter default name for nodes added to tree'
           TabOrder = 0
         end
-        object CB_AutoNumberNodes: TCheckBox
-          Left = 181
-          Top = 20
-          Width = 188
-          Height = 17
-          Hint = 'When adding a node, append sequential number to its name'
-          Caption = '&Append sequential number'
-          TabOrder = 1
-          Visible = False
-        end
         object BitBtn_TknHlp: TBitBtn
           Left = 321
           Top = 17
@@ -184,7 +174,7 @@ object Form_Defaults: TForm_Defaults
           Hint = 'Help for auto-naming tree nodes'
           ImageIndex = 60
           Images = Form_Main.IMG_Toolbar
-          TabOrder = 7
+          TabOrder = 6
           TabStop = False
         end
         object CB_Vertical: TCheckBox
@@ -194,7 +184,7 @@ object Form_Defaults: TForm_Defaults
           Height = 17
           Hint = 'Check to show tree ABOVE the editor'
           Caption = '&Vertical layout (tree on top)'
-          TabOrder = 2
+          TabOrder = 1
         end
         object Combo_TreeImages: TComboBox
           Left = 150
@@ -202,7 +192,7 @@ object Form_Defaults: TForm_Defaults
           Width = 194
           Height = 21
           Style = csDropDownList
-          TabOrder = 6
+          TabOrder = 5
         end
         object CB_HideChecked: TCheckBox
           Left = 16
@@ -211,7 +201,7 @@ object Form_Defaults: TForm_Defaults
           Height = 17
           Hint = 'Show or hide checked nodes'
           Caption = '&Hide checked nodes'
-          TabOrder = 4
+          TabOrder = 3
         end
         object BitBtn_TreeChromeHelp: TBitBtn
           Left = 321
@@ -220,7 +210,7 @@ object Form_Defaults: TForm_Defaults
           Height = 25
           ImageIndex = 60
           Images = Form_Main.IMG_Toolbar
-          TabOrder = 8
+          TabOrder = 7
           TabStop = False
           OnClick = BitBtn_TreeChromeHelpClick
         end
@@ -234,7 +224,7 @@ object Form_Defaults: TForm_Defaults
             'n current file'
           TabStop = False
           Caption = 'A&pply to ALL folders'
-          TabOrder = 9
+          TabOrder = 8
         end
         object gbCols: TGroupBox
           Left = 232
@@ -242,7 +232,7 @@ object Form_Defaults: TForm_Defaults
           Width = 115
           Height = 85
           Caption = ' Additional Columns '
-          TabOrder = 5
+          TabOrder = 4
           object CB_ShowDateCol: TCheckBox
             Left = 7
             Top = 25

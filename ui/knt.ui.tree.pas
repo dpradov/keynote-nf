@@ -2864,7 +2864,6 @@ begin
 
   Folder:= TKntFolder(Self.Folder);
 
-  //addnumber := Folder.AutoNumberNodes;
   if (aNewNodeName <> '') then
     myName := aNewNodeName
 

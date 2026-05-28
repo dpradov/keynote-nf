@@ -1457,7 +1457,6 @@ begin
                 newFolder.Checkboxes := CheckBoxes;
                 newFolder.TreeChrome := TreeChrome;
                 newFolder.DefaultNoteName := DefaultNoteName;
-                //newFolder.AutoNumberNodes := AutoNumberNodes;
                 newFolder.VerticalLayout := VerticalLayout;
                 newFolder.HideCheckedNodes := HideCheckedNodes;
 

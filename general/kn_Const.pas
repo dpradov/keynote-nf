@@ -962,7 +962,6 @@ const
   _Visible = 'NV';
   _UseTabChar = 'UT';
 
-  _AutoNumberNodes = 'AN';
   _ShowCheckBoxes = 'SC';
   _ShowIcons = 'SI';
   }

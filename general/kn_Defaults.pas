@@ -65,7 +65,6 @@ type
     CB_TreeCheck: TCheckBox;
     Label5: TLabel;
     Edit_NodeName: TComboBox;
-    CB_AutoNumberNodes: TCheckBox;
     BitBtn_TknHlp: TBitBtn;
     Label_EditorFonts: TLabel;
     FormPlacement: TFormPlacement;
@@ -507,7 +506,6 @@ begin
     IconKind := TNodeIconKind( Combo_TreeImages.ItemIndex );
     Checkboxes := CB_TreeCheck.Checked;
     VerticalLayout := CB_Vertical.Checked;
-    AutoNumberNodes := CB_AutoNumberNodes.Checked;
     HideChecked:= CB_HideChecked.Checked;
 
     if not CB_ShowFlagCol.Checked then
@@ -560,7 +558,6 @@ begin
     Combo_TreeImages.ItemIndex := ord( IconKind );
     CB_TreeCheck.Checked := Checkboxes;
     CB_Vertical.Checked := VerticalLayout;
-    CB_AutoNumberNodes.Checked := AutoNumberNodes;
     CB_HideChecked.Checked := HideChecked;
     CB_ShowDateCol.Checked:= PosDateCol > 0;
     CB_ShowFlagCol.Checked:= PosFlaggedCol > 0;

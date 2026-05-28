@@ -203,7 +203,6 @@ const
 type
   TNoteTreePropertiesIniStr = packed record
     Section,
-    AutoNumberNodes,
     DefaultName,
     ShowCheckBoxes,
     IconKind,
@@ -216,7 +215,6 @@ type
 const
   NoteTreePropertiesIniStr : TNoteTreePropertiesIniStr = (
     Section : 'NoteTreeProperties';
-    AutoNumberNodes : 'AutoNumberNodes';
     DefaultName : 'DefaultName';
     ShowCheckBoxes : 'ShowCheckBoxes';
     IconKind : 'IconKind';
@@ -2262,7 +2260,6 @@ begin
       writestring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
       writebool( section, NoteTreePropertiesIniStr.ShowCheckBoxes, DefaultTreeProperties.CheckBoxes );
       writeinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind ));
-      writebool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
       writebool( section, NoteTreePropertiesIniStr.VerticalLayout, DefaultTreeProperties.VerticalLayout );
       writebool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );
       writebool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );
@@ -2367,7 +2364,6 @@ begin
       section := NoteTreePropertiesIniStr.section;
       DefaultTreeProperties.DefaultName := readstring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
       DefaultTreeProperties.CheckBoxes := readbool( section, NoteTreePropertiesIniStr.ShowCheckBoxes, DefaultTreeProperties.CheckBoxes );
-      DefaultTreeProperties.AutoNumberNodes := readbool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
       DefaultTreeProperties.IconKind := TNodeIconKind( readinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind )));
       DefaultTreeProperties.VerticalLayout := readbool( section, NoteTreePropertiesIniStr.VerticalLayout, DefaultTreeProperties.VerticalLayout );
       DefaultTreeProperties.HideChecked := readbool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );

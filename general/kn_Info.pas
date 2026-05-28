@@ -368,7 +368,6 @@ type
 
 type
   TFolderTreeProperties = packed record
-    AutoNumberNodes : boolean;
     DefaultName : string;
     CheckBoxes : boolean;
     IconKind : TNodeIconKind;
@@ -1084,7 +1083,6 @@ end; // InitializeNoteEditorProperties
 procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
 begin
   with Struct do begin
-    AutoNumberNodes := false;
     DefaultName := DEFAULT_NEW_NOTE_NAME;
     CheckBoxes := false;
     IconKind := niStandard;
