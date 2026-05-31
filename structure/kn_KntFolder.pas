@@ -111,6 +111,7 @@ type
       function GetWhereToShowEditorInfoPanel: TNEntriesMainPanel;
       function GetUpperVisiblePanel (Pnl: TNEntriesMainPanel; var UpperPnl: TNEntriesMainPanel): boolean;
       function GetBelowVisiblePanel (Pnl: TNEntriesMainPanel; var BelowPnl: TNEntriesMainPanel): boolean;
+      function AnyPanelInQL_ets: boolean;
       function SaveToString: string;
 
       property NNode: TNoteNode read FNNode;
@@ -3531,6 +3532,10 @@ begin
     Result:= TPanelConfiguration.Create;
     PanelsConfig[L]:= Result;
     with Result do begin
+       if FQueryLayout then
+          QL:= spInQL
+       else
+          QL:= spInEL;
        Panel:= aPanel;
        ShowEditorInfoPanel:= False;
        Hidden:= false;
@@ -3650,6 +3655,16 @@ begin
        if (PanelConfig.MainMode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then
           exit (PanelConfig.Panel);
    end;
+end;
+
+
+function TNNodeUIConfiguration.AnyPanelInQL_ets: boolean;
+var
+  i: integer;
+begin
+   Result:= False;
+   for i := 0 to High(PanelsConfig) do
+       if PanelsConfig[i].QL = spInQL_ets then exit(true);
 end;
 
 

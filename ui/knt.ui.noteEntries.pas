@@ -1422,6 +1422,20 @@ begin
    EntryToRemove:= false;
    Mode:= PanelConfig.CurrentMode;
 
+
+   { *1
+     If the note already has at least 2 entries, we will show the entry we have identified but avoided displaying
+     in the editor, so as not to offer two identical copies of the same entry simply by tagging the single entry with one
+     of the tags linked to this auxiliary panel }
+   if (PanelConfig.QL = spInQL_ets) then
+      if (FNote <> nil) and (FNote.NumEntries <= 1) or (ActionOnEntry = aCreated) then
+         exit
+      else begin
+         CalculateEntriesToShow:= True;
+         ActionOnEntry:= aNull;
+      end;
+
+
    if CalculateEntriesToShow or (NEntryToConsider <> nil) then begin
       Tags:= PanelConfig.VinculatedTags;
       if (Tags <> nil) then
@@ -1442,7 +1456,17 @@ begin
 
       if not EditorOptions.SaveCaretPos then
          PanelConfig.SelNEntry:= nil;
+
+      // See *1, above
+      if (PanelConfig.QL = spInQL) and (PanelConfig.VinculatedTags <> nil) and (Length(FEntriesShown) = 1) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
+         PanelConfig.QL:= spInQL_ets;
+         PanelHidden:= True;
+         exit;
+      end;
+
    end;
+
+
 
    Mode:= PanelConfig.CurrentMode;
    FNEntry_Initial:= FNEntry;
@@ -1518,7 +1542,7 @@ begin
        end;
    end;
 
-   if FPanelHidden and not EntryToAdd then exit;
+   if FPanelHidden and not (EntryToAdd or (PanelConfig.QL = spInQL_ets)) then exit;
 
 
    if EntryToRemove then
@@ -1547,6 +1571,14 @@ begin
          NEntryToConsider:= nil;
       end;
 
+      // See *1, above
+      if (PanelConfig.QL = spInQL) and (PanelConfig.VinculatedTags <> nil) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
+         PanelConfig.QL:= spInQL_ets;
+         PanelHidden:= True;
+         exit;
+      end;
+
+
       if (Mode = meSingleEntry) then begin
          if (Length(FEntriesShown) = 2) then begin
             if (PanelConfig.VinculatedTags <> nil) then begin
@@ -1564,6 +1596,16 @@ begin
          if (FNEntry <> nil) then begin
             btnToggleMulti.Caption:= (FiEntry+1).ToString;     // First entry (1) can now be second entry (2). Show it in the navigate button
             exit;
+         end
+         else
+         if (PanelConfig.QL = spInQL) and FPanelHidden and (ActionOnEntry = aModifiedMetadata) and
+            (Length(FEntriesShown) = 1) and (NEntryToConsider.Stream.Size = 0) then begin
+             // If we're changing the metadata of a newly created entry, and this should make a panel visible,
+             // we'll make sure to display it in multi-entry mode, showing only the header.
+             PanelConfig.CurrentMode:= meMultipleEntries;
+             Mode:= meMultipleEntries;
+             FEntriesShown[0].Content:= cmOnlyHeader;
+             NEntryToConsider:= nil;
          end;
       end;
    end;
@@ -1805,8 +1847,11 @@ begin
      if not FPanelHidden and (FNEntry = nil) then
         FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0))
      else
-     if FPanelHidden and EntryToAdd then
+     if FPanelHidden and (EntryToAdd or (PanelConfig.QL = spInQL_ets)) then
         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
+
+     if PanelConfig.QL = spInQL_ets then
+        PanelConfig.QL:= spInQL;
 
    end;
 
@@ -2599,7 +2644,7 @@ begin
    try
       ReloadFromDataModel(false, NEntry, aModifiedMetadata);
 
-      if (N = 0) and (Length(FEntriesShown) > 0) then
+      if (N = 0) and (Length(FEntriesShown) > 0) and (PanelConfig.QL <> spInQL_ets) then
          SelectEntry(0, false, false);
 
    finally

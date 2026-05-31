@@ -48,7 +48,17 @@ type
   //   It will be saved in the .knt file as NNode1.GID,NNode2.GID,...  (NNode.GID.ToString)
 
 
+type
+  TStatusPanelLayout = (
+     spInQL,                 // In QueryLayout,
+     spInQL_ets,              //   ,,   with an entry to show  (a note with only one entry that matches the tags of a vinculated-tag panel)
+     spInEL                  // In EditingLayout
+   );
+
+
+
   TPanelConfiguration = class
+    QL: TStatusPanelLayout;             // Configuration for QueryLayout
     Panel: TNEntriesPanel;
     Hidden: boolean;                    // In QueryLayout, when no entry is available (panels not shown because of maximized other panel will not be marked as hidden)
     ShowEditorInfoPanel: boolean;

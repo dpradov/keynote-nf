@@ -1294,8 +1294,10 @@ begin
   if CtrlDown then begin
      if (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then begin
         if (FQueryLayout or (NEntriesUI.PanelConfig.MainMode = meMultipleEntries)) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
-           NEntriesUI.btnToggleMultiClick(nil);
-           exit;
+           if (FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets then
+               LoadFromNNode(FNNode, True, neQueryLayout);
+            NEntriesUI.btnToggleMultiClick(nil);
+            exit;
         end
         else
         if FQueryLayout and (NEntry = nil) then begin
