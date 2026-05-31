@@ -1219,16 +1219,23 @@ procedure TKntNoteUI.ModifiedMetadataOfEntry(NEntry: TNoteEntry);
 var
   p: TNEntriesPanel;
   NoteEntriesUI: TKntNoteEntriesUI;
+  N: integer;
 begin
+  N:= 0;
   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
         FNEntriesUI[p].ModifiedMetadataOfEntry(NEntry);
+        inc(N);
      end;
+
+  if N = 0 then exit;
 
   if FQueryLayout then begin
      p:= FNNodeUIConfig.GetWhereToShowEditorInfoPanel;
      FNNodeUIConfig.PanelConfig(p).ShowEditorInfoPanel:= True;
-     GetNEntriesUI(p).ReconsiderInfoPanelVisibility;
+     NoteEntriesUI:= GetNEntriesUI(p);
+     if NoteEntriesUI.PanelConfig = nil then exit;
+     NoteEntriesUI.ReconsiderInfoPanelVisibility;
   end;
 
 end;
