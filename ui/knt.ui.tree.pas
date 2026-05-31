@@ -367,8 +367,8 @@ type
     procedure PopulateNonUsedTags;
   public
     property FindTags: TFindTags read fFindTags;
-    procedure OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
+    procedure OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
     procedure CheckFilterNotesOnTags (Temp: boolean = True);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure PopulateInheritedTags;
@@ -4718,13 +4718,13 @@ begin
    AdjustTxtTagsWidth(True);
 end;
 
-procedure TKntTreeUI.OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TKntTreeUI.OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
 begin
    fFindTags:= FindTags;
    CheckFilterNotesOnTags(True);
 end;
 
-procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
 begin
   if PressedReturn and not Self.ShowUseOfTags then
      txtFilter.SetFocus;

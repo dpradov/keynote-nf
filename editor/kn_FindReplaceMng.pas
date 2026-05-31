@@ -3610,7 +3610,7 @@ var
   var
      NEntry: TNoteEntry;
      OnlyHeader: boolean;
-     Content: TContentInMultipleMode;
+     Content: TContentInMultiEntriesMode;
   begin
      Result:= false;
      NEntry:= NNode.Note.Entries[i];

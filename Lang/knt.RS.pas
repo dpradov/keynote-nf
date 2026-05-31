@@ -1043,6 +1043,17 @@ const
    sEntry07 = 55157;   // Error setting main entry:
    sEntry08 = 55158;   //  (AND ALL created before it)
 
+   sEntry09 = 55159;   // Keep panel hidden                                      (pnuHidePanel)
+   sEntry10 = 55160;   // Only if there is any entry with the tag[s]:            (pnuShowVinculatedWithTags with QueryLayout)
+   sEntry11 = 55161;   // Vinculated to the tag[s]:                              (               ,,              EditingLayout)
+   sEntry12 = 55162;   // Newest / oldest / last selected entry                  (pnuShowSelectedEntry)
+   sEntry13 = 55163;   // All entries                                            (pnuShowAllEntries)
+
+   sEntry14 = 55164;   // Only header
+   sEntry15 = 55165;   // Whole entry
+   sEntry16 = 55166;   // Only an extract from the beginning
+
+
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !
    sUpd03 = 55054;   // No Internet access

@@ -31,36 +31,6 @@ uses
 
 
 type
-  TBasicNEntriesLayout = (neQueryLayout, neEditingLayout, neLastLayout);
-
-type
-  TModeEntriesUI = (
-    meMultipleEntries,
-    meSingleEntry
-  );
-
-  TScopeInEntriesPanel = (
-    fsSelectedNode,
-    fsSelectedNodeAndSubtree,
-    fsSelectedNodeAndAncestors,
-    fsSelectedNodes,
-    fsFolder,
-    fsFile
-  );
-
-  TContentInMultipleMode = (
-    cmOnlyHeader,
-    cmWholeEntry,
-    cmOnlyFirstLines,
-    cmHidden
-  );
-
-  TOrderInEntriesInPanel = (
-    eoDateCreation,
-    eoHierarchyAndDateCreation,       // Use hierarchy in tree + DataCreation
-    eoTagsAndDateCreation             // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
-  );
-
   TFilterOptionsInPanel = packed record
     TagsIncl: TNoteTagArray;          // Consider notes/entries with ALL of the selected tags in its metadata (TagsModeOR=False) (TagsText=False)
     InheritedTags: boolean;           // Each node will be considered as having its own tags and the tags of its ancestors
@@ -80,7 +50,7 @@ type
 
   TPanelConfiguration = class
     Panel: TNEntriesPanel;
-    Visible: boolean;                 // It allows the user to temporarily hide one of the panels included in a layout
+    Hidden: boolean;                    // In QueryLayout, when no entry is available (panels not shown because of maximized other panel will not be marked as hidden)
     ShowEditorInfoPanel: boolean;
     Maximized: boolean;
     EditingLayout: boolean;
@@ -90,13 +60,16 @@ type
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
     VinculatedTags: TNoteTagArray;
-    MMContent: TContentInMultipleMode;
-    MMShowDateInHeader: boolean;
-    MMShowTagsInHeader: boolean;
-    MMShowLineInHeader: boolean;
+
+    OverridedMEConfig: boolean;
+    MEContent: TContentInMultiEntriesMode;
+    MEShowDateInHeader: boolean;
+    MEShowTagsInHeader: boolean;
+    MEShowLineInHeader: boolean;
     Order: TOrderInEntriesInPanel;
     DescendingOrder: boolean;
     Filter: TFilterOptionsInPanel;
+
     EntriesOnlyHeader: TNoteEntryArray;
     HiddenEntriesDisplayed: TNoteEntryArray;
 
@@ -136,8 +109,8 @@ type
      property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;
      function NavigatePanels(NavDirection: TNavDirection): boolean;
      procedure ToggleMaximizeSelectedPanel;
-     procedure ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
-     procedure PanelEmpty(Panel: TNEntriesPanel; WithoutVisibleEntries: boolean);
+     procedure ShowEntriesUIPanel(Panel: TNEntriesMainPanel; Show: boolean);
+     procedure PanelEmpty(Panel: TNEntriesMainPanel; WithoutVisibleEntries: boolean);
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                              NEntriesLayout: TBasicNEntriesLayout;
@@ -168,6 +141,7 @@ type
      procedure EditTags;
      procedure RefreshTags;
      procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
+     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
      procedure ReconsiderVisibilityOfEntries;
      procedure SetInfoPanelHidden(value: boolean);
      procedure KeepInfoPanelTemporarilyVisible;

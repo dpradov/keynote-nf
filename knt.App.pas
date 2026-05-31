@@ -261,7 +261,7 @@ var
    DisableChangedInEmptyPanelAt: TDateTime;
    FramResizePendingInNoteEntriesUI: TObject;  // TKntNoteUI
 
-   ExportingFormVisible: boolean;
+   ModalFormWithTxtTagsVisible: boolean;
    InformingSomeoneChangedOurFile: boolean;
 
    //================================================ APPLICATION OPTIONS
@@ -400,7 +400,7 @@ begin
    HandlingTimerTick:= false;
    UpdatingTextPlain:= false;
    fTagsState:= tsPendingUpdate;
-   ExportingFormVisible:= false;
+   ModalFormWithTxtTagsVisible:= false;
    InformingSomeoneChangedOurFile:= false;
    EditorToBeCheckedForContentUpdate:= nil;
    DisableChangedInEmptyPanelAt:= 0;
@@ -767,6 +767,7 @@ begin
       if NNode = nil then continue;
       if NoteSavedEditor = NNode.Note then begin
          NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+         if (NEntriesUI = nil) or (NEntriesUI.PanelConfig = nil) then continue;
          NEntriesUI.SavePositionInPanel;
          NEntriesUI.ReloadFromDataModel(false, NEntrySaved, Action, false);
       end;
@@ -806,6 +807,7 @@ begin
       NNode:= TNoteNode(E.NNodeObj);
       if NNode = nil then continue;
       NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if (NEntriesUI = nil) or (NEntriesUI.PanelConfig = nil) then continue;
       if (NoteSelecEditor = NNode.Note) and E.Modified then begin
          NEntriesUI.SaveToDataModel;
          exit;
@@ -819,20 +821,16 @@ end;
 
 procedure TKntApp.ModifiedMetadataOfEntry(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 var
-   E: TKntRichEdit;
-   NEntriesUI: TKntNoteEntriesUI;
    i: integer;
 begin
    Log_StoreTick('TKntApp.ModifiedMetadataOfEntry - BEGIN', 4, +1);
 
    NEntryModified(NEntry, Note, Folder);
 
-   for i:= 0 to fAvailableEditors.Count-1 do begin
-      E:= fAvailableEditors[i];
-      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
-      if NEntriesUI <> nil then
-         NEntriesUI.ModifiedMetadataOfEntry(NEntry);
-   end;
+
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].NoteUI.ModifiedMetadataOfEntry(NEntry);
+
 
    Log_StoreTick('TKntApp.ModifiedMetadataOfEntry - END', 4, -1);
 end;
@@ -849,7 +847,7 @@ begin
       if TNoteEntry(E.NEntryObj) <> NEntry then continue;
 
       NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
-      if NEntriesUI <> nil then
+      if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then
          NEntriesUI.SaveToDataModel;
    end;
 end;
@@ -973,7 +971,7 @@ begin
      for i:= 0 to fAvailableEditors.Count-1 do begin
         E:= fAvailableEditors[i];
         NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
-        if NEntriesUI <> nil then
+        if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then
            NEntriesUI.NEntryDeleted(NEntry);
      end;
 
@@ -1044,7 +1042,7 @@ begin
      for i:= 0 to fAvailableEditors.Count-1 do begin
         E:= fAvailableEditors[i];
         NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
-        if NEntriesUI <> nil then begin
+        if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then begin
            NEntriesUI.NEntryHidden(NEntry, ToIsHidden, CreatedBefore);
            if ToIsHidden and (E = ActiveEditor) then
               NEntriesUI.SelectNextEntry(false);
@@ -1095,7 +1093,7 @@ begin
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
       NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
-      if NEntriesUI <> nil then
+      if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then
          NEntriesUI.NEntryReadOnlyChanged(NEntry);
    end;
 

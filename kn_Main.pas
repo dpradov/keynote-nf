@@ -1539,10 +1539,10 @@ type
 
     procedure ClearFindTags;
     procedure CheckFindTagsRecalc;
-    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure ChangeFindInclToModeOR;
 
   end;
@@ -2478,7 +2478,7 @@ begin
     end;
 
     if (IntroducingTagsState = itNoTags) and (FRestoreFocusInEditor = 0) and (ActiveEditor <> nil) and ((ActiveControl = ActiveEditor) or ActiveEditor.Focused)
-       and not ExportingFormVisible
+       and not ModalFormWithTxtTagsVisible
        and (GetAsyncKeyState(VK_LEFT) = 0) and (GetAsyncKeyState(VK_RIGHT) = 0)
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;
@@ -6510,7 +6510,7 @@ begin
   ActiveTreeUI.txtTags.Text:= TagsStr;
   ActiveTreeUI.txtTags.Hint:= TagsStr;
   ActiveTreeUI.txtTags.Font.Color:= clWindowText;
-  ActiveTreeUI.OnEndFindTagsIntroduction(true, FindTags, '');
+  ActiveTreeUI.OnEndFindTagsIntroduction(true, FindTags, '', ActiveTreeUI.txtTags);
 end;
 
 
@@ -7248,17 +7248,17 @@ var
 begin
     if (FindTagsIncl = nil) and (FindTagsIncl_NotRegistered = '') and (txtTagsIncl.Text <> '') and (txtTagsIncl.Text <> EMPTY_TAGS) then begin
        FindTags:= TagMng.GetSearchedIntroducedTags(txtTagsIncl, FindTagsNotRegistered);
-       OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+       OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered, txtTagsIncl);
     end;
 
     if (FindTagsExcl = nil) and (FindTagsExcl_NotRegistered = '') and (txtTagsExcl.Text <> '') and (txtTagsExcl.Text <> EMPTY_TAGS) then begin
        FindTags:= TagMng.GetSearchedIntroducedTags(txtTagsExcl, FindTagsNotRegistered);
-       OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+       OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered, txtTagsExcl);
     end;
 end;
 
 
-procedure TForm_Main.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
    FindTagsIncl:= FindTags;
    if cbTagFindMode.ItemIndex = 1 then
@@ -7268,9 +7268,9 @@ begin
    CheckFindAllEnabled;
 end;
 
-procedure TForm_Main.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
-   OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+   OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered, txtTagsIncl);
    if PressedReturn then
       txtTagsExcl.SetFocus;
 
@@ -7290,7 +7290,7 @@ begin
 end;
 
 
-procedure TForm_Main.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
    FindTagsExcl:= FindTagsGetModeOR(FindTags);
    FindTagsExcl_NotRegistered:= Trim(FindTagsNotRegistered);
@@ -7300,9 +7300,9 @@ end;
 
 
 
-procedure TForm_Main.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
-   OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+   OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered, txtTagsExcl);
    if PressedReturn then
       chkTagsMetad.SetFocus;
 
@@ -8670,8 +8670,8 @@ begin
     RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
     RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
     RTFMDeleteEntry.Enabled:=   IsNotMain;
-    RTFMHdWh.Enabled:=        ActiveEditor.MultiEntries;
-    RTFMOnlyFLines.Enabled:=  ActiveEditor.MultiEntries;
+    RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntries;
+    RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntries;
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);

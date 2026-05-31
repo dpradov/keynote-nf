@@ -1082,6 +1082,57 @@ const
     #187 // right french brace
   );
 
+
+type
+  TNEntriesPanelUse = (
+     pnuHidePanel,                 //  Keep panel hidden
+     pnuShowVinculatedWithTags,    //  QueryLayout:  Show only if there is any entry with any of the indicated tag
+                                   //  EdtingLayout: Show vinculated to the indicated tags
+     pnuShowSelectedEntry,         //  Show newest/oldest/last selected entry    (*)
+     pnuShowAllEntries             //   ,,  all entries
+  );
+
+  // (*) In DefaultUseForEditingLayout, you can define one panel (and only one) with one of this option.
+  //     If there is none with this option, there must necessarily be one defined with pnuShowAllEntries
+  //     The corresponding panel will be used to edit entries or create new entries.
+  // Newest/oldest/last selected, depending on TNoteAdvancedOptions.ShowNewestEntryInSingleEntry and TEditorOptions.SaveCaretPos
+
+
+type
+  TBasicNEntriesLayout = (neQueryLayout, neEditingLayout, neLastLayout);
+
+type
+  TModeEntriesUI = (
+    meMultipleEntries,
+    meSingleEntry
+  );
+
+  TScopeInEntriesPanel = (
+    fsSelectedNode,
+    fsSelectedNodeAndSubtree,
+    fsSelectedNodeAndAncestors,
+    fsSelectedNodes,
+    fsFolder,
+    fsFile
+  );
+
+  TContentInMultiEntriesMode = (
+    cmHidden,
+    cmOnlyHeader,
+    cmWholeEntry,
+    cmOnlyFirstLines
+  );
+
+  TContentInMultiEntriesMode_Selectable = cmOnlyHeader..cmOnlyFirstLines;
+
+  TOrderInEntriesInPanel = (
+    eoDateCreation,
+    eoHierarchyAndDateCreation,       // Use hierarchy in tree + DataCreation
+    eoTagsAndDateCreation             // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
+  );
+
+
+
 var
   DEFAULT_NEW_FOLDER_NAME : string;  // default name for new folders
   DEFAULT_NEW_NOTE_NAME : string; // default name for new tree nodes
@@ -1108,6 +1159,10 @@ var
   SYMBOL_NAME_LIST : array[1..10] of string;
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
+
+  ENTRIES_PANEL_USES_QL : array[TNEntriesPanelUse] of string;
+  ENTRIES_PANEL_USES_EL : array[TNEntriesPanelUse] of string;
+  CONTENT_IN_MULTIENTRIES_MODE : array[TContentInMultiEntriesMode_Selectable] of string;
 
 
 implementation
@@ -1269,6 +1324,21 @@ begin
   PluginFeatureNames[plWantsSavedFile]:= GetRS(sPlg11);
   PluginFeatureNames[plReloadFile]:=     GetRS(sPlg12);
   PluginFeatureNames[plStaysResident]:=  GetRS(sPlg13);
+
+  ENTRIES_PANEL_USES_QL[pnuHidePanel]:=               GetRS(sEntry09);
+  ENTRIES_PANEL_USES_QL[pnuShowVinculatedWithTags]:=  GetRS(sEntry10);
+  ENTRIES_PANEL_USES_QL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
+  ENTRIES_PANEL_USES_QL[pnuShowAllEntries]:=          GetRS(sEntry13);
+
+  ENTRIES_PANEL_USES_EL[pnuHidePanel]:=               GetRS(sEntry09);
+  ENTRIES_PANEL_USES_EL[pnuShowVinculatedWithTags]:=  GetRS(sEntry11);
+  ENTRIES_PANEL_USES_EL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
+  ENTRIES_PANEL_USES_EL[pnuShowAllEntries]:=          GetRS(sEntry13);
+
+  CONTENT_IN_MULTIENTRIES_MODE[cmOnlyHeader]:=      GetRS(sEntry14);
+  CONTENT_IN_MULTIENTRIES_MODE[cmWholeEntry]:=      GetRS(sEntry15);
+  CONTENT_IN_MULTIENTRIES_MODE[cmOnlyFirstLines]:=  GetRS(sEntry16);
+
 end;
 
 Initialization

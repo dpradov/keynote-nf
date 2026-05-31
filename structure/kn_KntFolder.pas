@@ -106,12 +106,11 @@ type
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
       class procedure GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder;
                                             var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
-      function GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
-      function GetMainPanel: TNEntriesPanel;
-      function GetVisibleBottomPanel: TNEntriesPanel;
-      //function GetVisibleTopPanel: TNEntriesPanel;
-      function GetUpperVisiblePanel (Pnl: TNEntriesPanel; var UpperPnl: TNEntriesPanel): boolean;
-      function GetBelowVisiblePanel (Pnl: TNEntriesPanel; var BelowPnl: TNEntriesPanel): boolean;
+      function GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
+      function GetMainPanel: TNEntriesMainPanel;
+      function GetWhereToShowEditorInfoPanel: TNEntriesMainPanel;
+      function GetUpperVisiblePanel (Pnl: TNEntriesMainPanel; var UpperPnl: TNEntriesMainPanel): boolean;
+      function GetBelowVisiblePanel (Pnl: TNEntriesMainPanel; var BelowPnl: TNEntriesMainPanel): boolean;
       function SaveToString: string;
 
       property NNode: TNoteNode read FNNode;
@@ -324,6 +323,8 @@ type
     function GetNNodeUIConfig(NNode : TNoteNode; QueryLayout: boolean): TNNodeUIConfiguration;
     function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
     procedure ResetZoomCurrent(Zoom: integer);
+    procedure DeleteNNodesUIConfig(QueryLayout: boolean);
+    procedure ResetHeaderUIConfig;
 
     procedure NoteNameModified(NNode: TNoteNode);
 
@@ -395,6 +396,7 @@ uses
    kn_History,
    kn_KntFile,
    knt.App,
+   knt.ui.TagMng,
    knt.RS
    ;
 
@@ -605,6 +607,54 @@ var
   F: TKntFolder;
   NewPropertiesAction : TPropertiesAction;
   TreeUI: TKntTreeUI;
+  NoteAdvOptions_ChangeInQL, NoteAdvOptions_ChangeInEL, NoteAdvOptions_RefreshNeeded, NoteAdvOptions_ResetHeaderCfgNeeded: boolean;
+
+
+  procedure CheckChangesInNoteAdvOptions;
+  var
+    pnl: TNEntriesMainPanel;
+    pu: TNEntriesPanelUse;
+  begin
+    NoteAdvOptions_ChangeInQL:= false;
+    NoteAdvOptions_ChangeInEL:= false;
+    NoteAdvOptions_RefreshNeeded:= false;
+    NoteAdvOptions_ResetHeaderCfgNeeded:= false;
+
+    with Form_Defaults do begin
+       for pnl := Low(pnl) to High(pnl) do
+          if (myNoteAdvOptions.DefaultUseForQueryLayout[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQueryLayout[pnl]) or
+             (myNoteAdvOptions.VinculatedTagsForQueryLayout[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForQueryLayout[pnl])      then begin
+             NoteAdvOptions_ChangeInQL:= true;
+             break;
+          end;
+       for pnl := Low(pnl) to High(pnl) do
+          if (myNoteAdvOptions.DefaultUseForEditingLayout[pnl] <> myFolder.NoteAdvOptions.DefaultUseForEditingLayout[pnl]) or
+             (myNoteAdvOptions.VinculatedTagsForEditingLayout[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[pnl])      then begin
+             NoteAdvOptions_ChangeInEL:= true;
+             break;
+          end;
+
+       if (myNoteAdvOptions.ExtractOfText_MaxLength <> myFolder.NoteAdvOptions.ExtractOfText_MaxLength) or
+          (myNoteAdvOptions.ExtractOfText_MaxLines <> myFolder.NoteAdvOptions.ExtractOfText_MaxLines)       then
+          NoteAdvOptions_RefreshNeeded:= true;
+
+       if (myNoteAdvOptions.MEContent <> myFolder.NoteAdvOptions.MEContent) or
+          (myNoteAdvOptions.MEShowLineInHeader <> myFolder.NoteAdvOptions.MEShowLineInHeader) or
+          (myNoteAdvOptions.MEShowTagsInHeader <> myFolder.NoteAdvOptions.MEShowTagsInHeader) or
+          (myNoteAdvOptions.MEShowDateInHeader <> myFolder.NoteAdvOptions.MEShowDateInHeader) or
+          (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
+          (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) then begin
+
+          NoteAdvOptions_RefreshNeeded:= true;
+          NoteAdvOptions_ResetHeaderCfgNeeded:= true;
+       end;
+
+       //DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
+       //ShowNewestEntryInSingleEntry: boolean;
+    end;
+
+  end;
+
 
 begin
   myFile:= ActiveFile;
@@ -621,6 +671,7 @@ begin
       oldShowCheckboxes := false;
 
       try
+       TagMng.OfferTagSelectorInModalForm(True, Form_Defaults);
 
         with Form_Defaults do begin
           ShowHint := KeyOptions.ShowTooltips;
@@ -642,6 +693,7 @@ begin
               myEditorChrome := myFolder.EditorChrome;
               myFolder.GetTabProperties( myTabProperties );
               myFolder.GetEditorProperties( myEditorProperties );
+              myNoteAdvOptions:= myFolder.NoteAdvOptions;
 
               myEditorProperties.DefaultZoom:= DefaultEditorProperties.DefaultZoom;    // Just for show it
 
@@ -695,6 +747,7 @@ begin
 
               myTreeChrome := DefaultTreeChrome;
               myTreeProperties := DefaultTreeProperties;
+              //myNoteAdvOptions:= myFolder.NoteAdvOptions;        // TODO ***
             end;
 
           end;
@@ -716,6 +769,9 @@ begin
                 myFolder.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
                 myFolder.SetEditorProperties( myEditorProperties );
                 myFolder.EditorChrome := myEditorChrome;
+
+                CheckChangesInNoteAdvOptions;
+                myFolder.NoteAdvOptions:= myNoteAdvOptions;
 
                 // reflect changes in controls
                 UpdateEditor (myFolder.Editor, myFolder, true);
@@ -751,7 +807,25 @@ begin
                 TreeUI.UpdateTreeChrome;
                 TreeUI.UpdateTreeColumns;
 
+                if NoteAdvOptions_ChangeInQL or NoteAdvOptions_ChangeInEL or NoteAdvOptions_ResetHeaderCfgNeeded then
+                   myFolder.NoteUI.SaveToDataModel;
 
+                if NoteAdvOptions_ResetHeaderCfgNeeded then
+                   myFolder.ResetHeaderUIConfig;
+
+                if NoteAdvOptions_ChangeInQL or NoteAdvOptions_ChangeInEL then begin
+                   var QueryLayout: boolean:= not ActiveFile.GetNoteIsOnEditingLayout(ActiveNNode.Note);
+                   if NoteAdvOptions_ChangeInQL then
+                      myFolder.DeleteNNodesUIConfig(true);
+                   if NoteAdvOptions_ChangeInEL then
+                      myFolder.DeleteNNodesUIConfig(false);
+
+                   if (NoteAdvOptions_ChangeInQL and QueryLayout) or (NoteAdvOptions_ChangeInEL and not QueryLayout) then
+                      myFolder.NoteUI.LoadFromNNode(ActiveNNode, false, neLastLayout);
+                end
+                else
+                if NoteAdvOptions_RefreshNeeded then
+                   myFolder.NoteUI.RefreshHeaderOfEntries(nil);
             end;
 
             if ApplyTreeChromeToAllFolders and HaveKntFolders( false, true ) then begin
@@ -807,6 +881,7 @@ begin
         end;
 
       finally
+        TagMng.OfferTagSelectorInModalForm(false, nil);
         if myFolder <> nil then
            myFolder.Editor.UpdateCursorPos;
         UpdateFolderDisplay;
@@ -1396,6 +1471,39 @@ begin
      for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do
         NNodesUIConfig[i].PanelsConfig[j].ZoomCurrent:= Zoom;
   end;
+end;
+
+
+procedure TKntFolder.DeleteNNodesUIConfig(QueryLayout: boolean);
+var
+  i: integer;
+  Config: TNNodeUIConfiguration;
+begin
+  for i:= NNodesUIConfig.Count-1 downto 0 do begin
+     Config:= NNodesUIConfig[i];
+     if (Config.FQueryLayout = QueryLayout) then begin
+         NNodesUIConfig.Remove(Config);
+         Config.Free;
+     end;
+  end;
+end;
+
+procedure TKntFolder.ResetHeaderUIConfig;
+var
+  i, j: integer;
+begin
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
+        if NNodesUIConfig[i].PanelsConfig[j].OverridedMEConfig then continue;
+
+        NNodesUIConfig[i].PanelsConfig[j].MEContent:=          NoteAdvOptions.MEContent;
+        NNodesUIConfig[i].PanelsConfig[j].MEShowLineInHeader:= NoteAdvOptions.MEShowLineInHeader;
+        NNodesUIConfig[i].PanelsConfig[j].MEShowTagsInHeader:= NoteAdvOptions.MEShowTagsInHeader;
+        NNodesUIConfig[i].PanelsConfig[j].MEShowDateInHeader:= NoteAdvOptions.MEShowDateInHeader;
+        NNodesUIConfig[i].PanelsConfig[j].DescendingOrder:=    NoteAdvOptions.DescendingOrder;
+     end;
+  end;
+
 end;
 
 
@@ -3425,7 +3533,7 @@ begin
     with Result do begin
        Panel:= aPanel;
        ShowEditorInfoPanel:= False;
-       Visible:= True;
+       Hidden:= false;
        Scope:= fsSelectedNode;
        MainMode:= aMode;
        CurrentMode:= aMode;
@@ -3435,15 +3543,15 @@ begin
        if FQueryLayout then
           VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForQueryLayout[aPanel]
        else
-		  VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[aPanel];
+          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[aPanel];
 
-       MMContent:= cmWholeEntry;
-       //MMContent:= cmOnlyFirstLines;
-       MMShowDateInHeader:= true;
-       MMShowTagsInHeader:= true;
-       MMShowLineInHeader:= true;
-       Order:= eoDateCreation;
-       DescendingOrder:= True;
+       OverridedMEConfig:= false;
+       MEContent:=          FFolder.NoteAdvOptions.MEContent;
+       MEShowDateInHeader:= FFolder.NoteAdvOptions.MEShowDateInHeader;
+       MEShowTagsInHeader:= FFolder.NoteAdvOptions.MEShowTagsInHeader;
+       MEShowLineInHeader:= FFolder.NoteAdvOptions.MEShowLineInHeader;
+       Order:=              FFolder.NoteAdvOptions.Order;
+       DescendingOrder:=    FFolder.NoteAdvOptions.DescendingOrder;
        with Filter do begin
          TagsIncl:= [];
          InheritedTags:= false;
@@ -3454,6 +3562,8 @@ begin
          SearchMode := smPhrase;
          ShowExcerpts:= false;
        end;
+
+
        if NNode <> nil then begin
           SelStart:= NNode.Note.SelStart;
           SelLength:= NNode.Note.SelLength;
@@ -3479,21 +3589,12 @@ var
    p: TNEntriesPanel;
    EntryID: Word;
    PnlUse: TNEntriesPanelUse;
-   N: integer;
 begin
     Result:= TNNodeUIConfiguration.Create(NNode, Folder, QueryLayout);
     if NNode = nil then begin
        Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, nil);
        exit;
     end;
-
-    N:= NNode.Note.NumEntries;
-
-    if QueryLayout and (N = 1) then begin                                                    // ToDO ***
-        Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode);
-        exit;
-    end;
-
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
        if QueryLayout then
@@ -3521,7 +3622,7 @@ begin
 end;
 
 
-function TNNodeUIConfiguration.GetSingleEntryPanelForEditing(var Pnl: TNEntriesPanel): boolean;
+function TNNodeUIConfiguration.GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
 var
   i: integer;
   PanelConfig: TPanelConfiguration;
@@ -3538,7 +3639,7 @@ begin
    Result:= false;
 end;
 
-function TNNodeUIConfiguration.GetMainPanel: TNEntriesPanel;
+function TNNodeUIConfiguration.GetMainPanel: TNEntriesMainPanel;
 var
   i: integer;
   PanelConfig: TPanelConfiguration;
@@ -3551,62 +3652,50 @@ begin
    end;
 end;
 
-{
-function TNNodeUIConfiguration.GetVisibleTopPanel: TNEntriesPanel;
+
+function TNNodeUIConfiguration.GetWhereToShowEditorInfoPanel: TNEntriesMainPanel;
 var
   i: integer;
-  TLv,TRv,CenterV: boolean;
+  BLv,BRv,TLv,TRv,CenterV: boolean;
   PanelConfig: TPanelConfiguration;
 begin
+   if MaximizedPanel <> pnNone then
+      exit(MaximizedPanel);
+
    TLv:= False;
    TRv:= False;
-   CenterV:= False;
-   for i := 0 to High(PanelsConfig) do begin
-       PanelConfig:= PanelsConfig[i];
-       case PanelConfig.Panel of
-          pnTL: TLv:= PanelConfig.VisibLe;
-          pnTR: TRv:= PanelConfig.VisibLe;
-          pnCenter: CenterV:= PanelConfig.VisibLe;
-       end;
-   end;
-
-   if TLv and not TRv then
-      exit(pnTL);
-   if TRv and not TLv then
-      exit(pnTR);
-   if CenterV then
-      exit(pnCenter);
-end;
-}
-
-function TNNodeUIConfiguration.GetVisibleBottomPanel: TNEntriesPanel;
-var
-  i: integer;
-  BLv,BRv,CenterV: boolean;
-  PanelConfig: TPanelConfiguration;
-begin
    BLv:= False;
    BRv:= False;
    CenterV:= False;
    for i := 0 to High(PanelsConfig) do begin
        PanelConfig:= PanelsConfig[i];
        case PanelConfig.Panel of
-          pnBL: BLv:= PanelConfig.Visible;
-          pnBR: BRv:= PanelConfig.Visible;
-          pnCenter: CenterV:= PanelConfig.Visible;
+          pnTL: TLv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
+          pnTR: TRv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
+          pnBL: BLv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
+          pnBR: BRv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
+          pnCenter: CenterV:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
        end;
    end;
 
-   if BLv and not BRv then
-      exit(pnBL);
-   if BRv and not BLv then
-      exit(pnBR);
-   if CenterV then
+   if KeyOptions.EditorInfoPanelTop then begin
+      if TLv and not TRv then
+         exit(pnTL);
+      if TRv and not TLv then
+         exit(pnTR);
+       exit(pnCenter);
+   end
+   else begin
+      if BLv and not BRv then
+         exit(pnBL);
+      if BRv and not BLv then
+         exit(pnBR);
       exit(pnCenter);
+   end;
 end;
 
 
-function TNNodeUIConfiguration.GetUpperVisiblePanel (Pnl: TNEntriesPanel; var UpperPnl: TNEntriesPanel): boolean;
+function TNNodeUIConfiguration.GetUpperVisiblePanel (Pnl: TNEntriesMainPanel; var UpperPnl: TNEntriesMainPanel): boolean;
 var
   PanelConfig: TPanelConfiguration;
 begin
@@ -3618,10 +3707,10 @@ begin
    if Pnl = pnCenter then begin
       UpperPnl:= pnTL;
       PanelConfig:= GetCreatedPanelConfig(UpperPnl);
-      if (PanelConfig = nil) or not PanelConfig.Visible then begin
+      if (PanelConfig = nil) or PanelConfig.Hidden then begin
          UpperPnl:= pnTR;
          PanelConfig:= GetCreatedPanelConfig(UpperPnl);
-         if (PanelConfig = nil) or not PanelConfig.Visible then exit;
+         if (PanelConfig = nil) or PanelConfig.Hidden then exit;
       end;
       Result:= True;
    end
@@ -3629,13 +3718,13 @@ begin
    if Pnl in [pnBL, pnBR] then begin
       UpperPnl:= pnCenter;
       PanelConfig:= GetCreatedPanelConfig(UpperPnl);
-      if (PanelConfig <> nil) and PanelConfig.Visible then
+      if (PanelConfig <> nil) and not PanelConfig.Hidden then
          Result:= True;
    end
 end;
 
 
-function TNNodeUIConfiguration.GetBelowVisiblePanel (Pnl: TNEntriesPanel; var BelowPnl: TNEntriesPanel): boolean;
+function TNNodeUIConfiguration.GetBelowVisiblePanel (Pnl: TNEntriesMainPanel; var BelowPnl: TNEntriesMainPanel): boolean;
 var
   PanelConfig: TPanelConfiguration;
 begin
@@ -3647,10 +3736,10 @@ begin
    if Pnl = pnCenter then begin
       BelowPnl:= pnBL;
       PanelConfig:= GetCreatedPanelConfig(BelowPnl);
-      if (PanelConfig = nil) or not PanelConfig.Visible then begin
+      if (PanelConfig = nil) or PanelConfig.Hidden then begin
          BelowPnl:= pnBR;
          PanelConfig:= GetCreatedPanelConfig(BelowPnl);
-         if (PanelConfig = nil) or not PanelConfig.Visible then exit;
+         if (PanelConfig = nil) or PanelConfig.Hidden then exit;
       end;
       Result:= True;
    end
@@ -3658,7 +3747,7 @@ begin
    if Pnl in [pnTL, pnTR] then begin
       BelowPnl:= pnCenter;
       PanelConfig:= GetCreatedPanelConfig(BelowPnl);
-      if (PanelConfig <> nil) and PanelConfig.Visible then
+      if (PanelConfig <> nil) and not PanelConfig.Hidden then
          Result:= True;
    end;
 

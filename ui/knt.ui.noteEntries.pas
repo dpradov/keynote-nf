@@ -52,7 +52,7 @@ type
     StartingPos: integer;
     StartingContentPos: integer;
     FinalPos: integer;
-    Content: TContentInMultipleMode;
+    Content: TContentInMultiEntriesMode;
   end;
 
   TActionOnEntry = (aModified, aCreating, aCreated, aDeleted, aModifiedMetadata, aChangedVisibility, aRefreshHeader, aNull);
@@ -134,7 +134,7 @@ type
                                    ActionOnEntry: TActionOnEntry = aNull;
                                    InformReloaded: boolean = false);
     procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
-    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1;
+    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultiEntriesMode; iEntry: integer= -1;
                                              IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;
                                              LimitToCreatedBeforeSelectedEntry: boolean = false);
     procedure ShowHiddenEntries(UndoHidden: boolean);
@@ -152,12 +152,12 @@ type
     procedure ToggleOnlyHeaders_WholeContent;
     function GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
-    function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultipleMode): boolean;
+    function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntriesMode): boolean;
     function NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
     function DisplayingAnyHiddenEntry: boolean;
     function HasAnyEntryNonVisible: boolean;
     procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
-    procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
+    procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultiEntriesMode);
     procedure ConfigureEditor(iEntry: integer = -1);
     //procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
   protected
@@ -169,7 +169,7 @@ type
     procedure SetInfoPanelHidden(value: boolean);
     procedure ShowControlsPanelIdentif(Show: boolean);
     procedure CheckPnlButtonsLocation;
-    procedure OnEndEditTagsIntroduction(PressedReturn: boolean);
+    procedure OnEndEditTagsIntroduction(PressedReturn: boolean; txtTags: TEdit);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure ShowEntriesButtons(Show: boolean);
     procedure SelectEntry(iEntry: integer; LastPos: boolean = false; InformReloaded: boolean = True);
@@ -192,10 +192,11 @@ type
     function GetReadOnly: boolean;
     procedure SetReadOnly( AReadOnly : boolean );
     procedure ForceTempReadOnly( AReadOnly : boolean );
+    procedure SetPanelHidden( Value : boolean );
   public
     property ReadOnly : boolean read GetReadOnly write SetReadOnly;
     property OnUse: boolean read FOnUse;
-    property PanelHidden: boolean read FPanelHidden write FPanelHidden;
+    property PanelHidden: boolean read FPanelHidden write SetPanelHidden;
     procedure SetAsUnused;
 
   protected
@@ -358,10 +359,17 @@ begin
    txtTags.ReadOnly:= AReadOnly;
 end;
 
+procedure TKntNoteEntriesUI.SetPanelHidden( Value : boolean );
+begin
+   FPanelHidden:= Value;
+   if FPanelConfig <> nil then
+      FPanelConfig.Hidden:= Value;
+end;
 
 procedure TKntNoteEntriesUI.SetAsUnused;
 begin
   FOnUse:= False;
+  FPanelConfig:= nil;
   PanelHidden:= True;
   FNNode:= nil;
   FNEntry:= nil;
@@ -425,7 +433,7 @@ end;
 procedure TKntNoteEntriesUI.NoteEntriesUIExit(Sender: TObject);
 begin
    cFocusedFlag.Refresh;
-   if FNote = nil then exit;
+   if (PanelConfig = nil) then exit;
    HideTemporarilyInfoPanel;
 end;
 
@@ -531,7 +539,11 @@ begin
   if FInfoPanelHidden then exit;
 
   ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
-  if (PanelConfig.Maximized) or ((txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil)) then
+  if (PanelConfig.Maximized) or
+     (PanelConfig.ShowEditorInfoPanel and
+          ( ((txtTags.Left + txtTags.Width + 2) <> txtName.Left ) or
+            ((txtName.Left + txtName.Width + 2) <> txtCreationDate.Left ) )) or
+     ((txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil)) then
      FrameResize(nil);
 
   ReconsiderColorInfoPanel;
@@ -738,7 +750,7 @@ begin
    ReconsiderInfoPanelVisibility;
 end;
 
-procedure TKntNoteEntriesUI.OnEndEditTagsIntroduction(PressedReturn: boolean);
+procedure TKntNoteEntriesUI.OnEndEditTagsIntroduction(PressedReturn: boolean; txtTags: TEdit);
 begin
   if PressedReturn then
      Editor.SetFocus;
@@ -840,7 +852,7 @@ begin
          exit(i);
 end;
 
-procedure TKntNoteEntriesUI.ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultipleMode);
+procedure TKntNoteEntriesUI.ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultiEntriesMode);
 var
    iNEntry: integer;
 begin
@@ -876,8 +888,8 @@ begin
        if FPanelConfig <> nil then begin
            if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
               FOnUse:= True;
-              FPanelHidden:= False;
-              if FInfoPanelHidden or not PanelConfig.ShowEditorInfoPanel then
+              PanelHidden:= False;
+              if FInfoPanelHidden then
                  ShowControlsPanelIdentif(false);
 
               case PanelConfig.SelectedNNode.WordWrap of
@@ -1015,7 +1027,7 @@ var
    NEntry: TNoteEntry;
    Created: TDateTime;
 
-   function GetContentToAssign(NEntry: TNoteEntry; DefaultContentInME: TContentInMultipleMode; IgnoreIsHidden: boolean = false): TContentInMultipleMode;
+   function GetContentToAssign(NEntry: TNoteEntry; DefaultContentInME: TContentInMultiEntriesMode; IgnoreIsHidden: boolean = false): TContentInMultiEntriesMode;
    begin
       if (NEntry.IsHidden) and not IgnoreIsHidden then
          Result:= cmHidden
@@ -1040,7 +1052,7 @@ var
          FEntriesShown[N].NEntry:= NEntry;
          FEntriesShown[N].NNode:= FNNode;
          FEntriesShown[N].Note:= FNote;
-         FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MMContent);
+         FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MEContent);
          inc(N);
       end;
    end;
@@ -1506,12 +1518,7 @@ begin
        end;
    end;
 
-   if FPanelHidden then
-      if EntryToAdd then
-         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True)
-      else
-         exit;
-
+   if FPanelHidden and not EntryToAdd then exit;
 
 
    if EntryToRemove and (Mode = meSingleEntry) then begin
@@ -1618,9 +1625,8 @@ begin
      if FEntriesShown <> nil then begin
        FiEntry:= iSelectedEntry;
        if ((FiEntry < 0) or (FiEntry > Length(FEntriesShown)-1))
-                    and (ActionOnEntry <> aCreating) and
-                   ( ((Mode = meMultipleEntries) or (PanelConfig.SelNEntry <> nil)) or
-                     ((Mode = meSingleEntry) and CalculateEntriesToShow ) ) then begin
+                    and (ActionOnEntry <> aCreating) then begin
+
            FiEntry:= 0;
            if not Folder.NoteAdvOptions.ShowNewestEntryInSingleEntry then begin
               if not PanelConfig.DescendingOrder then
@@ -1789,7 +1795,10 @@ begin
 
 
      if not FPanelHidden and (FNEntry = nil) then
-        FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0));
+        FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0))
+     else
+     if FPanelHidden and EntryToAdd then
+        FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
 
    end;
 
@@ -1802,7 +1811,7 @@ begin
 end;
 
 
-function TKntNoteEntriesUI.IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultipleMode): boolean;
+function TKntNoteEntriesUI.IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntriesMode): boolean;
 var
    i: integer;
 begin
@@ -2024,17 +2033,17 @@ begin
    if Folded then
       strInfo:= ' \u10133+ '          // ➕
    else
-   if not PanelConfig.MMShowLineInHeader then
+   if not PanelConfig.MEShowLineInHeader then
       strInfo:= ' — '
    else
       strInfo:= '   ';
 
    strInfo:= strInfo + MainIni;
 
-   if PanelConfig.MMShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
+   if PanelConfig.MEShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
       strInfo:= strInfo + '# ' + Trim(NEntry.TagsNames) + '  · ';
    end;
-   if PanelConfig.MMShowDateInHeader and (NEntry.Created <> 0) then begin
+   if PanelConfig.MEShowDateInHeader and (NEntry.Created <> 0) then begin
       if (NEntry.Created).GetTime <> 0 then
          S:= ' - ' + FormatSettings.ShortTimeFormat;
       strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
@@ -2042,7 +2051,7 @@ begin
 
    strInfo:= strInfo + MainEnd;
 
-   if PanelConfig.MMShowLineInHeader then
+   if PanelConfig.MEShowLineInHeader then
       strInfo := strInfo + ' \u8203.'                      // '\u200B'  Zero-Width Space  (invisible)
    else
       strInfo := strInfo + ' —';
@@ -2071,7 +2080,7 @@ begin
       ColorInfo:= clRed;
 
 
-   if PanelConfig.MMShowLineInHeader then
+   if PanelConfig.MEShowLineInHeader then
       strLine:= GetRTFPrintableLineAux(999999);
 
    Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(EditorBackColor) + ';' +
@@ -2288,7 +2297,7 @@ begin
           Editor.SelStart:= FEntriesShown[iEntry].FinalPos
        else begin
           SS:= FEntriesShown[iEntry].StartingPos;
-          if (PanelConfig.MMShowLineInHeader) and (FEntriesShown[iEntry].Content = cmOnlyHeader) then
+          if (PanelConfig.MEShowLineInHeader) and (FEntriesShown[iEntry].Content = cmOnlyHeader) then
              inc(SS, 6);
           Editor.SelStart:= SS;
           if FEntriesShown[iEntry].Content <> cmOnlyHeader then
@@ -2433,7 +2442,7 @@ end;
 procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
 var
    SS, i: integer;
-   NewCont: TContentInMultipleMode;
+   NewCont: TContentInMultiEntriesMode;
 begin
    {
                  DblClick -> Toggle between cmOnlyHeader and cmWholeEntry, on selected entry
@@ -2479,7 +2488,7 @@ begin
    EditorDblClickInMultiEntries(True, False, CtrlDown);
 end;
 
-procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultipleMode; iEntry: integer= -1;
+procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultiEntriesMode; iEntry: integer= -1;
                                                            IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;
                                                            LimitToCreatedBeforeSelectedEntry: boolean = false);
 var
@@ -2600,7 +2609,7 @@ end;
 procedure TKntNoteEntriesUI.NEntryHidden(NEntry: TNoteEntry; Hidden: boolean; CreatedBefore: TDateTime = 0);
 var
    iEntry: integer;
-   Cont, NewCont: TContentInMultipleMode;
+   Cont, NewCont: TContentInMultiEntriesMode;
    AnyEntryChanged: boolean;
 
    procedure ChangeContent;

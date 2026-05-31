@@ -890,28 +890,15 @@ type
 
 
 type
-  TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnCenter, pnBL, pnBR,  pnLeft, pnR1, pnR2, pnR3);
+  TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnBL, pnBR, pnCenter, pnLeft, pnR1, pnR2, pnR3);
   TNEntriesPanel     = pnTL..pnR3;
-  TNEntriesMainPanel = pnTL..pnBR;
+  TNEntriesMainPanel = pnTL..pnCenter;
   TNEntriesAuxPanel  = pnLeft..pnR3;
 
 const
   MainPanels: set of TNEntriesPanel = [Low(TNEntriesMainPanel)..High(TNEntriesMainPanel)];
   TNEntriesPanel_Count = Ord(High(TNEntriesPanel)) - Ord(Low(TNEntriesPanel)) + 1;
 
-type
-  TNEntriesPanelUse = (
-     pnuShowVinculatedWithTags,    //  On read: Show only if there is any entry with any of the indicated tag
-                                   //  When starting editing: Show vinculated to the indicated tags
-     pnuShowSelectedEntry,         //  Show newest/oldest/last selected entry    (*)
-     pnuShowAllEntries,            //   ,,  all entries
-     pnuHidePanel                  //  Keep panel hidden
-  );
-
-  // (*) In DefaultUseForEditingLayout, you can define one panel (and only one) with one of this option.
-  //     If there is none with this option, there must necessarily be one defined with pnuShowAllEntries
-  //     The corresponding panel will be used to edit entries or create new entries.
-  // Newest/oldest/last selected, depending on TNoteAdvancedOptions.ShowNewestEntryInSingleEntry and TEditorOptions.SaveCaretPos
 
 type
    TNoteAdvancedOptions = packed record
@@ -937,6 +924,13 @@ type
      ExtractOfText_MaxLines: integer;
 
      NewEntriesAlwaysOnEdLayout: boolean;
+
+     MEContent: TContentInMultiEntriesMode;
+     MEShowDateInHeader: boolean;
+     MEShowTagsInHeader: boolean;
+     MEShowLineInHeader: boolean;
+     Order: TOrderInEntriesInPanel;
+     DescendingOrder: boolean;
 
      public procedure Initialize;
   end;
@@ -1205,6 +1199,13 @@ begin
     PnlBottomRatio:= 0.15;
 
     AutoExpandInPanels:= false;
+
+    MEContent:= cmWholeEntry;
+    MEShowDateInHeader:= true;
+    MEShowTagsInHeader:= true;
+    MEShowLineInHeader:= true;
+    Order:= eoDateCreation;
+    DescendingOrder:= True;
 
     ExtractOfText_MaxLength:= 250;
     ExtractOfText_MaxLines:= 3;

@@ -958,4 +958,12 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55156,  "Error hiding entry:"
 55157,  "Error setting main entry:"
 55158,  " (AND ALL created before it)"
+55159,  "Keep panel hidden"
+55160,  "Only if there is any entry with the tag[s]:"
+55161,  "Vinculated to the tag[s]:"
+55162,  "Newest / oldest / last selected entry"
+55163,  "All entries"
+55164,  "Only header"
+55165,  "Whole entry"
+55166,  "Only an extract from the beginning"
 }

@@ -169,6 +169,7 @@ type
     procedure RestoreZoomGoal;
     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
     procedure ReconsiderVisibilityOfEntries;
+    procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
 
 
    {$IFDEF KNT_DEBUG}
@@ -185,11 +186,11 @@ type
     procedure ShowBottomPanels(value: boolean);
     procedure ShowPanelsTop(TL, TR: boolean);
     procedure ShowPanelsBottom(BL, BR: boolean);
-    procedure ToggleMaximizePanel (Panel: TNEntriesPanel);
+    procedure ToggleMaximizeMainPanel (Panel: TNEntriesMainPanel);
     procedure RestoreSplits;
     function GetPanel (Panel: TNEntriesPanel): TPanel;
-    procedure ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
-    procedure PanelEmpty(Panel: TNEntriesPanel; WithoutVisibleEntries: boolean);
+    procedure ShowEntriesUIPanel(Panel: TNEntriesMainPanel; Show: boolean);
+    procedure PanelEmpty(Panel: TNEntriesMainPanel; WithoutVisibleEntries: boolean);
     property ChangingLayout: boolean read FChangingLayout;
     procedure RefreshPanelsLayout;
     procedure TreeFocused;
@@ -666,7 +667,7 @@ begin
 end;
 
 
-procedure TKntNoteUI.ToggleMaximizePanel (Panel: TNEntriesPanel);
+procedure TKntNoteUI.ToggleMaximizeMainPanel (Panel: TNEntriesMainPanel);
 var
   pnl: TPanel;
 begin
@@ -686,7 +687,7 @@ begin
    end
    else begin
       FNNodeUIConfig.MaximizedPanel:= pnNone;
-      FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= (not ActiveFolder.EditorInfoPanelHidden and (FNNodeUIConfig.GetVisibleBottomPanel = Panel));
+      FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= (FNNodeUIConfig.GetWhereToShowEditorInfoPanel = Panel);
    end;
 
    FSelectedNEntriesUI.PanelConfig.Maximized:= (FNNodeUIConfig.MaximizedPanel <> pnNone);
@@ -721,7 +722,7 @@ begin
    RestoreSplits;
 end;
 
-procedure TKntNoteUI.ShowEntriesUIPanel(Panel: TNEntriesPanel; Show: boolean);
+procedure TKntNoteUI.ShowEntriesUIPanel(Panel: TNEntriesMainPanel; Show: boolean);
 var
   NEntriesUI: TKntNoteEntriesUI;
   TL, TR: boolean;
@@ -760,7 +761,7 @@ begin
 end;
 
 
-procedure TKntNoteUI.PanelEmpty(Panel: TNEntriesPanel; WithoutVisibleEntries: boolean);
+procedure TKntNoteUI.PanelEmpty(Panel: TNEntriesMainPanel; WithoutVisibleEntries: boolean);
 var
   NEntriesUI: TKntNoteEntriesUI;
 begin
@@ -886,7 +887,7 @@ end;
 function TKntNoteUI.GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
 var
   CheckOnlySingleEntry, CheckOnlyEntrySelected: boolean;
-  Content: TContentInMultipleMode;
+  Content: TContentInMultiEntriesMode;
   MainEntriesUI, MaximizedEntriesUI: TKntNoteEntriesUI;
   NEntry: TNoteEntry;
   Location: TLocation;
@@ -1032,7 +1033,7 @@ function TKntNoteUI.GetPanelConfigForFindSelection(NNodeUIConfig: TNNodeUIConfig
 
       for i := 0 to High(NNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= NNodeUIConfig.PanelsConfig[i];
-          if not PanelConfig.Visible then continue;
+          if PanelConfig.Hidden then continue;
           if TNoteTagArrayUtils.HasTags(PanelConfig.VinculatedTags, TagsIncl) then
              exit (PanelConfig);
       end;
@@ -1105,7 +1106,7 @@ end;
 
 function TKntNoteUI.NavigatePanels(NavDirection: TNavDirection): boolean;
 var
-  pnl, nextPnl: TNEntriesPanel;
+  pnl, nextPnl: TNEntriesMainPanel;
   panelConfig: TPanelConfiguration;
 
 begin
@@ -1145,7 +1146,7 @@ begin
 
 
   panelConfig:= FNNodeUIConfig.GetCreatedPanelConfig(nextPnl);
-  if (panelConfig <> nil) and panelConfig.Visible then begin
+  if (panelConfig <> nil) and not panelConfig.Hidden then begin
      FNEntriesUI[nextPnl].SetFocusOnEditor;
      Result:= True;
   end;
@@ -1154,7 +1155,7 @@ end;
 
 procedure TKntNoteUI.ToggleMaximizeSelectedPanel;
 begin
-   ToggleMaximizePanel(FSelectedNEntriesUI.PanelConfig.Panel);
+   ToggleMaximizeMainPanel(FSelectedNEntriesUI.PanelConfig.Panel);
 end;
 
 
@@ -1214,6 +1215,26 @@ begin
 end;
 
 
+procedure TKntNoteUI.ModifiedMetadataOfEntry(NEntry: TNoteEntry);
+var
+  p: TNEntriesPanel;
+  NoteEntriesUI: TKntNoteEntriesUI;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
+        FNEntriesUI[p].ModifiedMetadataOfEntry(NEntry);
+     end;
+
+  if FQueryLayout then begin
+     p:= FNNodeUIConfig.GetWhereToShowEditorInfoPanel;
+     FNNodeUIConfig.PanelConfig(p).ShowEditorInfoPanel:= True;
+     GetNEntriesUI(p).ReconsiderInfoPanelVisibility;
+  end;
+
+end;
+
+
+
 {$IFDEF KNT_DEBUG}
 function TKntNoteUI.GetDBG_NEntriesUI(): TKntNoteEntriesUIArray;
 var
@@ -1268,7 +1289,13 @@ begin
         if (FQueryLayout or (NEntriesUI.PanelConfig.MainMode = meMultipleEntries)) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
            NEntriesUI.btnToggleMultiClick(nil);
            exit;
+        end
+        else
+        if FQueryLayout and (NEntry = nil) then begin
+           NEntriesUI.ReloadFromDataModel(false, nil);
+           exit;
         end;
+
      end;
 
      if FQueryLayout then
@@ -1412,7 +1439,7 @@ procedure TKntNoteUI.EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; 
 var
   NEntriesUI: TKntNoteEntriesUI;
   PanelConfig: TPanelConfiguration;
-  PnlEdit: TNEntriesPanel;
+  PnlEdit: TNEntriesMainPanel;
   Action: TActionOnEntry;
 
 begin
@@ -1434,10 +1461,6 @@ begin
 
    if NEntriesUI <> ReqFromNEntriesUI then begin
       ReqFromNEntriesUI.SavePositionInPanel;
-      {  // AutoCollapseEntryOnEditing
-      if NEntry <> nil then
-         ReqFromNEntriesUI.ReloadVisibleContentOfEntries(false, cmOnlyHeader, ReqFromNEntriesUI.GetIndexOfVisibleEntry(NEntry));
-      }
       PanelConfig.SelStart:= ReqFromNEntriesUI.PanelConfig.SelStart;
       PanelConfig.SelLength:= ReqFromNEntriesUI.PanelConfig.SelLength;
    end;
@@ -1590,10 +1613,10 @@ procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolea
                                    TagsToAddToNewEntry: TNoteTagArray = nil);
 var
    ShowPanels: boolean;
-   Pnl, PnlVisibleBottom, PnlEdit, PnlToSetFocus, MainPanel: TNEntriesPanel;
+   Pnl, PnlEdit, PnlToSetFocus, MainPanel, PnlWithEditorInfoPanel: TNEntriesMainPanel;
    i: integer;
    PanelConfig: TPanelConfiguration;
-   ShowPanel: array[TNEntriesPanel] of boolean;
+   ShowPanel: array[TNEntriesMainPanel] of boolean;
    NEntriesUI: TKntNoteEntriesUI;
    QueryLayout: boolean;
    DefinedSingleEntryPanelForEditing: boolean;
@@ -1647,14 +1670,13 @@ begin
       CancelMaximizedPanel;
 
 
-   for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
       ShowPanel[Pnl]:= false;
       if (FNEntriesUI[Pnl] <> nil) and not FNEntriesUI[Pnl].HideNestedFloatingEditor then
          exit;
    end;
 
    if assigned(NNode) then begin
-      PnlVisibleBottom:= FNNodeUIConfig.GetVisibleBottomPanel;
       MainPanel:= FNNodeUIConfig.GetMainPanel;
       PnlToSetFocus:= MainPanel;
       if OfferEditorForNewEntry then begin
@@ -1672,61 +1694,63 @@ begin
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
           Pnl:= PanelConfig.Panel;
-          if PanelConfig.Visible then begin
-             ShowPanel[Pnl]:= True;
-             PanelConfig.ShowEditorInfoPanel:= (PnlVisibleBottom = Pnl) or ((FNNodeUIConfig.MaximizedPanel <> pnNone) and (FNNodeUIConfig.MaximizedPanel= Pnl));
-             NEntriesUI:= GetNEntriesUI(Pnl);
+          ShowPanel[Pnl]:= True;
+          PanelConfig.Hidden:= false;               // By now
+          PanelConfig.ShowEditorInfoPanel:= False;  //  ,,
 
-             { AutoCollapseEntryOnEditing
-             if (EditingNEntry <> nil) and not QueryLayout and (PanelConfig.Mode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then begin
-                SetLength(PanelConfig.EntriesOnlyHeader, Length(PanelConfig.EntriesOnlyHeader)+1);
-                PanelConfig.EntriesOnlyHeader[Length(PanelConfig.EntriesOnlyHeader)-1]:= EditingNEntry;
-             end;
-             }
-             if SetNoteSelEntryOnMainPanel and (Pnl = MainPanel) then begin
-                PanelConfig.SelNEntry:= FNote.SelEntry;
-                PanelConfig.SelStart:= FNote.SelStart;
-                PanelConfig.SelLength:= FNote.SelLength;
-                PanelConfig.ScrollPosInEditor.Y:= 0;
-             end;
+          NEntriesUI:= GetNEntriesUI(Pnl);
 
-             Action:= aNull;
-             if OfferEditorForNewEntry and (Pnl = PnlToSetFocus) then begin
-                PanelConfig.SelNEntry:= nil;
-                PanelConfig.CurrentMode:= meSingleEntry;
-                Action:= aCreating;
-                NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
-             end;
-             NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
-
-             if (NEntriesUI.NEntry = nil) then begin
-                NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
-                DisableChangedInEmptyPanelAt:= now;
-             end
-             else
-                NEntriesUI.Editor.OnEditorChanged := nil;
-
-             if not QueryLayout or (NEntriesUI.NEntry <> nil) then begin
-                NEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
-                if PanelConfig.ShowEditorInfoPanel or EnableNavigatePanels then
-                   NEntriesUI.ReconsiderInfoPanelVisibility;
-             end;
+          if SetNoteSelEntryOnMainPanel and (Pnl = MainPanel) then begin
+             PanelConfig.SelNEntry:= FNote.SelEntry;
+             PanelConfig.SelStart:= FNote.SelStart;
+             PanelConfig.SelLength:= FNote.SelLength;
+             PanelConfig.ScrollPosInEditor.Y:= 0;
           end;
+
+          Action:= aNull;
+          if OfferEditorForNewEntry and (Pnl = PnlToSetFocus) then begin
+             PanelConfig.SelNEntry:= nil;
+             PanelConfig.CurrentMode:= meSingleEntry;
+             Action:= aCreating;
+             NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
+          end;
+          NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
+
+          if not FQueryLayout and (NEntriesUI.NEntry = nil) then begin
+             NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
+             DisableChangedInEmptyPanelAt:= now;
+          end
+          else
+             NEntriesUI.Editor.OnEditorChanged := nil;
       end;
    end
    else
       GetNEntriesUI(pnCenter).LoadFromDataModel(nil, False);
 
 
-   // Clear unused editors  (##)
-   for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+
+   PnlWithEditorInfoPanel:= FNNodeUIConfig.GetWhereToShowEditorInfoPanel;
+
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
        if (FNEntriesUI[Pnl] <> nil) then begin
           if not ShowPanel[Pnl] then
-             FNEntriesUI[Pnl].SetAsUnused
-          else
-          if QueryLayout and (FNEntriesUI[Pnl].NEntry = nil) then begin
-             ShowPanel[Pnl]:= False;        // OnUse but not visible for now
-             FNEntriesUI[Pnl].PanelHidden:= True;
+             FNEntriesUI[Pnl].SetAsUnused          // Clear unused editors
+
+          else begin
+              { We calculate ShowEditorInfoPanel now because, in QL, as a result of previous calls to NEntriesUI.LoadFromDataModel,
+                the Hidden (PanelHidden) state of the panel may have changed, by having (or not having) some visible entry}
+
+              if Pnl = PnlWithEditorInfoPanel then
+                 FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= True;
+
+              if QueryLayout and (FNEntriesUI[Pnl].NEntry = nil) then
+                 ShowPanel[Pnl]:= False        // OnUse but not visible for now
+
+              else begin
+                 FNEntriesUI[Pnl].Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
+                 if (Pnl = PnlWithEditorInfoPanel) or EnableNavigatePanels then
+                    FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility;
+              end;
           end;
        end;
 
@@ -1812,8 +1836,7 @@ begin
             end;
          end
          else
-            FNEntriesUI[p].PanelConfig.Free;
-
+            FreeAndNil(FNEntriesUI[p].PanelConfig);
       end;
 
    if (FSelectedNEntriesUI <> nil) and (FSelectedNEntriesUI.PanelConfig.Panel in MainPanels) and (FSelectedNEntriesUI.PanelConfig.VinculatedTags = nil) then
@@ -1839,7 +1862,7 @@ begin
       else begin
          for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
             if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
-               FNEntriesUI[p].PanelConfig.Free;
+               FreeAndNil(FNEntriesUI[p].PanelConfig);
       end;
 
    Log_StoreTick('TKntNoteUI.SaveToDataModel - END', 4, -1);

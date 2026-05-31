@@ -221,10 +221,10 @@ type
     procedure UpdateSampleFont;
 
     function GetFilterInfUsingFindAll(OnlyNode: PVirtualNode = nil; FolderToUse: TKntFolder = nil; TextPlainToUse: string = ''): boolean;
-    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure ChangeFindInclToModeOR;
     procedure CheckTxtTagsEnabled;
     procedure EnableDefaultButton (Enable: boolean);
@@ -562,7 +562,7 @@ begin
   App.HideNestedFloatingEditors;
   if FloatingEditorCannotBeSaved then exit;
 
-  ExportingFormVisible:= true;
+  ModalFormWithTxtTagsVisible:= true;
 
   ReadConfig (ExportOptions, myINIFN, PrinterMode);
   OptionsToForm;
@@ -607,7 +607,7 @@ begin
 
   if CanClose then begin
      Button_Cancel.SetFocus;
-     ExportingFormVisible:= false;
+     ModalFormWithTxtTagsVisible:= false;
      FreeFragments (ExpFoundNodes, ExpFoundNotes, ExpFoundEntriesInNotes);
   end;
 end; // CloseQuery
@@ -2923,7 +2923,7 @@ begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
   Form_Export := TForm_ExportNew.Create( Form_Main );
   try
-    TagMng.OfferTagSelectorInExport(True);
+    TagMng.OfferTagSelectorInModalForm(True, Form_Export);
 
     with Form_Export do begin
       ShowHint := KeyOptions.ShowTooltips;
@@ -2942,7 +2942,7 @@ begin
     Form_Export.Free;
     Form_Export:= nil;
 
-    TagMng.OfferTagSelectorInExport(False);
+    TagMng.OfferTagSelectorInModalForm(False, nil);
   end;
 end; // ExportNotesEx
 
@@ -3045,7 +3045,7 @@ begin
    TagMng.StartTxtFindTagIntrod(txtTagsIncl, OnEndFindTagsInclIntrod, OnChangeFindTagsInclIntrod, true);
 end;
 
-procedure TForm_ExportNew.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_ExportNew.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
    if cbTagFindMode.ItemIndex = 1 then
       ChangeFindInclToModeOR
@@ -3055,9 +3055,9 @@ begin
    FindTagsIncl_NotRegistered:= Trim(FindTagsNotRegistered);
 end;
 
-procedure TForm_ExportNew.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_ExportNew.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
-   OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+   OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered, txtTagsIncl);
    if PressedReturn then
       txtTagsExcl.SetFocus;
 
@@ -3078,7 +3078,7 @@ begin
 end;
 
 
-procedure TForm_ExportNew.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_ExportNew.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
    FindTagsExcl:= FindTagsGetModeOR(FindTags);
    FindTagsExcl_NotRegistered:= Trim(FindTagsNotRegistered);
@@ -3087,9 +3087,9 @@ end;
 
 
 
-procedure TForm_ExportNew.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_ExportNew.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
-   OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+   OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered, txtTagsExcl);
    if PressedReturn then
       chkTagsMetad.SetFocus;
 
