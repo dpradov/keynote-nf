@@ -1521,16 +1521,24 @@ begin
    if FPanelHidden and not EntryToAdd then exit;
 
 
-   if EntryToRemove and (Mode = meSingleEntry) then begin
-      PopulateEntriesToShow;
-      if iEntryToConsider <> FiEntry_Initial then
-         exit
-      else
-      if FEntriesShown <> nil then begin
-         btnToggleMultiClick(nil);
-         exit;
-      end;               // ELSE -> Continue: Editor.Clear, ...
-   end;
+   if EntryToRemove then
+       if (Mode = meSingleEntry) then begin
+          PopulateEntriesToShow;
+          if iEntryToConsider <> FiEntry_Initial then
+             exit
+          else
+          if FEntriesShown <> nil then begin
+             btnToggleMultiClick(nil);
+             exit;
+          end;                             // ELSE -> Continue: Editor.Clear, ...
+       end
+       else begin  // Mode = meMultipleEntries
+          if (Length(FEntriesShown) = 2) then begin
+              PopulateEntriesToShow;
+              btnToggleMultiClick(nil);
+              exit;
+          end;
+       end;
 
 
    if EntryToAdd then begin
