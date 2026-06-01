@@ -147,6 +147,10 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object GBox_Tree: TGroupBox
         Left = 4
         Top = 3
@@ -557,6 +561,10 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object lblQL: TLabel
             Left = 6
             Top = 2
@@ -727,6 +735,10 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object lblEL: TLabel
             Left = 6
             Top = 2
@@ -889,6 +901,10 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
+          ExplicitLeft = 0
+          ExplicitTop = 0
+          ExplicitWidth = 0
+          ExplicitHeight = 0
           object lbl9: TLabel
             Left = 160
             Top = 32

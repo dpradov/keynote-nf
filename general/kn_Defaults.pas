@@ -1177,7 +1177,7 @@ begin
 
    Tags:= nil;
    if FindTags <> nil then
-      Tags:= FindTags[0];
+      Tags:= TNoteTagArrayUtils.FindTagsANDToTags(FindTags);
 
    if EL then
       myNoteAdvOptions.VinculatedTagsForEditingLayout[pnl]:= Tags

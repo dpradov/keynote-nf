@@ -992,8 +992,6 @@ var
  ImagesAux: TImageIDs;
  CannotShow_Encrypted: boolean;
  SS, SL, Offset: integer;
- Tags: TNoteTagArray;
- FindTags: TFindTags;
  EntryToAdd, EntryToRemove, MustBeIncluded: boolean;
  Mode: TModeEntriesUI;
  FNEntry_Initial: TNoteEntry;
@@ -1006,7 +1004,7 @@ var
 
    case PanelConfig.Scope of
       fsSelectedNode: begin
-          Result:= FNote.IsValid(NEntry) and  not ((FindTags <> nil) and not NEntry.MatchesTags(FindTags));
+         Result:= FNote.IsValid(NEntry) and  not ((PanelConfig.VinculatedTags <> nil) and not NEntry.HasTags(PanelConfig.VinculatedTags));
       end;
 
       fsSelectedNodeAndSubtree: ;
@@ -1048,7 +1046,7 @@ var
    procedure CheckCandidateEntry;
    begin
       NEntry:= Note.Entries[iEntry];
-      if (FindTags = nil) or NEntry.MatchesTags(FindTags) then begin
+      if (PanelConfig.VinculatedTags = nil) or NEntry.HasTags(PanelConfig.VinculatedTags) then begin
          FEntriesShown[N].NEntry:= NEntry;
          FEntriesShown[N].NNode:= FNNode;
          FEntriesShown[N].Note:= FNote;
@@ -1434,13 +1432,6 @@ begin
          CalculateEntriesToShow:= True;
          ActionOnEntry:= aNull;
       end;
-
-
-   if CalculateEntriesToShow or (NEntryToConsider <> nil) then begin
-      Tags:= PanelConfig.VinculatedTags;
-      if (Tags <> nil) then
-         FindTags:= FindTagsGetModeAND(Tags);
-   end;
 
 
    CannotShow_Encrypted:= False;

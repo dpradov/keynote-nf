@@ -288,6 +288,12 @@ type
      class function ToNames(Tags: TNoteTagArray): string;
      class function ToString(Tags: TNoteTagArray): string;
      class function StringToTags(Str: string): TNoteTagArray;
+
+     class function FindTagsToModeOR(FindTags: TFindTags): TFindTags;
+     class function FindTagsANDToTags(FindTags: TFindTags): TNoteTagArray;
+     // Not necessary for now:
+     // class function TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
+     // class function TagsToFindTagsModeAND(Tags: TNoteTagArray): TFindTags;
    end;
 
 
@@ -392,6 +398,7 @@ type
     function TagsNames: string;
     function HaveSameTags(SomeTags: TNoteTagArray): boolean;
     function MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
+    function HasTags(TagsIncluded: TNoteTagArray): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
 
@@ -522,10 +529,6 @@ type
 
   PNoteNode = ^TNoteNode;
 
-
-  function FindTagsGetModeOR(FindTags: TFindTags): TFindTags; overload;
-  function FindTagsGetModeOR(Tags: TNoteTagArray): TFindTags; overload;
-  function FindTagsGetModeAND(Tags: TNoteTagArray): TFindTags;
 
 
 implementation
@@ -1255,7 +1258,7 @@ end;
 
 
 
-function FindTagsGetModeOR(FindTags: TFindTags): TFindTags;
+class function TNoteTagArrayUtils.FindTagsToModeOR(FindTags: TFindTags): TFindTags;
 var
   i, j, N: integer;
   FindOR: TNoteTagArray;
@@ -1277,8 +1280,26 @@ begin
    Result[0]:= FindOR;
 end;
 
+class function TNoteTagArrayUtils.FindTagsANDToTags(FindTags: TFindTags): TNoteTagArray;
+var
+  i, N: integer;
+begin
+   if FindTags = nil then
+      exit(nil);
 
-function FindTagsGetModeOR(Tags: TNoteTagArray): TFindTags;
+   SetLength(Result, MAX_SEARCHED_TAGS);      // All tags will be included
+   N:= 0;
+   for i:= 0 to High(FindTags) do begin
+      Result[N]:= FindTags[i][0];
+      inc(N);
+   end;
+   SetLength(Result, N);
+end;
+
+
+{  // Not necessary for now.
+
+class function TNoteTagArrayUtils.TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
 begin
    if Tags = nil then
       exit(nil);
@@ -1287,7 +1308,8 @@ begin
    Result[0]:= Tags;
 end;
 
-function FindTagsGetModeAND(Tags: TNoteTagArray): TFindTags;
+
+class function TNoteTagArrayUtils.TagsToFindTagsModeAND(Tags: TNoteTagArray): TFindTags;
 var
   i: integer;
   FindOR: TNoteTagArray;
@@ -1302,8 +1324,7 @@ begin
       Result[i]:= FindOR;
    end;
 end;
-
-
+}
 
 
 // =========================================================================================================
@@ -1633,6 +1654,12 @@ begin
     if not Result then
        exit;
  end;
+end;
+
+
+function TNoteEntry.HasTags(TagsIncluded: TNoteTagArray): boolean;
+begin
+   Result:= TNoteTagArrayUtils.HasTags(Tags, TagsIncluded);
 end;
 
 

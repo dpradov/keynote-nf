@@ -920,7 +920,7 @@ var
            if not NEntrUI.OnUse then continue;
            if CheckTagsVinc and
                       ( (NEntrUI.PanelConfig.VinculatedTags = nil) or
-                         not NEntry.MatchesTags(FindTagsGetModeAND(NEntrUI.PanelConfig.VinculatedTags)) ) then continue;
+                         not NEntry.HasTags(NEntrUI.PanelConfig.VinculatedTags) ) then continue;
            if CheckMain and (NEntrUI <> MainEntriesUI) then continue;
            if CheckNEntriesUI(NEntrUI) then
               exit (NEntrUI);
