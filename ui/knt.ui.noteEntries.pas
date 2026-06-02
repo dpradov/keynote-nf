@@ -2063,8 +2063,9 @@ end;
 function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
 var
   strLine: AnsiString;
-  s, strInfo, MainIni, MainEnd: string;
+  s, strIni, strInfo, MainIni, MainEnd: string;
   EditorBackColor, ColorLine, ColorInfo: TColor;
+  ShowTags, ShowDate: boolean;
 
 begin
    // # ToDO —  08/11/2025 - 11:36  —
@@ -2074,23 +2075,21 @@ begin
       MainEnd:= '}';
    end;
 
-   if Folded then
-      strInfo:= ' \u10133+ '          // ➕
-   else
-   if not PanelConfig.MEShowLineInHeader then
-      strInfo:= ' — '
-   else
-      strInfo:= '   ';
 
-   strInfo:= strInfo + MainIni;
+   ShowTags:= false;
+   ShowDate:= false;
 
    if PanelConfig.MEShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
-      strInfo:= strInfo + '# ' + Trim(NEntry.TagsNames) + '  · ';
+      strInfo:= '# ' + Trim(NEntry.TagsNames);
+      ShowTags:= true;
    end;
    if PanelConfig.MEShowDateInHeader and (NEntry.Created <> 0) then begin
+      if ShowTags then
+         strInfo:= strInfo + '  · ';
       if (NEntry.Created).GetTime <> 0 then
          S:= ' - ' + FormatSettings.ShortTimeFormat;
       strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
+      ShowDate:= true;
    end;
 
    strInfo:= strInfo + MainEnd;
@@ -2098,7 +2097,22 @@ begin
    if PanelConfig.MEShowLineInHeader then
       strInfo := strInfo + ' \u8203.'                      // '\u200B'  Zero-Width Space  (invisible)
    else
-      strInfo := strInfo + ' —';
+   if ShowTags or ShowDate then
+      strInfo := strInfo + ' —'
+   else
+      strInfo := strInfo + '———';
+
+
+   if Folded then
+      strIni:= ' \u10133+ '         // ➕
+   else
+   if not PanelConfig.MEShowLineInHeader and (ShowTags or ShowDate) then
+      strIni:= ' — '
+   else
+      strIni:= '   ';
+
+   strInfo:= strIni + MainIni + strInfo;
+
 
    (*
    if PanelConfig.MMShowLineInHeader then
