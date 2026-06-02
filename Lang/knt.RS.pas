@@ -1053,6 +1053,11 @@ const
    sEntry15 = 55165;   // Whole entry
    sEntry16 = 55166;   // Only an extract from the beginning
 
+   sEntry17 = 55167;   // Review the purposes for "%s".
+   sEntry18 = 55168;   // Query layout
+   sEntry19 = 55169;   // Editing Layout
+   sEntry20 = 55170;   // Make sure to:\^\^ * Select '%s' in one (and only one) panel\^\^ * Do not select more than one panel with:\^   '%s'\^\^ * Select for panel C:\^   '%s' or '%s'\^\^ * Specify a tag for each:\^   '%s'
+
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !

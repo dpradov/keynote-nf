@@ -100,8 +100,8 @@ type
     CB_RTL: TCheckBox;
     CB_DisableTagSel: TCheckBox;
     Tab_Advanced: TTab95Sheet;
-    TabEL: TPage95Control;
-    TabQL: TTab95Sheet;
+    PagesAdv: TPage95Control;
+    Tab_QL: TTab95Sheet;
     Tab_EL: TTab95Sheet;
     Tab_MultiE: TTab95Sheet;
     lbl9: TLabel;
@@ -150,6 +150,8 @@ type
     TagsCe: TEdit;
     TagsBLe: TEdit;
     TagsBRe: TEdit;
+    BitBtn_QL: TBitBtn;
+    BitBtn_EL: TBitBtn;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -174,6 +176,8 @@ type
     procedure BitBtn_TreeChromeHelpClick(Sender: TObject);
     function FormHelp(Command: Word; Data: NativeInt;
       var CallHelp: Boolean): Boolean;
+    procedure BitBtn_QLClick(Sender: TObject);
+    procedure BitBtn_ELClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -188,6 +192,9 @@ type
     procedure txtTagsEnter(Sender: TObject);
     procedure OnChangeTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnEndTagsIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+
+    function ValidateQueryLayout: boolean;
+    function ValidateEditingLayout: boolean;
 
   public
     { Public declarations }
@@ -548,6 +555,7 @@ procedure TForm_Defaults.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
   i : integer;
+  ValidatedQL, ValidatedEL: boolean;
 begin
   if OK_Click then
   begin
@@ -599,7 +607,37 @@ begin
       if (( Edit_NodeName.Items[i] <> Edit_NodeName.Text ) and ( Edit_NodeName.Items[i] <> '' )) then
         myNodeNameHistory :=  myNodeNameHistory + HISTORY_SEPARATOR + AnsiQuotedStr( Edit_NodeName.Items[i], '"' );
     end;
+
     FormToProps;
+
+
+    ValidatedQL:= ValidateQueryLayout;
+    ValidatedEL:= ValidateEditingLayout;
+
+    if not ValidatedQL or not ValidatedEL then begin
+      var Layout: string;
+      var OptAllEntries: string := GetRS(sEntry13);
+      var OptSelectedEntry: string := GetRS(sEntry12);
+      var OptVincTags: string;
+
+      CanClose := false;
+      Pages.ActivePage := Tab_Advanced;
+      if not ValidatedQL then begin
+         Layout:= GetRS(sEntry18);           // Query layout
+         OptVincTags:= GetRS(sEntry10);
+         PagesAdv.ActivePage := Tab_QL;
+         cb_TLq.SetFocus;
+      end
+      else begin
+         Layout:= GetRS(sEntry19);           // Editing Layout
+         OptVincTags:= GetRS(sEntry11);
+         PagesAdv.ActivePage := Tab_EL;
+         cb_TLe.SetFocus;
+      end;
+      App.ErrorPopup(Format( GetRS(sEntry17) + GetRS(sEntry20), [Layout, OptAllEntries, OptSelectedEntry, OptAllEntries, OptSelectedEntry, OptVincTags]) );
+      exit;
+    end;
+
   end;
   OK_Click := false;
 end; // CLOSEQUERY
@@ -1199,6 +1237,67 @@ begin
 end;
 
 
+function TForm_Defaults.ValidateQueryLayout: boolean;
+var
+  pnl: TNEntriesMainPanel;
+  Num_ShowSelectedEntry, Num_ShowAllEntries: integer;
+begin
+   Result:= False;
+
+   Num_ShowSelectedEntry:= 0;
+   Num_ShowAllEntries:= 0;
+
+   with myNoteAdvOptions do begin
+      for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+         case DefaultUseForQueryLayout[pnl] of
+             pnuShowVinculatedWithTags: if (pnl = pnCenter) or (VinculatedTagsForQueryLayout[pnl] = nil) then exit;
+             pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
+             pnuShowAllEntries:         inc(Num_ShowAllEntries);
+             pnuHidePanel:              if (pnl = pnCenter) then exit;
+         end;
+      end;
+
+      if (Num_ShowAllEntries = 1) and (Num_ShowSelectedEntry <= 1) then
+         Result:= True;
+   end;
+
+end;
+
+
+function TForm_Defaults.ValidateEditingLayout: boolean;
+var
+  pnl: TNEntriesMainPanel;
+  Num_ShowSelectedEntry, Num_ShowAllEntries: integer;
+begin
+  {
+  Review the purposes for "Editing Layout". Make sure to:
+  - Select "All entries" in one (and only one) panel                                       (..."sEntry13")
+  - Do not select more than one panel with "Newest / oldest / last selected entry"         (..."sEntry12")
+  - Select "All entries" or "Newest / oldest / last selected entry" for panel C            (..."sEntry13" y "sEntry12")
+  - Specify a tag for each "Vinculated to the tag[s]:" option                              (...QL: "sEntry10"   EL: "sEntry11")
+  }
+
+   Result:= False;
+
+   Num_ShowSelectedEntry:= 0;
+   Num_ShowAllEntries:= 0;
+
+   with myNoteAdvOptions do begin
+      for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+         case DefaultUseForEditingLayout[pnl] of
+             pnuShowVinculatedWithTags: if (pnl = pnCenter) or (VinculatedTagsForEditingLayout[pnl] = nil) then exit;
+             pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
+             pnuShowAllEntries:         inc(Num_ShowAllEntries);
+             pnuHidePanel:              if (pnl = pnCenter) then exit;
+         end;
+      end;
+
+      if (Num_ShowAllEntries = 1) and (Num_ShowSelectedEntry <= 1) then
+         Result:= True;
+   end;
+
+end;
+
 
 procedure TForm_Defaults.Button_HelpClick(Sender: TObject);
 begin
@@ -1217,6 +1316,24 @@ end; // Edit_NoteNameKeyPress
 procedure TForm_Defaults.BitBtn_FolderHelpClick(Sender: TObject);
 begin
   App.InfoPopup(GetRS(sDef31));
+end;
+
+procedure TForm_Defaults.BitBtn_QLClick(Sender: TObject);
+begin
+  var OptAllEntries: string := GetRS(sEntry13);
+  var OptSelectedEntry: string := GetRS(sEntry12);
+  var OptVincTags: string := GetRS(sEntry10);
+
+  App.InfoPopup(Format( GetRS(sEntry20), [OptAllEntries, OptSelectedEntry, OptAllEntries, OptSelectedEntry, OptVincTags]) );
+end;
+
+procedure TForm_Defaults.BitBtn_ELClick(Sender: TObject);
+begin
+  var OptAllEntries: string := GetRS(sEntry13);
+  var OptSelectedEntry: string := GetRS(sEntry12);
+  var OptVincTags: string := GetRS(sEntry11);
+
+  App.InfoPopup(Format( GetRS(sEntry20), [OptAllEntries, OptSelectedEntry, OptAllEntries, OptSelectedEntry, OptVincTags]) );
 end;
 
 procedure TForm_Defaults.BitBtn_FolderChromeHelpClick(Sender: TObject);

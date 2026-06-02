@@ -125,7 +125,7 @@ object Form_Defaults: TForm_Defaults
     Top = 90
     Width = 405
     Height = 320
-    ActivePage = Tab_Advanced
+    ActivePage = Tab_Tree
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -147,10 +147,6 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_Tree: TGroupBox
         Left = 4
         Top = 3
@@ -320,10 +316,6 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object GBox_Note: TGroupBox
         Left = 4
         Top = 3
@@ -530,16 +522,12 @@ object Form_Defaults: TForm_Defaults
       ImageIndex = -1
       StaticPageIndex = -1
       TabVisible = True
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
-      object TabEL: TPage95Control
+      object PagesAdv: TPage95Control
         Left = 4
         Top = 3
         Width = 389
         Height = 285
-        ActivePage = TabQL
+        ActivePage = Tab_QL
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -555,16 +543,12 @@ object Form_Defaults: TForm_Defaults
         ParentFont = False
         TabOrder = 0
         TabPosition = tpBottomRight
-        object TabQL: TTab95Sheet
+        object Tab_QL: TTab95Sheet
           Caption = 'Query Layout  '
           GripAlign = gaLeft
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object lblQL: TLabel
             Left = 6
             Top = 2
@@ -728,6 +712,17 @@ object Form_Defaults: TForm_Defaults
             Caption = 'Switch to Editing Layout when creating a new entry'
             TabOrder = 15
           end
+          object BitBtn_QL: TBitBtn
+            Left = 353
+            Top = 151
+            Width = 25
+            Height = 25
+            ImageIndex = 60
+            Images = Form_Main.IMG_Toolbar
+            TabOrder = 16
+            TabStop = False
+            OnClick = BitBtn_QLClick
+          end
         end
         object Tab_EL: TTab95Sheet
           Caption = 'Editing Layout  '
@@ -735,10 +730,6 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object lblEL: TLabel
             Left = 6
             Top = 2
@@ -894,6 +885,17 @@ object Form_Defaults: TForm_Defaults
             ParentCtl3D = False
             TabOrder = 14
           end
+          object BitBtn_EL: TBitBtn
+            Left = 352
+            Top = 151
+            Width = 25
+            Height = 25
+            ImageIndex = 60
+            Images = Form_Main.IMG_Toolbar
+            TabOrder = 15
+            TabStop = False
+            OnClick = BitBtn_ELClick
+          end
         end
         object Tab_MultiE: TTab95Sheet
           Caption = 'Multi-entries Panels  '
@@ -901,10 +903,6 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object lbl9: TLabel
             Left = 160
             Top = 32
@@ -1018,10 +1016,6 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object cb_AutoExp: TCheckBox
             Left = 8
             Top = 4

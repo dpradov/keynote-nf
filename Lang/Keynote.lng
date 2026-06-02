@@ -2894,5 +2894,9 @@ Button_OK.Caption=&Close
 55164_knt_RS_sEntry14=Only header
 55165_knt_RS_sEntry15=Whole entry
 55166_knt_RS_sEntry16=Only an extract from the beginning
+55167_knt_RS_sEntry17=Review the purposes for "%s". 
+55168_knt_RS_sEntry18=Query layout
+55169_knt_RS_sEntry19=Editing Layout
+55170_knt_RS_sEntry20=Make sure to:\^\^ * Select '%s' in one (and only one) panel\^\^ * Do not select more than one panel with:\^   '%s'\^\^ * Select for panel C:\^   '%s' or '%s'\^\^ * Specify a tag for each:\^   '%s'
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*
