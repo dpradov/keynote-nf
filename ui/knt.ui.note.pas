@@ -1327,11 +1327,8 @@ begin
         ToQueryLayout:= True;
   end
   else begin                                        // Not CtrlDown => Mode= meMultiEntries
-     if FQueryLayout then
-        NEntriesUI.btnToggleMultiClick(nil)
-     else
-        EditInInMultiEntries(NEntriesUI, NEntry, false);
-
+     // Edit in single panel (pnuShowSelectedEntry), if found; otherwise -> btnToggleMultiClick
+     EditInInMultiEntries(NEntriesUI, NEntry, false);
      exit;
   end;
 
@@ -1462,14 +1459,19 @@ procedure TKntNoteUI.EditInInMultiEntries(ReqFromNEntriesUI: TKntNoteEntriesUI; 
 var
   NEntriesUI: TKntNoteEntriesUI;
   PanelConfig: TPanelConfiguration;
-  PnlEdit: TNEntriesMainPanel;
+  PnlReq, PnlEdit: TNEntriesMainPanel;
   Action: TActionOnEntry;
 
 begin
    if (ReqFromNEntriesUI = nil) or (Note = nil) then exit;
 
+   PnlReq:= ReqFromNEntriesUI.PanelConfig.Panel;
+
+   if FNNodeUIConfig.MaximizedPanel = PnlReq then
+      PnlEdit:= PnlReq
+   else
    if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
-      PnlEdit:= ReqFromNEntriesUI.PanelConfig.Panel;
+      PnlEdit:= PnlReq;
       if not NewEntry then begin
          ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
          exit;
