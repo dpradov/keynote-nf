@@ -58,7 +58,7 @@ type
 
 
   TPanelConfiguration = class
-    QL: TStatusPanelLayout;             // Configuration for QueryLayout
+    StLayout: TStatusPanelLayout;
     Panel: TNEntriesPanel;
     Hidden: boolean;                    // In QueryLayout, when no entry is available (panels not shown because of maximized other panel will not be marked as hidden)
     ShowEditorInfoPanel: boolean;
@@ -114,6 +114,7 @@ type
      property NNode: TNoteNode read GetNNode;
      property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
      function MultipleVisibleEditors: boolean;
+     function NumberOfVisibleEntries(Panel: TNEntriesPanel): integer;
      function GetHideFocusFlag: boolean;
      procedure SetHideFocusFlag(value: boolean);
      property HideFocusFlag: boolean read GetHideFocusFlag write SetHideFocusFlag;

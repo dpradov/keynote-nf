@@ -996,6 +996,7 @@ var
  Mode: TModeEntriesUI;
  FNEntry_Initial: TNoteEntry;
  FiEntry_Initial: integer;
+ NumVisibleEntriesBefore, NumVisibleEntriesAfter: integer;
 
 
  function NEntryMustBeIncludedInPanel (NEntry: TNoteEntry): boolean;
@@ -1425,7 +1426,7 @@ begin
      If the note already has at least 2 entries, we will show the entry we have identified but avoided displaying
      in the editor, so as not to offer two identical copies of the same entry simply by tagging the single entry with one
      of the tags linked to this auxiliary panel }
-   if (PanelConfig.QL = spInQL_ets) then
+   if (PanelConfig.StLayout = spInQL_ets) then
       if (FNote <> nil) and (FNote.NumEntries <= 1) or (ActionOnEntry = aCreated) then
          exit
       else begin
@@ -1449,8 +1450,8 @@ begin
          PanelConfig.SelNEntry:= nil;
 
       // See *1, above
-      if (PanelConfig.QL = spInQL) and (PanelConfig.VinculatedTags <> nil) and (Length(FEntriesShown) = 1) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
-         PanelConfig.QL:= spInQL_ets;
+      if (PanelConfig.StLayout = spInQL) and (PanelConfig.VinculatedTags <> nil) and (Length(FEntriesShown) = 1) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
+         PanelConfig.StLayout:= spInQL_ets;
          PanelHidden:= True;
          exit;
       end;
@@ -1463,6 +1464,7 @@ begin
    FNEntry_Initial:= FNEntry;
    FiEntry_Initial:= FiEntry;
 
+   NumVisibleEntriesBefore:= NumberOfIncludedEntries(True);
 
    // NEntryToConsider: If it's included among the considered entries, check if it should remain so and, if so,redisplay it, using its current content and tags.
    //   If FMode = meSingleEntry, this NEntryToReconsider will be reflected in FEntriesShown, but it doesn't necessarily have to be reflected in the editor if
@@ -1497,6 +1499,8 @@ begin
                  FNEntry:= NEntryToConsider;                   // In case FNEntry was nil (eg: Ctrl+Shift+Intro in empty panel vinculated to tags)
                  FEditor.OnEditorChanged:= nil;                //  ,,
                  ConfigureEditor;
+                 if PanelConfig.StLayout = spInEL then
+                    FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
                  ShowControlsPanelIdentif(True);
                  FNoteUI.KeepInfoPanelTemporarilyVisible;
               end
@@ -1533,7 +1537,7 @@ begin
        end;
    end;
 
-   if FPanelHidden and not (EntryToAdd or (PanelConfig.QL = spInQL_ets)) then exit;
+   if FPanelHidden and not (EntryToAdd or (PanelConfig.StLayout = spInQL_ets)) then exit;
 
 
    if EntryToRemove then
@@ -1563,8 +1567,8 @@ begin
       end;
 
       // See *1, above
-      if (PanelConfig.QL = spInQL) and (PanelConfig.VinculatedTags <> nil) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
-         PanelConfig.QL:= spInQL_ets;
+      if (PanelConfig.StLayout = spInQL) and (PanelConfig.VinculatedTags <> nil) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
+         PanelConfig.StLayout:= spInQL_ets;
          PanelHidden:= True;
          exit;
       end;
@@ -1589,7 +1593,7 @@ begin
             exit;
          end
          else
-         if (PanelConfig.QL = spInQL) and FPanelHidden and (ActionOnEntry = aModifiedMetadata) and
+         if (PanelConfig.StLayout = spInQL) and FPanelHidden and (ActionOnEntry = aModifiedMetadata) and
             (Length(FEntriesShown) = 1) and (NEntryToConsider.Stream.Size = 0) then begin
              // If we're changing the metadata of a newly created entry, and this should make a panel visible,
              // we'll make sure to display it in multi-entry mode, showing only the header.
@@ -1838,11 +1842,18 @@ begin
      if not FPanelHidden and (FNEntry = nil) then
         FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0))
      else
-     if FPanelHidden and (EntryToAdd or (PanelConfig.QL = spInQL_ets)) then
+     if FPanelHidden and (EntryToAdd or (PanelConfig.StLayout = spInQL_ets)) then
         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
 
-     if PanelConfig.QL = spInQL_ets then
-        PanelConfig.QL:= spInQL;
+     if PanelConfig.StLayout = spInQL_ets then
+        PanelConfig.StLayout:= spInQL;
+
+
+     if PanelConfig.StLayout = spInEL then begin
+        NumVisibleEntriesAfter:= NumberOfIncludedEntries(True);
+        if (NumVisibleEntriesBefore <> NumVisibleEntriesAfter) and (NumVisibleEntriesBefore * NumVisibleEntriesAfter = 0) then
+           FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+     end;
 
    end;
 
@@ -2649,7 +2660,7 @@ begin
    try
       ReloadFromDataModel(false, NEntry, aModifiedMetadata);
 
-      if (N = 0) and (Length(FEntriesShown) > 0) and (PanelConfig.QL <> spInQL_ets) then
+      if (N = 0) and (Length(FEntriesShown) > 0) and (PanelConfig.StLayout <> spInQL_ets) then
          SelectEntry(0, false, false);
 
    finally

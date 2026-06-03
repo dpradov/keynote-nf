@@ -3410,6 +3410,8 @@ end;
 }
 
 function TNNodeUIConfiguration.GetTop_Ratio: Single;
+var
+   NumInTL, NumInTR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
       Result:= FTop_Ratio;
@@ -3421,6 +3423,13 @@ begin
             Result:= 0.5;
       end;
 
+      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnTL, pnTR]) then begin
+         NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
+         NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
+         if (NumInTL = 0) and (NumInTR = 0) then
+            Result:= 0.05;
+      end;
+
    end
    else
    if FMaximizedPanel in [pnTL, pnTR] then
@@ -3430,6 +3439,8 @@ begin
 end;
 
 function TNNodeUIConfiguration.GetBottom_Ratio: Single;
+var
+   NumInBL, NumInBR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
       Result:= FBottom_Ratio;
@@ -3441,6 +3452,13 @@ begin
             Result:= 0.5;
       end;
 
+      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnBL, pnBR]) then begin
+         NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
+         NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
+         if (NumInBL = 0) and (NumInBR = 0) then
+            Result:= 0.05;
+      end;
+
    end
    else
    if FMaximizedPanel in [pnBL, pnBR] then
@@ -3450,6 +3468,8 @@ begin
 end;
 
 function TNNodeUIConfiguration.GetTLTR_Ratio: Single;
+var
+   NumInTL, NumInTR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
       Result:= FTLTR_Ratio;
@@ -3463,6 +3483,17 @@ begin
          if (FFocusedPanel = pnTR) then
             Result:= 0.1
       end;
+
+      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnTL, pnTR]) then begin
+         NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
+         NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
+         if (NumInTL > 0) and (NumInTR = 0) then
+            Result:= 0.9
+         else
+         if (NumInTL = 0) and (NumInTR > 0) then
+            Result:= 0.1
+      end;
+
    end
    else
    if FMaximizedPanel in [pnTL] then
@@ -3472,6 +3503,8 @@ begin
 end;
 
 function TNNodeUIConfiguration.GetBLBR_Ratio: Single;
+var
+   NumInBL, NumInBR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
       Result:= FBLBR_Ratio;
@@ -3483,6 +3516,16 @@ begin
             Result:= 0.9
          else
          if (FFocusedPanel = pnBR) then
+            Result:= 0.1
+      end;
+
+      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnBL, pnBR]) then begin
+         NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
+         NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
+         if (NumInBL > 0) and (NumInBR = 0) then
+            Result:= 0.9
+         else
+         if (NumInBL = 0) and (NumInBR > 0) then
             Result:= 0.1
       end;
 
@@ -3533,9 +3576,9 @@ begin
     PanelsConfig[L]:= Result;
     with Result do begin
        if FQueryLayout then
-          QL:= spInQL
+          StLayout:= spInQL
        else
-          QL:= spInEL;
+          StLayout:= spInEL;
        Panel:= aPanel;
        ShowEditorInfoPanel:= False;
        Hidden:= false;
@@ -3664,7 +3707,7 @@ var
 begin
    Result:= False;
    for i := 0 to High(PanelsConfig) do
-       if PanelsConfig[i].QL = spInQL_ets then exit(true);
+       if PanelsConfig[i].StLayout = spInQL_ets then exit(true);
 end;
 
 

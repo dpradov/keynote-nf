@@ -160,6 +160,7 @@ type
     function GetPanelConfigForFindSelection(NNodeUIConfig: TNNodeUIConfiguration; NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TPanelConfiguration;
     function GetNEntriesUITargetForFindSelection(NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TObject;
     function MultipleVisibleEditors: boolean;
+    function NumberOfVisibleEntries(Panel: TNEntriesPanel): integer;
     function NavigatePanels(NavDirection: TNavDirection): boolean;
     procedure ToggleMaximizeSelectedPanel;
     procedure KeepInfoPanelTemporarilyVisible;
@@ -1086,6 +1087,19 @@ begin
    Result:= FMultipleVisibleEditors;
 end;
 
+
+function TKntNoteUI.NumberOfVisibleEntries(Panel: TNEntriesPanel): integer;
+var
+  pnl: TPanel;
+begin
+   pnl:= GetPanel(panel);
+   Result:= 0;
+   if FNEntriesUI[Panel] =  nil then exit;
+
+   Result:= FNEntriesUI[Panel].NumberOfIncludedEntries(True);
+end;
+
+
 procedure TKntNoteUI.UpdateFMultipleVisibleEditors;
 var
   p: TNEntriesPanel;
@@ -1517,7 +1531,7 @@ begin
   FNNodeUIConfig.FocusedPanel:= FSelectedNEntriesUI.PanelConfig.Panel;
 
   if (Folder.NoteAdvOptions.AutoExpandInPanels) then
-     FramResizePendingInNoteEntriesUI:= Self;
+     FramResizePendingInNoteUI:= Self;
 
   TimerInfoPanel.Enabled:= False;
   TimerInfoPanel.Enabled:= True;
