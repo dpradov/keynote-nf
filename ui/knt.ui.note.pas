@@ -1543,7 +1543,7 @@ begin
    if FNNodeUIConfig.MaximizedPanel = PnlReq then
       PnlEdit:= PnlReq
    else
-   if not DefinedSingleEntryPanelForEditing then begin
+   if not DefinedSingleEntryPanelForEditing or (not Folder.NoteAdvOptions.EditTagVincEntriesInSelectedEntry) then begin
       PnlEdit:= PnlReq;
       if not NewEntry and not InitialReqWasNil then begin
          ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
@@ -1855,7 +1855,9 @@ begin
               else begin
                  FNEntriesUI[Pnl].Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
                  if (Pnl = PnlWithEditorInfoPanel) or EnableNavigatePanels then
-                    FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility;
+                    FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility
+                 else
+                    FNEntriesUI[Pnl].HideTemporarilyInfoPanel;
               end;
           end;
        end;

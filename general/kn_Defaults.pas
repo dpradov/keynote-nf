@@ -134,7 +134,6 @@ type
     TagsBLq: TEdit;
     TagsBRq: TEdit;
     lblQL: TLabel;
-    cb_NewInEL: TCheckBox;
     cUseTLe: TComboBox;
     cUseTRe: TComboBox;
     cUseCe: TComboBox;
@@ -153,6 +152,8 @@ type
     BitBtn_QL: TBitBtn;
     BitBtn_EL: TBitBtn;
     cb_CompHd: TCheckBox;
+    cb_NewInEL: TCheckBox;
+    cb_VincTagInSel: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -737,6 +738,7 @@ begin
      // VinculatedTagsForQueryLayout and VinculatedTagsForEditingLayout are updated from OnChangeTagsIntrod
 
      NewEntriesAlwaysOnEdLayout:= cb_NewInEL.Checked;
+     EditTagVincEntriesInSelectedEntry:= cb_VincTagInSel.Checked;
      ExtractOfText_MaxLength:= ExcerptMaxC.Value;
      ExtractOfText_MaxLines:= ExcerptMaxL.Value;
      AutoExpandInPanels:= cb_AutoExp.Checked;
@@ -837,6 +839,7 @@ begin
      LoadPanelConfigEL(pnBR, cb_BRe, cUseBRe, TagsBRe);
 
      cb_NewInEL.Checked:= NewEntriesAlwaysOnEdLayout;
+     cb_VincTagInSel.Checked:= EditTagVincEntriesInSelectedEntry;
      ExcerptMaxC.Value:= ExtractOfText_MaxLength;
      ExcerptMaxL.Value:= ExtractOfText_MaxLines;
      cb_AutoExp.Checked:= AutoExpandInPanels;

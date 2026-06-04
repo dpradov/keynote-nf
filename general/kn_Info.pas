@@ -924,6 +924,7 @@ type
      ExtractOfText_MaxLines: integer;
 
      NewEntriesAlwaysOnEdLayout: boolean;
+     EditTagVincEntriesInSelectedEntry: boolean;   // Also for new entries
 
      MEContent: TContentInMultiEntriesMode;
      MEShowDateInHeader: boolean;
@@ -1193,6 +1194,7 @@ begin
     DefaultTagsOrder:= nil;
 
     NewEntriesAlwaysOnEdLayout:= false;
+    EditTagVincEntriesInSelectedEntry:= true;
 
     PnlTLTRRatio:= 0.5;
     PnlBLBRRatio:= 0.5;

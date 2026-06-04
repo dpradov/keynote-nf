@@ -704,14 +704,6 @@ object Form_Defaults: TForm_Defaults
             ParentCtl3D = False
             TabOrder = 14
           end
-          object cb_NewInEL: TCheckBox
-            Left = 3
-            Top = 171
-            Width = 352
-            Height = 17
-            Caption = 'Switch to Editing Layout when creating a new entry'
-            TabOrder = 15
-          end
           object BitBtn_QL: TBitBtn
             Left = 353
             Top = 151
@@ -719,7 +711,7 @@ object Form_Defaults: TForm_Defaults
             Height = 25
             ImageIndex = 60
             Images = Form_Main.IMG_Toolbar
-            TabOrder = 16
+            TabOrder = 15
             TabStop = False
             OnClick = BitBtn_QLClick
           end
@@ -906,28 +898,28 @@ object Form_Defaults: TForm_Defaults
           object lbl9: TLabel
             Left = 5
             Top = 102
-            Width = 251
+            Width = 213
             Height = 13
             Caption = 'Excerpt from entries. Max characters / Lines'
           end
           object lbl7: TLabel
             Left = 5
             Top = 32
-            Width = 110
+            Width = 68
             Height = 13
             Caption = 'Entry Header:'
           end
           object lbl6: TLabel
             Left = 5
             Top = 143
-            Width = 145
+            Width = 99
             Height = 13
             Caption = 'Tags order in entries'
           end
           object lbl10: TLabel
             Left = 5
             Top = 6
-            Width = 150
+            Width = 110
             Height = 13
             Hint = 'Display initially, by default, for each entry'
             Caption = 'Display for each entry:'
@@ -1034,6 +1026,26 @@ object Form_Defaults: TForm_Defaults
             Hint = 'Auto expand TL,TR, BL, BR panels when focusing'
             Caption = 'Auto expand panels'
             TabOrder = 0
+          end
+          object cb_NewInEL: TCheckBox
+            Left = 8
+            Top = 31
+            Width = 370
+            Height = 17
+            Caption = 'Switch to Editing Layout when creating a new entry'
+            TabOrder = 1
+          end
+          object cb_VincTagInSel: TCheckBox
+            Left = 8
+            Top = 57
+            Width = 370
+            Height = 17
+            Hint = 
+              'If unchecked (or without "Selected entry"), Enter or Ctrl+Shift+' +
+              'Enter will edit or create the entry in the same tag vinculated p' +
+              'anel'
+            Caption = 'Edit tag vinculated entries in "Selected entry" panel'
+            TabOrder = 2
           end
         end
       end
