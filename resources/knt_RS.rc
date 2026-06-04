@@ -961,7 +961,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55159,  "Keep panel hidden"
 55160,  "Only if there is any entry with the tag[s]:"
 55161,  "Vinculated to the tag[s]:"
-55162,  "Newest / oldest / last selected entry"
+55162,  "Slected entry"
 55163,  "All entries"
 55164,  "Only header"
 55165,  "Whole entry"

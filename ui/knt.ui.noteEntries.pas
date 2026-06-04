@@ -2389,6 +2389,9 @@ end;
 
 procedure TKntNoteEntriesUI.btnToggleMultiClick(Sender: TObject);
 begin
+   if Sender <> nil then
+      TKntNoteUI(NoteUI).ReturnToQLFromAllEntriesInSingleMode:= false;
+
    SavePositionInPanel;
 
    if (PanelConfig.CurrentMode = meMultipleEntries) then begin

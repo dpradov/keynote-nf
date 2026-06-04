@@ -87,6 +87,7 @@ type
     FUpdatingOnResize: boolean;
     IncResize: integer;
     FChangingLayout: boolean;
+    FReturnToQLFromAllEntriesInSingleMode: boolean;          // See comment (*1) in IntroInEditorOfEntriesUI
 
     TimerInfoPanel: TTimer;
 
@@ -171,6 +172,7 @@ type
     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
     procedure ReconsiderVisibilityOfEntries;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
+    property ReturnToQLFromAllEntriesInSingleMode: boolean read FReturnToQLFromAllEntriesInSingleMode write FReturnToQLFromAllEntriesInSingleMode;
 
 
    {$IFDEF KNT_DEBUG}
@@ -1288,13 +1290,56 @@ end;
 
 
 // Only Ctrl+INTRO are intercepted
-// or, also, INTRO in editors where Editor.MultiEntries = True (=> NEntriesUI.Mode = meMultiEntries)
+// or, also, INTRO in editors where Editor.MultiEntries = True (=> NEntriesUI.CurrentMode = meMultiEntries)
+
+{
+Behavior of Ctrl+Enter
+Ctrl+Enter: Outside of its objective mode (MainMode)?
+     Yes: Return to that mode, keeping the layout -> ToggleMulti
+     No: Switch to the other layout.
+Examples:
+- In QL: in "All entries" panel (MainMode=MultiEntries), multi-entries mode => switch to EditingLayout (EL)
+- In QL: in "All entries" panel, single-entry mode => stay in QueryLayout (QL) and return to multi-entries mode
+- In QL: in "Vinculated to tags" panel (MainMode=MultiEntries), multi-entries mode => switch to EL
+- In QL: in "Selected entry" panel (MainMode=SingleEntry), single-entry mode => switch to EL
+- In QL: in "Selected entry" panel, multi-entries mode  => stay in QL and return to single-entry mode
+- Idem with EL
+
+
+(*1) Exception to that rule:
+   If in EL there is no "Selected entry" panel and we are in the "All Entries" panel (MainMode=MultiEntries and not vinculated to tags)
+   displaying a single entry, as a consequence of a switch from QL => Ctrl+Enter will switch back to QL.
+   If in that situation (no "Selected entry" panel), in EL, while we are in the "All Entries" panel we return to multi-entries mode
+   using the button in info panel (button with the number of the current entry) and then edit any entry using ENTER, when we then
+   press Ctrl+Enter with "All Entries" panel displaying a single entry, the behaviour will reset to default: the panel will return
+   to multi-entries mode.
+
+   This behavior aims to make it more intuitive the inmediate return to QL from EL: select an entry from QL, press Ctrl+Enter ->
+   switch to EL and edit that entry in that layout, on its "All entries" panel in single-entry mode; Ctrl+Enter -> switch back to QL
+   (the same observed behaviour, with that sequence, if in EL there was a "Selected entry" panel)
+   However, if once we switched to EL from QL we have moved the "All Entries" panel to multi-entries mode (using the button),
+   it seems more intuitive to prioritize the default behavior, that is, returning to what it is more recent: the panel in
+   multi-entries mode, which is the target mode, MainMode.
+
+
+Switching from EL to QL or vice versa
+- If an entry is selected in EL from an "All entries" panel or from the "Selected entry" panel, upon returning to QL,
+  that same entry will be selected. If there is a "Selected entry" panel in QL, it will be selected there; otherwise,
+  it will be selected in the "All entries" panel.
+  Regardless of this possible change in the selected entry, upon returning, the focus will remain on the panel where it
+  was previously selected.
+
+- When switching to EL from QL, the focus is always placed on the "Selected entry" panel, if present, and otherwise on
+  the "All entries" panel. In both cases: the panel that allows viewing/editing the entry.
+}
+
 procedure TKntNoteUI.IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
 var
    NEntriesUI: TKntNoteEntriesUI;
    NEntry: TNoteEntry;
    SS, SL: integer;
    ToQueryLayout, ToEditingLayout: boolean;
+   PnlEdit: TNEntriesMainPanel;
 begin
   if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
 
@@ -1306,17 +1351,27 @@ begin
   FHideFocusFlag:= false;
 
   if CtrlDown then begin
+     if (NEntriesUI.PanelConfig.MainMode = meSingleEntry) and (NEntriesUI.PanelConfig.CurrentMode = meMultipleEntries) then begin
+        NEntriesUI.btnToggleMultiClick(nil);
+        exit;
+     end
+     else
      if (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then begin
-        if (FQueryLayout or (NEntriesUI.PanelConfig.MainMode = meMultipleEntries)) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
-           if (FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets then
-               LoadFromNNode(FNNode, True, neQueryLayout);
-            NEntriesUI.btnToggleMultiClick(nil);
-            exit;
-        end
-        else
-        if FQueryLayout and (NEntry = nil) then begin
-           NEntriesUI.ReloadFromDataModel(false, nil);
-           exit;
+        if not FQueryLayout and FReturnToQLFromAllEntriesInSingleMode and (NEntriesUI.PanelConfig.Panel= FNNodeUIConfig.GetMainPanel) and not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then
+           // -> ToQueryLayout:= True    (*1)
+
+        else begin
+           if (NEntriesUI.PanelConfig.MainMode = meMultipleEntries) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
+              if (FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets then
+                  LoadFromNNode(FNNode, True, neQueryLayout);
+              NEntriesUI.btnToggleMultiClick(nil);
+              exit;
+           end
+           else
+           if FQueryLayout and (NEntry = nil) then begin
+              NEntriesUI.ReloadFromDataModel(false, nil);
+              exit;
+           end;
         end;
 
      end;
@@ -1326,7 +1381,7 @@ begin
      else
         ToQueryLayout:= True;
   end
-  else begin                                        // Not CtrlDown => Mode= meMultiEntries
+  else begin                                        // Not CtrlDown => CurrentMode= meMultiEntries
      // Edit in single panel (pnuShowSelectedEntry), if found; otherwise -> btnToggleMultiClick
      EditInInMultiEntries(NEntriesUI, NEntry, false);
      exit;
@@ -1343,7 +1398,7 @@ begin
      SS:= NEntriesUI.PanelConfig.SelStart;
      SL:= NEntriesUI.PanelConfig.SelLength;
      LoadFromNNode(FNNode, True, neEditingLayout, NEntry);
-     EditInInMultiEntries(NEntriesUI, NEntry, false, nil, SS, SL);
+     EditInInMultiEntries(nil, NEntry, false, nil, SS, SL);       // ReqFromNEntriesUI=Nil: We don't know if the same panel is configured in EL
   end
   else
   if ToQueryLayout then begin
@@ -1461,18 +1516,29 @@ var
   PanelConfig: TPanelConfiguration;
   PnlReq, PnlEdit: TNEntriesMainPanel;
   Action: TActionOnEntry;
+  DefinedSingleEntryPanelForEditing: boolean;
+  InitialReqWasNil: boolean;
 
 begin
-   if (ReqFromNEntriesUI = nil) or (Note = nil) then exit;
+   if (Note = nil) then exit;
 
-   PnlReq:= ReqFromNEntriesUI.PanelConfig.Panel;
+   DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
+   InitialReqWasNil:= (ReqFromNEntriesUI = nil);
+
+   if not InitialReqWasNil then
+      PnlReq:= ReqFromNEntriesUI.PanelConfig.Panel
+   else begin
+      PnlReq:= FNNodeUIConfig.GetMainPanel;               // "Main" panel:  "All entries" panel
+      ReqFromNEntriesUI:= GetNEntriesUI(PnlReq);
+   end;
+
 
    if FNNodeUIConfig.MaximizedPanel = PnlReq then
       PnlEdit:= PnlReq
    else
-   if not FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) then begin
+   if not DefinedSingleEntryPanelForEditing then begin
       PnlEdit:= PnlReq;
-      if not NewEntry then begin
+      if not NewEntry and not InitialReqWasNil then begin
          ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
          exit;
       end;
@@ -1645,7 +1711,7 @@ var
    NEntriesUI: TKntNoteEntriesUI;
    QueryLayout: boolean;
    DefinedSingleEntryPanelForEditing: boolean;
-   SetNoteSelEntryOnMainPanel: boolean;
+   SetNoteSelEntry: boolean;
    EnableNavigatePanels: boolean;
    Action: TActionOnEntry;
    CancelMaximizedPanelNeeded: boolean;
@@ -1660,13 +1726,14 @@ begin
 
  LockControl(pnlAuxC, True);
  FChangingLayout:= True;
+ FReturnToQLFromAllEntriesInSingleMode:= True;
  try
    CancelMaximizedPanelNeeded:= (FNNodeUIConfig <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone);
 
 
    // When switching from EditingLayout to QueryLayout -> Set the NEntry of the current panel to the one selected in the main panel
    // This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
-   SetNoteSelEntryOnMainPanel:= (LayoutToUse = neQueryLayout) and not FQueryLayout;
+   SetNoteSelEntry:= (LayoutToUse = neQueryLayout) and not FQueryLayout;
 
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
@@ -1704,8 +1771,9 @@ begin
    if assigned(NNode) then begin
       MainPanel:= FNNodeUIConfig.GetMainPanel;
       PnlToSetFocus:= MainPanel;
+      DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
+
       if OfferEditorForNewEntry then begin
-         DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
          if DefinedSingleEntryPanelForEditing then
             PnlToSetFocus:= PnlEdit;
       end
@@ -1725,11 +1793,13 @@ begin
 
           NEntriesUI:= GetNEntriesUI(Pnl);
 
-          if SetNoteSelEntryOnMainPanel and (Pnl = MainPanel) then begin
-             PanelConfig.SelNEntry:= FNote.SelEntry;
-             PanelConfig.SelStart:= FNote.SelStart;
-             PanelConfig.SelLength:= FNote.SelLength;
-             PanelConfig.ScrollPosInEditor.Y:= 0;
+          if SetNoteSelEntry then begin
+             if (Pnl = PnlEdit) or (not DefinedSingleEntryPanelForEditing and (Pnl = MainPanel)) then begin
+                PanelConfig.SelNEntry:= FNote.SelEntry;
+                PanelConfig.SelStart:= FNote.SelStart;
+                PanelConfig.SelLength:= FNote.SelLength;
+                PanelConfig.ScrollPosInEditor.Y:= 0;
+             end;
           end;
 
           Action:= aNull;

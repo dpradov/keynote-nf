@@ -1046,7 +1046,7 @@ const
    sEntry09 = 55159;   // Keep panel hidden                                      (pnuHidePanel)
    sEntry10 = 55160;   // Only if there is any entry with the tag[s]:            (pnuShowVinculatedWithTags with QueryLayout)
    sEntry11 = 55161;   // Vinculated to the tag[s]:                              (               ,,              EditingLayout)
-   sEntry12 = 55162;   // Newest / oldest / last selected entry                  (pnuShowSelectedEntry)
+   sEntry12 = 55162;   // Selected entry                                         (pnuShowSelectedEntry)
    sEntry13 = 55163;   // All entries                                            (pnuShowAllEntries)
 
    sEntry14 = 55164;   // Only header

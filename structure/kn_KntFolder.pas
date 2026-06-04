@@ -96,7 +96,7 @@ type
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
       destructor Destroy; override;
-      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMainMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
@@ -3564,7 +3564,7 @@ begin
 end;
 
 
-function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
+function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMainMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
 var
    L: integer;
    PanelConfig: TPanelConfiguration;
@@ -3583,8 +3583,8 @@ begin
        ShowEditorInfoPanel:= False;
        Hidden:= false;
        Scope:= fsSelectedNode;
-       MainMode:= aMode;
-       CurrentMode:= aMode;
+       MainMode:= aMainMode;
+       CurrentMode:= aMainMode;
        SelectedNNode:= NNode;
        NNodes:= nil;
        EditingLayout:= not FQueryLayout;
