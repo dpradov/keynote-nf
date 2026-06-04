@@ -1605,7 +1605,11 @@ begin
   FSelectedNEntriesUI.cFocusedFlag.Color:= clSkyBlue;
   FNNodeUIConfig.FocusedPanel:= FSelectedNEntriesUI.PanelConfig.Panel;
 
-  if (Folder.NoteAdvOptions.AutoExpandInPanels) then
+  if (Folder.NoteAdvOptions.AutoExpandInPanels) or
+     ((FNNodeUIConfig.FocusedPanel in [pnCenter, pnTL,pnTR]) and
+          ((PnlTL.Visible and (NumberOfVisibleEntries(pnTL) = 0)) or ((PnlTR.Visible and (NumberOfVisibleEntries(pnTR)=0)))) ) or
+     ((FNNodeUIConfig.FocusedPanel in [pnCenter, pnBL,pnBR]) and
+          ((PnlBL.Visible and (NumberOfVisibleEntries(pnBL) = 0)) or ((PnlBR.Visible and (NumberOfVisibleEntries(pnBR)=0)))) )   then
      FramResizePendingInNoteUI:= Self;
 
   TimerInfoPanel.Enabled:= False;

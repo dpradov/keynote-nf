@@ -3425,7 +3425,7 @@ begin
             Result:= 0.5;
       end;
 
-      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnTL, pnTR]) then begin
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels and not (FFocusedPanel in [pnTL, pnTR]) then begin
          NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
          NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
          if (NumInTL = 0) and (NumInTR = 0) then
@@ -3454,7 +3454,7 @@ begin
             Result:= 0.5;
       end;
 
-      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnBL, pnBR]) then begin
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels and not (FFocusedPanel in [pnBL, pnBR]) then begin
          NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
          NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
          if (NumInBL = 0) and (NumInBR = 0) then
@@ -3486,13 +3486,13 @@ begin
             Result:= 0.1
       end;
 
-      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnTL, pnTR]) then begin
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels or not (FFocusedPanel in [pnTL, pnTR]) then begin
          NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
          NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
-         if (NumInTL > 0) and (NumInTR = 0) then
+         if ((NumInTL > 0) or (FFocusedPanel = pnTL)) and ((NumInTR = 0) and (FFocusedPanel <> pnTR)) then
             Result:= 0.9
          else
-         if (NumInTL = 0) and (NumInTR > 0) then
+         if ((NumInTR > 0) or (FFocusedPanel = pnTR)) and ((NumInTL = 0) and (FFocusedPanel <> pnTL)) then
             Result:= 0.1
       end;
 
@@ -3521,13 +3521,13 @@ begin
             Result:= 0.1
       end;
 
-      if not (FFolder.NoteAdvOptions.AutoExpandInPanels) or not (FFocusedPanel in [pnBL, pnBR]) then begin
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels or not (FFocusedPanel in [pnBL, pnBR]) then begin
          NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
          NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
-         if (NumInBL > 0) and (NumInBR = 0) then
+         if ((NumInBL > 0) or (FFocusedPanel = pnBL)) and ((NumInBR = 0) and (FFocusedPanel <> pnBR)) then
             Result:= 0.9
          else
-         if (NumInBL = 0) and (NumInBR > 0) then
+         if ((NumInBR > 0) or (FFocusedPanel = pnBR)) and ((NumInBL = 0) and (FFocusedPanel <> pnBL)) then
             Result:= 0.1
       end;
 
