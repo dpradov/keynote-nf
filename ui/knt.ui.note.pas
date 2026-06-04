@@ -421,6 +421,10 @@ begin
       pnlTop.Height:= Round(Self.Height * FNNodeUIConfig.Top_Ratio);
       splT.Top := pnlTop.Height + SPLT_WIDTH;
       IncResize:= - IncResize;
+   end
+   else begin
+      pnlTL.Visible:= False;
+      pnlTR.Visible:= False;
    end;
 
    if pnlBottom.visible then
@@ -499,8 +503,11 @@ begin
       pnlCenter.Height:= pnlAuxC3.Height - Round(Self.Height * FNNodeUIConfig.Bottom_Ratio) - SPLT_WIDTH;
       splB.Top := pnlBottom.Top - SPLT_WIDTH;
    end
-   else
+   else begin
+      pnlBL.Visible:= False;
+      pnlBR.Visible:= False;
       pnlCenter.Align:= alClient;
+   end;
 
    splB.Visible:= value;
 end;
