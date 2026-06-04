@@ -929,6 +929,7 @@ type
      MEShowDateInHeader: boolean;
      MEShowTagsInHeader: boolean;
      MEShowLineInHeader: boolean;
+     MECompactHeader: boolean;
      Order: TOrderInEntriesInPanel;
      DescendingOrder: boolean;
 
@@ -1204,6 +1205,7 @@ begin
     MEShowDateInHeader:= true;
     MEShowTagsInHeader:= true;
     MEShowLineInHeader:= true;
+    MECompactHeader:= false;
     Order:= eoDateCreation;
     DescendingOrder:= True;
 

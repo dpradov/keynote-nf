@@ -643,6 +643,7 @@ var
           (myNoteAdvOptions.MEShowLineInHeader <> myFolder.NoteAdvOptions.MEShowLineInHeader) or
           (myNoteAdvOptions.MEShowTagsInHeader <> myFolder.NoteAdvOptions.MEShowTagsInHeader) or
           (myNoteAdvOptions.MEShowDateInHeader <> myFolder.NoteAdvOptions.MEShowDateInHeader) or
+          (myNoteAdvOptions.MECompactHeader <> myFolder.NoteAdvOptions.MECompactHeader) or
           (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
           (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) then begin
 
@@ -1501,6 +1502,7 @@ begin
         NNodesUIConfig[i].PanelsConfig[j].MEShowLineInHeader:= NoteAdvOptions.MEShowLineInHeader;
         NNodesUIConfig[i].PanelsConfig[j].MEShowTagsInHeader:= NoteAdvOptions.MEShowTagsInHeader;
         NNodesUIConfig[i].PanelsConfig[j].MEShowDateInHeader:= NoteAdvOptions.MEShowDateInHeader;
+        NNodesUIConfig[i].PanelsConfig[j].MECompactHeader:=    NoteAdvOptions.MECompactHeader;
         NNodesUIConfig[i].PanelsConfig[j].DescendingOrder:=    NoteAdvOptions.DescendingOrder;
      end;
   end;
@@ -3598,6 +3600,7 @@ begin
        MEShowDateInHeader:= FFolder.NoteAdvOptions.MEShowDateInHeader;
        MEShowTagsInHeader:= FFolder.NoteAdvOptions.MEShowTagsInHeader;
        MEShowLineInHeader:= FFolder.NoteAdvOptions.MEShowLineInHeader;
+       MECompactHeader:=    FFolder.NoteAdvOptions.MECompactHeader;
        Order:=              FFolder.NoteAdvOptions.Order;
        DescendingOrder:=    FFolder.NoteAdvOptions.DescendingOrder;
        with Filter do begin

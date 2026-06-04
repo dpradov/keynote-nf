@@ -904,82 +904,83 @@ object Form_Defaults: TForm_Defaults
           StaticPageIndex = -1
           TabVisible = True
           object lbl9: TLabel
-            Left = 160
-            Top = 32
-            Width = 213
+            Left = 5
+            Top = 102
+            Width = 251
             Height = 13
             Caption = 'Excerpt from entries. Max characters / Lines'
           end
           object lbl7: TLabel
-            Left = 10
+            Left = 5
             Top = 32
-            Width = 68
+            Width = 110
             Height = 13
             Caption = 'Entry Header:'
           end
           object lbl6: TLabel
-            Left = 7
+            Left = 5
             Top = 143
-            Width = 99
+            Width = 145
             Height = 13
             Caption = 'Tags order in entries'
           end
           object lbl10: TLabel
-            Left = 10
+            Left = 5
             Top = 6
-            Width = 145
+            Width = 150
             Height = 13
-            Caption = 'Display initially for each entry:'
+            Hint = 'Display initially, by default, for each entry'
+            Caption = 'Display for each entry:'
           end
           object ExcerptMaxL: TSpinEdit
             Left = 325
-            Top = 52
+            Top = 98
             Width = 49
             Height = 22
             MaxLength = 1
             MaxValue = 7
             MinValue = 1
-            TabOrder = 0
+            TabOrder = 7
             Value = 3
           end
           object ExcerptMaxC: TSpinEdit
             Left = 262
-            Top = 51
+            Top = 98
             Width = 49
             Height = 22
             Increment = 10
             MaxLength = 3
             MaxValue = 750
             MinValue = 100
-            TabOrder = 1
+            TabOrder = 6
             Value = 250
           end
           object cb_HLine: TCheckBox
-            Left = 16
-            Top = 51
-            Width = 120
+            Left = 116
+            Top = 30
+            Width = 80
             Height = 17
             Hint = 'Displays a line at the beginning of the header'
             Caption = 'Line'
-            TabOrder = 2
+            TabOrder = 1
           end
           object cb_HDate: TCheckBox
-            Left = 16
-            Top = 97
-            Width = 120
+            Left = 274
+            Top = 30
+            Width = 107
             Height = 17
             Hint = 'Display the date and time the entry was created'
             Caption = 'Date / time'
             TabOrder = 3
           end
           object cb_HTags: TCheckBox
-            Left = 16
-            Top = 74
-            Width = 120
+            Left = 193
+            Top = 30
+            Width = 80
             Height = 17
             Hint = 'Displays entry tags'
             Caption = 'Tags'
-            TabOrder = 4
+            TabOrder = 2
           end
           object txtTagsOrder: TEdit
             Left = 156
@@ -988,26 +989,35 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 5
+            TabOrder = 8
           end
           object CB_DescOrd: TCheckBox
-            Left = 7
-            Top = 166
-            Width = 183
+            Left = 9
+            Top = 75
+            Width = 185
             Height = 17
             Hint = 
               'Entries are displayed in descending order according to their cre' +
               'ation date (most recent at the top)'
             Caption = 'Descending order'
-            TabOrder = 6
+            TabOrder = 5
           end
           object cEntryCont: TComboBox
-            Left = 189
+            Left = 156
             Top = 3
-            Width = 185
+            Width = 218
             Height = 21
             Style = csDropDownList
-            TabOrder = 7
+            TabOrder = 0
+          end
+          object cb_CompHd: TCheckBox
+            Left = 9
+            Top = 53
+            Width = 185
+            Height = 17
+            Hint = 'Show entries with less spacing'
+            Caption = 'Compact'
+            TabOrder = 4
           end
         end
         object Tab_AdvOther: TTab95Sheet

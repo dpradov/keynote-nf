@@ -76,6 +76,7 @@ type
     MEShowDateInHeader: boolean;
     MEShowTagsInHeader: boolean;
     MEShowLineInHeader: boolean;
+    MECompactHeader: boolean;
     Order: TOrderInEntriesInPanel;
     DescendingOrder: boolean;
     Filter: TFilterOptionsInPanel;

@@ -2074,7 +2074,8 @@ end;
 function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
 var
   strLine: AnsiString;
-  s, strIni, strInfo, MainIni, MainEnd: string;
+  s, strIni, strInfo, strSA, strFontInfo: string;
+  MainIni, MainEnd: string;
   EditorBackColor, ColorLine, ColorInfo: TColor;
   ShowTags, ShowDate: boolean;
 
@@ -2105,8 +2106,10 @@ begin
 
    strInfo:= strInfo + MainEnd;
 
-   if PanelConfig.MEShowLineInHeader then
-      strInfo := strInfo + ' \u8203.'                      // '\u200B'  Zero-Width Space  (invisible)
+   if PanelConfig.MEShowLineInHeader then begin
+      strLine:= GetRTFPrintableLineAux(999999);
+      strInfo := strInfo + ' \u8203.';                      // '\u200B'  Zero-Width Space  (invisible)
+   end
    else
    if ShowTags or ShowDate then
       strInfo := strInfo + ' —'
@@ -2124,6 +2127,13 @@ begin
 
    strInfo:= strIni + MainIni + strInfo;
 
+   if not PanelConfig.MECompactHeader or (ShowDate or ShowTags or Folded) then
+      strSA:= '\sa80';
+
+   if not PanelConfig.MECompactHeader or (ShowDate or ShowTags or Folded or not PanelConfig.MEShowLineInHeader) then
+      strFontInfo:= '\fs18 '
+   else
+      strFontInfo:= '\fs4 ';
 
    (*
    if PanelConfig.MMShowLineInHeader then
@@ -2149,13 +2159,10 @@ begin
       ColorInfo:= clRed;
 
 
-   if PanelConfig.MEShowLineInHeader then
-      strLine:= GetRTFPrintableLineAux(999999);
-
    Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(EditorBackColor) + ';' +
                                         GetRTFColor(ColorLine) + ';' +
                                         GetRTFColor(ColorInfo) + ';}\fs1\par' +
-              StrLine + '\qr\cf3\b\fs18 ' + strInfo + '\sa80\par}';
+              StrLine + '\qr\cf3\b' + strFontInfo  + strInfo + strSA + '\par}';
 end;
 
 

@@ -152,6 +152,7 @@ type
     TagsBRe: TEdit;
     BitBtn_QL: TBitBtn;
     BitBtn_EL: TBitBtn;
+    cb_CompHd: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -748,6 +749,7 @@ begin
      MEShowTagsInHeader:= cb_HTags.Checked;
      MEShowDateInHeader:= cb_HDate.Checked;
      DescendingOrder:=    CB_DescOrd.Checked;
+     MECompactHeader:=    cb_CompHd.Checked;
      //Order:=              FFolder.NoteAdvOptions.Order;
   end;
 
@@ -846,6 +848,7 @@ begin
      cb_HTags.Checked:=   MEShowTagsInHeader;
      cb_HDate.Checked:=   MEShowDateInHeader;
      CB_DescOrd.Checked:= DescendingOrder;
+     cb_CompHd.Checked:=  MECompactHeader;
      //Order:=              FFolder.NoteAdvOptions.Order;
   end;
 
