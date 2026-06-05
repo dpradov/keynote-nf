@@ -608,7 +608,7 @@ var
   F: TKntFolder;
   NewPropertiesAction : TPropertiesAction;
   TreeUI: TKntTreeUI;
-  NoteAdvOptions_ChangeInQL, NoteAdvOptions_ChangeInEL, NoteAdvOptions_RefreshNeeded, NoteAdvOptions_ResetHeaderCfgNeeded: boolean;
+  ChangeInQL, ChangeInEL, Note_RefreshNeeded, Note_ResetHeaderCfgNeeded, Note_ReloadNeeded: boolean;
 
 
   procedure CheckChangesInNoteAdvOptions;
@@ -616,28 +616,29 @@ var
     pnl: TNEntriesMainPanel;
     pu: TNEntriesPanelUse;
   begin
-    NoteAdvOptions_ChangeInQL:= false;
-    NoteAdvOptions_ChangeInEL:= false;
-    NoteAdvOptions_RefreshNeeded:= false;
-    NoteAdvOptions_ResetHeaderCfgNeeded:= false;
+    ChangeInQL:= false;
+    ChangeInEL:= false;
+    Note_RefreshNeeded:= false;
+    Note_ResetHeaderCfgNeeded:= false;
+    Note_ReloadNeeded:= false;
 
     with Form_Defaults do begin
        for pnl := Low(pnl) to High(pnl) do
           if (myNoteAdvOptions.DefaultUseForQueryLayout[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQueryLayout[pnl]) or
              (myNoteAdvOptions.VinculatedTagsForQueryLayout[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForQueryLayout[pnl])      then begin
-             NoteAdvOptions_ChangeInQL:= true;
+             ChangeInQL:= true;
              break;
           end;
        for pnl := Low(pnl) to High(pnl) do
           if (myNoteAdvOptions.DefaultUseForEditingLayout[pnl] <> myFolder.NoteAdvOptions.DefaultUseForEditingLayout[pnl]) or
              (myNoteAdvOptions.VinculatedTagsForEditingLayout[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[pnl])      then begin
-             NoteAdvOptions_ChangeInEL:= true;
+             ChangeInEL:= true;
              break;
           end;
 
        if (myNoteAdvOptions.ExtractOfText_MaxLength <> myFolder.NoteAdvOptions.ExtractOfText_MaxLength) or
           (myNoteAdvOptions.ExtractOfText_MaxLines <> myFolder.NoteAdvOptions.ExtractOfText_MaxLines)       then
-          NoteAdvOptions_RefreshNeeded:= true;
+          Note_RefreshNeeded:= true;
 
        if (myNoteAdvOptions.MEContent <> myFolder.NoteAdvOptions.MEContent) or
           (myNoteAdvOptions.MEShowLineInHeader <> myFolder.NoteAdvOptions.MEShowLineInHeader) or
@@ -647,9 +648,13 @@ var
           (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
           (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) then begin
 
-          NoteAdvOptions_RefreshNeeded:= true;
-          NoteAdvOptions_ResetHeaderCfgNeeded:= true;
+          Note_RefreshNeeded:= true;
+          Note_ResetHeaderCfgNeeded:= true;
        end;
+
+       if (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
+          (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) then
+          Note_ReloadNeeded:= true;
 
        //DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
        //ShowNewestEntryInSingleEntry: boolean;
@@ -809,24 +814,27 @@ begin
                 TreeUI.UpdateTreeChrome;
                 TreeUI.UpdateTreeColumns;
 
-                if NoteAdvOptions_ChangeInQL or NoteAdvOptions_ChangeInEL or NoteAdvOptions_ResetHeaderCfgNeeded then
+                if ChangeInQL or ChangeInEL or Note_ResetHeaderCfgNeeded or Note_ReloadNeeded then
                    myFolder.NoteUI.SaveToDataModel;
 
-                if NoteAdvOptions_ResetHeaderCfgNeeded then
+                if Note_ResetHeaderCfgNeeded then
                    myFolder.ResetHeaderUIConfig;
 
-                if NoteAdvOptions_ChangeInQL or NoteAdvOptions_ChangeInEL then begin
+                if ChangeInQL or ChangeInEL then begin
                    var QueryLayout: boolean:= not ActiveFile.GetNoteIsOnEditingLayout(ActiveNNode.Note);
-                   if NoteAdvOptions_ChangeInQL then
+                   if ChangeInQL then
                       myFolder.DeleteNNodesUIConfig(true);
-                   if NoteAdvOptions_ChangeInEL then
+                   if ChangeInEL then
                       myFolder.DeleteNNodesUIConfig(false);
 
-                   if (NoteAdvOptions_ChangeInQL and QueryLayout) or (NoteAdvOptions_ChangeInEL and not QueryLayout) then
+                   if (ChangeInQL and QueryLayout) or (ChangeInEL and not QueryLayout) then
                       myFolder.NoteUI.LoadFromNNode(ActiveNNode, false, neLastLayout);
                 end
                 else
-                if NoteAdvOptions_RefreshNeeded then
+                if Note_ReloadNeeded then
+                   myFolder.NoteUI.LoadFromNNode(ActiveNNode, false, neLastLayout)
+                else
+                if Note_RefreshNeeded then
                    myFolder.NoteUI.RefreshHeaderOfEntries(nil);
             end;
 
