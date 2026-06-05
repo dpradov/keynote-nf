@@ -452,7 +452,8 @@ end;
 procedure TKntNoteEntriesUI.SetInfoPanelHidden(value: boolean);
 begin
    FInfoPanelHidden:= value;
-   ShowControlsPanelIdentif(not value);
+   if FOnUse then
+      ShowControlsPanelIdentif(not value);
 end;
 
 
@@ -503,7 +504,7 @@ begin
   if not KeepVisible then
      KeepVisible:= IsMouseOver(txtTags) or IsMouseOver(pnlButtons);
 
-  if not FInfoPanelHidden and not PanelConfig.ShowEditorInfoPanel and not KeepVisible then
+  if (FInfoPanelHidden or not PanelConfig.ShowEditorInfoPanel) and not KeepVisible then
      ShowControlsPanelIdentif(false);
 
   Result:= not KeepVisible;
@@ -514,17 +515,17 @@ procedure TKntNoteEntriesUI.ReconsiderColorInfoPanel;
 var
   colorEdLay, colorMax: TColor;
 begin
-  colorEdLay:= txtName.Color;
+  //colorEdLay:= txtName.Color;
   colorMax:= clBtnFace;
   if PanelConfig.ShowEditorInfoPanel then begin
     if PanelConfig.EditingLayout then begin
-       colorEdLay:= RGB(190,190,190);
+       //colorEdLay:= RGB(190,190,190);
        colorMax:= RGB(220,220,240);
     end;
     if PanelConfig.Maximized then
        colorMax:= clLtGray;
   end;
-  Self.Color:= colorEdLay;
+  //Self.Color:= colorEdLay;
   btnPrevEntry.Color:= colorMax;
   btnNextEntry.Color:= colorMax;
   btnToggleMulti.Color:= colorMax;
@@ -536,8 +537,6 @@ procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
 var
   colorEdLay, colorMax: TColor;
 begin
-  if FInfoPanelHidden then exit;
-
   ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
   if (PanelConfig.Maximized) or
      (PanelConfig.ShowEditorInfoPanel and
@@ -889,8 +888,6 @@ begin
            if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
               FOnUse:= True;
               PanelHidden:= False;
-              if FInfoPanelHidden then
-                 ShowControlsPanelIdentif(false);
 
               case PanelConfig.SelectedNNode.WordWrap of
                 wwAsFolder : Editor.WordWrap := FKntFolder.WordWrap;

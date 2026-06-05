@@ -374,7 +374,7 @@ var
   p: TNEntriesPanel;
 begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+      if (FNEntriesUI[p] <> nil) then
          FNEntriesUI[p].InfoPanelHidden:= value;
 
    if not value then
@@ -1641,7 +1641,7 @@ begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) and (FNEntriesUI[p].PanelConfig <> nil) then begin
          FNEntriesUI[p].cFocusedFlag.Refresh;
-         if not FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel and not FNEntriesUI[p].HideTemporarilyInfoPanel then
+         if (Folder.EditorInfoPanelHidden or not FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel) and not FNEntriesUI[p].HideTemporarilyInfoPanel then
             KeepEnabled:= True;
       end;
    end;
@@ -1879,10 +1879,7 @@ begin
          FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
       end;
 
-      if not QueryLayout and not Folder.EditorInfoPanelHidden then
-         KeepInfoPanelTemporarilyVisible
-      else
-         TimerInfoTimer(nil);
+      KeepInfoPanelTemporarilyVisible;
 
       if not QueryLayout then
          ActiveFile.SetNoteIsOnEditingLayout(FNote, True);
