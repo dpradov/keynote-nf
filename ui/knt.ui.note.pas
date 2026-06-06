@@ -1255,22 +1255,32 @@ var
   N: integer;
 begin
   N:= 0;
-  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
-        FNEntriesUI[p].ModifiedMetadataOfEntry(NEntry);
-        inc(N);
+
+  LockControl(pnlAuxC, True);
+  try
+     for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+        if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
+           FNEntriesUI[p].ModifiedMetadataOfEntry(NEntry);
+           if FQueryLayout then begin
+              FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel:= false;
+              FNEntriesUI[p].ReconsiderInfoPanelVisibility;
+           end;
+           inc(N);
+        end;
+
+     if N = 0 then exit;
+
+     if FQueryLayout then begin
+        p:= FNNodeUIConfig.GetWhereToShowEditorInfoPanel;
+        FNNodeUIConfig.PanelConfig(p).ShowEditorInfoPanel:= True;
+        NoteEntriesUI:= GetNEntriesUI(p);
+        if NoteEntriesUI.PanelConfig = nil then exit;
+        NoteEntriesUI.ReconsiderInfoPanelVisibility;
      end;
 
-  if N = 0 then exit;
-
-  if FQueryLayout then begin
-     p:= FNNodeUIConfig.GetWhereToShowEditorInfoPanel;
-     FNNodeUIConfig.PanelConfig(p).ShowEditorInfoPanel:= True;
-     NoteEntriesUI:= GetNEntriesUI(p);
-     if NoteEntriesUI.PanelConfig = nil then exit;
-     NoteEntriesUI.ReconsiderInfoPanelVisibility;
+  finally
+     LockControl(pnlAuxC, false);
   end;
-
 end;
 
 
@@ -1368,6 +1378,15 @@ begin
   FHideFocusFlag:= false;
 
   if CtrlDown then begin
+     if (FQueryLayout and (NEntry = nil)) or
+        ((FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets) then begin
+
+        LoadFromNNode(FNNode, True, neQueryLayout);
+        if (NEntriesUI.PanelConfig.MainMode <> NEntriesUI.PanelConfig.CurrentMode) then
+           NEntriesUI.btnToggleMultiClick(nil);
+        exit;
+     end
+     else
      if (NEntriesUI.PanelConfig.MainMode = meSingleEntry) and (NEntriesUI.PanelConfig.CurrentMode = meMultipleEntries) then begin
         NEntriesUI.btnToggleMultiClick(nil);
         exit;
@@ -1379,8 +1398,6 @@ begin
 
         else begin
            if (NEntriesUI.PanelConfig.MainMode = meMultipleEntries) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
-              if (FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets then
-                  LoadFromNNode(FNNode, True, neQueryLayout);
               NEntriesUI.btnToggleMultiClick(nil);
               exit;
            end
@@ -1450,6 +1467,7 @@ procedure TKntNoteUI.NewEntryRequested(ReqFromEditor: TKntRichEdit);
 var
   ReqFromNEntriesUI: TKntNoteEntriesUI;
   TagsToAddToNewEntry: TNoteTagArray;
+  PnlEdit: TNEntriesMainPanel;
 begin
    if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
 
@@ -1464,6 +1482,14 @@ begin
 
 
    DisableChangedInEmptyPanelAt:= Now;              // Will be enabled in TForm_Main.ApplicationEventsIdle
+
+   if FQueryLayout and (FNote.NumEntries = 1) then begin
+      if FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) and (PnlEdit <> FNNodeUIConfig.GetMainPanel) then begin
+         LoadFromNNode(FNNode, True, neQueryLayout, nil, true);
+         exit;
+      end;
+   end;
+
    if FQueryLayout and Folder.NoteAdvOptions.NewEntriesAlwaysOnEdLayout then begin
       if (FNNodeUIConfig.MaximizedPanel <> pnNone) then
           ToggleMaximizeSelectedPanel;
@@ -1832,15 +1858,19 @@ begin
           end;
 
           Action:= aNull;
-          if OfferEditorForNewEntry and (Pnl = PnlToSetFocus) then begin
-             PanelConfig.SelNEntry:= nil;
-             PanelConfig.CurrentMode:= meSingleEntry;
-             Action:= aCreating;
-             NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
+          if OfferEditorForNewEntry then begin
+             Action:= aCreatingFromOtherPanel;
+             if (Pnl = PnlToSetFocus) then begin
+                PanelConfig.SelNEntry:= nil;
+                PanelConfig.CurrentMode:= meSingleEntry;
+                Action:= aCreating;
+                NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
+             end;
           end;
+
           NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
 
-          if not FQueryLayout and (NEntriesUI.NEntry = nil) then begin
+          if (not FQueryLayout or (Action = aCreating)) and (NEntriesUI.NEntry = nil) then begin
              NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
              DisableChangedInEmptyPanelAt:= now;
           end
@@ -1867,7 +1897,7 @@ begin
               if Pnl = PnlWithEditorInfoPanel then
                  FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= True;
 
-              if QueryLayout and (FNEntriesUI[Pnl].NEntry = nil) then
+              if QueryLayout and not (OfferEditorForNewEntry and (Pnl = PnlToSetFocus)) and (FNEntriesUI[Pnl].NEntry = nil) then
                  ShowPanel[Pnl]:= False        // OnUse but not visible for now
 
               else begin

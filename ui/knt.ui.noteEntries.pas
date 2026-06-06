@@ -55,7 +55,7 @@ type
     Content: TContentInMultiEntriesMode;
   end;
 
-  TActionOnEntry = (aModified, aCreating, aCreated, aDeleted, aModifiedMetadata, aChangedVisibility, aRefreshHeader, aNull);
+  TActionOnEntry = (aModified, aCreating, aCreatingFromOtherPanel, aCreated, aDeleted, aModifiedMetadata, aChangedVisibility, aRefreshHeader, aNull);
 
 type
   TKntNoteEntriesUI = class(TFrame)
@@ -362,8 +362,11 @@ end;
 procedure TKntNoteEntriesUI.SetPanelHidden( Value : boolean );
 begin
    FPanelHidden:= Value;
-   if FPanelConfig <> nil then
+   if FPanelConfig <> nil then begin
       FPanelConfig.Hidden:= Value;
+      if not Value and (PanelConfig.StLayout = spInQL_ets) then
+         PanelConfig.StLayout:= spInQL;
+   end;
 end;
 
 procedure TKntNoteEntriesUI.SetAsUnused;
@@ -1423,8 +1426,7 @@ begin
 
    { *1
      If the note already has at least 2 entries, we will show the entry we have identified but avoided displaying
-     in the editor, so as not to offer two identical copies of the same entry simply by tagging the single entry with one
-     of the tags linked to this auxiliary panel }
+     in the editor, so as not to offer two identical copies of the same entry }
    if (PanelConfig.StLayout = spInQL_ets) then
       if (FNote <> nil) and (FNote.NumEntries <= 1) or (ActionOnEntry = aCreated) then
          exit
@@ -1442,16 +1444,22 @@ begin
       NEntryToConsider:= nil;
 
       PopulateEntriesToShow;
-      if Length(FEntriesShown) <= 1 then
-         PanelConfig.CurrentMode:= meSingleEntry;
 
-      // See *1, above
-      if (PanelConfig.StLayout = spInQL) and (PanelConfig.VinculatedTags <> nil) and (Length(FEntriesShown) = 1) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
+      if (FEntriesShown = nil) and (PanelConfig.StLayout = spInQL_ets) then      // *1
+         exit;
+
+      if (ActionOnEntry in [aCreating, aCreatingFromOtherPanel]) and (PanelConfig.VinculatedTags = nil) then begin
+         // We must be in a note with one entry where a new entry is being created from this or other panel (a "Single Entry" panel)
+      end
+      else
+      if (PanelConfig.StLayout = spInQL) and (PanelConfig.Panel <> pnCenter) and (FNote <> nil) and (FNote.NumEntries = 1) then begin  // *1
          PanelConfig.StLayout:= spInQL_ets;
          PanelHidden:= True;
          exit;
-      end;
-
+      end
+      else
+      if Length(FEntriesShown) <= 1 then
+         PanelConfig.CurrentMode:= meSingleEntry;
    end;
 
 
@@ -1563,7 +1571,7 @@ begin
       end;
 
       // See *1, above
-      if (PanelConfig.StLayout = spInQL) and (PanelConfig.VinculatedTags <> nil) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
+      if (PanelConfig.StLayout = spInQL) and (PanelConfig.Panel <> pnCenter) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
          PanelConfig.StLayout:= spInQL_ets;
          PanelHidden:= True;
          exit;
@@ -1587,18 +1595,20 @@ begin
          if (FNEntry <> nil) then begin
             btnToggleMulti.Caption:= (FiEntry+1).ToString;     // First entry (1) can now be second entry (2). Show it in the navigate button
             exit;
-         end
-         else
-         if (PanelConfig.StLayout = spInQL) and FPanelHidden and (ActionOnEntry = aModifiedMetadata) and
-            (Length(FEntriesShown) = 1) and (NEntryToConsider.Stream.Size = 0) then begin
-             // If we're changing the metadata of a newly created entry, and this should make a panel visible,
-             // we'll make sure to display it in multi-entry mode, showing only the header.
-             PanelConfig.CurrentMode:= meMultipleEntries;
-             Mode:= meMultipleEntries;
-             FEntriesShown[0].Content:= cmOnlyHeader;
-             NEntryToConsider:= nil;
          end;
       end;
+   end;
+
+
+   if ( (EntryToAdd and PanelConfig.Hidden) or
+        ((ActionOnEntry = aNull) and (PanelConfig.StLayout = spInQL_ets)) ) and
+       (Length(FEntriesShown) >= 1) and (FEntriesShown[0].NEntry.Stream.Size = 0) then begin
+      // If we're changing the metadata of a newly created entry, and this should make a panel visible,
+      // we'll make sure to display it in multi-entry mode, showing only the header.
+       PanelConfig.CurrentMode:= meMultipleEntries;
+       Mode:= meMultipleEntries;
+       FEntriesShown[0].Content:= cmOnlyHeader;
+       NEntryToConsider:= nil;
    end;
 
 
@@ -2273,6 +2283,8 @@ end;
 
 procedure TKntNoteEntriesUI.SavePositionInPanel;
 begin
+   if PanelConfig.StLayout = spInQL_ets then exit;
+
    if FEntriesShown = nil then begin
       FNEntry:= nil;
       FiEntry:= -1;
@@ -2662,16 +2674,11 @@ begin
    SavePositionInPanel;
    N:= Length(FEntriesShown);
 
-   LockControl(Editor, True);
-   try
-      ReloadFromDataModel(false, NEntry, aModifiedMetadata);
+   ReloadFromDataModel(false, NEntry, aModifiedMetadata);
 
-      if (N = 0) and (Length(FEntriesShown) > 0) and (PanelConfig.StLayout <> spInQL_ets) then
-         SelectEntry(0, false, false);
+   if (N = 0) and (Length(FEntriesShown) > 0) and (PanelConfig.StLayout <> spInQL_ets) then
+      SelectEntry(0, false, false);
 
-   finally
-      LockControl(Editor, False);
-   end;
 end;
 
 

@@ -1005,8 +1005,8 @@ begin
   Tags1[0]:= TKntFile(FKntFile).NoteTags[0];
   NoteAdvOptions.DefaultUseForQueryLayout[pnTL]:= pnuShowVinculatedWithTags;
   NoteAdvOptions.VinculatedTagsForQueryLayout[pnTL]:= Tags1;
-  NoteAdvOptions.DefaultUseForQueryLayout[pnCenter] := pnuShowSelectedEntry;
-  NoteAdvOptions.DefaultUseForQueryLayout[pnBL] := pnuShowAllEntries;
+  NoteAdvOptions.DefaultUseForQueryLayout[pnBL] := pnuShowSelectedEntry;
+  NoteAdvOptions.DefaultUseForQueryLayout[pnCenter] := pnuShowAllEntries;
 
   NoteAdvOptions.DefaultUseForEditingLayout[pnTL] := pnuShowVinculatedWithTags;
   NoteAdvOptions.DefaultUseForEditingLayout[pnCenter] := pnuShowSelectedEntry;
