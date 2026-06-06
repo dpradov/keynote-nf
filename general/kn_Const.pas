@@ -1088,15 +1088,11 @@ type
      pnuHidePanel,                 //  Keep panel hidden
      pnuShowVinculatedWithTags,    //  QueryLayout:  Show only if there is any entry with any of the indicated tag
                                    //  EdtingLayout: Show vinculated to the indicated tags
-     pnuShowSelectedEntry,         //  Show newest/oldest/last selected entry    (*)
-     pnuShowAllEntries             //   ,,  all entries
+     pnuShowSelectedEntry,         //  Show Selected entry    (0 or 1)
+     pnuShowAllEntries             //  Show All entries       (1)
   );
 
-  // (*) In DefaultUseForEditingLayout, you can define one panel (and only one) with one of this option.
-  //     If there is none with this option, there must necessarily be one defined with pnuShowAllEntries
-  //     The corresponding panel will be used to edit entries or create new entries.
-  // Newest/oldest/last selected, depending on TNoteAdvancedOptions.ShowNewestEntryInSingleEntry and TEditorOptions.SaveCaretPos
-
+  
 
 type
   TBasicNEntriesLayout = (neQueryLayout, neEditingLayout, neLastLayout);

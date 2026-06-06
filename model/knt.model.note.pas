@@ -674,8 +674,6 @@ end;
 function TNote.GetSelEntry : TNoteEntry;
 begin
    Result:= fSelEntry;
-   if (Result = nil) and (fEntries <> nil) then
-      Result:= Entries[0];
 end;
 
 procedure TNote.SetSelEntry(value: TNoteEntry);

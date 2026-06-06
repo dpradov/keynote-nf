@@ -2636,7 +2636,8 @@ var
 
   Note: TNote;
   NEntry: TNoteEntry;
-  NEntryID, NoteSelEntryID: Word;
+  NEntryID: Word;
+  NoteSelEntryID: integer;
   GID: Cardinal;
 
   VirtualFN, RelativeVirtualFN: string;
@@ -2672,7 +2673,7 @@ var
              assert((NEntry.IsRTF = RTFContent) or (NEntry.Stream.Size=0));
           end;
 
-          if ClosingNote then begin
+          if ClosingNote and (NoteSelEntryID >= 0) then begin
              NSelEntry:= Note.GetEntry(NoteSelEntryID);
              Note.SelEntry:= NSelEntry;
           end;
@@ -2714,7 +2715,7 @@ begin
        if not FromEncryptedContent then begin
           Note:= TNote.Create;
           fNotes.Add(Note);
-          NoteSelEntryID:= 0;
+          NoteSelEntryID:= -1;
           NEntry:= nil;
        end;
        continue;
@@ -2822,7 +2823,9 @@ begin
           RelativeVirtualFN := TryUTF8ToUnicodeString(s)
         else
         if ( key = _NoteSelEntry ) then
-           NoteSelEntryID:= StrToUIntDef(s, 0)
+           if _SAVE_RESTORE_CARETPOS then begin
+              NoteSelEntryID:= StrToUIntDef(s, 0)
+           end
         else
         if ( key = _NEntrySelStart ) then begin
             if _SAVE_RESTORE_CARETPOS then
@@ -3355,7 +3358,7 @@ var
     if (Note.States <> []) and (Note.States <> [nsModified]) then
        tf.WriteLine(_NoteState + '=' + Note.StatesToString);
 
-    if Note.SelEntry.ID > 0 then
+    if (Note.SelEntry <> nil) and (Note.SelEntry.ID > 0) then
        tf.WriteLine(_NoteSelEntry + '=' + Note.SelEntry.ID.ToString  );
     if ( _SAVE_RESTORE_CARETPOS and ( Note.SelStart > 0 )) then
        tf.WriteLine( _NEntrySelStart + '=' + Note.SelStart.ToString  );

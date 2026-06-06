@@ -744,7 +744,7 @@ begin
      AutoExpandInPanels:= cb_AutoExp.Checked;
 
      //DefaultTagsOrder: TNoteTagArray;
-     //ShowNewestEntryInSingleEntry: boolean;
+     //ShowNewestEntryAtStartup: boolean;
 
      MEContent:=          TContentInMultiEntriesMode(cEntryCont.ItemIndex);
      MEShowLineInHeader:= cb_HLine.Checked;
@@ -844,7 +844,7 @@ begin
      ExcerptMaxL.Value:= ExtractOfText_MaxLines;
      cb_AutoExp.Checked:= AutoExpandInPanels;
      //DefaultTagsOrder: TNoteTagArray;
-     //ShowNewestEntryInSingleEntry: boolean;
+     //ShowNewestEntryAtStartup: boolean;
 
      cEntryCont.ItemIndex:= Ord(MEContent);
      cb_HLine.Checked:=   MEShowLineInHeader;

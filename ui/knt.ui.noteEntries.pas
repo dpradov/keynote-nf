@@ -1443,9 +1443,6 @@ begin
       if Length(FEntriesShown) <= 1 then
          PanelConfig.CurrentMode:= meSingleEntry;
 
-      if not EditorOptions.SaveCaretPos then
-         PanelConfig.SelNEntry:= nil;
-
       // See *1, above
       if (PanelConfig.StLayout = spInQL) and (PanelConfig.VinculatedTags <> nil) and (Length(FEntriesShown) = 1) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
          PanelConfig.StLayout:= spInQL_ets;
@@ -1670,8 +1667,8 @@ begin
                     and (ActionOnEntry <> aCreating) then begin
 
            FiEntry:= 0;
-           if not Folder.NoteAdvOptions.ShowNewestEntryInSingleEntry then begin
-              if not PanelConfig.DescendingOrder then
+           if Folder.NoteAdvOptions.ShowNewestEntryAtStartup then begin
+              if not PanelConfig.DescendingOrder then        // Descending -> 0 => most recent
                   FiEntry:= Length(FEntriesShown)-1;
            end
            else begin

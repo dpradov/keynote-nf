@@ -911,7 +911,8 @@ type
 
      DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
 
-     ShowNewestEntryInSingleEntry: boolean;
+     ShowNewestEntryAtStartup: boolean;   // Show newest or oldest entry at startup, instead of last selected when TEditorOptions.SaveCaretPos = 0 (False)
+
 
      PnlTopRatio:    Single;   // Ratio Top vs Other (Center+Bottom)
      PnlBottomRatio: Single;   // Ratio Bottom vs Other (Center+Top)
@@ -1210,6 +1211,7 @@ begin
     MECompactHeader:= false;
     Order:= eoDateCreation;
     DescendingOrder:= True;
+    ShowNewestEntryAtStartup:= true;
 
     ExtractOfText_MaxLength:= 250;
     ExtractOfText_MaxLines:= 3;

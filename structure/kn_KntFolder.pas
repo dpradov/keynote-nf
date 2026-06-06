@@ -657,7 +657,7 @@ var
           Note_ReloadNeeded:= true;
 
        //DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
-       //ShowNewestEntryInSingleEntry: boolean;
+       //ShowNewestEntryAtStartup: boolean;
     end;
 
   end;
@@ -992,6 +992,8 @@ begin
   Tags1[0]:= TKntFile(FKntFile).NoteTags[0];
   NoteAdvOptions.DefaultUseForQueryLayout[pnTL]:= pnuShowVinculatedWithTags;
   NoteAdvOptions.VinculatedTagsForQueryLayout[pnTL]:= Tags1;
+  NoteAdvOptions.DefaultUseForQueryLayout[pnCenter] := pnuShowSelectedEntry;
+  NoteAdvOptions.DefaultUseForQueryLayout[pnBL] := pnuShowAllEntries;
 
   NoteAdvOptions.DefaultUseForEditingLayout[pnTL] := pnuShowVinculatedWithTags;
   NoteAdvOptions.DefaultUseForEditingLayout[pnCenter] := pnuShowSelectedEntry;
@@ -3623,7 +3625,7 @@ begin
        end;
 
 
-       if NNode <> nil then begin
+       if (NNode <> nil) and (NNode.Note.SelEntry <> nil) then begin
           SelStart:= NNode.Note.SelStart;
           SelLength:= NNode.Note.SelLength;
           SelNEntry:= NNode.Note.SelEntry;
