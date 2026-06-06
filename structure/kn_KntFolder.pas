@@ -118,10 +118,14 @@ type
       function GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
       function PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
 
+      property InternalTop_Ratio: Single read fTop_Ratio;
+      property InternalBottom_Ratio: Single read fBottom_Ratio;
+
       property Top_Ratio: Single read GetTop_Ratio write FTop_Ratio;
       property Bottom_Ratio: Single read GetBottom_Ratio write FBottom_Ratio;
       property TLTR_Ratio: Single read GetTLTR_Ratio write FTLTR_Ratio;
       property BLBR_Ratio: Single read GetBLBR_Ratio write FBLBR_Ratio;
+      function PanelReducedToHidden(Panel: TNEntriesPanel): boolean;
       property MaximizedPanel: TNEntriesPanelBase read FMaximizedPanel write SetMaximizedPanel;
       property FocusedPanel: TNEntriesPanelBase read FFocusedPanel write FFocusedPanel;
   end;
@@ -373,6 +377,14 @@ type
   function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
   procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
 
+
+const SPLT_WIDTH = 2;
+const RATIO_EQUIV_HIDDEN = 0.004;
+const RATIO_EQUIV_HIDDEN_Check = 0.0041;           // RATIO_EQUIV_HIDDEN will not be saved exactly as 0.004
+const HEIGHT_REDUCED_TO_HIDDEN = 4;
+
+
+
 implementation
 uses
    gf_strings,
@@ -397,6 +409,7 @@ uses
    kn_History,
    kn_KntFile,
    knt.App,
+   knt.ui.note,
    knt.ui.TagMng,
    knt.RS
    ;
@@ -3435,11 +3448,16 @@ begin
             Result:= 0.5;
       end;
 
-      if not FFolder.NoteAdvOptions.AutoExpandInPanels and not (FFocusedPanel in [pnTL, pnTR]) then begin
-         NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
-         NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
-         if (NumInTL = 0) and (NumInTR = 0) then
-            Result:= 0.05;
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin
+         if not (FFocusedPanel in [pnTL, pnTR]) then begin
+            NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
+            NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
+            if (NumInTL = 0) and (NumInTR = 0) and (FTop_Ratio > 0.05) then
+               Result:= 0.05;
+         end
+         else
+         if PanelReducedToHidden(pnTL) then
+            Result:= 0.15;
       end;
 
    end
@@ -3464,11 +3482,16 @@ begin
             Result:= 0.5;
       end;
 
-      if not FFolder.NoteAdvOptions.AutoExpandInPanels and not (FFocusedPanel in [pnBL, pnBR]) then begin
-         NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
-         NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
-         if (NumInBL = 0) and (NumInBR = 0) then
-            Result:= 0.05;
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin
+         if not (FFocusedPanel in [pnBL, pnBR]) then begin
+            NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
+            NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
+            if (NumInBL = 0) and (NumInBR = 0) and (FBottom_Ratio > 0.05) then
+               Result:= 0.05;
+         end
+         else
+         if PanelReducedToHidden(pnBL) then
+            Result:= 0.15;
       end;
 
    end
@@ -3547,6 +3570,19 @@ begin
       Result:= 1
    else
       Result:= 0;
+end;
+
+
+function TNNodeUIConfiguration.PanelReducedToHidden(Panel: TNEntriesPanel): boolean;
+begin
+
+   case Panel of
+      pnTL, pnTR: Result:= (fTop_Ratio > 0) and (fTop_Ratio <= RATIO_EQUIV_HIDDEN_Check);
+      pnBL, pnBR: Result:= (fBottom_Ratio > 0) and (fBottom_Ratio <= 30 / TKntNoteUI(FFolder.NoteUI).Height);
+      else
+         Result:= false;
+   end;
+
 end;
 
 

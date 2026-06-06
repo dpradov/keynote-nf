@@ -83,7 +83,6 @@ type
     FMultipleVisibleEditors: boolean;
     FHideFocusFlag: boolean;
 
-    fSplitterNoteMoving: boolean;
     FUpdatingOnResize: boolean;
     IncResize: integer;
     FChangingLayout: boolean;
@@ -235,7 +234,7 @@ uses
   kn_VCLControlsMng,
   knt.RS;
 
-const SPLT_WIDTH = 2;
+
 
 // Create  / Destroy =========================================
 
@@ -269,7 +268,6 @@ begin
 
    //TestCreatePanel;
 
-   fSplitterNoteMoving:= false;
    FUpdatingOnResize:= false;
    TimerInfoPanel:= TTimer.Create(Self);
    TimerInfoPanel.Enabled := false;
@@ -468,26 +466,26 @@ end;
 
 procedure TKntNoteUI.splTMoved(Sender: TObject);
 begin
-  // This method will be called 2 times, from TSplitter.UpdateControlSize and TSplitter.StopSizing
-  // We Will ignore the first one
-  if not fSplitterNoteMoving then begin
-     fSplitterNoteMoving:= true;
-     exit;
-  end;
-  fSplitterNoteMoving:= false;
 
-  FNNodeUIConfig.Top_Ratio:= pnlTop.Height / Self.Height;
+  if pnlTop.Height <= HEIGHT_REDUCED_TO_HIDDEN then begin
+     FNNodeUIConfig.Top_Ratio:= RATIO_EQUIV_HIDDEN;
+     pnlTop.Height:=  HEIGHT_REDUCED_TO_HIDDEN;
+     splT.Top:=       HEIGHT_REDUCED_TO_HIDDEN;
+  end
+  else
+     FNNodeUIConfig.Top_Ratio:= pnlTop.Height / Self.Height;
 
-  if pnlBottom.Visible then begin
+  if pnlBottom.Visible and FUpdatingOnResize then begin
      pnlCenter.Height:= pnlCenter.Height - IncResize;
      FNEntriesUI[pnCenter].Editor.EndUpdate;
-    if FNEntriesUI[pnBL] <> nil then
-       FNEntriesUI[pnBL].Editor.EndUpdate;
-    if FNEntriesUI[pnBR] <> nil then
-       FNEntriesUI[pnBR].Editor.EndUpdate;
+     if FNEntriesUI[pnBL] <> nil then
+        FNEntriesUI[pnBL].Editor.EndUpdate;
+     if FNEntriesUI[pnBR] <> nil then
+        FNEntriesUI[pnBR].Editor.EndUpdate;
+
+     FUpdatingOnResize:= False;
   end;
 
-  FUpdatingOnResize:= False;
 end;
 
 
@@ -581,8 +579,12 @@ begin
       pnlBL.Width:= Round(pnlBottom.Width * FNNodeUIConfig.BLBR_Ratio);
    if pnlTL.Visible and pnlTR.Visible then
       pnlTL.Width:= Round(pnlTop.Width * FNNodeUIConfig.TLTR_Ratio);
-   if pnlTop.Visible then
-      pnlTop.Height:= Round(Self.Height * FNNodeUIConfig.Top_Ratio);
+   if pnlTop.Visible then begin
+      H:= Round(Self.Height * FNNodeUIConfig.Top_Ratio);
+      if H < 4 then
+         H:= 4;
+      pnlTop.Height:= H;
+   end;
    if pnlBottom.Visible then begin
       H:= pnlAuxC3.Height - Round(Self.Height * FNNodeUIConfig.Bottom_Ratio);
       if FNNodeUIConfig.MaximizedPanel = pnNone then
@@ -659,7 +661,7 @@ begin
    Fixed:= false;
    for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
        NEntriesUI:= FNEntriesUI[Pnl];
-       if (NEntriesUI <> nil) and (GetPanel(Pnl).Height > 0) and
+       if (NEntriesUI <> nil) and (GetPanel(Pnl).Height > HEIGHT_REDUCED_TO_HIDDEN) and
            ((NEntriesUI.txtTags.Top < 0) or (NEntriesUI.Editor.Height = 0)) then begin
 
            NEntriesUI.SetFocusOnEditor;
@@ -789,7 +791,15 @@ end;
 
 procedure TKntNoteUI.RefreshPanelsLayout;
 begin
-   FrameResize(nil);
+   LockControl(pnlAuxC, True);
+   try
+     FrameResize(nil);
+     FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
+
+   finally
+     LockControl(pnlAuxC, false);
+   end;
+
 end;
 
 procedure TKntNoteUI.TreeFocused;
@@ -1586,7 +1596,7 @@ end;
 
 procedure TKntNoteUI.NEntriesUIEditorEnter(Sender: TObject);
 var
-  p: TNEntriesPanel;
+  p, FocPanel: TNEntriesPanel;
 begin
    FHideFocusFlag:= false;
 
@@ -1603,13 +1613,16 @@ begin
 
   FSelectedNEntriesUI:= TKntNoteEntriesUI(Sender);
   FSelectedNEntriesUI.cFocusedFlag.Color:= clSkyBlue;
-  FNNodeUIConfig.FocusedPanel:= FSelectedNEntriesUI.PanelConfig.Panel;
+  FocPanel:= FSelectedNEntriesUI.PanelConfig.Panel;
+  FNNodeUIConfig.FocusedPanel:= FocPanel;
 
   if (Folder.NoteAdvOptions.AutoExpandInPanels) or
-     ((FNNodeUIConfig.FocusedPanel in [pnCenter, pnTL,pnTR]) and
-          ((PnlTL.Visible and (NumberOfVisibleEntries(pnTL) = 0)) or ((PnlTR.Visible and (NumberOfVisibleEntries(pnTR)=0)))) ) or
-     ((FNNodeUIConfig.FocusedPanel in [pnCenter, pnBL,pnBR]) and
-          ((PnlBL.Visible and (NumberOfVisibleEntries(pnBL) = 0)) or ((PnlBR.Visible and (NumberOfVisibleEntries(pnBR)=0)))) )   then
+     ((FocPanel in [pnCenter, pnTL,pnTR]) and
+         ( ((FNNodeUIConfig.PanelReducedToHidden(pnTL)) and (PnlTL.Visible or PnlTR.Visible)) or
+           ((PnlTL.Visible and (NumberOfVisibleEntries(pnTL) = 0)) or ((PnlTR.Visible and (NumberOfVisibleEntries(pnTR)=0)))) ) ) or
+     ((FocPanel in [pnCenter, pnBL,pnBR]) and
+         ( ((FNNodeUIConfig.PanelReducedToHidden(pnBL)) and (PnlBL.Visible or PnlBR.Visible)) or
+           ((PnlBL.Visible and (NumberOfVisibleEntries(pnBL) = 0)) or ((PnlBR.Visible and (NumberOfVisibleEntries(pnBR)=0)))) ) )  then
      FramResizePendingInNoteUI:= Self;
 
   TimerInfoPanel.Enabled:= False;
@@ -1793,6 +1806,11 @@ begin
             PnlToSetFocus:= FNNodeUIConfig.FocusedPanel;
          if FNNodeUIConfig.MaximizedPanel <> pnNone then
             PnlToSetFocus:= FNNodeUIConfig.MaximizedPanel;
+
+         if ((PnlToSetFocus in [pnTL, pnTR]) and FNNodeUIConfig.PanelReducedToHidden(pnTL)) or
+            ((PnlToSetFocus in [pnBL, pnBR]) and FNNodeUIConfig.PanelReducedToHidden(pnBL))    then
+            PnlToSetFocus:= pnCenter;
+         FNNodeUIConfig.FocusedPanel:= PnlToSetFocus;
       end;
 
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
@@ -1854,7 +1872,7 @@ begin
 
               else begin
                  FNEntriesUI[Pnl].Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
-                 if (Pnl = PnlWithEditorInfoPanel) or EnableNavigatePanels then
+                 if ((Pnl = PnlWithEditorInfoPanel) or EnableNavigatePanels) and not FNNodeUIConfig.PanelReducedToHidden(Pnl) then
                     FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility
                  else
                     FNEntriesUI[Pnl].HideTemporarilyInfoPanel;

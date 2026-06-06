@@ -113,6 +113,7 @@ uses
    kn_PluginsMng,
    kn_ImagesMng,
    kn_FindReplaceMng,
+   knt.ui.note,
    knt.App,
    knt.RS
    ;
@@ -513,6 +514,8 @@ begin
        Editor:= Folder.Editor;
        Editor.SetMargins;
        SendMessage(Editor.Handle, EM_SCROLLCARET, 0, 0);
+
+       TKntNoteUI(Folder.NoteUI).RestoreSplits;
    end;
 end;
 

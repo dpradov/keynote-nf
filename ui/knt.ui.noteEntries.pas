@@ -537,6 +537,8 @@ procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
 var
   colorEdLay, colorMax: TColor;
 begin
+  if Height <= HEIGHT_REDUCED_TO_HIDDEN then exit;
+
   ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
   if (PanelConfig.Maximized) or
      (PanelConfig.ShowEditorInfoPanel and
