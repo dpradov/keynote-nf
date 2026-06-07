@@ -198,6 +198,7 @@ begin
   *)
 
   InitializeOptions;
+  DefineStringConst;
   LoadRichEditLibrary;
   ApplyLanguageUI (KeyOptions.LanguageUI);
 

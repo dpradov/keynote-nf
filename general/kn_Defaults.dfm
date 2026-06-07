@@ -1018,6 +1018,16 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
+          object lbl8: TLabel
+            Left = 8
+            Top = 88
+            Width = 361
+            Height = 13
+            Hint = 
+              'Where to show the info bar. "Full width": ignoring panels that d' +
+              'on'#39't cover all the note'#39's width'
+            Caption = 'Editor Information bar position'
+          end
           object cb_AutoExp: TCheckBox
             Left = 8
             Top = 4
@@ -1046,6 +1056,14 @@ object Form_Defaults: TForm_Defaults
               'anel'
             Caption = 'Edit tag vinculated entries in "Selected entry" panel'
             TabOrder = 2
+          end
+          object cInfoBarPos: TComboBox
+            Left = 8
+            Top = 107
+            Width = 361
+            Height = 21
+            Style = csDropDownList
+            TabOrder = 3
           end
         end
       end

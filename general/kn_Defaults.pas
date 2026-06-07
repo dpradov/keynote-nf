@@ -154,6 +154,8 @@ type
     cb_CompHd: TCheckBox;
     cb_NewInEL: TCheckBox;
     cb_VincTagInSel: TCheckBox;
+    lbl8: TLabel;
+    cInfoBarPos: TComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -256,6 +258,7 @@ var
   nodeicn : TNodeIconKind;
   pu: TNEntriesPanelUse;
   cont: TContentInMultiEntriesMode_Selectable;
+  InfoBarPos: TInfoBarPosInMultiEntries;
 begin
   Initializing := true;
   LoadedForm:= False;
@@ -319,6 +322,9 @@ begin
 
   for cont := low(cont) to high(cont) do
       cEntryCont.Items.Add(CONTENT_IN_MULTIENTRIES_MODE[cont]);
+
+  for InfoBarPos := low(InfoBarPos) to high(InfoBarPos) do
+      cInfoBarPos.Items.Add(INFOBAR_POS_IN_MULTIENTRIES[InfoBarPos]);
 
 
   cb_TLq.OnClick:= cb_ShowEntriesPanelClick;
@@ -742,6 +748,8 @@ begin
      ExtractOfText_MaxLength:= ExcerptMaxC.Value;
      ExtractOfText_MaxLines:= ExcerptMaxL.Value;
      AutoExpandInPanels:= cb_AutoExp.Checked;
+     InfoBarPosInEntries:=  TInfoBarPosInMultiEntries(cInfoBarPos.ItemIndex);
+
 
      //DefaultTagsOrder: TNoteTagArray;
      //ShowNewestEntryAtStartup: boolean;
@@ -843,6 +851,7 @@ begin
      ExcerptMaxC.Value:= ExtractOfText_MaxLength;
      ExcerptMaxL.Value:= ExtractOfText_MaxLines;
      cb_AutoExp.Checked:= AutoExpandInPanels;
+     cInfoBarPos.ItemIndex:= Ord(InfoBarPosInEntries);
      //DefaultTagsOrder: TNoteTagArray;
      //ShowNewestEntryAtStartup: boolean;
 

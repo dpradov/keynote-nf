@@ -637,7 +637,7 @@ type
     AltMargins: boolean;  // [*] Saves the state of View|Alternative margins
     ModifiedOnTreeResized: boolean;  // [*]
     HintsAccesible: boolean;  // [*] 1 => When hints are shown in status bar, other text panels will be shown blank
-    EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom
+    EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom           ("EditorInfoPanel" = "InfoBar")
     //AutoDiscoverTags: boolean;
     FixEmojisProblem : boolean;  // [*]   (See issue Lost the bullets - how to get back? #896
     RTLkeyShct: boolean;          // [*] 0 => Don't use keyboard shortcut for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)  (Default: 0)
@@ -926,6 +926,7 @@ type
 
      NewEntriesAlwaysOnEdLayout: boolean;
      EditTagVincEntriesInSelectedEntry: boolean;   // Also for new entries
+     InfoBarPosInEntries:  TInfoBarPosInMultiEntries;
 
      MEContent: TContentInMultiEntriesMode;
      MEShowDateInHeader: boolean;
@@ -1196,6 +1197,7 @@ begin
 
     NewEntriesAlwaysOnEdLayout:= false;
     EditTagVincEntriesInSelectedEntry:= true;
+    InfoBarPosInEntries:= ibpMostExtremeExcVincTag;
 
     PnlTLTRRatio:= 0.5;
     PnlBLBRRatio:= 0.5;

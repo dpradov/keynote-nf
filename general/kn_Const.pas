@@ -29,7 +29,7 @@ uses
    knt.RS;
 
 
-procedure DefineConst;
+procedure DefineStringConst;
 
 const
   Program_Name     = 'KeyNote NF';
@@ -1092,7 +1092,12 @@ type
      pnuShowAllEntries             //  Show All entries       (1)
   );
 
-  
+type
+  TInfoBarPosInMultiEntries = (
+    ibpAllEntries,               // Always in the "All Entries" panel
+    ibpMostExtreme,              // In the lowest (or highest, depending on configuration) possible panel
+    ibpMostExtremeExcVincTag     // In the lowest (or highest, depending on configuration) possible panel, excluding those vinculated to tags
+  );
 
 type
   TBasicNEntriesLayout = (neQueryLayout, neEditingLayout, neLastLayout);
@@ -1159,14 +1164,18 @@ var
   ENTRIES_PANEL_USES_QL : array[TNEntriesPanelUse] of string;
   ENTRIES_PANEL_USES_EL : array[TNEntriesPanelUse] of string;
   CONTENT_IN_MULTIENTRIES_MODE : array[TContentInMultiEntriesMode_Selectable] of string;
+  INFOBAR_POS_IN_MULTIENTRIES : array[TInfoBarPosInMultiEntries] of string;
 
 
 implementation
 uses kn_Info,
-     kn_PluginBase;
+     kn_PluginBase,
+     knt.App;
 
 
-procedure DefineConst;
+procedure DefineStringConst;
+var
+  str: string;
 begin
   DEFAULT_NEW_FOLDER_NAME := GetRS(sINFDefaults1);
   DEFAULT_NEW_NOTE_NAME := GetRS(sINFDefaults2);
@@ -1335,10 +1344,19 @@ begin
   CONTENT_IN_MULTIENTRIES_MODE[cmWholeEntry]:=      GetRS(sEntry15);
   CONTENT_IN_MULTIENTRIES_MODE[cmOnlyFirstLines]:=  GetRS(sEntry16);
 
+
+  if KeyOptions.EditorInfoPanelTop then
+     str:= GetRS(sEntry22)               // On the highest (*) panel
+  else
+     str:= GetRS(sEntry23);              // On the lowest (*) panel
+  INFOBAR_POS_IN_MULTIENTRIES[ibpAllEntries]:=            GetRS(sEntry21);
+  INFOBAR_POS_IN_MULTIENTRIES[ibpMostExtreme]:=           str;
+  INFOBAR_POS_IN_MULTIENTRIES[ibpMostExtremeExcVincTag]:= str + GetRS(sEntry24);
+
+
 end;
 
 Initialization
-  DefineConst;
 
 end.
 

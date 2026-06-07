@@ -108,7 +108,7 @@ type
                                             var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
       function GetMainPanel: TNEntriesMainPanel;
-      function GetWhereToShowEditorInfoPanel: TNEntriesMainPanel;
+      function GetWhereToShowEditorInfoBar: TNEntriesMainPanel;
       function GetUpperVisiblePanel (Pnl: TNEntriesMainPanel; var UpperPnl: TNEntriesMainPanel): boolean;
       function GetBelowVisiblePanel (Pnl: TNEntriesMainPanel; var BelowPnl: TNEntriesMainPanel): boolean;
       function AnyPanelInQL_ets: boolean;
@@ -666,7 +666,8 @@ var
        end;
 
        if (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
-          (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) then
+          (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) or
+          (myNoteAdvOptions.InfoBarPosInEntries <> myFolder.NoteAdvOptions.InfoBarPosInEntries)  then
           Note_ReloadNeeded:= true;
 
        //DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
@@ -3760,45 +3761,66 @@ begin
 end;
 
 
-function TNNodeUIConfiguration.GetWhereToShowEditorInfoPanel: TNEntriesMainPanel;
+function TNNodeUIConfiguration.GetWhereToShowEditorInfoBar: TNEntriesMainPanel;
 var
   i: integer;
-  BLv,BRv,TLv,TRv,CenterV: boolean;
+  BLv,BRv,TLv,TRv: boolean;
+  BLt,BRt,TLt,TRt: boolean;
+  CanUseVincTags: boolean;
   PanelConfig: TPanelConfiguration;
 begin
    if MaximizedPanel <> pnNone then
-      exit(MaximizedPanel);
+      exit( MaximizedPanel );
 
-   TLv:= False;
-   TRv:= False;
-   BLv:= False;
-   BRv:= False;
-   CenterV:= False;
+   if not FFolder.NoteUI.MultipleVisibleEditors then
+      exit( pnCenter );
+
+   if FFolder.NoteAdvOptions.InfoBarPosInEntries = ibpAllEntries then
+      exit( GetMainPanel );
+
+
+   TLv:= False; TRv:= False;  BLv:= False;  BRv:= False;
+   TLt:= False; TRt:= False;  BLt:= False;  BRt:= False;
+
    for i := 0 to High(PanelsConfig) do begin
        PanelConfig:= PanelsConfig[i];
        case PanelConfig.Panel of
-          pnTL: TLv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
-          pnTR: TRv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
-          pnBL: BLv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
-          pnBR: BRv:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
-          pnCenter: CenterV:= not PanelConfig.Hidden and (PanelConfig.VinculatedTags=nil);
+          pnTL: begin
+             TLv:= not PanelConfig.Hidden;
+             TLt:= (PanelConfig.VinculatedTags<>nil);
+          end;
+          pnTR: begin
+             TRv:= not PanelConfig.Hidden;
+             TRt:= (PanelConfig.VinculatedTags<>nil);
+          end;
+          pnBL: begin
+             BLv:= not PanelConfig.Hidden;
+             BLt:= (PanelConfig.VinculatedTags<>nil);
+          end;
+          pnBR: begin
+             BRv:= not PanelConfig.Hidden;
+             BRt:= (PanelConfig.VinculatedTags<>nil);
+          end;
        end;
    end;
 
+
+   CanUseVincTags:= (FFolder.NoteAdvOptions.InfoBarPosInEntries = ibpMostExtreme);
+
    if KeyOptions.EditorInfoPanelTop then begin
-      if TLv and not TRv then
+      if TLv and not TRv and (CanUseVincTags or not TLt) then
          exit(pnTL);
-      if TRv and not TLv then
+      if TRv and not TLv and (CanUseVincTags or not TRt) then
          exit(pnTR);
-       exit(pnCenter);
    end
    else begin
-      if BLv and not BRv then
+      if BLv and not BRv and (CanUseVincTags or not BLt) then
          exit(pnBL);
-      if BRv and not BLv then
+      if TRv and not TLv and (CanUseVincTags or not BRt) then
          exit(pnBR);
-      exit(pnCenter);
    end;
+
+   exit(pnCenter);
 end;
 
 

@@ -699,7 +699,7 @@ begin
    end
    else begin
       FNNodeUIConfig.MaximizedPanel:= pnNone;
-      FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= (FNNodeUIConfig.GetWhereToShowEditorInfoPanel = Panel);
+      FSelectedNEntriesUI.PanelConfig.ShowEditorInfoPanel:= (FNNodeUIConfig.GetWhereToShowEditorInfoBar = Panel);
    end;
 
    FSelectedNEntriesUI.PanelConfig.Maximized:= (FNNodeUIConfig.MaximizedPanel <> pnNone);
@@ -1271,7 +1271,7 @@ begin
      if N = 0 then exit;
 
      if FQueryLayout then begin
-        p:= FNNodeUIConfig.GetWhereToShowEditorInfoPanel;
+        p:= FNNodeUIConfig.GetWhereToShowEditorInfoBar;
         FNNodeUIConfig.PanelConfig(p).ShowEditorInfoPanel:= True;
         NoteEntriesUI:= GetNEntriesUI(p);
         if NoteEntriesUI.PanelConfig = nil then exit;
@@ -1883,35 +1883,34 @@ begin
 
 
 
-   PnlWithEditorInfoPanel:= FNNodeUIConfig.GetWhereToShowEditorInfoPanel;
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+       if (FNEntriesUI[Pnl] <> nil) and not ShowPanel[Pnl] then
+           FNEntriesUI[Pnl].SetAsUnused;          // Clear unused editors
+
+   UpdateFMultipleVisibleEditors;
+
+   PnlWithEditorInfoPanel:= FNNodeUIConfig.GetWhereToShowEditorInfoBar;
 
    for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
-       if (FNEntriesUI[Pnl] <> nil) then begin
-          if not ShowPanel[Pnl] then
-             FNEntriesUI[Pnl].SetAsUnused          // Clear unused editors
+       if (FNEntriesUI[Pnl] <> nil) and FNEntriesUI[Pnl].OnUse then begin
+          { We calculate ShowEditorInfoPanel now because, in QL, as a result of previous calls to NEntriesUI.LoadFromDataModel,
+            the Hidden (PanelHidden) state of the panel may have changed, by having (or not having) some visible entry}
+
+          if Pnl = PnlWithEditorInfoPanel then
+             FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= True;
+
+          if QueryLayout and not (OfferEditorForNewEntry and (Pnl = PnlToSetFocus)) and (FNEntriesUI[Pnl].NEntry = nil) then
+             ShowPanel[Pnl]:= False        // OnUse but not visible for now
 
           else begin
-              { We calculate ShowEditorInfoPanel now because, in QL, as a result of previous calls to NEntriesUI.LoadFromDataModel,
-                the Hidden (PanelHidden) state of the panel may have changed, by having (or not having) some visible entry}
-
-              if Pnl = PnlWithEditorInfoPanel then
-                 FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= True;
-
-              if QueryLayout and not (OfferEditorForNewEntry and (Pnl = PnlToSetFocus)) and (FNEntriesUI[Pnl].NEntry = nil) then
-                 ShowPanel[Pnl]:= False        // OnUse but not visible for now
-
-              else begin
-                 FNEntriesUI[Pnl].Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
-                 if ((Pnl = PnlWithEditorInfoPanel) or EnableNavigatePanels) and not FNNodeUIConfig.PanelReducedToHidden(Pnl) then
-                    FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility
-                 else
-                    FNEntriesUI[Pnl].HideTemporarilyInfoPanel;
-              end;
+             FNEntriesUI[Pnl].Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
+             if ((Pnl = PnlWithEditorInfoPanel) or EnableNavigatePanels) and not FNNodeUIConfig.PanelReducedToHidden(Pnl) then
+                FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility
+             else
+                FNEntriesUI[Pnl].HideTemporarilyInfoPanel;
           end;
        end;
 
-
-   UpdateFMultipleVisibleEditors;
 
    ShowLeftPanel(False);
    ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);

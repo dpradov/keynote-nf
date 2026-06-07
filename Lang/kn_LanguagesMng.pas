@@ -174,7 +174,7 @@ begin
              else begin
                  if FreeLocalizer.LanguageFile <> path + FN then begin
                     FreeLocalizer.LanguageFile:= path + FN;
-                    DefineConst;
+                    DefineStringConst;
                     AddSearchModes;
                     AddSearchScopes;
                     AddSearchChkModes;
