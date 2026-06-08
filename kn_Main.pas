@@ -3190,10 +3190,10 @@ begin
 
         else begin
            if Msg.CharCode = VK_RETURN then begin
-              if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) then begin
-
-                  ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, True);
-                  Handled:= true;
+              if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and
+                   (ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes or (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1)) then begin
+                 ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, True);
+                 Handled:= true;
               end
               else
               if activeControl = ListBox_ResFav then begin
@@ -3206,7 +3206,8 @@ begin
       end
       else begin
         if Msg.CharCode = VK_RETURN then begin
-           if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) then begin
+           if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and
+               (ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes or (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1)) then begin
               ActiveFolder.NoteUI.NewEntryRequested(ActiveEditor);
               Handled:= true;
            end;

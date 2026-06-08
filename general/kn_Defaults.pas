@@ -113,7 +113,7 @@ type
     cb_HDate: TCheckBox;
     cb_HTags: TCheckBox;
     txtTagsOrder: TEdit;
-    Tab_AdvOther: TTab95Sheet;
+    Tab_AdvGral: TTab95Sheet;
     CB_DescOrd: TCheckBox;
     lbl10: TLabel;
     cEntryCont: TComboBox;
@@ -156,6 +156,7 @@ type
     cb_VincTagInSel: TCheckBox;
     lbl8: TLabel;
     cInfoBarPos: TComboBox;
+    cb_EnableAdv: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -729,6 +730,7 @@ begin
   ApplyTreeChromeToAllFolders:= CB_TreeChrome_AllNotes.Checked;
 
   with myNoteAdvOptions do begin
+     EnableAdvEditionInSingleEntryNotes:= cb_EnableAdv.Checked;
      DefaultUseForQueryLayout[pnTL]:= TNEntriesPanelUse(cUseTLq.ItemIndex);
      DefaultUseForQueryLayout[pnTR]:= TNEntriesPanelUse(cUseTRq.ItemIndex);
      DefaultUseForQueryLayout[pnCenter]:= TNEntriesPanelUse(cUseCq.ItemIndex);
@@ -834,6 +836,7 @@ begin
   CB_InheritBGColor.Checked:= myInheritBGColor;
 
   with myNoteAdvOptions do begin
+     cb_EnableAdv.Checked:= EnableAdvEditionInSingleEntryNotes;
      LoadPanelConfigQL(pnTL, cb_TLq, cUseTLq, TagsTLq);
      LoadPanelConfigQL(pnTR, cb_TRq, cUseTRq, TagsTRq);
      LoadPanelConfigQL(pnCenter, cb_Cq, cUseCq, TagsCq);

@@ -4183,7 +4183,8 @@ var
   ch: char;
 
 begin
-  if (Key = VK_RETURN) and (shift = []) and FMultiEntries and (FNNodeObj <> nil) then begin
+  if (Key = VK_RETURN) and (shift = []) and FMultiEntries and (FNNodeObj <> nil) and
+       (TKntFolder(FolderObj).NoteAdvOptions.EnableAdvEditionInSingleEntryNotes or (TNoteNode(fNNodeObj).Note.NumEntries > 1) ) then begin
        key:= 0;
        FIgnoreNextKeyPress:= true;
        ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, False);

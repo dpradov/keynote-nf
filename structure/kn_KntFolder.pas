@@ -667,7 +667,8 @@ var
 
        if (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
           (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) or
-          (myNoteAdvOptions.InfoBarPosInEntries <> myFolder.NoteAdvOptions.InfoBarPosInEntries)  then
+          (myNoteAdvOptions.InfoBarPosInEntries <> myFolder.NoteAdvOptions.InfoBarPosInEntries) or
+          (myNoteAdvOptions.EnableAdvEditionInSingleEntryNotes <> myFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes) then
           Note_ReloadNeeded:= true;
 
        //DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
@@ -3689,8 +3690,10 @@ var
    PnlUse: TNEntriesPanelUse;
 begin
     Result:= TNNodeUIConfiguration.Create(NNode, Folder, QueryLayout);
-    if NNode = nil then begin
-       Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, nil);
+    if (NNode = nil) or
+       (not Folder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes and (NNode.Note.NumEntries = 1)) then begin
+
+       Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode);
        exit;
     end;
 

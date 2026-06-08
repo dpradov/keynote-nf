@@ -903,6 +903,8 @@ const
 type
    TNoteAdvancedOptions = packed record
 
+     EnableAdvEditionInSingleEntryNotes: boolean;    // If false -> ignore Ctrl+Enter, Ctrl+Shift+Enter in notes with one entry
+
      DefaultUseForQueryLayout: array[TNEntriesMainPanel] of TNEntriesPanelUse;
      VinculatedTagsForQueryLayout: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
 
@@ -1182,6 +1184,8 @@ procedure TNoteAdvancedOptions.Initialize;
 var
   p: TNEntriesPanel;
 begin
+    EnableAdvEditionInSingleEntryNotes:= True;
+
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
        DefaultUseForQueryLayout[p] := pnuHidePanel;
        DefaultUseForEditingLayout[p] := pnuHidePanel;

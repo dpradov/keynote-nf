@@ -527,7 +527,7 @@ object Form_Defaults: TForm_Defaults
         Top = 3
         Width = 389
         Height = 285
-        ActivePage = Tab_QL
+        ActivePage = Tab_AdvGral
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
@@ -543,6 +543,71 @@ object Form_Defaults: TForm_Defaults
         ParentFont = False
         TabOrder = 0
         TabPosition = tpBottomRight
+        object Tab_AdvGral: TTab95Sheet
+          Caption = 'General'
+          GripAlign = gaLeft
+          ImageIndex = -1
+          StaticPageIndex = -1
+          TabVisible = True
+          object lbl8: TLabel
+            Left = 8
+            Top = 119
+            Width = 146
+            Height = 13
+            Hint = 
+              'Where to show the info bar. "Full width": ignoring panels that d' +
+              'on'#39't cover all the note'#39's width'
+            Caption = 'Editor Information bar position'
+          end
+          object cb_AutoExp: TCheckBox
+            Left = 8
+            Top = 35
+            Width = 230
+            Height = 17
+            Hint = 'Auto expand TL,TR, BL, BR panels when focusing'
+            Caption = 'Auto expand panels'
+            TabOrder = 0
+          end
+          object cb_NewInEL: TCheckBox
+            Left = 8
+            Top = 62
+            Width = 370
+            Height = 17
+            Caption = 'Switch to Editing Layout when creating a new entry'
+            TabOrder = 1
+          end
+          object cb_VincTagInSel: TCheckBox
+            Left = 8
+            Top = 88
+            Width = 370
+            Height = 17
+            Hint = 
+              'If unchecked (or without "Selected entry"), Enter or Ctrl+Shift+' +
+              'Enter will edit or create the entry in the same tag vinculated p' +
+              'anel'
+            Caption = 'Edit tag vinculated entries in "Selected entry" panel'
+            TabOrder = 2
+          end
+          object cInfoBarPos: TComboBox
+            Left = 8
+            Top = 138
+            Width = 361
+            Height = 21
+            Style = csDropDownList
+            TabOrder = 3
+          end
+          object cb_EnableAdv: TCheckBox
+            Left = 9
+            Top = 4
+            Width = 360
+            Height = 17
+            Hint = 
+              'If unchecked, Ctrl+Enter, Ctrl+Shift+Enter will be ignored in no' +
+              'tes with only one entry (of current folder)'
+            Caption = 'Enabled advanced edition in single-entry notes'
+            TabOrder = 4
+          end
+        end
         object Tab_QL: TTab95Sheet
           Caption = 'Query Layout  '
           GripAlign = gaLeft
@@ -1010,60 +1075,6 @@ object Form_Defaults: TForm_Defaults
             Hint = 'Show entries with less spacing'
             Caption = 'Compact'
             TabOrder = 4
-          end
-        end
-        object Tab_AdvOther: TTab95Sheet
-          Caption = 'Other  '
-          GripAlign = gaLeft
-          ImageIndex = -1
-          StaticPageIndex = -1
-          TabVisible = True
-          object lbl8: TLabel
-            Left = 8
-            Top = 88
-            Width = 361
-            Height = 13
-            Hint = 
-              'Where to show the info bar. "Full width": ignoring panels that d' +
-              'on'#39't cover all the note'#39's width'
-            Caption = 'Editor Information bar position'
-          end
-          object cb_AutoExp: TCheckBox
-            Left = 8
-            Top = 4
-            Width = 230
-            Height = 17
-            Hint = 'Auto expand TL,TR, BL, BR panels when focusing'
-            Caption = 'Auto expand panels'
-            TabOrder = 0
-          end
-          object cb_NewInEL: TCheckBox
-            Left = 8
-            Top = 31
-            Width = 370
-            Height = 17
-            Caption = 'Switch to Editing Layout when creating a new entry'
-            TabOrder = 1
-          end
-          object cb_VincTagInSel: TCheckBox
-            Left = 8
-            Top = 57
-            Width = 370
-            Height = 17
-            Hint = 
-              'If unchecked (or without "Selected entry"), Enter or Ctrl+Shift+' +
-              'Enter will edit or create the entry in the same tag vinculated p' +
-              'anel'
-            Caption = 'Edit tag vinculated entries in "Selected entry" panel'
-            TabOrder = 2
-          end
-          object cInfoBarPos: TComboBox
-            Left = 8
-            Top = 107
-            Width = 361
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 3
           end
         end
       end
