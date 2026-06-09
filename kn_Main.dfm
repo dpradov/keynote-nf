@@ -2740,7 +2740,7 @@ object Form_Main: TForm_Main
       end
       object MMViewEditorInfoPanel: TMenuItem
         Caption = 'Editor Info'
-        Hint = 'Show or hide the editor information panel (Ctrl: All Folders)'
+        Hint = 'Show or hide the editor information bar (Ctrl: All Folders)'
         OnClick = MMViewEditorInfoPanelClick
       end
       object MMViewHistory: TMenuItem

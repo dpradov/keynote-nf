@@ -382,7 +382,7 @@ type
   TKntTreeOptions = packed record
     AutoNameVNodes : boolean;
     AutoScroll : boolean;
-    ConfirmNodeDelete : boolean;
+    ConfirmNodeDelete : boolean;          // It will also be used to confirm the deletion of entries
     ConfirmNodeRefresh : boolean;
     ExpandMode : TTreeExpandMode;
     FullRowSelect : boolean; // [*]
