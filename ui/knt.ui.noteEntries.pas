@@ -174,7 +174,7 @@ type
     procedure ShowEntriesButtons(Show: boolean);
     procedure SelectEntry(iEntry: integer; LastPos: boolean = false; InformReloaded: boolean = True);
     procedure FrameResize(Sender: TObject);
-    function InfoPanelShowingNoteMetadata: boolean;
+    function InfoBarShowingNoteMetadata: boolean;
   public
     procedure EditTags;
     procedure RefreshTags;
@@ -612,6 +612,9 @@ begin
       AncestorPathLen:= Length(path) - Length(NNode.NoteName);
       if AncestorPathLen > 1 then
          s:= s + '  (' +  Copy(path, 1, AncestorPathLen) + ')';
+
+      if (NNode.Note.Tags <> nil) then
+         s:= s + '  # [' + FNNode.Note.MainEntry.TagsNames + ']';
    end;
    txtName.Hint:= s;
 end;
@@ -676,13 +679,15 @@ begin
 end;
 
 
-function TKntNoteEntriesUI.InfoPanelShowingNoteMetadata: boolean;
+function TKntNoteEntriesUI.InfoBarShowingNoteMetadata: boolean;
 begin
-   if FNNode.Note.MainEntry = FNEntry then
-      Result:= True
-   else
-      Result:= PanelConfig.ShowEditorInfoPanel and
-              ((PanelConfig.CurrentMode = meMultipleEntries) or (FNNode.Note.NumEntries = 1));
+   Result:= (FNEntry = FNNode.Note.MainEntry);
+
+//   if FNNode.Note.MainEntry = FNEntry then
+//      Result:= True;
+//   else
+//      Result:= PanelConfig.ShowEditorInfoPanel and
+//              ((PanelConfig.CurrentMode = meMultipleEntries) or (FNNode.Note.NumEntries = 1));
 end;
 
 
@@ -697,11 +702,11 @@ begin
 
    Color:= clWindowText;
 
-   if InfoPanelShowingNoteMetadata then
+   if InfoBarShowingNoteMetadata then
       NEntry:= FNNode.Note.MainEntry
    else begin
       NEntry:= FNEntry;
-      Color:= RGB(0,0, 170);
+      Color:= RGB(0,0, 180);
    end;
 
    if NEntry <> nil then begin
@@ -719,13 +724,10 @@ begin
 
    txtTags.Text:= S;
    TagMng.UpdateTxtTagsHint(txtTags);
-   if S = '' then begin
+   if S = '' then
       txtTags.Text:= EMPTY_TAGS;
-      txtTags.Font.Color:= clGray;
-   end
-   else
-      txtTags.Font.Color:= Color;
 
+   txtTags.Font.Color:= Color;
    AdjustTxtTagsWidth;
 end;
 
@@ -735,10 +737,16 @@ var
 begin
    if PanelConfig = nil then exit;
 
-   if InfoPanelShowingNoteMetadata then
+   if InfoBarShowingNoteMetadata then
       NEntry:= FNNode.Note.MainEntry
-   else
-      NEntry:= FNEntry;
+   else begin
+      if CtrlDown then begin
+         NEntry:= FNNode.Note.MainEntry;
+         txtTags.Text:= NEntry.TagsNames;
+      end
+      else
+         NEntry:= FNEntry;
+   end;
 
    if (NEntry = nil) or txtTags.ReadOnly then begin
       SetFocusOnEditor;
@@ -751,6 +759,7 @@ end;
 
 procedure TKntNoteEntriesUI.txtTagsExit(Sender: TObject);
 begin
+   RefreshTags;                   // In case we have forced the use of MainEntry from txtTagsEnter because Ctrl was pressed
    ReconsiderInfoPanelVisibility;
 end;
 
@@ -760,8 +769,8 @@ begin
      Editor.SetFocus;
 
    txtTags.Color:= FColorTxts;
-   if not InfoPanelShowingNoteMetadata and (FNEntry <> nil) then
-      txtTags.Font.Color:= RGB(0,0, 170);
+   if not InfoBarShowingNoteMetadata and (FNEntry <> nil) then
+      txtTags.Font.Color:= RGB(0,0, 180);
 
    AdjustTxtTagsWidth;
 

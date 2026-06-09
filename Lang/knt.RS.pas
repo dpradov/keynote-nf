@@ -1093,7 +1093,7 @@ const
    sTag4  = 55110;   // OK to DELETE Tag "%s"%s?
    sTag5  = 55111;   // OK to DELETE ALL SELECTED tags%s?
    sTag6  = 55112;   // Creating new Tag
-   sTag7  = 55113;   // Edit tags applied to the note
+   sTag7  = 55113;   // Edit tags for the entry (Ctrl: for the note --main entry)
    sTag8  = 55114;   // OK to ALSO replace "#%s" with "#%s" within the EXISTING NOTES text?
    sTag9  = 55115;   //  (with ALL REFERENCES)
    sTag10 = 55116;   // OK to ALSO delete ALL REFERENCES within the EXISTING NOTES text?
