@@ -581,7 +581,7 @@ begin
       pnlTL.Width:= Round(pnlTop.Width * FNNodeUIConfig.TLTR_Ratio);
    if pnlTop.Visible then begin
       H:= Round(Self.Height * FNNodeUIConfig.Top_Ratio);
-      if H < 4 then
+      if (H < 4) and (FNNodeUIConfig.MaximizedPanel = pnNone) then
          H:= 4;
       pnlTop.Height:= H;
    end;

@@ -99,7 +99,7 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
       Top = 0
       Width = 19
       Height = 22
-      Hint = 'Next entry [Ctrl: Last]'
+      Hint = 'Next entry'
       ImageIndex = 56
       Images = Form_Main.IMG_Toolbar
       OnClick = btnNextEntryClick
@@ -118,7 +118,7 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
       Top = 0
       Width = 19
       Height = 22
-      Hint = 'Previous entry [Ctrl: First]'
+      Hint = 'Previous entry'
       DropdownArrowWidth = 12
       ImageIndex = 55
       Images = Form_Main.IMG_Toolbar

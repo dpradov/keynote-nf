@@ -977,6 +977,8 @@ begin
 
      ActiveNNode.Note.DeleteEntry(ActiveNNode.Note.GetEntryIndex(NEntry));
      ActiveFolder.Modified := true;      // => KntFile.Modified := true;
+     if ActiveNNode.Note.NumEntries = 1 then
+        ActiveFolder.NoteUI.LoadFromNNode(ActiveNNode, True, neQueryLayout);
 
      if WasMain then begin
         ActiveFolder.NoteUI.RefreshTags;

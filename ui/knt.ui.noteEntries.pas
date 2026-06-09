@@ -1403,7 +1403,7 @@ var
     Editor.SelStart := FEntriesShown[FiEntry].StartingPos;
     Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos + PanelConfig.SelStart;
     Editor.SelLength := PanelConfig.SelLength;
-    inc(PanelConfig.ScrollPosInEditor.Y, 35);                    // TODO ***
+    //inc(PanelConfig.ScrollPosInEditor.Y, 35);                    // TODO ***
     Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
  end;
 
@@ -1936,7 +1936,7 @@ begin
    PosStartEntry:= 0;
    PosEndEntry:= -1;
 
-   if PanelConfig.CurrentMode = meSingleEntry then exit;
+   if (PanelConfig = nil) or (PanelConfig.CurrentMode = meSingleEntry) then exit;
 
    i:= GetIndexOfIncludedEntry(NEntry);
    if i >= 0 then begin
