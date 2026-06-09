@@ -668,11 +668,11 @@ var
        if (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
           (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) or
           (myNoteAdvOptions.InfoBarPosInEntries <> myFolder.NoteAdvOptions.InfoBarPosInEntries) or
-          (myNoteAdvOptions.EnableAdvEditionInSingleEntryNotes <> myFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes) then
+          (myNoteAdvOptions.EnableAdvEditionInSingleEntryNotes <> myFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes) or
+          (myNoteAdvOptions.ShowNewestEntryAtStartup <> myFolder.NoteAdvOptions.ShowNewestEntryAtStartup)  then
           Note_ReloadNeeded:= true;
 
        //DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
-       //ShowNewestEntryAtStartup: boolean;
     end;
 
   end;

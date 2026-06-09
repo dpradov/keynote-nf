@@ -551,7 +551,7 @@ object Form_Defaults: TForm_Defaults
           TabVisible = True
           object lbl8: TLabel
             Left = 8
-            Top = 119
+            Top = 184
             Width = 146
             Height = 13
             Hint = 
@@ -590,7 +590,7 @@ object Form_Defaults: TForm_Defaults
           end
           object cInfoBarPos: TComboBox
             Left = 8
-            Top = 138
+            Top = 203
             Width = 361
             Height = 21
             Style = csDropDownList
@@ -606,6 +606,17 @@ object Form_Defaults: TForm_Defaults
               'tes with only one entry (of current folder)'
             Caption = 'Enabled advanced edition in single-entry notes'
             TabOrder = 4
+          end
+          object cb_ShowNewest: TCheckBox
+            Left = 8
+            Top = 115
+            Width = 370
+            Height = 17
+            Hint = 
+              'Show the most recent entry on startup, if editor is configured n' +
+              'ot to save and restore caret position)'
+            Caption = 'Show newest entry at startup (when not saving caret position)'
+            TabOrder = 5
           end
         end
         object Tab_QL: TTab95Sheet

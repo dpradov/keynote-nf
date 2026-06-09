@@ -157,6 +157,7 @@ type
     lbl8: TLabel;
     cInfoBarPos: TComboBox;
     cb_EnableAdv: TCheckBox;
+    cb_ShowNewest: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -751,10 +752,10 @@ begin
      ExtractOfText_MaxLines:= ExcerptMaxL.Value;
      AutoExpandInPanels:= cb_AutoExp.Checked;
      InfoBarPosInEntries:=  TInfoBarPosInMultiEntries(cInfoBarPos.ItemIndex);
+     ShowNewestEntryAtStartup:= cb_ShowNewest.Checked;
 
 
      //DefaultTagsOrder: TNoteTagArray;
-     //ShowNewestEntryAtStartup: boolean;
 
      MEContent:=          TContentInMultiEntriesMode(cEntryCont.ItemIndex);
      MEShowLineInHeader:= cb_HLine.Checked;
@@ -855,8 +856,8 @@ begin
      ExcerptMaxL.Value:= ExtractOfText_MaxLines;
      cb_AutoExp.Checked:= AutoExpandInPanels;
      cInfoBarPos.ItemIndex:= Ord(InfoBarPosInEntries);
+     cb_ShowNewest.Checked:= ShowNewestEntryAtStartup;
      //DefaultTagsOrder: TNoteTagArray;
-     //ShowNewestEntryAtStartup: boolean;
 
      cEntryCont.ItemIndex:= Ord(MEContent);
      cb_HLine.Checked:=   MEShowLineInHeader;
