@@ -1084,6 +1084,12 @@ const
 
 
 type
+  TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnBL, pnBR, pnCenter, pnLeft, pnR1, pnR2, pnR3);
+  TNEntriesPanel     = pnTL..pnR3;
+  TNEntriesMainPanel = pnTL..pnCenter;
+  TNEntriesAuxPanel  = pnLeft..pnR3;
+
+type
   TNEntriesPanelUse = (
      pnuHidePanel,                 //  Keep panel hidden
      pnuShowVinculatedWithTags,    //  QueryLayout:  Show only if there is any entry with any of the indicated tag
@@ -1093,7 +1099,7 @@ type
   );
 
 type
-  TInfoBarPosInMultiEntries = (
+  TEditorInfoBarPos = (
     ibpAllEntries,               // Always in the "All Entries" panel
     ibpMostExtreme,              // In the lowest (or highest, depending on configuration) possible panel
     ibpMostExtremeExcVincTag     // In the lowest (or highest, depending on configuration) possible panel, excluding those vinculated to tags
@@ -1104,7 +1110,7 @@ type
 
 type
   TModeEntriesUI = (
-    meMultipleEntries,
+    meMultiEntry,
     meSingleEntry
   );
 
@@ -1117,21 +1123,14 @@ type
     fsFile
   );
 
-  TContentInMultiEntriesMode = (
+  TContentInMultiEntryMode = (
     cmHidden,
     cmOnlyHeader,
     cmWholeEntry,
     cmOnlyFirstLines
   );
 
-  TContentInMultiEntriesMode_Selectable = cmOnlyHeader..cmOnlyFirstLines;
-
-  TOrderInEntriesInPanel = (
-    eoDateCreation,
-    eoHierarchyAndDateCreation,       // Use hierarchy in tree + DataCreation
-    eoTagsAndDateCreation             // Use TNoteAdvancedOptions.DefaultTagsOrder + DataCreation
-  );
-
+  TContentInMultiEntryMode_Selectable = cmOnlyHeader..cmOnlyFirstLines;
 
 
 var
@@ -1161,10 +1160,11 @@ var
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
 
+  ENTRIES_PANELS : array[TNEntriesPanelBase] of string;
   ENTRIES_PANEL_USES_QL : array[TNEntriesPanelUse] of string;
   ENTRIES_PANEL_USES_EL : array[TNEntriesPanelUse] of string;
-  CONTENT_IN_MULTIENTRIES_MODE : array[TContentInMultiEntriesMode_Selectable] of string;
-  INFOBAR_POS_IN_MULTIENTRIES : array[TInfoBarPosInMultiEntries] of string;
+  CONTENT_IN_MULTIENTRY_MODE : array[TContentInMultiEntryMode_Selectable] of string;
+  EDITOR_INFOBAR_POS : array[TEditorInfoBarPos] of string;
 
 
 implementation
@@ -1330,6 +1330,17 @@ begin
   PluginFeatureNames[plReloadFile]:=     GetRS(sPlg12);
   PluginFeatureNames[plStaysResident]:=  GetRS(sPlg13);
 
+  ENTRIES_PANELS[pnNone]:= '';
+  ENTRIES_PANELS[pnTL]:= 'TL';
+  ENTRIES_PANELS[pnTR]:= 'TR';
+  ENTRIES_PANELS[pnBL]:= 'BL';
+  ENTRIES_PANELS[pnBR]:= 'BR';
+  ENTRIES_PANELS[pnCenter]:= 'C';
+  ENTRIES_PANELS[pnLeft]:= 'L';
+  ENTRIES_PANELS[pnR1]:= 'R1';
+  ENTRIES_PANELS[pnR2]:= 'R2';
+  ENTRIES_PANELS[pnR3]:= 'R3';
+
   ENTRIES_PANEL_USES_QL[pnuHidePanel]:=               GetRS(sEntry09);
   ENTRIES_PANEL_USES_QL[pnuShowVinculatedWithTags]:=  GetRS(sEntry10);
   ENTRIES_PANEL_USES_QL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
@@ -1340,18 +1351,18 @@ begin
   ENTRIES_PANEL_USES_EL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
   ENTRIES_PANEL_USES_EL[pnuShowAllEntries]:=          GetRS(sEntry13);
 
-  CONTENT_IN_MULTIENTRIES_MODE[cmOnlyHeader]:=      GetRS(sEntry14);
-  CONTENT_IN_MULTIENTRIES_MODE[cmWholeEntry]:=      GetRS(sEntry15);
-  CONTENT_IN_MULTIENTRIES_MODE[cmOnlyFirstLines]:=  GetRS(sEntry16);
+  CONTENT_IN_MULTIENTRY_MODE[cmOnlyHeader]:=      GetRS(sEntry14);
+  CONTENT_IN_MULTIENTRY_MODE[cmWholeEntry]:=      GetRS(sEntry15);
+  CONTENT_IN_MULTIENTRY_MODE[cmOnlyFirstLines]:=  GetRS(sEntry16);
 
 
   if KeyOptions.EditorInfoPanelTop then
      str:= GetRS(sEntry22)               // On the highest (*) panel
   else
      str:= GetRS(sEntry23);              // On the lowest (*) panel
-  INFOBAR_POS_IN_MULTIENTRIES[ibpAllEntries]:=            GetRS(sEntry21);
-  INFOBAR_POS_IN_MULTIENTRIES[ibpMostExtreme]:=           str;
-  INFOBAR_POS_IN_MULTIENTRIES[ibpMostExtremeExcVincTag]:= str + GetRS(sEntry24);
+  EDITOR_INFOBAR_POS[ibpAllEntries]:=            GetRS(sEntry21);
+  EDITOR_INFOBAR_POS[ibpMostExtreme]:=           str;
+  EDITOR_INFOBAR_POS[ibpMostExtremeExcVincTag]:= str + GetRS(sEntry24);
 
 
 end;

@@ -3585,7 +3585,6 @@ var
   HideEncrypted: boolean;
   pI, pF: integer;
   i: integer;
-  Order: TOrderInEntriesInPanel;
   DescendingOrder: boolean;
 
 
@@ -3610,7 +3609,7 @@ var
   var
      NEntry: TNoteEntry;
      OnlyHeader: boolean;
-     Content: TContentInMultiEntriesMode;
+     Content: TContentInMultiEntryMode;
   begin
      Result:= false;
      NEntry:= NNode.Note.Entries[i];
@@ -3645,7 +3644,6 @@ var
      i, N, iEntry: integer;
   begin
      // ToDO: FindOptions.FindTagsIncl_FindReplace
-     // ToDO: Order (TOrderInEntriesInPanel)
 
     iEntry:= NNode.Note.GetEntryIndex(myNEntry);
     N:= NNode.Note.NumEntries;
@@ -3921,7 +3919,7 @@ begin
       if ( FindOptions.FindNew and FindOptions.EntireScope ) then begin
           SearchOrigin := 0;
           if Editor.MultiEntries then begin
-             myFolder.NoteUI.GetPanelConfigOrderForFindSearch(NNode, myNEntry, FindOptions.FindTagsIncl_FindReplace, Order, DescendingOrder);
+             myFolder.NoteUI.GetPanelConfigOrderForFindSearch(NNode, myNEntry, FindOptions.FindTagsIncl_FindReplace, DescendingOrder);
              GetFirstEntry;                // Start from first entry in the panel/editor
              if myNEntry = nil then
                 myNEntry:= TNoteEntry(Editor.NEntryObj);
@@ -3964,7 +3962,7 @@ begin
       // or even continue searching from the starting point, cyclically.
 
       repeat
-            myFolder.NoteUI.GetPanelConfigOrderForFindSearch(NNode, myNEntry, FindOptions.FindTagsIncl_FindReplace, Order, DescendingOrder);
+            myFolder.NoteUI.GetPanelConfigOrderForFindSearch(NNode, myNEntry, FindOptions.FindTagsIncl_FindReplace, DescendingOrder);
 
 
             if not (HideEncrypted and NNode.Note.IsEncrypted) then begin

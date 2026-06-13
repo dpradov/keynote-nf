@@ -30,19 +30,6 @@ uses
    ;
 
 
-type
-  TFilterOptionsInPanel = packed record
-    TagsIncl: TNoteTagArray;          // Consider notes/entries with ALL of the selected tags in its metadata (TagsModeOR=False) (TagsText=False)
-    InheritedTags: boolean;           // Each node will be considered as having its own tags and the tags of its ancestors
-    UseDefaultTagsExcl: boolean;      // Use TFindOptions.DefaultTagsExcl  ("i")
-    TextFilter : string;              // Entry to consider must include the pattern
-    MatchCase : boolean;              // case-sensitive ("c")
-    WholeWordsOnly : boolean;         // only match whole words ("w")
-    SearchMode : TSearchMode;         // "e":Exact phrase, "&":All the words, "|":Any of the words
-    ShowExcerpts: boolean;            // (when using TextFilter) "x"
-  end;
-
-
   //*1 In most cases, it will not be necessary to save anything in the .knt file, and the current node will be considered.
   //   However, it will be possible to display a list of possible explicitly selected nodes on a specific panel.
   //   It will be saved in the .knt file as NNode1.GID,NNode2.GID,...  (NNode.GID.ToString)
@@ -71,15 +58,7 @@ type
     SelectedNNode: TNoteNode;          // *1
     VinculatedTags: TNoteTagArray;
 
-    OverridedMEConfig: boolean;
-    MEContent: TContentInMultiEntriesMode;
-    MEShowDateInHeader: boolean;
-    MEShowTagsInHeader: boolean;
-    MEShowLineInHeader: boolean;
-    MECompactHeader: boolean;
-    Order: TOrderInEntriesInPanel;
-    DescendingOrder: boolean;
-    Filter: TFilterOptionsInPanel;
+    MECustomiz: TMEPanelCustomization;
 
     EntriesOnlyHeader: TNoteEntryArray;
     HiddenEntriesDisplayed: TNoteEntryArray;
@@ -107,8 +86,7 @@ type
      function GetSelectedNEntry: TNoteEntry;
      function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
      function GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
-     procedure GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray;
-              var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+     procedure GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray; var DescendingOrder: boolean);
      function GetNEntriesUITargetForFindSelection(NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TObject;
      function GetBasicNEntriesLayout: boolean;
      property Editor: TKntRichEdit read GetEditor;
@@ -134,6 +112,8 @@ type
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
      procedure ReloadNoteName;
      procedure SaveToDataModel;
+     procedure SetAsDefaultLayoutInFolder(var NoteAdvOptions: TNoteAdvancedOptions);
+     procedure ResetPanelSizes;
      procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
      procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
      procedure SelectNextEntry;

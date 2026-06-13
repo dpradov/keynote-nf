@@ -889,56 +889,74 @@ type
   TExportFoldedTextMode = (fmKeepUnchanged, fmUnfold, fmRemoveTagged, fmRemoveAll);
 
 
-type
-  TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnBL, pnBR, pnCenter, pnLeft, pnR1, pnR2, pnR3);
-  TNEntriesPanel     = pnTL..pnR3;
-  TNEntriesMainPanel = pnTL..pnCenter;
-  TNEntriesAuxPanel  = pnLeft..pnR3;
-
 const
   MainPanels: set of TNEntriesPanel = [Low(TNEntriesMainPanel)..High(TNEntriesMainPanel)];
   TNEntriesPanel_Count = Ord(High(TNEntriesPanel)) - Ord(Low(TNEntriesPanel)) + 1;
 
 
 type
+  TFilterOptionsInPanel = record
+    Enabled: boolean;
+    TagsModeOR: boolean;              // Tags include, ¿mode OR? (vs ALL)
+    FindTagsIncl: TFindTags;          // Consider text/entries with ALL/ANY of the selected tags in its metadata
+    FindTagsExcl: TFindTags;          // Exclude text/entries with ANY of the selected tags
+    TagsText: boolean;                // Tags will be searched for in the notes' text
+    TextFilter : string;              // Text/entry to consider must include the pattern
+    MatchCase : boolean;              // case-sensitive ("c")
+    WholeWordsOnly : boolean;         // only match whole words ("w")
+    SearchMode : TSearchMode;         // "e":Exact phrase, "&":All the words, "|":Any of the words
+    ConsiderHidden: boolean;          // Consider hidden entries
+    ShowExcerpts: boolean;            // (when using TextFilter) "x"
+  end;
+
+type
+  TMEPanelCustomization = record         // ME: Multi-Entry
+    Content: TContentInMultiEntryMode;
+    ShowDateInHeader: boolean;
+    ShowTagsInHeader: boolean;
+    ShowLineInHeader: boolean;
+    CompactHeader: boolean;
+    DescendingOrder: boolean;
+    Filter: TFilterOptionsInPanel;
+  end;
+
+ TPanelSizeRatios = record
+   Top:    Single;   // Ratio Top vs Other (Center+Bottom)
+   Bottom: Single;   // Ratio Bottom vs Other (Center+Top)
+   TLTR:   Single;   // Ratio TL vs TR
+   BLBR:   Single;   // Ratio BL vs BR
+
+   procedure Initialize;
+ end;
+ PPanelSizeRatios = ^TPanelSizeRatios;
+
+type
    TNoteAdvancedOptions = packed record
 
      EnableAdvEditionInSingleEntryNotes: boolean;    // If false -> ignore Ctrl+Enter, Ctrl+Shift+Enter in notes with one entry
 
-     DefaultUseForQueryLayout: array[TNEntriesMainPanel] of TNEntriesPanelUse;
-     VinculatedTagsForQueryLayout: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
+     DefaultUseForQL: array[TNEntriesMainPanel] of TNEntriesPanelUse;   // QL: QueryLayout
+     DefaultUseForEL: array[TNEntriesMainPanel] of TNEntriesPanelUse;   // EL: EditingLayout
 
-     DefaultUseForEditingLayout: array[TNEntriesMainPanel] of TNEntriesPanelUse;
-     VinculatedTagsForEditingLayout: array[TNEntriesMainPanel] of TNoteTagArray;
+     VinculatedTagsForQL: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
+     VinculatedTagsForEL: array[TNEntriesMainPanel] of TNoteTagArray;
 
-     DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
+     DefaultMECustomizForQL: array[TNEntriesMainPanel] of TMEPanelCustomization;
+     DefaultMECustomizForEL: array[TNEntriesMainPanel] of TMEPanelCustomization;
 
      ShowNewestEntryAtStartup: boolean;   // Show newest or oldest entry at startup, instead of last selected when TEditorOptions.SaveCaretPos = 0 (False)
-
-
-     PnlTopRatio:    Single;   // Ratio Top vs Other (Center+Bottom)
-     PnlBottomRatio: Single;   // Ratio Bottom vs Other (Center+Top)
-     PnlTLTRRatio:   Single;   // Ratio TL vs TR
-     PnlBLBRRatio:   Single;   // Ratio BL vs BR
-
-     AutoExpandInPanels: boolean;           // for TL,TR, BL and BR
+     NewEntriesAlwaysOnEdLayout: boolean;
+     EditTagVincEntryInSelectedEntryPanel: boolean;   // Also for new entries
+     EditorInfoBarPos:  TEditorInfoBarPos;
 
      ExtractOfText_MaxLength: integer;
      ExtractOfText_MaxLines: integer;
 
-     NewEntriesAlwaysOnEdLayout: boolean;
-     EditTagVincEntriesInSelectedEntry: boolean;   // Also for new entries
-     InfoBarPosInEntries:  TInfoBarPosInMultiEntries;
+     SizeRatiosQL: TPanelSizeRatios;
+     SizeRatiosEL: TPanelSizeRatios;
+     AutoExpandInPanels: boolean;           // for TL,TR, BL and BR
 
-     MEContent: TContentInMultiEntriesMode;
-     MEShowDateInHeader: boolean;
-     MEShowTagsInHeader: boolean;
-     MEShowLineInHeader: boolean;
-     MECompactHeader: boolean;
-     Order: TOrderInEntriesInPanel;
-     DescendingOrder: boolean;
-
-     public procedure Initialize;
+     public procedure Initialize (OnlyCustomiz: boolean = false);
   end;
 
 
@@ -1180,47 +1198,58 @@ begin
 end;
 
 
-procedure TNoteAdvancedOptions.Initialize;
+procedure TPanelSizeRatios.Initialize;
+begin
+   TLTR:= 0.5;
+   BLBR:= 0.5;
+   Top:= 0.1354;
+   Bottom:= 0.15;
+end;
+
+// Load built-in default values
+procedure TNoteAdvancedOptions.Initialize(OnlyCustomiz: boolean = false);
 var
   p: TNEntriesPanel;
 begin
-    EnableAdvEditionInSingleEntryNotes:= True;
+    if not OnlyCustomiz then begin
+       EnableAdvEditionInSingleEntryNotes:= True;
+       NewEntriesAlwaysOnEdLayout:= false;
+       EditTagVincEntryInSelectedEntryPanel:= true;
+
+       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+          DefaultUseForQL[p] := pnuHidePanel;
+          DefaultUseForEL[p] := pnuHidePanel;
+          VinculatedTagsForQL[p]:= nil;
+          VinculatedTagsForEL[p]:= nil;
+       end;
+       DefaultUseForQL[pnCenter] := pnuShowAllEntries;
+       DefaultUseForEL[pnTL]     := pnuShowSelectedEntry;
+       DefaultUseForEL[pnCenter] := pnuShowAllEntries;
+    end;
+
+
+    // Visual customization:
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-       DefaultUseForQueryLayout[p] := pnuHidePanel;
-       DefaultUseForEditingLayout[p] := pnuHidePanel;
-       VinculatedTagsForQueryLayout[p]:= nil;
-       VinculatedTagsForEditingLayout[p]:= nil;
+       with DefaultMECustomizForQL[p] do begin
+          Content:= cmWholeEntry;
+          ShowDateInHeader:= true;
+          ShowTagsInHeader:= true;
+          ShowLineInHeader:= true;
+          CompactHeader:= false;
+          DescendingOrder:= True;
+       end;
+       DefaultMECustomizForEL[p]:= DefaultMECustomizForQL[p];
     end;
-    DefaultUseForQueryLayout[pnCenter] := pnuShowAllEntries;
 
-    DefaultUseForEditingLayout[pnTL] := pnuShowSelectedEntry;
-    DefaultUseForEditingLayout[pnCenter] := pnuShowAllEntries;
+    SizeRatiosQL.Initialize;
+    SizeRatiosEL.Initialize;
 
-    DefaultTagsOrder:= nil;
-
-    NewEntriesAlwaysOnEdLayout:= false;
-    EditTagVincEntriesInSelectedEntry:= true;
-    InfoBarPosInEntries:= ibpMostExtremeExcVincTag;
-
-    PnlTLTRRatio:= 0.5;
-    PnlBLBRRatio:= 0.5;
-    PnlTopRatio:= 0.1354;
-    PnlBottomRatio:= 0.15;
-
-    AutoExpandInPanels:= false;
-
-    MEContent:= cmWholeEntry;
-    MEShowDateInHeader:= true;
-    MEShowTagsInHeader:= true;
-    MEShowLineInHeader:= true;
-    MECompactHeader:= false;
-    Order:= eoDateCreation;
-    DescendingOrder:= True;
     ShowNewestEntryAtStartup:= true;
-
+    AutoExpandInPanels:= false;
     ExtractOfText_MaxLength:= 250;
     ExtractOfText_MaxLines:= 3;
+    EditorInfoBarPos:= ibpMostExtremeExcVincTag;
  end;
 
 

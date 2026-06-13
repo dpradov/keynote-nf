@@ -55,49 +55,6 @@ object Form_Defaults: TForm_Defaults
     Caption = 'Folder &icon:'
     FocusControl = Combo_Icons
   end
-  object BTN_Font: TBitBtn
-    Left = 29
-    Top = 337
-    Width = 30
-    Height = 25
-    Hint = 'Change initial Font'
-    ImageIndex = 11
-    Images = Form_Main.IMG_Format
-    TabOrder = 3
-    OnClick = BTN_FontClick
-  end
-  object BTN_Color: TBitBtn
-    Left = 62
-    Top = 337
-    Width = 30
-    Height = 25
-    Hint = 'Change Background Color'
-    ImageIndex = 10
-    Images = Form_Main.IMG_Format
-    TabOrder = 4
-    OnClick = BTN_ColorClick
-  end
-  object BTN_Defaults: TBitBtn
-    Left = 99
-    Top = 337
-    Width = 27
-    Height = 25
-    Hint = 'Reset factory default fonts and colors'
-    ImageIndex = 6
-    Images = Form_Main.IMG_Toolbar
-    TabOrder = 5
-    OnClick = BTN_DefaultsClick
-  end
-  object Edit_Sample: TEdit
-    Left = 140
-    Top = 341
-    Width = 254
-    Height = 21
-    TabStop = False
-    MaxLength = 127
-    ReadOnly = True
-    TabOrder = 7
-  end
   object Button_OK: TButton
     Left = 119
     Top = 471
@@ -106,7 +63,7 @@ object Form_Defaults: TForm_Defaults
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 0
+    TabOrder = 9
     OnClick = Button_OKClick
   end
   object Button_Cancel: TButton
@@ -117,7 +74,7 @@ object Form_Defaults: TForm_Defaults
     Hint = 'Discard changes and close dialog box'
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 1
+    TabOrder = 10
     OnClick = Button_CancelClick
   end
   object Pages: TPage95Control
@@ -139,7 +96,7 @@ object Form_Defaults: TForm_Defaults
     TabInactiveFont.Name = 'Tahoma'
     TabInactiveFont.Style = []
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 3
     object Tab_Tree: TTab95Sheet
       HelpContext = 32
       Caption = 'Tree settings'
@@ -549,32 +506,13 @@ object Form_Defaults: TForm_Defaults
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
-          object lbl8: TLabel
-            Left = 8
-            Top = 184
-            Width = 146
-            Height = 13
-            Hint = 
-              'Where to show the info bar. "Full width": ignoring panels that d' +
-              'on'#39't cover all the note'#39's width'
-            Caption = 'Editor Information bar position'
-          end
-          object cb_AutoExp: TCheckBox
-            Left = 8
-            Top = 35
-            Width = 230
-            Height = 17
-            Hint = 'Auto expand TL,TR, BL, BR panels when focusing'
-            Caption = 'Auto expand panels'
-            TabOrder = 0
-          end
           object cb_NewInEL: TCheckBox
             Left = 8
             Top = 62
             Width = 370
             Height = 17
             Caption = 'Switch to Editing Layout when creating a new entry'
-            TabOrder = 1
+            TabOrder = 0
           end
           object cb_VincTagInSel: TCheckBox
             Left = 8
@@ -586,37 +524,18 @@ object Form_Defaults: TForm_Defaults
               'Enter will edit or create the entry in the same tag vinculated p' +
               'anel'
             Caption = 'Edit tag vinculated entries in "Selected entry" panel'
-            TabOrder = 2
-          end
-          object cInfoBarPos: TComboBox
-            Left = 8
-            Top = 203
-            Width = 361
-            Height = 21
-            Style = csDropDownList
-            TabOrder = 3
+            TabOrder = 1
           end
           object cb_EnableAdv: TCheckBox
             Left = 9
-            Top = 4
+            Top = 11
             Width = 360
             Height = 17
             Hint = 
               'If unchecked, Ctrl+Enter, Ctrl+Shift+Enter will be ignored in no' +
               'tes with only one entry (of current folder)'
-            Caption = 'Enabled advanced edition in single-entry notes'
-            TabOrder = 4
-          end
-          object cb_ShowNewest: TCheckBox
-            Left = 8
-            Top = 115
-            Width = 370
-            Height = 17
-            Hint = 
-              'Show the most recent entry on startup, if editor is configured n' +
-              'ot to save and restore caret position)'
-            Caption = 'Show newest entry at startup (when not saving caret position)'
-            TabOrder = 5
+            Caption = 'Enable advanced edition in single-entry notes'
+            TabOrder = 2
           end
         end
         object Tab_QL: TTab95Sheet
@@ -643,7 +562,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 0
+            TabOrder = 1
           end
           object cUseTRq: TComboBox
             Tag = 2
@@ -653,7 +572,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 1
+            TabOrder = 4
           end
           object cb_TLq: TCheckBox
             Tag = 1
@@ -662,7 +581,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'TL'
-            TabOrder = 2
+            TabOrder = 0
           end
           object cb_TRq: TCheckBox
             Tag = 2
@@ -680,7 +599,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'BL'
-            TabOrder = 4
+            TabOrder = 9
           end
           object cUseBRq: TComboBox
             Tag = 4
@@ -690,7 +609,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 5
+            TabOrder = 13
           end
           object cb_BRq: TCheckBox
             Tag = 4
@@ -699,7 +618,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'BR'
-            TabOrder = 6
+            TabOrder = 12
           end
           object cUseBLq: TComboBox
             Tag = 3
@@ -709,7 +628,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 7
+            TabOrder = 10
           end
           object cUseCq: TComboBox
             Tag = 5
@@ -719,7 +638,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 8
+            TabOrder = 7
           end
           object cb_Cq: TCheckBox
             Tag = 5
@@ -728,7 +647,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'C'
-            TabOrder = 9
+            TabOrder = 6
           end
           object TagsTLq: TEdit
             Tag = 1
@@ -738,7 +657,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 10
+            TabOrder = 2
           end
           object TagsTRq: TEdit
             Tag = 2
@@ -748,7 +667,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 11
+            TabOrder = 5
           end
           object TagsCq: TEdit
             Tag = 5
@@ -758,7 +677,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 12
+            TabOrder = 8
           end
           object TagsBLq: TEdit
             Tag = 3
@@ -768,7 +687,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 13
+            TabOrder = 11
           end
           object TagsBRq: TEdit
             Tag = 4
@@ -816,7 +735,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 0
+            TabOrder = 1
           end
           object cUseTRe: TComboBox
             Tag = 12
@@ -826,7 +745,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 1
+            TabOrder = 4
           end
           object cb_TLe: TCheckBox
             Tag = 11
@@ -835,7 +754,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'TL'
-            TabOrder = 2
+            TabOrder = 0
           end
           object cb_TRe: TCheckBox
             Tag = 12
@@ -853,7 +772,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'BL'
-            TabOrder = 4
+            TabOrder = 9
           end
           object cUseBRe: TComboBox
             Tag = 14
@@ -863,7 +782,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 5
+            TabOrder = 13
           end
           object cb_BRe: TCheckBox
             Tag = 14
@@ -872,7 +791,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'BR'
-            TabOrder = 6
+            TabOrder = 12
           end
           object cUseBLe: TComboBox
             Tag = 13
@@ -882,7 +801,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 7
+            TabOrder = 10
           end
           object cUseCe: TComboBox
             Tag = 15
@@ -892,7 +811,7 @@ object Form_Defaults: TForm_Defaults
             Height = 21
             Style = csDropDownList
             Enabled = False
-            TabOrder = 8
+            TabOrder = 7
           end
           object cb_Ce: TCheckBox
             Tag = 15
@@ -901,7 +820,7 @@ object Form_Defaults: TForm_Defaults
             Width = 40
             Height = 17
             Caption = 'C'
-            TabOrder = 9
+            TabOrder = 6
           end
           object TagsTLe: TEdit
             Tag = 11
@@ -911,7 +830,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 10
+            TabOrder = 2
           end
           object TagsTRe: TEdit
             Tag = 12
@@ -921,7 +840,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 11
+            TabOrder = 5
           end
           object TagsCe: TEdit
             Tag = 15
@@ -931,7 +850,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 12
+            TabOrder = 8
           end
           object TagsBLe: TEdit
             Tag = 13
@@ -941,7 +860,7 @@ object Form_Defaults: TForm_Defaults
             Height = 19
             Ctl3D = False
             ParentCtl3D = False
-            TabOrder = 13
+            TabOrder = 11
           end
           object TagsBRe: TEdit
             Tag = 14
@@ -965,127 +884,103 @@ object Form_Defaults: TForm_Defaults
             OnClick = BitBtn_ELClick
           end
         end
-        object Tab_MultiE: TTab95Sheet
-          Caption = 'Multi-entries Panels  '
+        object Tab_Custom: TTab95Sheet
+          Caption = 'Customization  '
           GripAlign = gaLeft
           ImageIndex = -1
           StaticPageIndex = -1
           TabVisible = True
           object lbl9: TLabel
-            Left = 5
-            Top = 102
+            Left = 7
+            Top = 125
             Width = 213
             Height = 13
             Caption = 'Excerpt from entries. Max characters / Lines'
           end
-          object lbl7: TLabel
-            Left = 5
-            Top = 32
-            Width = 68
+          object lbl8: TLabel
+            Left = 8
+            Top = 69
+            Width = 146
             Height = 13
-            Caption = 'Entry Header:'
-          end
-          object lbl6: TLabel
-            Left = 5
-            Top = 143
-            Width = 99
-            Height = 13
-            Caption = 'Tags order in entries'
-          end
-          object lbl10: TLabel
-            Left = 5
-            Top = 6
-            Width = 110
-            Height = 13
-            Hint = 'Display initially, by default, for each entry'
-            Caption = 'Display for each entry:'
+            Hint = 
+              'Where to show the info bar. "Full width": ignoring panels that d' +
+              'on'#39't cover all the note'#39's width'
+            Caption = 'Editor Information bar position'
           end
           object ExcerptMaxL: TSpinEdit
-            Left = 325
-            Top = 98
+            Left = 75
+            Top = 145
             Width = 49
             Height = 22
             MaxLength = 1
             MaxValue = 7
             MinValue = 1
-            TabOrder = 7
+            TabOrder = 4
             Value = 3
           end
           object ExcerptMaxC: TSpinEdit
-            Left = 262
-            Top = 98
+            Left = 12
+            Top = 145
             Width = 49
             Height = 22
             Increment = 10
             MaxLength = 3
             MaxValue = 750
             MinValue = 100
-            TabOrder = 6
+            TabOrder = 3
             Value = 250
           end
-          object cb_HLine: TCheckBox
-            Left = 116
-            Top = 30
-            Width = 80
-            Height = 17
-            Hint = 'Displays a line at the beginning of the header'
-            Caption = 'Line'
-            TabOrder = 1
-          end
-          object cb_HDate: TCheckBox
-            Left = 274
-            Top = 30
-            Width = 107
-            Height = 17
-            Hint = 'Display the date and time the entry was created'
-            Caption = 'Date / time'
-            TabOrder = 3
-          end
-          object cb_HTags: TCheckBox
-            Left = 193
-            Top = 30
-            Width = 80
-            Height = 17
-            Hint = 'Displays entry tags'
-            Caption = 'Tags'
-            TabOrder = 2
-          end
-          object txtTagsOrder: TEdit
-            Left = 156
-            Top = 141
-            Width = 218
-            Height = 19
-            Ctl3D = False
-            ParentCtl3D = False
-            TabOrder = 8
-          end
-          object CB_DescOrd: TCheckBox
-            Left = 9
-            Top = 75
-            Width = 185
-            Height = 17
+          object btn_DefFromNode: TButton
+            Left = 224
+            Top = 177
+            Width = 145
+            Height = 25
             Hint = 
-              'Entries are displayed in descending order according to their cre' +
-              'ation date (most recent at the top)'
-            Caption = 'Descending order'
+              'Use the layout configuration of the active node (size ratios, he' +
+              'aders and filters) as the default in this folder'
+            Caption = 'Defaults from Active Node'
             TabOrder = 5
+            OnClick = btn_DefFromNodeClick
           end
-          object cEntryCont: TComboBox
-            Left = 156
-            Top = 3
-            Width = 218
+          object btnRestDef: TButton
+            Left = 224
+            Top = 211
+            Width = 145
+            Height = 25
+            Hint = 
+              'Reset the layout customization (size ratios, headers and filters' +
+              ') of this folder to the application'#39's built-in default values'
+            Caption = 'Restore Defaults'
+            TabOrder = 6
+            OnClick = btnRestDefClick
+          end
+          object cInfoBarPos: TComboBox
+            Left = 8
+            Top = 88
+            Width = 361
             Height = 21
             Style = csDropDownList
-            TabOrder = 0
+            TabOrder = 2
           end
-          object cb_CompHd: TCheckBox
-            Left = 9
-            Top = 53
-            Width = 185
+          object cb_AutoExp: TCheckBox
+            Left = 8
+            Top = 40
+            Width = 361
             Height = 17
-            Hint = 'Show entries with less spacing'
-            Caption = 'Compact'
-            TabOrder = 4
+            Hint = 'Auto expand TL,TR, BL, BR panels when focusing'
+            Caption = 'Auto expand panels'
+            TabOrder = 1
+          end
+          object cb_ShowNewest: TCheckBox
+            Left = 8
+            Top = 14
+            Width = 370
+            Height = 17
+            Hint = 
+              'Select the most recent entry on startup, if editor is configured' +
+              ' not to save and restore caret position)'
+            Caption = 'Select newest entry at startup (when not saving caret position)'
+            TabOrder = 0
           end
         end
       end
@@ -1097,7 +992,7 @@ object Form_Defaults: TForm_Defaults
     Width = 75
     Height = 25
     Caption = 'Help'
-    TabOrder = 8
+    TabOrder = 11
     OnClick = Button_HelpClick
   end
   object GB_Defaults: TGroupBox
@@ -1105,7 +1000,7 @@ object Form_Defaults: TForm_Defaults
     Top = 412
     Width = 404
     Height = 53
-    TabOrder = 6
+    TabOrder = 8
     object CB_SaveDefaults: TCheckBox
       Left = 10
       Top = 7
@@ -1143,7 +1038,7 @@ object Form_Defaults: TForm_Defaults
     Width = 281
     Height = 21
     Hint = 'Enter name for new folder'
-    TabOrder = 9
+    TabOrder = 0
     OnKeyPress = Edit_FolderNameKeyPress
   end
   object Combo_Icons: TGFXComboBox
@@ -1154,7 +1049,7 @@ object Form_Defaults: TForm_Defaults
     Hint = 'Click to select icon for folder'
     Extended = False
     DropDownCount = 10
-    TabOrder = 10
+    TabOrder = 1
   end
   object CB_RTL: TCheckBox
     Left = 247
@@ -1167,7 +1062,50 @@ object Form_Defaults: TForm_Defaults
     BiDiMode = bdRightToLeft
     Caption = 'RTL (Right to Left)'
     ParentBiDiMode = False
-    TabOrder = 11
+    TabOrder = 2
+  end
+  object BTN_Color: TBitBtn
+    Left = 62
+    Top = 337
+    Width = 30
+    Height = 25
+    Hint = 'Change Background Color'
+    ImageIndex = 10
+    Images = Form_Main.IMG_Format
+    TabOrder = 5
+    OnClick = BTN_ColorClick
+  end
+  object BTN_Defaults: TBitBtn
+    Left = 99
+    Top = 337
+    Width = 27
+    Height = 25
+    Hint = 'Reset factory default fonts and colors'
+    ImageIndex = 6
+    Images = Form_Main.IMG_Toolbar
+    TabOrder = 6
+    OnClick = BTN_DefaultsClick
+  end
+  object BTN_Font: TBitBtn
+    Left = 29
+    Top = 337
+    Width = 30
+    Height = 25
+    Hint = 'Change initial Font'
+    ImageIndex = 11
+    Images = Form_Main.IMG_Format
+    TabOrder = 4
+    OnClick = BTN_FontClick
+  end
+  object Edit_Sample: TEdit
+    Left = 140
+    Top = 341
+    Width = 254
+    Height = 21
+    TabStop = False
+    MaxLength = 127
+    ReadOnly = True
+    TabOrder = 7
   end
   object ColorDlg: TColorDialog
     Options = [cdFullOpen, cdSolidColor, cdAnyColor]

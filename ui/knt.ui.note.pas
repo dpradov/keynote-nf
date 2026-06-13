@@ -130,6 +130,8 @@ type
     procedure SaveToDataModel;
     procedure ReloadNoteName;
     procedure ConfigureEditor;
+    procedure SetAsDefaultLayoutInFolder(var NoteAdvOptions: TNoteAdvancedOptions);
+    procedure ResetPanelSizes;
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
@@ -155,8 +157,7 @@ type
     procedure NEntriesUIEditorEnter(Sender: TObject);
     function GetSelectedNEntriesUI (Editor: TKntRichEdit): TObject;
     function GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
-    procedure GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray;
-              var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+    procedure GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray; var DescendingOrder: boolean);
     function GetPanelConfigForFindSelection(NNodeUIConfig: TNNodeUIConfiguration; NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TPanelConfiguration;
     function GetNEntriesUITargetForFindSelection(NEntry: TNoteEntry; TagsIncl: TNoteTagArray = nil): TObject;
     function MultipleVisibleEditors: boolean;
@@ -907,7 +908,7 @@ end;
 function TKntNoteUI.GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
 var
   CheckOnlySingleEntry, CheckOnlyEntrySelected: boolean;
-  Content: TContentInMultiEntriesMode;
+  Content: TContentInMultiEntryMode;
   MainEntriesUI, MaximizedEntriesUI: TKntNoteEntriesUI;
   NEntry: TNoteEntry;
   Location: TLocation;
@@ -1079,8 +1080,7 @@ begin
 end;
 
 
-procedure TKntNoteUI.GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray;
-                                                      var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+procedure TKntNoteUI.GetPanelConfigOrderForFindSearch(NNode: TNoteNode; NEntry: TNoteEntry; TagsIncl: TNoteTagArray; var DescendingOrder: boolean);
 var
    QueryLayout: boolean;
    NNodeUIConfig: TNNodeUIConfiguration;
@@ -1093,11 +1093,10 @@ begin
    NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, QueryLayout);     // Get current layout
    if NNodeUIConfig <> nil then begin
       PanelConfig:= GetPanelConfigForFindSelection(NNodeUIConfig, NEntry, TagsIncl);
-      Order:= PanelConfig.Order;
-      DescendingOrder:= PanelConfig.DescendingOrder;
+      DescendingOrder:= PanelConfig.MECustomiz.DescendingOrder;
    end
    else
-      TNNodeUIConfiguration.GetDefaultPanelOrder(NNode, Folder, Order, DescendingOrder);
+      TNNodeUIConfiguration.GetDefaultPanelOrder(NNode, Folder, DescendingOrder);
 end;
 
 
@@ -1387,7 +1386,7 @@ begin
         exit;
      end
      else
-     if (NEntriesUI.PanelConfig.MainMode = meSingleEntry) and (NEntriesUI.PanelConfig.CurrentMode = meMultipleEntries) then begin
+     if (NEntriesUI.PanelConfig.MainMode = meSingleEntry) and (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry) then begin
         NEntriesUI.btnToggleMultiClick(nil);
         exit;
      end
@@ -1397,7 +1396,7 @@ begin
            // -> ToQueryLayout:= True    (*1)
 
         else begin
-           if (NEntriesUI.PanelConfig.MainMode = meMultipleEntries) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
+           if (NEntriesUI.PanelConfig.MainMode = meMultiEntry) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
               NEntriesUI.btnToggleMultiClick(nil);
               exit;
            end
@@ -1579,7 +1578,7 @@ begin
    if FNNodeUIConfig.MaximizedPanel = PnlReq then
       PnlEdit:= PnlReq
    else
-   if not DefinedSingleEntryPanelForEditing or (not Folder.NoteAdvOptions.EditTagVincEntriesInSelectedEntry) then begin
+   if not DefinedSingleEntryPanelForEditing or (not Folder.NoteAdvOptions.EditTagVincEntryInSelectedEntryPanel) then begin
       PnlEdit:= PnlReq;
       if not NewEntry and not InitialReqWasNil then begin
          ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
@@ -2039,6 +2038,81 @@ end;
 procedure TKntNoteUI.ConfigureEditor;
 begin
   FNEntriesUI[pnCenter].ConfigureEditor;
+end;
+
+
+procedure TKntNoteUI.SetAsDefaultLayoutInFolder(var NoteAdvOptions: TNoteAdvancedOptions);
+var
+  i: integer;
+  NNodeUIConfig: TNNodeUIConfiguration;
+  PanelConfig: TPanelConfiguration;
+
+  procedure SaveSizeRatio (PSR: PPanelSizeRatios; SR: TPanelSizeRatios);
+  begin
+     if SR.Top > 0 then
+        PSR.Top:= SR.Top;
+     if SR.Bottom > 0 then
+        PSR.Bottom:= SR.Bottom;
+     if SR.TLTR > 0 then
+        PSR.TLTR:= SR.TLTR;
+     if SR.BLBR > 0 then
+        PSR.BLBR:= SR.BLBR;
+  end;
+
+begin
+   // Use the layout configuration of this note (size ratios, headers and filters) as the default in this folder
+
+
+   // Query Layout
+   if FQueryLayout then
+      NNodeUIConfig:= FNNodeUIConfig
+
+   else begin
+      SaveToDataModel;
+      NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, true);
+   end;
+
+
+   for i := 0 to High(NNodeUIConfig.PanelsConfig) do begin
+      PanelConfig:= NNodeUIConfig.PanelsConfig[i];
+      NoteAdvOptions.DefaultMECustomizForQL[PanelConfig.Panel]:= PanelConfig.MECustomiz;
+   end;
+   SaveSizeRatio(@NoteAdvOptions.SizeRatiosQL, NNodeUIConfig.InternalSizeRatios);
+
+   // Editing Layout
+   NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, false);
+
+   if NNodeUIConfig <> nil then begin
+      for i := 0 to High(NNodeUIConfig.PanelsConfig) do begin
+         PanelConfig:= NNodeUIConfig.PanelsConfig[i];
+         NoteAdvOptions.DefaultMECustomizForEL[PanelConfig.Panel]:= PanelConfig.MECustomiz;
+      end;
+
+      SaveSizeRatio(@NoteAdvOptions.SizeRatiosEL, NNodeUIConfig.InternalSizeRatios);
+   end;
+
+end;
+
+
+procedure TKntNoteUI.ResetPanelSizes;
+var
+  NNodeUIConfig: TNNodeUIConfiguration;
+begin
+   // Query Layout
+   if FQueryLayout then
+      NNodeUIConfig:= FNNodeUIConfig
+   else begin
+      SaveToDataModel;
+      NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, true);
+   end;
+   NNodeUIConfig.InternalSizeRatios:= Folder.NoteAdvOptions.SizeRatiosQL;
+
+   // Editing Layout
+   NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, false);
+   if NNodeUIConfig <> nil then
+      NNodeUIConfig.InternalSizeRatios:= Folder.NoteAdvOptions.SizeRatiosEL;
+
+   FramResizePendingInNoteUI:= Self;
 end;
 
 

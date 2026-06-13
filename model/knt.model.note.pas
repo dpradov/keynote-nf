@@ -291,9 +291,8 @@ type
 
      class function FindTagsToModeOR(FindTags: TFindTags): TFindTags;
      class function FindTagsANDToTags(FindTags: TFindTags): TNoteTagArray;
-     // Not necessary for now:
-     // class function TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
-     // class function TagsToFindTagsModeAND(Tags: TNoteTagArray): TFindTags;
+     class function TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
+     class function TagsToFindTagsModeAND(Tags: TNoteTagArray): TFindTags;
    end;
 
 
@@ -1295,8 +1294,6 @@ begin
 end;
 
 
-{  // Not necessary for now.
-
 class function TNoteTagArrayUtils.TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
 begin
    if Tags = nil then
@@ -1322,7 +1319,7 @@ begin
       Result[i]:= FindOR;
    end;
 end;
-}
+
 
 
 // =========================================================================================================

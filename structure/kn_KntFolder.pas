@@ -78,10 +78,7 @@ type
       FFolder: TKntFolder;
       FQueryLayout: boolean;
 
-      FTop_Ratio: Single;
-      FBottom_Ratio: Single;
-      FTLTR_Ratio: Single;
-      FBLBR_Ratio: Single;
+      FSizeRatios: TPanelSizeRatios;
 
       FMaximizedPanel: TNEntriesPanelBase;
       FFocusedPanel: TNEntriesPanelBase;
@@ -104,8 +101,7 @@ type
 
       class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
       class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
-      class procedure GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder;
-                                            var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
+      class procedure GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder; var DescendingOrder: boolean);
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
       function GetMainPanel: TNEntriesMainPanel;
       function GetWhereToShowEditorInfoBar: TNEntriesMainPanel;
@@ -118,13 +114,12 @@ type
       function GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
       function PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
 
-      property InternalTop_Ratio: Single read fTop_Ratio;
-      property InternalBottom_Ratio: Single read fBottom_Ratio;
+      property InternalSizeRatios: TPanelSizeRatios  read FSizeRatios write FSizeRatios;
 
-      property Top_Ratio: Single read GetTop_Ratio write FTop_Ratio;
-      property Bottom_Ratio: Single read GetBottom_Ratio write FBottom_Ratio;
-      property TLTR_Ratio: Single read GetTLTR_Ratio write FTLTR_Ratio;
-      property BLBR_Ratio: Single read GetBLBR_Ratio write FBLBR_Ratio;
+      property Top_Ratio: Single read GetTop_Ratio write FSizeRatios.Top;
+      property Bottom_Ratio: Single read GetBottom_Ratio write FSizeRatios.Bottom;
+      property TLTR_Ratio: Single read GetTLTR_Ratio write FSizeRatios.TLTR;
+      property BLBR_Ratio: Single read GetBLBR_Ratio write FSizeRatios.BLBR;
       function PanelReducedToHidden(Panel: TNEntriesPanel): boolean;
       property MaximizedPanel: TNEntriesPanelBase read FMaximizedPanel write SetMaximizedPanel;
       property FocusedPanel: TNEntriesPanelBase read FFocusedPanel write FFocusedPanel;
@@ -329,7 +324,7 @@ type
     function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
     procedure ResetZoomCurrent(Zoom: integer);
     procedure DeleteNNodesUIConfig(QueryLayout: boolean);
-    procedure ResetHeaderUIConfig;
+    procedure ResetMEPanelsCustomiz ;
 
     procedure NoteNameModified(NNode: TNoteNode);
 
@@ -621,58 +616,52 @@ var
   F: TKntFolder;
   NewPropertiesAction : TPropertiesAction;
   TreeUI: TKntTreeUI;
-  ChangeInQL, ChangeInEL, Note_RefreshNeeded, Note_ResetHeaderCfgNeeded, Note_ReloadNeeded: boolean;
+  ChangeInQL, ChangeInEL, Note_RefreshNeeded, Note_ResetMECustomizNeeded, Note_ReloadNeeded: boolean;
+  ActiveNoteInQL: boolean;
 
 
   procedure CheckChangesInNoteAdvOptions;
   var
     pnl: TNEntriesMainPanel;
     pu: TNEntriesPanelUse;
+
   begin
     ChangeInQL:= false;
     ChangeInEL:= false;
     Note_RefreshNeeded:= false;
-    Note_ResetHeaderCfgNeeded:= false;
+    Note_ResetMECustomizNeeded:= false;
     Note_ReloadNeeded:= false;
 
     with Form_Defaults do begin
+
        for pnl := Low(pnl) to High(pnl) do
-          if (myNoteAdvOptions.DefaultUseForQueryLayout[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQueryLayout[pnl]) or
-             (myNoteAdvOptions.VinculatedTagsForQueryLayout[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForQueryLayout[pnl])      then begin
+          if (myNoteAdvOptions.DefaultUseForQL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQL[pnl]) or
+             (myNoteAdvOptions.VinculatedTagsForQL[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForQL[pnl])      then begin
              ChangeInQL:= true;
              break;
           end;
+
        for pnl := Low(pnl) to High(pnl) do
-          if (myNoteAdvOptions.DefaultUseForEditingLayout[pnl] <> myFolder.NoteAdvOptions.DefaultUseForEditingLayout[pnl]) or
-             (myNoteAdvOptions.VinculatedTagsForEditingLayout[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[pnl])      then begin
+          if (myNoteAdvOptions.DefaultUseForEL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForEL[pnl]) or
+             (myNoteAdvOptions.VinculatedTagsForEL[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForEL[pnl])      then begin
              ChangeInEL:= true;
              break;
           end;
 
-       if (myNoteAdvOptions.ExtractOfText_MaxLength <> myFolder.NoteAdvOptions.ExtractOfText_MaxLength) or
-          (myNoteAdvOptions.ExtractOfText_MaxLines <> myFolder.NoteAdvOptions.ExtractOfText_MaxLines)       then
+       if UpdatedMECustomization then
+          Note_ResetMECustomizNeeded:= true;
+
+       if UpdatedMECustomization or
+          (myNoteAdvOptions.ExtractOfText_MaxLength <> myFolder.NoteAdvOptions.ExtractOfText_MaxLength) or
+          (myNoteAdvOptions.ExtractOfText_MaxLines  <> myFolder.NoteAdvOptions.ExtractOfText_MaxLines)       then
           Note_RefreshNeeded:= true;
 
-       if (myNoteAdvOptions.MEContent <> myFolder.NoteAdvOptions.MEContent) or
-          (myNoteAdvOptions.MEShowLineInHeader <> myFolder.NoteAdvOptions.MEShowLineInHeader) or
-          (myNoteAdvOptions.MEShowTagsInHeader <> myFolder.NoteAdvOptions.MEShowTagsInHeader) or
-          (myNoteAdvOptions.MEShowDateInHeader <> myFolder.NoteAdvOptions.MEShowDateInHeader) or
-          (myNoteAdvOptions.MECompactHeader <> myFolder.NoteAdvOptions.MECompactHeader) or
-          (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
-          (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) then begin
-
-          Note_RefreshNeeded:= true;
-          Note_ResetHeaderCfgNeeded:= true;
-       end;
-
-       if (myNoteAdvOptions.Order <> myFolder.NoteAdvOptions.Order) or
-          (myNoteAdvOptions.DescendingOrder <> myFolder.NoteAdvOptions.DescendingOrder) or
-          (myNoteAdvOptions.InfoBarPosInEntries <> myFolder.NoteAdvOptions.InfoBarPosInEntries) or
+       if UpdatedMECustomization or
+          (myNoteAdvOptions.EditorInfoBarPos        <> myFolder.NoteAdvOptions.EditorInfoBarPos) or
           (myNoteAdvOptions.EnableAdvEditionInSingleEntryNotes <> myFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes) or
-          (myNoteAdvOptions.ShowNewestEntryAtStartup <> myFolder.NoteAdvOptions.ShowNewestEntryAtStartup)  then
+          (myNoteAdvOptions.ShowNewestEntryAtStartup           <> myFolder.NoteAdvOptions.ShowNewestEntryAtStartup)  then
           Note_ReloadNeeded:= true;
 
-       //DefaultTagsOrder: TNoteTagArray;      // Ex: Summary,Req,ToDO,...    Saved in .ini as string
     end;
 
   end;
@@ -777,6 +766,7 @@ begin
 
         if ( Form_Defaults.ShowModal = mrOK ) then begin
 
+          ActiveNoteInQL:= not ActiveFile.GetNoteIsOnEditingLayout(ActiveNNode.Note);
           with Form_Defaults do begin
             NewPropertiesAction:= Action;        // User can now select the check 'Save as Defaults'
 
@@ -829,20 +819,19 @@ begin
                 TreeUI.UpdateTreeChrome;
                 TreeUI.UpdateTreeColumns;
 
-                if ChangeInQL or ChangeInEL or Note_ResetHeaderCfgNeeded or Note_ReloadNeeded then
+                if ChangeInQL or ChangeInEL or Note_ResetMECustomizNeeded or Note_ReloadNeeded then
                    myFolder.NoteUI.SaveToDataModel;
 
-                if Note_ResetHeaderCfgNeeded then
-                   myFolder.ResetHeaderUIConfig;
+                if Note_ResetMECustomizNeeded then
+                   myFolder.ResetMEPanelsCustomiz;
 
                 if ChangeInQL or ChangeInEL then begin
-                   var QueryLayout: boolean:= not ActiveFile.GetNoteIsOnEditingLayout(ActiveNNode.Note);
                    if ChangeInQL then
                       myFolder.DeleteNNodesUIConfig(true);
                    if ChangeInEL then
                       myFolder.DeleteNNodesUIConfig(false);
 
-                   if (ChangeInQL and QueryLayout) or (ChangeInEL and not QueryLayout) then
+                   if (ChangeInQL and ActiveNoteInQL) or (ChangeInEL and not ActiveNoteInQL) then
                       myFolder.NoteUI.LoadFromNNode(ActiveNNode, false, neLastLayout);
                 end
                 else
@@ -1005,22 +994,22 @@ begin
   if TKntFile(FKntFile).NoteTags.Count = 0 then
      TKntFile(FKntFile).AddNTag('ToDO', 'TEST');
   Tags1[0]:= TKntFile(FKntFile).NoteTags[0];
-  NoteAdvOptions.DefaultUseForQueryLayout[pnTL]:= pnuShowVinculatedWithTags;
-  NoteAdvOptions.VinculatedTagsForQueryLayout[pnTL]:= Tags1;
-  NoteAdvOptions.DefaultUseForQueryLayout[pnBL] := pnuShowSelectedEntry;
-  NoteAdvOptions.DefaultUseForQueryLayout[pnCenter] := pnuShowAllEntries;
+  NoteAdvOptions.DefaultUseForQL[pnTL]:= pnuShowVinculatedWithTags;
+  NoteAdvOptions.VinculatedTagsForQL[pnTL]:= Tags1;
+  NoteAdvOptions.DefaultUseForQL[pnBL] := pnuShowSelectedEntry;
+  NoteAdvOptions.DefaultUseForQL[pnCenter] := pnuShowAllEntries;
 
-  NoteAdvOptions.DefaultUseForEditingLayout[pnTL] := pnuShowVinculatedWithTags;
-  NoteAdvOptions.DefaultUseForEditingLayout[pnCenter] := pnuShowSelectedEntry;
-  NoteAdvOptions.DefaultUseForEditingLayout[pnBL] := pnuShowAllEntries;
-  NoteAdvOptions.VinculatedTagsForEditingLayout[pnTL]:= Tags1;
+  NoteAdvOptions.DefaultUseForEL[pnTL] := pnuShowVinculatedWithTags;
+  NoteAdvOptions.DefaultUseForEL[pnCenter] := pnuShowSelectedEntry;
+  NoteAdvOptions.DefaultUseForEL[pnBL] := pnuShowAllEntries;
+  NoteAdvOptions.VinculatedTagsForEL[pnTL]:= Tags1;
 
   SetLength(Tags2, 1);
   if TKntFile(FKntFile).NoteTags.Count <= 1 then
      TKntFile(FKntFile).AddNTag('BUG', 'TEST');
   Tags2[0]:= TKntFile(FKntFile).NoteTags[1];
-  NoteAdvOptions.DefaultUseForEditingLayout[pnTR] := pnuShowVinculatedWithTags;
-  NoteAdvOptions.VinculatedTagsForEditingLayout[pnTR]:= Tags2;
+  NoteAdvOptions.DefaultUseForEL[pnTR] := pnuShowVinculatedWithTags;
+  NoteAdvOptions.VinculatedTagsForEL[pnTR]:= Tags2;
 
 end; // CREATE
 
@@ -1515,20 +1504,23 @@ begin
   end;
 end;
 
-procedure TKntFolder.ResetHeaderUIConfig;
+procedure TKntFolder.ResetMEPanelsCustomiz;
 var
   i, j: integer;
+  pnl: TNEntriesMainPanel;
 begin
   for i:= 0 to NNodesUIConfig.Count-1 do begin
-     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
-        if NNodesUIConfig[i].PanelsConfig[j].OverridedMEConfig then continue;
+     if NNodesUIConfig[i].FQueryLayout then
+        NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosQL
+     else
+        NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosEL;
 
-        NNodesUIConfig[i].PanelsConfig[j].MEContent:=          NoteAdvOptions.MEContent;
-        NNodesUIConfig[i].PanelsConfig[j].MEShowLineInHeader:= NoteAdvOptions.MEShowLineInHeader;
-        NNodesUIConfig[i].PanelsConfig[j].MEShowTagsInHeader:= NoteAdvOptions.MEShowTagsInHeader;
-        NNodesUIConfig[i].PanelsConfig[j].MEShowDateInHeader:= NoteAdvOptions.MEShowDateInHeader;
-        NNodesUIConfig[i].PanelsConfig[j].MECompactHeader:=    NoteAdvOptions.MECompactHeader;
-        NNodesUIConfig[i].PanelsConfig[j].DescendingOrder:=    NoteAdvOptions.DescendingOrder;
+     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
+        pnl:= NNodesUIConfig[i].PanelsConfig[j].Panel;
+        if NNodesUIConfig[i].FQueryLayout then
+           NNodesUIConfig[i].PanelsConfig[j].MECustomiz:=  NoteAdvOptions.DefaultMECustomizForQL[pnl]
+        else
+           NNodesUIConfig[i].PanelsConfig[j].MECustomiz:=  NoteAdvOptions.DefaultMECustomizForEL[pnl];
      end;
   end;
 
@@ -3391,10 +3383,12 @@ end;
 constructor TNNodeUIConfiguration.Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
 begin
   FNNode:= NNode;
-  FTop_Ratio:= 0;
-  FBottom_Ratio:= 0;
-  FTLTR_Ratio:= 0;
-  FBLBR_Ratio:= 0;
+  with FSizeRatios do begin
+    Top:= 0;
+    Bottom:= 0;
+    TLTR:= 0;
+    BLBR:= 0;
+  end;
   FFolder:= Folder;
   FQueryLayout:= QueryLayout;
 end;
@@ -3441,9 +3435,12 @@ var
    NumInTL, NumInTR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
-      Result:= FTop_Ratio;
+      Result:= FSizeRatios.Top;
       if Result = 0 then
-         Result:= FFolder.NoteAdvOptions.PnlTopRatio;
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.Top
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.Top;
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel in [pnTL, pnTR]) then
@@ -3454,7 +3451,7 @@ begin
          if not (FFocusedPanel in [pnTL, pnTR]) then begin
             NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
             NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
-            if (NumInTL = 0) and (NumInTR = 0) and (FTop_Ratio > 0.05) then
+            if (NumInTL = 0) and (NumInTR = 0) and (FSizeRatios.Top > 0.05) then
                Result:= 0.05;
          end
          else
@@ -3475,9 +3472,12 @@ var
    NumInBL, NumInBR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
-      Result:= FBottom_Ratio;
+      Result:= FSizeRatios.Bottom;
       if Result = 0 then
-         Result:= FFolder.NoteAdvOptions.PnlBottomRatio;
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.Bottom
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.Bottom;
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel in [pnBL, pnBR]) then
@@ -3488,7 +3488,7 @@ begin
          if not (FFocusedPanel in [pnBL, pnBR]) then begin
             NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
             NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
-            if (NumInBL = 0) and (NumInBR = 0) and (FBottom_Ratio > 0.05) then
+            if (NumInBL = 0) and (NumInBR = 0) and (FSizeRatios.Bottom > 0.05) then
                Result:= 0.05;
          end
          else
@@ -3509,9 +3509,13 @@ var
    NumInTL, NumInTR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
-      Result:= FTLTR_Ratio;
+      Result:= FSizeRatios.TLTR;
       if Result = 0 then
-         Result:= FFolder.NoteAdvOptions.PnlTLTRRatio;
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.TLTR
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.TLTR;
+
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel = pnTL) then
@@ -3544,9 +3548,12 @@ var
    NumInBL, NumInBR: integer;
 begin
    if FMaximizedPanel = pnNone then begin
-      Result:= FBLBR_Ratio;
+      Result:= FSizeRatios.BLBR;
       if Result = 0 then
-         Result:= FFolder.NoteAdvOptions.PnlBLBRRatio;
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.BLBR
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.BLBR;
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel = pnBL) then
@@ -3579,8 +3586,8 @@ function TNNodeUIConfiguration.PanelReducedToHidden(Panel: TNEntriesPanel): bool
 begin
 
    case Panel of
-      pnTL, pnTR: Result:= (fTop_Ratio > 0) and (fTop_Ratio <= RATIO_EQUIV_HIDDEN_Check);
-      pnBL, pnBR: Result:= (fBottom_Ratio > 0) and (fBottom_Ratio <= 30 / TKntNoteUI(FFolder.NoteUI).Height);
+      pnTL, pnTR: Result:= (FSizeRatios.Top > 0) and (FSizeRatios.Top <= RATIO_EQUIV_HIDDEN_Check);
+      pnBL, pnBR: Result:= (FSizeRatios.Bottom > 0) and (FSizeRatios.Bottom <= 30 / TKntNoteUI(FFolder.NoteUI).Height);
       else
          Result:= false;
    end;
@@ -3610,7 +3617,7 @@ function TNNodeUIConfiguration.PanelConfig(Panel: TNEntriesPanel): TPanelConfigu
 begin
    Result:= GetCreatedPanelConfig(Panel);
    if Result = nil then
-      Result:= CreateDefaultPanelConfig(Panel, meMultipleEntries, FNNode);
+      Result:= CreateDefaultPanelConfig(Panel, meMultiEntry, FNNode);
 end;
 
 
@@ -3638,28 +3645,13 @@ begin
        SelectedNNode:= NNode;
        NNodes:= nil;
        EditingLayout:= not FQueryLayout;
-       if FQueryLayout then
-          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForQueryLayout[aPanel]
-       else
-          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForEditingLayout[aPanel];
-
-       OverridedMEConfig:= false;
-       MEContent:=          FFolder.NoteAdvOptions.MEContent;
-       MEShowDateInHeader:= FFolder.NoteAdvOptions.MEShowDateInHeader;
-       MEShowTagsInHeader:= FFolder.NoteAdvOptions.MEShowTagsInHeader;
-       MEShowLineInHeader:= FFolder.NoteAdvOptions.MEShowLineInHeader;
-       MECompactHeader:=    FFolder.NoteAdvOptions.MECompactHeader;
-       Order:=              FFolder.NoteAdvOptions.Order;
-       DescendingOrder:=    FFolder.NoteAdvOptions.DescendingOrder;
-       with Filter do begin
-         TagsIncl:= [];
-         InheritedTags:= false;
-         UseDefaultTagsExcl:= false;
-         TextFilter := '';
-         MatchCase := false;
-         WholeWordsOnly := false;
-         SearchMode := smPhrase;
-         ShowExcerpts:= false;
+       if FQueryLayout then begin
+          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForQL[aPanel];
+          Result.MECustomiz:=  FFolder.NoteAdvOptions.DefaultMECustomizForQL[aPanel];
+       end
+       else begin
+          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForEL[aPanel];
+          Result.MECustomiz:=  FFolder.NoteAdvOptions.DefaultMECustomizForEL[aPanel];
        end;
 
 
@@ -3699,13 +3691,13 @@ begin
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
        if QueryLayout then
-          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQueryLayout[p]
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQL[p]
        else
-          PnlUse:= Folder.NoteAdvOptions.DefaultUseForEditingLayout[p];
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForEL[p];
 
        case PnlUse of
          pnuShowVinculatedWithTags,
-         pnuShowAllEntries:    Result.CreateDefaultPanelConfig (p, meMultipleEntries, NNode);
+         pnuShowAllEntries:    Result.CreateDefaultPanelConfig (p, meMultiEntry, NNode);
 
          pnuShowSelectedEntry: Result.CreateDefaultPanelConfig (p, meSingleEntry, NNode);
        end;
@@ -3714,12 +3706,9 @@ begin
 end;
 
 
-class procedure TNNodeUIConfiguration.GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder;
-                                                            var Order: TOrderInEntriesInPanel; var DescendingOrder: boolean);
-
+class procedure TNNodeUIConfiguration.GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder; var DescendingOrder: boolean);
 begin
-   Order:= eoDateCreation;
-   DescendingOrder:= True;
+   DescendingOrder:= True;     // ToDO **
 end;
 
 
@@ -3748,7 +3737,7 @@ begin
    Result:= pnCenter;
    for i := 0 to High(PanelsConfig) do begin
        PanelConfig:= PanelsConfig[i];
-       if (PanelConfig.MainMode = meMultipleEntries) and (PanelConfig.VinculatedTags = nil) then
+       if (PanelConfig.MainMode = meMultiEntry) and (PanelConfig.VinculatedTags = nil) then
           exit (PanelConfig.Panel);
    end;
 end;
@@ -3778,7 +3767,7 @@ begin
    if not FFolder.NoteUI.MultipleVisibleEditors then
       exit( pnCenter );
 
-   if FFolder.NoteAdvOptions.InfoBarPosInEntries = ibpAllEntries then
+   if FFolder.NoteAdvOptions.EditorInfoBarPos = ibpAllEntries then
       exit( GetMainPanel );
 
 
@@ -3808,7 +3797,7 @@ begin
    end;
 
 
-   CanUseVincTags:= (FFolder.NoteAdvOptions.InfoBarPosInEntries = ibpMostExtreme);
+   CanUseVincTags:= (FFolder.NoteAdvOptions.EditorInfoBarPos = ibpMostExtreme);
 
    if KeyOptions.EditorInfoPanelTop then begin
       if TLv and not TRv and (CanUseVincTags or not TLt) then
