@@ -302,6 +302,9 @@ begin
    SetTopIncControlsOfInfoPanel;
 
    btnToggleMulti.Font.Size:= 8;
+   btnOptions.Caption:= #$22EF; //  (U+22EF, Midline Horizontal Ellipsis)
+   btnOptions.Font.Size:= 12;
+   btnOptions.Font.Style:= [fsBold];
 
    SetReadOnly(FKntFolder.ReadOnly);
    fChangingInCode:= false;
@@ -541,6 +544,7 @@ procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
 var
   colorEdLay, colorMax: TColor;
 begin
+  if PanelConfig = nil then exit;
   if Height <= HEIGHT_REDUCED_TO_HIDDEN then exit;
 
   ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel

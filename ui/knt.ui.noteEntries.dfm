@@ -109,7 +109,7 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
       Top = 0
       Width = 22
       Height = 22
-      Caption = '1'
+      Hint = 'Switch between single entry and multiple entry modes'
       ImageIndex = 39
       OnClick = btnToggleMultiClick
     end
@@ -129,7 +129,7 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
       Top = 0
       Width = 22
       Height = 22
-      Caption = '...'
+      Hint = 'Displays the panel options dialog box'
       ImageIndex = 39
       OnClick = btnOptionsClick
     end

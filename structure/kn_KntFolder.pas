@@ -3555,10 +3555,10 @@ begin
          NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
          NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
          if ((NumInTL > 0) or (FFocusedPanel = pnTL)) and ((NumInTR = 0) and (FFocusedPanel <> pnTR)) then
-            Result:= 0.9
+            Result:= 0.95
          else
          if ((NumInTR > 0) or (FFocusedPanel = pnTR)) and ((NumInTL = 0) and (FFocusedPanel <> pnTL)) then
-            Result:= 0.1
+            Result:= 0.05
       end;
 
    end
@@ -3583,10 +3583,10 @@ begin
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel = pnBL) then
-            Result:= 0.9
+            Result:= 0.95
          else
          if (FFocusedPanel = pnBR) then
-            Result:= 0.1
+            Result:= 0.05
       end;
 
       if not FFolder.NoteAdvOptions.AutoExpandInPanels or not (FFocusedPanel in [pnBL, pnBR]) then begin

@@ -122,6 +122,7 @@ uses
    kn_Ini,
    knt.App,
    knt.ui.TagMng,
+   knt.ui.tagSelector,
    knt.RS
   ;
 
@@ -212,8 +213,14 @@ begin
       ( cEntryCont.DroppedDown or cbType.DroppedDown or cbTagFindMode.DroppedDown ))) then
     begin
       key := 0;
-      OK_Click := false;
-      Close;
+      if IntroducingTagsState = itWithTagSelector then begin
+         IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
+         cTagSelector.CloseTagSelector(false);
+      end
+      else begin
+         OK_Click := false;
+         Close;
+      end;
     end;
   end;
 

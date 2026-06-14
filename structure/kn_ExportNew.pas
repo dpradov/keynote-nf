@@ -264,6 +264,7 @@ uses
    kn_LocationObj,
    kn_FindReplaceMng,
    knt.ui.TagMng,
+   knt.ui.tagSelector,
    knt.App,
    knt.RS
    ;
@@ -603,7 +604,14 @@ procedure TForm_ExportNew.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if IsBusy then
-     CanClose := ConfirmAbort;
+     CanClose := ConfirmAbort
+  else
+  if IntroducingTagsState = itWithTagSelector then begin
+     IgnoreSelectorForTagSubsr := cTagSelector.SelectedTagName;
+     cTagSelector.CloseTagSelector(false);
+     CanClose := False;
+  end;
+
 
   if CanClose then begin
      Button_Cancel.SetFocus;
