@@ -109,7 +109,6 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
       Top = 0
       Width = 22
       Height = 22
-      Hint = 'Switch between single entry and multiple entry modes'
       ImageIndex = 39
       OnClick = btnToggleMultiClick
     end

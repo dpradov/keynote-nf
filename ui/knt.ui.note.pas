@@ -194,6 +194,7 @@ type
     function GetPanel (Panel: TNEntriesPanel): TPanel;
     procedure ShowEntriesUIPanel(Panel: TNEntriesMainPanel; Show: boolean);
     procedure PanelEmpty(Panel: TNEntriesMainPanel; WithoutVisibleEntries: boolean);
+    procedure ReviewInfoBarVisibility;
     property ChangingLayout: boolean read FChangingLayout;
     procedure RefreshPanelsLayout;
     procedure TreeFocused;
@@ -782,6 +783,7 @@ begin
       ShowPanelsBottom(BL, BR);
    end;
 
+   ReviewInfoBarVisibility;
 end;
 
 
@@ -792,13 +794,34 @@ begin
    NEntriesUI:= GetNEntriesUI(Panel);
    if NEntriesUI = nil then exit;
 
-   if FQueryLayout and WithoutVisibleEntries then
+   if FQueryLayout and WithoutVisibleEntries and (NEntriesUI.PanelConfig.Panel <> pnCenter) then
       ShowEntriesUIPanel(NEntriesUI.PanelConfig.Panel, False)
    else begin
       NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
       DisableChangedInEmptyPanelAt:= now;
    end;
 end;
+
+
+procedure TKntNoteUI.ReviewInfoBarVisibility;
+var
+  pnl, PnlWithEditorInfoPanel: TNEntriesMainPanel;
+
+begin
+   if not FChangingLayout and FQueryLayout then begin
+      UpdateFMultipleVisibleEditors;
+      PnlWithEditorInfoPanel:= FNNodeUIConfig.GetWhereToShowEditorInfoBar;
+      for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+          if (FNEntriesUI[Pnl] <> nil) and FNEntriesUI[Pnl].OnUse and (FNEntriesUI[Pnl].PanelConfig <> nil) then begin
+             FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= (Pnl = PnlWithEditorInfoPanel);
+             if not FNEntriesUI[Pnl].PanelConfig.Hidden then
+                FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility
+             else
+                FNEntriesUI[Pnl].HideTemporarilyInfoPanel;
+          end;
+   end;
+end;
+
 
 
 procedure TKntNoteUI.RefreshPanelsLayout;
@@ -1407,7 +1430,7 @@ begin
            // -> ToQueryLayout:= True    (*1)
 
         else begin
-           if (NEntriesUI.PanelConfig.MainMode = meMultiEntry) and (NEntriesUI.NumberOfIncludedEntries(true) > 1) then begin   // -> Single <> Multi
+           if (NEntriesUI.PanelConfig.MainMode = meMultiEntry) then begin   // -> Single <> Multi
               NEntriesUI.btnToggleMultiClick(nil);
               exit;
            end
@@ -1880,7 +1903,7 @@ begin
 
           NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
 
-          if (not FQueryLayout or (Action = aCreating)) and (NEntriesUI.NEntry = nil) then begin
+          if (NEntriesUI.NEntry = nil) then begin
              NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
              DisableChangedInEmptyPanelAt:= now;
           end
@@ -1909,7 +1932,7 @@ begin
           if Pnl = PnlWithEditorInfoPanel then
              FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= True;
 
-          if QueryLayout and not (OfferEditorForNewEntry and (Pnl = PnlToSetFocus)) and (FNEntriesUI[Pnl].NEntry = nil) then
+          if (Pnl <> pnCenter) and QueryLayout and not (OfferEditorForNewEntry and (Pnl = PnlToSetFocus)) and (FNEntriesUI[Pnl].NEntry = nil) then
              ShowPanel[Pnl]:= False        // OnUse but not visible for now
 
           else begin

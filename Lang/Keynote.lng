@@ -2902,5 +2902,6 @@ Button_OK.Caption=&Close
 55172_knt_RS_sEntry22=On the highest panel (full width)
 55173_knt_RS_sEntry23=On the lowest panel (full width)
 55174_knt_RS_sEntry24=, excluding "Vinculated to tags"
+55175_knt_RS_sEntry25=Switch between single and multi entry modes - \^Num.Entries: %d (%d hidden)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

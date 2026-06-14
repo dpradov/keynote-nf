@@ -1473,8 +1473,6 @@ end;
 
 procedure TNoteEntry.SetIsHidden(value: boolean);
 begin
-  if IsMain then exit;
-
   if value then
      Include(fStates, nesHidden)
   else

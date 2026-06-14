@@ -1062,6 +1062,7 @@ const
    sEntry22 = 55172;   // On the highest panel (full width)
    sEntry23 = 55173;   // On the lowest panel (full width)
    sEntry24 = 55174;   // , excluding "Vinculated to tags"
+   sEntry25 = 55175;   // Switch between single and multi entry modes\^Num.Entries: %d (%d hidden)
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !

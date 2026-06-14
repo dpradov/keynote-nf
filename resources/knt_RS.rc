@@ -974,4 +974,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55172, "On the highest panel (full width)"
 55173, "On the lowest panel (full width)"
 55174, ", excluding \"Vinculated to tags\""
+55175, "Switch between single and multi entry modes - \nNum.Entries: %d (%d hidden)"
 }

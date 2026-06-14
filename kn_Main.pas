@@ -4792,7 +4792,6 @@ end;
 procedure TForm_Main.RTFMEncrypClick(Sender: TObject);
 begin
   if not ActiveFile.CheckAuthorized(True) then exit;
-  if ActiveNEntry.IsMain then exit;
 
   ActiveNEntry.IsEncrypted:= not ActiveNEntry.IsEncrypted;
   ActiveNNode.Note.SetModified;
@@ -8662,15 +8661,15 @@ begin
 
     RTFMEntry_.Visible:=   HasMultipleEntries;
     RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
-    RTFMHidden.Enabled:=   IsNotMain;
+    RTFMHidden.Enabled:=   (ActiveNEntry <> nil);
     RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
     RTFMMain.Enabled:=     IsNotMain;
     RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
-    RTFMEncryp.Enabled:=   IsNotMain;
+    RTFMEncryp.Enabled:=   (ActiveNEntry <> nil);
     RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
     RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
     RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
-    RTFMDeleteEntry.Enabled:=   IsNotMain;
+    RTFMDeleteEntry.Enabled:=   (ActiveNEntry <> nil);
     RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntries;
     RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntries;
 end;

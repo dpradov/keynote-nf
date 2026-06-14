@@ -1029,7 +1029,7 @@ begin
 
      if AlsoToCreatedBeforeIt then begin
         for i:= Note.NumEntries-1 downto 0 do begin
-            if (Note.Entries[i].Created <= CreatedBefore) and (not Note.Entries[i].IsMain) then
+            if (Note.Entries[i].Created <= CreatedBefore) then
                 Note.Entries[i].IsHidden:= ToIsHidden;
         end;
         NEntry:= nil;

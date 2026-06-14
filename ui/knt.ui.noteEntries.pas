@@ -154,7 +154,7 @@ type
     function GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
     function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntryMode): boolean;
-    function NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
+    function NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
     function DisplayingAnyHiddenEntry: boolean;
     function HasAnyEntryNonVisible: boolean;
     procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
@@ -1417,6 +1417,16 @@ var
  end;
 
 
+ procedure UpdateBtnToggleMultiHint;
+ var
+    Total, NVisible: integer;
+ begin
+    NVisible:= NumberOfIncludedEntries(True);
+    Total:= NumberOfIncludedEntries(False);
+    btnToggleMulti.Hint:= Format(GetRS(sEntry25), [Total, Total-NVisible]);
+ end;
+
+
 begin
    if (PanelConfig = nil) or ((PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)) then begin
       FNNode:= nil;
@@ -1519,6 +1529,7 @@ begin
               else
                  btnToggleMulti.Caption:= (FiEntry+1).ToString;
 
+              UpdateBtnToggleMultiHint;
               exit;
           end;
        end
@@ -1549,7 +1560,10 @@ begin
        end;
    end;
 
-   if FPanelHidden and not (EntryToAdd or (PanelConfig.StLayout = spInQL_ets)) then exit;
+   if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
+     (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (FEntriesShown[iEntryToConsider].Content = cmHidden) then exit;
+
+   if FPanelHidden and not (EntryToAdd or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then exit;
 
 
    if EntryToRemove then
@@ -1697,7 +1711,7 @@ begin
            end;
        end;
 
-       if CalculateEntriesToShow and (FiEntry >= 0) and (FEntriesShown[FiEntry].Content = cmHidden) and
+       if CalculateEntriesToShow and (iSelectedEntry >= 0) and (FiEntry >= 0) and (FEntriesShown[FiEntry].Content = cmHidden) and
           (not FEntriesShown[FiEntry].NEntry.IsEncrypted or not ActiveFile.EncryptedContentMustBeHidden)  then
           FEntriesShown[FiEntry].Content:= cmWholeEntry;
 
@@ -1856,19 +1870,23 @@ begin
      if not FPanelHidden and (FNEntry = nil) then
         FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0))
      else
-     if FPanelHidden and (EntryToAdd or (PanelConfig.StLayout = spInQL_ets)) then
+     if FPanelHidden and (EntryToAdd or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then
         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
 
      if PanelConfig.StLayout = spInQL_ets then
         PanelConfig.StLayout:= spInQL;
 
 
+     NumVisibleEntriesAfter:= NumberOfIncludedEntries(True);
      if PanelConfig.StLayout = spInEL then begin
-        NumVisibleEntriesAfter:= NumberOfIncludedEntries(True);
         if (NumVisibleEntriesBefore <> NumVisibleEntriesAfter) and (NumVisibleEntriesBefore * NumVisibleEntriesAfter = 0) then
            FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
      end;
 
+     if NumVisibleEntriesAfter = 0 then
+        PanelConfig.SelNEntry:= nil;
+
+     UpdateBtnToggleMultiHint;
    end;
 
 
@@ -1893,7 +1911,7 @@ begin
 end;
 
 
-function TKntNoteEntriesUI.NumberOfIncludedEntries(OnlyNotHidden: boolean): integer;
+function TKntNoteEntriesUI.NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
 var
    i: integer;
 begin
@@ -1904,7 +1922,15 @@ begin
              inc(Result);
     end
     else
-       Result:= Length(FEntriesShown);
+    if not IgnoreEncrypted then
+       Result:= Length(FEntriesShown)
+    else begin
+       Result:= 0;
+       for i:= Length(FEntriesShown)-1 downto 0 do
+          if not FEntriesShown[i].NEntry.IsEncrypted then
+             inc(Result);
+    end;
+
 end;
 
 function TKntNoteEntriesUI.DisplayingAnyHiddenEntry: boolean;
@@ -2589,8 +2615,6 @@ begin
       end;
 
       if Alt and not Ctrl then begin
-         if FNEntry.IsMain then
-            exit;
          NewCont:= cmHidden;
       end;
 
@@ -2638,7 +2662,6 @@ begin
          NEntry:= FEntriesShown[i].NEntry;
          if OnlyHiddenEntries and not ((NEntry.IsHidden) or (FEntriesShown[i].Content = cmHidden)) then continue;
          if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
-         if (NewContent = cmHidden) and (NEntry.IsMain) then continue;
          if LimitToCreatedBeforeSelectedEntry and (NEntry.Created > CreatedDate) then continue;
 
          FEntriesShown[i].Content:= NewContent;
@@ -2663,6 +2686,9 @@ var
    Shift: boolean;
 begin
    Shift:= ShiftDown;
+
+   if NumberOfIncludedEntries(true) <= 1 then
+      PanelConfig.CurrentMode:= meMultiEntry;
 
    if not (CtrlDown or Shift) then
       ReloadVisibleContentOfEntries(True, cmOnlyFirstLines, -1, false, true)
@@ -2759,7 +2785,7 @@ begin
       AnyEntryChanged:= False;
 
       for iEntry:=0 to High(FEntriesShown) do begin
-         if (FEntriesShown[iEntry].NEntry.Created <= CreatedBefore) and not FEntriesShown[iEntry].NEntry.IsMain then
+         if (FEntriesShown[iEntry].NEntry.Created <= CreatedBefore) then
             ChangeContent;
       end;
 
