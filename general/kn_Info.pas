@@ -926,6 +926,9 @@ type
    TLTR:   Single;   // Ratio TL vs TR
    BLBR:   Single;   // Ratio BL vs BR
 
+   TopAutoFromHidden: Single;     // Ratio Top vs Other to be applied when entering a panel reduced to hidden
+   BottomAutoFromHidden: Single;  // ,,    Bottom
+
    procedure Initialize;
  end;
  PPanelSizeRatios = ^TPanelSizeRatios;
@@ -1204,6 +1207,9 @@ begin
    BLBR:= 0.5;
    Top:= 0.1354;
    Bottom:= 0.15;
+
+   BottomAutoFromHidden:= 0.15;
+   TopAutoFromHidden:= 0.15;
 end;
 
 // Load built-in default values

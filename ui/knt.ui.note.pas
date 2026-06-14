@@ -19,7 +19,7 @@ unit knt.ui.note;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, System.Math,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
 
   gf_misc,
@@ -438,7 +438,13 @@ end;
 
 procedure TKntNoteUI.splBMoved(Sender: TObject);
 begin
-   FNNodeUIConfig.Bottom_Ratio:= pnlBottom.Height / Self.Height;
+  if CtrlDown then begin
+     FNNodeUIConfig.BottomAutoFromHidden_Ratio:= Max(0.15, pnlBottom.Height / Self.Height);
+     FramResizePendingInNoteUI:= Self;
+  end
+  else
+     FNNodeUIConfig.Bottom_Ratio:= pnlBottom.Height / Self.Height;
+
 end;
 
 procedure TKntNoteUI.splLMoved(Sender: TObject);
@@ -472,6 +478,11 @@ begin
      FNNodeUIConfig.Top_Ratio:= RATIO_EQUIV_HIDDEN;
      pnlTop.Height:=  HEIGHT_REDUCED_TO_HIDDEN;
      splT.Top:=       HEIGHT_REDUCED_TO_HIDDEN;
+  end
+  else
+  if CtrlDown then begin
+     FNNodeUIConfig.TopAutoFromHidden_Ratio:= Max(0.15, pnlTop.Height / Self.Height);
+     FramResizePendingInNoteUI:= Self;
   end
   else
      FNNodeUIConfig.Top_Ratio:= pnlTop.Height / Self.Height;

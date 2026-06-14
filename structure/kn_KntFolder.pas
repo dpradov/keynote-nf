@@ -28,6 +28,7 @@ uses
    System.AnsiStrings,
    System.IniFiles,
    System.DateUtils,
+   System.Math,
    Vcl.Graphics,
    Vcl.FileCtrl,
    Vcl.Controls,
@@ -88,6 +89,8 @@ type
       function GetBottom_Ratio: Single;
       function GetTLTR_Ratio: Single;
       function GetBLBR_Ratio: Single;
+      function GetTopAutoFromHidden_Ratio: Single;
+      function GetBottomAutoFromHidden_Ratio: Single;
       procedure SetMaximizedPanel(value: TNEntriesPanelBase);
 
     protected
@@ -120,6 +123,8 @@ type
       property Bottom_Ratio: Single read GetBottom_Ratio write FSizeRatios.Bottom;
       property TLTR_Ratio: Single read GetTLTR_Ratio write FSizeRatios.TLTR;
       property BLBR_Ratio: Single read GetBLBR_Ratio write FSizeRatios.BLBR;
+      property TopAutoFromHidden_Ratio: Single read GetTopAutoFromHidden_Ratio write FSizeRatios.TopAutoFromHidden;
+      property BottomAutoFromHidden_Ratio: Single read GetBottomAutoFromHidden_Ratio write FSizeRatios.BottomAutoFromHidden;
       function PanelReducedToHidden(Panel: TNEntriesPanel): boolean;
       property MaximizedPanel: TNEntriesPanelBase read FMaximizedPanel write SetMaximizedPanel;
       property FocusedPanel: TNEntriesPanelBase read FFocusedPanel write FFocusedPanel;
@@ -3430,6 +3435,27 @@ end;
 
 }
 
+function TNNodeUIConfiguration.GetTopAutoFromHidden_Ratio: Single;
+begin
+   Result:= FSizeRatios.TopAutoFromHidden;
+   if Result <= 0 then
+      if FQueryLayout then
+         Result:= FFolder.NoteAdvOptions.SizeRatiosQL.TopAutoFromHidden
+      else
+         Result:= FFolder.NoteAdvOptions.SizeRatiosEL.TopAutoFromHidden;
+end;
+
+function TNNodeUIConfiguration.GetBottomAutoFromHidden_Ratio: Single;
+begin
+   Result:= FSizeRatios.BottomAutoFromHidden;
+   if Result <= 0 then
+      if FQueryLayout then
+         Result:= FFolder.NoteAdvOptions.SizeRatiosQL.BottomAutoFromHidden
+      else
+         Result:= FFolder.NoteAdvOptions.SizeRatiosEL.BottomAutoFromHidden;
+end;
+
+
 function TNNodeUIConfiguration.GetTop_Ratio: Single;
 var
    NumInTL, NumInTR: integer;
@@ -3444,7 +3470,7 @@ begin
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel in [pnTL, pnTR]) then
-            Result:= 0.5;
+            Result:= Max(0.5, GetTopAutoFromHidden_Ratio);
       end;
 
       if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin
@@ -3456,7 +3482,7 @@ begin
          end
          else
          if PanelReducedToHidden(pnTL) then
-            Result:= 0.15;
+            Result:= GetTopAutoFromHidden_Ratio;
       end;
 
    end
@@ -3481,7 +3507,7 @@ begin
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel in [pnBL, pnBR]) then
-            Result:= 0.5;
+            Result:= Max(0.5, GetBottomAutoFromHidden_Ratio);
       end;
 
       if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin
@@ -3493,7 +3519,7 @@ begin
          end
          else
          if PanelReducedToHidden(pnBL) then
-            Result:= 0.15;
+            Result:= GetBottomAutoFromHidden_Ratio;
       end;
 
    end
