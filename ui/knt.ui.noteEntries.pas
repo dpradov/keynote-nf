@@ -181,10 +181,10 @@ type
     procedure EditTags;
     procedure RefreshTags;
     property TagsToUseOnNewEntry: TNoteTagArray read FTagsToUseOnNewEntry write FTagsToUseOnNewEntry;
-    function HideTemporarilyInfoPanel: boolean;
+    function HideTemporarilyEditorInfoBar: boolean;
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
     procedure ReconsiderColorInfoPanel;
-    procedure ReconsiderInfoPanelVisibility;
+    procedure ReconsiderEditorInfoBarVisibility;
     procedure SetTopIncControlsOfInfoPanel;
     procedure RefreshEntry;
     procedure SelectNextEntry(InformReloaded: boolean);
@@ -421,7 +421,7 @@ begin
      Editor.ActivateFloatingEditor;
 
   cFocusedFlag.Refresh;
-  ReconsiderInfoPanelVisibility;
+  ReconsiderEditorInfoBarVisibility;
 end;
 
 
@@ -442,7 +442,7 @@ procedure TKntNoteEntriesUI.NoteEntriesUIExit(Sender: TObject);
 begin
    cFocusedFlag.Refresh;
    if (PanelConfig = nil) then exit;
-   HideTemporarilyInfoPanel;
+   HideTemporarilyEditorInfoBar;
 end;
 
 procedure TKntNoteEntriesUI.EditorMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -504,7 +504,7 @@ begin
      pnlEntries.Height:= Self.Height - txtTags.Height -2; //txtTags.Top -2;
 end;
 
-function TKntNoteEntriesUI.HideTemporarilyInfoPanel: boolean;
+function TKntNoteEntriesUI.HideTemporarilyEditorInfoBar: boolean;
 var
   KeepVisible: boolean;
 begin
@@ -541,7 +541,7 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.ReconsiderInfoPanelVisibility;
+procedure TKntNoteEntriesUI.ReconsiderEditorInfoBarVisibility;
 var
   colorEdLay, colorMax: TColor;
 begin
@@ -766,7 +766,7 @@ end;
 procedure TKntNoteEntriesUI.txtTagsExit(Sender: TObject);
 begin
    RefreshTags;                   // In case we have forced the use of MainEntry from txtTagsEnter because Ctrl was pressed
-   ReconsiderInfoPanelVisibility;
+   ReconsiderEditorInfoBarVisibility;
 end;
 
 procedure TKntNoteEntriesUI.OnEndEditTagsIntroduction(PressedReturn: boolean; txtTags: TEdit);
@@ -1564,7 +1564,9 @@ begin
    if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
      (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (FEntriesShown[iEntryToConsider].Content = cmHidden) then exit;
 
-   if FPanelHidden and not (EntryToAdd or (iSelectedEntry >= 0) or (NumVisibleEntriesBefore > 1) or (PanelConfig.StLayout = spInQL_ets)) then exit;
+   if FPanelHidden and not
+         (EntryToAdd or (iSelectedEntry >= 0) or (ActionOnEntry = aCreating) or (NumVisibleEntriesBefore > 1) or (PanelConfig.StLayout = spInQL_ets))
+     then exit;
 
 
    if EntryToRemove then
@@ -1873,7 +1875,7 @@ begin
      if not FPanelHidden and (FNEntry = nil) then
         FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0))
      else
-     if FPanelHidden and (EntryToAdd or (NumVisibleEntriesAfter > 1) or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then
+     if FPanelHidden and (EntryToAdd or (ActionOnEntry = aCreating) or (NumVisibleEntriesAfter > 1) or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then
         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
 
      if PanelConfig.StLayout = spInQL_ets then
@@ -2375,7 +2377,7 @@ begin
          SelectEntry(iNextEntry, false, InformReloaded);
    end;
 
-   ReconsiderInfoPanelVisibility;
+   ReconsiderEditorInfoBarVisibility;
 end;
 
 procedure TKntNoteEntriesUI.btnPrevEntryClick(Sender: TObject);
@@ -2401,7 +2403,7 @@ begin
          SelectEntry(iNextEntry, false, InformReloaded);
    end;
 
-   ReconsiderInfoPanelVisibility;
+   ReconsiderEditorInfoBarVisibility;
 end;
 
 procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
@@ -2461,7 +2463,7 @@ begin
    NoteUI.HideFocusFlag:= false;
    cFocusedFlag.Refresh;
    ReloadFromDataModel(false, nil, aNull, True);
-   ReconsiderInfoPanelVisibility;
+   ReconsiderEditorInfoBarVisibility;
 end;
 
 
@@ -2469,6 +2471,8 @@ procedure TKntNoteEntriesUI.btnOptionsClick(Sender: TObject);
 var
   Form_NoteEntriesOptions: TForm_NoteEntriesOptions;
 begin
+   if (FNote <> nil) and (FNote.NumEntries = 1) then exit;
+
 
    Form_NoteEntriesOptions := TForm_NoteEntriesOptions.Create( Form_Main );
    try
@@ -2570,7 +2574,7 @@ begin
              FNote:= FEntriesShown[i].Note;
              FNEntry:= FEntriesShown[i].NEntry;
              ReloadMetadataFromDataModel();
-             ReconsiderInfoPanelVisibility;
+             ReconsiderEditorInfoBarVisibility;
              FEditor.SetVinculatedEntryObj(FNEntry);
              App.NEntrySelected(Editor, FNEntry);
              break;

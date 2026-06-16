@@ -731,7 +731,7 @@ begin
    if FNNodeUIConfig.MaximizedPanel = pnNone then
        RestoreSplits;
 
-   FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
+   FSelectedNEntriesUI.ReconsiderEditorInfoBarVisibility;
 
  finally
     LockControl(pnlAuxC, False);
@@ -814,13 +814,16 @@ begin
    if not FChangingLayout and FQueryLayout then begin
       UpdateFMultipleVisibleEditors;
       PnlWithEditorInfoPanel:= FNNodeUIConfig.GetWhereToShowEditorInfoBar;
+
+      if FNEntriesUI[PnlWithEditorInfoPanel].PanelConfig.ShowEditorInfoPanel then exit;
+
       for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
           if (FNEntriesUI[Pnl] <> nil) and FNEntriesUI[Pnl].OnUse and (FNEntriesUI[Pnl].PanelConfig <> nil) then begin
              FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= (Pnl = PnlWithEditorInfoPanel);
              if not FNEntriesUI[Pnl].PanelConfig.Hidden then
-                FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility
+                FNEntriesUI[Pnl].ReconsiderEditorInfoBarVisibility
              else
-                FNEntriesUI[Pnl].HideTemporarilyInfoPanel;
+                FNEntriesUI[Pnl].HideTemporarilyEditorInfoBar;
           end;
    end;
 end;
@@ -832,7 +835,7 @@ begin
    LockControl(pnlAuxC, True);
    try
      FrameResize(nil);
-     FSelectedNEntriesUI.ReconsiderInfoPanelVisibility;
+     FSelectedNEntriesUI.ReconsiderEditorInfoBarVisibility;
 
    finally
      LockControl(pnlAuxC, false);
@@ -1332,7 +1335,7 @@ begin
            FNEntriesUI[p].ModifiedMetadataOfEntry(NEntry);
            if FQueryLayout then begin
               FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel:= false;
-              FNEntriesUI[p].ReconsiderInfoPanelVisibility;
+              FNEntriesUI[p].ReconsiderEditorInfoBarVisibility;
            end;
            inc(N);
         end;
@@ -1344,7 +1347,7 @@ begin
         FNNodeUIConfig.PanelConfig(p).ShowEditorInfoPanel:= True;
         NoteEntriesUI:= GetNEntriesUI(p);
         if NoteEntriesUI.PanelConfig = nil then exit;
-        NoteEntriesUI.ReconsiderInfoPanelVisibility;
+        NoteEntriesUI.ReconsiderEditorInfoBarVisibility;
      end;
 
   finally
@@ -1666,6 +1669,8 @@ begin
       ReqFromNEntriesUI.SavePositionInPanel;
       PanelConfig.SelStart:= ReqFromNEntriesUI.PanelConfig.SelStart;
       PanelConfig.SelLength:= ReqFromNEntriesUI.PanelConfig.SelLength;
+      if NEntriesUI.PanelHidden and not FMultipleVisibleEditors and (ReqFromNEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then
+         ReqFromNEntriesUI.btnToggleMultiClick(nil);
    end;
 
    if SS >= 0 then begin
@@ -1685,7 +1690,7 @@ begin
 
    FNNodeDeleted:= false;
    NEntriesUI.SetFocusOnEditor;
-   NEntriesUI.ReconsiderInfoPanelVisibility;
+   NEntriesUI.ReconsiderEditorInfoBarVisibility;
 end;
 
 
@@ -1749,7 +1754,7 @@ begin
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
       if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) and (FNEntriesUI[p].PanelConfig <> nil) then begin
          FNEntriesUI[p].cFocusedFlag.Refresh;
-         if (Folder.EditorInfoPanelHidden or not FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel) and not FNEntriesUI[p].HideTemporarilyInfoPanel then
+         if (Folder.EditorInfoPanelHidden or not FNEntriesUI[p].PanelConfig.ShowEditorInfoPanel) and not FNEntriesUI[p].HideTemporarilyEditorInfoBar then
             KeepEnabled:= True;
       end;
    end;
@@ -1974,9 +1979,9 @@ begin
           else begin
              FNEntriesUI[Pnl].Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
              if ((Pnl = PnlWithEditorInfoPanel) or EnableNavigatePanels) and not FNNodeUIConfig.PanelReducedToHidden(Pnl) then
-                FNEntriesUI[Pnl].ReconsiderInfoPanelVisibility
+                FNEntriesUI[Pnl].ReconsiderEditorInfoBarVisibility
              else
-                FNEntriesUI[Pnl].HideTemporarilyInfoPanel;
+                FNEntriesUI[Pnl].HideTemporarilyEditorInfoBar;
           end;
        end;
 

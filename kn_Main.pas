@@ -8659,7 +8659,7 @@ begin
 
     IsNotMain:= (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
 
-    RTFMEntry_.Visible:=   HasMultipleEntries;
+    RTFMEntry_.Visible:=   (HasMultipleEntries or HasAnyEntryNonVisible);
     RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
     RTFMHidden.Enabled:=   (ActiveNEntry <> nil);
     RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
