@@ -135,6 +135,8 @@ type
      procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
      procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
      procedure ReconsiderVisibilityOfEntries;
+     procedure ShowHiddenEntries;
+     procedure HideHiddenRevealed;
      procedure SetInfoPanelHidden(value: boolean);
      procedure KeepInfoPanelTemporarilyVisible;
      procedure RefreshPanelsLayout;

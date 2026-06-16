@@ -138,7 +138,8 @@ type
     procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultiEntryMode; iEntry: integer= -1;
                                              IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;
                                              LimitToCreatedBeforeSelectedEntry: boolean = false);
-    procedure ShowHiddenEntries(UndoHidden: boolean);
+    procedure ShowHiddenEntries;
+    procedure HideHiddenRevealed;
     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure NEntryDeleted(NEntry: TNoteEntry);
@@ -1563,7 +1564,7 @@ begin
    if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
      (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (FEntriesShown[iEntryToConsider].Content = cmHidden) then exit;
 
-   if FPanelHidden and not (EntryToAdd or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then exit;
+   if FPanelHidden and not (EntryToAdd or (iSelectedEntry >= 0) or (NumVisibleEntriesBefore > 1) or (PanelConfig.StLayout = spInQL_ets)) then exit;
 
 
    if EntryToRemove then
@@ -1867,17 +1868,18 @@ begin
      fChangingInCode:= false;
 
 
+     NumVisibleEntriesAfter:= NumberOfIncludedEntries(True);
+
      if not FPanelHidden and (FNEntry = nil) then
         FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0))
      else
-     if FPanelHidden and (EntryToAdd or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then
+     if FPanelHidden and (EntryToAdd or (NumVisibleEntriesAfter > 1) or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then
         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
 
      if PanelConfig.StLayout = spInQL_ets then
         PanelConfig.StLayout:= spInQL;
 
 
-     NumVisibleEntriesAfter:= NumberOfIncludedEntries(True);
      if PanelConfig.StLayout = spInEL then begin
         if (NumVisibleEntriesBefore <> NumVisibleEntriesAfter) and (NumVisibleEntriesBefore * NumVisibleEntriesAfter = 0) then
            FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
@@ -2680,7 +2682,7 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.ShowHiddenEntries(UndoHidden: boolean);
+procedure TKntNoteEntriesUI.ShowHiddenEntries;
 var
    i: integer;
    Shift: boolean;
@@ -2698,14 +2700,16 @@ begin
       // Shift: Only not hidden (Alt+DblClick)
 
       for i:=0 to High(FEntriesShown) do begin
+         if not ((FEntriesShown[i].Content = cmHidden) or FEntriesShown[i].NEntry.IsHidden) then continue;
+
          if Shift then begin
             if (FEntriesShown[i].Content = cmHidden) and (not FEntriesShown[i].NEntry.IsHidden) and
                not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
                FEntriesShown[i].Content:= cmOnlyFirstLines;
          end
-         else  // Ctrl
-         if FEntriesShown[i].NEntry.IsHidden then begin
-            FEntriesShown[i].NEntry.IsHidden:= False;
+         else begin // Ctrl
+            if FEntriesShown[i].NEntry.IsHidden then
+               FEntriesShown[i].NEntry.IsHidden:= False;
 
             if (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then begin
                if ActiveFile.HideEncryptedNodesAndEntries then
@@ -2723,6 +2727,11 @@ begin
 
 end;
 
+
+procedure TKntNoteEntriesUI.HideHiddenRevealed;
+begin
+  ReloadVisibleContentOfEntries(True, cmHidden, -1, false, true);
+end;
 
 
 procedure TKntNoteEntriesUI.RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);

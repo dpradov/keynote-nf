@@ -170,7 +170,10 @@ type
     procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
     procedure RestoreZoomGoal;
     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
+    procedure ReconsiderVisibilityOfHiddenPanels;
     procedure ReconsiderVisibilityOfEntries;
+    procedure ShowHiddenEntries;
+    procedure HideHiddenRevealed;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     property ReturnToQLFromAllEntriesInSingleMode: boolean read FReturnToQLFromAllEntriesInSingleMode write FReturnToQLFromAllEntriesInSingleMode;
 
@@ -1278,6 +1281,39 @@ begin
   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
         FNEntriesUI[p].ReloadFromDataModel(false, nil, aChangedVisibility);
+end;
+
+procedure TKntNoteUI.ReconsiderVisibilityOfHiddenPanels;
+var
+  pnl: TNEntriesMainPanel;
+begin
+   if not FChangingLayout and FQueryLayout then begin
+      for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+          if (FNEntriesUI[Pnl] <> nil) and FNEntriesUI[Pnl].OnUse and FNEntriesUI[Pnl].PanelHidden then
+              FNEntriesUI[Pnl].ReloadFromDataModel(false);
+   end;
+end;
+
+procedure TKntNoteUI.ShowHiddenEntries;
+var
+  p: TNEntriesPanel;
+begin
+  // (Ctrl: Show and undo hidden)
+  // Shift: Only not hidden (Alt+DblClick)
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].ShowHiddenEntries;
+
+  ReconsiderVisibilityOfHiddenPanels;
+end;
+
+procedure TKntNoteUI.HideHiddenRevealed;
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].HideHiddenRevealed;
 end;
 
 

@@ -4781,12 +4781,12 @@ end;
 
 procedure TForm_Main.RTFMHideAgainClick(Sender: TObject);
 begin
-  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ReloadVisibleContentOfEntries(True, cmHidden, -1, false, true);
+  ActiveFolder.NoteUI.HideHiddenRevealed;
 end;
 
 procedure TForm_Main.RTFMShowHiddenClick(Sender: TObject);
 begin
-   TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ShowHiddenEntries(CtrlDown);             // (Ctrl: Show and undo hidden)
+  ActiveFolder.NoteUI.ShowHiddenEntries;                  // (Ctrl: Show and undo hidden) // Shift: Only not hidden (Alt+DblClick)
 end;
 
 procedure TForm_Main.RTFMEncrypClick(Sender: TObject);
