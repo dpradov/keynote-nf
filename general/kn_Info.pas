@@ -907,6 +907,8 @@ type
     SearchMode : TSearchMode;         // "e":Exact phrase, "&":All the words, "|":Any of the words
     ConsiderHidden: boolean;          // Consider hidden entries
     ShowExcerpts: boolean;            // (when using TextFilter) "x"
+
+    function Equal(aFilter: TFilterOptionsInPanel): boolean;
   end;
 
 type
@@ -1210,6 +1212,27 @@ begin
 
    BottomAutoFromHidden:= 0.15;
    TopAutoFromHidden:= 0.15;
+end;
+
+
+function TFilterOptionsInPanel.Equal(aFilter: TFilterOptionsInPanel): boolean;
+begin
+  Result:= False;
+  with aFilter do begin
+    if Self.Enabled <> Enabled then exit;
+    if Self.TagsModeOR <> TagsModeOR then exit;
+    if Self.TextFilter <> TextFilter then exit;
+    if Self.MatchCase <> MatchCase then exit;
+    if Self.WholeWordsOnly <> WholeWordsOnly then exit;
+    if Self.SearchMode <> SearchMode then exit;
+    if Self.ConsiderHidden <> ConsiderHidden then exit;
+    if Self.ShowExcerpts <> ShowExcerpts then exit;
+    if Self.TagsText <> TagsText then exit;
+    if not TNoteTagArrayUtils.FindTagsEqual(Self.FindTagsIncl, FindTagsIncl) then exit;
+    if not TNoteTagArrayUtils.FindTagsEqual(Self.FindTagsExcl, FindTagsExcl) then exit;
+  end;
+
+  Result:= True;
 end;
 
 // Load built-in default values

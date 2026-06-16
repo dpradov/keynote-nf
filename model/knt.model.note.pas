@@ -293,6 +293,7 @@ type
      class function FindTagsANDToTags(FindTags: TFindTags): TNoteTagArray;
      class function TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
      class function TagsToFindTagsModeAND(Tags: TNoteTagArray): TFindTags;
+     class function FindTagsEqual(FindTagsA: TFindTags; FindTagsB: TFindTags): boolean;
    end;
 
 
@@ -1320,6 +1321,34 @@ begin
    end;
 end;
 
+
+class function TNoteTagArrayUtils.FindTagsEqual(FindTagsA: TFindTags; FindTagsB: TFindTags): boolean;
+var
+  i, j: integer;
+begin
+   if Assigned(FindTagsA) <> Assigned(FindTagsA) then
+      Result:= false
+   else
+   if not Assigned(FindTagsA) then
+      Result:= true
+
+   else begin
+      if Length(FindTagsA) <> Length(FindTagsB) then
+         Result:= false
+
+      else begin
+         Result:= false;
+         for i:= 0 to High(FindTagsA) do begin
+            if Length(FindTagsA) <> Length(FindTagsB) then exit;
+            for j:= 0 to High(FindTagsA[i]) do
+               if FindTagsA[i][j] <> FindTagsB[i][j] then
+                  exit;
+         end;
+         Result:= true;
+      end;
+
+   end;
+end;
 
 
 // =========================================================================================================
