@@ -817,7 +817,8 @@ begin
     strTargetMarker:= '';
     NEntriesUI:= TKntNoteEntriesUI(aLocation.NEntriesUIObj);
 
-    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and (assigned(Editor.NNodeObj)) then begin
+    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and assigned(Editor.NNodeObj) and
+        assigned(NEntriesUI) and assigned(NEntriesUI.NEntry) and not NEntriesUI.NEntry.IsPlainTXT then begin
 
       // Allow the mark (hidden) although Folder is ReadOnly
       EditorBase:= Editor;
@@ -2017,7 +2018,7 @@ begin
            LockControl(TargetEditor, True);
            try
              if NoteEntriesUI.GetPreparedForJump(Location.NEntry, PosStartEntry, PosEndEntry) then begin
-                if not SearchTargetMark (Location.Bookmark09) then begin
+                if Location.NEntry.IsPlainTXT or not SearchTargetMark (Location.Bookmark09) then begin
                    if WordInRS <> nil then begin                             // Jump to a word in a search result
                       if WordInRS.BeginOfParagraph >= 0 then
                          SearchCaretPos(TargetEditor, WordInRS.BeginOfParagraph, 0, True, Location.ScrollPosInEditor, true, true, true, Location.NEntry, PosStartEntry, PosEndEntry);
