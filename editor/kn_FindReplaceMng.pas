@@ -95,6 +95,7 @@ function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean;
                        OnlyGetFragmentsInfo: boolean = False;
                        OnlyNode: PVirtualNode= nil;
+                       OnlyNEntry: TNoteEntry = nil;
                        FolderToUse: TKntFolder = nil;
                        TextPlainToUse: string = ''): boolean;
 procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
@@ -1164,6 +1165,7 @@ end;
 function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Boolean;
                        OnlyGetFragmentsInfo: boolean = False;
                        OnlyNode: PVirtualNode = nil;
+                       OnlyNEntry: TNoteEntry = nil;
                        FolderToUse: TKntFolder = nil;
                        TextPlainToUse: string = ''): boolean;
 var
@@ -2939,6 +2941,8 @@ begin
 
                            myNEntry:= myNNode.Note.Entries[k];
                            ConsiderNEntry:= true;
+
+                           if assigned(OnlyNEntry) and (myNEntry <> OnlyNEntry) then continue;
 
                            if (HideEncrypted and myNEntry.IsEncrypted) then continue;
                            if (not myFindOptions.HiddenNodes and myNEntry.IsHidden) then continue;

@@ -3002,7 +3002,7 @@ begin
   myFindOptions.FoldedMode:= sfAll;
   myFindOptions.ProtectedNodesAndEntriesOnly := false;
 
-  Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyNode, FolderToUse, TextPlainToUse);
+  Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyNode, nil, FolderToUse, TextPlainToUse);
 end;
 
 

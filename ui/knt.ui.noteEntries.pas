@@ -3106,8 +3106,6 @@ var
 
 begin
 
-  // NEntryToUse ....
-
 
   with PanelConfig.MECustomiz.Filter do begin
       myFindOptions.MatchCase := MatchCase;
@@ -3141,7 +3139,7 @@ begin
       myFindOptions.ProtectedNodesAndEntriesOnly := false;
   end;
 
-  Result:= RunFindAllEx (myFindOptions, false, false, true, NNodeToUse.TVNode, FolderToUse);
+  Result:= RunFindAllEx (myFindOptions, false, false, true, NNodeToUse.TVNode, NEntryToUse, FolderToUse);
 end;
 
 {$ENDREGION}
