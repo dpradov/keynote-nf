@@ -1736,6 +1736,13 @@ begin
      FiEntry:= -1;
      if FEntriesShown <> nil then begin
        FiEntry:= iSelectedEntry;
+
+       if CalculateEntriesToShow and (iSelectedEntry >= 0) and (not FEntriesShown[FiEntry].IsVisible) and
+          (not FEntriesShown[FiEntry].NEntry.IsEncrypted or not ActiveFile.EncryptedContentMustBeHidden)  then begin
+          FEntriesShown[FiEntry].Filtered:= fFilteredIn;         // Debemos estar accediendo a esta entrada a través de un salto. Ya se reconsiderará el estado Filtered al volver a entrar en el nodo
+          FEntriesShown[FiEntry].Content:= cmWholeEntry;
+       end;
+
        if ((FiEntry < 0) or (FiEntry > Length(FEntriesShown)-1))
                     and (ActionOnEntry <> aCreating) then begin
 
@@ -1748,13 +1755,6 @@ begin
               if PanelConfig.MECustomiz.DescendingOrder then
                  FiEntry:= Length(FEntriesShown)-1;
            end;
-       end;
-
-       if CalculateEntriesToShow and (iSelectedEntry >= 0) and (FiEntry >= 0) and (FEntriesShown[FiEntry].Content = cmHidden) and
-          (not FEntriesShown[FiEntry].NEntry.IsEncrypted or not ActiveFile.EncryptedContentMustBeHidden)  then begin
-          CheckFiltered(FiEntry);
-          if FEntriesShown[FiEntry].Filtered <> fFilteredOut then
-             FEntriesShown[FiEntry].Content:= cmWholeEntry;
        end;
 
        // We might have an encrypted entry selected, which then becomes hidden. We must select a non-hidden entry.
@@ -2038,9 +2038,8 @@ function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEn
        if i >= 0 then begin
           Result:= True;
           if (PanelConfig.CurrentMode = meMultiEntry) then begin
-             if (FEntriesShown[i].Content in [cmOnlyHeader, cmHidden]) then begin
+             if (FEntriesShown[i].Content = cmOnlyHeader) or not FEntriesShown[i].IsVisible then begin
                 PanelConfig.SelNEntry:= NEntry;
-                FEntriesShown[i].Filtered:= fFilteredIn;
                 ReloadVisibleContentOfEntries (false, cmWholeEntry, i);
              end;
 
@@ -2747,12 +2746,11 @@ var
    NEntry: TNoteEntry;
    CreatedDate: TDateTime;
 begin
-   if not ModifyAll and ((iEntry < 0) or (FEntriesShown[iEntry].Content = NewContent)) then exit;
+   if not ModifyAll and ((iEntry < 0) or ((FEntriesShown[iEntry].Content = NewContent) and (FEntriesShown[iEntry].Filtered <> fFilteredOut)) ) then exit;
 
    if iEntry >= 0 then begin
-      CheckFiltered(iEntry);
-      if FEntriesShown[iEntry].Filtered <> fFilteredOut then
-         FEntriesShown[iEntry].Content:= NewContent;
+      FEntriesShown[iEntry].Filtered:= fFilteredIn;
+      FEntriesShown[iEntry].Content:= NewContent;
    end;
 
    if ModifyAll then begin
