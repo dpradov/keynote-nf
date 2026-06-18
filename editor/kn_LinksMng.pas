@@ -823,7 +823,7 @@ begin
       // Allow the mark (hidden) although Folder is ReadOnly
       EditorBase:= Editor;
       RTFAux:= nil;
-      if ((NEntriesUI <> nil) and (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry)) then begin
+      if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry) then begin
          SS:= Editor.SelStart;
          NEntriesUI.GetEntryBoundaries(NEntriesUI.NEntry, PosStartEntry, PosEndEntry);
          RTFAux:= CreateAuxRichEdit;
@@ -848,15 +848,17 @@ begin
                 KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
              end;
 
-             InsertMarker(EditorBase, KEY_Marker, TargetMarker);
+             if assigned(RTFAux) then
+                NEntriesUI.InsertMarkerInMultiEntryEditor(NEntriesUI.NEntry, KEY_Marker, TargetMarker, RTFAux)
+             else
+                InsertMarker(EditorBase, KEY_Marker, TargetMarker);
+
           end;
           strTargetMarker:= Format(GetRS(sLnk31) + GetRS(sLnk32), [TargetMarker]);
           aLocation.Mark:= TargetMarker;
       finally
-         if RTFAux <> nil then begin
-            NEntriesUI.SaveToDataModel(RTFAux, NEntriesUI.NEntry);
+         if RTFAux <> nil then
             RTFAux.Free;
-         end;
       end;
 
     end;
@@ -1627,16 +1629,8 @@ begin
 
    if Stream = nil then exit(0);
 
-   if imLinkTextPlain = '' then begin
-      var RTFAux: TAuxRichEdit;
-      RTFAux:= CreateAuxRichEdit;
-      try
-         imLinkTextPlain:= PrepareTextPlain(NEntry, RTFAux);
-      finally
-         RTFAux.Free;
-      end;
-   end;
-
+   if imLinkTextPlain = '' then
+      imLinkTextPlain:= PrepareTextPlain(NEntry);
 
 
    // See notes in ImagesManager.GetPositionOffset

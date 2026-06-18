@@ -152,7 +152,7 @@ type
     procedure NEntryHidden(NEntry: TNoteEntry; Hidden: boolean; CreatedBefore: TDateTime = 0);
     procedure NEntryReadOnlyChanged(NEntry: TNoteEntry);
     procedure SaveToDataModel; overload;
-    procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
+    procedure InsertMarkerInMultiEntryEditor (NEntry: TNoteEntry; KEYMarker: Char; TargetMarker: integer; RTFAux: TAuxRichEdit);
     procedure SavePositionInPanel;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
@@ -176,6 +176,7 @@ type
     function NEntryToBeFilteredIn (NNode: TNoteNode; NEntry: TNoteEntry; var EntryFragments: TEntryFragments): boolean;
     function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
     function CheckFiltered (iEntry: integer): boolean;
+    procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
@@ -2336,6 +2337,48 @@ begin
      end;
 
   end;
+end;
+
+
+procedure TKntNoteEntriesUI.InsertMarkerInMultiEntryEditor (NEntry: TNoteEntry; KEYMarker: Char; TargetMarker: integer; RTFAux: TAuxRichEdit);
+var
+  iEntry: integer;
+  TxtPlain: string;
+  Offset, i: integer;
+
+begin
+   if PanelConfig.CurrentMode <> meMultiEntry then exit;
+
+   iEntry:= GetIndexOfIncludedEntry(NEntry);
+   if iEntry < 0 then exit;
+
+   TxtPlain:= NEntry.TextPlain;
+   if TxtPlain = '' then
+      TxtPlain:= PrepareTextPlain(NEntry);
+
+   InsertMarker(RTFAux, KEYMarker, TargetMarker);
+   SaveToDataModel(RTFAux, NEntry);
+
+   Editor.ReadOnly:= False;
+   try
+      Editor.SelLength:= 0;
+      InsertMarker(Editor, KEYMarker, TargetMarker);
+
+      Offset:= Length(NEntry.TextPlain) - Length(TxtPlain);
+      if (Offset <> 0) then begin
+         inc(FEntriesShown[iEntry].FinalPos, Offset);
+         for i:= iEntry+1 to High(FEntriesShown) do begin
+            inc(FEntriesShown[i].StartingPos, Offset);
+            inc(FEntriesShown[i].StartingContentPos, Offset);
+            inc(FEntriesShown[i].FinalPos, Offset);
+         end;
+      end;
+
+   finally
+     Editor.ReadOnly:= True;
+     Editor.Modified:= False;
+   end;
+
 end;
 
 

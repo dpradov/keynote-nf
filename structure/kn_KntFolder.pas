@@ -374,7 +374,8 @@ type
   end; // TKntFolder
 
   function InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
-  function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
+  function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string; overload;
+  function PrepareTextPlain(NEntry: TNoteEntry; ClearRTFAux: boolean= False): string; overload;
   procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
 
 
@@ -2112,6 +2113,18 @@ begin
    if ClearRTFAux and (RTFAux.TextLength > 0) then
       RTFAux.Clear;
    Result:= NEntry.TextPlain;
+end;
+
+function PrepareTextPlain(NEntry: TNoteEntry; ClearRTFAux: boolean= False): string;
+var
+   RTFAux: TAuxRichEdit;
+begin
+   RTFAux:= CreateAuxRichEdit;
+   try
+      Result:= PrepareTextPlain(NEntry, RTFAux, ClearRTFAux);
+   finally
+      RTFAux.Free;
+   end;
 end;
 
 
