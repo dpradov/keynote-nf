@@ -254,6 +254,8 @@ var
    AFileIsLoading: boolean;
    HandlingTimerTick: boolean;
    UpdatingTextPlain: boolean;
+   CreatingNewEntry: boolean;
+
 
    IgnoringEditorChanges: boolean;
    FloatingEditorCannotBeSaved: boolean;
@@ -399,6 +401,7 @@ begin
    IgnoringEditorChanges:= false;
    HandlingTimerTick:= false;
    UpdatingTextPlain:= false;
+   CreatingNewEntry:= false;
    fTagsState:= tsPendingUpdate;
    ModalFormWithTxtTagsVisible:= false;
    InformingSomeoneChangedOurFile:= false;

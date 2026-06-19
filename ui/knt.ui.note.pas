@@ -1450,7 +1450,7 @@ begin
   FHideFocusFlag:= false;
 
   if CtrlDown then begin
-     if (FQueryLayout and (NEntry = nil)) or
+     if (FQueryLayout and (NEntry = nil) and (NEntriesUI.PanelConfig.CurrentMode <> meMultiEntry)) or
         ((FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets) then begin
 
         LoadFromNNode(FNNode, True, neQueryLayout);
@@ -1597,29 +1597,34 @@ begin
 
    if (ReqFromNEntriesUI.Editor.TextLength=0) then exit;  // Do not create a new entry by mistake if the current entry is empty
 
-   NewNEntry:= Note.AddNewEntry;
-   Folder.Modified:= True;
+   CreatingNewEntry:= True;
+   try
+     NewNEntry:= Note.AddNewEntry;
+     Folder.Modified:= True;
 
-   if ReqFromNEntriesUI.TagsToUseOnNewEntry <> nil then
-      NewNEntry.Tags:= ReqFromNEntriesUI.TagsToUseOnNewEntry
-   else
-   if ReqFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
-      NewNEntry.Tags:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
+     if ReqFromNEntriesUI.TagsToUseOnNewEntry <> nil then
+        NewNEntry.Tags:= ReqFromNEntriesUI.TagsToUseOnNewEntry
+     else
+     if ReqFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
+        NewNEntry.Tags:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
 
-   if ReqFromNEntriesUI.NEntry = nil then begin
-      // Add new entry in panel (the user has just started making changes in the empty editor of the associated panel)
-      ReqFromNEntriesUI.PanelConfig.SelNEntry:= NewNEntry;
-      ReqFromNEntriesUI.NEntry:= NewNEntry;
-      ReqFromNEntriesUI.ReloadMetadataFromDataModel;
-      ReqFromNEntriesUI.ConfigureEditor;
+     if ReqFromNEntriesUI.NEntry = nil then begin
+        // Add new entry in panel (the user has just started making changes in the empty editor of the associated panel)
+        ReqFromNEntriesUI.PanelConfig.SelNEntry:= NewNEntry;
+        ReqFromNEntriesUI.NEntry:= NewNEntry;
+        ReqFromNEntriesUI.ReloadMetadataFromDataModel;
+        ReqFromNEntriesUI.ConfigureEditor;
+     end;
+
+     // Inform the panels that a new entry has been added. Those panels where it fits will include it, initially only showing the header
+     for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+        if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+           FNEntriesUI[p].ReloadFromDataModel(false, NewNEntry, aCreated);
+     end;
+
+   finally
+     CreatingNewEntry:= false;
    end;
-
-   // Inform the panels that a new entry has been added. Those panels where it fits will include it, initially only showing the header
-   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
-      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
-         FNEntriesUI[p].ReloadFromDataModel(false, NewNEntry, aCreated);
-   end;
-
 end;
 
 

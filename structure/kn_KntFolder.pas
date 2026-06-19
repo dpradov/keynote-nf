@@ -2107,7 +2107,8 @@ end;
 // myTreeNode must be active node in folder, so that the Editor is showing its content
 function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
 begin
-   App.SaveEditorModifiedWithNEntry(NEntry);
+   if not CreatingNewEntry then
+      App.SaveEditorModifiedWithNEntry(NEntry);
 
    InitializeTextPlain(NEntry, RTFAux);
    if ClearRTFAux and (RTFAux.TextLength > 0) then
