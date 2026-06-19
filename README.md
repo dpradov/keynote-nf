@@ -75,7 +75,7 @@ This project is an evolution of Tranglos Keynote (of Marek Jedlinski), with new 
    * Added options in treeview context menu to hide/show child nodes based on checked status
 
  * *Hidden nodes* <br> Capacity to work with hidden nodes. Nodes can be hidden in two ways:
-   * Activating a mode wich automatically hides checked nodes (Show or Hide checked nodes)
+   * Activating a mode which automatically hides checked nodes (Show or Hide checked nodes)
    * Filtering one note's nodes or all notes under a searching criterion (Filter Tree Note)
 
  * *Linked nodes*: share the content of a same note <br>
