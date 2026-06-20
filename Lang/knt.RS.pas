@@ -1053,7 +1053,7 @@ const
    sEntry15 = 55165;   // Whole entry
    sEntry16 = 55166;   // Only an extract from the beginning
 
-   sEntry17 = 55167;   // Review the purposes for "%s".
+   sEntry17 = 55167;   // Review the uses for "%s".
    sEntry18 = 55168;   // Query layout
    sEntry19 = 55169;   // Editing Layout
    sEntry20 = 55170;   // Make sure to:\^\^ * Select '%s' in one (and only one) panel\^\^ * Do not select more than one panel with:\^   '%s'\^\^ * Select for panel C:\^   '%s' or '%s'\^\^ * Specify a tag for each:\^   '%s'
@@ -1062,7 +1062,9 @@ const
    sEntry22 = 55172;   // On the highest panel (full width)
    sEntry23 = 55173;   // On the lowest panel (full width)
    sEntry24 = 55174;   // , excluding "Linked to tags"
-   sEntry25 = 55175;   // Switch between single and multi entry modes\^Num.Entries: %d (%d hidden)
+   sEntry25 = 55175;   // Switch between single and multi entry modes\^Num.Entries: %d (%d hidden) [%s]
+   sEntry26 = 55176;   // Single-Entry
+   sEntry27 = 55177;   // Multi-Entry
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !

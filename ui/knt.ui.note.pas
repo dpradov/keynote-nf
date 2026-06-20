@@ -797,8 +797,10 @@ begin
    NEntriesUI:= GetNEntriesUI(Panel);
    if NEntriesUI = nil then exit;
 
-   if FQueryLayout and WithoutVisibleEntries and (NEntriesUI.PanelConfig.Panel <> pnCenter) then
-      ShowEntriesUIPanel(NEntriesUI.PanelConfig.Panel, False)
+   if FQueryLayout and WithoutVisibleEntries and (NEntriesUI.PanelConfig.Panel <> pnCenter) then begin
+      if not NEntriesUI.PanelConfig.MECustomiz.Filter.Enabled then
+         ShowEntriesUIPanel(NEntriesUI.PanelConfig.Panel, False);
+   end
    else begin
       NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
       DisableChangedInEmptyPanelAt:= now;
@@ -1978,7 +1980,8 @@ begin
           if Pnl = PnlWithEditorInfoPanel then
              FNEntriesUI[Pnl].PanelConfig.ShowEditorInfoPanel:= True;
 
-          if (Pnl <> pnCenter) and QueryLayout and not (OfferEditorForNewEntry and (Pnl = PnlToSetFocus)) and (FNEntriesUI[Pnl].NEntry = nil) then
+          if (Pnl <> pnCenter) and QueryLayout and not FNEntriesUI[Pnl].PanelConfig.MECustomiz.Filter.Enabled and
+                                not (OfferEditorForNewEntry and (Pnl = PnlToSetFocus)) and (FNEntriesUI[Pnl].NEntry = nil) then
              ShowPanel[Pnl]:= False        // OnUse but not visible for now
 
           else begin

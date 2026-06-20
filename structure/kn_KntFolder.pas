@@ -3490,7 +3490,7 @@ begin
          if not (FFocusedPanel in [pnTL, pnTR]) then begin
             NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
             NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
-            if (NumInTL = 0) and (NumInTR = 0) and (FSizeRatios.Top > 0.05) then
+            if (NumInTL = 0) and (NumInTR = 0) and (Result > 0.05) then // (FSizeRatios.Top > 0.05) then
                Result:= 0.05;
          end
          else
@@ -3527,7 +3527,7 @@ begin
          if not (FFocusedPanel in [pnBL, pnBR]) then begin
             NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
             NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
-            if (NumInBL = 0) and (NumInBR = 0) and (FSizeRatios.Bottom > 0.05) then
+            if (NumInBL = 0) and (NumInBR = 0) and (Result > 0.05) then // (FSizeRatios.Bottom > 0.05) then
                Result:= 0.05;
          end
          else

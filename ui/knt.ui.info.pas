@@ -61,6 +61,7 @@ type
 
     EntriesOnlyHeader: TNoteEntryArray;
     HiddenEntriesDisplayed: TNoteEntryArray;
+    FilteredOutIgnoredEntries: TNoteEntryArray;
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
     SelStart : integer;               // ,,
