@@ -980,8 +980,8 @@ var
            if NEntrUI = nil then continue;
            if not NEntrUI.OnUse then continue;
            if CheckTagsVinc and
-                      ( (NEntrUI.PanelConfig.VinculatedTags = nil) or
-                         not NEntry.HasTags(NEntrUI.PanelConfig.VinculatedTags) ) then continue;
+                      ( (NEntrUI.PanelConfig.LinkedTags = nil) or
+                         not NEntry.HasTags(NEntrUI.PanelConfig.LinkedTags) ) then continue;
            if CheckMain and (NEntrUI <> MainEntriesUI) then continue;
            if CheckNEntriesUI(NEntrUI) then
               exit (NEntrUI);
@@ -1095,7 +1095,7 @@ function TKntNoteUI.GetPanelConfigForFindSelection(NNodeUIConfig: TNNodeUIConfig
       for i := 0 to High(NNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= NNodeUIConfig.PanelsConfig[i];
           if PanelConfig.Hidden then continue;
-          if TNoteTagArrayUtils.HasTags(PanelConfig.VinculatedTags, TagsIncl) then
+          if TNoteTagArrayUtils.HasTags(PanelConfig.LinkedTags, TagsIncl) then
              exit (PanelConfig);
       end;
   end;
@@ -1389,7 +1389,7 @@ end;
 
 
 // Only Ctrl+INTRO are intercepted
-// or, also, INTRO in editors where Editor.MultiEntries = True (=> NEntriesUI.CurrentMode = meMultiEntries)
+// or, also, INTRO in editors where Editor.MultiEntry = True (=> NEntriesUI.CurrentMode = meMultiEntry)
 
 {
 Behavior of Ctrl+Enter
@@ -1397,28 +1397,28 @@ Ctrl+Enter: Outside of its objective mode (MainMode)?
      Yes: Return to that mode, keeping the layout -> ToggleMulti
      No: Switch to the other layout.
 Examples:
-- In QL: in "All entries" panel (MainMode=MultiEntries), multi-entries mode => switch to EditingLayout (EL)
-- In QL: in "All entries" panel, single-entry mode => stay in QueryLayout (QL) and return to multi-entries mode
-- In QL: in "Vinculated to tags" panel (MainMode=MultiEntries), multi-entries mode => switch to EL
+- In QL: in "All entries" panel (MainMode=MultiEntry), multi-entry mode => switch to EditingLayout (EL)
+- In QL: in "All entries" panel, single-entry mode => stay in QueryLayout (QL) and return to multi-entry mode
+- In QL: in "Linked to tags" panel (MainMode=MultiEntry), multi-entry mode => switch to EL
 - In QL: in "Selected entry" panel (MainMode=SingleEntry), single-entry mode => switch to EL
-- In QL: in "Selected entry" panel, multi-entries mode  => stay in QL and return to single-entry mode
+- In QL: in "Selected entry" panel, multi-entry mode  => stay in QL and return to single-entry mode
 - Idem with EL
 
 
 (*1) Exception to that rule:
-   If in EL there is no "Selected entry" panel and we are in the "All Entries" panel (MainMode=MultiEntries and not vinculated to tags)
+   If in EL there is no "Selected entry" panel and we are in the "All Entries" panel (MainMode=MultiEntry and not vinculated to tags)
    displaying a single entry, as a consequence of a switch from QL => Ctrl+Enter will switch back to QL.
-   If in that situation (no "Selected entry" panel), in EL, while we are in the "All Entries" panel we return to multi-entries mode
+   If in that situation (no "Selected entry" panel), in EL, while we are in the "All Entries" panel we return to multi-entry mode
    using the button in info panel (button with the number of the current entry) and then edit any entry using ENTER, when we then
    press Ctrl+Enter with "All Entries" panel displaying a single entry, the behaviour will reset to default: the panel will return
-   to multi-entries mode.
+   to multi-entry mode.
 
    This behavior aims to make it more intuitive the inmediate return to QL from EL: select an entry from QL, press Ctrl+Enter ->
    switch to EL and edit that entry in that layout, on its "All entries" panel in single-entry mode; Ctrl+Enter -> switch back to QL
    (the same observed behaviour, with that sequence, if in EL there was a "Selected entry" panel)
-   However, if once we switched to EL from QL we have moved the "All Entries" panel to multi-entries mode (using the button),
+   However, if once we switched to EL from QL we have moved the "All Entries" panel to multi-entry mode (using the button),
    it seems more intuitive to prioritize the default behavior, that is, returning to what it is more recent: the panel in
-   multi-entries mode, which is the target mode, MainMode.
+   multi-entry mode, which is the target mode, MainMode.
 
 
 Switching from EL to QL or vice versa
@@ -1454,12 +1454,12 @@ begin
         ((FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets) then begin
 
         LoadFromNNode(FNNode, True, neQueryLayout);
-        if (NEntriesUI.PanelConfig.MainMode <> NEntriesUI.PanelConfig.CurrentMode) then
+        if (NEntriesUI.PanelConfig.EntryModeForUse <> NEntriesUI.PanelConfig.CurrentMode) then
            NEntriesUI.btnToggleMultiClick(nil);
         exit;
      end
      else
-     if (NEntriesUI.PanelConfig.MainMode = meSingleEntry) and (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry) then begin
+     if (not NEntriesUI.PanelConfig.UseIsMultiEntry) and (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry) then begin
         NEntriesUI.btnToggleMultiClick(nil);
         exit;
      end
@@ -1469,7 +1469,7 @@ begin
            // -> ToQueryLayout:= True    (*1)
 
         else begin
-           if (NEntriesUI.PanelConfig.MainMode = meMultiEntry) then begin   // -> Single <> Multi
+           if (NEntriesUI.PanelConfig.UseIsMultiEntry) then begin   // -> Single <> Multi
               NEntriesUI.btnToggleMultiClick(nil);
               exit;
            end
@@ -1550,7 +1550,7 @@ begin
      This mode is typically configured to offer fewer panels, or only when there is data to display.
      For example, if the note has only one entry, normally only one panel will be shown. }
 
-   TagsToAddToNewEntry:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
+   TagsToAddToNewEntry:= ReqFromNEntriesUI.PanelConfig.LinkedTags;
 
 
    DisableChangedInEmptyPanelAt:= Now;              // Will be enabled in TForm_Main.ApplicationEventsIdle
@@ -1605,8 +1605,8 @@ begin
      if ReqFromNEntriesUI.TagsToUseOnNewEntry <> nil then
         NewNEntry.Tags:= ReqFromNEntriesUI.TagsToUseOnNewEntry
      else
-     if ReqFromNEntriesUI.PanelConfig.VinculatedTags <> nil then
-        NewNEntry.Tags:= ReqFromNEntriesUI.PanelConfig.VinculatedTags;
+     if ReqFromNEntriesUI.PanelConfig.LinkedTags <> nil then
+        NewNEntry.Tags:= ReqFromNEntriesUI.PanelConfig.LinkedTags;
 
      if ReqFromNEntriesUI.NEntry = nil then begin
         // Add new entry in panel (the user has just started making changes in the empty editor of the associated panel)
@@ -1656,7 +1656,7 @@ begin
    if FNNodeUIConfig.MaximizedPanel = PnlReq then
       PnlEdit:= PnlReq
    else
-   if not DefinedSingleEntryPanelForEditing or (not Folder.NoteAdvOptions.EditTagVincEntryInSelectedEntryPanel) then begin
+   if not DefinedSingleEntryPanelForEditing or (not Folder.NoteAdvOptions.EditTagLinkedEntryInSelectedEntryPanel) then begin
       PnlEdit:= PnlReq;
       if not NewEntry and not InitialReqWasNil then begin
          ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
@@ -2062,7 +2062,7 @@ begin
             FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntriesUI[p].PanelConfig;
             inc(iOnUse);
             if p in MainPanels then begin                              // Main panels: [pnTL..pnBR]
-               if FNEntriesUI[p].PanelConfig.VinculatedTags = nil then
+               if FNEntriesUI[p].PanelConfig.LinkedTags = nil then
                   SelNEntriesUI:= FNEntriesUI[p];
             end;
          end
@@ -2070,7 +2070,7 @@ begin
             FreeAndNil(FNEntriesUI[p].PanelConfig);
       end;
 
-   if (FSelectedNEntriesUI <> nil) and (FSelectedNEntriesUI.PanelConfig.Panel in MainPanels) and (FSelectedNEntriesUI.PanelConfig.VinculatedTags = nil) then
+   if (FSelectedNEntriesUI <> nil) and (FSelectedNEntriesUI.PanelConfig.Panel in MainPanels) and (FSelectedNEntriesUI.PanelConfig.Use <> pnuShowTagLinkedEntries) then
       SelNEntriesUI:= FSelectedNEntriesUI;
 
    if SelNEntriesUI <> nil then

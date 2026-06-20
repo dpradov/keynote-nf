@@ -2888,7 +2888,7 @@ Button_OK.Caption=&Close
 55158_knt_RS_sEntry08=  (AND ALL created before it)
 55159_knt_RS_sEntry09=Keep panel hidden
 55160_knt_RS_sEntry10=Only if there is any entry including the tag[s]:
-55161_knt_RS_sEntry11=Vinculated to the tag[s]:
+55161_knt_RS_sEntry11=Linked to the tag[s]:
 55162_knt_RS_sEntry12=Selected entry
 55163_knt_RS_sEntry13=All entries
 55164_knt_RS_sEntry14=Only header
@@ -2901,7 +2901,7 @@ Button_OK.Caption=&Close
 55171_knt_RS_sEntry21=On the "All Entries" panel
 55172_knt_RS_sEntry22=On the highest panel (full width)
 55173_knt_RS_sEntry23=On the lowest panel (full width)
-55174_knt_RS_sEntry24=, excluding "Vinculated to tags"
+55174_knt_RS_sEntry24=, excluding "Linked to tags"
 55175_knt_RS_sEntry25=Switch between single and multi entry modes - \^Num.Entries: %d (%d hidden)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

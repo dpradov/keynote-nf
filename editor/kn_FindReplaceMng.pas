@@ -3489,7 +3489,7 @@ function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 begin
    if ActiveEditor = nil then exit(false);
 
-   if (ActiveEditor.NNodeObj = nil) or (not ActiveEditor.MultiEntries and not FindOptions.AllEntries_FindReplace) then
+   if (ActiveEditor.NNodeObj = nil) or (not ActiveEditor.MultiEntry and not FindOptions.AllEntries_FindReplace) then
       Result:= RunFindNextInEditor (Is_ReplacingAll)
    else
       Result:= RunFindNextInNotes (Is_ReplacingAll);
@@ -3817,7 +3817,7 @@ var
          if FindOptions.TagSearch and FoundClosingTag and (FindOptions.ReplaceWith = '') then
             inc(incSel);
 
-         if not NEntriesUI.Editor.MultiEntries then begin
+         if not NEntriesUI.Editor.MultiEntry then begin
             PosStartEntry:= 0;                   // PatternPos has been calculated considering only the text of the entry, and NEntriesUI.Editor is showing only that entry
             PosEndEntry:= -1;
          end;
@@ -3840,7 +3840,7 @@ var
      NEntryInCurrentSinglePanelEditor:= False;
      if (myFolder.NoteUI.NNode = NNode) then begin
         Editor:= myFolder.NoteUI.Editor;
-        if not Editor.MultiEntries and (TNoteEntry(Editor.NEntryObj) = myNEntry)  then
+        if not Editor.MultiEntry and (TNoteEntry(Editor.NEntryObj) = myNEntry)  then
            NEntryInCurrentSinglePanelEditor:= True;
      end;
 
@@ -3922,7 +3922,7 @@ begin
       // Identifying the starting position of the search ---------------------------
       if ( FindOptions.FindNew and FindOptions.EntireScope ) then begin
           SearchOrigin := 0;
-          if Editor.MultiEntries then begin
+          if Editor.MultiEntry then begin
              myFolder.NoteUI.GetPanelConfigOrderForFindSearch(NNode, myNEntry, FindOptions.FindTagsIncl_FindReplace, DescendingOrder);
              GetFirstEntry;                // Start from first entry in the panel/editor
              if myNEntry = nil then
@@ -3931,7 +3931,7 @@ begin
       end
       else begin
           SearchOrigin := Editor.SelStart;
-          if Editor.MultiEntries then begin                                       // -> Will use SearchInImLinkTextPlain:= true; (TextPlain from NEntry)
+          if Editor.MultiEntry then begin                                       // -> Will use SearchInImLinkTextPlain:= true; (TextPlain from NEntry)
              NEntriesUI.GetEntryBoundaries(myNEntry, PosStartEntry, PosEndEntry);
              if not CalculatedReplacingLastNEntryHasRegImg or ReplacingLastNEntryHasRegImg then
                 SearchOrigin:= PositionInImLinkTextPlain (Editor, myNEntry, SearchOrigin, False, PosStartEntry, PosEndEntry)
@@ -3955,7 +3955,7 @@ begin
          StartNEntry:= myNEntry;
          NumberFoundItems:= 0;
          FindOptions.FindNew := False;
-         SearchAllEntries:= FindOptions.AllEntries_FindReplace or Editor.MultiEntries;
+         SearchAllEntries:= FindOptions.AllEntries_FindReplace or Editor.MultiEntry;
       end;
 
 
@@ -4379,7 +4379,7 @@ begin
        SelectedTextToReplace:= IdentifySelectedTextToReplace
     else
         if not FindOptions.ReplaceConfirm then begin
-           RestoreMultiEntriesInEditor:= Editor.MultiEntries and assigned(Editor.NEntriesUIObj) and not FindOptions.AllEntries_FindReplace;
+           RestoreMultiEntriesInEditor:= Editor.MultiEntry and assigned(Editor.NEntriesUIObj) and not FindOptions.AllEntries_FindReplace;
            BeginUpdateOnFolders;
            screen.Cursor := crHourGlass;
         end;
@@ -4407,7 +4407,7 @@ begin
                        break;
 
                 if GetReplacementConfirmation then begin
-                   if Editor.MultiEntries then begin
+                   if Editor.MultiEntry then begin
                       NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
                       if assigned(NEntriesUI) and NEntriesUI.GetPreparedForJump(NEntriesUI.NEntry, PosStartEntry, PosEndEntry, True) then begin
                          dec(SS, PosStartEntry);
@@ -4456,7 +4456,7 @@ begin
 
   finally
     screen.Cursor := crDefault;
-    if RestoreMultiEntriesInEditor and not Editor.MultiEntries then begin
+    if RestoreMultiEntriesInEditor and not Editor.MultiEntry then begin
        NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
        NEntriesUI.btnToggleMultiClick(nil);
     end;

@@ -181,7 +181,7 @@ begin
 
   CheckEnableChkControls;
 
-  if not (Editor.MultiEntries and not ActiveFolder.Readonly) and not App.CheckActiveEditorNotReadOnly then begin
+  if not (Editor.MultiEntry and not ActiveFolder.Readonly) and not App.CheckActiveEditorNotReadOnly then begin
      modeReplace:= False;
      Tab_Replace.Enabled:= False;
   end

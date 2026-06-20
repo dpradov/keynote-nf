@@ -1092,8 +1092,8 @@ type
 type
   TNEntriesPanelUse = (
      pnuHidePanel,                 //  Keep panel hidden
-     pnuShowVinculatedWithTags,    //  QueryLayout:  Show only if there is any entry with any of the indicated tag
-                                   //  EdtingLayout: Show vinculated to the indicated tags
+     pnuShowTagLinkedEntries,      //  QueryLayout:  Show only if there is any entry with any of the indicated tag
+                                   //  EdtingLayout: Show linked to the indicated tags
      pnuShowSelectedEntry,         //  Show Selected entry    (0 or 1)
      pnuShowAllEntries             //  Show All entries       (1)
   );
@@ -1102,7 +1102,7 @@ type
   TEditorInfoBarPos = (
     ibpAllEntries,               // Always in the "All Entries" panel
     ibpMostExtreme,              // In the lowest (or highest, depending on configuration) possible panel
-    ibpMostExtremeExcVincTag     // In the lowest (or highest, depending on configuration) possible panel, excluding those vinculated to tags
+    ibpMostExtremeExcVincTag     // In the lowest (or highest, depending on configuration) possible panel, excluding those linked to tags
   );
 
 type
@@ -1342,12 +1342,12 @@ begin
   ENTRIES_PANELS[pnR3]:= 'R3';
 
   ENTRIES_PANEL_USES_QL[pnuHidePanel]:=               GetRS(sEntry09);
-  ENTRIES_PANEL_USES_QL[pnuShowVinculatedWithTags]:=  GetRS(sEntry10);
+  ENTRIES_PANEL_USES_QL[pnuShowTagLinkedEntries]:=    GetRS(sEntry10);
   ENTRIES_PANEL_USES_QL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
   ENTRIES_PANEL_USES_QL[pnuShowAllEntries]:=          GetRS(sEntry13);
 
   ENTRIES_PANEL_USES_EL[pnuHidePanel]:=               GetRS(sEntry09);
-  ENTRIES_PANEL_USES_EL[pnuShowVinculatedWithTags]:=  GetRS(sEntry11);
+  ENTRIES_PANEL_USES_EL[pnuShowTagLinkedEntries]:=    GetRS(sEntry11);
   ENTRIES_PANEL_USES_EL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
   ENTRIES_PANEL_USES_EL[pnuShowAllEntries]:=          GetRS(sEntry13);
 

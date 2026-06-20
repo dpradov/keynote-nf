@@ -550,7 +550,7 @@ begin
   //colorEdLay:= txtName.Color;
   colorMax:= clBtnFace;
   if PanelConfig.ShowEditorInfoPanel then begin
-    if PanelConfig.EditingLayout then begin
+    if PanelConfig.StLayout = spInEL then begin
        //colorEdLay:= RGB(190,190,190);
        colorMax:= RGB(220,220,240);
     end;
@@ -745,7 +745,7 @@ begin
    else begin
       Tags:= TagsToUseOnNewEntry;
       if Tags = nil then
-         Tags:= PanelConfig.VinculatedTags;
+         Tags:= PanelConfig.LinkedTags;
       if (Tags <> nil) then begin
          S:= TNoteTagArrayUtils.ToNames(Tags);
          Color:= clMaroon;
@@ -1046,7 +1046,7 @@ var
 
    case PanelConfig.Scope of
       fsSelectedNode: begin
-         Result:= FNote.IsValid(NEntry) and  not ((PanelConfig.VinculatedTags <> nil) and not NEntry.HasTags(PanelConfig.VinculatedTags));
+         Result:= FNote.IsValid(NEntry) and  not ((PanelConfig.LinkedTags <> nil) and not NEntry.HasTags(PanelConfig.LinkedTags));
       end;
 
       fsSelectedNodeAndSubtree: ;
@@ -1088,7 +1088,7 @@ var
    procedure CheckCandidateEntry;
    begin
       NEntry:= Note.Entries[iEntry];
-      if (PanelConfig.VinculatedTags = nil) or NEntry.HasTags(PanelConfig.VinculatedTags) then begin
+      if (PanelConfig.LinkedTags = nil) or NEntry.HasTags(PanelConfig.LinkedTags) then begin
          FEntriesShown[N].NEntry:= NEntry;
          FEntriesShown[N].NNode:= FNNode;
          FEntriesShown[N].Note:= FNote;
@@ -1441,7 +1441,7 @@ var
  begin
     Editor.Clear;
     fImagesReferenceCount:= nil;
-    if not ((PanelConfig.CurrentMode = meMultiEntry) and (PanelConfig.VinculatedTags = nil)) then begin
+    if not (PanelConfig.Use = pnuShowAllEntries) then begin
        PanelConfig.CurrentMode:= meSingleEntry;
        Mode:= meSingleEntry;
     end;
@@ -1499,7 +1499,7 @@ begin
       if (FEntriesShown = nil) and (PanelConfig.StLayout = spInQL_ets) then      // *1
          exit;
 
-      if (ActionOnEntry in [aCreating, aCreatingFromOtherPanel]) and (PanelConfig.VinculatedTags = nil) then begin
+      if (ActionOnEntry in [aCreating, aCreatingFromOtherPanel]) and (PanelConfig.LinkedTags = nil) then begin
          // We must be in a note with one entry where a new entry is being created from this or other panel (a "Single Entry" panel)
       end
       else
@@ -1636,7 +1636,7 @@ begin
 
 
    if EntryToAdd then begin
-      if ( (Length(FEntriesShown) = 2) and (PanelConfig.MainMode = meMultiEntry) and (PanelConfig.VinculatedTags = nil) ) then begin
+      if (Length(FEntriesShown) = 2) and (PanelConfig.Use = pnuShowAllEntries) then begin
          EntryToAdd:= false;          // Process the two entries, not just the one to add
          NEntryToConsider:= nil;
       end;
@@ -1651,7 +1651,7 @@ begin
 
       if (Mode = meSingleEntry) then begin
          if (Length(FEntriesShown) = 2) then begin
-            if (PanelConfig.VinculatedTags <> nil) then begin
+            if (PanelConfig.LinkedTags <> nil) then begin
                if FiEntry < 0 then
                   FiEntry:= 0;
                if (FEntriesShown[FiEntry].Content <> cmHidden) and (FEntriesShown[FiEntry].Filtered <> fFilteredOut) then

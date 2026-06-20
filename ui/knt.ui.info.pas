@@ -38,7 +38,7 @@ uses
 type
   TStatusPanelLayout = (
      spInQL,                 // In QueryLayout,
-     spInQL_ets,              //   ,,   with an entry to show  (a note with only one entry that matches the tags of a vinculated-tag panel)
+     spInQL_ets,             //   ,,   with an entry to show  (a note with only one entry that matches the tags of a vinculated-tag panel)
      spInEL                  // In EditingLayout
    );
 
@@ -50,13 +50,12 @@ type
     Hidden: boolean;                    // In QueryLayout, when no entry is available (panels not shown because of maximized other panel will not be marked as hidden)
     ShowEditorInfoPanel: boolean;
     Maximized: boolean;
-    EditingLayout: boolean;
     Scope : TScopeInEntriesPanel;
-    MainMode: TModeEntriesUI;
+    Use: TNEntriesPanelUse;
     CurrentMode: TModeEntriesUI;
     NNodes: TNoteNodeList;             // *1
     SelectedNNode: TNoteNode;          // *1
-    VinculatedTags: TNoteTagArray;
+    LinkedTags: TNoteTagArray;
 
     MECustomiz: TMEPanelCustomization;
 
@@ -71,6 +70,8 @@ type
 
     constructor Create;
     destructor Destroy; override;
+    function UseIsMultiEntry: boolean;  inline;
+    function EntryModeForUse: TModeEntriesUI;  inline;
   end;
 
 
@@ -170,6 +171,20 @@ begin
     end;
 
    inherited;
+end;
+
+
+function TPanelConfiguration.UseIsMultiEntry: boolean;
+begin
+   Result:= (Use <> pnuShowSelectedEntry);
+end;
+
+function TPanelConfiguration.EntryModeForUse: TModeEntriesUI;
+begin
+    if Use = pnuShowSelectedEntry then
+       Result:= meSingleEntry
+    else
+       Result:= meMultiEntry;
 end;
 
 

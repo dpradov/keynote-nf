@@ -943,15 +943,15 @@ type
      DefaultUseForQL: array[TNEntriesMainPanel] of TNEntriesPanelUse;   // QL: QueryLayout
      DefaultUseForEL: array[TNEntriesMainPanel] of TNEntriesPanelUse;   // EL: EditingLayout
 
-     VinculatedTagsForQL: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
-     VinculatedTagsForEL: array[TNEntriesMainPanel] of TNoteTagArray;
+     LinkedTagsForQL: array[TNEntriesMainPanel] of TNoteTagArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
+     LinkedTagsForEL: array[TNEntriesMainPanel] of TNoteTagArray;
 
      DefaultMECustomizForQL: array[TNEntriesMainPanel] of TMEPanelCustomization;
      DefaultMECustomizForEL: array[TNEntriesMainPanel] of TMEPanelCustomization;
 
      ShowNewestEntryAtStartup: boolean;   // Show newest or oldest entry at startup, instead of last selected when TEditorOptions.SaveCaretPos = 0 (False)
      NewEntriesAlwaysOnEdLayout: boolean;
-     EditTagVincEntryInSelectedEntryPanel: boolean;   // Also for new entries
+     EditTagLinkedEntryInSelectedEntryPanel: boolean;   // Also for new entries
      EditorInfoBarPos:  TEditorInfoBarPos;
 
      ExtractOfText_MaxLength: integer;
@@ -1243,13 +1243,13 @@ begin
     if not OnlyCustomiz then begin
        EnableAdvEditionInSingleEntryNotes:= True;
        NewEntriesAlwaysOnEdLayout:= false;
-       EditTagVincEntryInSelectedEntryPanel:= true;
+       EditTagLinkedEntryInSelectedEntryPanel:= true;
 
        for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
           DefaultUseForQL[p] := pnuHidePanel;
           DefaultUseForEL[p] := pnuHidePanel;
-          VinculatedTagsForQL[p]:= nil;
-          VinculatedTagsForEL[p]:= nil;
+          LinkedTagsForQL[p]:= nil;
+          LinkedTagsForEL[p]:= nil;
        end;
        DefaultUseForQL[pnCenter] := pnuShowAllEntries;
        DefaultUseForEL[pnTL]     := pnuShowSelectedEntry;

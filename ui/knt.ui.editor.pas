@@ -158,7 +158,7 @@ type
     property NNodeObj: TObject read fNNodeObj;
     property NEntryObj: TObject read fNEntryObj;
     property NEntriesUIObj: TObject read fNEntriesUIObj;
-    property MultiEntries: boolean read fMultiEntries;
+    property MultiEntry: boolean read fMultiEntries;
 
     class property Copying: boolean read FCopying write FCopying;
     class property FoldingInScrapbook: boolean read FFoldingInScrapbook write FFoldingInScrapbook;
@@ -172,7 +172,7 @@ type
     property ZoomGoal: integer read FZoomGoal;
     property ZoomCurrent: integer read FZoomCurrent write FZoomCurrent;
 
-    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
+    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntry: boolean);
     procedure SetVinculatedEntryObj(NEntryObj: TObject);
     function ContainsRegisteredImages: boolean;
 
@@ -576,14 +576,14 @@ begin
   inherited Destroy;
 end;
 
-procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntries: boolean);
+procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntry: boolean);
 begin
    fFileObj:= FileObj;
    fFolderObj:= FolderObj;
    fNNodeObj:= NNodeObj;
    fNEntryObj:= NEntryObj;
    fNEntriesUIObj:= NEntriesUIObj;
-   fMultiEntries:= MultiEntries;
+   fMultiEntries:= MultiEntry;
 end;
 
 procedure TKntRichEdit.SetVinculatedEntryObj(NEntryObj: TObject);

@@ -960,7 +960,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55158,  " (AND ALL created before it)"
 55159,  "Keep panel hidden"
 55160,  "Only if there is any entry with the tag[s]:"
-55161,  "Vinculated to the tag[s]:"
+55161,  "Linked to the tag[s]:"
 55162,  "Selected entry"
 55163,  "All entries"
 55164,  "Only header"
@@ -973,6 +973,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55171, "On the \"All Entries\" panel"
 55172, "On the highest panel (full width)"
 55173, "On the lowest panel (full width)"
-55174, ", excluding \"Vinculated to tags\""
+55174, ", excluding \"Linked to tags\""
 55175, "Switch between single and multi entry modes - \nNum.Entries: %d (%d hidden)"
 }

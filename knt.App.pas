@@ -494,7 +494,7 @@ begin
        exit;
     end;
 
-    if ActiveEditor.ReadOnly and not (AllowMultiEntries and ActiveEditor.MultiEntries) then begin
+    if ActiveEditor.ReadOnly and not (AllowMultiEntries and ActiveEditor.MultiEntry) then begin
        WarnEditorIsReadOnly;
        exit;
     end;

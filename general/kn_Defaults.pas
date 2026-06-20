@@ -741,10 +741,10 @@ begin
      DefaultUseForEL[pnBL]:= TNEntriesPanelUse(cUseBLe.ItemIndex);
      DefaultUseForEL[pnBR]:= TNEntriesPanelUse(cUseBRe.ItemIndex);
 
-     // VinculatedTagsForQL and VinculatedTagsForEL are updated from OnChangeTagsIntrod
+     // LinkedTagsForQL and LinkedTagsForEL are updated from OnChangeTagsIntrod
 
      NewEntriesAlwaysOnEdLayout:= cb_NewInEL.Checked;
-     EditTagVincEntryInSelectedEntryPanel:= cb_VincTagInSel.Checked;
+     EditTagLinkedEntryInSelectedEntryPanel:= cb_VincTagInSel.Checked;
      ExtractOfText_MaxLength:= ExcerptMaxC.Value;
      ExtractOfText_MaxLines:= ExcerptMaxL.Value;
      AutoExpandInPanels:= cb_AutoExp.Checked;
@@ -766,7 +766,7 @@ procedure TForm_Defaults.PropsToForm;
      CB_Panel.Checked:= (myNoteAdvOptions.DefaultUseForQL[pnl] <> pnuHidePanel);
      ComboUse.ItemIndex:= Ord(myNoteAdvOptions.DefaultUseForQL[Pnl]);
      ComboUseChange(ComboUse);
-     Tags:= myNoteAdvOptions.VinculatedTagsForQL[Pnl];
+     Tags:= myNoteAdvOptions.LinkedTagsForQL[Pnl];
      if Tags <> nil then
         txtTags.Text:= TNoteTagArrayUtils.ToNames(Tags);
   end;
@@ -778,7 +778,7 @@ procedure TForm_Defaults.PropsToForm;
      CB_Panel.Checked:= (myNoteAdvOptions.DefaultUseForEL[pnl] <> pnuHidePanel);
      ComboUse.ItemIndex:= Ord(myNoteAdvOptions.DefaultUseForEL[Pnl]);
      ComboUseChange(ComboUse);
-     Tags:= myNoteAdvOptions.VinculatedTagsForEL[Pnl];
+     Tags:= myNoteAdvOptions.LinkedTagsForEL[Pnl];
      if Tags <> nil then
         txtTags.Text:= TNoteTagArrayUtils.ToNames(Tags);
   end;
@@ -837,7 +837,7 @@ begin
      LoadPanelConfigEL(pnBR, cb_BRe, cUseBRe, TagsBRe);
 
      cb_NewInEL.Checked:= NewEntriesAlwaysOnEdLayout;
-     cb_VincTagInSel.Checked:= EditTagVincEntryInSelectedEntryPanel;
+     cb_VincTagInSel.Checked:= EditTagLinkedEntryInSelectedEntryPanel;
      ExcerptMaxC.Value:= ExtractOfText_MaxLength;
      ExcerptMaxL.Value:= ExtractOfText_MaxLines;
      cb_AutoExp.Checked:= AutoExpandInPanels;
@@ -1107,7 +1107,7 @@ begin
 
    ComboUse.Enabled:= IsChecked;
    if LoadedForm then begin
-      pu:= pnuShowVinculatedWithTags;
+      pu:= pnuShowTagLinkedEntries;
       if not IsChecked then
          pu:= pnuHidePanel;
 
@@ -1187,8 +1187,8 @@ begin
    if pu = pnuHidePanel then
       CheckBox.Checked:= False;
 
-   txtTags.Enabled:= (pu = pnuShowVinculatedWithTags);
-   if pu <> pnuShowVinculatedWithTags then begin
+   txtTags.Enabled:= (pu = pnuShowTagLinkedEntries);
+   if pu <> pnuShowTagLinkedEntries then begin
       txtTags.Text:= '';
       OnChangeTagsIntrod(nil, '', txtTags);
       txtTags.Color:= clBtnFace;
@@ -1229,9 +1229,9 @@ begin
       Tags:= TNoteTagArrayUtils.FindTagsANDToTags(FindTags);
 
    if EL then
-      myNoteAdvOptions.VinculatedTagsForEL[pnl]:= Tags
+      myNoteAdvOptions.LinkedTagsForEL[pnl]:= Tags
    else
-      myNoteAdvOptions.VinculatedTagsForQL[pnl]:= Tags;
+      myNoteAdvOptions.LinkedTagsForQL[pnl]:= Tags;
 end;
 
 
@@ -1261,7 +1261,7 @@ begin
    with myNoteAdvOptions do begin
       for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
          case DefaultUseForQL[pnl] of
-             pnuShowVinculatedWithTags: if (pnl = pnCenter) or (VinculatedTagsForQL[pnl] = nil) then exit;
+             pnuShowTagLinkedEntries:   if (pnl = pnCenter) or (LinkedTagsForQL[pnl] = nil) then exit;
              pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
              pnuShowAllEntries:         inc(Num_ShowAllEntries);
              pnuHidePanel:              if (pnl = pnCenter) then exit;
@@ -1296,7 +1296,7 @@ begin
    with myNoteAdvOptions do begin
       for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
          case DefaultUseForEL[pnl] of
-             pnuShowVinculatedWithTags: if (pnl = pnCenter) or (VinculatedTagsForEL[pnl] = nil) then exit;
+             pnuShowTagLinkedEntries:   if (pnl = pnCenter) or (LinkedTagsForEL[pnl] = nil) then exit;
              pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
              pnuShowAllEntries:         inc(Num_ShowAllEntries);
              pnuHidePanel:              if (pnl = pnCenter) then exit;

@@ -3287,7 +3287,7 @@ var
   Enabled: boolean;
 begin
   if assigned(ActiveEditor) then begin
-    Enabled:= ActiveEditor.Enabled and (not ActiveEditor.ReadOnly or (not ActiveFolder.ReadOnly and ActiveEditor.MultiEntries));
+    Enabled:= ActiveEditor.Enabled and (not ActiveEditor.ReadOnly or (not ActiveFolder.ReadOnly and ActiveEditor.MultiEntry));
     MMFormatWordWrap.Enabled:= Enabled;
     TB_WordWrap.Enabled:= Enabled;
     RTFMWordwrap.Enabled:= Enabled;
@@ -8670,8 +8670,8 @@ begin
     RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
     RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
     RTFMDeleteEntry.Enabled:=   (ActiveNEntry <> nil);
-    RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntries;
-    RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntries;
+    RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+    RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);

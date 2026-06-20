@@ -2787,7 +2787,7 @@ begin
       Filter := FILTER_EXPORT;
       FilterIndex := KeyOptions.LastExportFormat;
 
-      if Editor.MultiEntries then
+      if Editor.MultiEntry then
          FilterIndex := 1  // RTF Text
 
       else begin
@@ -2847,7 +2847,7 @@ begin
     ExportSelectionOnly := ( Editor.SelLength > 0 );
 
     if exportformat in [xfRTF, xfHTML] then begin
-       if not Editor.MultiEntries and Editor.PlainText then begin
+       if not Editor.MultiEntry and Editor.PlainText then begin
           RTFAux:= CreateAuxRichEdit;
           RTFAux.PrepareEditorforPlainText(Editor.Chrome);
           if ExportSelectionOnly then

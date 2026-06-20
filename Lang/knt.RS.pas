@@ -1044,8 +1044,8 @@ const
    sEntry08 = 55158;   //  (AND ALL created before it)
 
    sEntry09 = 55159;   // Keep panel hidden                                      (pnuHidePanel)
-   sEntry10 = 55160;   // Only if there is any entry with the tag[s]:            (pnuShowVinculatedWithTags with QueryLayout)
-   sEntry11 = 55161;   // Vinculated to the tag[s]:                              (               ,,              EditingLayout)
+   sEntry10 = 55160;   // Only if there is any entry with the tag[s]:            (pnuShowTagLinkedEntries with QueryLayout)
+   sEntry11 = 55161;   // Linked to the tag[s]:                                  (               ,,            EditingLayout)
    sEntry12 = 55162;   // Selected entry                                         (pnuShowSelectedEntry)
    sEntry13 = 55163;   // All entries                                            (pnuShowAllEntries)
 
@@ -1061,7 +1061,7 @@ const
    sEntry21 = 55171;   // On the "All Entries" panel
    sEntry22 = 55172;   // On the highest panel (full width)
    sEntry23 = 55173;   // On the lowest panel (full width)
-   sEntry24 = 55174;   // , excluding "Vinculated to tags"
+   sEntry24 = 55174;   // , excluding "Linked to tags"
    sEntry25 = 55175;   // Switch between single and multi entry modes\^Num.Entries: %d (%d hidden)
 
    sUpd01 = 55052;   // You already have the latest version installed

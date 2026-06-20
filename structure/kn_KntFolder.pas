@@ -96,7 +96,7 @@ type
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
       destructor Destroy; override;
-      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMainMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aUse: TNEntriesPanelUse; NNode: TNoteNode): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
@@ -629,7 +629,6 @@ var
   procedure CheckChangesInNoteAdvOptions;
   var
     pnl: TNEntriesMainPanel;
-    pu: TNEntriesPanelUse;
 
   begin
     ChangeInQL:= false;
@@ -642,14 +641,14 @@ var
 
        for pnl := Low(pnl) to High(pnl) do
           if (myNoteAdvOptions.DefaultUseForQL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQL[pnl]) or
-             (myNoteAdvOptions.VinculatedTagsForQL[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForQL[pnl])      then begin
+             (myNoteAdvOptions.LinkedTagsForQL[pnl] <> myFolder.NoteAdvOptions.LinkedTagsForQL[pnl])      then begin
              ChangeInQL:= true;
              break;
           end;
 
        for pnl := Low(pnl) to High(pnl) do
           if (myNoteAdvOptions.DefaultUseForEL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForEL[pnl]) or
-             (myNoteAdvOptions.VinculatedTagsForEL[pnl] <> myFolder.NoteAdvOptions.VinculatedTagsForEL[pnl])      then begin
+             (myNoteAdvOptions.LinkedTagsForEL[pnl] <> myFolder.NoteAdvOptions.LinkedTagsForEL[pnl])      then begin
              ChangeInEL:= true;
              break;
           end;
@@ -1000,22 +999,22 @@ begin
   if TKntFile(FKntFile).NoteTags.Count = 0 then
      TKntFile(FKntFile).AddNTag('ToDO', 'TEST');
   Tags1[0]:= TKntFile(FKntFile).NoteTags[0];
-  NoteAdvOptions.DefaultUseForQL[pnTL]:= pnuShowVinculatedWithTags;
-  NoteAdvOptions.VinculatedTagsForQL[pnTL]:= Tags1;
+  NoteAdvOptions.DefaultUseForQL[pnTL]:= pnuShowTagLinkedEntries;
+  NoteAdvOptions.LinkedTagsForQL[pnTL]:= Tags1;
   NoteAdvOptions.DefaultUseForQL[pnBL] := pnuShowSelectedEntry;
   NoteAdvOptions.DefaultUseForQL[pnCenter] := pnuShowAllEntries;
 
-  NoteAdvOptions.DefaultUseForEL[pnTL] := pnuShowVinculatedWithTags;
+  NoteAdvOptions.DefaultUseForEL[pnTL] := pnuShowTagLinkedEntries;
   NoteAdvOptions.DefaultUseForEL[pnCenter] := pnuShowSelectedEntry;
   NoteAdvOptions.DefaultUseForEL[pnBL] := pnuShowAllEntries;
-  NoteAdvOptions.VinculatedTagsForEL[pnTL]:= Tags1;
+  NoteAdvOptions.LinkedTagsForEL[pnTL]:= Tags1;
 
   SetLength(Tags2, 1);
   if TKntFile(FKntFile).NoteTags.Count <= 1 then
      TKntFile(FKntFile).AddNTag('BUG', 'TEST');
   Tags2[0]:= TKntFile(FKntFile).NoteTags[1];
-  NoteAdvOptions.DefaultUseForEL[pnTR] := pnuShowVinculatedWithTags;
-  NoteAdvOptions.VinculatedTagsForEL[pnTR]:= Tags2;
+  NoteAdvOptions.DefaultUseForEL[pnTR] := pnuShowTagLinkedEntries;
+  NoteAdvOptions.LinkedTagsForEL[pnTR]:= Tags2;
 
 end; // CREATE
 
@@ -3657,11 +3656,11 @@ function TNNodeUIConfiguration.PanelConfig(Panel: TNEntriesPanel): TPanelConfigu
 begin
    Result:= GetCreatedPanelConfig(Panel);
    if Result = nil then
-      Result:= CreateDefaultPanelConfig(Panel, meMultiEntry, FNNode);
+      Result:= CreateDefaultPanelConfig(Panel, pnuShowAllEntries, FNNode);
 end;
 
 
-function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aMainMode: TModeEntriesUI; NNode: TNoteNode): TPanelConfiguration;
+function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aUse: TNEntriesPanelUse; NNode: TNoteNode): TPanelConfiguration;
 var
    L: integer;
    PanelConfig: TPanelConfiguration;
@@ -3680,17 +3679,16 @@ begin
        ShowEditorInfoPanel:= False;
        Hidden:= false;
        Scope:= fsSelectedNode;
-       MainMode:= aMainMode;
-       CurrentMode:= aMainMode;
+       Use:= aUse;
+       CurrentMode:= Result.EntryModeForUse;
        SelectedNNode:= NNode;
        NNodes:= nil;
-       EditingLayout:= not FQueryLayout;
        if FQueryLayout then begin
-          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForQL[aPanel];
+          LinkedTags:= FFolder.NoteAdvOptions.LinkedTagsForQL[aPanel];
           Result.MECustomiz:=  FFolder.NoteAdvOptions.DefaultMECustomizForQL[aPanel];
        end
        else begin
-          VinculatedTags:= FFolder.NoteAdvOptions.VinculatedTagsForEL[aPanel];
+          LinkedTags:= FFolder.NoteAdvOptions.LinkedTagsForEL[aPanel];
           Result.MECustomiz:=  FFolder.NoteAdvOptions.DefaultMECustomizForEL[aPanel];
        end;
 
@@ -3725,7 +3723,7 @@ begin
     if (NNode = nil) or
        (not Folder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes and (NNode.Note.NumEntries = 1)) then begin
 
-       Result.CreateDefaultPanelConfig (pnCenter, meSingleEntry, NNode);
+       Result.CreateDefaultPanelConfig (pnCenter, pnuShowSelectedEntry, NNode);
        exit;
     end;
 
@@ -3735,12 +3733,9 @@ begin
        else
           PnlUse:= Folder.NoteAdvOptions.DefaultUseForEL[p];
 
-       case PnlUse of
-         pnuShowVinculatedWithTags,
-         pnuShowAllEntries:    Result.CreateDefaultPanelConfig (p, meMultiEntry, NNode);
+       if PnlUse = pnuHidePanel then continue;
 
-         pnuShowSelectedEntry: Result.CreateDefaultPanelConfig (p, meSingleEntry, NNode);
-       end;
+       Result.CreateDefaultPanelConfig (p, PnlUse, NNode);
     end;
 
 end;
@@ -3760,7 +3755,7 @@ begin
    Result:= true;
    for i := 0 to High(PanelsConfig) do begin
        PanelConfig:= PanelsConfig[i];
-       if (PanelConfig.MainMode = meSingleEntry) and (PanelConfig.VinculatedTags = nil) then begin
+       if PanelConfig.Use = pnuShowSelectedEntry then begin
           Pnl:= PanelConfig.Panel;
           exit;
        end;
@@ -3777,7 +3772,7 @@ begin
    Result:= pnCenter;
    for i := 0 to High(PanelsConfig) do begin
        PanelConfig:= PanelsConfig[i];
-       if (PanelConfig.MainMode = meMultiEntry) and (PanelConfig.VinculatedTags = nil) then
+       if PanelConfig.Use = pnuShowAllEntries then
           exit (PanelConfig.Panel);
    end;
 end;
@@ -3819,19 +3814,19 @@ begin
        case PanelConfig.Panel of
           pnTL: begin
              TLv:= not PanelConfig.Hidden;
-             TLt:= (PanelConfig.VinculatedTags<>nil);
+             TLt:= (PanelConfig.LinkedTags<>nil);
           end;
           pnTR: begin
              TRv:= not PanelConfig.Hidden;
-             TRt:= (PanelConfig.VinculatedTags<>nil);
+             TRt:= (PanelConfig.LinkedTags<>nil);
           end;
           pnBL: begin
              BLv:= not PanelConfig.Hidden;
-             BLt:= (PanelConfig.VinculatedTags<>nil);
+             BLt:= (PanelConfig.LinkedTags<>nil);
           end;
           pnBR: begin
              BRv:= not PanelConfig.Hidden;
-             BRt:= (PanelConfig.VinculatedTags<>nil);
+             BRt:= (PanelConfig.LinkedTags<>nil);
           end;
        end;
    end;
