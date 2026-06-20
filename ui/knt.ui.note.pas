@@ -1912,7 +1912,10 @@ begin
    end;
 
    if assigned(NNode) then begin
-      MainPanel:= FNNodeUIConfig.GetMainPanel;
+      MainPanel:= pnCenter;
+      if not (FQueryLayout and not OfferEditorForNewEntry and (FNote.NumEntries = 1)) then
+         MainPanel:= FNNodeUIConfig.GetMainPanel;
+
       PnlToSetFocus:= MainPanel;
       DefinedSingleEntryPanelForEditing:= FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit);
 
