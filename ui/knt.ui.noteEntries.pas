@@ -532,7 +532,7 @@ function TKntNoteEntriesUI.HideTemporarilyEditorInfoBar: boolean;
 var
   KeepVisible: boolean;
 begin
-  KeepVisible:= txtTags.Focused or txtName.Focused; // or txtCreationDate.Focused;
+  KeepVisible:= CtrlDown or txtTags.Focused or txtName.Focused; // or txtCreationDate.Focused;
   if not KeepVisible then
      KeepVisible:= IsMouseOver(txtTags) or IsMouseOver(pnlButtons);
 
@@ -1456,7 +1456,7 @@ var
  begin
     NVisible:= NumberOfIncludedEntries(True);
     Total:= NumberOfIncludedEntries(False);
-    btnToggleMulti.Hint:= Format(GetRS(sEntry25), [Total, Total-NVisible]);
+    btnToggleMulti.Hint:= Format(GetRS(sEntry25), [Total, Total-NVisible, MODE_ENTRIES_UI[PanelConfig.CurrentMode]]);
  end;
 
 

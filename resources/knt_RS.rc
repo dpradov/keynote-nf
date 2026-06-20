@@ -966,7 +966,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55164,  "Only header"
 55165,  "Whole entry"
 55166,  "Only an extract from the beginning"
-55167, "Review the purposes for \"%s\". "
+55167, "Review the uses for \"%s\". "
 55168, "Query layout"
 55169, "Editing Layout"
 55170, "Make sure to:\n\n * Select '%s' in one (and only one) panel\n\n * Do not select more than one panel with:\n   '%s'\n\n * Select for panel C:\n   '%s' or '%s'\n\n * Specify a tag for each:\n   '%s'"
@@ -974,5 +974,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55172, "On the highest panel (full width)"
 55173, "On the lowest panel (full width)"
 55174, ", excluding \"Linked to tags\""
-55175, "Switch between single and multi entry modes - \nNum.Entries: %d (%d hidden)"
+55175, "Switch between single and multi entry modes - \nNum.Entries: %d (%d hidden) [%s]"
+55176, "Single-Entry"
+55177, "Multi-Entry"
 }

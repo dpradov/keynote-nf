@@ -1160,6 +1160,7 @@ var
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
 
+  MODE_ENTRIES_UI: array[TModeEntriesUI] of string;
   ENTRIES_PANELS : array[TNEntriesPanelBase] of string;
   ENTRIES_PANEL_USES_QL : array[TNEntriesPanelUse] of string;
   ENTRIES_PANEL_USES_EL : array[TNEntriesPanelUse] of string;
@@ -1329,6 +1330,9 @@ begin
   PluginFeatureNames[plWantsSavedFile]:= GetRS(sPlg11);
   PluginFeatureNames[plReloadFile]:=     GetRS(sPlg12);
   PluginFeatureNames[plStaysResident]:=  GetRS(sPlg13);
+
+  MODE_ENTRIES_UI[meSingleEntry]:= GetRS(sEntry26);
+  MODE_ENTRIES_UI[meMultiEntry]:=  GetRS(sEntry27);
 
   ENTRIES_PANELS[pnNone]:= '';
   ENTRIES_PANELS[pnTL]:= 'TL';
