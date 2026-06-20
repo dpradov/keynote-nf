@@ -58,7 +58,6 @@ type
     gbFilter: TGroupBox;
     cbType: TComboBox;
     Label3: TLabel;
-    lbl1: TLabel;
     txtText: TEdit;
     chkWholeWords: TCheckBox;
     chkCaseSens: TCheckBox;
@@ -74,6 +73,7 @@ type
     btnRestoreDef: TButton;
     chkEnabled: TCheckBox;
     chkResetSizes: TCheckBox;
+    chkApplyAll: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -91,12 +91,17 @@ type
 
   private
     { Private declarations }
+    FPrevActiveControlChange: TNotifyEvent;
+    procedure ScreenActiveControlChange(Sender: TObject);
 
     procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure ChangeFindInclToModeOR;
+
+  protected
+    procedure DoShow; override;
 
   public
     { Public declarations }
@@ -107,11 +112,13 @@ type
     Customiz: TMEPanelCustomization;
     QueryLayout: boolean;
     EntryContChanged: boolean;
+    ForceApplyFilter: boolean;
     ResetSizes: boolean;
+
+    destructor Destroy; override;
 
     procedure FormToProps;
     procedure PropsToForm;
-
   end;
 
 
@@ -158,6 +165,34 @@ begin
 end;
 // CREATE
 
+procedure TForm_NoteEntriesOptions.DoShow;
+begin
+  inherited;
+  FPrevActiveControlChange := Screen.OnActiveControlChange;   // We chain this in case any other code already uses this global event.
+  Screen.OnActiveControlChange := ScreenActiveControlChange;
+end;
+
+
+destructor TForm_NoteEntriesOptions.Destroy;
+var
+  LMethod: TNotifyEvent;
+begin
+  LMethod := ScreenActiveControlChange;
+  if TMethod(Screen.OnActiveControlChange).Code = TMethod(LMethod).Code then
+     Screen.OnActiveControlChange := FPrevActiveControlChange;
+  inherited;
+end;
+
+procedure TForm_NoteEntriesOptions.ScreenActiveControlChange(Sender: TObject);
+begin
+  if Assigned(FPrevActiveControlChange) then
+     FPrevActiveControlChange(Sender);
+
+  if (Screen.ActiveForm <> Self) then exit;
+
+  btn_OK.Default:= (Screen.ActiveControl <> txtTagsIncl) and (Screen.ActiveControl <> txtTagsExcl);
+end;
+
 function TForm_NoteEntriesOptions.FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
 begin
    CallHelp:= False;
@@ -188,6 +223,8 @@ begin
   btnRestoreDef.Hint:= Format(btnRestoreDef.Hint, [strPanel, strLayout]);
 
   PropsToForm;
+  if txtTagsIncl.CanFocus then
+     txtTagsIncl.SetFocus;
 
   Initializing := false;
 end; // ACTIVATE
@@ -247,6 +284,8 @@ begin
      Filter.WholeWordsOnly:= chkWholeWords.Checked;
      Filter.ConsiderHidden:= chkHidden.Checked;
      Filter.ShowExcerpts:= chkExcerpts.Checked;
+     if Filter.Empty then
+        Filter.Enabled:= false;
   end;
 
   ResetSizes:= chkResetSizes.Checked;
@@ -263,7 +302,7 @@ begin
      CB_DescOrd.Checked:= DescendingOrder;
      cb_CompHd.Checked:=  CompactHeader;
 
-     chkEnabled.Checked:= Filter.Enabled;
+     chkEnabled.Checked:= (Filter.Enabled or Filter.Empty);
      if Filter.TagsModeOR then
         cbTagFindMode.ItemIndex:= 1
      else
@@ -318,6 +357,12 @@ begin
 
   chkExcerpts.Enabled:= Enable;
   chkHidden.Enabled:= Enable;
+
+  if not Initializing then begin
+     ForceApplyFilter:= True;
+     if CtrlDown and not Enable then
+        chkEnabled.Checked:= True;
+  end;
 end;
 
 
@@ -365,8 +410,10 @@ end;
 procedure TForm_NoteEntriesOptions.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
    OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered, txtTagsIncl);
-   if PressedReturn then
-      txtTagsExcl.SetFocus;
+   if PressedReturn then begin
+      txtText.SetFocus;
+      btn_OK.Default:= True;
+   end;
 
    if txtTagsIncl.Focused then
       txtTagsInclEnter(nil);
@@ -396,8 +443,10 @@ end;
 procedure TForm_NoteEntriesOptions.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
    OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered, txtTagsExcl);
-   if PressedReturn then
+   if PressedReturn then begin
       txtText.SetFocus;
+      btn_OK.Default:= True;
+   end;
 
    if txtTagsExcl.Focused then
       txtTagsExclEnter(nil);

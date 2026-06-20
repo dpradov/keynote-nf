@@ -170,6 +170,7 @@ type
     procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
     procedure RestoreZoomGoal;
     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
+    procedure ApplyChangeInPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; IgnorePanel: TNEntriesPanel);
     procedure ReconsiderVisibilityOfHiddenPanels;
     procedure ReconsiderVisibilityOfEntries;
     procedure ShowHiddenEntries;
@@ -1278,6 +1279,17 @@ begin
      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
         FNEntriesUI[p].RefreshHeaderOfEntries(OnlyNEntry);
 end;
+
+
+procedure TKntNoteUI.ApplyChangeInPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; IgnorePanel: TNEntriesPanel);
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (p <> IgnorePanel) and (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].ApplyChangeInPanelCustomiz(MECustomiz, ForceApplyFilter);
+end;
+
 
 procedure TKntNoteUI.ReconsiderVisibilityOfEntries;
 var

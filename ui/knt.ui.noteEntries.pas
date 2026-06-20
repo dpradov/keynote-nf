@@ -104,7 +104,6 @@ type
     FiEntry: integer;
     FPanelConfig: TPanelConfiguration;
     FTagsToUseOnNewEntry: TNoteTagArray;
-    FLastUsedFilter: TFilterOptionsInPanel;
 
     RTFAux: TAuxRichEdit;
 
@@ -168,6 +167,7 @@ type
     procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultiEntryMode);
     procedure ConfigureEditor(iEntry: integer = -1);
     //procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
+    procedure ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; DisplayChanged: boolean = false; EntryContChanged: boolean= false);
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
@@ -266,6 +266,8 @@ var
   FilterFoundNodes: TNodeList;
   FilterFoundNotes: TNoteList;
   FilterFoundEntriesInNotes: TFoundEntriesInNotesList;
+
+  ApplyFilterToAll: array[boolean] of boolean;    // True: QL    false: EL
 
 
 function TEntryShown.IsVisible: boolean;
@@ -943,6 +945,8 @@ begin
              txtName.Visible:= True;
        end;
 
+       ApplyFilterToAll[false]:= false;
+       ApplyFilterToAll[true]:=  false;
        ReloadFromDataModel(true, nil, ActionOnEntry, InformReloaded);
 
        { The normal thing is to set Editor.Modified = False at the end of the LoadFocusedNNodeIntoEditor method
@@ -2584,7 +2588,7 @@ procedure TKntNoteEntriesUI.btnOptionsClick(Sender: TObject);
 var
   Form_NoteEntriesOptions: TForm_NoteEntriesOptions;
   CurrentFilter: TFilterOptionsInPanel;
-  i: integer;
+  QL: boolean;
 begin
    if (FNote <> nil) and (FNote.NumEntries = 1) then exit;
 
@@ -2592,27 +2596,19 @@ begin
    Form_NoteEntriesOptions := TForm_NoteEntriesOptions.Create( Form_Main );
    try
       TagMng.OfferTagSelectorInModalForm(True, Form_NoteEntriesOptions);
+      QL:= (PanelConfig.StLayout <> spInEL);
       with Form_NoteEntriesOptions do begin
          Panel:= Self.PanelConfig.Panel;
-         QueryLayout:= (PanelConfig.StLayout <> spInEL);
+         QueryLayout:= QL;
          Customiz:= PanelConfig.MECustomiz;
+         chkApplyAll.Checked:= ApplyFilterToAll[QL];
       end;
 
       if ( Form_NoteEntriesOptions.ShowModal = mrOK ) then begin
-         CurrentFilter:= PanelConfig.MECustomiz.Filter;
-         PanelConfig.MECustomiz:= Form_NoteEntriesOptions.Customiz;
-
-         if not CurrentFilter.Equal(PanelConfig.MECustomiz.Filter) then begin
-            PanelConfig.CurrentMode:= meMultiEntry;
-            PanelConfig.FilteredOutIgnoredEntries:= nil;
-            for i:= 0 to Length(FEntriesShown)-1 do
-               FEntriesShown[i].Filtered:= fFilteredUnknown;
-         end;
-
-         if Form_NoteEntriesOptions.EntryContChanged then
-            ReloadVisibleContentOfEntries(True, PanelConfig.MECustomiz.Content, -1, true)
-         else
-            ReloadFromDataModel(false, nil, aNull, True);
+         ApplyChangeinPanelCustomiz(Form_NoteEntriesOptions.Customiz, Form_NoteEntriesOptions.ForceApplyFilter, True, Form_NoteEntriesOptions.EntryContChanged);
+         ApplyFilterToAll[QL]:= Form_NoteEntriesOptions.chkApplyAll.Checked;
+         if ApplyFilterToAll[QL] then
+            NoteUI.ApplyChangeinPanelCustomiz(Form_NoteEntriesOptions.Customiz, Form_NoteEntriesOptions.ForceApplyFilter, PanelConfig.Panel);
 
          if Form_NoteEntriesOptions.ResetSizes then
             NoteUI.ResetPanelSizes;
@@ -2625,6 +2621,39 @@ begin
 
 end;
 
+
+
+
+procedure TKntNoteEntriesUI.ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; DisplayChanged: boolean = false; EntryContChanged: boolean= false);
+var
+  CurrentFilter: TFilterOptionsInPanel;
+  i: integer;
+  FilterChanged: boolean;
+
+begin
+   CurrentFilter:= PanelConfig.MECustomiz.Filter;
+
+   if DisplayChanged then
+      PanelConfig.MECustomiz:= MECustomiz;
+
+   FilterChanged:= false;
+   if ForceApplyFilter or not ((CurrentFilter.Empty and MECustomiz.Filter.Empty) or CurrentFilter.Equal(MECustomiz.Filter)) then begin
+      FilterChanged:= true;
+      PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
+      PanelConfig.CurrentMode:= meMultiEntry;
+      PanelConfig.FilteredOutIgnoredEntries:= nil;
+      for i:= 0 to Length(FEntriesShown)-1 do
+         FEntriesShown[i].Filtered:= fFilteredUnknown;
+   end;
+
+   if EntryContChanged then
+      ReloadVisibleContentOfEntries(True, PanelConfig.MECustomiz.Content, -1, true)
+   else
+   if FilterChanged or DisplayChanged then
+      ReloadFromDataModel(false, nil, aNull, True);
+
+   FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+end;
 
 
 procedure TKntNoteEntriesUI.ConfigureEditor (iEntry: integer = -1);

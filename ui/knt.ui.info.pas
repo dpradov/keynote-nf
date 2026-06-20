@@ -135,6 +135,7 @@ type
      procedure EditTags;
      procedure RefreshTags;
      procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
+     procedure ApplyChangeInPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; IgnorePanel: TNEntriesPanel);
      procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
      procedure ReconsiderVisibilityOfEntries;
      procedure ShowHiddenEntries;

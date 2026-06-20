@@ -909,6 +909,7 @@ type
     ShowExcerpts: boolean;            // (when using TextFilter) "x"
 
     function Equal(aFilter: TFilterOptionsInPanel): boolean;
+    function Empty: boolean;
   end;
 
 type
@@ -1234,6 +1235,18 @@ begin
 
   Result:= True;
 end;
+
+function TFilterOptionsInPanel.Empty: boolean;
+begin
+   Result:= False;
+
+   if TextFilter <> '' then exit;
+   if FindTagsIncl <> nil then exit;
+   if FindTagsExcl <> nil then exit;
+
+   Result:= True;
+end;
+
 
 // Load built-in default values
 procedure TNoteAdvancedOptions.Initialize(OnlyCustomiz: boolean = false);
