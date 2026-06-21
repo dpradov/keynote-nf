@@ -268,6 +268,8 @@ const
 var
   ApplyFilterToAll: array[boolean] of boolean;    // True: QL    false: EL
 
+  RTFAuxFrag : TAuxRichEdit;
+
 
 function TEntryShown.IsVisible: boolean;
 begin
@@ -359,6 +361,8 @@ begin
    fImagesReferenceCount:= nil;
 
    ClearResultsSearchInAllEntries;
+   if RTFAuxFrag <> nil then
+      RTFAuxFrag.Free;
 
    inherited;
 end;
@@ -1262,6 +1266,89 @@ var
  end;
 
 
+ procedure PrepareFragmentsOfEntry (iEntry: integer);
+ var
+    i, j: integer;
+    NEntry: TNoteEntry;
+    ResultsSearch: TResultsSearch;
+    ResultSearch: TResultSearch;
+
+    pFLastFragm, Offset: integer;
+    RTFFrag: AnsiString;
+ begin
+     NEntry:= FEntriesShown[iEntry].NEntry;
+
+     ResultsSearch:= FEntriesShown[iEntry].ResultsSearch;
+     NEntry.Stream.Position := 0;
+
+     if not NEntry.IsRTF then
+        UpdateEditor (cEditor, FKntFolder, False);
+
+     if ((not cEditor.PlainText) and (NEntry.Stream.Size = 0)) or NodeStreamIsRTF (NEntry.Stream) then
+        cEditor.StreamFormat:= sfRichText
+     else
+        cEditor.StreamFormat:= sfPlainText;
+
+
+     if RTFAuxFrag = nil then begin
+        RTFAuxFrag:= CreateAuxRichEdit;
+        RTFAuxFrag.BeginUpdate;
+     end;
+
+     RTFAuxFrag.Clear;
+     LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
+
+//    PreprocessFoldedFragments;
+
+     pFLastFragm:= 0;
+     Offset:= 0;
+
+     for i:= 0 to ResultsSearch.Count-1 do begin
+        ResultSearch:= ResultsSearch[i];
+        if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+        for j:= 0 to Length(ResultSearch.WordsPos)-1 do begin
+           RTFAuxFrag.SelStart:=  ResultSearch.WordsPos[j];
+           RTFAuxFrag.SelLength:= ResultSearch.WordsSel[j];
+           RTFAuxFrag.SelAttributes.Color:= clRed;
+           RTFAuxFrag.SelAttributes.SetBold(true);
+        end;
+     end;
+
+     for i:= 0 to ResultsSearch.Count-1 do begin
+        ResultSearch:= ResultsSearch[i];
+        if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+        if ResultSearch.BeginOfParagraph > pFLastFragm +1 then begin
+           RTFAuxFrag.SelStart:=  pFLastFragm - Offset;
+           if i = 0 then
+              pFLastFragm:= -1;
+           RTFAuxFrag.SelLength:= ResultSearch.BeginOfParagraph - pFLastFragm -1;
+           inc(Offset, RTFAuxFrag.SelLength);
+           RTFAuxFrag.SelText:= '';
+        end;
+        pFLastFragm:= ResultSearch.EndOfParagraph;
+     end;
+     RTFAuxFrag.SetSelection(0, pFLastFragm - Offset, False);
+
+     RTFFrag:= RTFAuxFrag.RtfSelText;
+
+     strRTF:= '';
+     if cEditor.StreamFormat = sfRichText then begin
+        ImagesAux:= GetImagesIDInstances (nil, RTFAuxFrag.TextPlain);
+        if ImagesAux <> nil then begin
+           strRTF:= ImageMng.ProcessImagesInRTF(RTFFrag, '', ImageMng.ImagesMode, '', 0, false);
+           CombineImagesInstances(ImagesAux, fImagesReferenceCount);
+        end;
+     end;
+
+     if strRTF = '' then
+        cEditor.PutRtfText(RTFFrag, false);
+
+     RTFAuxFrag.Clear;
+ end;
+
+
  // Updates strRTF or cEditor
  procedure PrepareEntryContent (iEntry: integer);
  var
@@ -1279,6 +1366,11 @@ var
 
          if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
             cEditor.AddText(GetRS(sEdt52));
+            exit;
+         end;
+
+         if (Mode = meMultiEntry) and (FEntriesShown[iEntry].ResultsSearch <> nil) then begin
+            PrepareFragmentsOfEntry (iEntry);
             exit;
          end;
 
@@ -2676,8 +2768,13 @@ begin
       PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
       PanelConfig.CurrentMode:= meMultiEntry;
       PanelConfig.FilteredOutIgnoredEntries:= nil;
-      for i:= 0 to Length(FEntriesShown)-1 do
+      for i:= 0 to Length(FEntriesShown)-1 do begin
          FEntriesShown[i].Filtered:= fFilteredUnknown;
+         if assigned(FEntriesShown[i].ResultsSearch) then begin
+            ClearResultsSearch(FEntriesShown[i].ResultsSearch);
+            FEntriesShown[i].ResultsSearch:= nil;
+         end;
+      end;
    end;
 
    if EntryContChanged then
@@ -3262,8 +3359,8 @@ begin
             else
                for i:= 0 to EntryFragments.NumFrag - 1 do begin
                   ResultSearch:= ResultsSearch[i];           // zero based positions
-                  ResultSearch.BeginOfParagraph:= EntryFragments.Fragments[i].PosI -1;
-                  ResultSearch.EndOfParagraph:=   EntryFragments.Fragments[i].PosF -1;
+                  ResultSearch.BeginOfParagraph:= EntryFragments.Fragments[i].PosI;
+                  ResultSearch.EndOfParagraph:=   EntryFragments.Fragments[i].PosF;
                end;
          end;
 
