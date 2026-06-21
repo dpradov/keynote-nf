@@ -33,6 +33,8 @@ uses
   kn_Global,
   kn_KntFolder,
   knt.model.note,
+  kn_FindReplaceMng,
+  knt.ui.tree,
   knt.ui.info,
   knt.ui.editor,
   knt.ui.noteEntriesOptions,
@@ -57,6 +59,7 @@ type
     FinalPos: integer;
     Content: TContentInMultiEntryMode;
     Filtered: TNEntryFiltered;
+    ResultsSearch: TResultsSearch;          // <> nil if Filtered and ShowExcerpts = True
 
     function IsVisible: boolean;
   end;
@@ -172,10 +175,12 @@ type
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
     function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
-    function GetFilterInfUsingFindAll (FolderToUse: TKntFolder; NNodeToUse: TNoteNode; NEntryToUse: TNoteEntry): boolean;
-    function NEntryToBeFilteredIn (NNode: TNoteNode; NEntry: TNoteEntry; var EntryFragments: TEntryFragments): boolean;
+    function GetFilterInfUsingFindAll (FolderToUse: TKntFolder; NNodeToUse: TNoteNode; NEntryToUse: TNoteEntry; TxtPlain: string; ResultsSearch: TResultsSearch): boolean;
+    function NEntryToBeFilteredIn (NNode: TNoteNode; NEntry: TNoteEntry): boolean;
     function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
     function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
+    procedure ClearResultsSearch(ResultsSearch: TResultsSearch);
+    procedure ClearResultsSearchInAllEntries;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
 
   protected
@@ -252,10 +257,8 @@ uses
   kn_ImagesUtils,
   kn_RTFUtils,
   kn_KntFile,
-  kn_FindReplaceMng,
   knt.ui.TagMng,
   knt.ui.note,
-  knt.ui.tree,
   knt.RS;
 
 const
@@ -263,10 +266,6 @@ const
 
 
 var
-  FilterFoundNodes: TNodeList;
-  FilterFoundNotes: TNoteList;
-  FilterFoundEntriesInNotes: TFoundEntriesInNotesList;
-
   ApplyFilterToAll: array[boolean] of boolean;    // True: QL    false: EL
 
 
@@ -359,8 +358,35 @@ begin
 
    fImagesReferenceCount:= nil;
 
+   ClearResultsSearchInAllEntries;
+
    inherited;
 end;
+
+procedure TKntNoteEntriesUI.ClearResultsSearch(ResultsSearch: TResultsSearch);
+var
+ i: integer;
+begin
+  if ResultsSearch <> nil then begin
+     for i := 0 to ResultsSearch.Count-1 do
+         ResultsSearch[i].Free;
+     ResultsSearch.Clear;
+  end;
+end;
+
+
+procedure TKntNoteEntriesUI.ClearResultsSearchInAllEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do
+     if assigned(FEntriesShown[i].ResultsSearch) then begin
+        ClearResultsSearch(FEntriesShown[i].ResultsSearch);
+        FEntriesShown[i].ResultsSearch:= nil;
+     end;
+end;
+
+
 
 {$ENDREGION}
 
@@ -1098,6 +1124,7 @@ var
          FEntriesShown[N].Note:= FNote;
          FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MECustomiz.Content);
          CheckFiltered(N, true);
+         FEntriesShown[N].ResultsSearch:= nil;
          inc(N);
       end;
    end;
@@ -1115,7 +1142,12 @@ var
          if EntryToRemove then begin
             for iEntry:= iEntryToConsider to Length(FEntriesShown)-2 do
                FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
+
+            if assigned(FEntriesShown[N-1].ResultsSearch) then
+               ClearResultsSearch(FEntriesShown[N-1].ResultsSearch);
+
             dec(N);
+
             SetLength(FEntriesShown, N);
             if (iEntryToConsider < FiEntry) then
                dec(FiEntry)
@@ -1137,6 +1169,7 @@ var
                 exit;
              end;
 
+             ClearResultsSearchInAllEntries;
              SetLength(FEntriesShown, Note.NumEntries);
 
              N:= 0;
@@ -1187,6 +1220,7 @@ var
             FEntriesShown[iEntryAdded].Note:= FNote;
             FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
             CheckFiltered(iEntryAdded, true);
+            FEntriesShown[iEntryAdded].ResultsSearch:= nil;
          end;
 
       end;
@@ -3142,13 +3176,11 @@ end;
 
 
 function TKntNoteEntriesUI.NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
-var
-  EntryFragments: TEntryFragments;
 begin
    Result:= True;
 
    if PanelConfig.MECustomiz.Filter.Enabled then begin
-      Result:= NEntryToBeFilteredIn(NNode, NEntry, EntryFragments);
+      Result:= NEntryToBeFilteredIn(NNode, NEntry);
    end;
 end;
 
@@ -3164,17 +3196,40 @@ begin
 end;
 
 
-function TKntNoteEntriesUI.NEntryToBeFilteredIn(NNode: TNoteNode; NEntry: TNoteEntry; var EntryFragments: TEntryFragments): boolean;
+function TKntNoteEntriesUI.NEntryToBeFilteredIn(NNode: TNoteNode; NEntry: TNoteEntry): boolean;
 var
+  FilterFoundNodes: TNodeList;
+  FilterFoundNotes: TNoteList;
+  FilterFoundEntriesInNotes: TFoundEntriesInNotesList;
   EntriesInNote: TFoundEntryInNoteList;
-  iNode, i: integer;
+  EntryFragments: TEntryFragments;
+  iNEntry, iNode, i: integer;
+  ResultSearch: TResultSearch;
+  TxtPlain: string;
+  pL_Scope, pR_Scope: integer;
+
 begin
    Result:= False;
    if (NNode = nil) or (NEntry = nil) then exit;
 
    ActiveFile.IsBusy:= True;
+
+   iNEntry:= GetIndexOfIncludedEntry(NEntry);
+
+   ResultsSearch:= nil;
+   if PanelConfig.MECustomiz.Filter.ShowExcerpts then
+      ResultsSearch:= TSimpleObjList<TResultSearch>.Create;
+
+   FilterFoundNodes:= nil;
+   FilterFoundNotes:= nil;
+   FilterFoundEntriesInNotes:= nil;
+
    try
-      if not GetFilterInfUsingFindAll(Folder, NNode, NEntry) or (FoundNodes.Count = 0) then
+      TxtPlain:= NEntry.TextPlain;
+      if TxtPlain = '' then
+         TxtPlain:= PrepareTextPlain(NEntry);
+
+      if not GetFilterInfUsingFindAll(Folder, NNode, NEntry, TxtPlain, ResultsSearch) or (FoundNodes.Count = 0) then
          exit;
 
       FilterFoundNodes:= FoundNodes;
@@ -3196,29 +3251,55 @@ begin
 
       if Result then begin
          if PanelConfig.MECustomiz.Filter.ShowExcerpts then begin
-            //
+            // We will only maintain a ResultSearch for each entry with results. We will move the necessary information from EntryFragments into it.
+
+            if PanelConfig.MECustomiz.Filter.TextFilter <> '' then
+               for i:= 0 to EntryFragments.NumFrag - 1 do begin
+                  ResultSearch:= ResultsSearch[i];           // zero based positions
+                  GetTextScope(TxtPlain, dsParagraph, EntryFragments.Fragments[i].PosI + 1, pL_Scope, pR_Scope, 1, false);
+                  ResultSearch.EndOfParagraph:= pR_Scope -1;
+               end
+            else
+               for i:= 0 to EntryFragments.NumFrag - 1 do begin
+                  ResultSearch:= ResultsSearch[i];           // zero based positions
+                  ResultSearch.BeginOfParagraph:= EntryFragments.Fragments[i].PosI -1;
+                  ResultSearch.EndOfParagraph:=   EntryFragments.Fragments[i].PosF -1;
+               end;
          end;
+
       end;
 
    finally
       FreeFragments (FilterFoundNodes, FilterFoundNotes, FilterFoundEntriesInNotes);
+
+      if assigned(ResultsSearch) and not Result or not PanelConfig.MECustomiz.Filter.ShowExcerpts then begin
+         ClearResultsSearch(ResultsSearch);
+         FreeAndNil(ResultsSearch);
+      end;
+
+      if assigned(FEntriesShown[iNEntry].ResultsSearch) then
+         ClearResultsSearch(FEntriesShown[iNEntry].ResultsSearch);
+
+      FEntriesShown[iNEntry].ResultsSearch:= ResultsSearch;
+
       ActiveFile.IsBusy := false;
    end;
+
+
 end;
 
 
-function TKntNoteEntriesUI.GetFilterInfUsingFindAll (FolderToUse: TKntFolder; NNodeToUse: TNoteNode; NEntryToUse: TNoteEntry): boolean;
+function TKntNoteEntriesUI.GetFilterInfUsingFindAll (FolderToUse: TKntFolder; NNodeToUse: TNoteNode; NEntryToUse: TNoteEntry; TxtPlain: string; ResultsSearch: TResultsSearch): boolean;
 var
    myFindOptions: TFindOptions;
 
 begin
 
-
   with PanelConfig.MECustomiz.Filter do begin
       myFindOptions.MatchCase := MatchCase;
       myFindOptions.WholeWordsOnly := WholeWordsOnly;
       myFindOptions.AllTabs := False;
-      myFindOptions.CurrentNodeAndSubtree:= true;  // ¿?
+      myFindOptions.CurrentNodeAndSubtree:= true;
 
       myFindOptions.SearchScope := ssOnlyContent;
       myFindOptions.SearchMode := SearchMode;
@@ -3246,7 +3327,7 @@ begin
       myFindOptions.ProtectedNodesAndEntriesOnly := false;
   end;
 
-  Result:= RunFindAllEx (myFindOptions, false, false, true, NNodeToUse.TVNode, NEntryToUse, FolderToUse);
+  Result:= RunFindAllEx (myFindOptions, false, false, true, NNodeToUse.TVNode, NEntryToUse, FolderToUse, TxtPlain, ResultsSearch);
 end;
 
 {$ENDREGION}

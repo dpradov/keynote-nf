@@ -59,6 +59,7 @@ type
 type
    TResultSearch = class
       BeginOfParagraph: integer;
+      EndOfParagraph: integer;             // Only used with ResultsSearchInfo
       WordsPos: array of integer;
       WordsSel: array of integer;
    end;
@@ -97,7 +98,8 @@ function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Bo
                        OnlyNode: PVirtualNode= nil;
                        OnlyNEntry: TNoteEntry = nil;
                        FolderToUse: TKntFolder = nil;
-                       TextPlainToUse: string = ''): boolean;
+                       TextPlainToUse: string = '';
+                       ResultsSearchInfo: TResultsSearch = nil): boolean;
 procedure PreprocessTextPattern (var myFindOptions : TFindOptions);
 procedure RunReplace;
 procedure RunReplaceNext;
@@ -114,7 +116,7 @@ procedure FindAllResults_OnSelectionChange(Editor: TRxRichEdit);
 procedure FindAllResults_OnKeyDown (Editor: TRxRichEdit; Key: Word);
 procedure FindAllResults_RightClick (CharIndex: integer);
 
-function GetTextScope(const Text: string; Scope: TDistanceScope; PosInsideScope: integer; var pL_Scope, pR_Scope: integer; pLmin: integer): string;
+function GetTextScope(const Text: string; Scope: TDistanceScope; PosInsideScope: integer; var pL_Scope, pR_Scope: integer; pLmin: integer; ReturnText: boolean = true): string;
 
 implementation
 uses
@@ -1010,7 +1012,7 @@ begin
 end; // SearchPatternToSearchWords
 
 
-function GetTextScope(const Text: string; Scope: TDistanceScope; PosInsideScope: integer; var pL_Scope, pR_Scope: integer; pLmin: integer): string;
+function GetTextScope(const Text: string; Scope: TDistanceScope; PosInsideScope: integer; var pL_Scope, pR_Scope: integer; pLmin: integer; ReturnText: boolean = true): string;
 var
   p, i: integer;
 begin
@@ -1053,7 +1055,8 @@ begin
         pL_Scope := p;
   end;
 
-  Result:= Copy(Text, pL_Scope, pR_Scope - pL_Scope + 1);
+  if ReturnText then
+     Result:= Copy(Text, pL_Scope, pR_Scope - pL_Scope + 1);
 end;
 
 
@@ -1167,7 +1170,8 @@ function RunFindAllEx (myFindOptions : TFindOptions; ApplyFilter, TreeFilter: Bo
                        OnlyNode: PVirtualNode = nil;
                        OnlyNEntry: TNoteEntry = nil;
                        FolderToUse: TKntFolder = nil;
-                       TextPlainToUse: string = ''): boolean;
+                       TextPlainToUse: string = '';
+                       ResultsSearchInfo: TResultsSearch = nil): boolean;
 var
   FindDone : boolean;
   Location : TLocation;
@@ -1282,9 +1286,24 @@ type
                  SetLength(WordsPos, M);
                  SetLength(WordsSel, M);
              end;
+          end
+          else
+          if assigned(ResultsSearchInfo) then begin
+             ResultSearch:= TResultSearch.Create;
+             with ResultSearch do begin
+                 BeginOfParagraph:= NFromLastCharPos(TextPlainBAK, #13, 1, PatternPos);
+                 SetLength(WordsPos, 1);
+                 SetLength(WordsSel, 1);
+                 WordsPos[0]:= PatternPos;
+                 WordsSel[0]:= Length(TextToFind) + SizeInternalHiddenTextInPos1;
+             end;
           end;
 
-          ResultsSearch.Add(ResultSearch);
+
+          if assigned(ResultsSearchInfo) then
+             ResultsSearchInfo.Add(ResultSearch)
+          else
+             ResultsSearch.Add(ResultSearch);
        end;
 
 
@@ -1354,6 +1373,10 @@ type
 
              EntryFrags.Fragments[EntryFrags.NumFrag-1].PosI:= PatternPos;
              EntryFrags.Fragments[EntryFrags.NumFrag-1].PosF:= pR_Extract;
+
+             if assigned(ResultsSearchInfo) then
+                AddResultSearch(wordList, pL_Extract, pR_Extract);
+
              exit;
           end;
 
