@@ -111,9 +111,12 @@ type
     Panel: TNEntriesPanelBase;
     Customiz: TMEPanelCustomization;
     QueryLayout: boolean;
+    HeaderChanged: boolean;
     EntryContChanged: boolean;
+    OrderChanged: boolean;
     ForceApplyFilter: boolean;
     ResetSizes: boolean;
+
 
     destructor Destroy; override;
 
@@ -156,9 +159,11 @@ begin
   for sm := low( TSearchMode ) to high( TSearchMode ) do
      cbType.Items.Add( SEARCH_MODES[sm] );
 
-  EntryContChanged:= false;
   ResetSizes:= false;
   ShowHint := KeyOptions.ShowTooltips;
+
+  cEntryCont.OnChange:= cEntryContChange;
+
   OK_Click := false;
 
   App.ApplyBiDiModeOnForm(Self);
@@ -268,6 +273,9 @@ procedure TForm_NoteEntriesOptions.FormToProps;
 begin
 
   with Customiz do begin
+     HeaderChanged:= (ShowLineInHeader <> cb_HLine.Checked) or (ShowTagsInHeader <> cb_HTags.Checked) or (ShowDateInHeader <> cb_HDate.Checked) or (CompactHeader <> cb_CompHd.Checked);
+     OrderChanged:=  (DescendingOrder <> CB_DescOrd.Checked);
+
      Content:=          TContentInMultiEntryMode(cEntryCont.ItemIndex+1);
      ShowLineInHeader:= cb_HLine.Checked;
      ShowTagsInHeader:= cb_HTags.Checked;
@@ -454,6 +462,8 @@ end;
 
 procedure TForm_NoteEntriesOptions.cEntryContChange(Sender: TObject);
 begin
+   if Initializing then exit;
+
    EntryContChanged:= True;
 end;
 
@@ -462,7 +472,9 @@ procedure TForm_NoteEntriesOptions.btnRestoreDefClick(Sender: TObject);
 begin
    Customiz:= ActiveFolder.NoteAdvOptions.DefaultMECustomizForQL[Panel];
    PropsToForm;
+
    EntryContChanged:= True;
+   OrderChanged:= True;
 end;
 
 

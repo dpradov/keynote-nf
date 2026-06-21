@@ -2768,7 +2768,8 @@ begin
 
   LastResultCellWidth:= '';
   SearchInProgress := true;
-  screen.Cursor := crHourGlass;
+  if not assigned(ResultsSearchInfo) then
+     screen.Cursor := crHourGlass;
   if FindAllSearch  then begin
      Form_Main.FindAllResults.ReadOnly:= False;
      Form_Main.FindAllResults.Clear;
@@ -3183,7 +3184,8 @@ begin
     Form_Main.UpdateFolderDisplay;
 
     SearchInProgress := false;
-    screen.Cursor := crDefault;
+    if not assigned(ResultsSearchInfo) then
+       screen.Cursor := crDefault;
     wordList.Free;
     RTFAux.Free;
     Form_Main.FindAllResults.EndUpdate;

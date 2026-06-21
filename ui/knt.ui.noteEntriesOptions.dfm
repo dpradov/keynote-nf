@@ -86,7 +86,6 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       Height = 21
       Style = csDropDownList
       TabOrder = 0
-      OnChange = cEntryContChange
     end
     object cb_CompHd: TCheckBox
       Left = 149

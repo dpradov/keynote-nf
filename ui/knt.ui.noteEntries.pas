@@ -170,7 +170,10 @@ type
     procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultiEntryMode);
     procedure ConfigureEditor(iEntry: integer = -1);
     //procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
-    procedure ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; DisplayChanged: boolean = false; EntryContChanged: boolean= false);
+    procedure ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean;
+                                         HeaderChanged: boolean = false;
+                                         EntryContChanged: boolean = false;
+                                         OrderChanged: boolean = false);
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
@@ -1127,8 +1130,9 @@ var
          FEntriesShown[N].NNode:= FNNode;
          FEntriesShown[N].Note:= FNote;
          FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MECustomiz.Content);
-         CheckFiltered(N, true);
          FEntriesShown[N].ResultsSearch:= nil;
+         CheckFiltered(N, true);
+
          inc(N);
       end;
    end;
@@ -1166,6 +1170,7 @@ var
          end
          else
          if not EntryToAdd then begin
+             ClearResultsSearchInAllEntries;
              FEntriesShown:= nil;
 
              if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
@@ -1173,7 +1178,6 @@ var
                 exit;
              end;
 
-             ClearResultsSearchInAllEntries;
              SetLength(FEntriesShown, Note.NumEntries);
 
              N:= 0;
@@ -1223,8 +1227,8 @@ var
             FEntriesShown[iEntryAdded].NNode:= FNNode;
             FEntriesShown[iEntryAdded].Note:= FNote;
             FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
-            CheckFiltered(iEntryAdded, true);
             FEntriesShown[iEntryAdded].ResultsSearch:= nil;
+            CheckFiltered(iEntryAdded, true);
          end;
 
       end;
@@ -1856,7 +1860,8 @@ begin
 
      if (Mode = meMultiEntry) then begin
          if EntryToAdd then begin
-            ShowNewEntryToAdd;
+            if FEntriesShown[iEntryAdded].IsVisible then
+               ShowNewEntryToAdd;
             if FNEntry = nil then
                FiEntry:= 0;
             exit;
@@ -1883,7 +1888,9 @@ begin
      end;
 
 
-     if (Mode = meSingleEntry) or (NEntryToConsider = nil) then begin
+     if (Mode = meSingleEntry) or CalculateEntriesToShow or
+       ((NEntryToConsider = nil) and not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader, aChangedVisibility])) then begin
+
         Editor.Clear;
         Editor.ClearUndo;
         fImagesReferenceCount:= nil;
@@ -1954,27 +1961,35 @@ begin
                 ClearAndSetAsEmpty;
           end
           else begin
-              var pos: integer:= 0;
-              FEntriesShown[0].StartingContentPos:= 0;
-              FEntriesShown[0].FinalPos:= 0;
-              FEntriesShown[0].StartingContentPos:= 0;
+              if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aRefreshHeader, aChangedVisibility]) then begin
+                 for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                    if (FEntriesShown[iEntry].IsVisible) then
+                       ReconsiderEntry (iEntry);
+                 end;
+              end
+              else begin
+                 var pos: integer:= 0;
+                 FEntriesShown[0].StartingContentPos:= 0;
+                 FEntriesShown[0].FinalPos:= 0;
+                 FEntriesShown[0].StartingContentPos:= 0;
 
-              for iEntry:= 0 to Length(FEntriesShown)-1 do begin
-                 if (FEntriesShown[iEntry].IsVisible) then
-                    ShowEntry (iEntry)
-                 else begin
-                    if (iEntry > 0) then begin
-                       pos:= FEntriesShown[iEntry-1].FinalPos;
-                       if FEntriesShown[iEntry-1].IsVisible then
-                          inc(pos);
-                       FEntriesShown[iEntry].StartingPos:= pos;
-                       FEntriesShown[iEntry].StartingContentPos:= pos;
-                       FEntriesShown[iEntry].FinalPos:= pos;
+                 for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                    if (FEntriesShown[iEntry].IsVisible) then
+                       ShowEntry (iEntry)
+                    else begin
+                       if (iEntry > 0) then begin
+                          pos:= FEntriesShown[iEntry-1].FinalPos;
+                          if FEntriesShown[iEntry-1].IsVisible then
+                             inc(pos);
+                          FEntriesShown[iEntry].StartingPos:= pos;
+                          FEntriesShown[iEntry].StartingContentPos:= pos;
+                          FEntriesShown[iEntry].FinalPos:= pos;
+                       end;
                     end;
                  end;
-              end;
 
-              inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
+                 inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
+              end;
           end;
        end
        else begin                              // --- meSingleEntry
@@ -2731,13 +2746,16 @@ begin
       end;
 
       if ( Form_NoteEntriesOptions.ShowModal = mrOK ) then begin
-         ApplyChangeinPanelCustomiz(Form_NoteEntriesOptions.Customiz, Form_NoteEntriesOptions.ForceApplyFilter, True, Form_NoteEntriesOptions.EntryContChanged);
-         ApplyFilterToAll[QL]:= Form_NoteEntriesOptions.chkApplyAll.Checked;
-         if ApplyFilterToAll[QL] then
-            NoteUI.ApplyChangeinPanelCustomiz(Form_NoteEntriesOptions.Customiz, Form_NoteEntriesOptions.ForceApplyFilter, PanelConfig.Panel);
+         with Form_NoteEntriesOptions do begin
+             ApplyChangeinPanelCustomiz(Customiz, ForceApplyFilter, HeaderChanged, EntryContChanged, OrderChanged);
+             ApplyFilterToAll[QL]:= chkApplyAll.Checked;
+             if ApplyFilterToAll[QL] then
+                NoteUI.ApplyChangeinPanelCustomiz(Customiz, ForceApplyFilter, PanelConfig.Panel);
+             if ResetSizes then
+                NoteUI.ResetPanelSizes;
 
-         if Form_NoteEntriesOptions.ResetSizes then
-            NoteUI.ResetPanelSizes;
+             FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+         end;
       end;
 
    finally
@@ -2750,7 +2768,10 @@ end;
 
 
 
-procedure TKntNoteEntriesUI.ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; DisplayChanged: boolean = false; EntryContChanged: boolean= false);
+procedure TKntNoteEntriesUI.ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean;
+                                                       HeaderChanged: boolean = false;
+                                                       EntryContChanged: boolean = false;
+                                                       OrderChanged: boolean = false);
 var
   CurrentFilter: TFilterOptionsInPanel;
   i: integer;
@@ -2759,7 +2780,7 @@ var
 begin
    CurrentFilter:= PanelConfig.MECustomiz.Filter;
 
-   if DisplayChanged then
+   if HeaderChanged or EntryContChanged or OrderChanged then
       PanelConfig.MECustomiz:= MECustomiz;
 
    FilterChanged:= false;
@@ -2777,13 +2798,15 @@ begin
       end;
    end;
 
-   if EntryContChanged then
-      ReloadVisibleContentOfEntries(True, PanelConfig.MECustomiz.Content, -1, true)
+   if FilterChanged or OrderChanged then
+      ReloadFromDataModel(OrderChanged, nil, aNull, True)
    else
-   if FilterChanged or DisplayChanged then
-      ReloadFromDataModel(false, nil, aNull, True);
+   if EntryContChanged then
+      ReloadVisibleContentOfEntries(True, PanelConfig.MECustomiz.Content, -1, true,  false,false )
+   else
+   if HeaderChanged then
+      ReloadFromDataModel(false, nil, aRefreshHeader, True);
 
-   FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
 end;
 
 
