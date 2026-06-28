@@ -57,7 +57,7 @@ type
    TDistanceScope = (dsAll, dsSentence, dsParagraph);
 
 type
-   TResultSearch = class
+   TResultSearch = class                   // Positions expressed in ImLinkTextPlain
       BeginOfParagraph: integer;
       EndOfParagraph: integer;             // Only used with ResultsSearchInfo
       WordsPos: array of integer;

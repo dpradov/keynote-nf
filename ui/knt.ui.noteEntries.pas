@@ -60,8 +60,11 @@ type
     Content: TContentInMultiEntryMode;
     Filtered: TNEntryFiltered;
     ResultsSearch: TResultsSearch;          // <> nil if Filtered and ShowExcerpts = True
+    StreamRTFFrag: TMemoryStream;           //     ,,
+    FragTextPlain: String;                  //     ,,
 
     function IsVisible: boolean;
+    function ContainsExcerpts: boolean;
   end;
 
   TActionOnEntry = (aModified, aCreating, aCreatingFromOtherPanel, aCreated, aDeleted, aModifiedMetadata, aChangedVisibility, aRefreshHeader, aNull);
@@ -174,6 +177,9 @@ type
                                          HeaderChanged: boolean = false;
                                          EntryContChanged: boolean = false;
                                          OrderChanged: boolean = false);
+    function GetImLinkPositionInEntry(iEntry: integer; CaretPosInEditorWithExcerpts: integer): integer;
+    function GetImLinkPositionInEntryExcerpts(iEntry: integer; PosInEntry: integer; var SelLength: integer): integer;
+    function IsDisplayingExcerptsForSelectedEntry: boolean;
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
@@ -183,7 +189,7 @@ type
     function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
     function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
     procedure ClearResultsSearch(ResultsSearch: TResultsSearch);
-    procedure ClearResultsSearchInAllEntries;
+    procedure ClearExcerptsInfoInAllEntries;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
 
   protected
@@ -253,6 +259,7 @@ implementation
 
 uses
   System.DateUtils,
+  System.Math,
   gf_misc,
   gf_miscvcl,
   kn_LinksMng,
@@ -277,6 +284,11 @@ var
 function TEntryShown.IsVisible: boolean;
 begin
     Result:= (Content <> cmHidden) and (Filtered <> fFilteredOut);
+end;
+
+function TEntryShown.ContainsExcerpts: boolean;
+begin
+    Result:= (Filtered = fFilteredIn) and (ResultsSearch <> nil);
 end;
 
 // Create  / Destroy =========================================
@@ -363,7 +375,7 @@ begin
 
    fImagesReferenceCount:= nil;
 
-   ClearResultsSearchInAllEntries;
+   ClearExcerptsInfoInAllEntries;
    if RTFAuxFrag <> nil then
       RTFAuxFrag.Free;
 
@@ -382,15 +394,19 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.ClearResultsSearchInAllEntries;
+procedure TKntNoteEntriesUI.ClearExcerptsInfoInAllEntries;
 var
   i: integer;
 begin
-  for i:= 0 to Length(FEntriesShown)-1 do
+  for i:= 0 to Length(FEntriesShown)-1 do begin
+     FEntriesShown[i].Filtered:= fFilteredUnknown;
      if assigned(FEntriesShown[i].ResultsSearch) then begin
         ClearResultsSearch(FEntriesShown[i].ResultsSearch);
         FEntriesShown[i].ResultsSearch:= nil;
+        FreeAndNil(FEntriesShown[i].StreamRTFFrag);
+        FEntriesShown[i].FragTextPlain:= '';
      end;
+  end;
 end;
 
 
@@ -1131,6 +1147,8 @@ var
          FEntriesShown[N].Note:= FNote;
          FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MECustomiz.Content);
          FEntriesShown[N].ResultsSearch:= nil;
+         FEntriesShown[N].StreamRTFFrag:= nil;
+         FEntriesShown[N].FragTextPlain:= '';
          CheckFiltered(N, true);
 
          inc(N);
@@ -1170,7 +1188,7 @@ var
          end
          else
          if not EntryToAdd then begin
-             ClearResultsSearchInAllEntries;
+             ClearExcerptsInfoInAllEntries;
              FEntriesShown:= nil;
 
              if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
@@ -1228,6 +1246,8 @@ var
             FEntriesShown[iEntryAdded].Note:= FNote;
             FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
             FEntriesShown[iEntryAdded].ResultsSearch:= nil;
+            FEntriesShown[iEntryAdded].StreamRTFFrag:= nil;
+            FEntriesShown[iEntryAdded].FragTextPlain:= '';
             CheckFiltered(iEntryAdded, true);
          end;
 
@@ -1277,8 +1297,9 @@ var
     ResultsSearch: TResultsSearch;
     ResultSearch: TResultSearch;
 
-    pFLastFragm, Offset: integer;
+    pFLastFragm, Offset, PosI: integer;
     RTFFrag: AnsiString;
+    TxtPlain: string;
  begin
      NEntry:= FEntriesShown[iEntry].NEntry;
 
@@ -1298,48 +1319,78 @@ var
         RTFAuxFrag:= CreateAuxRichEdit;
         RTFAuxFrag.BeginUpdate;
      end;
-
      RTFAuxFrag.Clear;
-     LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
 
-//    PreprocessFoldedFragments;
+     if FEntriesShown[iEntry].StreamRTFFrag = nil then begin
 
-     pFLastFragm:= 0;
-     Offset:= 0;
+         LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
 
-     for i:= 0 to ResultsSearch.Count-1 do begin
-        ResultSearch:= ResultsSearch[i];
-        if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+    //    PreprocessFoldedFragments;
 
-        for j:= 0 to Length(ResultSearch.WordsPos)-1 do begin
-           RTFAuxFrag.SelStart:=  ResultSearch.WordsPos[j];
-           RTFAuxFrag.SelLength:= ResultSearch.WordsSel[j];
-           RTFAuxFrag.SelAttributes.Color:= clRed;
-           RTFAuxFrag.SelAttributes.SetBold(true);
-        end;
+         pFLastFragm:= 0;
+         Offset:= 0;
+
+         for i:= 0 to ResultsSearch.Count-1 do begin
+            ResultSearch:= ResultsSearch[i];
+            if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+            for j:= 0 to Length(ResultSearch.WordsPos)-1 do begin
+               RTFAuxFrag.SelStart:=  ResultSearch.WordsPos[j];
+               RTFAuxFrag.SelLength:= ResultSearch.WordsSel[j];
+               RTFAuxFrag.SelAttributes.Color:= clRed;
+               RTFAuxFrag.SelAttributes.SetBold(true);
+            end;
+         end;
+
+         for i:= 0 to ResultsSearch.Count-1 do begin
+            ResultSearch:= ResultsSearch[i];
+            if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+            if ResultSearch.BeginOfParagraph > pFLastFragm +1 then begin
+               RTFAuxFrag.SelStart:=  pFLastFragm - Offset;
+               if i = 0 then
+                  pFLastFragm:= -1;
+               RTFAuxFrag.SelLength:= ResultSearch.BeginOfParagraph - pFLastFragm -1;
+               inc(Offset, RTFAuxFrag.SelLength);
+               RTFAuxFrag.SelText:= '';
+            end;
+            pFLastFragm:= ResultSearch.EndOfParagraph;
+         end;
+
+
+         if RTFAuxFrag.GetTextRange(pFLastFragm - Offset-1,pFLastFragm - Offset) <> #13 then begin
+            RTFAuxFrag.SelStart:= pFLastFragm - Offset;
+            RTFAuxFrag.SelText:= #13;
+            inc(pFLastFragm);
+         end;
+
+         PosI:= 0;
+         for i:= 1 to ResultsSearch.Count-1 do begin
+            if (i > 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+            inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
+
+            RTFAuxFrag.SelStart:=  PosI;
+            RTFAuxFrag.Paragraph.SpaceBefore:= 5;
+         end;
+
+         RTFAuxFrag.SetSelection(0, pFLastFragm - Offset, False);
+
+         RTFFrag:= RTFAuxFrag.RtfSelText;
+         FEntriesShown[iEntry].StreamRTFFrag:= TMemoryStream.Create;
+         StringToMemoryStream(RTFFrag, FEntriesShown[iEntry].StreamRTFFrag);
+         TxtPlain:= RTFAuxFrag.TextPlain;
+         FEntriesShown[iEntry].FragTextPlain:= TxtPlain;
+     end
+     else begin
+         RTFFrag:= MemoryStreamToString(FEntriesShown[iEntry].StreamRTFFrag);
+         TxtPlain:= FEntriesShown[iEntry].FragTextPlain;
      end;
 
-     for i:= 0 to ResultsSearch.Count-1 do begin
-        ResultSearch:= ResultsSearch[i];
-        if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
-
-        if ResultSearch.BeginOfParagraph > pFLastFragm +1 then begin
-           RTFAuxFrag.SelStart:=  pFLastFragm - Offset;
-           if i = 0 then
-              pFLastFragm:= -1;
-           RTFAuxFrag.SelLength:= ResultSearch.BeginOfParagraph - pFLastFragm -1;
-           inc(Offset, RTFAuxFrag.SelLength);
-           RTFAuxFrag.SelText:= '';
-        end;
-        pFLastFragm:= ResultSearch.EndOfParagraph;
-     end;
-     RTFAuxFrag.SetSelection(0, pFLastFragm - Offset, False);
-
-     RTFFrag:= RTFAuxFrag.RtfSelText;
 
      strRTF:= '';
      if cEditor.StreamFormat = sfRichText then begin
-        ImagesAux:= GetImagesIDInstances (nil, RTFAuxFrag.TextPlain);
+        ImagesAux:= GetImagesIDInstances (nil, TxtPlain);
         if ImagesAux <> nil then begin
            strRTF:= ImageMng.ProcessImagesInRTF(RTFFrag, '', ImageMng.ImagesMode, '', 0, false);
            CombineImagesInstances(ImagesAux, fImagesReferenceCount);
@@ -1579,12 +1630,6 @@ var
         inc(FEntriesShown[iEntry].StartingContentPos, Offset);
         inc(FEntriesShown[iEntry].FinalPos, Offset);
     end;
-
-    Editor.SelStart := FEntriesShown[FiEntry].StartingPos;
-    Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos + PanelConfig.SelStart;
-    Editor.SelLength := PanelConfig.SelLength;
-    //inc(PanelConfig.ScrollPosInEditor.Y, 35);                    // TODO ***
-    Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
  end;
 
  procedure ClearAndSetAsEmpty;
@@ -1873,7 +1918,7 @@ begin
             if (FiEntry >= 0) and (NumberOfIncludedEntries(true) > 0) then begin
                if iEntryToConsider = FiEntry_Initial then begin
                   SS:= FEntriesShown[FiEntry].StartingContentPos;
-                  PanelConfig.SelStart:= SS;
+                  PanelConfig.SSImLink:= 0;
                   PanelConfig.SelLength:= 0;
                   Editor.SelStart:= SS;
                end;
@@ -1926,7 +1971,7 @@ begin
        // We might have an encrypted entry selected, which then becomes hidden. We must select a non-hidden entry.
        // We'll start by selecting the entry immediately below it, and if there isn't one, the one immediately above it.
        if (FiEntry >= 0) and (not FEntriesShown[FiEntry].IsVisible) then begin
-           PanelConfig.SelStart:= 0;
+           PanelConfig.SSImLink:= 0;
            PanelConfig.SelLength:= 0;
            iEntry:= FiEntry;
            FiEntry:= -1;
@@ -2000,7 +2045,7 @@ begin
              ShowEntry (FiEntry)
           else begin
              FNEntry:= nil;
-             PanelConfig.SelStart:= 0;
+             PanelConfig.SSImLink:= 0;
              PanelConfig.SelLength:= 0;
           end;
 
@@ -2009,19 +2054,6 @@ begin
 
        if (Mode = meSingleEntry) and (FNEntry <> nil) and (FNEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
           UpdateEditor (Editor, FKntFolder, false);
-
-
-       SS:= PanelConfig.SelStart;
-       SL:= PanelConfig.SelLength;
-       if (Mode = meSingleEntry) then begin
-          Editor.SelStart := SS;
-          Editor.SelLength := SL;
-       end
-       else begin
-          Editor.SelStart := FEntriesShown[FiEntry].StartingPos;
-          Editor.SelStart := FEntriesShown[FiEntry].StartingContentPos + SS;
-          Editor.SelLength := SL;
-       end;
 
 
      end
@@ -2040,7 +2072,34 @@ begin
         FNNode:= FEntriesShown[FiEntry].NNode;
         FNote:= FEntriesShown[FiEntry].Note;
         FNEntry:= FEntriesShown[FiEntry].NEntry;
+
+        SS:= PanelConfig.SSImLink;
+        SL:= PanelConfig.SelLength;
+        var StC: integer:= 0;
+        var FnP: integer:= -1;
+        if PanelConfig.CurrentMode = meMultiEntry then begin
+           StC:= FEntriesShown[FiEntry].StartingContentPos;
+           FnP:= FEntriesShown[FiEntry].FinalPos
+        end;
+        if SS > 0 then begin
+            if IsDisplayingExcerptsForSelectedEntry then
+               SS:= GetImLinkPositionInEntryExcerpts(FiEntry, SS, SL);
+
+            if FNEntry.IsRTF and (Folder.ImagesMode = imImage) then begin
+               if IsDisplayingExcerptsForSelectedEntry then
+                  SS:= SS - ImageMng.GetPositionOffset_FromImLinkTP (Editor, FEntriesShown[FiEntry].StreamRTFFrag, SS, FEntriesShown[FiEntry].FragTextPlain, False, False, StC, FnP)
+               else
+                  SS:= SS - GetPositionOffset(Editor, FNEntry, SS, -1, False, StC, FnP);
+            end;
+        end;
+        if (Mode = meMultiEntry) then begin
+           Editor.SelStart := FEntriesShown[FiEntry].StartingPos;     // To try to make the header visible as well
+           SS:= SS + StC;
+        end;
+        Editor.SelStart := SS;
+        Editor.SelLength := SL;
      end;
+
 
      ReloadMetadataFromDataModel;
 
@@ -2580,8 +2639,12 @@ end;
 
 
 procedure TKntNoteEntriesUI.SavePositionInPanel;
+var
+   SS: integer;
 begin
    if PanelConfig.StLayout = spInQL_ets then exit;
+
+   SS:= Editor.SelStart;
 
    if FEntriesShown = nil then begin
       FNEntry:= nil;
@@ -2590,18 +2653,29 @@ begin
 
    PanelConfig.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
    PanelConfig.SelNEntry := FNEntry;
-   PanelConfig.SelStart  := Editor.SelStart;
-   PanelConfig.SelLength := Editor.SelLength;
    Editor.GetAndRememberCurrentZoom;
    PanelConfig.ZoomCurrent:= Editor.ZoomCurrent;
 
-   if (PanelConfig.CurrentMode = meMultiEntry) and (FEntriesShown <> nil) and (FiEntry >= 0) then begin
-      dec(PanelConfig.SelStart, FEntriesShown[FiEntry].StartingContentPos);
-      if PanelConfig.SelStart < 0 then begin
-         PanelConfig.SelStart := 0;        // Can occur if the entry is collapsed and only shown its header
-         PanelConfig.SelLength := 0;
+   if (FEntriesShown <> nil) and (FiEntry >= 0) then begin
+      if IsDisplayingExcerptsForSelectedEntry then
+         SS:= GetImLinkPositionInEntry(FiEntry, SS)
+      else begin
+         var StC: integer:= 0;
+         var FnP: integer:= -1;
+         if PanelConfig.CurrentMode = meMultiEntry then begin
+            StC:= FEntriesShown[FiEntry].StartingContentPos;
+            FnP:= FEntriesShown[FiEntry].FinalPos
+         end;
+         SS:= PositionInImLinkTextPlain(Editor, FNEntry, SS, false, StC, FnP);
       end;
    end;
+
+   PanelConfig.SelLength := Editor.SelLength;
+   if SS < 0 then begin
+      SS := 0;                           // Can occur if the entry is collapsed and only shown its header
+      PanelConfig.SelLength := 0;
+   end;
+   PanelConfig.SSImLink  := SS;
 
 end;
 
@@ -2692,7 +2766,7 @@ begin
        btnToggleMulti.Caption:= (iEntry+1).ToString;
        Editor.HideNestedFloatingEditor;
        PanelConfig.SelNEntry:= FEntriesShown[iEntry].NEntry;
-       PanelConfig.SelStart:= 0;
+       PanelConfig.SSImLink:= 0;
        PanelConfig.SelLength:= 0;
        ReloadFromDataModel(false, nil, aNull, InformReloaded);
    end;
@@ -2774,7 +2848,6 @@ procedure TKntNoteEntriesUI.ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCusto
                                                        OrderChanged: boolean = false);
 var
   CurrentFilter: TFilterOptionsInPanel;
-  i: integer;
   FilterChanged: boolean;
 
 begin
@@ -2789,13 +2862,7 @@ begin
       PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
       PanelConfig.CurrentMode:= meMultiEntry;
       PanelConfig.FilteredOutIgnoredEntries:= nil;
-      for i:= 0 to Length(FEntriesShown)-1 do begin
-         FEntriesShown[i].Filtered:= fFilteredUnknown;
-         if assigned(FEntriesShown[i].ResultsSearch) then begin
-            ClearResultsSearch(FEntriesShown[i].ResultsSearch);
-            FEntriesShown[i].ResultsSearch:= nil;
-         end;
-      end;
+      ClearExcerptsInfoInAllEntries;
    end;
 
    if FilterChanged or OrderChanged then
@@ -3406,6 +3473,121 @@ begin
    end;
 
 
+end;
+
+{
+ This method obtains the position within the full entry, expressed as imLink, that corresponds to the caret position returned by the editor
+ with the excerpts
+
+ Positions in ResultsSearch are based on imLinkTextPlain, i.e. on the position within the entry content as it is stored, with images
+ not displayed and replaced by hyperlinks, exactly as FindAll performs its searches. In fact, these results are produced by RunFindAllEx.
+ However, the excerpts editor itself may be displaying images, so an initial conversion of the received position may be required in order
+ to adapt it to the imLink format before searching correctly in ResultsSearch (-> ImageMng.GetPositionOffset_FromEditorTP).
+
+ After this initial conversion, ResultsSearch provides the corresponding position within the full entry, also in imLink format.
+ When this position is later used (see ReloadFromDataModel), it may be necessary to calculate the appropriate offset depending on the images currently present
+ in the editor (-> GetPositionOffset).
+}
+
+function TKntNoteEntriesUI.GetImLinkPositionInEntry(iEntry: integer; CaretPosInEditorWithExcerpts: integer): integer;
+var
+  i, N: integer;
+  ResultsSearch: TResultsSearch;
+  PosI, PosF: integer;
+  StartingContPos, FinalPos: integer;
+  NEntry: TNoteEntry;
+  PosImLinkInExcerpts: integer;
+begin
+   if iEntry < 0 then exit;
+
+   // CaretPosInEditorWithExcerpts: CaretPos from editor, referred to the beginning of the text of the editor, not to the beginning of the entry excerpts
+
+   NEntry:= FEntriesShown[iEntry].NEntry;
+   ResultsSearch:= FEntriesShown[iEntry].ResultsSearch;
+   N:= ResultsSearch.Count;
+
+   StartingContPos:= FEntriesShown[iEntry].StartingContentPos;
+
+   PosImLinkInExcerpts:= CaretPosInEditorWithExcerpts;
+   if (ActiveFolder.ImagesMode = imImage) and NEntry.IsRTF then begin
+      FinalPos:= FEntriesShown[iEntry].FinalPos;
+      inc(PosImLinkInExcerpts, ImageMng.GetPositionOffset_FromEditorTP (Editor, FEntriesShown[iEntry].StreamRTFFrag, CaretPosInEditorWithExcerpts, FEntriesShown[iEntry].FragTextPlain, false, false, StartingContPos, FinalPos) );
+   end;
+   dec(PosImLinkInExcerpts, StartingContPos);
+
+
+   // PosImLinkInExcerpts: now expressed in ImLink mode and referred to the beginning of the extry excerpts
+
+   if (PosImLinkInExcerpts <= (ResultsSearch[0].EndOfParagraph - ResultsSearch[0].BeginOfParagraph)) or (N = 1) then
+      Result:= ResultsSearch[0].BeginOfParagraph + PosImLinkInExcerpts
+
+   else begin
+      PosI:= 0;
+      for i:= 1 to N-1 do begin
+         if (i > 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+         inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
+         PosF:= (PosI + (ResultsSearch[i].EndOfParagraph-ResultsSearch[i].BeginOfParagraph) + 1);
+         if PosImLinkInExcerpts < PosF then begin
+            Result:= ResultsSearch[i].BeginOfParagraph + (PosImLinkInExcerpts - PosI);
+            break;
+         end;
+      end;
+   end;
+
+end;
+
+
+function TKntNoteEntriesUI.GetImLinkPositionInEntryExcerpts(iEntry: integer; PosInEntry: integer; var SelLength: integer): integer;
+var
+  i: integer;
+  ResultsSearch: TResultsSearch;
+  PosI, nResult: integer;
+begin
+   if iEntry < 0 then
+      iEntry:= FiEntry;
+
+   if (iEntry < 0) or (PosInEntry = 0) then exit(PosInEntry);
+
+  // PosInEntry expressed in ImLinkTextPlain
+
+   ResultsSearch:= FEntriesShown[iEntry].ResultsSearch;
+
+   for i:= 0 to ResultsSearch.Count-1 do
+      if PosInEntry <= ResultsSearch[i].EndOfParagraph then begin
+         nResult:= i;
+         break;
+      end;
+
+
+   if nResult = 0 then
+      Result:= PosI + (PosInEntry - ResultsSearch[0].BeginOfParagraph)
+
+   else begin
+      PosI:= 0;
+      for i:= 1 to ResultsSearch.Count-1 do begin
+         if (i > 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+         inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
+         if nResult = i then begin
+            if PosInEntry < ResultsSearch[i].BeginOfParagraph then begin
+               SelLength:= 0;
+               Result:= PosI;
+            end
+            else
+               Result:= PosI + (PosInEntry - ResultsSearch[i].BeginOfParagraph);
+
+            break;
+         end;
+      end;
+   end;
+
+end;
+
+
+function TKntNoteEntriesUI.IsDisplayingExcerptsForSelectedEntry: boolean;
+begin
+   Result:= (PanelConfig.CurrentMode = meMultiEntry) and (FiEntry > 0) and FEntriesShown[FiEntry].ContainsExcerpts;
 end;
 
 

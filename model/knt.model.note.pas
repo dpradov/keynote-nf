@@ -125,7 +125,7 @@ type
     fResources: TResourceList;
 
     fSelEntry : TNoteEntry;
-    fSelStart : Cardinal;         // In SelEntry
+    fSSImLink : Cardinal;         // In SelEntry           (fSelStart -> fSSImLink: see comments in knt.ui.info:TPanelConfiguration)
     fSelLength : Cardinal;        // ,,
     fScrollPosInEditor: TPoint;   // ,,
 
@@ -169,7 +169,7 @@ type
 
 
     property SelEntry : TNoteEntry read GetSelEntry write {$IFDEF KNT_DEBUG}SetSelEntry{$ELSE}fSelEntry{$ENDIF};
-    property SelStart : Cardinal read fSelStart write fSelStart;
+    property SSImLink : Cardinal read fSSImLink write fSSImLink;
     property SelLength : Cardinal read fSelLength write fSelLength;
     property ScrollPosInEditor: TPoint read fScrollPosInEditor write fScrollPosInEditor;
 
@@ -563,7 +563,7 @@ begin
   fVirtualFN := '';
 
   fSelEntry := nil;
-  fSelStart := 0;
+  fSSImLink := 0;
   fSelLength := 0;
   fScrollPosInEditor.X:= -1;
   fScrollPosInEditor.Y:= -1;

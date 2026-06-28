@@ -92,6 +92,8 @@ type
                              PosStartEntry: integer = 0; PosEndEntry: integer= -1): integer;
     function PositionInImLinkTextPlain (Editor: TKntRichEdit; NEntry: TNoteEntry; CaretPosition: integer; ForceCalc: boolean = false;
                                         PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
+    function GetPositionOffset (Editor: TKntRichEdit; NEntry: TNoteEntry; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false;
+                               PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
@@ -1618,7 +1620,7 @@ begin
 
    Stream:= nil;
 
-   if Editor.SupportsRegisteredImages then begin
+   if (Editor = nil) or Editor.SupportsRegisteredImages then begin       // (Editor = nil) => will assume that all images are visible
      imLinkTextPlain:= '';
       if assigned(NEntry) then begin
          Stream:= NEntry.Stream;

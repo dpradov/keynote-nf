@@ -43,6 +43,66 @@ type
    );
 
 
+ {
+  *2
+    PanelConfiguration.SelStart --> .SSImLink
+
+   Before support for entry excerpts was introduced, the position within each entry was always saved exactly as it was obtained from
+   the editor, using Editor.SelStart. Consequently, that position depended on the current image display mode (View|Images) and on which
+   images were actually visible. Even when image display was disabled, some images could still be visible if they had been inserted after
+   image display had been turned off.
+
+   This was the approach used when saving the current position within a note from NoteEntries.SavePositionInPanel (or from the equivalent
+   method before support for multiple entries was implemented). It has also been, and is expected to remain, the approach used when
+   obtaining the current position from GetKntLocation, which is called, for example, from TKntFolder.NodeSelected or kn_LinksMng:JumpToLocation.
+     Note that JumpToLocation does not, by default, apply any image-related offset. It simply sets the editor position (SelStart) according
+   to the position stored in the TLocation object, assuming that the position was originally recorded in the same way. The only exception is
+   when this method is called from FindAllResults_FollowMatch. In that case, the image-related offset is computed beforehand because we know
+   with certainty that the position stored by FindAllEx in the TLocation object corresponds to the note content as stored in the stream,
+   rather than to a position obtained from an editor. This is necessary because FindAll searches across all notes, whether or not they are
+   currently open in an editor, and when jumping to a match the target editor may have just been created, with all images visible, only some
+   visible, or all hidden.
+
+   As a consequence, if the cursor was at a given position, the user jumped to another node and later returned, the restored cursor position
+   could differ slightly if the original node contained images and the set of visible and hidden images had changed. This could happen if the
+   image display mode (View|Images) was changed before returning, or if image display was disabled but some images were still visible because
+   they had been inserted after image display had been disabled. Those newly inserted images would no longer be visible when returning to the
+   note after it had been reloaded.
+   In practice, this was rarely a problem. Most of the time the cursor would not appear noticeably displaced because either the note contained
+   no images or, if it did, all images were usually either visible or hidden. That state normally remained unchanged when returning to the
+   node after visiting another one.
+
+   Likewise, jumps to bookmarks are unaffected because they locate a bookmark rather than relying on a character position, so they always reach
+   the exact location regardless of the current image visibility state. Find All search results are also unaffected for the reasons explained
+   above. Therefore, in most situations we avoid performing unnecessary conversions between the different position formats.
+
+   For this reason, there was no need to ensure that the editor's cursor position was stored in a particular format (imLinkTextPlain or
+   imImageTextPlain). The position reported by the editor (Editor.SelStart) was simply stored, regardless of whether the editor was displaying
+   all, some, or none of the images.
+
+
+   However, once it became possible to display entry excerpts as the result of applying a filter to a panel, and because it became desirable
+   to jump from a position within an excerpt to the corresponding position in the complete, unfiltered entry (to allow viewing or editing it),
+   or conversely from a position within the complete entry to the corresponding position within the excerpts (or to the closest available
+   excerpt if the exact position does not belong to any excerpt), it became necessary to ensure that the position saved for a panel and an
+   entry always corresponded to a well-defined format, independent of the current image display state. This is required because, when
+   performing these conversions, the current visibility state of the images is unknown, and the conversion relies on a fragment table built
+   in imLink mode. And even the extracts themselves may contain images, which may or may not be visible
+
+   From this point on, instead of saving the position in PanelConfig.SelStart, it is stored in PanelConfig.SSImLink, explicitly indicating
+   that the position corresponds to the entry with all images hidden —that is, exactly as the entry is stored in the underlying model. This
+   is also the format in which RunFindAllEx records search matches.
+
+   Naturally, this requires some additional processing, both when saving the position and when restoring it to the editor. The implementation
+   has been heavily optimized and is based on calculating an offset between the editor position and the corresponding position in imLink mode
+   (i.e. with all images hidden and hyperlinks displayed in their place).
+
+   Furthermore, even when an editor is displaying only excerpts, the saved position must always correspond to the full entry rather than to
+   the position within the excerpts editor.
+
+ See:
+  TKntNoteEntriesUI.SavePositionInPanel, .GetImLinkPositionInEntry, .GetImLinkPositionInEntryExcerpts, .ReloadFromDataModel
+ }
 
   TPanelConfiguration = class
     StLayout: TStatusPanelLayout;
@@ -64,7 +124,7 @@ type
     FilteredOutIgnoredEntries: TNoteEntryArray;
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
-    SelStart : integer;               // ,,
+    SSImLink : integer;               // ,,                                                                // *2
     SelLength : integer;              // ,,
     ScrollPosInEditor: TPoint;        // ,,
     ZoomCurrent: integer;
@@ -106,7 +166,6 @@ type
 
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                              NEntriesLayout: TBasicNEntriesLayout;
-                             EditingNEntry: TNoteEntry = nil;
                              OfferEditorForNewEntry: boolean = False;
                              TagsToAddToNewEntry: TNoteTagArray = nil);
 

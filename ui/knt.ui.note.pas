@@ -122,7 +122,6 @@ type
     property SelectedNEntry: TNoteEntry read GetSelectedNEntry;
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean;
                              LayoutToUse: TBasicNEntriesLayout;
-                             EditingNEntry: TNoteEntry = nil;
                              OfferEditorForNewEntry: boolean = False;
                              TagsToAddToNewEntry: TNoteTagArray = nil);
     procedure ReloadFromDataModel;
@@ -238,6 +237,7 @@ implementation
 uses
   kn_ImagesUtils,
   kn_VCLControlsMng,
+  kn_LinksMng,
   knt.RS;
 
 
@@ -1515,9 +1515,9 @@ begin
 
   if ToEditingLayout then begin
      NEntriesUI.SavePositionInPanel;
-     SS:= NEntriesUI.PanelConfig.SelStart;
+     SS:= NEntriesUI.PanelConfig.SSImLink;
      SL:= NEntriesUI.PanelConfig.SelLength;
-     LoadFromNNode(FNNode, True, neEditingLayout, NEntry);
+     LoadFromNNode(FNNode, True, neEditingLayout);
      EditInInMultiEntries(nil, NEntry, false, nil, SS, SL);       // ReqFromNEntriesUI=Nil: We don't know if the same panel is configured in EL
   end
   else
@@ -1571,7 +1571,7 @@ begin
 
    if FQueryLayout and (FNote.NumEntries = 1) then begin
       if FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) and (PnlEdit <> FNNodeUIConfig.GetMainPanel) then begin
-         LoadFromNNode(FNNode, True, neQueryLayout, nil, true);
+         LoadFromNNode(FNNode, True, neQueryLayout, true);
          exit;
       end;
    end;
@@ -1579,7 +1579,7 @@ begin
    if FQueryLayout and Folder.NoteAdvOptions.NewEntriesAlwaysOnEdLayout then begin
       if (FNNodeUIConfig.MaximizedPanel <> pnNone) then
           ToggleMaximizeSelectedPanel;
-      LoadFromNNode(FNNode, True, neEditingLayout, nil, true, TagsToAddToNewEntry)
+      LoadFromNNode(FNNode, True, neEditingLayout, true, TagsToAddToNewEntry)
    end
    else
       EditInInMultiEntries(ReqFromNEntriesUI, nil, true, TagsToAddToNewEntry);
@@ -1673,7 +1673,7 @@ begin
    if not DefinedSingleEntryPanelForEditing or (not Folder.NoteAdvOptions.EditTagLinkedEntryInSelectedEntryPanel) then begin
       PnlEdit:= PnlReq;
       if not NewEntry and not InitialReqWasNil then begin
-         ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing
+         ReqFromNEntriesUI.btnToggleMultiClick(nil);       // Use requested NEntriesUI for editing (from that method, SavePositionInPanel is called)
          exit;
       end;
    end;
@@ -1685,15 +1685,16 @@ begin
    PanelConfig.SelNEntry:= NEntry;
 
    if NEntriesUI <> ReqFromNEntriesUI then begin
-      ReqFromNEntriesUI.SavePositionInPanel;
-      PanelConfig.SelStart:= ReqFromNEntriesUI.PanelConfig.SelStart;
+      if not InitialReqWasNil then
+         ReqFromNEntriesUI.SavePositionInPanel;
+      PanelConfig.SSImLink:= ReqFromNEntriesUI.PanelConfig.SSImLink;
       PanelConfig.SelLength:= ReqFromNEntriesUI.PanelConfig.SelLength;
       if NEntriesUI.PanelHidden and not FMultipleVisibleEditors and (ReqFromNEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then
          ReqFromNEntriesUI.btnToggleMultiClick(nil);
    end;
 
    if SS >= 0 then begin
-      PanelConfig.SelStart:= SS;
+      PanelConfig.SSImLink:= SS;
       PanelConfig.SelLength:= SL;
    end;
 
@@ -1704,8 +1705,15 @@ begin
    end;
 
    NEntriesUI.Editor.HideNestedFloatingEditor;
-   NEntriesUI.PanelConfig.CurrentMode:= meSingleEntry;
-   NEntriesUI.ReloadFromDataModel(True, nil, Action, true);
+
+   if (NEntriesUI <> ReqFromNEntriesUI) and (NEntriesUI.NEntry = NEntry) and (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then begin
+      NEntriesUI.Editor.SelStart:= PanelConfig.SSImLink - GetPositionOffset(NEntriesUI.Editor, NEntry, PanelConfig.SSImLink, -1, False, 0, -1);
+      NEntriesUI.Editor.SelLength:= PanelConfig.SelLength;
+   end
+   else begin
+      NEntriesUI.PanelConfig.CurrentMode:= meSingleEntry;
+      NEntriesUI.ReloadFromDataModel(True, nil, Action, true);
+   end;
 
    FNNodeDeleted:= false;
    NEntriesUI.SetFocusOnEditor;
@@ -1842,7 +1850,6 @@ end;
 
 procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                                    LayoutToUse: TBasicNEntriesLayout;
-                                   EditingNEntry: TNoteEntry = nil;
                                    OfferEditorForNewEntry: boolean = False;
                                    TagsToAddToNewEntry: TNoteTagArray = nil);
 var
@@ -1947,7 +1954,7 @@ begin
           if SetNoteSelEntry then begin
              if (Pnl = PnlEdit) or (not DefinedSingleEntryPanelForEditing and (Pnl = MainPanel)) then begin
                 PanelConfig.SelNEntry:= FNote.SelEntry;
-                PanelConfig.SelStart:= FNote.SelStart;
+                PanelConfig.SSImLink:= FNote.SSImLink;
                 PanelConfig.SelLength:= FNote.SelLength;
                 PanelConfig.ScrollPosInEditor.Y:= 0;
              end;
@@ -2016,12 +2023,10 @@ begin
    if assigned(NNode) then begin
       FixPossibleProblemWith0HeigthPanels;
 
-      if EditingNEntry = nil then begin                       // If <> nil -> Focus in FSelectedNEntriesUI will be set from EditInInMultiEntries
-         FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
-         if not ActiveTreeUI.Focused then
-            FSelectedNEntriesUI.SetFocusOnEditor;
-         FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
-      end;
+      FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
+      if not ActiveTreeUI.Focused then
+         FSelectedNEntriesUI.SetFocusOnEditor;
+      FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
 
       KeepInfoPanelTemporarilyVisible;
 
@@ -2095,7 +2100,7 @@ begin
       with SelNEntriesUI do begin
          FNote.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
          FNote.SelEntry  := NEntry;
-         FNote.SelStart  := PanelConfig.SelStart;
+         FNote.SSImLink  := PanelConfig.SSImLink;
          FNote.SelLength := PanelConfig.SelLength;
       end
    else

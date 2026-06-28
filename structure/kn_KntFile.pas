@@ -2829,9 +2829,9 @@ begin
         else
         if ( key = _NEntrySelStart ) then begin
             if _SAVE_RESTORE_CARETPOS then
-               Note.SelStart := StrToIntDef( s, 0 )
+               Note.SSImLink := StrToIntDef( s, 0 )
             else
-               Note.SelStart := 0;
+               Note.SSImLink := 0;
         end;
 
         //	ToDO:     fResources: TResourceList;  _NoteResources = 'NR';
@@ -3360,8 +3360,8 @@ var
 
     if (Note.SelEntry <> nil) and (Note.SelEntry.ID > 0) then
        tf.WriteLine(_NoteSelEntry + '=' + Note.SelEntry.ID.ToString  );
-    if ( _SAVE_RESTORE_CARETPOS and ( Note.SelStart > 0 )) then
-       tf.WriteLine( _NEntrySelStart + '=' + Note.SelStart.ToString  );
+    if ( _SAVE_RESTORE_CARETPOS and ( Note.SSImLink > 0 )) then
+       tf.WriteLine( _NEntrySelStart + '=' + Note.SSImLink.ToString  );
     if Note.Resources <> nil then
        tf.WriteLine(_NoteResources + '=' + Note.ResourcesToString  );
 

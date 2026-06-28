@@ -2940,9 +2940,9 @@ begin
               else
               if ( key = _NEntrySelStart ) then begin
                   if _SAVE_RESTORE_CARETPOS then
-                     Note.SelStart := StrToIntDef( s, 0 )
+                     Note.SSImLink := StrToIntDef( s, 0 )
                   else
-                     Note.SelStart := 0;
+                     Note.SSImLink := 0;
               end
               else
               if ( key = _NodeImageIndex ) then
@@ -3694,14 +3694,14 @@ begin
 
 
        if (NNode <> nil) and (NNode.Note.SelEntry <> nil) then begin
-          SelStart:= NNode.Note.SelStart;
+          SSImLink:= NNode.Note.SSImLink;
           SelLength:= NNode.Note.SelLength;
           SelNEntry:= NNode.Note.SelEntry;
           ScrollPosInEditor:= NNode.Note.ScrollPosInEditor;
           ZoomCurrent:= FFolder.ZoomGoal;
        end
        else begin
-          SelStart:= 0;
+          SSImLink:= 0;
           SelLength:= 0;
           SelNEntry:= nil;
           ScrollPosInEditor.X:= 0;
