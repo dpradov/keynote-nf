@@ -1934,7 +1934,7 @@ begin
 
 
      if (Mode = meSingleEntry) or CalculateEntriesToShow or
-       ((NEntryToConsider = nil) and not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader, aChangedVisibility])) then begin
+       ((NEntryToConsider = nil) and not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader])) then begin
 
         Editor.Clear;
         Editor.ClearUndo;
@@ -2006,7 +2006,7 @@ begin
                 ClearAndSetAsEmpty;
           end
           else begin
-              if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aRefreshHeader, aChangedVisibility]) then begin
+              if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
                  for iEntry:= 0 to Length(FEntriesShown)-1 do begin
                     if (FEntriesShown[iEntry].IsVisible) then
                        ReconsiderEntry (iEntry);
