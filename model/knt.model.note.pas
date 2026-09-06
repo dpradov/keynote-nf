@@ -1339,7 +1339,6 @@ begin
       else begin
          Result:= false;
          for i:= 0 to High(FindTagsA) do begin
-            if Length(FindTagsA) <> Length(FindTagsB) then exit;
             for j:= 0 to High(FindTagsA[i]) do
                if FindTagsA[i][j] <> FindTagsB[i][j] then
                   exit;

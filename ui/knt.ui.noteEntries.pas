@@ -2014,7 +2014,7 @@ begin
               end
               else begin
                  var pos: integer:= 0;
-                 FEntriesShown[0].StartingContentPos:= 0;
+                 FEntriesShown[0].StartingPos:= 0;
                  FEntriesShown[0].FinalPos:= 0;
                  FEntriesShown[0].StartingContentPos:= 0;
 
@@ -2714,6 +2714,9 @@ end;
 
 procedure TKntNoteEntriesUI.btnPrevEntryClick(Sender: TObject);
 begin
+   if (Sender <> nil) and (Editor <> ActiveEditor) then
+      SetFocusOnEditor;
+
    SelectPrevEntry(True);
 end;
 
@@ -2740,6 +2743,9 @@ end;
 
 procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
 begin
+   if (Sender <> nil) and (Editor <> ActiveEditor) then
+      SetFocusOnEditor;
+
    SelectNextEntry(True);
 end;
 
@@ -2776,8 +2782,11 @@ end;
 
 procedure TKntNoteEntriesUI.btnToggleMultiClick(Sender: TObject);
 begin
-   if Sender <> nil then
+   if Sender <> nil then begin
       TKntNoteUI(NoteUI).ReturnToQLFromAllEntriesInSingleMode:= false;
+      if Editor <> ActiveEditor then
+         SetFocusOnEditor;
+   end;
 
    SavePositionInPanel;
 
