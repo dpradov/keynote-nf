@@ -1881,9 +1881,17 @@ begin
    CancelMaximizedPanelNeeded:= (FNNodeUIConfig <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone);
 
 
-   // When switching from EditingLayout to QueryLayout -> Set the NEntry of the current panel to the one selected in the main panel
-   // This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
-   SetNoteSelEntry:= (LayoutToUse = neQueryLayout) and not FQueryLayout;
+   { *1
+     When switching from EditingLayout (EL) to QueryLayout (QL), set the entry selected in EL as the active entry (*)
+     in the panel that held the focus in QL (e.g., the one from which Ctrl+Enter was pressed), subject to the following constraints:
+     - If the panel that held the focus in QL is linked to tags, and the entry selected in EL lacks those tags, move the focus in QL
+       to the main panel (AllEntries).
+     - Set the entry selected in EL —along with the selection position within it— in the panel that held the focus in QL.
+       For the other QL panels: update the selection position and length only if they currently have the same entry selected in EL active.
+
+       (*) This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
+   }
+   SetNoteSelEntry:= (LayoutToUse = neQueryLayout) and not FQueryLayout;              // *1
 
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
@@ -1942,6 +1950,13 @@ begin
          FNNodeUIConfig.FocusedPanel:= PnlToSetFocus;
       end;
 
+      if SetNoteSelEntry then begin                                                            // *1
+         PanelConfig:= FNNodeUIConfig.PanelConfig(PnlToSetFocus);
+         if (PanelConfig.Use = pnuShowTagLinkedEntries) and not FNote.SelEntry.HasTags(PanelConfig.LinkedTags) then
+             PnlToSetFocus:= MainPanel;
+      end;
+
+
       for i := 0 to High(FNNodeUIConfig.PanelsConfig) do begin
           PanelConfig:= FNNodeUIConfig.PanelsConfig[i];
           Pnl:= PanelConfig.Panel;
@@ -1951,8 +1966,8 @@ begin
 
           NEntriesUI:= GetNEntriesUI(Pnl);
 
-          if SetNoteSelEntry then begin
-             if (Pnl = PnlEdit) or (not DefinedSingleEntryPanelForEditing and (Pnl = MainPanel)) then begin
+          if SetNoteSelEntry then begin                                                         // *1
+             if (Pnl = PnlToSetFocus) or (PanelConfig.SelNEntry = FNote.SelEntry) then begin
                 PanelConfig.SelNEntry:= FNote.SelEntry;
                 PanelConfig.SSImLink:= FNote.SSImLink;
                 PanelConfig.SelLength:= FNote.SelLength;
