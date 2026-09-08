@@ -846,10 +846,22 @@ begin
 
 end;
 
+
 procedure TKntNoteUI.TreeFocused;
 begin
-   FNNodeUIConfig.FocusedPanel:= pnNone;
+{
+ *1 Commented: When AutoExpandInPanels option is enabled -> The TL, TR, BL, and BR panels will expand when they are focused.
+ This line here prevented the panel to keep been expanded when moving the focus to the tree.
+    See TKntApp.TreeFocused and commit 8875c57de (25/5/26) "Entries: New option, AutoExpandInPanels -> The TL, TR, BL,
+    and BR panels will expand when they are focused"
+
+ However this lead to forget the panel with the focus and also it is not clear that this behaviour is better.
+ In fact, when the focus is moved to another control, like Resource panel, the expanded panel is not restored to its normal size.
+ Really it seems better to avoid many size changes.
+}
+//   FNNodeUIConfig.FocusedPanel:= pnNone;    // *1
 end;
+
 
 {
 procedure TKntNoteUI.TestPanels;
@@ -1944,9 +1956,11 @@ begin
          if FNNodeUIConfig.MaximizedPanel <> pnNone then
             PnlToSetFocus:= FNNodeUIConfig.MaximizedPanel;
 
+      { See comment *1 in TKntNoteUI.TreeFocused
          if ((PnlToSetFocus in [pnTL, pnTR]) and FNNodeUIConfig.PanelReducedToHidden(pnTL)) or
             ((PnlToSetFocus in [pnBL, pnBR]) and FNNodeUIConfig.PanelReducedToHidden(pnBL))    then
             PnlToSetFocus:= pnCenter;
+      }
          FNNodeUIConfig.FocusedPanel:= PnlToSetFocus;
       end;
 
