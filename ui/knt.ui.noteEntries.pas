@@ -2072,16 +2072,20 @@ begin
         FNNode:= FEntriesShown[FiEntry].NNode;
         FNote:= FEntriesShown[FiEntry].Note;
         FNEntry:= FEntriesShown[FiEntry].NEntry;
+        var ContentVisible: boolean := True;
 
         SS:= PanelConfig.SSImLink;
         SL:= PanelConfig.SelLength;
+        var StP: integer:= 0;
         var StC: integer:= 0;
         var FnP: integer:= -1;
         if PanelConfig.CurrentMode = meMultiEntry then begin
            StC:= FEntriesShown[FiEntry].StartingContentPos;
-           FnP:= FEntriesShown[FiEntry].FinalPos
+           FnP:= FEntriesShown[FiEntry].FinalPos;
+           if FEntriesShown[FiEntry].Content = cmOnlyHeader then
+              ContentVisible:= False;
         end;
-        if SS > 0 then begin
+        if (SS > 0) and ContentVisible then begin
             if IsDisplayingExcerptsForSelectedEntry then
                SS:= GetImLinkPositionInEntryExcerpts(FiEntry, SS, SL);
 
@@ -2093,8 +2097,21 @@ begin
             end;
         end;
         if (Mode = meMultiEntry) then begin
-           Editor.SelStart := FEntriesShown[FiEntry].StartingPos;     // To try to make the header visible as well
-           SS:= SS + StC;
+           StP:=  FEntriesShown[FiEntry].StartingPos;
+           Editor.SelStart := StP;     // To try to make the header visible as well
+           if ContentVisible then begin
+              SS:= SS + StC;
+              if SS > FnP then begin
+                 SS:= FnP -4;
+                 SL:= 0;
+              end;
+              if SS + SL > FnP then
+                 SL:= 0;
+           end
+           else begin
+              SS:= StP + (StC - StP) div 2;
+              SL:= 0;
+           end;
         end;
         Editor.SelStart := SS;
         Editor.SelLength := SL;
