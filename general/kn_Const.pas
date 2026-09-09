@@ -1131,6 +1131,7 @@ type
   );
 
   TContentInMultiEntryMode_Selectable = cmOnlyHeader..cmOnlyFirstLines;
+  TContentInEntryModeArray = Array of TContentInMultiEntryMode;
 
 
 var

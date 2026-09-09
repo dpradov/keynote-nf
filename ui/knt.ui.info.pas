@@ -119,8 +119,7 @@ type
 
     MECustomiz: TMEPanelCustomization;
 
-    EntriesOnlyHeader: TNoteEntryArray;
-    HiddenEntriesDisplayed: TNoteEntryArray;
+    CurrentContentMode: TContentInEntryModeArray;
     FilteredOutIgnoredEntries: TNoteEntryArray;
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)

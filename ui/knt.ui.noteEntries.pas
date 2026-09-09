@@ -1269,21 +1269,14 @@ var
           end;
        end;
 
-    for j:= 0 to Length(PanelConfig.HiddenEntriesDisplayed)-1 do
+    if Length(PanelConfig.CurrentContentMode) = Length(FEntriesShown) then
        for iEntry:= 0 to Length(FEntriesShown)-1 do begin
           CheckFiltered(iEntry);
-          if (FEntriesShown[iEntry].NEntry = PanelConfig.HiddenEntriesDisplayed[j]) and (FEntriesShown[iEntry].Filtered <> fFilteredOut) then begin
-             FEntriesShown[iEntry].Content:= cmWholeEntry;
-             break;
-          end;
+          if (FEntriesShown[iEntry].Filtered = fFilteredOut) then continue;
+          if PanelConfig.CurrentContentMode[iEntry] <> cmHidden then
+             FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, PanelConfig.CurrentContentMode[iEntry], True);
        end;
 
-    for j:= 0 to Length(PanelConfig.EntriesOnlyHeader)-1 do
-      for iEntry:= 0 to Length(FEntriesShown)-1 do
-         if FEntriesShown[iEntry].NEntry = PanelConfig.EntriesOnlyHeader[j] then begin
-            FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, cmOnlyHeader, True);
-            break;
-         end;
 
     if FPanelInitialized then
        ShowEntriesButtons(Length(FEntriesShown) > 1);
@@ -1583,15 +1576,10 @@ var
  var
     i, N: integer;
  begin
-    SetLength(PanelConfig.EntriesOnlyHeader, Length(FEntriesShown));
-    N:= 0;
-    for i:= 0 to Length(FEntriesShown)-1 do
-        if FEntriesShown[i].Content = cmOnlyHeader then begin
-           PanelConfig.EntriesOnlyHeader[N]:= FEntriesShown[i].NEntry;
-           inc(N);
-        end;
-    SetLength(PanelConfig.EntriesOnlyHeader, N);
 
+    SetLength(PanelConfig.CurrentContentMode, Length(FEntriesShown));
+    for i:= 0 to Length(FEntriesShown)-1 do
+        PanelConfig.CurrentContentMode[i]:= FEntriesShown[i].Content;
 
     SetLength(PanelConfig.FilteredOutIgnoredEntries, Length(FEntriesShown));
     N:= 0;
@@ -1601,16 +1589,6 @@ var
            inc(N);
         end;
     SetLength(PanelConfig.FilteredOutIgnoredEntries, N);
-
-
-    SetLength(PanelConfig.HiddenEntriesDisplayed, Length(FEntriesShown));
-    N:= 0;
-    for i:= 0 to Length(FEntriesShown)-1 do
-        if (FEntriesShown[i].NEntry.IsHidden) and (FEntriesShown[i].Content <> cmHidden) then begin
-           PanelConfig.HiddenEntriesDisplayed[N]:= FEntriesShown[i].NEntry;
-           inc(N);
-        end;
-    SetLength(PanelConfig.HiddenEntriesDisplayed, N);
  end;
 
 
