@@ -1325,8 +1325,6 @@ var
 
          for i:= 0 to ResultsSearch.Count-1 do begin
             ResultSearch:= ResultsSearch[i];
-            if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
-
             for j:= 0 to Length(ResultSearch.WordsPos)-1 do begin
                RTFAuxFrag.SelStart:=  ResultSearch.WordsPos[j];
                RTFAuxFrag.SelLength:= ResultSearch.WordsSel[j];
@@ -1359,7 +1357,7 @@ var
 
          PosI:= 0;
          for i:= 1 to ResultsSearch.Count-1 do begin
-            if (i > 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+            if (i >= 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
 
             inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
 
@@ -2063,7 +2061,7 @@ begin
            if FEntriesShown[FiEntry].Content = cmOnlyHeader then
               ContentVisible:= False;
         end;
-        if (SS > 0) and ContentVisible then begin
+        if (SS >= 0) and ContentVisible then begin
             if IsDisplayingExcerptsForSelectedEntry then
                SS:= GetImLinkPositionInEntryExcerpts(FiEntry, SS, SL);
 
@@ -3529,7 +3527,7 @@ begin
    else begin
       PosI:= 0;
       for i:= 1 to N-1 do begin
-         if (i > 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+         if (i >= 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
 
          inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
          PosF:= (PosI + (ResultsSearch[i].EndOfParagraph-ResultsSearch[i].BeginOfParagraph) + 1);
@@ -3552,12 +3550,13 @@ begin
    if iEntry < 0 then
       iEntry:= FiEntry;
 
-   if (iEntry < 0) or (PosInEntry = 0) then exit(PosInEntry);
+   if (iEntry < 0) then exit(PosInEntry);
 
   // PosInEntry expressed in ImLinkTextPlain
 
    ResultsSearch:= FEntriesShown[iEntry].ResultsSearch;
 
+   nResult:= -1;
    for i:= 0 to ResultsSearch.Count-1 do
       if PosInEntry <= ResultsSearch[i].EndOfParagraph then begin
          nResult:= i;
@@ -3565,13 +3564,23 @@ begin
       end;
 
 
-   if nResult = 0 then
-      Result:= PosI + (PosInEntry - ResultsSearch[0].BeginOfParagraph)
-
+   if nResult = 0 then begin
+      Result:= PosI + (PosInEntry - ResultsSearch[0].BeginOfParagraph);
+      if Result < 0 then begin
+         Result:= 0;
+         SelLength:= 0;
+      end;
+   end
    else begin
+      if nResult < 0 then begin
+         nResult:= ResultsSearch.Count-1;
+         PosInEntry:= ResultsSearch[nResult].EndOfParagraph;
+         SelLength:= 0;
+      end;
+
       PosI:= 0;
       for i:= 1 to ResultsSearch.Count-1 do begin
-         if (i > 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+         if (i >= 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
 
          inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
          if nResult = i then begin
