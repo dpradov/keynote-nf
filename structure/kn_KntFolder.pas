@@ -3483,7 +3483,7 @@ begin
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel in [pnTL, pnTR]) then
-            Result:= Max(0.5, GetTopAutoFromHidden_Ratio);
+            Result:= Max(Result, Max(0.5, GetTopAutoFromHidden_Ratio));
       end;
 
       if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin
@@ -3520,7 +3520,7 @@ begin
 
       if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
          if (FFocusedPanel in [pnBL, pnBR]) then
-            Result:= Max(0.5, GetBottomAutoFromHidden_Ratio);
+            Result:= Max(Result, Max(0.5, GetBottomAutoFromHidden_Ratio));
       end;
 
       if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin

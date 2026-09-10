@@ -3395,6 +3395,7 @@ var
   EntriesInNote: TFoundEntryInNoteList;
   EntryFragments: TEntryFragments;
   iNEntry, iNode, i: integer;
+  ResultsSearch: TResultsSearch;
   ResultSearch: TResultSearch;
   TxtPlain: string;
   pL_Scope, pR_Scope: integer;
