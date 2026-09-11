@@ -23,6 +23,7 @@ uses
    System.SysUtils,
    Vcl.Controls,
    Vcl.Graphics,
+   gf_misc,
    kn_Const,
    kn_Info,
    knt.model.note,
@@ -42,6 +43,32 @@ type
      spInEL                  // In EditingLayout
    );
 
+
+type
+   TResultSearch = class                   // Positions expressed in ImLinkTextPlain
+      BeginOfParagraph: integer;
+      EndOfParagraph: integer;             // Only used with ResultsSearchInfo
+      WordsPos: array of integer;
+      WordsSel: array of integer;
+   end;
+   TResultsSearch= TSimpleObjList<TResultSearch>;      // TList<TResultSearch>;
+
+   TWordInResultSearch = class
+      BeginOfParagraph: integer;
+      WordPos: integer;
+      WordSel: integer;
+   end;
+
+
+  TEntryExcerptsInfo = class
+     ResultsSearch: TResultsSearch;          // <> nil if Filtered and ShowExcerpts = True
+     StreamRTFFrag: TMemoryStream;           //     ,,
+     FragTextPlain: String;                  //     ,,
+
+     constructor Create;
+     destructor Destroy; override;
+     procedure Clear;
+  end;
 
  {
   *2
@@ -215,6 +242,8 @@ type
   end;
 
 
+  procedure ClearResultsSearch(ResultsSearch: TResultsSearch);
+
 
 
 implementation
@@ -245,6 +274,41 @@ begin
        Result:= meSingleEntry
     else
        Result:= meMultiEntry;
+end;
+
+
+procedure ClearResultsSearch(ResultsSearch: TResultsSearch);
+var
+ i: integer;
+begin
+  if ResultsSearch <> nil then begin
+     for i := 0 to ResultsSearch.Count-1 do
+         ResultsSearch[i].Free;
+     ResultsSearch.Clear;
+  end;
+end;
+
+
+constructor TEntryExcerptsInfo.Create;
+begin
+   ResultsSearch:= nil;
+   StreamRTFFrag:= nil;
+   FragTextPlain:= '';
+end;
+
+
+procedure TEntryExcerptsInfo.Clear;
+begin
+   ClearResultsSearch(ResultsSearch);
+   FreeAndNil(ResultsSearch);
+   FreeAndNil(StreamRTFFrag);
+   FragTextPlain:= '';
+end;
+
+destructor TEntryExcerptsInfo.Destroy;
+begin
+   Clear;
+   inherited Destroy;
 end;
 
 

@@ -59,9 +59,7 @@ type
     FinalPos: integer;
     Content: TContentInMultiEntryMode;
     Filtered: TNEntryFiltered;
-    ResultsSearch: TResultsSearch;          // <> nil if Filtered and ShowExcerpts = True
-    StreamRTFFrag: TMemoryStream;           //     ,,
-    FragTextPlain: String;                  //     ,,
+    ExcerptsInfo: TEntryExcerptsInfo;       // <> nil if Filtered and ShowExcerpts = True
 
     function IsVisible: boolean;
     function ContainsExcerpts: boolean;
@@ -188,8 +186,7 @@ type
     function NEntryToBeFilteredIn (NNode: TNoteNode; NEntry: TNoteEntry): boolean;
     function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
     function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
-    procedure ClearResultsSearch(ResultsSearch: TResultsSearch);
-    procedure ClearExcerptsInfoInAllEntries;
+    procedure FreeExcerptsInfoInAllEntries;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
 
   protected
@@ -288,7 +285,7 @@ end;
 
 function TEntryShown.ContainsExcerpts: boolean;
 begin
-    Result:= (Filtered = fFilteredIn) and (ResultsSearch <> nil);
+    Result:= (Filtered = fFilteredIn) and (ExcerptsInfo <> nil);
 end;
 
 // Create  / Destroy =========================================
@@ -366,46 +363,28 @@ end;
 
 destructor TKntNoteEntriesUI.Destroy;
 begin
-    if assigned( FEditor ) then begin
+   if assigned( FEditor ) then begin
       App.EditorUnavailable(FEditor);
       FreeAndNil(FEditor);
-    end;
-    if RTFAux <> nil then
-      FreeAndNil(RTFAux);
+   end;
+   FreeAndNil(RTFAux);
 
    fImagesReferenceCount:= nil;
 
-   ClearExcerptsInfoInAllEntries;
-   if RTFAuxFrag <> nil then
-      RTFAuxFrag.Free;
+   FreeExcerptsInfoInAllEntries;
+   FreeAndNil(RTFAuxFrag);
 
    inherited;
 end;
 
-procedure TKntNoteEntriesUI.ClearResultsSearch(ResultsSearch: TResultsSearch);
-var
- i: integer;
-begin
-  if ResultsSearch <> nil then begin
-     for i := 0 to ResultsSearch.Count-1 do
-         ResultsSearch[i].Free;
-     ResultsSearch.Clear;
-  end;
-end;
 
-
-procedure TKntNoteEntriesUI.ClearExcerptsInfoInAllEntries;
+procedure TKntNoteEntriesUI.FreeExcerptsInfoInAllEntries;
 var
   i: integer;
 begin
   for i:= 0 to Length(FEntriesShown)-1 do begin
      FEntriesShown[i].Filtered:= fFilteredUnknown;
-     if assigned(FEntriesShown[i].ResultsSearch) then begin
-        ClearResultsSearch(FEntriesShown[i].ResultsSearch);
-        FEntriesShown[i].ResultsSearch:= nil;
-        FreeAndNil(FEntriesShown[i].StreamRTFFrag);
-        FEntriesShown[i].FragTextPlain:= '';
-     end;
+     FreeAndNil(FEntriesShown[i].ExcerptsInfo);
   end;
 end;
 
@@ -1146,9 +1125,7 @@ var
          FEntriesShown[N].NNode:= FNNode;
          FEntriesShown[N].Note:= FNote;
          FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MECustomiz.Content);
-         FEntriesShown[N].ResultsSearch:= nil;
-         FEntriesShown[N].StreamRTFFrag:= nil;
-         FEntriesShown[N].FragTextPlain:= '';
+         FEntriesShown[N].ExcerptsInfo:= nil;
          CheckFiltered(N, true);
 
          inc(N);
@@ -1166,11 +1143,11 @@ var
          N:= Length(FEntriesShown);
 
          if EntryToRemove then begin
+            FreeAndNil(FEntriesShown[iEntryToConsider].ExcerptsInfo);
             for iEntry:= iEntryToConsider to Length(FEntriesShown)-2 do
                FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
 
-            if assigned(FEntriesShown[N-1].ResultsSearch) then
-               ClearResultsSearch(FEntriesShown[N-1].ResultsSearch);
+            FEntriesShown[N-1].ExcerptsInfo:= nil;
 
             dec(N);
 
@@ -1188,7 +1165,7 @@ var
          end
          else
          if not EntryToAdd then begin
-             ClearExcerptsInfoInAllEntries;
+             FreeExcerptsInfoInAllEntries;
              FEntriesShown:= nil;
 
              if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
@@ -1245,9 +1222,7 @@ var
             FEntriesShown[iEntryAdded].NNode:= FNNode;
             FEntriesShown[iEntryAdded].Note:= FNote;
             FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
-            FEntriesShown[iEntryAdded].ResultsSearch:= nil;
-            FEntriesShown[iEntryAdded].StreamRTFFrag:= nil;
-            FEntriesShown[iEntryAdded].FragTextPlain:= '';
+            FEntriesShown[iEntryAdded].ExcerptsInfo:= nil;
             CheckFiltered(iEntryAdded, true);
          end;
 
@@ -1296,7 +1271,7 @@ var
  begin
      NEntry:= FEntriesShown[iEntry].NEntry;
 
-     ResultsSearch:= FEntriesShown[iEntry].ResultsSearch;
+     ResultsSearch:= FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch;
      NEntry.Stream.Position := 0;
 
      if not NEntry.IsRTF then
@@ -1314,7 +1289,7 @@ var
      end;
      RTFAuxFrag.Clear;
 
-     if FEntriesShown[iEntry].StreamRTFFrag = nil then begin
+     if FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag = nil then begin
 
          LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
 
@@ -1368,14 +1343,14 @@ var
          RTFAuxFrag.SetSelection(0, pFLastFragm - Offset, False);
 
          RTFFrag:= RTFAuxFrag.RtfSelText;
-         FEntriesShown[iEntry].StreamRTFFrag:= TMemoryStream.Create;
-         StringToMemoryStream(RTFFrag, FEntriesShown[iEntry].StreamRTFFrag);
+         FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag:= TMemoryStream.Create;
+         StringToMemoryStream(RTFFrag, FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag);
          TxtPlain:= RTFAuxFrag.TextPlain;
-         FEntriesShown[iEntry].FragTextPlain:= TxtPlain;
+         FEntriesShown[iEntry].ExcerptsInfo.FragTextPlain:= TxtPlain;
      end
      else begin
-         RTFFrag:= MemoryStreamToString(FEntriesShown[iEntry].StreamRTFFrag);
-         TxtPlain:= FEntriesShown[iEntry].FragTextPlain;
+         RTFFrag:= MemoryStreamToString(FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag);
+         TxtPlain:= FEntriesShown[iEntry].ExcerptsInfo.FragTextPlain;
      end;
 
 
@@ -1415,7 +1390,7 @@ var
             exit;
          end;
 
-         if (Mode = meMultiEntry) and (FEntriesShown[iEntry].ResultsSearch <> nil) then begin
+         if (Mode = meMultiEntry) and (FEntriesShown[iEntry].ExcerptsInfo <> nil) then begin
             PrepareFragmentsOfEntry (iEntry);
             exit;
          end;
@@ -2067,7 +2042,7 @@ begin
 
             if FNEntry.IsRTF and (Folder.ImagesMode = imImage) then begin
                if IsDisplayingExcerptsForSelectedEntry then
-                  SS:= SS - ImageMng.GetPositionOffset_FromImLinkTP (Editor, FEntriesShown[FiEntry].StreamRTFFrag, SS, FEntriesShown[FiEntry].FragTextPlain, False, False, StC, FnP)
+                  SS:= SS - ImageMng.GetPositionOffset_FromImLinkTP (Editor, FEntriesShown[FiEntry].ExcerptsInfo.StreamRTFFrag, SS, FEntriesShown[FiEntry].ExcerptsInfo.FragTextPlain, False, False, StC, FnP)
                else
                   SS:= SS - GetPositionOffset(Editor, FNEntry, SS, -1, False, StC, FnP);
             end;
@@ -2864,7 +2839,7 @@ begin
       PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
       PanelConfig.CurrentMode:= meMultiEntry;
       PanelConfig.FilteredOutIgnoredEntries:= nil;
-      ClearExcerptsInfoInAllEntries;
+      FreeExcerptsInfoInAllEntries;
    end;
 
    if FilterChanged or OrderChanged then
@@ -3467,10 +3442,14 @@ begin
          FreeAndNil(ResultsSearch);
       end;
 
-      if assigned(FEntriesShown[iNEntry].ResultsSearch) then
-         ClearResultsSearch(FEntriesShown[iNEntry].ResultsSearch);
-
-      FEntriesShown[iNEntry].ResultsSearch:= ResultsSearch;
+      if assigned(ResultsSearch) then begin
+         if not assigned(FEntriesShown[iNEntry].ExcerptsInfo) then
+            FEntriesShown[iNEntry].ExcerptsInfo:= TEntryExcerptsInfo.Create;
+         FEntriesShown[iNEntry].ExcerptsInfo.Clear;
+         FEntriesShown[iNEntry].ExcerptsInfo.ResultsSearch:= ResultsSearch;
+      end
+      else
+         FreeAndNil(FEntriesShown[iNEntry].ExcerptsInfo);
 
       ActiveFile.IsBusy := false;
    end;
@@ -3506,7 +3485,7 @@ begin
    // CaretPosInEditorWithExcerpts: CaretPos from editor, referred to the beginning of the text of the editor, not to the beginning of the entry excerpts
 
    NEntry:= FEntriesShown[iEntry].NEntry;
-   ResultsSearch:= FEntriesShown[iEntry].ResultsSearch;
+   ResultsSearch:= FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch;
    N:= ResultsSearch.Count;
 
    StartingContPos:= FEntriesShown[iEntry].StartingContentPos;
@@ -3514,7 +3493,7 @@ begin
    PosImLinkInExcerpts:= CaretPosInEditorWithExcerpts;
    if (ActiveFolder.ImagesMode = imImage) and NEntry.IsRTF then begin
       FinalPos:= FEntriesShown[iEntry].FinalPos;
-      inc(PosImLinkInExcerpts, ImageMng.GetPositionOffset_FromEditorTP (Editor, FEntriesShown[iEntry].StreamRTFFrag, CaretPosInEditorWithExcerpts, FEntriesShown[iEntry].FragTextPlain, false, false, StartingContPos, FinalPos) );
+      inc(PosImLinkInExcerpts, ImageMng.GetPositionOffset_FromEditorTP (Editor, FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag, CaretPosInEditorWithExcerpts, FEntriesShown[iEntry].ExcerptsInfo.FragTextPlain, false, false, StartingContPos, FinalPos) );
    end;
    dec(PosImLinkInExcerpts, StartingContPos);
 
@@ -3554,7 +3533,7 @@ begin
 
   // PosInEntry expressed in ImLinkTextPlain
 
-   ResultsSearch:= FEntriesShown[iEntry].ResultsSearch;
+   ResultsSearch:= FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch;
 
    nResult:= -1;
    for i:= 0 to ResultsSearch.Count-1 do

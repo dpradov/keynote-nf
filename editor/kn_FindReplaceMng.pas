@@ -33,6 +33,7 @@ uses
    knt.model.note,
    RxRichEd,
    kn_Info,
+   knt.ui.info,
    kn_KntFolder,
    kn_FindReplace
    ;
@@ -55,21 +56,6 @@ var
 
 type
    TDistanceScope = (dsAll, dsSentence, dsParagraph);
-
-type
-   TResultSearch = class                   // Positions expressed in ImLinkTextPlain
-      BeginOfParagraph: integer;
-      EndOfParagraph: integer;             // Only used with ResultsSearchInfo
-      WordsPos: array of integer;
-      WordsSel: array of integer;
-   end;
-   TResultsSearch= TSimpleObjList<TResultSearch>;      // TList<TResultSearch>;
-
-   TWordInResultSearch = class
-      BeginOfParagraph: integer;
-      WordPos: integer;
-      WordSel: integer;
-   end;
 
 var
    ResultsSearch: TResultsSearch;
@@ -128,7 +114,6 @@ uses
    kn_Cmd,
    kn_LocationObj,
    kn_EditorUtils,
-   knt.ui.info,
    knt.ui.editor,
    knt.ui.noteEntries,
    kn_RTFUtils,

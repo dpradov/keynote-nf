@@ -45,7 +45,7 @@ uses
    knt.model.note,
    kn_History,
    kn_LocationObj,
-   kn_FindReplaceMng,
+   knt.ui.info,
    knt.ui.editor
    ;
 
@@ -144,7 +144,6 @@ uses
    kn_ImageForm,
    kn_NoteFileMng,
    kn_KntFile,
-   knt.ui.info,
    knt.ui.noteEntries,
    knt.App,
    knt.RS
