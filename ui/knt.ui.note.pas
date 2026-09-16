@@ -2111,6 +2111,7 @@ begin
          FNEntriesUI[p].SaveToDataModel;
          if FNEntriesUI[p].OnUse then begin
             FNEntriesUI[p].SavePositionInPanel;
+            FNEntriesUI[p].SaveFilterInfo;
             FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntriesUI[p].PanelConfig;
             inc(iOnUse);
             if p in MainPanels then begin                              // Main panels: [pnTL..pnBR]

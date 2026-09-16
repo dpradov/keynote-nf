@@ -48,8 +48,6 @@ type
   TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
 
 type
-  TNEntryFiltered = (fFilteredUnknown, fFilteredIn, fFilteredOut, fFilteredOutIgnored);
-
   TEntryShown = record
     Note: TNote;
     NNode: TNoteNode;
@@ -157,6 +155,7 @@ type
     procedure SaveToDataModel; overload;
     procedure InsertMarkerInMultiEntryEditor (NEntry: TNoteEntry; KEYMarker: Char; TargetMarker: integer; RTFAux: TAuxRichEdit);
     procedure SavePositionInPanel;
+    procedure SaveFilterInfo;
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
     procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
@@ -187,6 +186,7 @@ type
     function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
     function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
     procedure FreeExcerptsInfoInAllEntries;
+    procedure CleanExcerptsInfo;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
 
   protected
@@ -388,6 +388,15 @@ begin
   end;
 end;
 
+procedure TKntNoteEntriesUI.CleanExcerptsInfo;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do begin
+     FEntriesShown[i].Filtered:= fFilteredUnknown;
+     FEntriesShown[i].ExcerptsInfo:= nil;
+  end;
+end;
 
 
 {$ENDREGION}
@@ -1126,7 +1135,7 @@ var
          FEntriesShown[N].Note:= FNote;
          FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MECustomiz.Content);
          FEntriesShown[N].ExcerptsInfo:= nil;
-         CheckFiltered(N, true);
+         FEntriesShown[N].Filtered:= fFilteredUnknown;
 
          inc(N);
       end;
@@ -1165,7 +1174,7 @@ var
          end
          else
          if not EntryToAdd then begin
-             FreeExcerptsInfoInAllEntries;
+             CleanExcerptsInfo;
              FEntriesShown:= nil;
 
              if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
@@ -1184,6 +1193,28 @@ var
                     CheckCandidateEntry;
 
              SetLength(FEntriesShown, N);
+
+             if Length(PanelConfig.FilterInfoInEntries.FilteredStateInEntries) = Length(FEntriesShown) then begin
+                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                    FEntriesShown[iEntry].Filtered:= PanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry];
+             end
+             else
+                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                   CheckFiltered(iEntry, true);
+
+             if Length(PanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries) = Length(FEntriesShown) then begin
+                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                   FEntriesShown[iEntry].ExcerptsInfo:= PanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries[iEntry];
+             end;
+
+             if Length(PanelConfig.CurrentContentModeInEntries) = Length(FEntriesShown) then
+                for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                   CheckFiltered(iEntry);
+                   if (FEntriesShown[iEntry].Filtered = fFilteredOut) then continue;
+                   if PanelConfig.CurrentContentModeInEntries[iEntry] <> cmHidden then
+                      FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, PanelConfig.CurrentContentModeInEntries[iEntry], True);
+                end;
+
          end
          else begin                                         // EntryToAdd = True
             inc(N);
@@ -1235,22 +1266,6 @@ var
       fsFile: ;
     end;
 
-    for j:= 0 to Length(PanelConfig.FilteredOutIgnoredEntries)-1 do
-       for iEntry:= 0 to Length(FEntriesShown)-1 do begin
-          CheckFiltered(iEntry);
-          if (FEntriesShown[iEntry].NEntry = PanelConfig.FilteredOutIgnoredEntries[j]) then begin
-             FEntriesShown[iEntry].Filtered:= fFilteredOutIgnored;
-             break;
-          end;
-       end;
-
-    if Length(PanelConfig.CurrentContentMode) = Length(FEntriesShown) then
-       for iEntry:= 0 to Length(FEntriesShown)-1 do begin
-          CheckFiltered(iEntry);
-          if (FEntriesShown[iEntry].Filtered = fFilteredOut) then continue;
-          if PanelConfig.CurrentContentMode[iEntry] <> cmHidden then
-             FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, PanelConfig.CurrentContentMode[iEntry], True);
-       end;
 
 
     if FPanelInitialized then
@@ -1547,21 +1562,13 @@ var
 
  procedure SaveContentStateOfEntries;
  var
-    i, N: integer;
+    i: integer;
  begin
 
-    SetLength(PanelConfig.CurrentContentMode, Length(FEntriesShown));
+    SetLength(PanelConfig.CurrentContentModeInEntries, Length(FEntriesShown));
     for i:= 0 to Length(FEntriesShown)-1 do
-        PanelConfig.CurrentContentMode[i]:= FEntriesShown[i].Content;
+        PanelConfig.CurrentContentModeInEntries[i]:= FEntriesShown[i].Content;
 
-    SetLength(PanelConfig.FilteredOutIgnoredEntries, Length(FEntriesShown));
-    N:= 0;
-    for i:= 0 to Length(FEntriesShown)-1 do
-        if (FEntriesShown[i].Filtered = fFilteredOutIgnored) then begin
-           PanelConfig.FilteredOutIgnoredEntries[N]:= FEntriesShown[i].NEntry;
-           inc(N);
-        end;
-    SetLength(PanelConfig.FilteredOutIgnoredEntries, N);
  end;
 
 
@@ -2648,6 +2655,38 @@ begin
 end;
 
 
+procedure TKntNoteEntriesUI.SaveFilterInfo;
+var
+  i: integer;
+  ExcerptsInfo: TEntryExcerptsInfoArray;
+  FilteredState: TNEntryFilteredArray;
+  ContainsExcerpts: boolean;
+begin
+   FilteredState:= nil;
+   ExcerptsInfo:= nil;
+
+   if FPanelConfig.MECustomiz.Filter.Enabled and not FPanelConfig.MECustomiz.Filter.Empty then begin
+      SetLength(FilteredState, Length(FEntriesShown));
+      for i:= 0 to Length(FEntriesShown)-1 do
+         FilteredState[i]:= FEntriesShown[i].Filtered;
+
+      ContainsExcerpts:= False;
+      SetLength(ExcerptsInfo, Length(FEntriesShown));
+      for i:= 0 to Length(FEntriesShown)-1 do begin
+         ExcerptsInfo[i]:= FEntriesShown[i].ExcerptsInfo;
+         if FEntriesShown[i].ContainsExcerpts then
+            ContainsExcerpts:= True;
+      end;
+
+      if not ContainsExcerpts then
+         ExcerptsInfo:= nil;
+   end;
+
+   FPanelConfig.FilterInfoInEntries.FilteredStateInEntries:= FilteredState;
+   FPanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries:=  ExcerptsInfo;
+end;
+
+
 procedure TKntNoteEntriesUI.ReloadNoteName;
 begin
    txtName.Text:= FNote.Name;
@@ -2838,7 +2877,8 @@ begin
       FilterChanged:= true;
       PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
       PanelConfig.CurrentMode:= meMultiEntry;
-      PanelConfig.FilteredOutIgnoredEntries:= nil;
+      PanelConfig.FilterInfoInEntries.FilteredStateInEntries:= nil;
+      PanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries:= nil;
       FreeExcerptsInfoInAllEntries;
    end;
 

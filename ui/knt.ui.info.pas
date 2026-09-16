@@ -59,6 +59,8 @@ type
       WordSel: integer;
    end;
 
+  TNEntryFiltered = (fFilteredUnknown, fFilteredIn, fFilteredOut, fFilteredOutIgnored);
+  TNEntryFilteredArray = Array of TNEntryFiltered;
 
   TEntryExcerptsInfo = class
      ResultsSearch: TResultsSearch;          // <> nil if Filtered and ShowExcerpts = True
@@ -68,6 +70,12 @@ type
      constructor Create;
      destructor Destroy; override;
      procedure Clear;
+  end;
+  TEntryExcerptsInfoArray = Array of TEntryExcerptsInfo;
+
+  TEntryFilterInfo = record
+    FilteredStateInEntries: TNEntryFilteredArray;
+    ExcerptsInfoInEntries: TEntryExcerptsInfoArray;
   end;
 
  {
@@ -146,8 +154,8 @@ type
 
     MECustomiz: TMEPanelCustomization;
 
-    CurrentContentMode: TContentInEntryModeArray;
-    FilteredOutIgnoredEntries: TNoteEntryArray;
+    CurrentContentModeInEntries: TContentInEntryModeArray;
+    FilterInfoInEntries: TEntryFilterInfo;
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
     SSImLink : integer;               // ,,                                                                // *2
