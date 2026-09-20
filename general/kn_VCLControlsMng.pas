@@ -461,6 +461,7 @@ begin
 
    _ALLOW_VCL_UPDATES := false;
    try
+     TKntNoteUI(aFolder.NoteUI).OnResize:= nil;
      aFolder.NoteUI:= nil;       // Unbind interface before releasing object (which is done after aFolder.TabSheet.Free;)
 
      if assigned( aFolder.Splitter ) then

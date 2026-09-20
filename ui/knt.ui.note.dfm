@@ -15,7 +15,6 @@ object KntNoteUI: TKntNoteUI
   ParentCtl3D = False
   ParentFont = False
   TabOrder = 0
-  OnResize = FrameResize
   object splL: TSplitter
     Left = 97
     Top = 0

@@ -279,6 +279,8 @@ begin
    TimerInfoPanel.Enabled := false;
    TimerInfoPanel.Interval := 1300;  // 1,3 seconds
    TimerInfoPanel.OnTimer:= TimerInfoTimer;
+
+   OnResize:= FrameResize;
 end;
 
 
