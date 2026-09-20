@@ -188,7 +188,7 @@ type
     function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
     procedure FreeExcerptsInfoInAllEntries;
     procedure CleanExcerptsInfo;
-    function CheckFilterInfoUpdated(iEntry: integer): boolean;
+    function CheckFilterInfoUpdated(iEntry: integer; ForceCalc: boolean = false): boolean;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
 
   protected
@@ -1745,7 +1745,7 @@ begin
 
        if (iEntryToConsider >= 0) and not EntryToRemove and (ActionOnEntry in [aModifiedMetadata, aModified]) then begin
            var FilteredOutBefore: boolean:= (FEntriesShown[iEntryToConsider].Filtered = fFilteredOut);
-           CheckFilterInfoUpdated(iEntryToConsider);
+           CheckFilterInfoUpdated(iEntryToConsider, (ActionOnEntry = aModifiedMetadata));
            if (iEntryToConsider = FiEntry) or (FilteredOutBefore <> (FEntriesShown[iEntryToConsider].Filtered = fFilteredOut)) then
               ActionOnEntry:= aChangedVisibility;
        end;
@@ -3650,7 +3650,7 @@ end;
 
 
 
-function TKntNoteEntriesUI.CheckFilterInfoUpdated(iEntry: integer): boolean;   // Return: FEntriesShown[iEntry].Filtered <> fFilteredOut
+function TKntNoteEntriesUI.CheckFilterInfoUpdated(iEntry: integer; ForceCalc: boolean = false): boolean;   // Return: FEntriesShown[iEntry].Filtered <> fFilteredOut
 var
     FilteredOutIgnoredBefore: boolean;
 begin
@@ -3661,7 +3661,7 @@ begin
 
    FilteredOutIgnoredBefore:= (FEntriesShown[iEntry].Filtered = fFilteredOutIgnored);
 
-   if ((FPanelConfig.FilterInfoInEntries.FilteredStateInEntries = nil) or (FPanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry] = fFilteredUnknown)) or
+   if ForceCalc or ((FPanelConfig.FilterInfoInEntries.FilteredStateInEntries = nil) or (FPanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry] = fFilteredUnknown)) or
        (FEntriesShown[iEntry].ContainsExcerpts and not assigned(FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch))   then begin
       CheckFiltered(iEntry, True);
       if FilteredOutIgnoredBefore and (FEntriesShown[iEntry].Filtered = fFilteredOut) then
