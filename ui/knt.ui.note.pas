@@ -798,10 +798,9 @@ begin
    NEntriesUI:= GetNEntriesUI(Panel);
    if NEntriesUI = nil then exit;
 
-   if FQueryLayout and WithoutVisibleEntries and (NEntriesUI.PanelConfig.Panel <> pnCenter) then begin
-      if not NEntriesUI.PanelConfig.MECustomiz.Filter.Enabled then
-         ShowEntriesUIPanel(NEntriesUI.PanelConfig.Panel, False);
-   end
+   if FQueryLayout and WithoutVisibleEntries and (NEntriesUI.PanelConfig.Panel <> pnCenter) and
+      not NEntriesUI.PanelConfig.MECustomiz.Filter.Enabled then
+         ShowEntriesUIPanel(NEntriesUI.PanelConfig.Panel, False)
    else begin
       NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
       DisableChangedInEmptyPanelAt:= now;
@@ -1593,8 +1592,11 @@ begin
           ToggleMaximizeSelectedPanel;
       LoadFromNNode(FNNode, True, neEditingLayout, true, TagsToAddToNewEntry)
    end
-   else
+   else begin
+      if ReqFromNEntriesUI.PanelConfig.CurrentMode = meSingleEntry then
+         ReqFromNEntriesUI.btnToggleMultiClick(nil);
       EditInInMultiEntries(ReqFromNEntriesUI, nil, true, TagsToAddToNewEntry);
+   end;
 
    FSelectedNEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
    DisableChangedInEmptyPanelAt:= now;

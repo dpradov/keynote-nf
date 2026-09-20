@@ -1744,9 +1744,9 @@ begin
        end;
 
        if (iEntryToConsider >= 0) and not EntryToRemove and (ActionOnEntry in [aModifiedMetadata, aModified]) then begin
-           var FilteredInBefore: boolean:= (FEntriesShown[iEntryToConsider].Filtered = fFilteredIn);
+           var FilteredOutBefore: boolean:= (FEntriesShown[iEntryToConsider].Filtered = fFilteredOut);
            CheckFilterInfoUpdated(iEntryToConsider);
-           if (iEntryToConsider = FiEntry) or (FilteredInBefore <> (FEntriesShown[iEntryToConsider].Filtered = fFilteredIn)) then
+           if (iEntryToConsider = FiEntry) or (FilteredOutBefore <> (FEntriesShown[iEntryToConsider].Filtered = fFilteredOut)) then
               ActionOnEntry:= aChangedVisibility;
        end;
 
@@ -3651,15 +3651,22 @@ end;
 
 
 function TKntNoteEntriesUI.CheckFilterInfoUpdated(iEntry: integer): boolean;   // Return: FEntriesShown[iEntry].Filtered <> fFilteredOut
+var
+    FilteredOutIgnoredBefore: boolean;
 begin
    Result:= true;
    if not FPanelConfig.IsFiltered then exit;
 
    // The information may have been removed from Folder.FreeFilterInfo upon detection that the content of this entry had been modified.
 
+   FilteredOutIgnoredBefore:= (FEntriesShown[iEntry].Filtered = fFilteredOutIgnored);
+
    if ((FPanelConfig.FilterInfoInEntries.FilteredStateInEntries = nil) or (FPanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry] = fFilteredUnknown)) or
        (FEntriesShown[iEntry].ContainsExcerpts and not assigned(FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch))   then begin
       CheckFiltered(iEntry, True);
+      if FilteredOutIgnoredBefore and (FEntriesShown[iEntry].Filtered = fFilteredOut) then
+         FEntriesShown[iEntry].Filtered := fFilteredOutIgnored;
+
       if FEntriesShown[iEntry].Filtered = fFilteredOut then
          Result:= false;
    end;
