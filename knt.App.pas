@@ -744,6 +744,30 @@ var
    NEntriesUI: TKntNoteEntriesUI;
    i: integer;
    Action: TActionOnEntry;
+   ReloadOtherEditors: boolean;
+
+   procedure ExecuteOnNEntriesUI(DoFreeFilterInfo: boolean);
+   var
+      i: integer;
+   begin
+      for i:= 0 to fAvailableEditors.Count-1 do begin
+         E:= fAvailableEditors[i];
+         if not DoFreeFilterInfo and (E = Editor) then continue;
+         NNode:= TNoteNode(E.NNodeObj);
+         if assigned(NNode) and (NNode.Note = NoteSavedEditor) then begin
+            NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+            if assigned(NEntriesUI) and (NEntriesUI.PanelConfig <> nil) then begin
+               if DoFreeFilterInfo then
+                  NEntriesUI.PanelConfig.FreeFilterInfo(NEntrySaved)
+               else begin
+                  NEntriesUI.SavePositionInPanel;
+                  NEntriesUI.SaveFilterInfo(NEntriesUI.GetIndexOfSelectedEntry);
+                  NEntriesUI.ReloadFromDataModel(false, NEntrySaved, Action, false);
+               end;
+            end;
+         end;
+      end;
+   end;
 
 begin
    if Editor = nil then exit;
@@ -754,28 +778,20 @@ begin
 
 
    NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
-   if not ( (NoteSavedEditor.NumNNodes > 1) or NEntriesUI.NoteUI.MultipleVisibleEditors) then exit;
+   NEntrySaved:= NEntriesUI.NEntry;
+   ReloadOtherEditors:= (NoteSavedEditor.NumNNodes > 1) or NEntriesUI.NoteUI.MultipleVisibleEditors;
+
+   // Clear any saved filtering information related to the modified entry so that it is recalculated.
+   ExecuteOnNEntriesUI(true);    // Some of its PanelConfigs may not have been saved to Folder.NNodesUIConfig yet
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].FreeFilterInfo(NEntrySaved);
+
+
+   if not ReloadOtherEditors then exit;
 
    Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, +1);
-
-   NEntrySaved:= NEntriesUI.NEntry;
-
    Action:= aModified;
-
-   for i:= 0 to fAvailableEditors.Count-1 do begin
-      E:= fAvailableEditors[i];
-      if (E = Editor) then continue;
-
-      NNode:= TNoteNode(E.NNodeObj);
-      if NNode = nil then continue;
-      if NoteSavedEditor = NNode.Note then begin
-         NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
-         if (NEntriesUI = nil) or (NEntriesUI.PanelConfig = nil) then continue;
-         NEntriesUI.SavePositionInPanel;
-         NEntriesUI.ReloadFromDataModel(false, NEntrySaved, Action, false);
-      end;
-   end;
-
+   ExecuteOnNEntriesUI(false);
    Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, -1);
 
 end;

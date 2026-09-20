@@ -74,6 +74,7 @@ type
   TEntryExcerptsInfoArray = Array of TEntryExcerptsInfo;
 
   TEntryFilterInfo = record
+    NEntries: TNoteEntryArray;
     FilteredStateInEntries: TNEntryFilteredArray;
     ExcerptsInfoInEntries: TEntryExcerptsInfoArray;
   end;
@@ -167,6 +168,8 @@ type
     destructor Destroy; override;
     function UseIsMultiEntry: boolean;  inline;
     function EntryModeForUse: TModeEntriesUI;  inline;
+    function IsFiltered: boolean; inline;
+    procedure FreeFilterInfo(NEntry: TNoteEntry);
   end;
 
 
@@ -283,6 +286,29 @@ begin
     else
        Result:= meMultiEntry;
 end;
+
+function TPanelConfiguration.IsFiltered: Boolean;
+begin
+   Result:= MECustomiz.Filter.Enabled and not MECustomiz.Filter.Empty;
+end;
+
+
+procedure TPanelConfiguration.FreeFilterInfo (NEntry: TNoteEntry);
+var
+  i: integer;
+begin
+    if FilterInfoInEntries.NEntries = nil then exit;
+
+    for i:= 0 to High(FilterInfoInEntries.NEntries) do begin
+        if FilterInfoInEntries.NEntries[i] = NEntry then begin
+           FilterInfoInEntries.FilteredStateInEntries[i]:= fFilteredUnknown;
+           if assigned(FilterInfoInEntries.ExcerptsInfoInEntries) and assigned(FilterInfoInEntries.ExcerptsInfoInEntries[i]) then
+              FilterInfoInEntries.ExcerptsInfoInEntries[i].Clear;
+           break;
+        end;
+    end;
+end;
+
 
 
 procedure ClearResultsSearch(ResultsSearch: TResultsSearch);

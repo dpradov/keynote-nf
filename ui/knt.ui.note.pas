@@ -2102,13 +2102,22 @@ begin
 
    Log_StoreTick('TKntNoteUI.SaveToDataModel - BEGIN', 4, +1);
 
-   SetLength(FNNodeUIConfig.PanelsConfig, TNEntriesPanel_Count);
 
-   iOnUse:= 0;
+   { *1 
+    This can trigger the updating of other panels via App.EditorSaved, potentially causing a recalculation of position or filtering information
+    (including extract-related data, if applicable). If filtering-related recalculations occur, it is beneficial to store them in FNNodeUIConfig.PanelsConfig
+     to avoid repeating them. Therefore, it is advisable to save all the  the data first (FNEntriesUI[p].SaveToDataModel), followed by
+     any recalculations that may have taken place }
+
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+         FNEntriesUI[p].SaveToDataModel;                           // *1
+
+   SetLength(FNNodeUIConfig.PanelsConfig, TNEntriesPanel_Count);
    SelNEntriesUI:= nil;
+   iOnUse:= 0;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
-         FNEntriesUI[p].SaveToDataModel;
          if FNEntriesUI[p].OnUse then begin
             FNEntriesUI[p].SavePositionInPanel;
             FNEntriesUI[p].SaveFilterInfo;

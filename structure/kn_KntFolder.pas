@@ -329,7 +329,8 @@ type
     function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
     procedure ResetZoomCurrent(Zoom: integer);
     procedure DeleteNNodesUIConfig(QueryLayout: boolean);
-    procedure ResetMEPanelsCustomiz ;
+    procedure ResetMEPanelsCustomiz;
+    procedure FreeFilterInfo(NEntry: TNoteEntry);
 
     procedure NoteNameModified(NNode: TNoteNode);
 
@@ -1531,6 +1532,18 @@ begin
 
 end;
 
+
+procedure TKntFolder.FreeFilterInfo (NEntry: TNoteEntry);
+var
+  i, j: integer;
+begin
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
+        NNodesUIConfig[i].PanelsConfig[j].FreeFilterInfo(NEntry);
+     end;
+  end;
+
+end;
 
 {$ENDREGION}
 
@@ -3663,7 +3676,6 @@ end;
 function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aUse: TNEntriesPanelUse; NNode: TNoteNode): TPanelConfiguration;
 var
    L: integer;
-   PanelConfig: TPanelConfiguration;
 begin
     L:= Length(PanelsConfig);
     SetLength(PanelsConfig, L + 1);
