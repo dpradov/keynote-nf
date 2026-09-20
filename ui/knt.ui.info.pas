@@ -59,7 +59,10 @@ type
       WordSel: integer;
    end;
 
-  TNEntryFiltered = (fFilteredUnknown, fFilteredIn, fFilteredOut, fFilteredOutIgnored);
+  // "fFilteredOutIgnored" renamed to "fFilteredIgnored".
+  //  Although fFilteredIgnored will normally mean "fFilteredOutIgnored", it will also be used to ignore excerpts (been fFilteredIn)
+
+  TNEntryFiltered = (fFilteredUnknown, fFilteredIn, fFilteredOut, fFilteredIgnored);
   TNEntryFilteredArray = Array of TNEntryFiltered;
 
   TEntryExcerptsInfo = class
