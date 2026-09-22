@@ -1881,11 +1881,16 @@ var
    EnableNavigatePanels: boolean;
    Action: TActionOnEntry;
    CancelMaximizedPanelNeeded: boolean;
+   PreviousNodeWithNewNNodeUIConfig: boolean;
 begin
  EnableNavigatePanels:= (LayoutToUse <> neLastLayout);
 
  if SavePreviousContent and (FNNode <> nil) and not FNNodeDeleted then
     SaveToDataModel;
+
+ PreviousNodeWithNewNNodeUIConfig:= false;
+ if FNNode <> nil then
+    PreviousNodeWithNewNNodeUIConfig:= FNewNNodeUIConfig;
 
  FHideFocusFlag:= false;
  if FloatingEditorCannotBeSaved then exit;
@@ -1941,6 +1946,15 @@ begin
       if (FNEntriesUI[Pnl] <> nil) and not FNEntriesUI[Pnl].HideNestedFloatingEditor then
          exit;
    end;
+
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+      if (FNEntriesUI[Pnl] <> nil) then begin
+         if PreviousNodeWithNewNNodeUIConfig then
+            FreeAndNil(FNEntriesUI[Pnl].PanelConfig);
+         FNEntriesUI[Pnl].SetAsUnused;
+      end;
+   end;
+
 
    if assigned(NNode) then begin
       MainPanel:= pnCenter;
@@ -2151,16 +2165,11 @@ begin
 
 
    SetLength(FNNodeUIConfig.PanelsConfig, iOnUse);
-   if FNewNNodeUIConfig then
-      if (NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) then begin
+   if FNewNNodeUIConfig and
+      (NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) then begin
          Folder.AddNNodeUIConfig(FNNodeUIConfig);
          FNewNNodeUIConfig:= false;
-      end
-      else begin
-         for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-            if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
-               FreeAndNil(FNEntriesUI[p].PanelConfig);
-      end;
+   end;
 
    Log_StoreTick('TKntNoteUI.SaveToDataModel - END', 4, -1);
 end;
