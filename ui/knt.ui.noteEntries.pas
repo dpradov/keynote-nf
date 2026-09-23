@@ -1286,6 +1286,7 @@ var
     pFLastFragm, Offset, PosI: integer;
     RTFFrag: AnsiString;
     TxtPlain: string;
+    ContainsFoldedBlocks: boolean;
  begin
      NEntry:= FEntriesShown[iEntry].NEntry;
 
@@ -1313,7 +1314,24 @@ var
 
          LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
 
-    //    PreprocessFoldedFragments;
+         ContainsFoldedBlocks:= False;
+         if NEntry.IsRTF then begin
+            TxtPlain:= RTFAuxFrag.TextPlain;
+            ContainsFoldedBlocks:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain) > 0;
+            if ContainsFoldedBlocks then begin
+             { *1
+               If the fragment is located within a folded block (that uses protected and hidden text), the subsequent text selection
+               might not yield the expected result. For instance, setting RTFAuxFrag.SelStart to 10 might actually result in it
+               being set to 9; the same applies to SelLength. Consequently, the displayed fragments may be incorrect in such cases.
+               The next three lines avoid that problem. However, I must bear in mind that this will make visible the hidden text used
+               by KNT to identify images, bookmarks, etc. Therefore, I hide these characters again at the end by searching for the
+               special characters used to mark their beginning and end }
+
+               RTFAuxFrag.SelectAll;
+               RTFAuxFrag.SelAttributes.Protected := False;
+               RTFAuxFrag.SelAttributes.Hidden:= False;
+            end;
+         end;
 
          pFLastFragm:= 0;
          Offset:= 0;
@@ -1363,6 +1381,10 @@ var
          RTFAuxFrag.SetSelection(0, pFLastFragm - Offset, False);
 
          RTFFrag:= RTFAuxFrag.RtfSelText;
+         if ContainsFoldedBlocks then begin       // See *1, above
+            RTFFrag:= StringReplace(RTFFrag, KNT_RTF_HIDDEN_MARK_L, '{\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
+            RTFFrag:= StringReplace(RTFFrag, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R + '\v0}', [rfReplaceAll]);
+         end;
          FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag:= TMemoryStream.Create;
          StringToMemoryStream(RTFFrag, FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag);
          TxtPlain:= RTFAuxFrag.TextPlain;
