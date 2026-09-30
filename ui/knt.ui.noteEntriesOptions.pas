@@ -182,6 +182,8 @@ destructor TForm_NoteEntriesOptions.Destroy;
 var
   LMethod: TNotifyEvent;
 begin
+  TagMng.CancelTxtTagIntrod;
+
   LMethod := ScreenActiveControlChange;
   if TMethod(Screen.OnActiveControlChange).Code = TMethod(LMethod).Code then
      Screen.OnActiveControlChange := FPrevActiveControlChange;

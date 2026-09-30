@@ -67,6 +67,7 @@ type
     procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; NEntry: TNoteEntry; Folder: TObject);
     procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod; AllowNotRegTags:boolean);
     procedure EndedTxtTagIntrod(PressedReturn: boolean);
+    procedure CancelTxtTagIntrod;
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
     procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string; TagsNotRegModeOR: boolean);
 
@@ -165,8 +166,10 @@ end;
 
 procedure TTagMng.FreeTagSelector;
 begin
-  if txtTags <> nil then
-     EndedTxtTagIntrod(False);
+  if (txtTags <> nil) and (txtTags.Parent <> nil) then
+     EndedTxtTagIntrod(False)
+  else
+     txtTags:= nil;
 
   if cTagSelector <> nil then
      FreeAndNil(cTagSelector);
@@ -447,6 +450,13 @@ begin
    FAllowNotRegTags:= AllowNotRegTags;
 end;
 
+
+procedure TTagMng.CancelTxtTagIntrod;
+begin
+   txtTags:= nil;
+   if cTagSelector <> nil then
+      cTagSelector.CloseTagSelector(true);
+end;
 
 
 procedure TTagMng.EndedTxtTagIntrod(PressedReturn: boolean);
