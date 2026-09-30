@@ -1295,14 +1295,7 @@ var
      ResultsSearch:= FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch;
      NEntry.Stream.Position := 0;
 
-     if not NEntry.IsRTF then
-        UpdateEditor (cEditor, FKntFolder, False);
-
-     if ((not cEditor.PlainText) and (NEntry.Stream.Size = 0)) or NodeStreamIsRTF (NEntry.Stream) then
-        cEditor.StreamFormat:= sfRichText
-     else
-        cEditor.StreamFormat:= sfPlainText;
-
+     cEditor.StreamFormat:= sfRichText;
 
      if RTFAuxFrag = nil then begin
         RTFAuxFrag:= CreateAuxRichEdit;
@@ -1312,7 +1305,14 @@ var
 
      if FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag = nil then begin
 
-         LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
+         if not NEntry.IsRTF and (NEntry.Stream.Size > 0) then begin
+            RTFAuxFrag.StreamFormat:= sfPlainText;
+            SetEditorDefAttributes(RTFAuxFrag, FKntFolder);
+            RTFAuxFrag.Lines.LoadFromStream(NEntry.Stream);
+            RTFAuxFrag.StreamFormat := sfRichText;
+         end
+         else
+            LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
 
          ContainsFoldedBlocks:= False;
          if NEntry.IsRTF then begin
@@ -1397,7 +1397,7 @@ var
 
 
      strRTF:= '';
-     if cEditor.StreamFormat = sfRichText then begin
+     if NEntry.IsRTF then begin
         ImagesAux:= GetImagesIDInstances (nil, TxtPlain);
         if ImagesAux <> nil then begin
            strRTF:= ImageMng.ProcessImagesInRTF(RTFFrag, '', ImageMng.ImagesMode, '', 0, false);

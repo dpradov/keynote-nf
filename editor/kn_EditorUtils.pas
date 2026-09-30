@@ -62,6 +62,7 @@ procedure EnableOrDisableUAS;
 procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
 procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
+procedure SetEditorDefAttributes (AEditor: TRxRichEdit; KntFolder: TKntFolder);
 function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
 function GetCellxEditorWidth(Editor: TRxRichEdit): integer;
 function GetRTFLine(Editor: TRxRichEdit): AnsiString;
@@ -1457,9 +1458,10 @@ begin
    RTFAux.Clear;
    RTFAux.StreamMode := [];
 
-   UpdateEditor(RTFAux, KntFolder, True, True);
-
    RTFAux.StreamFormat:= FromFormat;
+   if (ToFormat = sfRichText) then
+      SetEditorDefAttributes(RTFAux, KntFolder);
+
    RTFAux.Lines.LoadFromStream(Stream);
    RTFAux.StreamFormat := ToFormat;
 
@@ -1470,6 +1472,19 @@ begin
    RTFAux.Lines.SaveToStream(Stream, Encoding);
 end;
 
+
+procedure SetEditorDefAttributes (AEditor: TRxRichEdit; KntFolder: TKntFolder);
+begin
+  with KntFolder do
+     with AEditor.DefAttributes do begin
+       Charset := EditorChrome.Font.Charset;
+       Name := EditorChrome.Font.Name;
+       Size := EditorChrome.Font.Size;
+       Style := EditorChrome.Font.Style;
+       Color := EditorChrome.Font.Color;
+       Language := EditorChrome.Language;
+    end;
+end;
 
 procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
 var
@@ -1497,15 +1512,7 @@ begin
        AEditor.Color := EditorChrome.BGColor;
        TextLen:= AEditor.TextLength;
        if (TextLen = 0) or AEditor.PlainText then begin          // Solves the problem indicated in EditProperties...*1
-          with AEditor.DefAttributes do begin
-            Charset := EditorChrome.Font.Charset;
-            Name := EditorChrome.Font.Name;
-            Size := EditorChrome.Font.Size;
-            Style := EditorChrome.Font.Style;
-            Color := EditorChrome.Font.Color;
-            Language := EditorChrome.Language;
-          end;
-
+          SetEditorDefAttributes(AEditor, KntFolder);
           if (TextLen = 0) and RTL then
              AEditor.BiDiMode:= bdRightToLeft;
        end;
