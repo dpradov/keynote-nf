@@ -2088,7 +2088,7 @@ begin
            if ContentVisible then begin
               SS:= SS + StC;
               if SS > FnP then begin
-                 SS:= FnP -4;
+                 SS:= FnP -2;
                  SL:= 0;
               end;
               if SS + SL > FnP then
@@ -2099,6 +2099,10 @@ begin
               SL:= 0;
            end;
         end;
+
+        if InformReloaded and NEntry.IsRTF then
+           CheckSelectionHiddenInFoldedBlock(Editor, SS, SL);
+
         Editor.SelStart := SS;
         Editor.SelLength := SL;
      end;
@@ -3632,7 +3636,7 @@ begin
 
 
    if nResult = 0 then begin
-      Result:= PosI + (PosInEntry - ResultsSearch[0].BeginOfParagraph);
+      Result:= (PosInEntry - ResultsSearch[0].BeginOfParagraph);
       if Result < 0 then begin
          Result:= 0;
          SelLength:= 0;

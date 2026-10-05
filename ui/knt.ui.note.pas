@@ -238,6 +238,7 @@ uses
   kn_ImagesUtils,
   kn_VCLControlsMng,
   kn_LinksMng,
+  kn_EditorUtils,
   knt.RS;
 
 
@@ -1723,8 +1724,14 @@ begin
    NEntriesUI.Editor.HideNestedFloatingEditor;
 
    if (NEntriesUI <> ReqFromNEntriesUI) and (NEntriesUI.NEntry = NEntry) and (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then begin
-      NEntriesUI.Editor.SelStart:= PanelConfig.SSImLink - GetPositionOffset(NEntriesUI.Editor, NEntry, PanelConfig.SSImLink, -1, False, 0, -1);
-      NEntriesUI.Editor.SelLength:= PanelConfig.SelLength;
+      SS:= PanelConfig.SSImLink - GetPositionOffset(NEntriesUI.Editor, NEntry, PanelConfig.SSImLink, -1, False, 0, -1);
+      SL:= PanelConfig.SelLength;
+
+      if NEntry.IsRTF then
+         CheckSelectionHiddenInFoldedBlock(NEntriesUI.Editor, SS, SL);
+
+      NEntriesUI.Editor.SelStart:= SS;
+      NEntriesUI.Editor.SelLength:= SL;
    end
    else begin
       NEntriesUI.PanelConfig.CurrentMode:= meSingleEntry;

@@ -74,6 +74,8 @@ function GetRTFTable(Editor: TRxRichEdit; Printable: boolean): AnsiString;
 procedure ExpandFoldedText(RTF : TAuxRichEdit);
 procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
 
+procedure CheckSelectionHiddenInFoldedBlock(Editor : TKntRichEdit; var SS, SL: integer; DoNotModifyCaret: boolean = false);
+
 type
    TClipCapMng = class
    private
@@ -1694,6 +1696,29 @@ begin
      if SS > 0 then
         SS:= RemoveFoldedBlock(RTF, TxtPlain, SS, OnlyIfTaggedFolded, KeepVisibleText);
   until SS = 0;
+end;
+
+
+procedure CheckSelectionHiddenInFoldedBlock(Editor : TKntRichEdit; var SS, SL: integer; DoNotModifyCaret: boolean = false);
+var
+  pI, pF: integer;
+  SSbak, SLbak: integer;
+begin
+   if DoNotModifyCaret then begin
+      SSbak:= Editor.SelStart;
+      SLbak:= Editor.SelLength;
+   end;
+
+   Editor.SelStart := SS;
+   if Editor.SelAttributes.Protected and (Editor.SelStart <> SS) and PositionInFoldedBlock(Editor.TextPlain, SS, Editor, pI, pF) then begin
+      SS:= pI;
+      SL:= 1;
+   end;
+
+   if DoNotModifyCaret then begin
+      Editor.SelStart:= SSbak;
+      Editor.SelLength:= SLbak;
+   end;
 end;
 
 
