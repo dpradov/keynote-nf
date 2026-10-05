@@ -3499,7 +3499,7 @@ function RunFindNext (Is_ReplacingAll: Boolean= False): boolean;
 begin
    if ActiveEditor = nil then exit(false);
 
-   if (ActiveEditor.NNodeObj = nil) or (not ActiveEditor.MultiEntry and not FindOptions.AllEntries_FindReplace) then
+   if (ActiveEditor.NNodeObj = nil) or not (ActiveEditor.MultiEntry and FindOptions.AllEntries_FindReplace) then
       Result:= RunFindNextInEditor (Is_ReplacingAll)
    else
       Result:= RunFindNextInNotes (Is_ReplacingAll);
