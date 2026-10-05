@@ -3643,10 +3643,12 @@ var
   FE: TFloatingEditor;
   KeepEndCR: boolean;
   SL: integer;
+  ModifiedBak: boolean;
 begin
    if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
       try
+         ModifiedBak:= Self.Modified;
          SuspendUndo;
          SelectTextToBeUnfolded(Self, pI, pF);
          SL:= SelLength;
@@ -3662,6 +3664,9 @@ begin
          PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR, False);
          FKeepEndCR:= KeepEndCR;
          SelStart:= pI;
+
+         Modified:= ModifiedBak;      // Necessary because SelectTextToBeUnfolded will modify the editor (See comment FOLD*1)
+
       finally
          ResumeUndo;
          EndUpdate;
