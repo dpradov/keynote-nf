@@ -157,6 +157,7 @@ type
     procedure InsertMarkerInMultiEntryEditor (NEntry: TNoteEntry; KEYMarker: Char; TargetMarker: integer; RTFAux: TAuxRichEdit);
     procedure SavePositionInPanel;
     procedure SaveFilterInfo(iEntry: integer = -1);
+    procedure CleanFilteredState(NEntry: TNoteEntry);
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
     procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
@@ -189,6 +190,7 @@ type
     function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
     procedure FreeExcerptsInfoInAllEntries;
     procedure CleanExcerptsInfo;
+    procedure ResetIgnoredFilteredStatusInAllEntries;
     function CheckFilterInfoUpdated(iEntry: integer; ForceCalc: boolean = false): boolean;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
 
@@ -202,6 +204,10 @@ type
     procedure SelectEntry(iEntry: integer; LastPos: boolean = false; InformReloaded: boolean = True);
     procedure FrameResize(Sender: TObject);
     function InfoBarShowingNoteMetadata: boolean;
+    function EntryShownWithExcerpts(iEntry: integer): boolean;
+    function EntryShownFiltered(iEntry: integer): TNEntryFiltered;
+    function EntryShownIsVisible(iEntry: integer): boolean; inline;
+
   public
     procedure EditTags;
     procedure RefreshTags;
@@ -390,6 +396,17 @@ begin
      FreeAndNil(FEntriesShown[i].ExcerptsInfo);
   end;
 end;
+
+
+procedure TKntNoteEntriesUI.ResetIgnoredFilteredStatusInAllEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do
+     if FEntriesShown[i].Filtered = fFilteredIgnored then
+        FEntriesShown[i].Filtered:= fFilteredUnknown;
+end;
+
 
 procedure TKntNoteEntriesUI.CleanExcerptsInfo;
 var
@@ -1425,14 +1442,14 @@ var
      NEntry.Stream.Position := 0;
      strRTF:= '';
 
-     if ((Mode = meSingleEntry) or (FEntriesShown[iEntry].Content <> cmOnlyHeader)) and (FEntriesShown[iEntry].Filtered <> fFilteredOut) then begin
+     if ((Mode = meSingleEntry) or (FEntriesShown[iEntry].Content <> cmOnlyHeader)) and (EntryShownFiltered(iEntry) <> fFilteredOut) then begin
 
          if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
             cEditor.AddText(GetRS(sEdt52));
             exit;
          end;
 
-         if (Mode = meMultiEntry) and FEntriesShown[iEntry].ContainsExcerpts then begin
+         if (Mode = meMultiEntry) and EntryShownWithExcerpts(iEntry) then begin
             PrepareFragmentsOfEntry (iEntry);
             exit;
          end;
@@ -1556,7 +1573,7 @@ var
               Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].StartingContentPos, false);
            end;
 
-           if EntryToRemove or ((ActionOnEntry = aChangedVisibility) and (not FEntriesShown[i].IsVisible)) then begin
+           if EntryToRemove or ((ActionOnEntry = aChangedVisibility) and (not EntryShownIsVisible(i))) then begin
               Offset:= - L - 1;
               Editor.SelText:= '';
               if not EntryToRemove then begin
@@ -1722,7 +1739,7 @@ begin
           if not MustBeIncluded then exit;
           EntryToAdd:= true;
           PopulateEntriesToShow;
-          if FEntriesShown[iEntryAdded].Filtered = fFilteredOut then
+          if EntryShownFiltered(iEntryAdded) = fFilteredOut then
              FEntriesShown[iEntryAdded].Filtered:= fFilteredIgnored;
           if (Mode = meSingleEntry) then begin
               if (FiEntry_Initial = -1) and ((FNEntry = nil) or (FNEntry = NEntryToConsider)) then begin
@@ -1767,9 +1784,9 @@ begin
        end;
 
        if (iEntryToConsider >= 0) and not EntryToRemove and (ActionOnEntry in [aModifiedMetadata, aModified]) then begin
-           var FilteredOutBefore: boolean:= (FEntriesShown[iEntryToConsider].Filtered = fFilteredOut);
+           var FilteredOutBefore: boolean:= (EntryShownFiltered(iEntryToConsider) = fFilteredOut);
            CheckFilterInfoUpdated(iEntryToConsider, (ActionOnEntry = aModifiedMetadata));
-           if (iEntryToConsider = FiEntry) or (FilteredOutBefore <> (FEntriesShown[iEntryToConsider].Filtered = fFilteredOut)) then
+           if (iEntryToConsider = FiEntry) or (FilteredOutBefore <> (EntryShownFiltered(iEntryToConsider) = fFilteredOut)) then
               ActionOnEntry:= aChangedVisibility;
        end;
 
@@ -1790,7 +1807,7 @@ begin
    SaveFilterInfo;
 
    if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
-     (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (not FEntriesShown[iEntryToConsider].IsVisible) then exit;
+     (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (not EntryShownIsVisible(iEntryToConsider)) then exit;
 
    if FPanelHidden and not
          (EntryToAdd or (iSelectedEntry >= 0) or (ActionOnEntry = aCreating) or (NumVisibleEntriesBefore > 1) or (PanelConfig.StLayout = spInQL_ets))
@@ -1836,7 +1853,7 @@ begin
             if (PanelConfig.LinkedTags <> nil) then begin
                if FiEntry < 0 then
                   FiEntry:= 0;
-               if (FEntriesShown[FiEntry].Content <> cmHidden) and (FEntriesShown[FiEntry].Filtered <> fFilteredOut) then
+               if (FEntriesShown[FiEntry].Content <> cmHidden) and (EntryShownFiltered(FiEntry) <> fFilteredOut) then
                   FEntriesShown[FiEntry].Content:= cmWholeEntry;
                PanelConfig.CurrentMode:= meMultiEntry;
                Mode:= meMultiEntry;
@@ -1860,7 +1877,7 @@ begin
       // we'll make sure to display it in multi-entry mode, showing only the header.
        PanelConfig.CurrentMode:= meMultiEntry;
        Mode:= meMultiEntry;
-       if FEntriesShown[FiEntry].IsVisible then
+       if EntryShownIsVisible(FiEntry) then
           FEntriesShown[0].Content:= cmOnlyHeader;
        NEntryToConsider:= nil;
    end;
@@ -1891,7 +1908,7 @@ begin
 
      if (Mode = meMultiEntry) then begin
          if EntryToAdd then begin
-            if FEntriesShown[iEntryAdded].IsVisible then
+            if EntryShownIsVisible(iEntryAdded) then
                ShowNewEntryToAdd;
             if FNEntry = nil then
                FiEntry:= 0;
@@ -1933,9 +1950,9 @@ begin
      if FEntriesShown <> nil then begin
        FiEntry:= iSelectedEntry;
 
-       if CalculateEntriesToShow and (iSelectedEntry >= 0) and (not FEntriesShown[FiEntry].IsVisible) and
+       if CalculateEntriesToShow and (iSelectedEntry >= 0) and (not EntryShownIsVisible(FiEntry)) and
           (not FEntriesShown[FiEntry].NEntry.IsEncrypted or not ActiveFile.EncryptedContentMustBeHidden)  then begin
-          if FEntriesShown[FiEntry].Filtered = fFilteredOut then
+          if EntryShownFiltered(FiEntry) = fFilteredOut then
              FEntriesShown[FiEntry].Filtered:= fFilteredIgnored;         // We must be accessing this entry through a jump. The Filtered state will be reconsidered upon re-entering the node
           FEntriesShown[FiEntry].Content:= cmWholeEntry;
        end;
@@ -1956,13 +1973,13 @@ begin
 
        // We might have an encrypted entry selected, which then becomes hidden. We must select a non-hidden entry.
        // We'll start by selecting the entry immediately below it, and if there isn't one, the one immediately above it.
-       if (FiEntry >= 0) and (not FEntriesShown[FiEntry].IsVisible) then begin
+       if (FiEntry >= 0) and (not EntryShownIsVisible(FiEntry)) then begin
            PanelConfig.SSImLink:= 0;
            PanelConfig.SelLength:= 0;
            iEntry:= FiEntry;
            FiEntry:= -1;
            for i:= iEntry + 1 to Length(FEntriesShown)-1 do begin
-              if (FEntriesShown[i].IsVisible) then begin
+              if (EntryShownIsVisible(i)) then begin
                   FiEntry:= i;
                   break;
               end;
@@ -1970,7 +1987,7 @@ begin
 
            if FiEntry = -1 then begin
               for i:= iEntry -1 downto 0 do begin
-                  if (FEntriesShown[i].IsVisible) then begin
+                  if (EntryShownIsVisible(i)) then begin
                       FiEntry:= i;
                       break;
                   end;
@@ -1994,7 +2011,7 @@ begin
           else begin
               if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
                  for iEntry:= 0 to Length(FEntriesShown)-1 do begin
-                    if (FEntriesShown[iEntry].IsVisible) then
+                    if (EntryShownIsVisible(iEntry)) then
                        ReconsiderEntry (iEntry);
                  end;
               end
@@ -2005,12 +2022,12 @@ begin
                  FEntriesShown[0].StartingContentPos:= 0;
 
                  for iEntry:= 0 to Length(FEntriesShown)-1 do begin
-                    if (FEntriesShown[iEntry].IsVisible) then
+                    if (EntryShownIsVisible(iEntry)) then
                        ShowEntry (iEntry)
                     else begin
                        if (iEntry > 0) then begin
                           pos:= FEntriesShown[iEntry-1].FinalPos;
-                          if FEntriesShown[iEntry-1].IsVisible then
+                          if EntryShownIsVisible(iEntry-1) then
                              inc(pos);
                           FEntriesShown[iEntry].StartingPos:= pos;
                           FEntriesShown[iEntry].StartingContentPos:= pos;
@@ -2024,10 +2041,10 @@ begin
           end;
        end
        else begin                              // --- meSingleEntry
-          if (NEntryToConsider <> nil) and (FEntriesShown[iEntryToConsider].IsVisible) then
+          if (NEntryToConsider <> nil) and (EntryShownIsVisible(iEntryToConsider)) then
              ReconsiderEntry(iEntryToConsider)
           else
-          if (FiEntry >= 0) and (FEntriesShown[FiEntry].IsVisible) then
+          if (FiEntry >= 0) and (EntryShownIsVisible(FiEntry)) then
              ShowEntry (FiEntry)
           else begin
              FNEntry:= nil;
@@ -2204,7 +2221,7 @@ begin
     if OnlyNotHidden then begin
        Result:= 0;
        for i:= Length(FEntriesShown)-1 downto 0 do
-          if FEntriesShown[i].IsVisible then
+          if EntryShownIsVisible(i) then
              inc(Result);
     end
     else
@@ -2225,7 +2242,7 @@ var
 begin
    Result:= False;
    for i:= 0 to Length(FEntriesShown)-1 do
-      if (FEntriesShown[i].NEntry.IsHidden and (FEntriesShown[i].Content <> cmHidden)) or (FEntriesShown[i].Filtered = fFilteredIgnored) then
+      if (FEntriesShown[i].NEntry.IsHidden and EntryShownIsVisible(i)) or (EntryShownFiltered(i) = fFilteredIgnored) then
          exit(true);
 end;
 
@@ -2235,7 +2252,7 @@ var
 begin
    Result:= False;
    for i:= 0 to Length(FEntriesShown)-1 do
-      if (not FEntriesShown[i].IsVisible) and not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+      if (not EntryShownIsVisible(i)) and not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
          exit(true);
 end;
 
@@ -2276,7 +2293,7 @@ function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEn
           Result:= True;
           if (PanelConfig.CurrentMode = meMultiEntry) then begin
 
-             if (FEntriesShown[i].Content = cmOnlyHeader) or not FEntriesShown[i].IsVisible or FEntriesShown[i].ContainsExcerpts then begin
+             if (FEntriesShown[i].Content = cmOnlyHeader) or not EntryShownIsVisible(i) or EntryShownWithExcerpts(i) then begin
                 PanelConfig.SelNEntry:= NEntry;
                 ReloadVisibleContentOfEntries (false, cmWholeEntry, i, true,false,false,  true);
              end;
@@ -2701,7 +2718,7 @@ var
   NEntries: TNoteEntryArray;
   ContainsExcerpts: boolean;
 begin
-   if (iEntry >= 0) and FPanelConfig.IsFiltered then begin
+   if (iEntry >= 0) and (Length(FPanelConfig.FilterInfoInEntries.FilteredStateInEntries) > iEntry) then begin
       FPanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry]:= FEntriesShown[iEntry].Filtered;
       FPanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries[iEntry]:= FEntriesShown[iEntry].ExcerptsInfo;
    end
@@ -2710,7 +2727,7 @@ begin
       ExcerptsInfo:= nil;
       NEntries:= nil;
 
-      if FPanelConfig.IsFiltered then begin
+      if not FPanelConfig.MECustomiz.Filter.Empty then begin
          SetLength(FilteredState, Length(FEntriesShown));
          SetLength(NEntries, Length(FEntriesShown));
          for i:= 0 to Length(FEntriesShown)-1 do begin
@@ -2738,10 +2755,39 @@ begin
 end;
 
 
+procedure TKntNoteEntriesUI.CleanFilteredState(NEntry: TNoteEntry);
+var
+   iNEntry: integer;
+begin
+   iNEntry:= GetIndexOfIncludedEntry(NEntry);
+   if iNEntry >= 0 then
+      FEntriesShown[iNEntry].Filtered:= fFilteredUnknown;
+end;
+
+
 procedure TKntNoteEntriesUI.ReloadNoteName;
 begin
    txtName.Text:= FNote.Name;
 end;
+
+function TKntNoteEntriesUI.EntryShownWithExcerpts(iEntry: integer): boolean;
+begin
+   Result:= FPanelConfig.IsFiltered and FEntriesShown[iEntry].ContainsExcerpts;
+end;
+
+function TKntNoteEntriesUI.EntryShownFiltered(iEntry: integer): TNEntryFiltered;
+begin
+   if not FPanelConfig.IsFiltered then
+      Result:= fFilteredIn
+   else
+      Result:= FEntriesShown[iEntry].Filtered;
+end;
+
+function TKntNoteEntriesUI.EntryShownIsVisible(iEntry: integer): boolean;
+begin
+   Result:= (FEntriesShown[iEntry].Content <> cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut);
+end;
+
 
 procedure TKntNoteEntriesUI.SelectPrevEntry(InformReloaded: boolean);
 var
@@ -2755,7 +2801,7 @@ begin
       repeat
          if (PanelConfig.CurrentMode = meSingleEntry) or (SS <= FEntriesShown[iNextEntry].StartingContentPos) then
             dec(iNextEntry);
-         if FEntriesShown[iNextEntry].IsVisible then begin
+         if EntryShownIsVisible(iNextEntry) then begin
             SelectEntry(iNextEntry, false, InformReloaded);
             break;
          end
@@ -2786,7 +2832,7 @@ begin
       iNextEntry:= FiEntry;
       repeat
          inc(iNextEntry);
-         if FEntriesShown[iNextEntry].IsVisible then begin
+         if EntryShownIsVisible(iNextEntry) then begin
             SelectEntry(iNextEntry, false, InformReloaded);
             break;
          end;
@@ -2915,7 +2961,7 @@ procedure TKntNoteEntriesUI.ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCusto
                                                        OrderChanged: boolean = false);
 var
   CurrentFilter: TFilterOptionsInPanel;
-  FilterChanged: boolean;
+  FilterChanged, BothEmpty, FiltersEqual, SameEnabled: boolean;
 
 begin
    CurrentFilter:= PanelConfig.MECustomiz.Filter;
@@ -2924,11 +2970,20 @@ begin
       PanelConfig.MECustomiz:= MECustomiz;
 
    FilterChanged:= false;
-   if ForceApplyFilter or not ((CurrentFilter.Empty and MECustomiz.Filter.Empty) or CurrentFilter.Equal(MECustomiz.Filter)) then begin
+   BothEmpty:= (CurrentFilter.Empty and MECustomiz.Filter.Empty);
+   FiltersEqual:= BothEmpty or CurrentFilter.Equal(MECustomiz.Filter);
+   SameEnabled:= (CurrentFilter.Enabled = MECustomiz.Filter.Enabled);
+
+   if ForceApplyFilter or not (BothEmpty or (FiltersEqual and SameEnabled)) then begin
       FilterChanged:= true;
       PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
       PanelConfig.CurrentMode:= meMultiEntry;
-      FreeExcerptsInfoInAllEntries;
+
+      if not FiltersEqual then
+         FreeExcerptsInfoInAllEntries
+      else
+      if ForceApplyFilter then
+         ResetIgnoredFilteredStatusInAllEntries;
    end;
 
    if FilterChanged or OrderChanged then
@@ -3006,7 +3061,7 @@ begin
    SS:= Editor.SelStart;
    if (SS < FEntriesShown[FiEntry].StartingPos) or (SS > FEntriesShown[FiEntry].FinalPos) then begin
       for i:=0 to High(FEntriesShown) do
-          if (SS >= FEntriesShown[i].StartingPos) and (SS <= FEntriesShown[i].FinalPos) and (FEntriesShown[i].IsVisible) then begin
+          if (SS >= FEntriesShown[i].StartingPos) and (SS <= FEntriesShown[i].FinalPos) and (EntryShownIsVisible(i)) then begin
              FiEntry:= i;
              btnToggleMulti.Caption:= (i+1).ToString;
              FNNode:= FEntriesShown[i].NNode;
@@ -3094,10 +3149,10 @@ var
    CreatedDate: TDateTime;
 begin
    if not ModifyAll and ((iEntry < 0) or
-      (not IgnoreFilter and (FEntriesShown[iEntry].Content = NewContent) and (FEntriesShown[iEntry].Filtered <> fFilteredOut)) ) then exit;
+      (not IgnoreFilter and (FEntriesShown[iEntry].Content = NewContent) and (EntryShownFiltered(iEntry) <> fFilteredOut)) ) then exit;
 
    if iEntry >= 0 then begin
-      if IgnoreFilter or (FEntriesShown[iEntry].Filtered = fFilteredOut) then
+      if IgnoreFilter or (EntryShownFiltered(iEntry) = fFilteredOut) then
          FEntriesShown[iEntry].Filtered:= fFilteredIgnored;
       FEntriesShown[iEntry].Content:= NewContent;
    end;
@@ -3108,14 +3163,14 @@ begin
          CreatedDate:= FNEntry.Created;
 
       for i:=0 to High(FEntriesShown) do begin
-         if IgnoreHiddenEntries and (not FEntriesShown[i].IsVisible) then continue;
+         if IgnoreHiddenEntries and (not EntryShownIsVisible(i)) then continue;
          NEntry:= FEntriesShown[i].NEntry;
-         if OnlyHiddenEntries and not ((NEntry.IsHidden) or (not FEntriesShown[i].IsVisible)) then continue;
+         if OnlyHiddenEntries and not ((NEntry.IsHidden) or (not EntryShownIsVisible(i))) then continue;
          if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
          if LimitToCreatedBeforeSelectedEntry and (NEntry.Created > CreatedDate) then continue;
 
          CheckFiltered(i);
-         if FEntriesShown[i].Filtered <> fFilteredOut then
+         if EntryShownFiltered(i) <> fFilteredOut then
             FEntriesShown[i].Content:= NewContent;
       end;
    end;
@@ -3143,7 +3198,7 @@ begin
       PanelConfig.CurrentMode:= meMultiEntry;
 
    for i:= 0 to Length(FEntriesShown)-1 do
-      if (FEntriesShown[i].Filtered = fFilteredOut) and (not Shift or not FEntriesShown[i].NEntry.IsHidden)  then
+      if (EntryShownFiltered(i) = fFilteredOut) and (not Shift or not FEntriesShown[i].NEntry.IsHidden)  then
           FEntriesShown[i].Filtered:= fFilteredIgnored;
 
    if not (CtrlDown or Shift) then
@@ -3154,10 +3209,10 @@ begin
       // Shift: Only not hidden (Alt+DblClick)
 
       for i:=0 to High(FEntriesShown) do begin
-         if not (not (FEntriesShown[i].IsVisible) or FEntriesShown[i].NEntry.IsHidden) then continue;
+         if not (not (EntryShownIsVisible(i)) or FEntriesShown[i].NEntry.IsHidden) then continue;
 
          if Shift then begin
-            if (not FEntriesShown[i].IsVisible) and (not FEntriesShown[i].NEntry.IsHidden) and
+            if (not EntryShownIsVisible(i)) and (not FEntriesShown[i].NEntry.IsHidden) and
                not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
                FEntriesShown[i].Content:= cmOnlyFirstLines;
          end
@@ -3187,7 +3242,7 @@ var
    i: integer;
 begin
   for i:= 0 to Length(FEntriesShown)-1 do
-     if (FEntriesShown[i].Filtered = fFilteredIgnored) then
+     if (EntryShownFiltered(i) = fFilteredIgnored) then
          FEntriesShown[i].Filtered:= fFilteredUnknown;
 
   ReloadVisibleContentOfEntries(True, cmHidden, -1, false, true);
@@ -3238,7 +3293,7 @@ var
       if Hidden then
          NewCont:= cmHidden
       else
-      if (Cont = cmHidden) and (FEntriesShown[iEntry].Filtered <> fFilteredOut) then
+      if (Cont = cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut) then
          NewCont:= cmOnlyHeader;
 
       if Cont <> NewCont then begin
@@ -3444,7 +3499,7 @@ end;
 function TKntNoteEntriesUI.CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
 begin
    Result:= True;
-   if ForceCalc or (FEntriesShown[iEntry].Filtered = fFilteredUnknown) then begin
+   if ForceCalc or (EntryShownFiltered(iEntry) = fFilteredUnknown) then begin
       FEntriesShown[iEntry].Filtered:= fFilteredIn;
       if PanelConfig.MECustomiz.Filter.Enabled and not NEntryMustBeFilteredIn(FEntriesShown[iEntry].NEntry) then
          FEntriesShown[iEntry].Filtered:= fFilteredOut;
@@ -3674,7 +3729,7 @@ function TKntNoteEntriesUI.IsDisplayingExcerptsForSelectedEntry: boolean;
 begin
    if not CheckFilterInfoUpdated(FiEntry) then exit(false);
 
-   Result:= (PanelConfig.CurrentMode = meMultiEntry) and (FiEntry > 0) and FEntriesShown[FiEntry].ContainsExcerpts;
+   Result:= (PanelConfig.CurrentMode = meMultiEntry) and (FiEntry > 0) and EntryShownWithExcerpts(FiEntry);
 end;
 
 

@@ -1220,7 +1220,6 @@ function TFilterOptionsInPanel.Equal(aFilter: TFilterOptionsInPanel): boolean;
 begin
   Result:= False;
   with aFilter do begin
-    if Self.Enabled <> Enabled then exit;
     if Self.TagsModeOR <> TagsModeOR then exit;
     if Self.TextFilter <> TextFilter then exit;
     if Self.MatchCase <> MatchCase then exit;

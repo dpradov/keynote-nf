@@ -757,8 +757,10 @@ var
          if assigned(NNode) and (NNode.Note = NoteSavedEditor) then begin
             NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
             if assigned(NEntriesUI) and (NEntriesUI.PanelConfig <> nil) then begin
-               if DoFreeFilterInfo then
-                  NEntriesUI.PanelConfig.FreeFilterInfo(NEntrySaved)
+               if DoFreeFilterInfo then begin
+                  NEntriesUI.PanelConfig.FreeFilterInfo(NEntrySaved);
+                  NEntriesUI.CleanFilteredState(NEntrySaved);
+               end
                else begin
                   NEntriesUI.SavePositionInPanel;
                   NEntriesUI.SaveFilterInfo(NEntriesUI.GetIndexOfSelectedEntry);
