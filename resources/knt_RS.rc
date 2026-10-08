@@ -977,4 +977,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55175, "Switch between single and multi entry modes - \nNum.Entries: %d (%d hidden) [%s]"
 55176, "Single-Entry"
 55177, "Multi-Entry"
+55178, "** No entries visible or matching the current filter **"
+55179, "Panel options are only available for notes with multiple entries"
 }

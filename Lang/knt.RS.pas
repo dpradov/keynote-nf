@@ -1065,6 +1065,8 @@ const
    sEntry25 = 55175;   // Switch between single and multi entry modes\^Num.Entries: %d (%d hidden) [%s]
    sEntry26 = 55176;   // Single-Entry
    sEntry27 = 55177;   // Multi-Entry
+   sEntry28 = 55178;   // No entries visible or matching the current filter
+   sEntry29 = 55179;   // Panel options are only available for notes with multiple entries
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !

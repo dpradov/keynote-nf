@@ -2905,5 +2905,7 @@ Button_OK.Caption=&Close
 55175_knt_RS_sEntry25=Switch between single and multi entry modes - \^Num.Entries: %d (%d hidden) [%s]
 55176_knt_RS_sEntry26=Single-Entry
 55177_knt_RS_sEntry27=Multi-Entry
+55178_knt_RS_sEntry28=** No entries visible or matching the current filter **
+55179_knt_RS_sEntry29=Panel options are only available for notes with multiple entries
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

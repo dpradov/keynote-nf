@@ -2010,6 +2010,8 @@ begin
 
            if FiEntry = -1 then begin
               ClearAndSetAsEmpty;
+              if Mode = meMultiEntry then
+                 Editor.AddText(GetRS(sEntry28));
               exit;
            end;
        end;
@@ -2788,12 +2790,12 @@ end;
 
 function TKntNoteEntriesUI.EntryShownWithExcerpts(iEntry: integer): boolean;
 begin
-   Result:= FPanelConfig.IsFiltered and FEntriesShown[iEntry].ContainsExcerpts;
+   Result:= (FNote.NumEntries > 1) and (FPanelConfig.IsFiltered and FEntriesShown[iEntry].ContainsExcerpts);
 end;
 
 function TKntNoteEntriesUI.EntryShownFiltered(iEntry: integer): TNEntryFiltered;
 begin
-   if not FPanelConfig.IsFiltered then
+   if (FNote.NumEntries = 1) or not FPanelConfig.IsFiltered then
       Result:= fFilteredIn
    else
       Result:= FEntriesShown[iEntry].Filtered;
@@ -2801,7 +2803,7 @@ end;
 
 function TKntNoteEntriesUI.EntryShownIsVisible(iEntry: integer): boolean;
 begin
-   Result:= (FEntriesShown[iEntry].Content <> cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut);
+   Result:= (FNote.NumEntries = 1) or ((FEntriesShown[iEntry].Content <> cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut));
 end;
 
 
@@ -2934,7 +2936,11 @@ var
   CurrentFilter: TFilterOptionsInPanel;
   QL: boolean;
 begin
-   if (FNote <> nil) and (FNote.NumEntries = 1) then exit;
+   if (FNote <> nil) and (FNote.NumEntries = 1) then begin
+      App.InfoPopup(GetRS(sEntry29));
+      exit;
+   end;
+
 
 
    Form_NoteEntriesOptions := TForm_NoteEntriesOptions.Create( Form_Main );
