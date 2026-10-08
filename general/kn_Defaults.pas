@@ -213,6 +213,7 @@ type
     myTreeProperties : TFolderTreeProperties;
     myNoteAdvOptions: TNoteAdvancedOptions;
     UpdatedMECustomization: boolean;
+    MECustomizationRestoreDefaults: boolean;
 
     myTabNameHistory : string;
     myHistoryCnt : integer;
@@ -306,6 +307,7 @@ begin
 
 
   UpdatedMECustomization:= false;
+  MECustomizationRestoreDefaults:= false;
 
   for pu := low(TNEntriesPanelUse) to high(TNEntriesPanelUse) do begin
      cUseTLq.Items.Add( ENTRIES_PANEL_USES_QL[pu] );
@@ -971,6 +973,7 @@ procedure TForm_Defaults.btnRestDefClick(Sender: TObject);
 begin
   myNoteAdvOptions.Initialize(True);
   UpdatedMECustomization:= True;
+  MECustomizationRestoreDefaults:= True;
 end;
 
 

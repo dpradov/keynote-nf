@@ -180,6 +180,7 @@ type
     function GetImLinkPositionInEntry(iEntry: integer; CaretPosInEditorWithExcerpts: integer): integer;
     function GetImLinkPositionInEntryExcerpts(iEntry: integer; PosInEntry: integer; var SelLength: integer): integer;
     function IsDisplayingExcerptsForSelectedEntry: boolean;
+    procedure ClearFilterInfoInAllEntries;
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
@@ -188,8 +189,8 @@ type
     function NEntryToBeFilteredIn (NNode: TNoteNode; NEntry: TNoteEntry): boolean;
     function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
     function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
-    procedure FreeExcerptsInfoInAllEntries;
-    procedure CleanExcerptsInfo;
+    procedure FreeFilterInfoInAllEntries;
+    procedure ResetFilterInfo;
     procedure ResetIgnoredFilteredStatusInAllEntries;
     function CheckFilterInfoUpdated(iEntry: integer; ForceCalc: boolean = false): boolean;
     procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
@@ -380,14 +381,15 @@ begin
 
    fImagesReferenceCount:= nil;
 
-   FreeExcerptsInfoInAllEntries;
+   FreeFilterInfoInAllEntries;
    FreeAndNil(RTFAuxFrag);
 
    inherited;
 end;
 
 
-procedure TKntNoteEntriesUI.FreeExcerptsInfoInAllEntries;
+
+procedure TKntNoteEntriesUI.FreeFilterInfoInAllEntries;
 var
   i: integer;
 begin
@@ -408,7 +410,7 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.CleanExcerptsInfo;
+procedure TKntNoteEntriesUI.ResetFilterInfo;
 var
   i: integer;
 begin
@@ -417,6 +419,18 @@ begin
      FEntriesShown[i].ExcerptsInfo:= nil;
   end;
 end;
+
+procedure TKntNoteEntriesUI.ClearFilterInfoInAllEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do begin
+     FEntriesShown[i].Filtered:= fFilteredUnknown;
+     if FEntriesShown[i].ExcerptsInfo <> nil then
+        FEntriesShown[i].ExcerptsInfo.Clear;
+  end;
+end;
+
 
 
 {$ENDREGION}
@@ -1194,7 +1208,7 @@ var
          end
          else
          if not EntryToAdd then begin
-             CleanExcerptsInfo;
+             ResetFilterInfo;
              FEntriesShown:= nil;
 
              if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
@@ -2745,7 +2759,9 @@ begin
 
          if not ContainsExcerpts then
             ExcerptsInfo:= nil;
-      end;
+      end
+      else
+         FreeFilterInfoInAllEntries;
 
       FPanelConfig.FilterInfoInEntries.NEntries:= NEntries;
       FPanelConfig.FilterInfoInEntries.FilteredStateInEntries:= FilteredState;
@@ -2980,7 +2996,7 @@ begin
       PanelConfig.CurrentMode:= meMultiEntry;
 
       if not FiltersEqual then
-         FreeExcerptsInfoInAllEntries
+         FreeFilterInfoInAllEntries
       else
       if ForceApplyFilter then
          ResetIgnoredFilteredStatusInAllEntries;

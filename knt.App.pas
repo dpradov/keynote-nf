@@ -758,7 +758,7 @@ var
             NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
             if assigned(NEntriesUI) and (NEntriesUI.PanelConfig <> nil) then begin
                if DoFreeFilterInfo then begin
-                  NEntriesUI.PanelConfig.FreeFilterInfo(NEntrySaved);
+                  NEntriesUI.PanelConfig.ClearFilterInfo(NEntrySaved);
                   NEntriesUI.CleanFilteredState(NEntrySaved);
                end
                else begin
@@ -786,7 +786,7 @@ begin
    // Clear any saved filtering information related to the modified entry so that it is recalculated.
    ExecuteOnNEntriesUI(true);    // Some of its PanelConfigs may not have been saved to Folder.NNodesUIConfig yet
    for i := 0 to ActiveFile.Folders.Count -1 do
-      ActiveFile.Folders[i].FreeFilterInfo(NEntrySaved);
+      ActiveFile.Folders[i].ClearFilterInfo(NEntrySaved);
 
 
    if not ReloadOtherEditors then exit;

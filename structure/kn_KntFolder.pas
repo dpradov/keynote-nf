@@ -330,7 +330,7 @@ type
     procedure ResetZoomCurrent(Zoom: integer);
     procedure DeleteNNodesUIConfig(QueryLayout: boolean);
     procedure ResetMEPanelsCustomiz;
-    procedure FreeFilterInfo(NEntry: TNoteEntry);
+    procedure ClearFilterInfo(NEntry: TNoteEntry);
 
     procedure NoteNameModified(NNode: TNoteNode);
 
@@ -657,12 +657,12 @@ var
        if UpdatedMECustomization then
           Note_ResetMECustomizNeeded:= true;
 
-       if UpdatedMECustomization or
+       if MECustomizationRestoreDefaults or
           (myNoteAdvOptions.ExtractOfText_MaxLength <> myFolder.NoteAdvOptions.ExtractOfText_MaxLength) or
           (myNoteAdvOptions.ExtractOfText_MaxLines  <> myFolder.NoteAdvOptions.ExtractOfText_MaxLines)       then
           Note_RefreshNeeded:= true;
 
-       if UpdatedMECustomization or
+       if MECustomizationRestoreDefaults or
           (myNoteAdvOptions.EditorInfoBarPos        <> myFolder.NoteAdvOptions.EditorInfoBarPos) or
           (myNoteAdvOptions.EnableAdvEditionInSingleEntryNotes <> myFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes) or
           (myNoteAdvOptions.ShowNewestEntryAtStartup           <> myFolder.NoteAdvOptions.ShowNewestEntryAtStartup)  then
@@ -828,8 +828,11 @@ begin
                 if ChangeInQL or ChangeInEL or Note_ResetMECustomizNeeded or Note_ReloadNeeded then
                    myFolder.NoteUI.SaveToDataModel;
 
-                if Note_ResetMECustomizNeeded then
+                if Note_ResetMECustomizNeeded then begin
                    myFolder.ResetMEPanelsCustomiz;
+                   if Note_ReloadNeeded then
+                      myFolder.NoteUI.ClearFilterInfoInAllEntries;
+                end;
 
                 if ChangeInQL or ChangeInEL then begin
                    if ChangeInQL then
@@ -1522,6 +1525,8 @@ begin
         NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosEL;
 
      for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
+        NNodesUIConfig[i].PanelsConfig[j].ClearFilterInfo(nil);
+
         pnl:= NNodesUIConfig[i].PanelsConfig[j].Panel;
         if NNodesUIConfig[i].FQueryLayout then
            NNodesUIConfig[i].PanelsConfig[j].MECustomiz:=  NoteAdvOptions.DefaultMECustomizForQL[pnl]
@@ -1533,13 +1538,13 @@ begin
 end;
 
 
-procedure TKntFolder.FreeFilterInfo (NEntry: TNoteEntry);
+procedure TKntFolder.ClearFilterInfo (NEntry: TNoteEntry);
 var
   i, j: integer;
 begin
   for i:= 0 to NNodesUIConfig.Count-1 do begin
      for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
-        NNodesUIConfig[i].PanelsConfig[j].FreeFilterInfo(NEntry);
+        NNodesUIConfig[i].PanelsConfig[j].ClearFilterInfo(NEntry);
      end;
   end;
 

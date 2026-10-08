@@ -176,6 +176,7 @@ type
     procedure HideHiddenRevealed;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     property ReturnToQLFromAllEntriesInSingleMode: boolean read FReturnToQLFromAllEntriesInSingleMode write FReturnToQLFromAllEntriesInSingleMode;
+    procedure ClearFilterInfoInAllEntries;
 
 
    {$IFDEF KNT_DEBUG}
@@ -1383,6 +1384,15 @@ begin
   end;
 end;
 
+
+procedure TKntNoteUI.ClearFilterInfoInAllEntries;
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].ClearFilterInfoInAllEntries;
+end;
 
 
 {$IFDEF KNT_DEBUG}

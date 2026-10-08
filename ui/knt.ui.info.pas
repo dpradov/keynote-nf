@@ -172,7 +172,7 @@ type
     function UseIsMultiEntry: boolean;  inline;
     function EntryModeForUse: TModeEntriesUI;  inline;
     function IsFiltered: boolean; inline;
-    procedure FreeFilterInfo(NEntry: TNoteEntry);
+    procedure ClearFilterInfo(NEntry: TNoteEntry);
   end;
 
 
@@ -243,6 +243,7 @@ type
      procedure KeepInfoPanelTemporarilyVisible;
      procedure RefreshPanelsLayout;
      procedure TreeFocused;
+     procedure ClearFilterInfoInAllEntries;
 
      procedure SetReadOnly( AReadOnly : boolean );
      procedure NNodeDeleted;
@@ -296,18 +297,17 @@ begin
 end;
 
 
-procedure TPanelConfiguration.FreeFilterInfo (NEntry: TNoteEntry);
+procedure TPanelConfiguration.ClearFilterInfo (NEntry: TNoteEntry);
 var
   i: integer;
 begin
     if FilterInfoInEntries.NEntries = nil then exit;
 
     for i:= 0 to High(FilterInfoInEntries.NEntries) do begin
-        if FilterInfoInEntries.NEntries[i] = NEntry then begin
+        if (NEntry = nil) or (FilterInfoInEntries.NEntries[i] = NEntry) then begin
            FilterInfoInEntries.FilteredStateInEntries[i]:= fFilteredUnknown;
            if assigned(FilterInfoInEntries.ExcerptsInfoInEntries) and assigned(FilterInfoInEntries.ExcerptsInfoInEntries[i]) then
               FilterInfoInEntries.ExcerptsInfoInEntries[i].Clear;
-           break;
         end;
     end;
 end;
