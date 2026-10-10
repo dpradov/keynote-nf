@@ -3845,6 +3845,7 @@ var
   ImagesVisible: Array of integer;
   SomeImagesAreVisible: boolean;
   SS, SL: integer;
+  ScrollPosInEditorBAK: TPoint;
 
 
 const
@@ -4010,12 +4011,14 @@ begin
               PosEndEntry := Editor.TextLength;
            SS:= Editor.SelStart;
            SL:= Editor.SelLength;
+           ScrollPosInEditorBAK:= Editor.GetScrollPosInEditor;
 
            Editor.SetSelection(PosStartEntry, PosEndEntry, False);
            TextPlainInEditor:= Editor.TextPlain(true);
 
            Editor.SelStart:= SS;
            Editor.SelLength:= SL;
+           Editor.SetScrollPosInEditor(ScrollPosInEditorBAK);
 
            Editor.EndUpdate;
         end
