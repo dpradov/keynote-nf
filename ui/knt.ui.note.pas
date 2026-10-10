@@ -2155,7 +2155,7 @@ begin
       if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
          if FNEntriesUI[p].OnUse then begin
             FNEntriesUI[p].SavePositionInPanel;
-            FNEntriesUI[p].SaveFilterInfo;
+            FNEntriesUI[p].SaveCustomizeInfo;
             FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntriesUI[p].PanelConfig;
             inc(iOnUse);
             if p in MainPanels then begin                              // Main panels: [pnTL..pnBR]

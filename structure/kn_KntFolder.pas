@@ -1525,7 +1525,7 @@ begin
         NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosEL;
 
      for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
-        NNodesUIConfig[i].PanelsConfig[j].ClearFilterInfo(nil);
+        NNodesUIConfig[i].PanelsConfig[j].ClearCustomizeInfo(nil);
 
         pnl:= NNodesUIConfig[i].PanelsConfig[j].Panel;
         if NNodesUIConfig[i].FQueryLayout then
@@ -1544,7 +1544,7 @@ var
 begin
   for i:= 0 to NNodesUIConfig.Count-1 do begin
      for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
-        NNodesUIConfig[i].PanelsConfig[j].ClearFilterInfo(NEntry);
+        NNodesUIConfig[i].PanelsConfig[j].ClearCustomizeInfo(NEntry);
      end;
   end;
 

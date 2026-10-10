@@ -746,24 +746,24 @@ var
    Action: TActionOnEntry;
    ReloadOtherEditors: boolean;
 
-   procedure ExecuteOnNEntriesUI(DoFreeFilterInfo: boolean);
+   procedure ExecuteOnNEntriesUI(DoFreeCustomizeInfo: boolean);
    var
       i: integer;
    begin
       for i:= 0 to fAvailableEditors.Count-1 do begin
          E:= fAvailableEditors[i];
-         if not DoFreeFilterInfo and (E = Editor) then continue;
+         if not DoFreeCustomizeInfo and (E = Editor) then continue;
          NNode:= TNoteNode(E.NNodeObj);
          if assigned(NNode) and (NNode.Note = NoteSavedEditor) then begin
             NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
             if assigned(NEntriesUI) and (NEntriesUI.PanelConfig <> nil) then begin
-               if DoFreeFilterInfo then begin
-                  NEntriesUI.PanelConfig.ClearFilterInfo(NEntrySaved);
-                  NEntriesUI.CleanFilteredState(NEntrySaved);
+               if DoFreeCustomizeInfo then begin
+                  NEntriesUI.PanelConfig.ClearCustomizeInfo(NEntrySaved);
+                  NEntriesUI.CleanCustomizeInfo(NEntrySaved);
                end
                else begin
                   NEntriesUI.SavePositionInPanel;
-                  NEntriesUI.SaveFilterInfo(NEntriesUI.GetIndexOfSelectedEntry);
+                  NEntriesUI.SaveCustomizeInfo(NEntriesUI.GetIndexOfSelectedEntry);
                   NEntriesUI.ReloadFromDataModel(false, NEntrySaved, Action, false);
                end;
             end;

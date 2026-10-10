@@ -75,11 +75,15 @@ type
      procedure Clear;
   end;
   TEntryExcerptsInfoArray = Array of TEntryExcerptsInfo;
+  TEntryRTFWithFoldedBlocksModifArray = Array of AnsiString;
 
-  TEntryFilterInfo = record
+
+  TEntryCustomizeInfo = record
     NEntries: TNoteEntryArray;
     FilteredStateInEntries: TNEntryFilteredArray;
     ExcerptsInfoInEntries: TEntryExcerptsInfoArray;
+    RTFWithFoldedBlocksModifInEntries: TEntryRTFWithFoldedBlocksModifArray;
+    FoldedTextModeOfRTFs: TExportFoldedTextMode;
   end;
 
  {
@@ -159,7 +163,7 @@ type
     MECustomiz: TMEPanelCustomization;
 
     CurrentContentModeInEntries: TContentInEntryModeArray;
-    FilterInfoInEntries: TEntryFilterInfo;
+    CustomizeInfoInEntries: TEntryCustomizeInfo;
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
     SSImLink : integer;               // ,,                                                                // *2
@@ -172,7 +176,7 @@ type
     function UseIsMultiEntry: boolean;  inline;
     function EntryModeForUse: TModeEntriesUI;  inline;
     function IsFiltered: boolean; inline;
-    procedure ClearFilterInfo(NEntry: TNoteEntry);
+    procedure ClearCustomizeInfo(NEntry: TNoteEntry);
   end;
 
 
@@ -297,17 +301,19 @@ begin
 end;
 
 
-procedure TPanelConfiguration.ClearFilterInfo (NEntry: TNoteEntry);
+procedure TPanelConfiguration.ClearCustomizeInfo (NEntry: TNoteEntry);
 var
   i: integer;
 begin
-    if FilterInfoInEntries.NEntries = nil then exit;
+    if CustomizeInfoInEntries.NEntries = nil then exit;
 
-    for i:= 0 to High(FilterInfoInEntries.NEntries) do begin
-        if (NEntry = nil) or (FilterInfoInEntries.NEntries[i] = NEntry) then begin
-           FilterInfoInEntries.FilteredStateInEntries[i]:= fFilteredUnknown;
-           if assigned(FilterInfoInEntries.ExcerptsInfoInEntries) and assigned(FilterInfoInEntries.ExcerptsInfoInEntries[i]) then
-              FilterInfoInEntries.ExcerptsInfoInEntries[i].Clear;
+    for i:= 0 to High(CustomizeInfoInEntries.NEntries) do begin
+        if (NEntry = nil) or (CustomizeInfoInEntries.NEntries[i] = NEntry) then begin
+           CustomizeInfoInEntries.FilteredStateInEntries[i]:= fFilteredUnknown;
+           if assigned(CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) then
+              CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[i]:= '';
+           if assigned(CustomizeInfoInEntries.ExcerptsInfoInEntries) and assigned(CustomizeInfoInEntries.ExcerptsInfoInEntries[i]) then
+              CustomizeInfoInEntries.ExcerptsInfoInEntries[i].Clear;
         end;
     end;
 end;

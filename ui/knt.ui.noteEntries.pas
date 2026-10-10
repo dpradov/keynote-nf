@@ -58,6 +58,7 @@ type
     Content: TContentInMultiEntryMode;
     Filtered: TNEntryFiltered;
     ExcerptsInfo: TEntryExcerptsInfo;       // <> nil if Filtered and ShowExcerpts = True
+    RTFWithFoldedBlocksModif: AnsiString;
 
     function IsVisible: boolean;
     function ContainsExcerpts: boolean;
@@ -156,8 +157,8 @@ type
     procedure SaveToDataModel; overload;
     procedure InsertMarkerInMultiEntryEditor (NEntry: TNoteEntry; KEYMarker: Char; TargetMarker: integer; RTFAux: TAuxRichEdit);
     procedure SavePositionInPanel;
-    procedure SaveFilterInfo(iEntry: integer = -1);
-    procedure CleanFilteredState(NEntry: TNoteEntry);
+    procedure SaveCustomizeInfo(iEntry: integer = -1; ClearRTFFoldedModifInfo: boolean = True);
+    procedure CleanCustomizeInfo(NEntry: TNoteEntry);
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
     procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
@@ -181,6 +182,7 @@ type
     function GetImLinkPositionInEntryExcerpts(iEntry: integer; PosInEntry: integer; var SelLength: integer): integer;
     function IsDisplayingExcerptsForSelectedEntry: boolean;
     procedure ClearFilterInfoInAllEntries;
+    procedure ClearRTFFoldedModifInfoInAllEntries;
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
@@ -429,6 +431,15 @@ begin
      if FEntriesShown[i].ExcerptsInfo <> nil then
         FEntriesShown[i].ExcerptsInfo.Clear;
   end;
+end;
+
+
+procedure TKntNoteEntriesUI.ClearRTFFoldedModifInfoInAllEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do
+     FEntriesShown[i].RTFWithFoldedBlocksModif:= '';
 end;
 
 
@@ -1169,6 +1180,7 @@ var
          FEntriesShown[N].Note:= FNote;
          FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MECustomiz.Content);
          FEntriesShown[N].ExcerptsInfo:= nil;
+         FEntriesShown[N].RTFWithFoldedBlocksModif:= '';
          FEntriesShown[N].Filtered:= fFilteredUnknown;
 
          inc(N);
@@ -1191,6 +1203,7 @@ var
                FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
 
             FEntriesShown[N-1].ExcerptsInfo:= nil;
+            FEntriesShown[N-1].RTFWithFoldedBlocksModif:= '';
 
             dec(N);
 
@@ -1228,17 +1241,22 @@ var
 
              SetLength(FEntriesShown, N);
 
-             if Length(PanelConfig.FilterInfoInEntries.FilteredStateInEntries) = Length(FEntriesShown) then begin
+             if Length(PanelConfig.CustomizeInfoInEntries.FilteredStateInEntries) = Length(FEntriesShown) then begin
                 for iEntry:= 0 to Length(FEntriesShown)-1 do
-                    FEntriesShown[iEntry].Filtered:= PanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry];
+                    FEntriesShown[iEntry].Filtered:= PanelConfig.CustomizeInfoInEntries.FilteredStateInEntries[iEntry];
              end
              else
                 for iEntry:= 0 to Length(FEntriesShown)-1 do
                    CheckFiltered(iEntry, true);
 
-             if Length(PanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries) = Length(FEntriesShown) then begin
+             if Length(PanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries) = Length(FEntriesShown) then begin
                 for iEntry:= 0 to Length(FEntriesShown)-1 do
-                   FEntriesShown[iEntry].ExcerptsInfo:= PanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries[iEntry];
+                   FEntriesShown[iEntry].ExcerptsInfo:= PanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries[iEntry];
+             end;
+
+             if Length(PanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) = Length(FEntriesShown) then begin
+                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                   FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= PanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[iEntry];
              end;
 
              if Length(PanelConfig.CurrentContentModeInEntries) = Length(FEntriesShown) then
@@ -1288,6 +1306,7 @@ var
             FEntriesShown[iEntryAdded].Note:= FNote;
             FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
             FEntriesShown[iEntryAdded].ExcerptsInfo:= nil;
+            FEntriesShown[iEntryAdded].RTFWithFoldedBlocksModif:= '';
             CheckFiltered(iEntryAdded, true);
          end;
 
@@ -1448,6 +1467,8 @@ var
  var
    NEntry: TNoteEntry;
    str: string;
+   ProcessFoldedBlocks: boolean;
+   Tick: integer;
  begin
      if (Mode = meMultiEntry) then
         cEditor.Clear;
@@ -1455,6 +1476,7 @@ var
      NEntry:= FEntriesShown[iEntry].NEntry;
      NEntry.Stream.Position := 0;
      strRTF:= '';
+     ProcessFoldedBlocks:= (Mode = meMultiEntry) and NEntry.IsRTF and (FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
 
      if ((Mode = meSingleEntry) or (FEntriesShown[iEntry].Content <> cmOnlyHeader)) and (EntryShownFiltered(iEntry) <> fFilteredOut) then begin
 
@@ -1494,7 +1516,7 @@ var
          else begin
            if NodeStreamIsRTF (NEntry.Stream) then begin
               cEditor.StreamFormat:= sfRichText;
-              if FEditor.SupportsRegisteredImages then begin
+              if FEditor.SupportsRegisteredImages and (not ProcessFoldedBlocks or (FEntriesShown[iEntry].RTFWithFoldedBlocksModif = '')) then begin
                  ImagesAux:= GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
                  strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
                  if (Mode = meSingleEntry) then
@@ -1531,8 +1553,11 @@ var
             cEditor.Lines.LoadFromStream( NEntry.Stream );
 
 
-         if (Mode = meMultiEntry) and NEntry.IsRTF then begin
-            if FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged then begin
+         if ProcessFoldedBlocks then begin
+            if (FEntriesShown[iEntry].RTFWithFoldedBlocksModif <> '') then
+               StrRTF:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif
+
+            else begin
                if (StrRTF <> '') then begin
                   if (pos(AnsiString(KNT_RTF_BEGIN_FOLDED_URL), StrRTF, 1) > 0) then begin
                      cEditor.PutRtfText(strRTF,True,False);
@@ -1542,11 +1567,14 @@ var
                      exit;
                end;
                if MarkFirstLevelFoldedBlocks(cEditor) then begin
+                  Tick:= GetTickCount;
                   case FPanelConfig.MECustomiz.FoldedTextMode of
                      fmUnfold:        ExpandFoldedText(cEditor);
                      fmRemoveAll:     RemoveFoldedText(cEditor, false);
                   end;
                   RemoveFirstLevelFoldedBlocksMarks(cEditor);
+                  if (GetTickCount - Tick) > 45 then                                     // > 45ms? -> Save the processed RTF
+                     FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= cEditor.RtfText;
                end;
             end;
          end;
@@ -1840,7 +1868,7 @@ begin
    for i:= 0 to Length(FEntriesShown)-1 do
       CheckFiltered(i);
 
-   SaveFilterInfo;
+   SaveCustomizeInfo(-1, false);
 
    if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
      (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (not EntryShownIsVisible(iEntryToConsider)) then exit;
@@ -2748,25 +2776,30 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.SaveFilterInfo(iEntry: integer = -1);
+procedure TKntNoteEntriesUI.SaveCustomizeInfo(iEntry: integer = -1; ClearRTFFoldedModifInfo: boolean = True);
 var
   i: integer;
   ExcerptsInfo: TEntryExcerptsInfoArray;
   FilteredState: TNEntryFilteredArray;
+  RTFWithFoldedBlocksModifInfo: TEntryRTFWithFoldedBlocksModifArray;
   NEntries: TNoteEntryArray;
   ContainsExcerpts: boolean;
 begin
-   if (iEntry >= 0) and (Length(FPanelConfig.FilterInfoInEntries.FilteredStateInEntries) > iEntry) then begin
-      FPanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry]:= FEntriesShown[iEntry].Filtered;
-      FPanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries[iEntry]:= FEntriesShown[iEntry].ExcerptsInfo;
+   if (iEntry >= 0) and (Length(FPanelConfig.CustomizeInfoInEntries.NEntries) > iEntry) then begin
+      FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries[iEntry]:= FEntriesShown[iEntry].Filtered;
+      FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[iEntry]:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif;
+      if (Length(FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries) > iEntry) then
+         FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries[iEntry]:= FEntriesShown[iEntry].ExcerptsInfo;
    end
    else begin
       FilteredState:= nil;
       ExcerptsInfo:= nil;
+      RTFWithFoldedBlocksModifInfo:= nil;
       NEntries:= nil;
 
-      if not FPanelConfig.MECustomiz.Filter.Empty then begin
+      if not FPanelConfig.MECustomiz.Filter.Empty or (FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then begin
          SetLength(FilteredState, Length(FEntriesShown));
+         SetLength(RTFWithFoldedBlocksModifInfo, Length(FEntriesShown));
          SetLength(NEntries, Length(FEntriesShown));
          for i:= 0 to Length(FEntriesShown)-1 do begin
             NEntries[i]:= FEntriesShown[i].NEntry;
@@ -2777,6 +2810,7 @@ begin
          SetLength(ExcerptsInfo, Length(FEntriesShown));
          for i:= 0 to Length(FEntriesShown)-1 do begin
             ExcerptsInfo[i]:= FEntriesShown[i].ExcerptsInfo;
+            RTFWithFoldedBlocksModifInfo[i]:= FEntriesShown[i].RTFWithFoldedBlocksModif;
             if ExcerptsInfo[i] <> nil then
                ContainsExcerpts:= True;
          end;
@@ -2787,21 +2821,33 @@ begin
       else
          FreeFilterInfoInAllEntries;
 
-      FPanelConfig.FilterInfoInEntries.NEntries:= NEntries;
-      FPanelConfig.FilterInfoInEntries.FilteredStateInEntries:= FilteredState;
-      FPanelConfig.FilterInfoInEntries.ExcerptsInfoInEntries:=  ExcerptsInfo;
+      if ClearRTFFoldedModifInfo and (FPanelConfig.MECustomiz.FoldedTextMode = fmKeepUnchanged) then
+         ClearRTFFoldedModifInfoInAllEntries;
+
+
+      FPanelConfig.CustomizeInfoInEntries.NEntries:= NEntries;
+      FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries:= FilteredState;
+      FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries:=  ExcerptsInfo;
+      FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries:= RTFWithFoldedBlocksModifInfo;
+      if FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged then
+         FPanelConfig.CustomizeInfoInEntries.FoldedTextModeOfRTFs:= FPanelConfig.MECustomiz.FoldedTextMode;
    end;
 
 end;
 
 
-procedure TKntNoteEntriesUI.CleanFilteredState(NEntry: TNoteEntry);
+procedure TKntNoteEntriesUI.CleanCustomizeInfo(NEntry: TNoteEntry);
 var
    iNEntry: integer;
 begin
    iNEntry:= GetIndexOfIncludedEntry(NEntry);
-   if iNEntry >= 0 then
+   if iNEntry >= 0 then begin
       FEntriesShown[iNEntry].Filtered:= fFilteredUnknown;
+      if assigned(FEntriesShown[iNEntry].ExcerptsInfo) then
+         FEntriesShown[iNEntry].ExcerptsInfo.Clear;
+      if assigned(FEntriesShown[iNEntry].ExcerptsInfo) then
+         FEntriesShown[iNEntry].RTFWithFoldedBlocksModif:= '';
+   end;
 end;
 
 
@@ -3005,11 +3051,12 @@ procedure TKntNoteEntriesUI.ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCusto
                                                        OrderChanged: boolean = false);
 var
   CurrentFilter: TFilterOptionsInPanel;
-  FilterChanged, BothEmpty, FiltersEqual, SameEnabled: boolean;
+  FilterChanged, BothEmpty, FiltersEqual, SameEnabled, FoldedTextModeChanged: boolean;
 
 begin
    CurrentFilter:= PanelConfig.MECustomiz.Filter;
 
+   FoldedTextModeChanged:= (PanelConfig.MECustomiz.FoldedTextMode <> MECustomiz.FoldedTextMode);
    if HeaderChanged or EntryContChanged or OrderChanged then
       PanelConfig.MECustomiz:= MECustomiz;
 
@@ -3030,6 +3077,9 @@ begin
          ResetIgnoredFilteredStatusInAllEntries;
    end;
 
+   if FoldedTextModeChanged and ((MECustomiz.FoldedTextMode <> fmKeepUnchanged) and (FPanelConfig.CustomizeInfoInEntries.FoldedTextModeOfRTFs <> MECustomiz.FoldedTextMode)) then
+      ClearRTFFoldedModifInfoInAllEntries;
+
    if FilterChanged or OrderChanged then
       ReloadFromDataModel(OrderChanged, nil, aNull, True)
    else
@@ -3039,7 +3089,7 @@ begin
    if HeaderChanged then
       ReloadFromDataModel(false, nil, aRefreshHeader, True);
 
-   SaveFilterInfo;
+   SaveCustomizeInfo(-1, false);
 end;
 
 
@@ -3789,7 +3839,7 @@ begin
 
    FilteredOutIgnoredBefore:= (FEntriesShown[iEntry].Filtered = fFilteredIgnored);
 
-   if ForceCalc or ((FPanelConfig.FilterInfoInEntries.FilteredStateInEntries = nil) or (FPanelConfig.FilterInfoInEntries.FilteredStateInEntries[iEntry] = fFilteredUnknown)) or
+   if ForceCalc or ((FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries = nil) or (FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries[iEntry] = fFilteredUnknown)) or
        (FEntriesShown[iEntry].ContainsExcerpts and not assigned(FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch))   then begin
       CheckFiltered(iEntry, True);
       if FilteredOutIgnoredBefore and (FEntriesShown[iEntry].Filtered = fFilteredOut) then
