@@ -204,12 +204,11 @@ object Form_ExportNew: TForm_ExportNew
           Style = csDropDownList
           Anchors = [akTop, akRight]
           TabOrder = 7
-          OnChange = cbTagFindModeChange
           Items.Strings = (
             'Keep unchanged'
             'Unfold'
-            'Remove "tagged"'
-            'Remove All')
+            'Remove All'
+            'Remove "tagged"')
         end
         object PnlTags: TPanel
           Left = 9

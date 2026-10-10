@@ -71,8 +71,10 @@ function GetRTFPrintableLine(Editor: TRxRichEdit; ColorLine: TColor; WidthTwips:
 function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString; overload;
 function GetRTFTable(Editor: TRxRichEdit; Printable: boolean): AnsiString;
 
-procedure ExpandFoldedText(RTF : TAuxRichEdit);
-procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
+function MarkFirstLevelFoldedBlocks(RTF : TRxRichEdit): boolean;
+procedure RemoveFirstLevelFoldedBlocksMarks(RTF : TRxRichEdit);
+procedure ExpandFoldedText(RTF : TRxRichEdit);
+procedure RemoveFoldedText(RTF : TRxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
 
 procedure CheckSelectionHiddenInFoldedBlock(Editor : TKntRichEdit; var SS, SL: integer; DoNotModifyCaret: boolean = false);
 
@@ -1669,7 +1671,55 @@ begin
 end;
 
 
-procedure ExpandFoldedText(RTF : TAuxRichEdit);
+function MarkFirstLevelFoldedBlocks(RTF : TRxRichEdit): boolean;
+var
+  TxtPlain: string;
+  SS, pI, pF, pMark: integer;
+begin
+  Result:= false;
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then begin
+        PositionInFoldedBlock(TxtPlain, SS, RTF, pI, pF);
+        pMark:= pI;
+        RTF.SetSelection(pMark, pMark, false);
+        RTF.SelText:= KNT_RTF_AUX_CHAR;
+        pMark:= pF+3;
+        RTF.SetSelection(pMark, pMark, false);
+        RTF.SelText:= KNT_RTF_AUX_CHAR;
+        SS:= pMark;
+        Result:= True;
+     end;
+  until SS = 0;
+end;
+
+
+procedure RemoveFirstLevelFoldedBlocksMarks(RTF : TRxRichEdit);
+var
+  TxtPlain: string;
+  SS, pMark: integer;
+  Offset: integer;
+begin
+  Offset:= 0;
+  TxtPlain:= RTF.TextPlain;
+  SS:= 1;
+  repeat
+     SS:= Pos(KNT_RTF_AUX_CHAR, TxtPlain, SS);
+     if SS > 0 then begin
+        pMark:= SS - Offset;
+        RTF.SetSelection(pMark-1, pMark, false);
+        RTF.SelText:= '';
+        Inc(Offset);
+        Inc(SS);
+     end;
+  until SS = 0;
+end;
+
+
+
+procedure ExpandFoldedText(RTF : TRxRichEdit);
 var
   TxtPlain: string;
   SS: integer;
@@ -1684,7 +1734,7 @@ begin
 end;
 
 
-procedure RemoveFoldedText(RTF : TAuxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
+procedure RemoveFoldedText(RTF : TRxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
 var
   TxtPlain: string;
   SS: integer;

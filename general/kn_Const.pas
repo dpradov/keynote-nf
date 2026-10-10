@@ -550,6 +550,8 @@ const
   KNT_RTF_HIDDEN_MARK_R_CHAR       = Chr(18);    // 18 ($12): DC2 (Device Control 2)
   KNT_RTF_HIDDEN_MARK_EndLink_CHAR = Chr(19);    // 19 ($13): DC3 (Device Control 3)
   KNT_RTF_HIDDEN_MARK_AUX_CHAR     = Chr(20);    // 20 ($14): DC4 (Device Control 4)
+  KNT_RTF_AUX_CHAR     = Chr(4);                 // 4  EOT: End of Transmission
+
   KNT_RTF_HIDDEN_BOOKMARK = 'B';
   KNT_RTF_HIDDEN_Bookmark09 = 'b';       // Used with 9 bookmarks set with Search|Set Bookmark
   KNT_RTF_HIDDEN_BMK_POSITION = 'P';     // Used to mark positons referenced by internal links without markers (in Export)

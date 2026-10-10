@@ -4,7 +4,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   HelpContext = 30
   BorderStyle = bsDialog
   Caption = '%s panel in %s'
-  ClientHeight = 469
+  ClientHeight = 485
   ClientWidth = 394
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   TextHeight = 13
   object btn_OK: TButton
     Left = 15
-    Top = 436
+    Top = 451
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -33,7 +33,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   end
   object btn_Cancel: TButton
     Left = 103
-    Top = 436
+    Top = 451
     Width = 75
     Height = 25
     Hint = 'Discard changes and close dialog box'
@@ -44,7 +44,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   end
   object btn_Help: TButton
     Left = 305
-    Top = 436
+    Top = 451
     Width = 75
     Height = 25
     Caption = 'Help'
@@ -55,7 +55,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     Left = 8
     Top = 6
     Width = 374
-    Height = 118
+    Height = 147
     Caption = ' Display '
     DefaultHeaderFont = False
     HeaderFont.Charset = DEFAULT_CHARSET
@@ -64,6 +64,9 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     HeaderFont.Name = 'Tahoma'
     HeaderFont.Style = [fsBold]
     TabOrder = 5
+    DesignSize = (
+      374
+      147)
     object lbl10: TLabel
       Left = 13
       Top = 26
@@ -79,6 +82,14 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       Height = 13
       Caption = 'Entry Header:'
     end
+    object lbl3: TLabel
+      Left = 13
+      Top = 99
+      Width = 117
+      Height = 13
+      AutoSize = False
+      Caption = 'Folded text:'
+    end
     object cEntryCont: TComboBox
       Left = 17
       Top = 45
@@ -88,8 +99,8 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       TabOrder = 0
     end
     object cb_CompHd: TCheckBox
-      Left = 149
-      Top = 77
+      Left = 153
+      Top = 73
       Width = 110
       Height = 17
       Hint = 'Show entries with less spacing'
@@ -97,8 +108,8 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       TabOrder = 2
     end
     object CB_DescOrd: TCheckBox
-      Left = 13
-      Top = 77
+      Left = 17
+      Top = 73
       Width = 136
       Height = 17
       Hint = 
@@ -134,10 +145,26 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       Caption = 'Line'
       TabOrder = 3
     end
+    object cbFoldedText: TComboBox
+      Left = 17
+      Top = 116
+      Width = 204
+      Height = 21
+      HelpType = htKeyword
+      HelpKeyword = '57-18'
+      Style = csDropDownList
+      Anchors = [akTop, akRight]
+      TabOrder = 6
+      OnChange = cbFoldedTextChange
+      Items.Strings = (
+        'Keep unchanged'
+        'Unfold'
+        'Remove All')
+    end
   end
   object gbFilter: TGroupBox
     Left = 9
-    Top = 142
+    Top = 163
     Width = 377
     Height = 240
     Caption = ' Filter entries / content '
@@ -306,7 +333,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   end
   object btnRestoreDef: TButton
     Left = 235
-    Top = 403
+    Top = 418
     Width = 145
     Height = 25
     Hint = 
@@ -318,7 +345,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   end
   object chkResetSizes: TCheckBox
     Left = 14
-    Top = 403
+    Top = 418
     Width = 206
     Height = 17
     Hint = 

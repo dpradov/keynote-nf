@@ -74,6 +74,8 @@ type
     chkEnabled: TCheckBox;
     chkResetSizes: TCheckBox;
     chkApplyAll: TCheckBox;
+    cbFoldedText: TComboBox;
+    lbl3: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -88,6 +90,7 @@ type
     procedure chkEnabledClick(Sender: TObject);
     procedure btnRestoreDefClick(Sender: TObject);
     procedure cEntryContChange(Sender: TObject);
+    procedure cbFoldedTextChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -284,6 +287,7 @@ begin
      ShowDateInHeader:= cb_HDate.Checked;
      DescendingOrder:=  CB_DescOrd.Checked;
      CompactHeader:=    cb_CompHd.Checked;
+     FoldedTextMode:=   TExportFoldedTextMode(cbFoldedText.ItemIndex);
 
      Filter.Enabled:= chkEnabled.Checked;
      Filter.TagsText:= chkTagsText.Checked;
@@ -311,6 +315,7 @@ begin
      cb_HDate.Checked:=   ShowDateInHeader;
      CB_DescOrd.Checked:= DescendingOrder;
      cb_CompHd.Checked:=  CompactHeader;
+     cbFoldedText.ItemIndex:= Ord(FoldedTextMode);
 
      chkEnabled.Checked:= (Filter.Enabled or Filter.Empty);
      if Filter.TagsModeOR then
@@ -477,6 +482,13 @@ begin
 
    EntryContChanged:= True;
    OrderChanged:= True;
+end;
+
+procedure TForm_NoteEntriesOptions.cbFoldedTextChange(Sender: TObject);
+begin
+   if Initializing then exit;
+
+   EntryContChanged:= True;
 end;
 
 

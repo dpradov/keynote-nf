@@ -1529,6 +1529,28 @@ var
          else
          if NEntry.Stream.Size > 0 then
             cEditor.Lines.LoadFromStream( NEntry.Stream );
+
+
+         if (Mode = meMultiEntry) and NEntry.IsRTF then begin
+            if FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged then begin
+               if (StrRTF <> '') then begin
+                  if (pos(AnsiString(KNT_RTF_BEGIN_FOLDED_URL), StrRTF, 1) > 0) then begin
+                     cEditor.PutRtfText(strRTF,True,False);
+                     StrRTF:= '';
+                  end
+                  else
+                     exit;
+               end;
+               if MarkFirstLevelFoldedBlocks(cEditor) then begin
+                  case FPanelConfig.MECustomiz.FoldedTextMode of
+                     fmUnfold:        ExpandFoldedText(cEditor);
+                     fmRemoveAll:     RemoveFoldedText(cEditor, false);
+                  end;
+                  RemoveFirstLevelFoldedBlocksMarks(cEditor);
+               end;
+            end;
+         end;
+
      end;
 
  end;

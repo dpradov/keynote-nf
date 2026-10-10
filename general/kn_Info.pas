@@ -886,7 +886,7 @@ type
 
 
 type
-  TExportFoldedTextMode = (fmKeepUnchanged, fmUnfold, fmRemoveTagged, fmRemoveAll);
+  TExportFoldedTextMode = (fmKeepUnchanged, fmUnfold, fmRemoveAll, fmRemoveTagged );
 
 
 const
@@ -920,6 +920,7 @@ type
     ShowLineInHeader: boolean;
     CompactHeader: boolean;
     DescendingOrder: boolean;
+    FoldedTextMode: TExportFoldedTextMode;
     Filter: TFilterOptionsInPanel;
   end;
 
@@ -1279,6 +1280,7 @@ begin
           ShowLineInHeader:= true;
           CompactHeader:= false;
           DescendingOrder:= True;
+          FoldedTextMode:= fmKeepUnchanged;
        end;
        DefaultMECustomizForEL[p]:= DefaultMECustomizForQL[p];
     end;
