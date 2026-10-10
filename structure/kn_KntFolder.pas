@@ -3715,7 +3715,6 @@ begin
           SelLength:= NNode.Note.SelLength;
           SelNEntry:= NNode.Note.SelEntry;
           ScrollPosInEditor:= NNode.Note.ScrollPosInEditor;
-          ZoomCurrent:= FFolder.ZoomGoal;
        end
        else begin
           SSImLink:= 0;
@@ -3724,6 +3723,8 @@ begin
           ScrollPosInEditor.X:= 0;
           ScrollPosInEditor.Y:= 0;
        end;
+
+       ZoomCurrent:= FFolder.ZoomGoal;
 
     end;
 
