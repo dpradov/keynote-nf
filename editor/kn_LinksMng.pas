@@ -2020,9 +2020,18 @@ begin
                       SearchCaretPos(TargetEditor, WordInRS.WordPos, WordInRS.WordSel, True, Location.ScrollPosInEditor,
                                      false, true, true,Location.NEntry, PosStartEntry, PosEndEntry);
                    end
-                   else
-                      SearchCaretPos(TargetEditor, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
+                   else begin
+                      var SS: integer:= Location.CaretPos;
+                      var SL: integer:= Location.SelLength;
+                      var ProcessingFoldedBlocks: boolean:= Location.NEntry.IsRTF and
+                                       (NoteEntriesUI.PanelConfig.CurrentMode = meMultiEntry) and
+                                       (NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
+                      if ProcessingFoldedBlocks then
+                         SS:= NoteEntriesUI.GetPositionInFolderIntvEquiv(NoteEntriesUI.GetIndexOfSelectedEntry, SS, SL, True);
+
+                      SearchCaretPos(TargetEditor, SS, SL, True, Location.ScrollPosInEditor,
                                     AdjustVisiblePosition, true, ConsiderOffset, Location.NEntry, PosStartEntry, PosEndEntry);
+                   end;
                 end;
 
                 TargetEditor.SetFocus;

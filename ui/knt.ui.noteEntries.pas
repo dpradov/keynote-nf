@@ -59,6 +59,7 @@ type
     Filtered: TNEntryFiltered;
     ExcerptsInfo: TEntryExcerptsInfo;       // <> nil if Filtered and ShowExcerpts = True
     RTFWithFoldedBlocksModif: AnsiString;
+    RTFFoldIntvEquivInfo: TIntervalsEquivalenceInfo;
 
     function IsVisible: boolean;
     function ContainsExcerpts: boolean;
@@ -182,7 +183,8 @@ type
     function GetImLinkPositionInEntryExcerpts(iEntry: integer; PosInEntry: integer; var SelLength: integer): integer;
     function IsDisplayingExcerptsForSelectedEntry: boolean;
     procedure ClearFilterInfoInAllEntries;
-    procedure ClearRTFFoldedModifInfoInAllEntries;
+    procedure ClearRTFFoldedModifInfoInAllEntries (Free: boolean = False);
+    function GetPositionInFolderIntvEquiv(iEntry: integer; SS: integer; var SL: integer; FromUnchanged: boolean): integer;
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
@@ -384,6 +386,7 @@ begin
    fImagesReferenceCount:= nil;
 
    FreeFilterInfoInAllEntries;
+   ClearRTFFoldedModifInfoInAllEntries(True);
    FreeAndNil(RTFAuxFrag);
 
    inherited;
@@ -434,12 +437,19 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.ClearRTFFoldedModifInfoInAllEntries;
+procedure TKntNoteEntriesUI.ClearRTFFoldedModifInfoInAllEntries(Free: boolean = False);
 var
   i: integer;
 begin
-  for i:= 0 to Length(FEntriesShown)-1 do
+  for i:= 0 to Length(FEntriesShown)-1 do begin
      FEntriesShown[i].RTFWithFoldedBlocksModif:= '';
+     if FEntriesShown[i].RTFFoldIntvEquivInfo <> nil then begin
+        if Free then
+           FreeAndNil(FEntriesShown[i].RTFFoldIntvEquivInfo)
+        else
+           FEntriesShown[i].RTFFoldIntvEquivInfo.Clear;
+     end;
+  end;
 end;
 
 
@@ -1199,11 +1209,13 @@ var
 
          if EntryToRemove then begin
             FreeAndNil(FEntriesShown[iEntryToConsider].ExcerptsInfo);
+            FreeAndNil(FEntriesShown[iEntryToConsider].RTFFoldIntvEquivInfo);
             for iEntry:= iEntryToConsider to Length(FEntriesShown)-2 do
                FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
 
             FEntriesShown[N-1].ExcerptsInfo:= nil;
             FEntriesShown[N-1].RTFWithFoldedBlocksModif:= '';
+            FEntriesShown[N-1].RTFFoldIntvEquivInfo:= nil;
 
             dec(N);
 
@@ -1255,8 +1267,10 @@ var
              end;
 
              if Length(PanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) = Length(FEntriesShown) then begin
-                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                for iEntry:= 0 to Length(FEntriesShown)-1 do begin
                    FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= PanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[iEntry];
+                   FEntriesShown[iEntry].RTFFoldIntvEquivInfo:= PanelConfig.CustomizeInfoInEntries.FoldedTextIntvEquivInEntries[iEntry];
+                end;
              end;
 
              if Length(PanelConfig.CurrentContentModeInEntries) = Length(FEntriesShown) then
@@ -1469,6 +1483,141 @@ var
    str: string;
    ProcessFoldedBlocks: boolean;
    Tick: integer;
+   ToUnchanged:   TIntervalEquivalenceArray;
+   FromUnchanged: TIntervalEquivalenceArray;
+   IntervalsEquivalenceInfo: TIntervalsEquivalenceInfo;
+
+   procedure ProcesssImagesFromNEntryStream;
+   begin
+       ImagesAux:= GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
+       if ImagesAux = nil then exit;
+
+       strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+       if (Mode = meSingleEntry) then
+          fImagesReferenceCount:= ImagesAux
+       else
+          CombineImagesInstances(ImagesAux, fImagesReferenceCount);
+   end;
+
+   procedure ProcesssImagesFromcEditor;
+   var
+      RTF: AnsiString;
+   begin
+       ImagesAux:= GetImagesIDInstances (nil, cEditor.TextPlain);
+       if ImagesAux = nil then exit;
+
+       RTF:= cEditor.RtfText;
+       RTF:= ImageMng.ProcessImagesInRTF(RTF, '', ImageMng.ImagesMode, '', 0, false);
+       CombineImagesInstances(ImagesAux, fImagesReferenceCount);
+
+       if RTF <> '' then begin
+          cEditor.Clear;
+          cEditor.PutRtfText(RTF, false);
+       end;
+   end;
+
+
+   procedure CreateIntvsEquivalence(var Intervals: TIntervalEquivalenceArray);
+   var
+      i, N, SS, LastSS, Offset, pLastEnd: integer;
+      TxtPlain: string;
+      InFolded: boolean;
+   begin
+      N:= 0;
+      TxtPlain:= cEditor.TextPlain;
+      Intervals:= nil;
+      SS:= 0;
+      LastSS:= -1;
+      Offset:= 0;                                           // To exclude the mark characters
+      pLastEnd:= -1;
+      InFolded:= False;
+      repeat
+         SS:= Pos(KNT_RTF_AUX_CHAR, TxtPlain, SS+1);
+         if SS = LastSS+1 then begin   // eg: |HYPERLINK "FOLD:"➕ bla, bla, ...[]#||HYPERLINK "FOLD:"➕
+            inc(Offset);
+            InFolded:= True;    // Next will also be Folded
+            continue;
+         end;
+
+         if (N = 0) and (SS = 1) then
+            InFolded:= True;
+
+         if SS > 0 then begin
+            inc(N);
+            SetLength(Intervals, N);
+            Intervals[N-1].PosBegin:= pLastEnd+1;
+            pLastEnd:= SS-Offset-2;          // -2:  1:Before character 1: Zero based
+            inc(Offset);
+            Intervals[N-1].PosEnd:= pLastEnd;
+            Intervals[N-1].Folded:= InFolded;
+            InFolded:= not InFolded;
+            LastSS:= SS;
+         end;
+      until SS = 0;
+
+      inc(N);
+      SetLength(Intervals, N);
+      Intervals[N-1].PosBegin:= pLastEnd+1;
+      Intervals[N-1].PosEnd:= Integer.MaxValue;
+   end;
+
+   procedure CalculateAndSaveIntvsEquivalence;
+   var
+     i, N: integer;
+     WidthFrom, WidthTo, WidthDif, Offset: integer;
+     Unfolding: boolean;
+   begin
+      Unfolding:= FPanelConfig.MECustomiz.FoldedTextMode = fmUnfold;
+      N:= Length(FromUnchanged);
+
+      { We might think that the unfolded block will take up more position space than the folded one, but it does not have
+        to be that way. Actually, the block, although folded, contains the same information along with another series of
+        hidden codes that mark the start and end of the block or the end of the visible extract. But on the other hand,
+        within the folded block the links, whether normal or internal KNT files are saved in a more compact format. And
+        within a block there may be others nested. All of this can make it so that we do not know a priori if when expanding
+        a block it will occupy more or less, that is, if the position associated with the first character after the block
+        will be greater or less.
+      }
+      if Unfolding then begin
+         Offset:= 0;
+         for i:= 0 to N-1 do begin
+            FromUnchanged[i].Offset:= Offset;
+            ToUnchanged[i].Offset:= -Offset;
+            WidthFrom:= (FromUnchanged[i].PosEnd - FromUnchanged[i].PosBegin);
+            WidthTo:=   (ToUnchanged[i].PosEnd   - ToUnchanged[i].PosBegin);
+            WidthDif:= WidthTo - WidthFrom;
+            Inc(Offset, WidthDif);
+         end;
+      end
+      else begin
+         // Removing
+         Offset:= 0;
+         for i:= 0 to N-1 do begin
+            FromUnchanged[i].Offset:= Offset;
+            if (i > 0) and ToUnchanged[i-1].Folded then
+               ToUnchanged[i].PosBegin:= ToUnchanged[i-1].PosBegin;
+
+            if ToUnchanged[i].Folded then
+               ToUnchanged[i].PosEnd:= -1
+            else
+               ToUnchanged[i].Offset:= -Offset;
+
+            if ToUnchanged[i].Folded then begin
+               WidthFrom:= (FromUnchanged[i].PosEnd - FromUnchanged[i].PosBegin);
+               Inc(Offset, -WidthFrom);
+            end;
+         end;
+      end;
+
+      IntervalsEquivalenceInfo:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo;
+      if IntervalsEquivalenceInfo = nil then begin
+         IntervalsEquivalenceInfo:= TIntervalsEquivalenceInfo.Create;
+         FEntriesShown[iEntry].RTFFoldIntvEquivInfo:= IntervalsEquivalenceInfo;
+      end;
+      IntervalsEquivalenceInfo.FromUnchanged:= FromUnchanged;
+      IntervalsEquivalenceInfo.ToUnchanged:= ToUnchanged;
+   end;
+
  begin
      if (Mode = meMultiEntry) then
         cEditor.Clear;
@@ -1516,14 +1665,8 @@ var
          else begin
            if NodeStreamIsRTF (NEntry.Stream) then begin
               cEditor.StreamFormat:= sfRichText;
-              if FEditor.SupportsRegisteredImages and (not ProcessFoldedBlocks or (FEntriesShown[iEntry].RTFWithFoldedBlocksModif = '')) then begin
-                 ImagesAux:= GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
-                 strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
-                 if (Mode = meSingleEntry) then
-                    fImagesReferenceCount:= ImagesAux
-                 else
-                    CombineImagesInstances(ImagesAux, fImagesReferenceCount);
-              end;
+              if FEditor.SupportsRegisteredImages and not ProcessFoldedBlocks then
+                 ProcesssImagesFromNEntryStream;
            end
            else
               cEditor.StreamFormat:= sfPlainText;
@@ -1558,24 +1701,26 @@ var
                StrRTF:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif
 
             else begin
-               if (StrRTF <> '') then begin
-                  if (pos(AnsiString(KNT_RTF_BEGIN_FOLDED_URL), StrRTF, 1) > 0) then begin
-                     cEditor.PutRtfText(strRTF,True,False);
-                     StrRTF:= '';
-                  end
-                  else
-                     exit;
-               end;
                if MarkFirstLevelFoldedBlocks(cEditor) then begin
-                  Tick:= GetTickCount;
+                  //Tick:= GetTickCount;
+                  CreateIntvsEquivalence(FromUnchanged);
                   case FPanelConfig.MECustomiz.FoldedTextMode of
                      fmUnfold:        ExpandFoldedText(cEditor);
                      fmRemoveAll:     RemoveFoldedText(cEditor, false);
                   end;
+                  CreateIntvsEquivalence(ToUnchanged);
+                  CalculateAndSaveIntvsEquivalence;
                   RemoveFirstLevelFoldedBlocksMarks(cEditor);
-                  if (GetTickCount - Tick) > 45 then                                     // > 45ms? -> Save the processed RTF
-                     FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= cEditor.RtfText;
-               end;
+                  //if (GetTickCount - Tick) > 45 then                                     // > 45ms? -> Save the processed RTF
+               end
+               else
+                  ProcessFoldedBlocks:= False;
+
+               if FEditor.SupportsRegisteredImages then
+                  ProcesssImagesFromcEditor;
+
+               if ProcessFoldedBlocks then
+                  FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= cEditor.RtfText;
             end;
          end;
 
@@ -2155,8 +2300,12 @@ begin
               ContentVisible:= False;
         end;
         if (SS >= 0) and ContentVisible then begin
+            var ProcessingFoldedBlocks: boolean:= (Mode = meMultiEntry) and FNEntry.IsRTF and (FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
             if IsDisplayingExcerptsForSelectedEntry then
-               SS:= GetImLinkPositionInEntryExcerpts(FiEntry, SS, SL);
+               SS:= GetImLinkPositionInEntryExcerpts(FiEntry, SS, SL)
+            else
+            if ProcessingFoldedBlocks then
+               SS:= GetPositionInFolderIntvEquiv(FiEntry, SS, SL, True);
 
             if FNEntry.IsRTF and (Folder.ImagesMode = imImage) then begin
                if IsDisplayingExcerptsForSelectedEntry then
@@ -2731,11 +2880,13 @@ end;
 
 procedure TKntNoteEntriesUI.SavePositionInPanel;
 var
-   SS: integer;
+   SS, SL: integer;
+   ProcessingFoldedBlocks: boolean;
 begin
    if PanelConfig.StLayout = spInQL_ets then exit;
 
    SS:= Editor.SelStart;
+   SL:= Editor.SelLength;
 
    if FEntriesShown = nil then begin
       FNEntry:= nil;
@@ -2751,22 +2902,27 @@ begin
       if IsDisplayingExcerptsForSelectedEntry then
          SS:= GetImLinkPositionInEntry(FiEntry, SS)
       else
-      if FEntriesShown[FiEntry].Filtered <> fFilteredOut then begin    // It could have been moved to `fFilteredOut` because the entry was edited in another panel
+      if EntryShownFiltered(FiEntry) <> fFilteredOut then begin    // It could have been moved to `fFilteredOut` because the entry was edited in another panel
          var StC: integer:= 0;
          var FnP: integer:= -1;
+         ProcessingFoldedBlocks:= false;
          if PanelConfig.CurrentMode = meMultiEntry then begin
             StC:= FEntriesShown[FiEntry].StartingContentPos;
-            FnP:= FEntriesShown[FiEntry].FinalPos
+            FnP:= FEntriesShown[FiEntry].FinalPos;
+            ProcessingFoldedBlocks:= FNEntry.IsRTF and (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
          end;
          SS:= PositionInImLinkTextPlain(Editor, FNEntry, SS, false, StC, FnP);
+         if ProcessingFoldedBlocks then
+            SS:= GetPositionInFolderIntvEquiv(FiEntry, SS, SL, False);
       end
       else begin
          SS:= 0;
+         SL:= 0;
          Editor.SelLength:= 0;
       end;
    end;
 
-   PanelConfig.SelLength := Editor.SelLength;
+   PanelConfig.SelLength := SL;
    if SS < 0 then begin
       SS := 0;                           // Can occur if the entry is collapsed and only shown its header
       PanelConfig.SelLength := 0;
@@ -2782,53 +2938,77 @@ var
   ExcerptsInfo: TEntryExcerptsInfoArray;
   FilteredState: TNEntryFilteredArray;
   RTFWithFoldedBlocksModifInfo: TEntryRTFWithFoldedBlocksModifArray;
+  FoldedTextIntervalsEquivalenceInfo: TIntervalsEquivalenceInfoArray;
   NEntries: TNoteEntryArray;
-  ContainsExcerpts: boolean;
+  ContainsExcerpts, ContainsFoldedInfo, IgnoreFolded: boolean;
 begin
    if (iEntry >= 0) and (Length(FPanelConfig.CustomizeInfoInEntries.NEntries) > iEntry) then begin
       FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries[iEntry]:= FEntriesShown[iEntry].Filtered;
-      FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[iEntry]:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif;
-      if (Length(FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries) > iEntry) then
+      if Length(FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) > iEntry then begin
+         FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[iEntry]:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif;
+         FPanelConfig.CustomizeInfoInEntries.FoldedTextIntvEquivInEntries[iEntry]:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo;
+      end;
+      if Length(FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries) > iEntry then
          FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries[iEntry]:= FEntriesShown[iEntry].ExcerptsInfo;
    end
    else begin
+      NEntries:= nil;
       FilteredState:= nil;
       ExcerptsInfo:= nil;
       RTFWithFoldedBlocksModifInfo:= nil;
-      NEntries:= nil;
+      FoldedTextIntervalsEquivalenceInfo:= nil;
+
+      IgnoreFolded:= False;
+      if ClearRTFFoldedModifInfo and (FPanelConfig.MECustomiz.FoldedTextMode = fmKeepUnchanged) then begin
+         ClearRTFFoldedModifInfoInAllEntries(True);
+         IgnoreFolded:= True;
+      end;
 
       if not FPanelConfig.MECustomiz.Filter.Empty or (FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then begin
-         SetLength(FilteredState, Length(FEntriesShown));
-         SetLength(RTFWithFoldedBlocksModifInfo, Length(FEntriesShown));
          SetLength(NEntries, Length(FEntriesShown));
+         SetLength(FilteredState, Length(FEntriesShown));
          for i:= 0 to Length(FEntriesShown)-1 do begin
             NEntries[i]:= FEntriesShown[i].NEntry;
             FilteredState[i]:= FEntriesShown[i].Filtered;
          end;
 
-         ContainsExcerpts:= False;
-         SetLength(ExcerptsInfo, Length(FEntriesShown));
-         for i:= 0 to Length(FEntriesShown)-1 do begin
-            ExcerptsInfo[i]:= FEntriesShown[i].ExcerptsInfo;
-            RTFWithFoldedBlocksModifInfo[i]:= FEntriesShown[i].RTFWithFoldedBlocksModif;
-            if ExcerptsInfo[i] <> nil then
-               ContainsExcerpts:= True;
+         if not FPanelConfig.MECustomiz.Filter.Empty then begin
+            SetLength(ExcerptsInfo, Length(FEntriesShown));
+            ContainsExcerpts:= False;
+            for i:= 0 to Length(FEntriesShown)-1 do begin
+               ExcerptsInfo[i]:= FEntriesShown[i].ExcerptsInfo;
+               if ExcerptsInfo[i] <> nil then
+                  ContainsExcerpts:= True;
+            end;
+            if not ContainsExcerpts then
+               ExcerptsInfo:= nil;
          end;
 
-         if not ContainsExcerpts then
-            ExcerptsInfo:= nil;
+         if not IgnoreFolded then begin
+            ContainsFoldedInfo:= False;
+            SetLength(RTFWithFoldedBlocksModifInfo, Length(FEntriesShown));
+            SetLength(FoldedTextIntervalsEquivalenceInfo, Length(FEntriesShown));
+            for i:= 0 to Length(FEntriesShown)-1 do begin
+               RTFWithFoldedBlocksModifInfo[i]:= FEntriesShown[i].RTFWithFoldedBlocksModif;
+               FoldedTextIntervalsEquivalenceInfo[i]:= FEntriesShown[i].RTFFoldIntvEquivInfo;
+               if FoldedTextIntervalsEquivalenceInfo[i] <> nil then
+                  ContainsFoldedInfo:= True;
+            end;
+            if not ContainsFoldedInfo then begin
+               RTFWithFoldedBlocksModifInfo:= nil;
+               FoldedTextIntervalsEquivalenceInfo:= nil;
+            end;
+         end;
       end
       else
          FreeFilterInfoInAllEntries;
-
-      if ClearRTFFoldedModifInfo and (FPanelConfig.MECustomiz.FoldedTextMode = fmKeepUnchanged) then
-         ClearRTFFoldedModifInfoInAllEntries;
 
 
       FPanelConfig.CustomizeInfoInEntries.NEntries:= NEntries;
       FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries:= FilteredState;
       FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries:=  ExcerptsInfo;
       FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries:= RTFWithFoldedBlocksModifInfo;
+      FPanelConfig.CustomizeInfoInEntries.FoldedTextIntvEquivInEntries:= FoldedTextIntervalsEquivalenceInfo;
       if FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged then
          FPanelConfig.CustomizeInfoInEntries.FoldedTextModeOfRTFs:= FPanelConfig.MECustomiz.FoldedTextMode;
    end;
@@ -2845,8 +3025,9 @@ begin
       FEntriesShown[iNEntry].Filtered:= fFilteredUnknown;
       if assigned(FEntriesShown[iNEntry].ExcerptsInfo) then
          FEntriesShown[iNEntry].ExcerptsInfo.Clear;
-      if assigned(FEntriesShown[iNEntry].ExcerptsInfo) then
-         FEntriesShown[iNEntry].RTFWithFoldedBlocksModif:= '';
+      FEntriesShown[iNEntry].RTFWithFoldedBlocksModif:= '';
+      if assigned(FEntriesShown[iNEntry].RTFFoldIntvEquivInfo) then
+         FEntriesShown[iNEntry].RTFFoldIntvEquivInfo.Clear;
    end;
 end;
 
@@ -3078,7 +3259,7 @@ begin
    end;
 
    if FoldedTextModeChanged and ((MECustomiz.FoldedTextMode <> fmKeepUnchanged) and (FPanelConfig.CustomizeInfoInEntries.FoldedTextModeOfRTFs <> MECustomiz.FoldedTextMode)) then
-      ClearRTFFoldedModifInfoInAllEntries;
+      ClearRTFFoldedModifInfoInAllEntries(True);
 
    if FilterChanged or OrderChanged then
       ReloadFromDataModel(OrderChanged, nil, aNull, True)
@@ -3892,6 +4073,50 @@ begin
 
   Result:= RunFindAllEx (myFindOptions, false, false, true, NNodeToUse.TVNode, NEntryToUse, FolderToUse, TxtPlain, ResultsSearch);
 end;
+
+
+function TKntNoteEntriesUI.GetPositionInFolderIntvEquiv(iEntry: integer; SS: integer; var SL: integer; FromUnchanged: boolean): integer;
+var
+ i, N: integer;
+ IntervS, IntervD: TIntervalEquivalenceArray;    // Source, Destination
+ WidthS, WidthD, BlockDif: integer;
+ const LenPrefixFold = Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR);       // 'HYPERLINK "FOLD:"➕ '  -> Length = 19
+begin
+  if FEntriesShown[iEntry].RTFFoldIntvEquivInfo = nil then
+     exit(SS);                                        // It is likely because it does not include any folded text block
+
+  if FromUnchanged then begin
+     IntervS:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.FromUnchanged;
+     IntervD:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.ToUnchanged;
+  end
+  else begin
+     IntervS:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.ToUnchanged;
+     IntervD:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.FromUnchanged;
+  end;
+
+  N:= Length(IntervS);
+  for i:= 0 to N-1 do begin
+     if (SS >= IntervS[i].PosBegin) and (SS <= IntervS[i].PosEnd) then begin
+        if (IntervD[i].PosEnd = -1) then begin                                  // Folded Interval and Removing
+           Result:= IntervS[i].PosBegin + IntervS[i].Offset;
+           SL:= 0;
+        end
+        else begin
+           Result:= SS + IntervS[i].Offset;
+           if IntervS[i].Folded then begin
+              if FromUnchanged then
+                 Dec(Result, LenPrefixFold)
+              else
+                 Inc(Result, LenPrefixFold);
+           end;
+        end;
+
+        break;
+     end;
+  end;
+
+end;
+
 
 {$ENDREGION}
 

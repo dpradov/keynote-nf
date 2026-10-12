@@ -59,6 +59,23 @@ type
       WordSel: integer;
    end;
 
+   TIntervalEquivalence = record
+      PosBegin: integer;
+      PosEnd:  integer;
+      Offset: integer;
+      Folded: boolean;
+   end;
+   TIntervalEquivalenceArray = Array of TIntervalEquivalence;
+
+   TIntervalsEquivalenceInfo = class
+      ToUnchanged:   TIntervalEquivalenceArray;
+      FromUnchanged: TIntervalEquivalenceArray;
+
+      procedure Clear;
+   end;
+   TIntervalsEquivalenceInfoArray = Array of TIntervalsEquivalenceInfo;      // TList<TIntervalsEquivalenceInfo>;
+
+
   // "fFilteredOutIgnored" renamed to "fFilteredIgnored".
   //  Although fFilteredIgnored will normally mean "fFilteredOutIgnored", it will also be used to ignore excerpts (been fFilteredIn)
 
@@ -84,6 +101,7 @@ type
     ExcerptsInfoInEntries: TEntryExcerptsInfoArray;
     RTFWithFoldedBlocksModifInEntries: TEntryRTFWithFoldedBlocksModifArray;
     FoldedTextModeOfRTFs: TExportFoldedTextMode;
+    FoldedTextIntvEquivInEntries: TIntervalsEquivalenceInfoArray;
   end;
 
  {
@@ -310,8 +328,11 @@ begin
     for i:= 0 to High(CustomizeInfoInEntries.NEntries) do begin
         if (NEntry = nil) or (CustomizeInfoInEntries.NEntries[i] = NEntry) then begin
            CustomizeInfoInEntries.FilteredStateInEntries[i]:= fFilteredUnknown;
-           if assigned(CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) then
+           if assigned(CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) then begin
               CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[i]:= '';
+              if assigned(CustomizeInfoInEntries.FoldedTextIntvEquivInEntries[i]) then
+                 CustomizeInfoInEntries.FoldedTextIntvEquivInEntries[i].Clear;
+           end;
            if assigned(CustomizeInfoInEntries.ExcerptsInfoInEntries) and assigned(CustomizeInfoInEntries.ExcerptsInfoInEntries[i]) then
               CustomizeInfoInEntries.ExcerptsInfoInEntries[i].Clear;
         end;
@@ -354,6 +375,12 @@ begin
    inherited Destroy;
 end;
 
+
+procedure TIntervalsEquivalenceInfo.Clear;
+begin
+   FromUnchanged:= nil;
+   ToUnchanged:= nil;
+end;
 
 end.
 
