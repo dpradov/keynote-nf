@@ -1499,20 +1499,21 @@ var
           CombineImagesInstances(ImagesAux, fImagesReferenceCount);
    end;
 
-   procedure ProcesssImagesFromcEditor;
-   var
-      RTF: AnsiString;
+   function ProcesssImagesFromRTF(RTF: AnsiString; TxtPlain: String = ''): AnsiString;
    begin
-       ImagesAux:= GetImagesIDInstances (nil, cEditor.TextPlain);
-       if ImagesAux = nil then exit;
+       Result:= '';
+       if TxtPlain <> '' then begin
+          ImagesAux:= GetImagesIDInstances (nil, TxtPlain);
+          if ImagesAux = nil then exit;
+       end;
 
-       RTF:= cEditor.RtfText;
        RTF:= ImageMng.ProcessImagesInRTF(RTF, '', ImageMng.ImagesMode, '', 0, false);
        CombineImagesInstances(ImagesAux, fImagesReferenceCount);
 
        if RTF <> '' then begin
           cEditor.Clear;
           cEditor.PutRtfText(RTF, false);
+          Result:= RTF;
        end;
    end;
 
@@ -1697,30 +1698,41 @@ var
 
 
          if ProcessFoldedBlocks then begin
-            if (FEntriesShown[iEntry].RTFWithFoldedBlocksModif <> '') then
+            if (FEntriesShown[iEntry].RTFWithFoldedBlocksModif <> '') and (FPanelConfig.PanelReloadedInImageMode = ImageMng.ImagesMode) then
                StrRTF:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif
 
             else begin
-               if MarkFirstLevelFoldedBlocks(cEditor) then begin
-                  //Tick:= GetTickCount;
-                  CreateIntvsEquivalence(FromUnchanged);
-                  case FPanelConfig.MECustomiz.FoldedTextMode of
-                     fmUnfold:        ExpandFoldedText(cEditor);
-                     fmRemoveAll:     RemoveFoldedText(cEditor, false);
-                  end;
-                  CreateIntvsEquivalence(ToUnchanged);
-                  CalculateAndSaveIntvsEquivalence;
-                  RemoveFirstLevelFoldedBlocksMarks(cEditor);
-                  //if (GetTickCount - Tick) > 45 then                                     // > 45ms? -> Save the processed RTF
+               if (FEntriesShown[iEntry].RTFWithFoldedBlocksModif = '') then begin
+                   if MarkFirstLevelFoldedBlocks(cEditor) then begin
+                      //Tick:= GetTickCount;
+                      CreateIntvsEquivalence(FromUnchanged);
+                      case FPanelConfig.MECustomiz.FoldedTextMode of
+                         fmUnfold:        ExpandFoldedText(cEditor);
+                         fmRemoveAll:     RemoveFoldedText(cEditor, false);
+                      end;
+                      CreateIntvsEquivalence(ToUnchanged);
+                      CalculateAndSaveIntvsEquivalence;
+                      RemoveFirstLevelFoldedBlocksMarks(cEditor);
+                      //if (GetTickCount - Tick) > 45 then                                     // > 45ms? -> Save the processed RTF
+                   end
+                   else
+                      ProcessFoldedBlocks:= False;
+
+                   if FEditor.SupportsRegisteredImages then
+                      ProcesssImagesFromRTF(cEditor.RtfText, cEditor.TextPlain);
+
+                   if ProcessFoldedBlocks then
+                      FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= cEditor.RtfText;
                end
-               else
-                  ProcessFoldedBlocks:= False;
+               else begin
+                   var RTF: AnsiString;
+                   RTF:= ProcesssImagesFromRTF(FEntriesShown[iEntry].RTFWithFoldedBlocksModif);
+                   if RTF <> '' then
+                      FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= RTF
+                   else
+                      StrRTF:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif;
+               end;
 
-               if FEditor.SupportsRegisteredImages then
-                  ProcesssImagesFromcEditor;
-
-               if ProcessFoldedBlocks then
-                  FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= cEditor.RtfText;
             end;
          end;
 
@@ -2405,6 +2417,8 @@ begin
         PanelConfig.SelNEntry:= nil;
 
      UpdateBtnToggleMultiHint;
+
+     FPanelConfig.PanelReloadedInImageMode:= ImageMng.ImagesMode;
    end;
 
 
@@ -3701,7 +3715,7 @@ procedure TKntNoteEntriesUI.SetImagesMode(ImagesMode: TImagesMode);
 var
    RTFIn, RTFOut: AnsiString;
    SS: integer;
-   RestoreRO: boolean;
+   RestoreRO, ModifiedBAK: boolean;
 
 begin
     if (FNEntry = nil) or not FEditor.SupportsRegisteredImages then exit;
@@ -3730,6 +3744,7 @@ begin
            Editor.BeginUpdate;
            FEditor.GetAndRememberCurrentZoom;
            try
+              ModifiedBAK:= Editor.Modified;
               RestoreRO:= Editor.ReadOnly;
               try
                  Editor.ReadOnly:= False;                     // We must allow images to be shown or hidden even if the note is read only
@@ -3740,13 +3755,13 @@ begin
                  IgnoringEditorChanges:= False;
                  if RestoreRO then begin
                     Editor.ReadOnly:= True;
-                    Editor.Modified:= False;
                  end;
               end;
               SearchCaretPos(Editor, SS, 0, true, Point(-1,-1), true,true,true, FNEntry);
            finally
              FEditor.RestoreZoomCurrent;
              Editor.EndUpdate;
+             Editor.Modified:= ModifiedBAK;
            end;
         end;
     end;

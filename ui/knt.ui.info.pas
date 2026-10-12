@@ -182,6 +182,8 @@ type
 
     CurrentContentModeInEntries: TContentInEntryModeArray;
     CustomizeInfoInEntries: TEntryCustomizeInfo;
+    PanelReloadedInImageMode: TImagesMode;
+
 
     SelNEntry: TNoteEntry;            // Only one per note will be saved in disk (in note's attributes)
     SSImLink : integer;               // ,,                                                                // *2
