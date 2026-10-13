@@ -2025,7 +2025,8 @@ begin
    for i:= 0 to Length(FEntriesShown)-1 do
       CheckFiltered(i);
 
-   SaveCustomizeInfo(-1, false);
+   if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aModified]) then
+      SaveCustomizeInfo(-1, false);
 
    if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
      (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (not EntryShownIsVisible(iEntryToConsider)) then exit;

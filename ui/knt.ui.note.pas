@@ -77,6 +77,7 @@ type
 
     FNEntriesUI: array[TNEntriesPanel] of TKntNoteEntriesUI;
     FNNodeUIConfig: TNNodeUIConfiguration;
+    FNNodeUIConfig_QL, FNNodeUIConfig_EL: TNNodeUIConfiguration;     // To allow query information from another layout (if 'opened')
     FNewNNodeUIConfig: boolean;
     FSelectedNEntriesUI: TKntNoteEntriesUI;
     FQueryLayout: boolean;
@@ -266,6 +267,9 @@ begin
    FMultipleVisibleEditors:= false;
    FHideFocusFlag:= false;
    FChangingLayout:= false;
+   FNNodeUIConfig:= nil;
+   FNNodeUIConfig_QL:= nil;
+   FNNodeUIConfig_EL:= nil;
 
    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
       FNEntriesUI[p]:= nil;
@@ -1477,6 +1481,7 @@ var
    SS, SL: integer;
    ToQueryLayout, ToEditingLayout: boolean;
    PnlEdit: TNEntriesMainPanel;
+   Pnl: TNEntriesPanel;
 begin
   if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
 
@@ -1538,10 +1543,15 @@ begin
       ToggleMaximizeSelectedPanel;
 
   if ToEditingLayout then begin
-     NEntriesUI.SavePositionInPanel;
-     SS:= NEntriesUI.PanelConfig.SSImLink;
-     SL:= NEntriesUI.PanelConfig.SelLength;
+     Pnl:= NEntriesUI.PanelConfig.Panel;
      LoadFromNNode(FNNode, True, neEditingLayout);
+     if FNNodeUIConfig_QL <> nil then begin
+         with FNNodeUIConfig_QL.GetCreatedPanelConfig(Pnl) do begin
+            SS:= SSImLink;
+            SL:= SelLength;
+         end;
+     end;
+
      EditInInMultiEntries(nil, NEntry, false, nil, SS, SL);       // ReqFromNEntriesUI=Nil: We don't know if the same panel is configured in EL
   end
   else
@@ -1946,6 +1956,12 @@ begin
    }
    SetNoteSelEntry:= (LayoutToUse = neQueryLayout) and not FQueryLayout;              // *1
 
+   if (LayoutToUse = neLastLayout) then begin
+      FNNodeUIConfig_QL:= nil;
+      FNNodeUIConfig_EL:= nil;
+   end;
+
+
    FNNode:= NNode;
    FNNodeUIConfig:= nil;
    QueryLayout:= True;
@@ -1966,6 +1982,12 @@ begin
    end
    else
       FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, QueryLayout);
+
+   if QueryLayout then
+      FNNodeUIConfig_QL:= FNNodeUIConfig
+   else
+      FNNodeUIConfig_EL:= FNNodeUIConfig;
+
 
    FQueryLayout:= QueryLayout;
 
