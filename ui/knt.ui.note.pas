@@ -1899,6 +1899,21 @@ var
    Action: TActionOnEntry;
    CancelMaximizedPanelNeeded: boolean;
    PreviousNodeWithNewNNodeUIConfig: boolean;
+
+   procedure AdjustScrollBars;
+   var
+     Pnl: TNEntriesMainPanel;
+     Editor: TKntRichEdit;
+   begin
+       for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+          if (FNEntriesUI[Pnl] <> nil) and FNEntriesUI[Pnl].OnUse then begin
+             Editor:= FNEntriesUI[Pnl].Editor;
+             if (FNEntriesUI[Pnl].PanelConfig.ScrollPosInEditor.Y > 0) then
+                Editor.SetScrollPosInEditor(FNEntriesUI[Pnl].PanelConfig.ScrollPosInEditor);
+             Editor.Perform( EM_SCROLLCARET, 0, 0 );
+          end;
+   end;
+
 begin
  EnableNavigatePanels:= (LayoutToUse <> neLastLayout);
 
@@ -2017,10 +2032,11 @@ begin
 
           if SetNoteSelEntry then begin                                                         // *1
              if (Pnl = PnlToSetFocus) or (PanelConfig.SelNEntry = FNote.SelEntry) then begin
+                if PanelConfig.SelNEntry <> FNote.SelEntry then
+                   PanelConfig.ScrollPosInEditor.Y:= 0;
                 PanelConfig.SelNEntry:= FNote.SelEntry;
                 PanelConfig.SSImLink:= FNote.SSImLink;
                 PanelConfig.SelLength:= FNote.SelLength;
-                PanelConfig.ScrollPosInEditor.Y:= 0;
              end;
           end;
 
@@ -2107,6 +2123,7 @@ begin
  finally
     LockControl(pnlAuxC, False);
     FrameResize(nil);
+    AdjustScrollBars;
     FChangingLayout:= False;
  end;
 end;

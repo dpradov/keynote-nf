@@ -2294,6 +2294,12 @@ begin
 
    finally
 
+     Editor.ZoomCurrent:= PanelConfig.ZoomCurrent;
+     Editor.RestoreZoomCurrent;
+
+     if (PanelConfig.ScrollPosInEditor.Y > 0) then
+        Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
+
      if (FEntriesShown <> nil) and (FiEntry >= 0) then begin
         FNNode:= FEntriesShown[FiEntry].NNode;
         FNote:= FEntriesShown[FiEntry].Note;
@@ -2361,12 +2367,6 @@ begin
      ForceTempReadOnly(ReadOnlyBAK);
      if (Mode = meMultiEntry) then
         Editor.ReadOnly:= true;
-
-     Editor.ZoomCurrent:= PanelConfig.ZoomCurrent;
-     Editor.RestoreZoomCurrent;
-
-     if (PanelConfig.ScrollPosInEditor.Y > 0) then
-        Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
 
      if not CalculateEntriesToShow and (FNEntry_Initial <> FNEntry) then
         App.NEntrySelected(Editor, FNEntry);
