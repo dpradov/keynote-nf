@@ -193,6 +193,11 @@ var
   LastWordFollowed: TLastWordFollowed;
   WordInResultSearch: TWordInResultSearch;
 
+// See *1 in kn_LinksMng.JumpToLocation
+//
+//  LastFindAll_Pattern: String;
+//  LastFindAll_wordList: Array of String;
+
   SearchTagsInclInfo: TSearchTagsInclInfo;
   SearchTagsExclInfo: TTagsORinfo;
 
@@ -2799,6 +2804,15 @@ begin
       end;
       SearchModeToApply := myFindOptions.SearchMode;
 
+// See *1 in kn_LinksMng.JumpToLocation
+//
+//      if FindAllSearch  then begin
+//         LastFindAll_Pattern:= TextToFind;
+//         SetLength(LastFindAll_wordList, wordList.count);
+//         for i:= 0 to wordList.count-1 do
+//            LastFindAll_wordList[i]:= wordList[i].word;
+//      end;
+
 
       if OnlyGetFragmentsInfo then begin
          FreeFragments (FoundNodes, FoundNotes, FoundEntriesInNotes);
@@ -3229,6 +3243,7 @@ var
   Location : TLocation;
   iWord: integer;
   WordInRS: TWordInResultSearch;
+//  PatternSearched: string;
 begin
   Location := Location_List[i-1];
   if ( not assigned( Location )) then exit;
@@ -3257,12 +3272,17 @@ begin
 
      WordInRS.WordPos:= ResultsSearch[i-1].WordsPos[iWord];
      WordInRS.WordSel:= ResultsSearch[i-1].WordsSel[iWord];
+//     PatternSearched:= LastFindAll_wordList[i-1];                // See *1 in kn_LinksMng.JumpToLocation
   end;
+//  else
+//     PatternSearched:= LastFindAll_Pattern;
 
   LastWordFollowed.iResults := i-1;
   LastWordFollowed.iWord := iWord;
 
-  JumpToLocation( Location, true,true,urlOpen,false,  true, WordInRS);
+//  JumpToLocation( Location, true,true,urlOpen,false,  true, WordInRS, PatternSearched);  // See *1 in kn_LinksMng.JumpToLocation
+    JumpToLocation( Location, true,true,urlOpen,false,  true, WordInRS);
+
   Form_Main.FindAllResults.SetFocus;
 end;
 
@@ -3797,6 +3817,7 @@ var
   var
      ContainsRegImages: boolean;       // True: 'Can' contain images
      PosStartEntry, PosEndEntry, incSel: integer;
+     SS, SL: integer;
   begin
       if (myFolder <> ActiveFolder) then
          App.ActivateFolder(myFolder);
@@ -3832,7 +3853,19 @@ var
             PosEndEntry:= -1;
          end;
 
-         SearchCaretPos (NEntriesUI.Editor, PatternPos - incSel, length( Text_To_Find) + SizeInternalHiddenText + incSel, true, Point(-1,-1),
+         SS:= PatternPos - incSel;
+         SL:= length( Text_To_Find) + SizeInternalHiddenText + incSel;
+
+
+// See *1 in kn_LinksMng.JumpToLocation
+//         if myNEntry.IsRTF and
+//            (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry) and
+//            (NEntriesUI.PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then begin       // ProcessingFoldedBlocks?
+//
+//            SS:= NEntriesUI.GetPositionInFolderIntvEquiv(NEntriesUI.GetIndexOfSelectedEntry, SS, SL, True);
+//         end;
+
+         SearchCaretPos (NEntriesUI.Editor, SS, SL, true, Point(-1,-1),
                         false, ContainsRegImages, SearchInImLinkTextPlain,
                         myNEntry, PosStartEntry, PosEndEntry);
 

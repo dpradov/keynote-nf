@@ -80,7 +80,8 @@ type
                               myURLAction: TURLAction = urlOpen;
                               OpenInCurrentFile: boolean= false;
                               ConsiderOffset: boolean = false;
-                              WordInRS: TWordInResultSearch = nil ): boolean;
+                              WordInRS: TWordInResultSearch = nil
+                              {; PatternSearched: string = ''} ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
     function SearchCaretPos (Editor: TKntRichEdit;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
@@ -1833,7 +1834,8 @@ begin
                           myURLAction: TURLAction = urlOpen;
                           OpenInCurrentFile: boolean= false;
                           ConsiderOffset: boolean = false;
-                          WordInRS: TWordInResultSearch = nil): boolean;
+                          WordInRS: TWordInResultSearch = nil
+                          {;PatternSearched: string = ''} ): boolean;
  var
    myFolder : TKntFolder;
    myTreeNode : PVirtualNode;
@@ -1845,6 +1847,8 @@ begin
    FN, FN_ActiveFile: string;
    ResultOpen: integer;
    ScrollYBefore: integer;
+   SS, SL: integer;
+   AdjustedToProcessedFoldedBlocks: boolean;
 
    function SearchTargetMark (SearchBookmark09: boolean = false): boolean;
    var
@@ -1894,6 +1898,42 @@ begin
           end;
         end;
       end;
+  end;
+
+
+  {
+   *1
+   This added method will not be useful for now...
+   It could not enter in the IF section, because TKntNoteUI.GetNEntriesUITargetForJump will not return a panel (NoteEntriesUI) where
+   CurrentMode=MultiEntry and NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged.
+   Although we can call GetPositionInFolderIntvEquiv, the adjusted position could fail if the entry has several nested folded blocks or
+   images and/or links inside a folded block.
+
+   The process required to generate a conversion table, which allows for navigating from a specific position in the standard entry
+   format to the corresponding position when that entry is displayed with "folded" blocks either expanded or removed, becomes
+   significantly more complex if the presence of nested blocks must also be analyzed. The conversion currently implemented
+   is sufficient for navigating between these two views based on visible positions; this applies, for example, when switching from
+   the QueryLayout (QL) to the EditingLayout (EL) by pressing Ctrl+Enter, or when moving from an entry within a "MultiEntry" panel
+   to its corresponding editing panel in the same layout by pressing Enter.
+
+   See:
+      TKntNoteEntriesUI.ReloadFromDataModel
+      -> PrepareEntryContent
+         -> CreateIntvsEquivalence
+         -> CalculateAndSaveIntvsEquivalence
+  }
+  procedure AdjustToProcessedFoldedBlocks(const CaretPos, SelLength: integer; var CaretPosModif, SelLengthModif: integer);
+  begin
+    CaretPosModif:= CaretPos;
+    SelLengthModif:= SelLength;
+
+//    if Location.NEntry.IsRTF and
+//       (NoteEntriesUI.PanelConfig.CurrentMode = meMultiEntry) and
+//       (NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then begin       // ProcessingFoldedBlocks?
+//
+//       CaretPosModif:= NoteEntriesUI.GetPositionInFolderIntvEquiv(NoteEntriesUI.GetIndexOfSelectedEntry, CaretPosModif, SelLengthModif, True);
+//       AdjustedToProcessedFoldedBlocks:= True;
+//    end;
   end;
 
 begin
@@ -2013,29 +2053,48 @@ begin
            LockControl(TargetEditor, True);
            try
              if NoteEntriesUI.GetPreparedForJump(Location.NEntry, PosStartEntry, PosEndEntry) then begin
+                AdjustedToProcessedFoldedBlocks:= False;
                 if Location.NEntry.IsPlainTXT or not SearchTargetMark (Location.Bookmark09) then begin
                    if WordInRS <> nil then begin                             // Jump to a word in a search result
-                      if WordInRS.BeginOfParagraph >= 0 then
-                         SearchCaretPos(TargetEditor, WordInRS.BeginOfParagraph, 0, True, Location.ScrollPosInEditor, true, true, true, Location.NEntry, PosStartEntry, PosEndEntry);
-                      SearchCaretPos(TargetEditor, WordInRS.WordPos, WordInRS.WordSel, True, Location.ScrollPosInEditor,
+                      if WordInRS.BeginOfParagraph >= 0 then begin
+                         AdjustToProcessedFoldedBlocks(WordInRS.BeginOfParagraph, 0, SS, SL);              // See *1
+                         SearchCaretPos(TargetEditor, SS, 0, True, Location.ScrollPosInEditor, true, true, true, Location.NEntry, PosStartEntry, PosEndEntry);
+                      end;
+                      AdjustToProcessedFoldedBlocks(WordInRS.WordPos, WordInRS.WordSel, SS, SL);           // See *1
+                      SearchCaretPos(TargetEditor, SS, SL, True, Location.ScrollPosInEditor,
                                      false, true, true,Location.NEntry, PosStartEntry, PosEndEntry);
                    end
                    else begin
-                      var SS: integer:= Location.CaretPos;
-                      var SL: integer:= Location.SelLength;
-                      var ProcessingFoldedBlocks: boolean:= Location.NEntry.IsRTF and
-                                       (NoteEntriesUI.PanelConfig.CurrentMode = meMultiEntry) and
-                                       (NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
-                      if ProcessingFoldedBlocks then
-                         SS:= NoteEntriesUI.GetPositionInFolderIntvEquiv(NoteEntriesUI.GetIndexOfSelectedEntry, SS, SL, True);
-
+                      AdjustToProcessedFoldedBlocks(Location.CaretPos, Location.SelLength, SS, SL);        // See *1
                       SearchCaretPos(TargetEditor, SS, SL, True, Location.ScrollPosInEditor,
                                     AdjustVisiblePosition, true, ConsiderOffset, Location.NEntry, PosStartEntry, PosEndEntry);
                    end;
                 end;
 
+// See *1
+//                if AdjustedToProcessedFoldedBlocks and (PatternSearched <> '') and (NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode = fmUnfold) then begin
+//                   { Consider the problem of selecting a term located within a "folded" block that itself contains another, nested folded block.
+//                     If the term appears before the nested block, there is no issue; however, if it is located inside or after the nested block,
+//                     one must subtract the character lengths of the nested block’s start (and potentially its end) markers, as these were not
+//                     accounted for when determining the conversions.
+//                     This is a simple, approximate solution that only works for cases involving a single nested block,
+//                     and assuming no images or links are inside a folded block -- see *1 }
+//
+//                   if TargetEditor.SelText.ToUpper <> PatternSearched.ToUpper then begin
+//                      SL:= TargetEditor.SelLength;
+//                      SS:= TargetEditor.SelStart - Length(KNT_RTF_FOLDED_LINK_BLOCK_CHAR);  // In case the pattern is inside a nested folded block;
+//                      TargetEditor.SelStart:= SS;
+//                      TargetEditor.SelLength:= SL;
+//                      if TargetEditor.SelText.ToUpper <> PatternSearched.ToUpper then begin
+//                         SS:= SS - Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);                // In case the pattern is outside a nested folded block
+//                         TargetEditor.SelStart:= SS;
+//                         TargetEditor.SelLength:= SL;
+//                      end;
+//                   end;
+//                end;
+
                 TargetEditor.SetFocus;
-           end;
+             end;
            finally
              LockControl(TargetEditor, False);
            end;

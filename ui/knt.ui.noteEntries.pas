@@ -168,7 +168,7 @@ type
     property GetIndexOfSelectedEntry: integer read FiEntry;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
     function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntryMode): boolean;
-    function EntryWithNoOmittedContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
+    function EntryWithNoAlteredContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
     function NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
     function DisplayingAnyHiddenEntry: boolean;
     function HasAnyEntryNonVisible: boolean;
@@ -2444,7 +2444,7 @@ begin
    end;
 end;
 
-function TKntNoteEntriesUI.EntryWithNoOmittedContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
+function TKntNoteEntriesUI.EntryWithNoAlteredContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
 var
    i: integer;
 begin
@@ -2454,7 +2454,7 @@ begin
       and (not AndVisible or EntryShownIsVisible(i))
       and (not EntryShownWithExcerpts(i))
       and ((PanelConfig.CurrentMode = meSingleEntry) or
-           ( (EntryShownFiltered(i) <> fFilteredIn) or (PanelConfig.MECustomiz.FoldedTextMode <> fmRemoveAll)) ) then begin
+           ( (EntryShownFiltered(i) <> fFilteredIn) or (PanelConfig.MECustomiz.FoldedTextMode = fmKeepUnchanged)) ) then begin
 
       Result:= True;
    end;
@@ -2547,7 +2547,7 @@ function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEn
 
              PosStartEntry:= FEntriesShown[i].StartingContentPos;
              PosEndEntry:= FEntriesShown[i].FinalPos;
-             if AllowEdit  or EntryShownWithExcerpts(i) or ((EntryShownFiltered(i) = fFilteredIn) and (PanelConfig.MECustomiz.FoldedTextMode = fmRemoveAll)) then begin
+             if AllowEdit  or EntryShownWithExcerpts(i) or ((EntryShownFiltered(i) = fFilteredIn) and (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged)) then begin
                 btnToggleMultiClick(nil);
                 PosStartEntry:= 0;
                 PosEndEntry:= -1;
