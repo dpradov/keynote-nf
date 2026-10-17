@@ -969,139 +969,116 @@ end;
 
 function TKntNoteUI.GetNEntriesUITargetForJump(LocationObj: TObject): TObject;
 var
-  CheckOnlySingleEntry, CheckOnlyEntrySelected: boolean;
   Content: TContentInMultiEntryMode;
   MainEntriesUI, MaximizedEntriesUI: TKntNoteEntriesUI;
   NEntry: TNoteEntry;
   Location: TLocation;
 
-  function CheckNEntriesUI(NEntriesUI: TKntNoteEntriesUI): boolean;
-  begin
-      Result:= false;
-      if CheckOnlySingleEntry then
-         Result:= (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) and (not CheckOnlyEntrySelected or (NEntriesUI.NEntry = NEntry))
-      else
-         if CheckOnlyEntrySelected then
-            Result:= (NEntriesUI.NEntry = NEntry)
-         else
-            Result:= (NEntriesUI.IsDisplayingEntry(NEntry, Content));
-  end;
+type
+  TFindPanelType = (fTagLinkedPanel, fSelectedEntryPanel);
 
-  function FindNEntriesUI: TKntNoteEntriesUI;
+  function FindNEntriesUI(Find: TFindPanelType): TKntNoteEntriesUI;
   var
-    CheckTagsVinc, CheckMain: boolean;
-
-    function FindNEntriesUIAux: TKntNoteEntriesUI;
-    var
-      p : TNEntriesPanel;
-      NEntrUI: TKntNoteEntriesUI;
-    begin
-        Result:= nil;
-        for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
-           NEntrUI:= FNEntriesUI[p];
-           if NEntrUI = nil then continue;
-           if not NEntrUI.OnUse then continue;
-           if CheckTagsVinc and
-                      ( (NEntrUI.PanelConfig.LinkedTags = nil) or
-                         not NEntry.HasTags(NEntrUI.PanelConfig.LinkedTags) ) then continue;
-           if CheckMain and (NEntrUI <> MainEntriesUI) then continue;
-           if CheckNEntriesUI(NEntrUI) then
-              exit (NEntrUI);
-        end;
-    end;
-
+    p : TNEntriesPanel;
+    NEntrUI: TKntNoteEntriesUI;
   begin
-     Result:= nil;
+      Result:= nil;
+      for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
+         NEntrUI:= FNEntriesUI[p];
+         if (NEntrUI = nil) or not NEntrUI.OnUse then continue;
 
-     CheckTagsVinc:= False;
-     CheckMain:= False;
+         case Find of
+           fTagLinkedPanel:
+                if (NEntrUI.PanelConfig.Use <> pnuShowTagLinkedEntries) or
+                    not NEntry.HasTags(NEntrUI.PanelConfig.LinkedTags)  then continue;
 
-     if CheckOnlyEntrySelected then
-        Result:= FindNEntriesUIAux
+           fSelectedEntryPanel:
+                if (NEntrUI.PanelConfig.Use <> pnuShowSelectedEntry) then continue;
+         end;
 
-     else begin
-        CheckTagsVinc:= True;
-        Result:= FindNEntriesUIAux;
-        if Result = nil then begin
-           CheckTagsVinc:= False;
-           CheckMain:= True;
-           Result:= FindNEntriesUIAux;
-           if Result = nil then begin
-              //CheckTagsVinc:= False;
-              CheckMain:= False;
-              Result:= FindNEntriesUIAux;
-           end;
-        end;
-     end;
+         if NEntrUI.EntryWithNoOmittedContent(NEntry, True) then
+            exit (NEntrUI);
+      end;
   end;
+
 
 begin                                                                           // ** TODO: Inmersive Mode
 
  {
-  Search order:
-  - Maximized panel (including the searched entry)
-  - Single Entry with searched entry
-  - Multi-Entry (including the searched entry)
-    - Panel with that entry selected
-    - Panel linked to Tags
-    - Main panel
-    - Other
-  - Single Entry including the searched entry
-    - Panel linked to Tags
-    - Main panel
-    - Other
-  }
+
+  Search order (in all cases, 'including the searched entry')
+
+  1- Maximized panel in Multi-Entry mode or in Single-Entry mode with that entry selected
+     Could be previously switched to Single-Entry mode if it is in Multi-Entry mode and is displaying
+     only fragments of that entry or that entry with folded blocks removed
+
+
+  Look for a panel in which the entry is visible (not filtered out or hidden)
+  and in which, if the panel is in Multi-Entry mode, the entry is not displayed merely as fragments, nor
+  with folded blocks removed (*), following this order:
+
+  2- Panel registered in Location (if any)
+
+  3- "All entries" panel (Main)  TNEntriesPanelUse = pnuShowAllEntries
+  4- "Panel linked to Tags"      TNEntriesPanelUse = pnuShowTagLinkedEntries
+
+  5-
+  If no one selected, and the entry is included in Main Panel  -> use Main panel
+  If Main panel is in Multi-Entry mode and it is filtered and displaying only fragments of that entry
+  ('Show Excerpts') or displaying that entry with folded blocks removed, then the "Selected entry" panel (^)
+  will be used instead (or the same panel, toggled to Single-Entry)
+  If the entry is not visible in the main panel, it will be shown temporarily
+  (it can be hidden again via the context menu: "Hide revealed").
+
+
+    (^) By default, the "selected entry" panel, the place where we are most likely to be making edits,
+        will not be the one we choose; the only exception is when the entry being accessed is displayed with some of
+        its content omitted.
+ }
+
 
    Location:= TLocation(LocationObj);
    NEntry:= Location.NEntry;
 
-   CheckOnlyEntrySelected:= false;
-   CheckOnlySingleEntry:= false;
 
    if FNNodeUIConfig.MaximizedPanel <> pnNone then begin
       MaximizedEntriesUI:= GetNEntriesUI(FNNodeUIConfig.MaximizedPanel);
-      if CheckNEntriesUI(MaximizedEntriesUI) then begin
-         Result:= MaximizedEntriesUI;
+
+      if MaximizedEntriesUI.IsDisplayingEntry(NEntry, Content) and
+         ((MaximizedEntriesUI.PanelConfig.CurrentMode = meMultiEntry) or (MaximizedEntriesUI.NEntry = NEntry)) then begin
+
+         Result:= MaximizedEntriesUI;                                                                         // 1
          exit;
       end;
    end;
 
 
-   CheckOnlyEntrySelected:= true;
-   //CheckOnlySingleEntry:= false;
-
-   if (Location.NEntriesUIObj <> nil) and CheckNEntriesUI(TKntNoteEntriesUI(Location.NEntriesUIObj)) then
-      Result:= TKntNoteEntriesUI(Location.NEntriesUIObj)
+   if (Location.NEntriesUIObj <> nil) and TKntNoteEntriesUI(Location.NEntriesUIObj).EntryWithNoOmittedContent(NEntry, True) then
+      Result:= TKntNoteEntriesUI(Location.NEntriesUIObj)                                                      // 2
 
    else begin
-      //CheckOnlyEntrySelected:= true;
-      CheckOnlySingleEntry:= true;
-      Result:= FindNEntriesUI;
+      MainEntriesUI:= GetNEntriesUI(FNNodeUIConfig.GetMainPanel);
+      if MainEntriesUI.EntryWithNoOmittedContent(NEntry, True) then
+         Result:= MainEntriesUI                                                                               // 3
 
-      if Result = nil then begin
-         CheckOnlySingleEntry:= false;
-         //CheckOnlyEntrySelected:= true;
-         Result:= FindNEntriesUI;
+      else begin
+         Result:= FindNEntriesUI(fTagLinkedPanel);                                                            // 4
 
          if Result = nil then begin
-            MainEntriesUI:= GetNEntriesUI(FNNodeUIConfig.GetMainPanel);
+            if MainEntriesUI.EntryWithNoOmittedContent(NEntry, False) then                                    // 5
+               Result:= MainEntriesUI
+            else
+               Result:= FindNEntriesUI(fSelectedEntryPanel);
 
-            //CheckOnlySingleEntry:= false;
-            CheckOnlyEntrySelected:= false;
-            Result:= FindNEntriesUI;
+            if Result = nil then
+               Result:= MainEntriesUI
+         end;
 
-            if Result = nil then begin
-               CheckOnlySingleEntry:= true;
-               //CheckOnlyEntrySelected:= false;
-               Result:= FindNEntriesUI;
-            end;
-        end;
-     end;
+      end;
    end;
 
    if (Result <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone) then
       ToggleMaximizeSelectedPanel;
-
 end;
 
 

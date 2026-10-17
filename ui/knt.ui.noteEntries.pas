@@ -168,6 +168,7 @@ type
     property GetIndexOfSelectedEntry: integer read FiEntry;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
     function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntryMode): boolean;
+    function EntryWithNoOmittedContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
     function NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
     function DisplayingAnyHiddenEntry: boolean;
     function HasAnyEntryNonVisible: boolean;
@@ -2443,6 +2444,22 @@ begin
    end;
 end;
 
+function TKntNoteEntriesUI.EntryWithNoOmittedContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   i:= GetIndexOfIncludedEntry(NEntry);
+   if (i >= 0)
+      and (not AndVisible or EntryShownIsVisible(i))
+      and (not EntryShownWithExcerpts(i))
+      and ((PanelConfig.CurrentMode = meSingleEntry) or
+           ( (EntryShownFiltered(i) <> fFilteredIn) or (PanelConfig.MECustomiz.FoldedTextMode <> fmRemoveAll)) ) then begin
+
+      Result:= True;
+   end;
+end;
+
 
 function TKntNoteEntriesUI.NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
 var
@@ -2523,15 +2540,18 @@ function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEn
           Result:= True;
           if (PanelConfig.CurrentMode = meMultiEntry) then begin
 
-             if (FEntriesShown[i].Content = cmOnlyHeader) or not EntryShownIsVisible(i) or EntryShownWithExcerpts(i) then begin
+             if (FEntriesShown[i].Content = cmOnlyHeader) or not EntryShownIsVisible(i) then begin
                 PanelConfig.SelNEntry:= NEntry;
                 ReloadVisibleContentOfEntries (false, cmWholeEntry, i, true,false,false,  true);
              end;
 
              PosStartEntry:= FEntriesShown[i].StartingContentPos;
              PosEndEntry:= FEntriesShown[i].FinalPos;
-             if AllowEdit then
-                btnToggleMultiClick(nil)
+             if AllowEdit  or EntryShownWithExcerpts(i) or ((EntryShownFiltered(i) = fFilteredIn) and (PanelConfig.MECustomiz.FoldedTextMode = fmRemoveAll)) then begin
+                btnToggleMultiClick(nil);
+                PosStartEntry:= 0;
+                PosEndEntry:= -1;
+             end;
           end;
 
           SelectEntry(i);
