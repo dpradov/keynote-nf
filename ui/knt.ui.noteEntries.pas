@@ -232,6 +232,7 @@ type
     procedure SetReadOnly( AReadOnly : boolean );
     procedure ForceTempReadOnly( AReadOnly : boolean );
     procedure SetPanelHidden( Value : boolean );
+    procedure SetBtnOptionsFontColor;
   public
     property ReadOnly : boolean read GetReadOnly write SetReadOnly;
     property OnUse: boolean read FOnUse;
@@ -988,6 +989,18 @@ begin
    for i:= Length(FEntriesShown)-1 downto 0 do
       if FEntriesShown[i].NEntry = NEntry then
          exit(i);
+end;
+
+procedure TKntNoteEntriesUI.SetBtnOptionsFontColor;
+begin
+  if PanelConfig.IsFiltered then begin
+     btnOptions.Font.Color:= RGB(255,0,20);
+     btnOptions.Font.Size:= 14;
+  end
+  else begin
+     btnOptions.Font.Color:= clWindowText;
+     btnOptions.Font.Size:= 12;
+  end;
 end;
 
 procedure TKntNoteEntriesUI.ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultiEntryMode);
@@ -1930,6 +1943,8 @@ begin
       else
       if Length(FEntriesShown) <= 1 then
          PanelConfig.CurrentMode:= meSingleEntry;
+
+      SetBtnOptionsFontColor;
    end;
 
 
@@ -3256,6 +3271,7 @@ begin
    finally
       TagMng.OfferTagSelectorInModalForm(false, nil);
       Form_NoteEntriesOptions.Free;
+      SetBtnOptionsFontColor;
    end;
 
 end;
