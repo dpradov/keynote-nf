@@ -812,12 +812,14 @@ begin
     App.ShowInfoInStatusBar(GetRS(sLnk09) + strTargetMarker);
   end
   else begin
+    NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.Editor.NEntriesUIObj);
+    if (NEntriesUI <> nil) and (NEntriesUI.NEntry = nil) then exit;     // Ignore when applied to an empty panel, where no NEntry has been created yet
+
     // mark caret position as TLocation
     GetKNTLocation (ActiveFolder, aLocation, true);
 
     // If we are pointing to the start of a node or a folder (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
     strTargetMarker:= '';
-    NEntriesUI:= TKntNoteEntriesUI(aLocation.NEntriesUIObj);
 
     if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and assigned(Editor.NNodeObj) and
         assigned(NEntriesUI) and assigned(NEntriesUI.NEntry) and not NEntriesUI.NEntry.IsPlainTXT then begin
