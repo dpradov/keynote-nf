@@ -1328,9 +1328,6 @@ var
 begin
    if Assigned(FindTagsA) <> Assigned(FindTagsA) then
       Result:= false
-   else
-   if not Assigned(FindTagsA) then
-      Result:= true
 
    else begin
       if Length(FindTagsA) <> Length(FindTagsB) then
