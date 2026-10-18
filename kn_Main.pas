@@ -3164,7 +3164,8 @@ begin
           if CmdCut then Handled:= true;
 
       end
-      else if (not ShiftPressed) then begin
+      else
+      if (not ShiftPressed) then begin
         if assigned(ActiveEditor) and (Msg.CharCode in [VK_DOWN, VK_UP]) then
            case EditorOptions.CtrlUpDownMode of
               TCtrlUpDownMode.cudDefault: exit;
@@ -3249,6 +3250,18 @@ begin
                 ShortcutAltDownMenuItem.Enabled:= True
              else
                 ShortcutAltDownMenuItem.Enabled:= False;
+      end
+      else
+      if (Msg.CharCode = VK_RETURN) and (GetKeyState(VK_SHIFT) < 0) then begin
+         if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and
+            (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1) then begin
+            var NEntriesUI: TKntNoteEntriesUI;
+            NEntriesUI := TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
+            if NEntriesUI <> nil then begin
+               NEntriesUI.btnToggleMultiClick(nil);
+               Handled:= true;
+            end;
+         end;
       end;
    end;
 

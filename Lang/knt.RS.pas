@@ -1062,7 +1062,7 @@ const
    sEntry22 = 55172;   // On the highest panel (full width)
    sEntry23 = 55173;   // On the lowest panel (full width)
    sEntry24 = 55174;   // , excluding "Linked to tags"
-   sEntry25 = 55175;   // Switch between single and multi entry modes\^Num.Entries: %d (%d hidden) [%s]
+   sEntry25 = 55175;   // Single or Multi entry mode (Shift+Enter) - \^Num.Entries: %d (%d hidden) [%s]
    sEntry26 = 55176;   // Single-Entry
    sEntry27 = 55177;   // Multi-Entry
    sEntry28 = 55178;   // No entries visible or matching the current filter
