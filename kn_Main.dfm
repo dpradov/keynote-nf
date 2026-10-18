@@ -3956,6 +3956,12 @@ object Form_Main: TForm_Main
       object N35: TMenuItem
         Caption = '-'
       end
+      object MMPanelOpt: TMenuItem
+        Caption = 'Panel &options...'
+        Hint = 'Displays the panel options dialog box'
+        ShortCut = 16499
+        OnClick = MMPanelOptClick
+      end
       object MMToolsUAS: TMenuItem
         Caption = 'UAS Integration'
         Hint = 'Enable or disable UltimaShell Autocompletion Server integration'

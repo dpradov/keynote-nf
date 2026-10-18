@@ -945,6 +945,7 @@ type
     N115: TMenuItem;
     RTFMOnlyFLines: TMenuItem;
     RTFMHdWh: TMenuItem;
+    MMPanelOpt: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1385,6 +1386,7 @@ type
     procedure RTFMHideAgainClick(Sender: TObject);
     procedure RTFMOnlyFLinesClick(Sender: TObject);
     procedure RTFMHdWhClick(Sender: TObject);
+    procedure MMPanelOptClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -5406,6 +5408,17 @@ procedure TForm_Main.MMEditPlainDefaultPasteClick(Sender: TObject);
 begin
    EditorOptions.PlainDefaultPaste:= not EditorOptions.PlainDefaultPaste;
    PlainDefaultPaste_Toggled
+end;
+
+procedure TForm_Main.MMPanelOptClick(Sender: TObject);
+var
+   NEntriesUI: TKntNoteEntriesUI;
+begin
+  if ActiveFolder = nil then exit;
+
+  NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
+  if NEntriesUI <> nil then
+     NEntriesUI.btnOptionsClick(nil);
 end;
 
 procedure TForm_Main.MMP_PlainDefaultPasteClick(Sender: TObject);
