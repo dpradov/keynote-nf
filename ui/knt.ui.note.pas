@@ -147,6 +147,7 @@ type
                                    TagsToAddToNewEntry: TNoteTagArray = nil;
                                    SS: integer=-1; SL: integer=-1);
     procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
+    procedure SwitchToLayout(ToEditingLayout: boolean; NEntriesUI: TKntNoteEntriesUI);
     procedure EditorChangedInEmptyPanel(Editor: TKntRichEdit);
     procedure UpdateFMultipleVisibleEditors;
     procedure TimerInfoTimer(Sender: TObject);
@@ -178,6 +179,9 @@ type
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     property ReturnToQLFromAllEntriesInSingleMode: boolean read FReturnToQLFromAllEntriesInSingleMode write FReturnToQLFromAllEntriesInSingleMode;
     procedure ClearFilterInfoInAllEntries;
+    procedure SwitchLayout(RequestedFromEditor: TKntRichEdit);
+    procedure EditEntry(RequestedFromEditor: TKntRichEdit);
+    function IsQueryLayout: boolean;
 
 
    {$IFDEF KNT_DEBUG}
@@ -1455,10 +1459,8 @@ procedure TKntNoteUI.IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit;
 var
    NEntriesUI: TKntNoteEntriesUI;
    NEntry: TNoteEntry;
-   SS, SL: integer;
    ToQueryLayout, ToEditingLayout: boolean;
    PnlEdit: TNEntriesMainPanel;
-   Pnl: TNEntriesPanel;
 begin
   if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
 
@@ -1516,6 +1518,18 @@ begin
 
   // (ToQueryLayout or ToEditingLayout) = True
 
+  SwitchToLayout(ToEditingLayout, NEntriesUI);
+end;
+
+
+procedure TKntNoteUI.SwitchToLayout(ToEditingLayout: boolean; NEntriesUI: TKntNoteEntriesUI);
+var
+  Pnl: TNEntriesPanel;
+  NEntry: TNoteEntry;
+  SS, SL: integer;
+begin
+  NEntry:= NEntriesUI.NEntry;
+
   if (FNNodeUIConfig.MaximizedPanel <> pnNone) then
       ToggleMaximizeSelectedPanel;
 
@@ -1531,14 +1545,33 @@ begin
 
      EditInInMultiEntries(nil, NEntry, false, nil, SS, SL);       // ReqFromNEntriesUI=Nil: We don't know if the same panel is configured in EL
   end
-  else
-  if ToQueryLayout then begin
+  else begin
      ActiveFile.SetNoteIsOnEditingLayout(FNote, false);
      LoadFromNNode(FNNode, True, neQueryLayout);
   end;
 
 end;
 
+procedure TKntNoteUI.SwitchLayout(RequestedFromEditor: TKntRichEdit);
+var
+  NEntriesUI: TKntNoteEntriesUI;
+begin
+   NEntriesUI:= GetNEntriesUI(RequestedFromEditor);
+   if NEntriesUI <> nil then
+      SwitchToLayout(FQueryLayout, NEntriesUI);
+end;
+
+procedure TKntNoteUI.EditEntry(RequestedFromEditor: TKntRichEdit);
+begin
+   if RequestedFromEditor.MultiEntry then
+      IntroInEditorOfEntriesUI(RequestedFromEditor, false);
+end;
+
+
+function TKntNoteUI.IsQueryLayout: boolean;
+begin
+  Result:= FQueryLayout;
+end;
 
 procedure TKntNoteUI.EditorChangedInEmptyPanel(Editor: TKntRichEdit);
 var

@@ -1067,6 +1067,7 @@ const
    sEntry27 = 55177;   // Multi-Entry
    sEntry28 = 55178;   // No entries visible or matching the current filter
    sEntry29 = 55179;   // Panel options are only available for notes with multiple entries
+   sEntry30 = 55180;   // Switch to
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !

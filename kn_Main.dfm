@@ -3957,8 +3957,8 @@ object Form_Main: TForm_Main
         Caption = '-'
       end
       object MMPanelOpt: TMenuItem
-        Caption = 'Panel &options...'
-        Hint = 'Displays the panel options dialog box'
+        Caption = 'Multi-Entry panel &options...'
+        Hint = 'Displays the Multi-Entry panel options dialog box'
         ShortCut = 16499
         OnClick = MMPanelOptClick
       end
@@ -4193,7 +4193,7 @@ object Form_Main: TForm_Main
       OnClick = RTFM_RTLClick
     end
     object RTFMEntry_: TMenuItem
-      Caption = 'Entry'
+      Caption = 'Multi-Entry'
       object RTFMReadOnly: TMenuItem
         Caption = 'Read only'
         OnClick = RTFMReadOnlyClick
@@ -4256,6 +4256,31 @@ object Form_Main: TForm_Main
         Caption = 'Delete'
         Hint = 'Delete selected entry'
         OnClick = RTFMDeleteEntryClick
+      end
+      object RTFMAddEntry: TMenuItem
+        Caption = 'Add new entry'
+        Hint = 
+          'Jump to an empty editor; as soon as an edit is made, a new entry' +
+          ' will be created  (Ctrl+Shift+Enter)'
+        OnClick = RTFMAddEntryClick
+      end
+      object N121: TMenuItem
+        Caption = '-'
+      end
+      object RTFMEditEntry: TMenuItem
+        Caption = 'Edit entry'
+        Hint = 'Edit selected entry  (Enter or Shift+Enter)'
+        OnClick = RTFMEditEntryClick
+      end
+      object RTFMSwLayout: TMenuItem
+        Caption = ' '
+        Hint = 'Switch between Query and Editing Layout  (Ctrl+Enter)'
+        OnClick = RTFMSwLayoutClick
+      end
+      object RTFMPanelOpt: TMenuItem
+        Caption = 'Multi-Entry Panel options...'
+        Hint = 'Display Multi-Entry panel options'
+        OnClick = RTFMPanelOptClick
       end
     end
     object N88: TMenuItem

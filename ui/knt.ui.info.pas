@@ -268,6 +268,10 @@ type
      procedure RefreshPanelsLayout;
      procedure TreeFocused;
      procedure ClearFilterInfoInAllEntries;
+     procedure SwitchLayout(RequestedFromEditor: TKntRichEdit);
+     procedure EditEntry(RequestedFromEditor: TKntRichEdit);
+     function IsQueryLayout: boolean;
+
 
      procedure SetReadOnly( AReadOnly : boolean );
      procedure NNodeDeleted;

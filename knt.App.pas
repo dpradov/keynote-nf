@@ -122,8 +122,6 @@ type
       procedure Initialize;
 
    protected
-      procedure UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
-
       procedure EditorSelected (Editor: TKntRichEdit; Focused: boolean); overload;
       procedure FolderSelected(Folder: TKntFolder; PrevFolder: TKntFolder);
       procedure NNodeSelected(NNode: TNoteNode);
@@ -149,6 +147,8 @@ type
       procedure HideNestedFloatingEditors;
       procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
       procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+
+      procedure UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
@@ -992,6 +992,15 @@ var
 
 begin
    NEntry:= ActiveNEntry;
+
+   if ActiveNNode.Note.NumEntries = 1 then begin
+      if NEntry = nil then begin
+         ActiveFolder.NoteUI.LoadFromNNode(ActiveNNode, True, neQueryLayout);
+         UpdateEnabledActionsAndRTFState(ActiveEditor);
+      end;
+      exit;
+   end;
+
    if NEntry = nil then exit;
    if ActiveTreeUI.CheckReadOnly then exit;
    if NEntry.IsReadOnly then begin

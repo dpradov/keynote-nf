@@ -946,6 +946,11 @@ type
     RTFMOnlyFLines: TMenuItem;
     RTFMHdWh: TMenuItem;
     MMPanelOpt: TMenuItem;
+    RTFMAddEntry: TMenuItem;
+    RTFMEditEntry: TMenuItem;
+    RTFMPanelOpt: TMenuItem;
+    RTFMSwLayout: TMenuItem;
+    N121: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1387,6 +1392,10 @@ type
     procedure RTFMOnlyFLinesClick(Sender: TObject);
     procedure RTFMHdWhClick(Sender: TObject);
     procedure MMPanelOptClick(Sender: TObject);
+    procedure RTFMEditEntryClick(Sender: TObject);
+    procedure RTFMSwLayoutClick(Sender: TObject);
+    procedure RTFMPanelOptClick(Sender: TObject);
+    procedure RTFMAddEntryClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -4819,6 +4828,28 @@ end;
 procedure TForm_Main.RTFMDeleteEntryClick(Sender: TObject);
 begin
    App.DeleteActiveNEntry;
+end;
+
+
+procedure TForm_Main.RTFMAddEntryClick(Sender: TObject);
+begin
+   ActiveFolder.NoteUI.NewEntryRequested(ActiveEditor);
+   App.UpdateEnabledActionsAndRTFState(ActiveEditor);
+end;
+
+procedure TForm_Main.RTFMSwLayoutClick(Sender: TObject);
+begin
+   ActiveFolder.NoteUI.SwitchLayout(ActiveEditor);
+end;
+
+procedure TForm_Main.RTFMEditEntryClick(Sender: TObject);
+begin
+  ActiveFolder.NoteUI.EditEntry(ActiveEditor);
+end;
+
+procedure TForm_Main.RTFMPanelOptClick(Sender: TObject);
+begin
+  MMPanelOptClick(nil);
 end;
 
 
@@ -8671,6 +8702,8 @@ procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, Su
                                             HasMultipleEntries: boolean; HasAnyEntryNonVisible: boolean; DisplayingAnyHiddenEntry: boolean);
 var
   IsNotMain: boolean;
+  ShowOnlyWithMultEntryOption: boolean;
+  Layout: string;
 begin
     MMInsertMarkLocation.Enabled := VinculatedToNote;
     MMBkmSet_.Enabled:= VinculatedToNote;
@@ -8685,19 +8718,44 @@ begin
 
     IsNotMain:= (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
 
-    RTFMEntry_.Visible:=   (HasMultipleEntries or HasAnyEntryNonVisible);
-    RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
-    RTFMHidden.Enabled:=   (ActiveNEntry <> nil);
-    RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
-    RTFMMain.Enabled:=     IsNotMain;
-    RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
-    RTFMEncryp.Enabled:=   (ActiveNEntry <> nil);
-    RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
-    RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
-    RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
-    RTFMDeleteEntry.Enabled:=   (ActiveNEntry <> nil);
-    RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
-    RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+    RTFMEntry_.Visible:=   (HasMultipleEntries or HasAnyEntryNonVisible or ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes);
+    ShowOnlyWithMultEntryOption:= (HasMultipleEntries or HasAnyEntryNonVisible);
+
+
+    RTFMHidden.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMShowHidden.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMMain.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMEncryp.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMReadOnly.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMHideAgain.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMDeleteEntry.Visible:= ShowOnlyWithMultEntryOption or ActiveFolder.NoteUI.MultipleVisibleEditors;
+    RTFMHdWh.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMOnlyFLines.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMSwLayout.Visible:= ShowOnlyWithMultEntryOption;
+    RTFMEditEntry.Visible:= ShowOnlyWithMultEntryOption;
+
+    if ShowOnlyWithMultEntryOption then begin
+       RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
+       RTFMHidden.Enabled:=   (ActiveNEntry <> nil);
+       RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
+       RTFMMain.Enabled:=     IsNotMain;
+       RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
+       RTFMEncryp.Enabled:=   (ActiveNEntry <> nil);
+       RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
+       RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
+       RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
+       RTFMDeleteEntry.Enabled:=   (ActiveNEntry <> nil);
+       RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+       RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+       RTFMEditEntry.Enabled:= (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+
+       if ActiveFolder.NoteUI.IsQueryLayout then
+          Layout:= GetRS(sEntry19)
+       else
+          Layout:= GetRS(sEntry18);
+       RTFMSwLayout.Caption:= GetRS(sEntry30) + Layout;
+    end;
+
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);
