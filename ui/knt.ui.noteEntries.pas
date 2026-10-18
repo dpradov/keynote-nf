@@ -2878,6 +2878,8 @@ begin
          end;
       end;
 
+      App.NEntryModified(NEntry, FEntriesShown[iEntry].Note, Folder);
+
    finally
      Editor.ReadOnly:= True;
      Editor.Modified:= False;

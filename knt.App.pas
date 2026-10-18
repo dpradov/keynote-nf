@@ -127,6 +127,8 @@ type
       procedure EditorSelected (Editor: TKntRichEdit; Focused: boolean); overload;
       procedure FolderSelected(Folder: TKntFolder; PrevFolder: TKntFolder);
       procedure NNodeSelected(NNode: TNoteNode);
+      procedure MarkNEntryAsModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+      procedure NEntryModified_NecessaryActions(NEntry: TNoteEntry; Note: TNote; Editor: TKntRichEdit = nil; ReloadOtherEditors: boolean = True);
 
       procedure ShowWordCountInfoInStatusBar(const str: string);
       function GetWordCountInfoInStatusBar: string;
@@ -155,7 +157,7 @@ type
       procedure EditorSaved (Editor: TKntRichEdit);
       procedure ChangeInEditor (Editor: TKntRichEdit);
       procedure NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
-      procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+      procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);         // To inform of a change made from a readonly editor (inserting a marker in a MultiEntry panel)
       procedure DeleteActiveNEntry;
       procedure ActiveNEntryHiddenChanged;
       procedure ReconsiderVisibilityOfEntries(Note: TNote = nil);
@@ -735,16 +737,13 @@ begin
    fAvailableEditors.Remove(Editor);
 end;
 
-procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
+procedure TKntApp.NEntryModified_NecessaryActions(NEntry: TNoteEntry; Note: TNote; Editor: TKntRichEdit = nil; ReloadOtherEditors: boolean = True);
 var
-   NNodeSavedEditor, NNode: TNoteNode;
-   NoteSavedEditor: TNote;
-   NEntrySaved: TNoteEntry;
+   NNode: TNoteNode;
    E: TKntRichEdit;
    NEntriesUI: TKntNoteEntriesUI;
    i: integer;
    Action: TActionOnEntry;
-   ReloadOtherEditors: boolean;
 
    procedure ExecuteOnNEntriesUI(DoFreeCustomizeInfo: boolean);
    var
@@ -754,17 +753,17 @@ var
          E:= fAvailableEditors[i];
          if not DoFreeCustomizeInfo and (E = Editor) then continue;
          NNode:= TNoteNode(E.NNodeObj);
-         if assigned(NNode) and (NNode.Note = NoteSavedEditor) then begin
+         if assigned(NNode) and (NNode.Note = Note) then begin
             NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
             if assigned(NEntriesUI) and (NEntriesUI.PanelConfig <> nil) then begin
                if DoFreeCustomizeInfo then begin
-                  NEntriesUI.PanelConfig.ClearCustomizeInfo(NEntrySaved);
-                  NEntriesUI.CleanCustomizeInfo(NEntrySaved);
+                  NEntriesUI.PanelConfig.ClearCustomizeInfo(NEntry);
+                  NEntriesUI.CleanCustomizeInfo(NEntry);
                end
                else begin
                   NEntriesUI.SavePositionInPanel;
                   NEntriesUI.SaveCustomizeInfo(NEntriesUI.GetIndexOfSelectedEntry);
-                  NEntriesUI.ReloadFromDataModel(false, NEntrySaved, Action, false);
+                  NEntriesUI.ReloadFromDataModel(false, NEntry, Action, false);
                end;
             end;
          end;
@@ -772,30 +771,42 @@ var
    end;
 
 begin
+
+   // Clear any saved filtering information related to the modified entry so that it is recalculated.
+   ExecuteOnNEntriesUI(true);    // Some of its PanelConfigs may not have been saved to Folder.NNodesUIConfig yet
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].ClearFilterInfo(NEntry);
+
+   if not ReloadOtherEditors then exit;
+
+   Action:= aModified;
+   ExecuteOnNEntriesUI(false);
+end;
+
+
+procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
+var
+   NNodeSavedEditor: TNoteNode;
+   NoteSavedEditor: TNote;
+   NEntrySaved: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   ReloadOtherEditors: boolean;
+begin
    if Editor = nil then exit;
+
+   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, +1);
 
    NNodeSavedEditor:= TNoteNode(Editor.NNodeObj);
    if NNodeSavedEditor = nil then exit;
    NoteSavedEditor:= NNodeSavedEditor.Note;
 
-
    NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
    NEntrySaved:= NEntriesUI.NEntry;
    ReloadOtherEditors:= (NoteSavedEditor.NumNNodes > 1) or NEntriesUI.NoteUI.MultipleVisibleEditors;
 
-   // Clear any saved filtering information related to the modified entry so that it is recalculated.
-   ExecuteOnNEntriesUI(true);    // Some of its PanelConfigs may not have been saved to Folder.NNodesUIConfig yet
-   for i := 0 to ActiveFile.Folders.Count -1 do
-      ActiveFile.Folders[i].ClearFilterInfo(NEntrySaved);
+   NEntryModified_NecessaryActions(NEntrySaved, NoteSavedEditor, Editor, ReloadOtherEditors);
 
-
-   if not ReloadOtherEditors then exit;
-
-   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, +1);
-   Action:= aModified;
-   ExecuteOnNEntriesUI(false);
-   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, -1);
-
+   Log_StoreTick('TKntApp.EditorSaved - END', 4, -1);
 end;
 
 
@@ -846,7 +857,7 @@ var
 begin
    Log_StoreTick('TKntApp.ModifiedMetadataOfEntry - BEGIN', 4, +1);
 
-   NEntryModified(NEntry, Note, Folder);
+   MarkNEntryAsModified(NEntry, Note, Folder);
 
 
    for i := 0 to ActiveFile.Folders.Count -1 do
@@ -910,7 +921,7 @@ begin
 
   if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad) (or a 'blank' editor of a panel, with NEntryObj= nil)
 
-  NEntryModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
+  MarkNEntryAsModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
 end;
 
 
@@ -937,7 +948,13 @@ begin
 end;
 
 
-procedure TKntApp.NEntryModified(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+procedure TKntApp.NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+begin
+   MarkNEntryAsModified(NEntry, Note, Folder);
+   NEntryModified_NecessaryActions(NEntry, Note, nil, True);
+end;
+
+procedure TKntApp.MarkNEntryAsModified(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 begin
   if ActiveFileIsBusy then exit;
 

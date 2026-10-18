@@ -744,7 +744,7 @@ var
    Editor: TKntRichEdit;
    NEntriesUI: TKntNoteEntriesUI;
    RTFAux: TAuxRichEdit;
-   SS, PosStartEntry, PosEndEntry: integer;
+   SS: integer;
 
 
    function GetActualTargetMarker (Editor: TRxRichEdit): integer;
@@ -827,12 +827,12 @@ begin
       RTFAux:= nil;
       if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry) then begin
          SS:= Editor.SelStart;
-         NEntriesUI.GetEntryBoundaries(NEntriesUI.NEntry, PosStartEntry, PosEndEntry);
+         NEntriesUI.SavePositionInPanel;        // Save in PanelConfig.SSImLink considering fragments, unfolded o removed blocks, ...
          RTFAux:= CreateAuxRichEdit;
          RTFAux.BeginUpdate;
          LoadStreamInRTFAux (NEntriesUI.NEntry.Stream, RTFAux);
          EditorBase:= RTFAux;
-         EditorBase.SelStart:= PositionInImLinkTextPlain(Editor, NEntriesUI.NEntry, SS, false, PosStartEntry, PosEndEntry);
+         EditorBase.SelStart:= NEntriesUI.PanelConfig.SSImLink;
       end;
       try
           if NumBookmark09 <= 0 then
@@ -850,8 +850,10 @@ begin
                 KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
              end;
 
-             if assigned(RTFAux) then
-                NEntriesUI.InsertMarkerInMultiEntryEditor(NEntriesUI.NEntry, KEY_Marker, TargetMarker, RTFAux)
+             if assigned(RTFAux) then begin
+                NEntriesUI.InsertMarkerInMultiEntryEditor(NEntriesUI.NEntry, KEY_Marker, TargetMarker, RTFAux);
+                Editor.SelStart:= SS;
+             end
              else
                 InsertMarker(EditorBase, KEY_Marker, TargetMarker);
 
