@@ -2182,7 +2182,20 @@ begin
         fImagesReferenceCount:= nil;
      end;
 
-     Editor.Color:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
+     var ColorAux: TColor;
+     ColorAux:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
+     if Mode = meMultiEntry then begin
+        ColorAux:= ColorToRGB(ColorAux);
+        if ColorAux = clWhite then
+           ColorAux:= RGB(247,247,247)        // -8
+        else
+        if GetRelativeLuminosity(ColorAux) >= 0.45 then
+           ColorAux:= DarkenColor(ColorAux, 15)
+        else
+           ColorAux:= LightenColor(ColorAux, 15);
+     end;
+     Editor.Color:= ColorAux;
+
 
      FiEntry:= -1;
      if FEntriesShown <> nil then begin
