@@ -162,8 +162,10 @@ type
     procedure CleanCustomizeInfo(NEntry: TNoteEntry);
     procedure ReloadNoteName;
     procedure EditorChangedSelectionInMultiEntries;
-    procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
+    procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false;
+                                           FromOnlyHeaderToFirstLines: boolean = false);
     procedure ToggleOnlyHeaders_WholeContent;
+    procedure ToggleOnlyHeader_WholeContent;
     function GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
     property GetIndexOfSelectedEntry: integer read FiEntry;
     function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
@@ -3432,7 +3434,8 @@ end;
 
 
 
-procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false);
+procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false;
+                                                         FromOnlyHeaderToFirstLines: boolean = false);
 var
    SS, i: integer;
    NewCont: TContentInMultiEntryMode;
@@ -3442,6 +3445,8 @@ begin
           Ctrl + DblClick ->                   ,,                        , on all not hidden entries
            Alt + DblClick -> Hide selected entry (-> cmHidden)
     Ctrl + Alt + DblClick -> Toggle between cmOnlyHeader and cmWholeEntry, on all entries (included hidden)
+
+    FromOnlyHeaderToFirstLines => if Content is cmOnlyHeader -> change to cmOnlyFirstLines
    }
 
    SS:= Editor.SelStart;
@@ -3449,7 +3454,11 @@ begin
    if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
 
       case FEntriesShown[FiEntry].Content of
-        cmOnlyHeader,
+        cmOnlyHeader:
+            if FromOnlyHeaderToFirstLines then
+               NewCont:= cmOnlyFirstLines
+            else
+               NewCont:= cmWholeEntry;
         cmOnlyFirstLines: NewCont:= cmWholeEntry;
         cmWholeEntry:     NewCont:= cmOnlyHeader;
         cmHidden:         NewCont:= cmOnlyFirstLines;
@@ -3478,6 +3487,15 @@ begin
    Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
    EditorDblClickInMultiEntries(True, False, CtrlDown);
 end;
+
+procedure TKntNoteEntriesUI.ToggleOnlyHeader_WholeContent;
+begin
+   if (FiEntry < 0) or (PanelConfig.CurrentMode <> meMultiEntry) then exit;
+
+   Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
+   EditorDblClickInMultiEntries(False, False, False, True);
+end;
+
 
 procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultiEntryMode; iEntry: integer= -1;
                                                            IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;

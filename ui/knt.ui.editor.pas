@@ -4474,6 +4474,13 @@ begin
     exit;
   end;
 
+  if fMultiEntries and ReadOnly then begin
+     if (fNEntriesUIObj <> nil) then begin
+        TKntNoteEntriesUI(FNEntriesUIObj).ToggleOnlyHeader_WholeContent;
+        exit;
+     end;
+  end;
+
   if CheckReadOnly then begin
      if (key = #9) and (GetKeyState( VK_SHIFT ) < 0 ) then begin
         App.ShowInfoInStatusBar('');
