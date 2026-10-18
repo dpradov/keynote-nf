@@ -2046,12 +2046,18 @@ begin
    NoteUI.SaveToDataModel;
    NNode:= NoteUI.NNode;
 
+   // *1 This can occur if a conversion is requested immediately after initiating the creation of a new entry (Ctrl+Shift+Enter),
+   //   while it is still completely empty (and before it has actually been created, which might not happen at all if the user
+   //   navigates to another note without editing it first).
+
    Result:= true;
 
    try
       RTFAux:= CreateAuxRichEdit;
       try
          NEntry:= NoteUI.SelectedNEntry;
+         if NEntry = nil then exit;             // *1
+
          Stream:= nEntry.Stream;
 
          if Stream.Size <> 0 then begin
