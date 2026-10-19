@@ -702,8 +702,13 @@ begin
    if Fixed then begin
       FSelectedNEntriesUI:= FocusedNEntriesUI;
       FSelectedNEntriesUI.SetFocusOnEditor;
-      if TreeWasFocused then
+      if TreeWasFocused then begin
+         IGNORE_TVFocusChanged:= True;
+
          ActiveFolder.SetFocusOnTree;
+
+         IGNORE_TVFocusChanged:= False;
+      end;
    end;
 end;
 
@@ -1491,7 +1496,7 @@ begin
            // -> ToQueryLayout:= True    (*1)
 
         else begin
-           if (NEntriesUI.PanelConfig.UseIsMultiEntry) then begin   // -> Single <> Multi
+           if (NEntriesUI.PanelConfig.UseIsMultiEntry) and (FNote.NumEntries > 1) then begin   // -> Single <> Multi
               NEntriesUI.btnToggleMultiClick(nil);
               exit;
            end
@@ -1527,6 +1532,7 @@ var
   Pnl: TNEntriesPanel;
   NEntry: TNoteEntry;
   SS, SL: integer;
+  PanelConfig: TPanelConfiguration;
 begin
   NEntry:= NEntriesUI.NEntry;
 
@@ -1536,13 +1542,15 @@ begin
   if ToEditingLayout then begin
      Pnl:= NEntriesUI.PanelConfig.Panel;
      LoadFromNNode(FNNode, True, neEditingLayout);
+     SS:= 0;
+     SL:= 0;
      if FNNodeUIConfig_QL <> nil then begin
-         with FNNodeUIConfig_QL.GetCreatedPanelConfig(Pnl) do begin
-            SS:= SSImLink;
-            SL:= SelLength;
+         PanelConfig:= FNNodeUIConfig_QL.GetCreatedPanelConfig(Pnl);
+         if PanelConfig <> nil then begin
+            SS:= PanelConfig.SSImLink;
+            SL:= PanelConfig.SelLength;
          end;
      end;
-
      EditInInMultiEntries(nil, NEntry, false, nil, SS, SL);       // ReqFromNEntriesUI=Nil: We don't know if the same panel is configured in EL
   end
   else begin

@@ -1647,7 +1647,7 @@ end;
 
 procedure TKntTreeUI.TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
 begin
-  if (not assigned(Node)) then exit;
+  if IGNORE_TVFocusChanged or (not assigned(Node)) then exit;
 
   Log_StoreTick('TV_FocusChanged - BEGIN', 3, +1);
 

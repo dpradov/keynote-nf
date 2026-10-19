@@ -4474,7 +4474,7 @@ begin
     exit;
   end;
 
-  if fMultiEntries and ReadOnly then begin
+  if fMultiEntries and ReadOnly and (key = #32) then begin
      if (fNEntriesUIObj <> nil) then begin
         TKntNoteEntriesUI(FNEntriesUIObj).ToggleOnlyHeader_WholeContent;
         exit;

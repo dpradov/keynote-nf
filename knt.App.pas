@@ -267,6 +267,7 @@ var
 
    ModalFormWithTxtTagsVisible: boolean;
    InformingSomeoneChangedOurFile: boolean;
+   IGNORE_TVFocusChanged: boolean;
 
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas
@@ -410,6 +411,7 @@ begin
    EditorToBeCheckedForContentUpdate:= nil;
    DisableChangedInEmptyPanelAt:= 0;
    FramResizePendingInNoteUI:= nil;
+   IGNORE_TVFocusChanged:= false;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
