@@ -691,8 +691,7 @@ begin
    for Pnl := Low(TNEntriesPanel) to High(TNEntriesPanel) do begin
        NEntriesUI:= FNEntriesUI[Pnl];
        if (NEntriesUI <> nil) and (GetPanel(Pnl).Height > HEIGHT_REDUCED_TO_HIDDEN) and
-           ((NEntriesUI.txtTags.Top < 0) or (NEntriesUI.Editor.Height = 0)) then begin
-
+           ((NEntriesUI.txtTags.Top < 0) or (NEntriesUI.txtName.Top < 0) or (NEntriesUI.pnlButtons.Top < 0) or (NEntriesUI.Editor.Height = 0)) then begin
            NEntriesUI.SetFocusOnEditor;
            NEntriesUI.SetTopIncControlsOfInfoPanel;
            Fixed:= true;
@@ -1997,6 +1996,8 @@ begin
         FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, QueryLayout);
         FNewNNodeUIConfig:= true;
      end;
+     if (FNNodeUIConfig.MaximizedPanel <> pnNone) and (FNote.NumEntries = 1) then
+        FNNodeUIConfig.MaximizedPanel:= pnNone;
    end
    else
       FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, QueryLayout);
@@ -2090,6 +2091,9 @@ begin
                 NEntriesUI.TagsToUseOnNewEntry:= TagsToAddToNewEntry;
              end;
           end;
+
+          if (FNote.NumEntries = 1) and PanelConfig.Maximized then
+             PanelConfig.Maximized:= False;
 
           NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
 

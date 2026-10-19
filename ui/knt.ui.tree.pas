@@ -1646,6 +1646,15 @@ end;
 
 
 procedure TKntTreeUI.TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
+
+   procedure SelectLastNode;
+   begin
+      IGNORE_TVFocusChanged:= True;
+      TV.FocusedNode:= fLastNodeSelected;
+      TV.Selected[Node]:= False;
+      TV.Selected[TV.FocusedNode]:= True;
+      IGNORE_TVFocusChanged:= False;
+   end;
 begin
   if IGNORE_TVFocusChanged or (not assigned(Node)) then exit;
 
@@ -1653,17 +1662,20 @@ begin
 
   TV.ScrollIntoView(Node, false);
 
+  { *1  This can occur if ActiveFolder.SetFocusOnTree has been called from TKntNoteUI.FixPossibleProblemWith0HeigthPanels.
+        Furthermore, the issue only seems to arise when the new node is selected via a keystroke (e.g., the UP arrow key);
+        it does not occur when the selection is made by clicking with the mouse }
+
   if (Node <> fLastNodeSelected) then begin
      TKntFolder(Folder).NodeSelected(Node, fLastNodeSelected);
      if not FloatingEditorCannotBeSaved then begin
         fLastNodeSelected:= Node;
         App.NNodeFocused(GetNNode(Node));
+        if TV.FocusedNode <> fLastNodeSelected then     // *1
+           SelectLastNode;
      end
-     else begin
-        TV.FocusedNode:= fLastNodeSelected;
-        TV.Selected[Node]:= False;
-        TV.Selected[TV.FocusedNode]:= True;
-     end;
+     else
+         SelectLastNode;
   end;
 
   Log_StoreTick('TV_FocusChanged - END', 3, -1);

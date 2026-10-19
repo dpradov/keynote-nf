@@ -8718,42 +8718,47 @@ begin
 
     IsNotMain:= (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
 
-    RTFMEntry_.Visible:=   (HasMultipleEntries or HasAnyEntryNonVisible or ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes);
-    ShowOnlyWithMultEntryOption:= (HasMultipleEntries or HasAnyEntryNonVisible);
+    if ActiveFolder = nil then
+       RTFMEntry_.Visible:= False
+
+    else begin
+       RTFMEntry_.Visible:=   (HasMultipleEntries or HasAnyEntryNonVisible or ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes);
+       ShowOnlyWithMultEntryOption:= (HasMultipleEntries or HasAnyEntryNonVisible);
 
 
-    RTFMHidden.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMShowHidden.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMMain.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMEncryp.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMReadOnly.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMHideAgain.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMDeleteEntry.Visible:= ShowOnlyWithMultEntryOption or ActiveFolder.NoteUI.MultipleVisibleEditors;
-    RTFMHdWh.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMOnlyFLines.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMSwLayout.Visible:= ShowOnlyWithMultEntryOption;
-    RTFMEditEntry.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMHidden.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMShowHidden.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMMain.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMEncryp.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMReadOnly.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMHideAgain.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMDeleteEntry.Visible:= ShowOnlyWithMultEntryOption or ActiveFolder.NoteUI.MultipleVisibleEditors;
+       RTFMHdWh.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMOnlyFLines.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMSwLayout.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMEditEntry.Visible:= ShowOnlyWithMultEntryOption;
 
-    if ShowOnlyWithMultEntryOption then begin
-       RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
-       RTFMHidden.Enabled:=   (ActiveNEntry <> nil);
-       RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
-       RTFMMain.Enabled:=     IsNotMain;
-       RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
-       RTFMEncryp.Enabled:=   (ActiveNEntry <> nil);
-       RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
-       RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
-       RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
-       RTFMDeleteEntry.Enabled:=   (ActiveNEntry <> nil);
-       RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
-       RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
-       RTFMEditEntry.Enabled:= (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+       if ShowOnlyWithMultEntryOption then begin
+          RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
+          RTFMHidden.Enabled:=   (ActiveNEntry <> nil);
+          RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
+          RTFMMain.Enabled:=     IsNotMain;
+          RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
+          RTFMEncryp.Enabled:=   (ActiveNEntry <> nil);
+          RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
+          RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
+          RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
+          RTFMDeleteEntry.Enabled:=   (ActiveNEntry <> nil);
+          RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+          RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+          RTFMEditEntry.Enabled:= (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
 
-       if ActiveFolder.NoteUI.IsQueryLayout then
-          Layout:= GetRS(sEntry19)
-       else
-          Layout:= GetRS(sEntry18);
-       RTFMSwLayout.Caption:= GetRS(sEntry30) + Layout;
+          if ActiveFolder.NoteUI.IsQueryLayout then
+             Layout:= GetRS(sEntry19)
+          else
+             Layout:= GetRS(sEntry18);
+          RTFMSwLayout.Caption:= GetRS(sEntry30) + Layout;
+       end;
     end;
 
 end;
