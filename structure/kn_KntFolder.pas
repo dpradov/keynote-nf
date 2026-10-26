@@ -1525,6 +1525,8 @@ begin
         NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosEL;
 
      for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
+        if (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode <> nil) and (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode.Note.NumEntries = 1) then continue;
+
         NNodesUIConfig[i].PanelsConfig[j].ClearCustomizeInfo(nil);
 
         pnl:= NNodesUIConfig[i].PanelsConfig[j].Panel;
@@ -3708,6 +3710,8 @@ begin
           LinkedTags:= FFolder.NoteAdvOptions.LinkedTagsForEL[aPanel];
           Result.MECustomiz:=  FFolder.NoteAdvOptions.DefaultMECustomizForEL[aPanel];
        end;
+       if (NNode <> nil) and (NNode.Note.NumEntries = 1) and (Result.IsFiltered) then
+           Result.MECustomiz.Filter.Enabled:= False;
 
 
        if (NNode <> nil) and (NNode.Note.SelEntry <> nil) then begin

@@ -2008,6 +2008,12 @@ begin
       SetBtnOptionsFontColor;
    end;
 
+   if (FNote.NumEntries = 1) and (PanelConfig.StLayout = spInQL) and (PanelConfig.Panel = pnCenter) then begin
+      if (PanelConfig.IsFiltered) or (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then
+         PanelConfig.CurrentMode:= meMultiEntry
+      else
+         PanelConfig.CurrentMode:= meSingleEntry;
+   end;
 
 
    Mode:= PanelConfig.CurrentMode;
@@ -3178,12 +3184,12 @@ end;
 
 function TKntNoteEntriesUI.EntryShownWithExcerpts(iEntry: integer): boolean;
 begin
-   Result:= (FNote.NumEntries > 1) and (FPanelConfig.IsFiltered and FEntriesShown[iEntry].ContainsExcerpts);
+   Result:= (FPanelConfig.IsFiltered and FEntriesShown[iEntry].ContainsExcerpts);
 end;
 
 function TKntNoteEntriesUI.EntryShownFiltered(iEntry: integer): TNEntryFiltered;
 begin
-   if (FNote.NumEntries = 1) or not FPanelConfig.IsFiltered then
+   if not FPanelConfig.IsFiltered then
       Result:= fFilteredIn
    else
       Result:= FEntriesShown[iEntry].Filtered;
@@ -3191,7 +3197,7 @@ end;
 
 function TKntNoteEntriesUI.EntryShownIsVisible(iEntry: integer): boolean;
 begin
-   Result:= (FNote.NumEntries = 1) or ((FEntriesShown[iEntry].Content <> cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut));
+   Result:= (FEntriesShown[iEntry].Content <> cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut);
 end;
 
 function TKntNoteEntriesUI.EntryShownIsBeingDisplayed(iEntry: integer): boolean;
@@ -3329,7 +3335,9 @@ var
   CurrentFilter: TFilterOptionsInPanel;
   QL: boolean;
 begin
-   if (FNote <> nil) and (FNote.NumEntries = 1) then begin
+   if (FNote <> nil) and (FNote.NumEntries = 1) and (not Folder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes)
+       and not ((PanelConfig <> nil) and (PanelConfig.IsFiltered or (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged))) then begin
+
       App.InfoPopup(GetRS(sEntry29));
       exit;
    end;

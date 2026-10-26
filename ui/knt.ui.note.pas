@@ -1392,7 +1392,8 @@ var
 begin
   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
-        FNEntriesUI[p].ClearFilterInfoInAllEntries;
+        if (FNEntriesUI[p].Note = nil) or (FNEntriesUI[p].Note.NumEntries > 1) then
+           FNEntriesUI[p].ClearFilterInfoInAllEntries;
 end;
 
 
@@ -2202,6 +2203,7 @@ var
   p: TNEntriesPanel;
   iOnUse: integer;
   SelNEntriesUI: TKntNoteEntriesUI;
+  IsCustomized: boolean;
 
 begin
    if FNNode = nil then exit;
@@ -2222,12 +2224,15 @@ begin
    SetLength(FNNodeUIConfig.PanelsConfig, TNEntriesPanel_Count);
    SelNEntriesUI:= nil;
    iOnUse:= 0;
+   IsCustomized:= False;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
       if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
          if FNEntriesUI[p].OnUse then begin
             FNEntriesUI[p].SavePositionInPanel;
             FNEntriesUI[p].SaveCustomizeInfo;
             FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntriesUI[p].PanelConfig;
+            if FNEntriesUI[p].PanelConfig.IsFiltered or (FNEntriesUI[p].PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then
+               IsCustomized:= True;
             inc(iOnUse);
             if p in MainPanels then begin                              // Main panels: [pnTL..pnBR]
                if FNEntriesUI[p].PanelConfig.LinkedTags = nil then
@@ -2254,7 +2259,7 @@ begin
 
    SetLength(FNNodeUIConfig.PanelsConfig, iOnUse);
    if FNewNNodeUIConfig and
-      (NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) then begin
+      (NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) or IsCustomized then begin
          Folder.AddNNodeUIConfig(FNNodeUIConfig);
          FNewNNodeUIConfig:= false;
    end;

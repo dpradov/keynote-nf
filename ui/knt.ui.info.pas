@@ -39,7 +39,7 @@ uses
 type
   TStatusPanelLayout = (
      spInQL,                 // In QueryLayout,
-     spInQL_ets,             //   ,,   with an entry to show  (a note with only one entry that matches the tags of a vinculated-tag panel)
+     spInQL_ets,             //   ,,   with an entry to show  (a note with only one entry that matches the tags of a tag-linked panel)
      spInEL                  // In EditingLayout
    );
 
