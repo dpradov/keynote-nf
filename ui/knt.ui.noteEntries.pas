@@ -1674,8 +1674,10 @@ var
    end;
 
  begin
-     if (Mode = meMultiEntry) then
+     if (Mode = meMultiEntry) then begin
         cEditor.Clear;
+        SetEditorDefAttributes(cEditor, Folder);
+     end;
 
      NEntry:= FEntriesShown[iEntry].NEntry;
      NEntry.Stream.Position := 0;
