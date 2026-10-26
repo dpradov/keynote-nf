@@ -405,7 +405,7 @@ end;
 
 procedure TForm_NoteEntriesOptions.txtTagsInclEnter(Sender: TObject);
 begin
-   if CtrlDown then begin
+   if not Initializing and CtrlDown then begin
        txtTagsIncl.Text:= '';
        Customiz.Filter.FindTagsIncl:= nil;
    end;

@@ -4026,8 +4026,10 @@ begin
   for i := 0 to FFolders.Count-1 do begin
      myFolder := FFolders[i];
      NNode:= myFolder.FocusedNNode;
-     if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted or NNode.Note.HasEncryptedEntries) then
+     if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted or NNode.Note.HasEncryptedEntries) then begin
+        myFolder.NoteUI.ReconsiderFilteredStatusOnEncryptedEntries;
         myFolder.NoteUI.LoadFromNNode(NNode, True, neLastLayout);
+     end;
 
      if myFolder.Filtered then begin
         if myFolder.TreeUI.TagFilterApplied then

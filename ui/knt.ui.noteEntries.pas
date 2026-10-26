@@ -150,6 +150,7 @@ type
                                              IgnoreFilter: boolean = false);
     procedure ShowHiddenEntries;
     procedure HideHiddenRevealed;
+    procedure ReconsiderFilteredStatusOnEncryptedEntries;
     procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
     procedure NEntryDeleted(NEntry: TNoteEntry);
@@ -172,6 +173,7 @@ type
     function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntryMode): boolean;
     function EntryWithNoAlteredContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
     function NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
+    function NumberOfEntriesBeingDisplayed: integer;
     function DisplayingAnyHiddenEntry: boolean;
     function HasAnyEntryNonVisible: boolean;
     procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
@@ -215,6 +217,7 @@ type
     function EntryShownWithExcerpts(iEntry: integer): boolean;
     function EntryShownFiltered(iEntry: integer): TNEntryFiltered;
     function EntryShownIsVisible(iEntry: integer): boolean; inline;
+    function EntryShownIsBeingDisplayed(iEntry: integer): boolean; inline;
 
   public
     procedure EditTags;
@@ -438,6 +441,15 @@ begin
      if FEntriesShown[i].ExcerptsInfo <> nil then
         FEntriesShown[i].ExcerptsInfo.Clear;
   end;
+end;
+
+procedure TKntNoteEntriesUI.ReconsiderFilteredStatusOnEncryptedEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do
+     if FEntriesShown[i].NEntry.IsEncrypted then
+        FEntriesShown[i].Filtered:= fFilteredUnknown;
 end;
 
 
@@ -1149,7 +1161,7 @@ var
  Mode: TModeEntriesUI;
  FNEntry_Initial: TNoteEntry;
  FiEntry_Initial: integer;
- NumVisibleEntriesBefore, NumVisibleEntriesAfter: integer;
+ NumOfEntriesBeingDisplayedBefore, NumVisibleEntriesBefore, NumVisibleEntriesAfter: integer;
 
 
  function NEntryMustBeIncludedInPanel (NEntry: TNoteEntry): boolean;
@@ -1178,6 +1190,7 @@ var
    iEntry, j: integer;
    NEntry: TNoteEntry;
    Created: TDateTime;
+   P: integer;
 
    function GetContentToAssign(NEntry: TNoteEntry; DefaultContentInME: TContentInMultiEntryMode; IgnoreIsHidden: boolean = false): TContentInMultiEntryMode;
    begin
@@ -1208,6 +1221,9 @@ var
          FEntriesShown[N].ExcerptsInfo:= nil;
          FEntriesShown[N].RTFWithFoldedBlocksModif:= '';
          FEntriesShown[N].Filtered:= fFilteredUnknown;
+         FEntriesShown[N].StartingPos:= 0;
+         FEntriesShown[N].StartingContentPos:= 0;
+         FEntriesShown[N].FinalPos:= 0;
 
          inc(N);
       end;
@@ -1326,10 +1342,8 @@ var
             end;
             if iEntryAdded <= FiEntry then
                inc(FiEntry);
-            if FiEntry < 0 then begin
-               FiEntry:= 0;
-               iEntryToConsider:= 0;
-            end;
+
+            iEntryToConsider:= iEntryAdded;
 
             FEntriesShown[iEntryAdded].NEntry:= NEntryToConsider;
             FEntriesShown[iEntryAdded].NNode:= FNNode;
@@ -1337,6 +1351,9 @@ var
             FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
             FEntriesShown[iEntryAdded].ExcerptsInfo:= nil;
             FEntriesShown[iEntryAdded].RTFWithFoldedBlocksModif:= '';
+            FEntriesShown[iEntryAdded].StartingPos:= -1;
+            FEntriesShown[iEntryAdded].StartingContentPos:= -1;
+            FEntriesShown[iEntryAdded].FinalPos:= -1;
             CheckFiltered(iEntryAdded, true);
          end;
 
@@ -1349,6 +1366,27 @@ var
       fsFile: ;
     end;
 
+
+
+    // Interleave the positions that were not calculated (as they correspond to added entries that are not displayed) with those that were calculated
+    if FEntriesShown <> nil then begin
+       if FEntriesShown[0].StartingPos < 0 then begin
+          FEntriesShown[0].StartingPos:= 0;
+          FEntriesShown[0].StartingContentPos:= 0;
+          FEntriesShown[0].FinalPos:= 0;
+       end;
+    end;
+
+    for iEntry:= 1 to High(FEntriesShown) do begin
+       if FEntriesShown[iEntry].StartingPos < 0 then begin
+          P:= FEntriesShown[iEntry-1].FinalPos;
+          if FEntriesShown[iEntry-1].StartingPos <> P then
+             inc(P);
+          FEntriesShown[iEntry].StartingPos:= P;
+          FEntriesShown[iEntry].StartingContentPos:= P;
+          FEntriesShown[iEntry].FinalPos:= P;
+       end;
+    end;
 
 
     if FPanelInitialized then
@@ -1822,6 +1860,8 @@ var
               if not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
                  ShowEntry (i);
                  Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
+                 if L = 0 then
+                    inc(Offset);
               end
               else begin
                  ShowHeader(i);
@@ -1872,6 +1912,8 @@ var
  end;
 
  procedure ClearAndSetAsEmpty;
+ var
+   iEntry: integer;
  begin
     Editor.Clear;
     fImagesReferenceCount:= nil;
@@ -1881,6 +1923,13 @@ var
     end;
     FiEntry:= -1;
     FNEntry:= nil;
+
+    for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+        FEntriesShown[iEntry].StartingPos:= 0;
+        FEntriesShown[iEntry].StartingContentPos:= 0;
+        FEntriesShown[iEntry].FinalPos:= 0;
+    end;
+
  end;
 
 
@@ -1906,6 +1955,9 @@ begin
 
    EntryToAdd:= false;
    EntryToRemove:= false;
+   iEntryToConsider:= -1;
+   iEntryAdded:= -1;
+
    Mode:= PanelConfig.CurrentMode;
 
 
@@ -1943,8 +1995,15 @@ begin
          exit;
       end
       else
-      if Length(FEntriesShown) <= 1 then
-         PanelConfig.CurrentMode:= meSingleEntry;
+      if Length(FEntriesShown) <= 1 then begin
+         if ( (PanelConfig.StLayout = spInEL) and (PanelConfig.Use = pnuShowAllEntries) ) then begin
+            if Length(FEntriesShown) = 1 then
+               FEntriesShown[0].Content:= cmOnlyHeader;
+         end
+         else
+            PanelConfig.CurrentMode:= meSingleEntry;
+      end;
+
 
       SetBtnOptionsFontColor;
    end;
@@ -1956,6 +2015,7 @@ begin
    FiEntry_Initial:= FiEntry;
 
    NumVisibleEntriesBefore:= NumberOfIncludedEntries(True);
+   NumOfEntriesBeingDisplayedBefore:= NumberOfEntriesBeingDisplayed;
 
    // NEntryToConsider: If it's included among the considered entries, check if it should remain so and, if so,redisplay it, using its current content and tags.
    //   If FMode = meSingleEntry, this NEntryToReconsider will be reflected in FEntriesShown, but it doesn't necessarily have to be reflected in the editor if
@@ -1978,8 +2038,6 @@ begin
           if not MustBeIncluded then exit;
           EntryToAdd:= true;
           PopulateEntriesToShow;
-          if EntryShownFiltered(iEntryAdded) = fFilteredOut then
-             FEntriesShown[iEntryAdded].Filtered:= fFilteredIgnored;
           if (Mode = meSingleEntry) then begin
               if (FiEntry_Initial = -1) and ((FNEntry = nil) or (FNEntry = NEntryToConsider)) then begin
                 // We've already prepared the editor. Once the first modification is made, we'll enter
@@ -2006,10 +2064,9 @@ begin
        end
        else begin
           iEntryToConsider:= GetIndexOfIncludedEntry(NEntryToConsider);
-          if (ActionOnEntry = aDeleted) then begin
-             if (iEntryToConsider < 0) then exit;
-             EntryToRemove:= true;
-          end
+          if (ActionOnEntry = aDeleted) then
+             EntryToRemove:= true
+
           else
           if (ActionOnEntry in [aModified, aModifiedMetadata]) then begin
              if MustBeIncluded and (iEntryToConsider < 0) then begin
@@ -2020,12 +2077,14 @@ begin
              if not MustBeIncluded and (iEntryToConsider >= 0) then
                 EntryToRemove:= true;
           end;
+
+          if (iEntryToConsider < 0) and not EntryToAdd then exit;
        end;
 
-       if (iEntryToConsider >= 0) and not EntryToRemove and (ActionOnEntry in [aModifiedMetadata, aModified]) then begin
-           var FilteredOutBefore: boolean:= (EntryShownFiltered(iEntryToConsider) = fFilteredOut);
+       if (Mode = meMultiEntry) and (iEntryToConsider >= 0) and not EntryToRemove and (ActionOnEntry in [aModifiedMetadata, aModified]) then begin
+           var DisplayingBefore: boolean:= (EntryShownIsBeingDisplayed(iEntryToConsider));
            CheckFilterInfoUpdated(iEntryToConsider, (ActionOnEntry = aModifiedMetadata));
-           if (iEntryToConsider = FiEntry) or (FilteredOutBefore <> (EntryShownFiltered(iEntryToConsider) = fFilteredOut)) then
+           if (iEntryToConsider = FiEntry) or (DisplayingBefore <> (EntryShownIsVisible(iEntryToConsider))) then
               ActionOnEntry:= aChangedVisibility;
        end;
 
@@ -2043,11 +2102,13 @@ begin
    for i:= 0 to Length(FEntriesShown)-1 do
       CheckFiltered(i);
 
+   if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
+     (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (not EntryShownIsVisible(iEntryToConsider)) then exit;
+
    if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aModified]) then
       SaveCustomizeInfo(-1, false);
 
-   if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
-     (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (not EntryShownIsVisible(iEntryToConsider)) then exit;
+   if EntryToAdd and (ActionOnEntry <> aChangedVisibility) and (iEntryAdded >= 0) and (not EntryShownIsVisible(iEntryAdded)) then exit;
 
    if FPanelHidden and not
          (EntryToAdd or (iSelectedEntry >= 0) or (ActionOnEntry = aCreating) or (NumVisibleEntriesBefore > 1) or (PanelConfig.StLayout = spInQL_ets))
@@ -2176,7 +2237,7 @@ begin
      end;
 
 
-     if (Mode = meSingleEntry) or CalculateEntriesToShow or
+     if (Mode = meSingleEntry) or CalculateEntriesToShow or (NumOfEntriesBeingDisplayedBefore = 0) or                 // NumOfEntriesBeingDisplayedBefore = 0 and MultiEntry => Editor shows: "** No entries visible or matching the current filter **"
        ((NEntryToConsider = nil) and not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader])) then begin
 
         Editor.Clear;
@@ -2291,7 +2352,6 @@ begin
                     end;
                  end;
 
-                 inc(FEntriesShown[High(FEntriesShown)].FinalPos);      // Last shown entry in the editor
               end;
           end;
        end
@@ -2431,7 +2491,7 @@ begin
      NumVisibleEntriesAfter:= NumberOfIncludedEntries(True);
 
      if not FPanelHidden and (FNEntry = nil) then
-        FNoteUI.PanelEmpty(PanelConfig.Panel, (NumberOfIncludedEntries(true) = 0))
+        FNoteUI.PanelEmpty(PanelConfig.Panel, (NumVisibleEntriesAfter = 0))
      else
      if FPanelHidden and ((ActionOnEntry = aCreating) or (NumVisibleEntriesAfter > 1) or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then
         FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
@@ -2512,6 +2572,18 @@ begin
     end;
 
 end;
+
+
+function TKntNoteEntriesUI.NumberOfEntriesBeingDisplayed: integer;
+var
+   i: integer;
+begin
+   Result:= 0;
+   for i:= Length(FEntriesShown)-1 downto 0 do
+      if EntryShownIsBeingDisplayed(i) then
+         inc(Result);
+end;
+
 
 function TKntNoteEntriesUI.DisplayingAnyHiddenEntry: boolean;
 var
@@ -3122,6 +3194,11 @@ begin
    Result:= (FNote.NumEntries = 1) or ((FEntriesShown[iEntry].Content <> cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut));
 end;
 
+function TKntNoteEntriesUI.EntryShownIsBeingDisplayed(iEntry: integer): boolean;
+begin
+  Result:= EntryShownIsVisible(iEntry) and (FEntriesShown[iEntry].FinalPos > FEntriesShown[iEntry].StartingPos);
+end;
+
 
 procedure TKntNoteEntriesUI.SelectPrevEntry(InformReloaded: boolean);
 var
@@ -3319,7 +3396,7 @@ begin
       PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
       PanelConfig.CurrentMode:= meMultiEntry;
 
-      if not FiltersEqual then
+      if not FiltersEqual or ForceApplyFilter then
          FreeFilterInfoInAllEntries
       else
       if ForceApplyFilter then
@@ -4097,6 +4174,7 @@ end;
 function TKntNoteEntriesUI.CheckFilterInfoUpdated(iEntry: integer; ForceCalc: boolean = false): boolean;   // Return: FEntriesShown[iEntry].Filtered <> fFilteredOut
 var
     FilteredOutIgnoredBefore: boolean;
+    FiltStateInPC: TNEntryFilteredArray;
 begin
    Result:= true;
    if not FPanelConfig.IsFiltered then exit;
@@ -4104,8 +4182,9 @@ begin
    // The information may have been removed from Folder.FreeFilterInfo upon detection that the content of this entry had been modified.
 
    FilteredOutIgnoredBefore:= (FEntriesShown[iEntry].Filtered = fFilteredIgnored);
+   FiltStateInPC:= FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries;
 
-   if ForceCalc or ((FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries = nil) or (FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries[iEntry] = fFilteredUnknown)) or
+   if ForceCalc or ((FEntriesShown[iEntry].Filtered = fFilteredUnknown)) or ((FiltStateInPC = nil) or (iEntry >= Length(FiltStateInPC)) or (FiltStateInPC[iEntry] = fFilteredUnknown)) or
        (FEntriesShown[iEntry].ContainsExcerpts and not assigned(FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch))   then begin
       CheckFiltered(iEntry, True);
       if FilteredOutIgnoredBefore and (FEntriesShown[iEntry].Filtered = fFilteredOut) then

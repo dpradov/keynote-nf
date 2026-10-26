@@ -521,9 +521,8 @@ object Form_Defaults: TForm_Defaults
             Height = 17
             Hint = 
               'If unchecked (or without "Selected entry"), Enter or Ctrl+Shift+' +
-              'Enter will edit or create the entry in the same tag vinculated p' +
-              'anel'
-            Caption = 'Edit tag vinculated entries in "Selected entry" panel'
+              'Enter will edit or create the entry in the same tag-linked panel'
+            Caption = 'Edit tag-linked entries in "Selected entry" panel'
             TabOrder = 1
           end
           object cb_EnableAdv: TCheckBox

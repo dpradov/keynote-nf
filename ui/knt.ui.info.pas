@@ -235,6 +235,7 @@ type
 
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
+     procedure ReconsiderFilteredStatusOnEncryptedEntries;
      procedure ReloadNoteName;
      procedure SaveToDataModel;
      procedure SetAsDefaultLayoutInFolder(var NoteAdvOptions: TNoteAdvancedOptions);

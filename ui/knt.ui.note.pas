@@ -174,6 +174,7 @@ type
     procedure ApplyChangeInPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean; IgnorePanel: TNEntriesPanel);
     procedure ReconsiderVisibilityOfHiddenPanels;
     procedure ReconsiderVisibilityOfEntries;
+    procedure ReconsiderFilteredStatusOnEncryptedEntries;
     procedure ShowHiddenEntries;
     procedure HideHiddenRevealed;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
@@ -1159,7 +1160,7 @@ var
 begin
    pnl:= GetPanel(panel);
    Result:= 0;
-   if FNEntriesUI[Panel] =  nil then exit;
+   if (FNEntriesUI[Panel] =  nil) or (not FNEntriesUI[Panel].OnUse) or (FNEntriesUI[Panel].PanelConfig = nil) then exit;
 
    Result:= FNEntriesUI[Panel].NumberOfIncludedEntries(True);
 end;
@@ -1314,6 +1315,17 @@ begin
               FNEntriesUI[Pnl].ReloadFromDataModel(false);
    end;
 end;
+
+
+procedure TKntNoteUI.ReconsiderFilteredStatusOnEncryptedEntries;
+var
+  p: TNEntriesPanel;
+begin
+  for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+     if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+        FNEntriesUI[p].ReconsiderFilteredStatusOnEncryptedEntries;
+end;
+
 
 procedure TKntNoteUI.ShowHiddenEntries;
 var
@@ -1633,8 +1645,6 @@ begin
       LoadFromNNode(FNNode, True, neEditingLayout, true, TagsToAddToNewEntry)
    end
    else begin
-      if ReqFromNEntriesUI.PanelConfig.CurrentMode = meSingleEntry then
-         ReqFromNEntriesUI.btnToggleMultiClick(nil);
       EditInInMultiEntries(ReqFromNEntriesUI, nil, true, TagsToAddToNewEntry);
    end;
 
@@ -1760,7 +1770,7 @@ begin
 
    NEntriesUI.Editor.HideNestedFloatingEditor;
 
-   if (NEntriesUI <> ReqFromNEntriesUI) and (NEntriesUI.NEntry = NEntry) and (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then begin
+   if (NEntry <> nil) and (NEntriesUI <> ReqFromNEntriesUI) and (NEntriesUI.NEntry = NEntry) and (NEntriesUI.PanelConfig.CurrentMode = meSingleEntry) then begin
       SS:= PanelConfig.SSImLink - GetPositionOffset(NEntriesUI.Editor, NEntry, PanelConfig.SSImLink, -1, False, 0, -1);
       SL:= PanelConfig.SelLength;
 

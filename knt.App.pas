@@ -663,7 +663,7 @@ var
 begin
     Log_StoreTick('TKntApp.EditorSelected - BEGIN', 4, +1);
 
-    if Focused and (Editor.NEntryObj <> nil) then
+    if Focused and ((Editor.NEntryObj <> nil) or (Editor.MultiEntry)) then
        EditorToBeCheckedForContentUpdate:= Editor;
 
     ActiveEditor:= Editor;
@@ -745,7 +745,6 @@ var
    E: TKntRichEdit;
    NEntriesUI: TKntNoteEntriesUI;
    i: integer;
-   Action: TActionOnEntry;
 
    procedure ExecuteOnNEntriesUI(DoFreeCustomizeInfo: boolean);
    var
@@ -765,7 +764,7 @@ var
                else begin
                   NEntriesUI.SavePositionInPanel;
                   NEntriesUI.SaveCustomizeInfo(NEntriesUI.GetIndexOfSelectedEntry);
-                  NEntriesUI.ReloadFromDataModel(false, NEntry, Action, false);
+                  NEntriesUI.ReloadFromDataModel(false, NEntry, aModified, false);
                end;
             end;
          end;
@@ -781,7 +780,6 @@ begin
 
    if not ReloadOtherEditors then exit;
 
-   Action:= aModified;
    ExecuteOnNEntriesUI(false);
 end;
 
