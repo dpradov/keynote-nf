@@ -1281,6 +1281,21 @@ begin
           CompactHeader:= false;
           DescendingOrder:= True;
           FoldedTextMode:= fmKeepUnchanged;
+
+          with Filter do begin
+             Enabled:= False;
+             TagsModeOR:= false;
+             FindTagsIncl:= nil;
+             FindTagsExcl:= nil;
+             TagsText:= false;
+             TextFilter:= '';
+             MatchCase:= false;
+             WholeWordsOnly:= false;
+             SearchMode:= smPhrase;
+             ConsiderHidden:= false;
+             ShowExcerpts:= false;
+          end;
+
        end;
        DefaultMECustomizForEL[p]:= DefaultMECustomizForQL[p];
     end;
