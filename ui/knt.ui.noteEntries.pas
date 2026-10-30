@@ -1468,10 +1468,11 @@ var
             ResultSearch:= ResultsSearch[i];
             if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
 
-            if ResultSearch.BeginOfParagraph > pFLastFragm +1 then begin
-               RTFAuxFrag.SelStart:=  pFLastFragm - Offset;
+            if ResultSearch.BeginOfParagraph > pFLastFragm then begin
                if i = 0 then
                   pFLastFragm:= -1;
+
+               RTFAuxFrag.SelStart:=  pFLastFragm + 1 - Offset;
                RTFAuxFrag.SelLength:= ResultSearch.BeginOfParagraph - pFLastFragm -1;
                inc(Offset, RTFAuxFrag.SelLength);
                RTFAuxFrag.SelText:= '';
