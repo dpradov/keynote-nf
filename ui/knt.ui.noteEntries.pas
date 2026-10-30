@@ -2805,7 +2805,7 @@ begin
    if MEopt.ShowDateInHeader and (NEntry.Created <> 0) then begin
       if ShowTags then
          strInfo:= strInfo + '  · ';
-      if (NEntry.Created).GetTime <> 0 then
+      if MEopt.ShowTimeInHeader and ((NEntry.Created).GetTime <> 0) then
          S:= ' - ' + FormatSettings.ShortTimeFormat;
       strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
       ShowDate:= true;

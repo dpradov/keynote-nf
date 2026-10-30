@@ -895,7 +895,7 @@ const
 
 
 type
-  TFilterOptionsInPanel = record
+  TFilterOptionsInPanel = packed record
     Enabled: boolean;
     TagsModeOR: boolean;              // Tags include, ¿mode OR? (vs ALL)
     FindTagsIncl: TFindTags;          // Consider text/entries with ALL/ANY of the selected tags in its metadata
@@ -913,9 +913,10 @@ type
   end;
 
 type
-  TMEPanelCustomization = record         // ME: Multi-Entry
+  TMEPanelCustomization = packed record         // ME: Multi-Entry
     Content: TContentInMultiEntryMode;
     ShowDateInHeader: boolean;
+    ShowTimeInHeader: boolean;
     ShowTagsInHeader: boolean;
     ShowLineInHeader: boolean;
     CompactHeader: boolean;
@@ -1276,6 +1277,7 @@ begin
        with DefaultMECustomizForQL[p] do begin
           Content:= cmWholeEntry;
           ShowDateInHeader:= true;
+          ShowTimeInHeader:= true;
           ShowTagsInHeader:= true;
           ShowLineInHeader:= true;
           CompactHeader:= false;

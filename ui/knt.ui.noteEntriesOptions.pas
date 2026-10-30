@@ -76,6 +76,7 @@ type
     chkApplyAll: TCheckBox;
     cbFoldedText: TComboBox;
     lbl3: TLabel;
+    cb_HTime: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -91,6 +92,7 @@ type
     procedure btnRestoreDefClick(Sender: TObject);
     procedure cEntryContChange(Sender: TObject);
     procedure cbFoldedTextChange(Sender: TObject);
+    procedure cb_HDateClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -278,13 +280,16 @@ procedure TForm_NoteEntriesOptions.FormToProps;
 begin
 
   with Customiz do begin
-     HeaderChanged:= (ShowLineInHeader <> cb_HLine.Checked) or (ShowTagsInHeader <> cb_HTags.Checked) or (ShowDateInHeader <> cb_HDate.Checked) or (CompactHeader <> cb_CompHd.Checked);
+     HeaderChanged:= (ShowLineInHeader <> cb_HLine.Checked) or (ShowTagsInHeader <> cb_HTags.Checked) or
+                     (ShowDateInHeader <> cb_HDate.Checked) or (ShowTimeInHeader <> cb_HTime.Checked) or
+                     (CompactHeader <> cb_CompHd.Checked);
      OrderChanged:=  (DescendingOrder <> CB_DescOrd.Checked);
 
      Content:=          TContentInMultiEntryMode(cEntryCont.ItemIndex+1);
      ShowLineInHeader:= cb_HLine.Checked;
      ShowTagsInHeader:= cb_HTags.Checked;
      ShowDateInHeader:= cb_HDate.Checked;
+     ShowTimeInHeader:= cb_HTime.Checked;
      DescendingOrder:=  CB_DescOrd.Checked;
      CompactHeader:=    cb_CompHd.Checked;
      FoldedTextMode:=   TExportFoldedTextMode(cbFoldedText.ItemIndex);
@@ -313,9 +318,13 @@ begin
      cb_HLine.Checked:=   ShowLineInHeader;
      cb_HTags.Checked:=   ShowTagsInHeader;
      cb_HDate.Checked:=   ShowDateInHeader;
+     cb_HTime.Checked:=   ShowTimeInHeader;
      CB_DescOrd.Checked:= DescendingOrder;
      cb_CompHd.Checked:=  CompactHeader;
      cbFoldedText.ItemIndex:= Ord(FoldedTextMode);
+
+     if not ShowDateInHeader then
+        cb_HTime.Enabled:= false;
 
      chkEnabled.Checked:= (Filter.Enabled or Filter.Empty);
      if Filter.TagsModeOR then
@@ -402,6 +411,16 @@ begin
    end;
 end;
 
+
+procedure TForm_NoteEntriesOptions.cb_HDateClick(Sender: TObject);
+begin
+   if not cb_HDate.Checked then begin
+      cb_HTime.Checked:= false;
+      cb_HTime.Enabled:= false;
+   end
+   else
+      cb_HTime.Enabled:= true;
+end;
 
 procedure TForm_NoteEntriesOptions.txtTagsInclEnter(Sender: TObject);
 begin

@@ -132,9 +132,10 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       Top = 92
       Width = 105
       Height = 17
-      Hint = 'Display the date and time the entry was created'
-      Caption = 'Date / time'
+      Hint = 'Display the date the entry was created'
+      Caption = 'Date'
       TabOrder = 5
+      OnClick = cb_HDateClick
     end
     object cb_HLine: TCheckBox
       Left = 266
@@ -154,12 +155,21 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       HelpKeyword = '57-18'
       Style = csDropDownList
       Anchors = [akTop, akRight]
-      TabOrder = 6
+      TabOrder = 7
       OnChange = cbFoldedTextChange
       Items.Strings = (
         'Keep unchanged'
         'Unfold'
         'Remove All')
+    end
+    object cb_HTime: TCheckBox
+      Left = 266
+      Top = 115
+      Width = 105
+      Height = 17
+      Hint = 'Display the time the entry was created'
+      Caption = 'Time'
+      TabOrder = 6
     end
   end
   object gbFilter: TGroupBox
