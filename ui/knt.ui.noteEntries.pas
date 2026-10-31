@@ -2012,7 +2012,7 @@ begin
    end;
 
    if (FNote.NumEntries = 1) and (PanelConfig.StLayout = spInQL) and (PanelConfig.Panel = pnCenter) then begin
-      if (PanelConfig.IsFiltered) or (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then
+      if (ActionOnEntry = aCreatingFromOtherPanel) or (PanelConfig.IsFiltered) or (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then
          PanelConfig.CurrentMode:= meMultiEntry
       else
          PanelConfig.CurrentMode:= meSingleEntry;
@@ -2058,6 +2058,7 @@ begin
                  FNote:= FEntriesShown[iEntryAdded].Note;
                  FNEntry:= NEntryToConsider;                   // In case FNEntry was nil (eg: Ctrl+Shift+Intro in empty panel vinculated to tags)
                  FEditor.OnEditorChanged:= nil;                //  ,,
+                 App.NEntrySelected(Editor, FNEntry);
                  ConfigureEditor;
                  if PanelConfig.StLayout = spInEL then
                     FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
@@ -2187,7 +2188,7 @@ begin
       // we'll make sure to display it in multi-entry mode, showing only the header.
        PanelConfig.CurrentMode:= meMultiEntry;
        Mode:= meMultiEntry;
-       if EntryShownIsVisible(FiEntry) then
+       if (FiEntry >= 0) and (FiEntry < Length(FEntriesShown)) and EntryShownIsVisible(FiEntry) then
           FEntriesShown[0].Content:= cmOnlyHeader;
        NEntryToConsider:= nil;
    end;
@@ -2469,7 +2470,7 @@ begin
      if (Mode = meMultiEntry) then
         Editor.ReadOnly:= true;
 
-     if not CalculateEntriesToShow and (FNEntry_Initial <> FNEntry) then
+     if not CalculateEntriesToShow and (FNEntry_Initial <> FNEntry) and FEditor.Focused then
         App.NEntrySelected(Editor, FNEntry);
      ConfigureEditor;
 

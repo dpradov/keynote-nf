@@ -3263,13 +3263,21 @@ begin
       else
       if (Msg.CharCode = VK_RETURN) and (GetKeyState(VK_SHIFT) < 0) then begin
          if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and
-            (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1) then begin
+            (ActiveEditor.MultiEntry or (ActiveNEntry = nil) or ActiveFolder.NoteUI.MultipleVisibleEditors or (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1)) then begin
+
             var NEntriesUI: TKntNoteEntriesUI;
             NEntriesUI := TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
             if NEntriesUI <> nil then begin
-               NEntriesUI.btnToggleMultiClick(nil);
-               Handled:= true;
+               if (NEntriesUI.PanelConfig.StLayout = spInQL) and (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries = 1) then begin
+                  if ActiveEditor.MultiEntry or (ActiveNEntry = nil) then
+                     ActiveFolder.NoteUI.LoadFromNNode(ActiveNNode, True, neQueryLayout);
+               end
+               else
+               if ActiveNEntry <> nil then
+                  NEntriesUI.btnToggleMultiClick(nil);
             end;
+
+            Handled:= true;
          end;
       end;
    end;

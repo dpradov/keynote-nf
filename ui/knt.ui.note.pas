@@ -1644,6 +1644,10 @@ begin
 
    if FQueryLayout and (FNote.NumEntries = 1) then begin
       if FNNodeUIConfig.GetSingleEntryPanelForEditing(PnlEdit) and (PnlEdit <> FNNodeUIConfig.GetMainPanel) then begin
+         if ReqFromNEntriesUI.PanelConfig.UseIsMultiEntry then begin
+            ReqFromNEntriesUI.SaveToDataModel;
+            ReqFromNEntriesUI.PanelConfig.CurrentMode:= meMultiEntry;
+         end;
          LoadFromNNode(FNNode, True, neQueryLayout, true);
          exit;
       end;
