@@ -713,10 +713,20 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_EntriesAsc: TCheckBox
           Left = 17
-          Top = 302
+          Top = 325
           Width = 250
           Height = 17
           Caption = 'Entries in ascending order of creation date'
+          TabOrder = 12
+        end
+        object CB_ECOnlyME: TCheckBox
+          Left = 40
+          Top = 300
+          Width = 227
+          Height = 17
+          Caption = 'Only in multi-entry notes'
+          Checked = True
+          State = cbChecked
           TabOrder = 11
         end
       end

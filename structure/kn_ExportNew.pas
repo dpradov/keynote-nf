@@ -138,6 +138,7 @@ type
     CB_EntryLine: TCheckBox;
     CB_EntryCreation: TCheckBox;
     CB_EntriesAsc: TCheckBox;
+    CB_ECOnlyME: TCheckBox;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -1588,6 +1589,7 @@ var
   procedure ProcessNoteEntry;
   var
     i: integer;
+    ShowEntryCreation: boolean;
   begin
       NEntry:= NNode.Note.Entries[iEntry];
       if not NEntryToBeExported(myTreeNode, NEntry, EntryFragments) then exit;
@@ -1595,18 +1597,20 @@ var
 
       inc(ExportedEntriesInNote);
 
-      if (ExportOptions.TargetFormat = xfOPML) and (CB_EntryLine.Checked or CB_EntryCreation.Checked) then
+      ShowEntryCreation:= CB_EntryCreation.Checked and (not CB_ECOnlyME.Checked or (NNode.Note.NumEntries > 1));
+
+      if (ExportOptions.TargetFormat = xfOPML) and (CB_EntryLine.Checked or ShowEntryCreation) then
          RTFAux.AddText(#13);
       if CB_EntryLine.Checked and (iEntry < High(NNode.Note.Entries)) and (ExportedEntriesInNote > 1) then begin
          if ExportOptions.TargetFormat in [xfPlainText, xfOPML] then
             RTFAux.AddText(StringOfChar('_', 50) + #13)
          else begin
             RTFAux.PutRtfText(GetRTFPrintableLine(RTFAux, clSilver, PageContentWidthInTwips), false);
-            if not CB_EntryCreation.Checked then
+            if not ShowEntryCreation then
                RTFAux.PutRtfText(#13, false);
          end;
       end;
-      if CB_EntryCreation.Checked then begin
+      if ShowEntryCreation then begin
          var Str: string;
          if (NEntry.Created).GetTime <> 0 then
              Str:= ' - ' + FormatSettings.ShortTimeFormat;
@@ -1619,7 +1623,7 @@ var
             RTFAux.PutRtfText(Str, false);
          end;
       end;
-      if not (CB_EntryLine.Checked or CB_EntryCreation.Checked) then
+      if not (CB_EntryLine.Checked or ShowEntryCreation) then
          RTFAux.AddText(#13);
 
 
@@ -2930,7 +2934,7 @@ begin
       RTFAux.Free;
  end;
 
-end; // ExportTreeNode
+end;
 
 
 procedure ExportNotesEx (PrinterMode: boolean = false);
