@@ -206,6 +206,7 @@ type
       property TagsState: TTagsState read fTagsState write fTagsState;
 
       procedure ShowInfoInStatusBar(const str: string);
+      procedure WarnFolderIsReadOnly(Folder: TKntFolder);
       procedure WarnEditorIsReadOnly;
       procedure WarnNoTextSelected;
       procedure WarnEntryIsReadOnly;
@@ -1622,6 +1623,11 @@ end;
 procedure TKntApp.ShowInfoInStatusBar(const str: string);
 begin
    Form_Main.StatusBar.Panels[PANEL_HINT].Text := str;
+end;
+
+procedure TKntApp.WarnFolderIsReadOnly(Folder: TKntFolder);
+begin
+   ShowInfoInStatusBar(Format(GetRS(sTree52), [Folder.Name]));
 end;
 
 procedure TKntApp.WarnEditorIsReadOnly;

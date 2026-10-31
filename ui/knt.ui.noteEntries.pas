@@ -3338,6 +3338,8 @@ var
   CurrentFilter: TFilterOptionsInPanel;
   QL: boolean;
 begin
+   if ActiveFile.EncryptedContentMustBeHidden and (FNote <> nil) and FNote.IsEncrypted then exit;
+
    if (FNote <> nil) and (FNote.NumEntries = 1) and (not Folder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes)
        and not ((PanelConfig <> nil) and (PanelConfig.IsFiltered or (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged))) then begin
 
@@ -3359,6 +3361,7 @@ begin
       end;
 
       if ( Form_NoteEntriesOptions.ShowModal = mrOK ) then begin
+         SaveToDataModel;
          with Form_NoteEntriesOptions do begin
              ApplyChangeinPanelCustomiz(Customiz, ForceApplyFilter, HeaderChanged, EntryContChanged, OrderChanged);
              ApplyFilterToAll[QL]:= chkApplyAll.Checked;

@@ -1270,7 +1270,7 @@ begin
     Result:= False;
 
     if ReadOnly then begin
-       App.ShowInfoInStatusBar(Format(GetRS(sTree52), [TKntFolder(Self.Folder).Name]));
+       App.WarnFolderIsReadOnly(TKntFolder(Self.Folder));
        Result:= True;
        exit;
     end;

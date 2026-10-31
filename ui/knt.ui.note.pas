@@ -1620,6 +1620,10 @@ var
   PnlEdit: TNEntriesMainPanel;
 begin
    if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then exit;
+   if ActiveFolder.ReadOnly then begin
+      App.WarnFolderIsReadOnly(Folder);
+      exit;
+   end;
 
    ReqFromNEntriesUI:= GetNEntriesUI(ReqFromEditor);
    { LoadFromNNode(.., True, neEditingLayout) if FQueryLayout:
