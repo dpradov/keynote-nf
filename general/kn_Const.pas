@@ -483,7 +483,7 @@ type
 
 type
   TExportSource = (
-    expCurrentFolder, expAllFolders, expSelectedFolders
+    expCurrentFolder, expAllFolders, expSelectedFolders, expCurrentEditor
   );
 
 type

@@ -139,6 +139,7 @@ type
     CB_EntryCreation: TCheckBox;
     CB_EntriesAsc: TCheckBox;
     CB_ECOnlyME: TCheckBox;
+    RB_Editor: TRadioButton;
     procedure RG_HTMLClick(Sender: TObject);
     procedure TB_OpenDlgDirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -301,6 +302,9 @@ var
   ExpFoundNodes: TNodeList;
   ExpFoundNotes: TNoteList;
   ExpFoundEntriesInNotes: TFoundEntriesInNotesList;
+
+
+  function GetRTFTextFromSelectedEditor(Editor: TKntRichEdit; ExportFormat : TExportFmt; ExportOptions : TExportOptions): String; forward;
 
 {$R *.DFM}
 
@@ -571,6 +575,7 @@ begin
 
   CheckDependencies;
 
+  RB_Editor.OnClick :=        CtrlUI_Changed;
   RB_CurrentNote.OnClick :=   CtrlUI_Changed;
   RB_Allnotes.OnClick :=      CtrlUI_Changed;
   RB_SelectedNotes.OnClick := CtrlUI_Changed;
@@ -654,7 +659,7 @@ end;
 procedure TForm_ExportNew.CheckDependencies;
 var
    format: TExportFmt;
-   TreePadFmt, PrinterFmt, RtfFmt, NoPlainText, KntOrTreePadOrOPMLFmt, RtfOrPrinterFmt, OPMLFmt: boolean;
+   TreePadFmt, PrinterFmt, RtfFmt, NoPlainText, KntOrTreePadOrOPMLFmt, RtfOrPrinterFmt, OPMLFmt, CurrentEditor: boolean;
    NodeHeadingEnabled, IndentNodesChecked: boolean;
 begin
   if ChangingFromCode then exit;
@@ -670,7 +675,12 @@ begin
   KntOrTreePadOrOPMLFmt:= format in [xfTreePad, xfKeyNote, xfOPML];
   RtfOrPrinterFmt:= (format in [xfPrinter, xfRTF]);
 
-  Combo_TreeSelection.Enabled:= RB_CurrentNote.Checked and not TreePadFmt;
+  RB_Editor.Enabled:= not KntOrTreePadOrOPMLFmt;
+  if not RB_Editor.Enabled and RB_Editor.Checked then
+     RB_CurrentNote.Checked:= true;
+  CurrentEditor:= RB_Editor.Checked;
+
+  Combo_TreeSelection.Enabled:= RB_CurrentNote.Checked and not TreePadFmt and not CurrentEditor;
   Button_Select.Enabled := RB_SelectedNotes.Checked;
 
   Tab_TreePad.TabVisible:=  TreePadFmt;
@@ -707,12 +717,29 @@ begin
   TB_OpenDlgDir.Enabled:= not PrinterFmt;
   Edit_Folder.Enabled:=   not PrinterFmt;
 
-  CB_Section.Enabled := not KntOrTreePadOrOPMLFmt;
+  CB_Section.Enabled := not KntOrTreePadOrOPMLFmt and not CurrentEditor;
   Spin_SectDepth.Enabled:= CB_Section.Checked;
   CB_SectionToFile.Enabled := RtfFmt and CB_Section.Checked;
   CB_SectionNewPg.Enabled :=  RtfFmt and CB_Section.Checked;
-  if KntOrTreePadOrOPMLFmt then
+  if KntOrTreePadOrOPMLFmt or CurrentEditor then
      CB_Section.Checked:= False;
+
+  chkRemoveTags.Enabled:= not CurrentEditor;
+  cbTagFindMode.Enabled:= not CurrentEditor;
+  txtTagsIncl.Enabled:= not CurrentEditor;
+  txtTagsExcl.Enabled:= not CurrentEditor;
+  chkTagsMetad.Enabled:= not CurrentEditor;
+  chkTagsEntries.Enabled:= not CurrentEditor;
+  chkTagsText.Enabled:= not CurrentEditor;
+  chkInhTagsFind.Enabled:= not CurrentEditor;
+
+  CB_EntryLine.Enabled:= not CurrentEditor;
+  CB_EntryCreation.Enabled:= not CurrentEditor;
+  CB_ECOnlyME.Enabled:= not CurrentEditor;
+  CB_EntriesAsc.Enabled:= not CurrentEditor;
+
+  cbFoldedText.Enabled:= not CurrentEditor;
+  CheckBox_ExcludeHiddenNodes.Enabled:= not CurrentEditor;
 
   if CB_Section.Checked then begin
      if Spin_SectDepth.Value = 0 then
@@ -737,8 +764,8 @@ begin
      CB_SectionNewPg.Checked:= False;
   end;
 
-  CB_NoteNewPg.Enabled := RtfOrPrinterFmt;
-  CB_FolderNewFile.Enabled := (not CB_Section.Checked or not CB_SectionToFile.Checked) and not (format in [xfPrinter, xfTreePad, xfKeyNote, xfOPML]);
+  CB_NoteNewPg.Enabled := RtfOrPrinterFmt and not CurrentEditor;
+  CB_FolderNewFile.Enabled := (not CB_Section.Checked or not CB_SectionToFile.Checked) and not (format in [xfPrinter, xfTreePad, xfKeyNote, xfOPML]) and not CurrentEditor;
   if CB_Section.Checked and CB_SectionToFile.Checked then
      CB_FolderNewFile.Checked:= False;
   if format = xfOPML then
@@ -927,6 +954,9 @@ begin
 
   with ExportOptions do begin
 
+    if RB_Editor.Checked then
+      ExportSource := expCurrentEditor
+    else
     if RB_CurrentNote.Checked then
       ExportSource := expCurrentFolder
     else
@@ -999,6 +1029,7 @@ begin
   try
      with ExportOptions do begin
        case ExportSource of
+         expCurrentEditor : RB_Editor.Checked := true;
          expCurrentFolder : RB_CurrentNote.Checked := true;
          expAllFolders : RB_AllNotes.Checked := true;
          expSelectedFolders : RB_SelectedNotes.Checked := true;
@@ -1344,6 +1375,9 @@ var
            exit;
      end;
 
+     if ExportOptions.ExportSource = expCurrentEditor then
+        exit(true);
+
      with ExportOptions do begin
        if  (TreeUI.TV.IsVisible[Node] or not ExcludeHiddenNodes) and
            (( ExportSource <> expCurrentFolder ) or
@@ -1432,7 +1466,7 @@ var
         SEP:= #13#13;
 
         with ExportOptions do begin
-           if ((ExportSource = expCurrentFolder) and (TreeSelection in [tsEntry, tsNode, tsSubtree])) then
+           if (ExportOptions.ExportSource = expCurrentEditor) or ((ExportSource = expCurrentFolder) and (TreeSelection in [tsEntry, tsNode, tsSubtree])) then
               Node := TreeUI.FocusedNode
            else
               Node := TreeUI.GetFirstNode;
@@ -1474,6 +1508,7 @@ var
                   tsSubtree : if (Level <= StartLevel ) then break;
                end;
              end;
+             if (ExportOptions.ExportSource = expCurrentEditor) then break;
 
            end;
 
@@ -1771,6 +1806,7 @@ begin
       myFolder:= myKntFile.Folders[pred(i)];
 
       case ExportOptions.ExportSource of
+          expCurrentEditor,
           expCurrentFolder : begin
             if ( myFolder = myKntFolder ) then
               myFolder.Info := 1
@@ -1826,7 +1862,7 @@ begin
   RTFAux.BeginUpdate;
   RTFAux.OnProtectChangeEx:= RxRTFProtectChangeEx;
 
-  if ExportTextFragments or FilterNodesByTag or FilterEntriesByTag then begin
+  if (ExportOptions.ExportSource <> expCurrentEditor) and (ExportTextFragments or FilterNodesByTag or FilterEntriesByTag) then begin
      if not GetFilterInfUsingFindAll or (FoundNodes.Count = 0) then begin
         App.InfoPopup(GetRS(sExpFrm23));
         ActiveFile.IsBusy := false;
@@ -1931,7 +1967,8 @@ begin
               myFolder.SaveEditorToDataModel; // must flush contents of Note editor to active model object's internal stream
 
               myNEntry:= nil;
-              if (( ExportOptions.ExportSource = expCurrentFolder ) and
+              if ( ExportOptions.ExportSource = expCurrentEditor ) or
+                 (( ExportOptions.ExportSource = expCurrentFolder ) and
                   ( ExportOptions.TreeSelection in [tsEntry, tsNode, tsSubtree] )) then begin
                   myTreeNode := TreeUI.FocusedNode;
                   if ExportOptions.TreeSelection = tsEntry then
@@ -1997,8 +2034,9 @@ begin
                       if ExportOptions.ShowPageNumber then
                          FormatCommnd:= FormatCommnd + 'F+';
                       FN:= RemoveAccelChar(myFolder.Name);
-                      if ExportOptions.SectionToFile and (ExportOptions.SectionOnDepth > 0) or
-                         ( (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection <> tsFullTree)) then
+                      if (ExportOptions.ExportSource = expCurrentEditor) or
+                         (ExportOptions.SectionToFile and (ExportOptions.SectionOnDepth > 0) or
+                         ( (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection <> tsFullTree))) then
                             if ExportOptions.SimpleFileName then
                                FN:= NNode.NodeName(TreeUI)
                             else
@@ -2048,15 +2086,23 @@ begin
                    end;
 
                    // --------------
-                   ExportedEntriesInNote:= 0;
-                                                                            // ---------------------- Iterate each Entry in the note
-                   if CB_EntriesAsc.Checked then
-                      for iEntry:= 0 to High(NNode.Note.Entries) do
-                         ProcessNoteEntry
-                   else
-                      for iEntry:= High(NNode.Note.Entries) downto 0 do
-                         ProcessNoteEntry;
-                                                                            // ---------------------------------------------------------
+                   if ( ExportOptions.ExportSource = expCurrentEditor ) then begin
+                      var TargetFormat: TExportFmt:= xfRTF;
+                      if ExportOptions.TargetFormat = xfPlainText then
+                         TargetFormat:= xfPlainText;
+                      var RTFText: string:= GetRTFTextFromSelectedEditor(ActiveEditor, TargetFormat, ExportOptions);
+                      RTFAux.PutRtfText(RTFText, false);
+                   end
+                   else begin
+                       ExportedEntriesInNote:= 0;
+                                                                                // ---------------------- Iterate each Entry in the note
+                       if CB_EntriesAsc.Checked then
+                          for iEntry:= 0 to High(NNode.Note.Entries) do
+                             ProcessNoteEntry
+                       else
+                          for iEntry:= High(NNode.Note.Entries) downto 0 do
+                             ProcessNoteEntry;                                                                                // ---------------------------------------------------------
+                   end;
 
                    var Depth: integer:= ExportOptions.SectionOnDepth;
                    if Depth = 0 then Depth:= 1;
@@ -2083,7 +2129,9 @@ begin
                      tsEntry, tsNode : break;
                      tsSubtree : if (Level <= StartLevel ) then break;
                    end;
-                 end;
+                 end
+                 else
+                 if ( ExportOptions.ExportSource = expCurrentEditor ) then break;
 
               end;                                   // <<<<<------------------ Iterate each node  (xfPlainText, xfRTF, xfHTML, xfPrinter / ntTree)
 
@@ -2224,7 +2272,7 @@ begin
 
 
       if tmpExportedNodes > 0 then begin
-          if not ExportOptions.SectionToFile or (ExportOptions.SectionOnDepth = 0) then begin
+          if (ExportOptions.ExportSource <> expCurrentEditor) and (not ExportOptions.SectionToFile or (ExportOptions.SectionOnDepth = 0)) then begin
              FN:= myKntFile.File_NameNoExt;
              if (NumFoldersExported = 1) and (myKntFile.Folders.Count > 1) then
                 FN:= FN + ' - ' + FolderNameExported;
@@ -2431,18 +2479,19 @@ var
 
 begin
 
-  case TExportFoldedTextMode(cbFoldedText.ItemIndex) of
-     fmKeepUnchanged: if ExportOptions.TargetFormat in [xfPlainText, xfOPML, xfHTML] then                // 0: Keep unchanged
-                         RemoveFoldedText(RTF, false, true);   // Remove all, but keep visible text
+  if (ExportOptions.ExportSource <> expCurrentEditor) then begin
+      case TExportFoldedTextMode(cbFoldedText.ItemIndex) of
+         fmKeepUnchanged: if ExportOptions.TargetFormat in [xfPlainText, xfOPML, xfHTML] then                // 0: Keep unchanged
+                             RemoveFoldedText(RTF, false, true);   // Remove all, but keep visible text
 
-     fmUnfold:        ExpandFoldedText(RTF);            // Unfold
-     fmRemoveTagged:  RemoveFoldedText(RTF, true);      // Remove "tagged"
-     fmRemoveAll:     RemoveFoldedText(RTF, false);     // Remove all
+         fmUnfold:        ExpandFoldedText(RTF);            // Unfold
+         fmRemoveTagged:  RemoveFoldedText(RTF, true);      // Remove "tagged"
+         fmRemoveAll:     RemoveFoldedText(RTF, false);     // Remove all
+      end;
+
+      if chkRemoveTags.Checked then
+         RemoveTags(RTF);
   end;
-
-  if chkRemoveTags.Checked then
-     RemoveTags(RTF);
-
 
   result := false;
   Encoding:= TEncoding.Default;
@@ -2759,18 +2808,84 @@ begin
 end;
 
 
+function GetRTFTextFromSelectedEditor(Editor: TKntRichEdit; ExportFormat : TExportFmt; ExportOptions : TExportOptions): String;
+var
+  RTFText, Txt: string;
+  Encoding: TEncoding;
+  ExportSelectionOnly : boolean;
+  ImgFormatInsideRTF_BAK: TImageFormatToRTF;
+  RTFwithImages: string;
+  RTFAux : TAuxRichEdit;
+begin
+  Result:= '';
+  RTFAux:= nil;
+  try
+    ExportSelectionOnly := ( Editor.SelLength > 0 );
+
+    if ExportFormat in [xfRTF, xfHTML] then begin
+       if not Editor.MultiEntry and Editor.PlainText then begin
+          RTFAux:= CreateAuxRichEdit;
+          RTFAux.PrepareEditorforPlainText(Editor.Chrome);
+          if ExportSelectionOnly then
+             Txt:= Editor.SelText
+          else
+             Txt:= Editor.Text;
+          RTFAux.PutRtfText(Txt, True, False);
+          RTFText:= RTFAux.RtfText;
+       end
+       else begin
+          if ExportSelectionOnly then
+             RTFText:= Editor.RtfSelText
+          else
+             RTFText:= Editor.RtfText;
+
+          ImgFormatInsideRTF_BAK:= KeyOptions.ImgFormatInsideRTF;
+          try
+             if ExportOptions.RTFImgsWordPad then
+                KeyOptions.ImgFormatInsideRTF:= ifWmetafile8
+             else
+                KeyOptions.ImgFormatInsideRTF:= ifAccordingImage;
+
+             RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFText, '', imLink, '', 0, false);
+             RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFwithImages, '', imImage, '', 0, false);
+             if RTFwithImages <> ''  then
+                RTFText:= RTFwithImages;
+          finally
+             KeyOptions.ImgFormatInsideRTF:= ImgFormatInsideRTF_BAK;
+          end;
+       end;
+
+       RTFText:= RemoveKNTHiddenCharactersInRTF(RTFText, hmAll);
+    end
+    else begin
+       if ExportSelectionOnly then
+          RTFText:= Editor.SelText
+       else
+          RTFText:= Editor.Text;
+
+       RTFText:= RemoveKNTHiddenCharactersInText(RTFText);
+    end;
+
+    Result:= RTFText;
+
+
+ finally
+   if RTFAux <> nil then
+      RTFAux.Free;
+ end;
+
+end;
+
+
+
 procedure ExportSelectedEditor;
 var
   NNode : TNoteNode;
-  oldFilter, ext, RTFText, Txt: string;
+  oldFilter, ext, RTFText: string;
   ExportFN : string;
-  exportformat : TExportFmt;
+  ExportFormat : TExportFmt;
   Encoding: TEncoding;
-  ExportSelectionOnly : boolean;
-  RTFAux : TAuxRichEdit;
   Editor: TKntRichEdit;
-  ImgFormatInsideRTF_BAK: TImageFormatToRTF;
-  RTFwithImages: string;
   ExportOptions : TExportOptions;
 
 begin
@@ -2852,55 +2967,10 @@ begin
     end;
   end;
 
-  RTFAux:= nil;
- try
+  ReadConfig (ExportOptions, INI_FN, False);
+
   try
-    ExportSelectionOnly := ( Editor.SelLength > 0 );
-
-    if exportformat in [xfRTF, xfHTML] then begin
-       if not Editor.MultiEntry and Editor.PlainText then begin
-          RTFAux:= CreateAuxRichEdit;
-          RTFAux.PrepareEditorforPlainText(Editor.Chrome);
-          if ExportSelectionOnly then
-             Txt:= Editor.SelText
-          else
-             Txt:= Editor.Text;
-          RTFAux.PutRtfText(Txt, True, False);
-          RTFText:= RTFAux.RtfText;
-       end
-       else begin
-          if ExportSelectionOnly then
-             RTFText:= Editor.RtfSelText
-          else
-             RTFText:= Editor.RtfText;
-
-          ReadConfig (ExportOptions, INI_FN, False);
-          ImgFormatInsideRTF_BAK:= KeyOptions.ImgFormatInsideRTF;
-          try
-             if ExportOptions.RTFImgsWordPad then
-                KeyOptions.ImgFormatInsideRTF:= ifWmetafile8
-             else
-                KeyOptions.ImgFormatInsideRTF:= ifAccordingImage;
-
-             RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFText, '', imLink, '', 0, false);
-             RTFwithImages:= ImageMng.ProcessImagesInRTF(RTFwithImages, '', imImage, '', 0, false);
-             if RTFwithImages <> ''  then
-                RTFText:= RTFwithImages;
-          finally
-             KeyOptions.ImgFormatInsideRTF:= ImgFormatInsideRTF_BAK;
-          end;
-       end;
-
-       RTFText:= RemoveKNTHiddenCharactersInRTF(RTFText, hmAll);
-    end
-    else begin
-       if ExportSelectionOnly then
-          RTFText:= Editor.SelText
-       else
-          RTFText:= Editor.Text;
-
-       RTFText:= RemoveKNTHiddenCharactersInText(RTFText);
-    end;
+    RTFText:= GetRTFTextFromSelectedEditor(Editor, ExportFormat, ExportOptions);
 
     case exportformat of
       xfRTF:
@@ -2929,10 +2999,6 @@ begin
     on E : Exception do
        App.ErrorPopup( GetRS(sExpFrm19) + E.Message);
   end;
- finally
-   if RTFAux <> nil then
-      RTFAux.Free;
- end;
 
 end;
 
