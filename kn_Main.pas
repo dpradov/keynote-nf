@@ -8557,6 +8557,7 @@ var
   SubscriptStyle: TSubscriptStyle;
   Numbering: TRxNumbering;
   TextSelected: boolean;
+  EditorNotRO: boolean;
 
 begin
     if (Sender = nil) or (Sender <> ActiveEditor) or (not Sender.Focused) then exit;
@@ -8566,13 +8567,24 @@ begin
     ParagraphAttrib:= Sender.Paragraph;
 
     TextSelected:= ( Sender.SelLength > 0 );
-    TB_EditCut.Enabled := TextSelected;
+    EditorNotRO:= not Sender.MultiEntry and
+                  ((ActiveEditor.FileObj=nil) or
+                   (not ActiveFolder.ReadOnly and ((ActiveNEntry = nil) or not ActiveNEntry.IsReadOnly)));
+
+    TB_EditCut.Enabled := TextSelected and EditorNotRO;
     TB_EditCopy.Enabled := TextSelected;
-    MMEditCut.Enabled := TextSelected;
+    MMEditCut.Enabled := TextSelected and EditorNotRO;
     MMEditCopy.Enabled := TextSelected;
-    RTFMCut.Enabled := TextSelected;
+    RTFMCut.Enabled := TextSelected and EditorNotRO;
     RTFMCopy.Enabled := TextSelected;
     RTFM_RTL.Checked:= ParagraphAttrib.RTL;
+
+    TB_EditPaste.Enabled := EditorNotRO;
+    MMEditPaste.Enabled := EditorNotRO;
+    MMEditDelete.Enabled := EditorNotRO;
+    RTFMPaste.Enabled := EditorNotRO;
+    RTFMPasteAsText.Enabled := EditorNotRO;
+    RTFMDelete.Enabled := EditorNotRO;
 
     if Sender.PlainText and not ConsiderAllOnPlainText then exit;
 
@@ -8718,7 +8730,7 @@ begin
 
     IsNotMain:= (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
 
-    if ActiveFolder = nil then
+    if not VinculatedToNote or (ActiveFolder = nil) then
        RTFMEntry_.Visible:= False
 
     else begin
