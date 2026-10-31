@@ -2001,7 +2001,7 @@ Button_OK.Caption=&Close
 54255_knt_RS_sFld46= Error refreshing node
 54256_knt_RS_sExpFrm18= Node exported to 
 54257_knt_RS_sExpFrm19=Error exporting node: 
-54258_knt_RS_sExpFrm20='Current node' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
+54258_knt_RS_sExpFrm20='Current node' or 'Current entry' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
 54259_knt_RS_sFldN01=<no icon>
 54260_knt_RS_sFldN02=Rename folder
 54261_knt_RS_sFldN03=Folder name cannot be blank. Please enter a name.
@@ -2908,5 +2908,6 @@ Button_OK.Caption=&Close
 55178_knt_RS_sEntry28=** No entries visible or matching the current filter **
 55179_knt_RS_sEntry29=Panel options are not available in single-entry notes if advanced edition is not enabled
 55180_knt_RS_sEntry30=Switch to 
+55181_knt_RS_sINFTreeSel0=Current entry
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

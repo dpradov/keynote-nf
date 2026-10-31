@@ -220,7 +220,7 @@ type
 
     procedure UpdateSampleFont;
 
-    function GetFilterInfUsingFindAll(OnlyNode: PVirtualNode = nil; FolderToUse: TKntFolder = nil; TextPlainToUse: string = ''): boolean;
+    function GetFilterInfUsingFindAll(OnlyNEntry: TNoteEntry = nil; OnlyNode: PVirtualNode = nil; FolderToUse: TKntFolder = nil; TextPlainToUse: string = ''): boolean;
     procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
@@ -1154,6 +1154,7 @@ var
   StartTreeNode, myTreeNode : PVirtualNode;
   NNode : TNoteNode;
   NEntry: TNoteEntry;
+  myNEntry: TNoteEntry;
   TreePadFile : TTextfile;
   TreePadFN : string;
   TreePadNodeLevelInc : integer; // 0 or 1
@@ -1345,7 +1346,7 @@ var
      with ExportOptions do begin
        if  (TreeUI.TV.IsVisible[Node] or not ExcludeHiddenNodes) and
            (( ExportSource <> expCurrentFolder ) or
-           (  TreeSelection in [tsNode, tsFullTree] ) or
+           (  TreeSelection in [tsEntry, tsNode, tsFullTree] ) or
            (( TreeSelection = tsCheckedNodes ) and (Node.CheckState = csCheckedNormal)) or
            (( TreeSelection = tsSubtree ) and ( TreeUI.TV.HasAsParent(Node, StartTreeNode) or ( StartTreeNode = Node )))) then
 
@@ -1366,6 +1367,8 @@ var
   begin
      Result:= False;
      if NEntry = nil then exit;
+     if (myNEntry <> nil) and (myNEntry <> NEntry) then exit;
+
 
      if ActiveFile.EncryptedContentEnabled then begin
         if not IncludeEncrypted and NEntry.IsEncrypted then
@@ -1428,7 +1431,7 @@ var
         SEP:= #13#13;
 
         with ExportOptions do begin
-           if ((ExportSource = expCurrentFolder) and (TreeSelection in [tsNode, tsSubtree])) then
+           if ((ExportSource = expCurrentFolder) and (TreeSelection in [tsEntry, tsNode, tsSubtree])) then
               Node := TreeUI.FocusedNode
            else
               Node := TreeUI.GetFirstNode;
@@ -1466,7 +1469,7 @@ var
              if ( ExportOptions.ExportSource = expCurrentFolder ) then begin
                if ( not assigned( Node )) then break;
                case ExportOptions.TreeSelection of
-                  tsNode : break;
+                  tsEntry, tsNode : break;
                   tsSubtree : if (Level <= StartLevel ) then break;
                end;
              end;
@@ -1562,7 +1565,7 @@ var
         fmRemoveAll:     RemoveFoldedText(RTFAuxFrag, false);     // Remove all
      end;
 
-     if not GetFilterInfUsingFindAll(myTreeNode, myFolder, RTFAuxFrag.TextPlain) or (FoundNodes.Count = 0) then
+     if not GetFilterInfUsingFindAll(myNEntry, myTreeNode, myFolder, RTFAuxFrag.TextPlain) or (FoundNodes.Count = 0) then
         EntryFragments.NumFrag:= 0
      else
         EntryFragments:= FoundEntriesInNotes[0][0].FragmentsInEntry;
@@ -1755,7 +1758,7 @@ begin
   end;
 
 
-  if (ExportOptions.TargetFormat= xfKeyNote) and (ExportOptions.TreeSelection = tsNode) and (Combo_TreeSelection.Enabled) then
+  if (ExportOptions.TargetFormat= xfKeyNote) and (ExportOptions.TreeSelection in [tsEntry, tsNode]) and (Combo_TreeSelection.Enabled) then
       if ( App.DoMessageBox( GetRS(sExpFrm20), mtInformation, [mbOK,mbCancel] ) <> mrOK ) then
          Exit;
 
@@ -1861,7 +1864,7 @@ begin
          OnlyCheckedNodes:= false;
 
          if (ExportOptions.ExportSource = expCurrentFolder ) then
-            if (ExportOptions.TreeSelection in [tsNode, tsSubtree]) then
+            if (ExportOptions.TreeSelection in [tsEntry, tsNode, tsSubtree]) then
                myTreeNode := ActiveFolder.TV.FocusedNode;
             if (ExportOptions.TreeSelection = tsCheckedNodes) then
                OnlyCheckedNodes:= true;
@@ -1923,9 +1926,13 @@ begin
 
               myFolder.SaveEditorToDataModel; // must flush contents of Note editor to active model object's internal stream
 
+              myNEntry:= nil;
               if (( ExportOptions.ExportSource = expCurrentFolder ) and
-                  ( ExportOptions.TreeSelection in [tsNode, tsSubtree] )) then
-                myTreeNode := TreeUI.FocusedNode
+                  ( ExportOptions.TreeSelection in [tsEntry, tsNode, tsSubtree] )) then begin
+                  myTreeNode := TreeUI.FocusedNode;
+                  if ExportOptions.TreeSelection = tsEntry then
+                     myNEntry:= myFolder.NoteUI.SelectedNEntry;
+              end
               else
                 myTreeNode := TreeUI.GetFirstNode;
 
@@ -2069,7 +2076,7 @@ begin
                    if ( not assigned( myTreeNode )) then
                      break;
                    case ExportOptions.TreeSelection of
-                     tsNode : break;
+                     tsEntry, tsNode : break;
                      tsSubtree : if (Level <= StartLevel ) then break;
                    end;
                  end;
@@ -2955,7 +2962,7 @@ begin
 end; // ExportNotesEx
 
 
-function TForm_ExportNew.GetFilterInfUsingFindAll (OnlyNode: PVirtualNode = nil; FolderToUse: TKntFolder = nil; TextPlainToUse: string = ''): boolean;
+function TForm_ExportNew.GetFilterInfUsingFindAll (OnlyNEntry: TNoteEntry = nil; OnlyNode: PVirtualNode = nil; FolderToUse: TKntFolder = nil; TextPlainToUse: string = ''): boolean;
 var
    myFindOptions: TFindOptions;
 
@@ -2968,10 +2975,15 @@ begin
   end
   else begin
      myFindOptions.AllTabs := (ExportOptions.ExportSource <> expCurrentFolder);   // From RunFindAllEx Folder.Info will be taken into account, in case expSelectedFolders has been chosen,
-     myFindOptions.CurrentNodeAndSubtree := (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection in [tsSubtree, tsNode]);
-     if (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection = tsNode) then begin  // only current node
-        OnlyNode:= ActiveTreeUI.TV.FocusedNode;
-        FolderToUse:= ActiveFolder;
+     myFindOptions.CurrentNodeAndSubtree := (ExportOptions.ExportSource = expCurrentFolder) and (ExportOptions.TreeSelection in [tsSubtree, tsNode, tsEntry]);
+     if (ExportOptions.ExportSource = expCurrentFolder) then begin
+        if (ExportOptions.TreeSelection in [tsEntry, tsNode]) then begin  // only current node
+           OnlyNode:= ActiveTreeUI.TV.FocusedNode;
+           FolderToUse:= ActiveFolder;
+        end;
+        if (ExportOptions.TreeSelection = tsEntry) then begin  // only current entry
+           OnlyNEntry:= ActiveFolder.NoteUI.SelectedNEntry;
+        end;
      end;
   end;
 
@@ -3002,7 +3014,7 @@ begin
   myFindOptions.FoldedMode:= sfAll;
   myFindOptions.ProtectedNodesAndEntriesOnly := false;
 
-  Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyNode, nil, FolderToUse, TextPlainToUse);
+  Result:= RunFindAllEx (myFindOptions, false, false, true, OnlyNode, OnlyNEntry, FolderToUse, TextPlainToUse);
 end;
 
 

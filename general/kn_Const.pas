@@ -469,7 +469,7 @@ type
 
 type
   TTreeSelection = (
-    tsNode, tsSubtree, tsCheckedNodes, tsFullTree
+    tsEntry, tsNode, tsSubtree, tsCheckedNodes, tsFullTree
   );
 
 type
@@ -1184,6 +1184,7 @@ begin
   DEFAULT_NEW_FOLDER_NAME := GetRS(sINFDefaults1);
   DEFAULT_NEW_NOTE_NAME := GetRS(sINFDefaults2);
 
+  TREE_SELECTION_NAMES[tsEntry ]:=       GetRS(sINFTreeSel0);
   TREE_SELECTION_NAMES[tsNode ]:=        GetRS(sINFTreeSel1);
   TREE_SELECTION_NAMES[tsSubtree ]:=     GetRS(sINFTreeSel2);
   TREE_SELECTION_NAMES[tsCheckedNodes]:= GetRS(sINFTreeSel3);

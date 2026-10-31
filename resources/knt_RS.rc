@@ -68,7 +68,7 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 54255,  " Error refreshing node"
 54256,  " Node exported to "
 54257,  "Error exporting node: "
-54258,  "'Current node' will be managed as 'Current node and subtree' for KeyNote format\n Continue?"
+54258,  "'Current node' or 'Current entry' will be managed as 'Current node and subtree' for KeyNote format\n Continue?"
 54259,  "<no icon>"
 54260,  "Rename folder"
 54261,  "Folder name cannot be blank. Please enter a name."
@@ -980,4 +980,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55178, "** No entries visible or matching the current filter **"
 55179, "Panel options are not available in single-entry notes if advanced edition is not enabled"
 55180, "Switch to "
+55181, "Current entry"
 }

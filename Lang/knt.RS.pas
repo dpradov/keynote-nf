@@ -301,7 +301,7 @@ const
    sExpFrm17 = 54287;   // Current node has no text: nothing to export.
    sExpFrm18 = 54256;   //  Node exported to
    sExpFrm19 = 54257;   // Error exporting node:
-   sExpFrm20 = 54258;   // 'Current node' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
+   sExpFrm20 = 54258;   // 'Current node' or 'Current entry' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
    sExpFrm21 = 55095;   // E&xport
    sExpFrm22 = 55096;   // Print
    sExpFrm23 = 55126;   // Nothing to export
@@ -642,6 +642,7 @@ const
    sINFSymb7 = 54968;   // Dots
    sINFSymb8 = 54969;   // French parenthesis (left)
    sINFSymb9 = 54970;   // French parenthesis (right)
+   sINFTreeSel0 = 55181;   // Current entry
    sINFTreeSel1 = 55022;   // Current node
    sINFTreeSel2 = 55023;   // Current node and subtree
    sINFTreeSel3 = 54992;   // Checked nodes
