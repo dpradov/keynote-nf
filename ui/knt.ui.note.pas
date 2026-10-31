@@ -87,7 +87,7 @@ type
     FUpdatingOnResize: boolean;
     IncResize: integer;
     FChangingLayout: boolean;
-    FReturnToQLFromAllEntriesInSingleMode: boolean;          // See comment (*1) in IntroInEditorOfEntriesUI
+    //FReturnToQLFromAllEntriesInSingleMode: boolean;          // See comment (*1) in IntroInEditorOfEntriesUI
 
     TimerInfoPanel: TTimer;
 
@@ -178,7 +178,7 @@ type
     procedure ShowHiddenEntries;
     procedure HideHiddenRevealed;
     procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
-    property ReturnToQLFromAllEntriesInSingleMode: boolean read FReturnToQLFromAllEntriesInSingleMode write FReturnToQLFromAllEntriesInSingleMode;
+    //property ReturnToQLFromAllEntriesInSingleMode: boolean read FReturnToQLFromAllEntriesInSingleMode write FReturnToQLFromAllEntriesInSingleMode;
     procedure ClearFilterInfoInAllEntries;
     procedure SwitchLayout(RequestedFromEditor: TKntRichEdit);
     procedure EditEntry(RequestedFromEditor: TKntRichEdit);
@@ -1432,6 +1432,9 @@ end;
 // or, also, INTRO in editors where Editor.MultiEntry = True (=> NEntriesUI.CurrentMode = meMultiEntry)
 
 {
+Ctrl+Enter:  Switch to the other layout (No matter if the editor is in single or multi-entry mode)
+
+-- Discarded ---------------- It is more easy to use Shift+Enter to toggle between Single ad Multi-Entry
 Behavior of Ctrl+Enter
 Ctrl+Enter: Outside of its objective mode (MainMode)?
      Yes: Return to that mode, keeping the layout -> ToggleMulti
@@ -1459,7 +1462,7 @@ Examples:
    However, if once we switched to EL from QL we have moved the "All Entries" panel to multi-entry mode (using the button),
    it seems more intuitive to prioritize the default behavior, that is, returning to what it is more recent: the panel in
    multi-entry mode, which is the target mode, MainMode.
-
+-- Discarded ----------------
 
 Switching from EL to QL or vice versa
 - If an entry is selected in EL from an "All entries" panel or from the "Selected entry" panel, upon returning to QL,
@@ -1489,6 +1492,7 @@ begin
   FHideFocusFlag:= false;
 
   if CtrlDown then begin
+    { -- Discarded ----------------
      if (FQueryLayout and (NEntry = nil) and (NEntriesUI.PanelConfig.CurrentMode <> meMultiEntry)) or
         ((FNote.NumEntries > 1) and FNNodeUIConfig.AnyPanelInQL_ets) then begin
 
@@ -1520,6 +1524,7 @@ begin
         end;
 
      end;
+    }
 
      if FQueryLayout then
         ToEditingLayout:= True
@@ -1971,7 +1976,7 @@ begin
 
  LockControl(pnlAuxC, True);
  FChangingLayout:= True;
- FReturnToQLFromAllEntriesInSingleMode:= True;
+ //FReturnToQLFromAllEntriesInSingleMode:= True;
  try
    CancelMaximizedPanelNeeded:= (FNNodeUIConfig <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone);
 

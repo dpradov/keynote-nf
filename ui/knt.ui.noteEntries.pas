@@ -3307,7 +3307,7 @@ end;
 procedure TKntNoteEntriesUI.btnToggleMultiClick(Sender: TObject);
 begin
    if Sender <> nil then begin
-      TKntNoteUI(NoteUI).ReturnToQLFromAllEntriesInSingleMode:= false;
+      //TKntNoteUI(NoteUI).ReturnToQLFromAllEntriesInSingleMode:= false;
       if Editor <> ActiveEditor then
          SetFocusOnEditor;
    end;
