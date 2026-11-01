@@ -4018,7 +4018,7 @@ var
   ImgsEncr: boolean;
   CurrentEditor: TKntRichEdit;
 begin
-  if Initializing then exit;
+  if Initializing or AFileIsLoading then exit;
 
   CurrentEditor:= ActiveFolder.Editor;
   ImgsEncr:= ImageMng.FileContainsEncryptedImages;

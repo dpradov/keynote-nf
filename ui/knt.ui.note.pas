@@ -413,11 +413,12 @@ end;
 
 procedure TKntNoteUI.ShowLeftPanel(value: boolean);
 begin
+   splL.Visible:= value;
+
    if pnlLeft.Visible = value then
       exit;
 
    pnlLeft.Visible:= value;
-   splL.Visible:= value;
    pnlBL.Width:= Round(pnlBottom.Width * FNNodeUIConfig.BLBR_Ratio);
    pnlTL.Width:= Round(pnlTop.Width * FNNodeUIConfig.TLTR_Ratio);
    if value then
