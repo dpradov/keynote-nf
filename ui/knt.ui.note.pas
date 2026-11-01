@@ -694,7 +694,7 @@ begin
        if (NEntriesUI <> nil) and (GetPanel(Pnl).Height > HEIGHT_REDUCED_TO_HIDDEN) and
            ((NEntriesUI.txtTags.Top < 0) or (NEntriesUI.txtName.Top < 0) or (NEntriesUI.pnlButtons.Top < 0) or (NEntriesUI.Editor.Height = 0)) then begin
            NEntriesUI.SetFocusOnEditor;
-           NEntriesUI.SetTopIncControlsOfInfoPanel;
+           NEntriesUI.SetTopInControlsOfInfoPanel;
            Fixed:= true;
        end;
    end;

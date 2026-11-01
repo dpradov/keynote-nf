@@ -40,12 +40,14 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
   end
   object txtCreationDate: TEdit
     Left = 455
-    Top = 458
+    Top = 459
     Width = 119
-    Height = 24
+    Height = 22
     TabStop = False
     Alignment = taCenter
     Anchors = [akRight, akBottom]
+    Ctl3D = False
+    ParentCtl3D = False
     ParentShowHint = False
     ReadOnly = True
     ShowHint = True
@@ -55,12 +57,14 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
   end
   object txtName: TEdit
     Left = 37
-    Top = 458
+    Top = 459
     Width = 416
-    Height = 24
+    Height = 22
     TabStop = False
     Alignment = taCenter
     Anchors = [akLeft, akRight, akBottom]
+    Ctl3D = False
+    ParentCtl3D = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 1
@@ -71,12 +75,14 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
   end
   object txtTags: TEdit
     Left = 2
-    Top = 458
+    Top = 459
     Width = 33
-    Height = 24
+    Height = 22
     HelpContext = 122
     TabStop = False
     Anchors = [akLeft, akBottom]
+    Ctl3D = False
+    ParentCtl3D = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 2
@@ -87,7 +93,7 @@ object KntNoteEntriesUI: TKntNoteEntriesUI
     Left = 576
     Top = 458
     Width = 82
-    Height = 24
+    Height = 23
     Anchors = [akRight, akBottom]
     BevelOuter = bvNone
     BorderStyle = bsSingle

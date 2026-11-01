@@ -227,7 +227,7 @@ type
     property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
     procedure ReconsiderColorInfoPanel;
     procedure ReconsiderEditorInfoBarVisibility;
-    procedure SetTopIncControlsOfInfoPanel;
+    procedure SetTopInControlsOfInfoPanel;
     procedure RefreshEntry;
     procedure SelectNextEntry(InformReloaded: boolean);
     procedure SelectPrevEntry(InformReloaded: boolean);
@@ -291,6 +291,7 @@ uses
 
 const
   MIN_TAGS_WIDTH = 17;
+  SEP_CREATION_DATE_FROM_PNLBUTTONS= 121;     // pnlButtons.Left - txtCreationDate.Left
 
 
 var
@@ -360,7 +361,7 @@ begin
    txtCreationDate.Color:= FColorTxts;
    txtTags.Color:= FColorTxts;
 
-   SetTopIncControlsOfInfoPanel;
+   SetTopInControlsOfInfoPanel;
 
    btnToggleMulti.Font.Size:= 8;
    btnOptions.Caption:= #$22EF; //  (U+22EF, Midline Horizontal Ellipsis)
@@ -601,24 +602,20 @@ end;
 
 procedure TKntNoteEntriesUI.CheckPnlButtonsLocation;
 var
-  W, SW, X: integer;
+  W, X, D: integer;
 begin
    if pnlButtons.Visible then begin
       W:= 0;
-      SW:= GetSystemMetrics(SM_CXVSCROLL);
       if not txtName.Visible and Editor.IsVerticalScrollBarVisible then
-         W:= SW;
-      X:= (Self.Width-W) - (pnlButtons.Left + pnlButtons.Width);
-      if X > 1 then begin
-         pnlButtons.Left:= pnlButtons.Left + SW;
-         txtCreationDate.Left:= txtCreationDate.Left + SW;
-      end
-      else
-      if X < 1 then begin
-         pnlButtons.Left:= pnlButtons.Left - SW;
-         txtCreationDate.Left:= txtCreationDate.Left - SW;
-      end;
+         W:= GetSystemMetrics(SM_CXVSCROLL);
+
+      X:= (Self.Width-W) - pnlButtons.Width;
+
+      pnlButtons.Left:= X;
+      txtCreationDate.Left:= X - SEP_CREATION_DATE_FROM_PNLBUTTONS;
    end;
+   if pnlButtons.Top <> txtTags.Top -1 then
+      SetTopInControlsOfInfoPanel;
 end;
 
 
@@ -696,7 +693,7 @@ begin
 end;
 
 
-procedure TKntNoteEntriesUI.SetTopIncControlsOfInfoPanel;
+procedure TKntNoteEntriesUI.SetTopInControlsOfInfoPanel;
 var
   T, T2: integer;
 begin
@@ -711,7 +708,7 @@ begin
    txtName.Top:= T;
    txtCreationDate.Top:= T;
    txtTags.Top:= T;
-   pnlButtons.Top:= T;
+   pnlButtons.Top:= T-1;
    pnlEntries.Top:= T2;
 end;
 
@@ -931,7 +928,7 @@ begin
 
    pnlButtons.Left:= pnlButtons.Left + W;
    pnlButtons.Width:= pnlButtons.Width - W;
-   txtCreationDate.Left:= txtCreationDate.Left + W;
+   txtCreationDate.Left:= pnlButtons.Left - SEP_CREATION_DATE_FROM_PNLBUTTONS;
    txtName.Width:= txtName.Width + W;
 end;
 
@@ -977,8 +974,8 @@ end;
 procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
 begin
    if Note <> nil then begin
-      ShowEntriesButtons(Length(FEntriesShown) > 1);
       CheckPnlButtonsLocation;
+      ShowEntriesButtons(Length(FEntriesShown) > 1);
       AdjustTxtTagsWidth(txtTags.Focused);
       FPanelInitialized:= true;
    end;
