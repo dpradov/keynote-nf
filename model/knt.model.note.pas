@@ -286,8 +286,10 @@ type
      class function HasTags(Tags: TNoteTagArray; TagsIncluded: TNoteTagArray): boolean; overload;
      class procedure AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
      class function ToNames(Tags: TNoteTagArray): string;
-     class function ToString(Tags: TNoteTagArray): string;
+     class function ToString(Tags: TNoteTagArray): string; overload;
      class function StringToTags(Str: string): TNoteTagArray;
+     class function ToString(FindTags: TFindTags): string; overload;
+     class function StringToFindTags(Str: string): TFindTags;
 
      class function FindTagsToModeOR(FindTags: TFindTags): TFindTags;
      class function FindTagsANDToTags(FindTags: TFindTags): TNoteTagArray;
@@ -535,6 +537,7 @@ implementation
 uses
    gf_files,
    gf_streams,
+   gf_strings,
    kn_Global,
    kn_LinksMng,
    knt.ui.tree,
@@ -1205,6 +1208,7 @@ class function TNoteTagArrayUtils.ToNames(Tags: TNoteTagArray): string;
 var
    i: integer;
 begin
+   Result:= '';
    if Tags <> nil then begin
       for i:= 0 to High(Tags) do
          Result:= Result + Tags[i].Name + ' ';
@@ -1216,6 +1220,7 @@ class function TNoteTagArrayUtils.ToString(Tags: TNoteTagArray): string;
 var
    i: integer;
 begin
+   Result:= '';
    if Tags <> nil then begin
       for i:= 0 to High(Tags) do
          Result:= Result + Tags[i].ID.ToString + ',';
@@ -1252,6 +1257,50 @@ begin
          pI:= i+1;
       end;
    end;
+end;
+
+
+class function TNoteTagArrayUtils.ToString(FindTags: TFindTags): string;
+var
+   i, j: integer;
+   SepAND,SepOR: string;
+begin
+   Result:= '';
+   if FindTags = nil then exit;
+
+   for i:= 0 to High(FindTags) do begin
+      Result:= Result + SepAND;
+      SepOR:= '';
+      for j:= 0 to High(FindTags[i]) do begin
+         Result:= Result + FindTags[i][j].ID.ToString + SepOR;
+         SepOR:= ',';
+      end;
+      SepAND:= '&';
+   end;
+end;
+
+
+class function TNoteTagArrayUtils.StringToFindTags(Str: string): TFindTags;
+var
+   Strs: TStrings;
+   i: integer;
+begin
+  // 1,4&3&1,6,7
+
+   Result:= nil;
+   if Str = '' then exit;
+
+   Strs:= TStringList.Create;
+   try
+      SplitString(Strs, Str, '&', false);
+      SetLength(Result, Strs.Count);
+      for i:= 0 to Strs.Count-1 do
+         Result[i]:= TNoteTagArrayUtils.StringToTags(Strs[i]);
+
+   finally
+      Strs.Free;
+   end;
+
 end;
 
 

@@ -192,8 +192,6 @@ type
     procedure OnChangeTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnEndTagsIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 
-    function ValidateQueryLayout: boolean;
-    function ValidateEditingLayout: boolean;
 
   public
     { Public declarations }
@@ -617,9 +615,9 @@ begin
 
     FormToProps;
 
+    ValidatedQL:= myNoteAdvOptions.ValidateLayout(lQL);
+    ValidatedEL:= myNoteAdvOptions.ValidateLayout(lEL);
 
-    ValidatedQL:= ValidateQueryLayout;
-    ValidatedEL:= ValidateEditingLayout;
 
     if not ValidatedQL or not ValidatedEL then begin
       var Layout: string;
@@ -1248,68 +1246,6 @@ begin
       txtTagsEnter(txtTags)
    else
       Button_Ok.Default:= True;
-end;
-
-
-function TForm_Defaults.ValidateQueryLayout: boolean;
-var
-  pnl: TNEntriesMainPanel;
-  Num_ShowSelectedEntry, Num_ShowAllEntries: integer;
-begin
-   Result:= False;
-
-   Num_ShowSelectedEntry:= 0;
-   Num_ShowAllEntries:= 0;
-
-   with myNoteAdvOptions do begin
-      for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         case DefaultUseForQL[pnl] of
-             pnuShowTagLinkedEntries:   if (pnl = pnCenter) or (LinkedTagsForQL[pnl] = nil) then exit;
-             pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
-             pnuShowAllEntries:         inc(Num_ShowAllEntries);
-             pnuHidePanel:              if (pnl = pnCenter) then exit;
-         end;
-      end;
-
-      if (Num_ShowAllEntries = 1) and (Num_ShowSelectedEntry <= 1) then
-         Result:= True;
-   end;
-
-end;
-
-
-function TForm_Defaults.ValidateEditingLayout: boolean;
-var
-  pnl: TNEntriesMainPanel;
-  Num_ShowSelectedEntry, Num_ShowAllEntries: integer;
-begin
-  {
-  Review the purposes for "Editing Layout". Make sure to:
-  - Select "All entries" in one (and only one) panel                                       (..."sEntry13")
-  - Do not select more than one panel with "Newest / oldest / last selected entry"         (..."sEntry12")
-  - Select "All entries" or "Newest / oldest / last selected entry" for panel C            (..."sEntry13" y "sEntry12")
-  - Specify a tag for each "Vinculated to the tag[s]:" option                              (...QL: "sEntry10"   EL: "sEntry11")
-  }
-
-   Result:= False;
-
-   Num_ShowSelectedEntry:= 0;
-   Num_ShowAllEntries:= 0;
-
-   with myNoteAdvOptions do begin
-      for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         case DefaultUseForEL[pnl] of
-             pnuShowTagLinkedEntries:   if (pnl = pnCenter) or (LinkedTagsForEL[pnl] = nil) then exit;
-             pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
-             pnuShowAllEntries:         inc(Num_ShowAllEntries);
-             pnuHidePanel:              if (pnl = pnCenter) then exit;
-         end;
-      end;
-
-      if (Num_ShowAllEntries = 1) and (Num_ShowSelectedEntry <= 1) then
-         Result:= True;
-   end;
-
 end;
 
 

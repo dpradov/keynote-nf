@@ -943,6 +943,7 @@ const
   _TabIndex = 'TI';
   _TabSize = 'TS';
   _Flags = 'FL';
+  _FolderAdvOptions = 'AO';
 
   // Tokens for folders (tree folders..)
   _SelectedNode = 'SN';
@@ -1086,6 +1087,9 @@ const
 
 
 type
+  TPanelLayout = (lQL, lEL);
+
+type
   TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnBL, pnBR, pnCenter, pnLeft, pnR1, pnR2, pnR3);
   TNEntriesPanel     = pnTL..pnR3;
   TNEntriesMainPanel = pnTL..pnCenter;
@@ -1099,6 +1103,8 @@ type
      pnuShowSelectedEntry,         //  Show Selected entry    (0 or 1)
      pnuShowAllEntries             //  Show All entries       (1)
   );
+
+  TNEntriesPanelUseArray = array[TNEntriesMainPanel] of TNEntriesPanelUse;
 
 type
   TEditorInfoBarPos = (

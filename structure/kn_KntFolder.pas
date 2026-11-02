@@ -2654,6 +2654,8 @@ begin
     tf.WriteLine( _CHTRFontSize + '=' + FTreeChrome.Font.Size.ToString );
     tf.WriteLine( _CHTRFontStyle + '=' + FontStyleToStr( FTreeChrome.Font.Style ) );
 
+    tf.WriteLine(_FolderAdvOptions + '=' + NoteAdvOptions.ToString);
+
 
     tf.WriteLine(_NumNNodes + '=' + NumNodesToSave.ToString);
 
@@ -3208,6 +3210,9 @@ begin
      else
      if ( key = _FolderName ) then
          FName := TryUTF8ToUnicodeString(s)
+     else
+     if ( key = _FolderAdvOptions ) then
+         NoteAdvOptions.LoadFromString(TryUTF8ToUnicodeString(s))
      else
      if ( key = _FolderID ) then
          FID := StrToUIntDef( s, 0 )        // 0 -> owning file will generate new ID when note is added
