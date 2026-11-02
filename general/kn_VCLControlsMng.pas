@@ -290,7 +290,7 @@ begin
 
     for i := 0 to pred( ActiveFile.Folders.Count ) do begin
       myFolder := ActiveFile.Folders[i];
-      myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False);
+      myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False, plOnlyWithoutFilterEnabled);      // plOnlyWithoutFilterEnabled: See comment *2 in KntFileOpen (kn_NoteFileMng)
       SetUpVCLControls( myFolder );
     end;
 

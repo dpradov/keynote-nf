@@ -231,7 +231,8 @@ type
      procedure LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                              NEntriesLayout: TBasicNEntriesLayout;
                              OfferEditorForNewEntry: boolean = False;
-                             TagsToAddToNewEntry: TNoteTagArray = nil);
+                             TagsToAddToNewEntry: TNoteTagArray = nil;
+                             PanelsToLoad: TPanelsToLoad = plAll);
 
      procedure ReloadFromDataModel;
      procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);

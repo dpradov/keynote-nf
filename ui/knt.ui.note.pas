@@ -124,7 +124,8 @@ type
     procedure LoadFromNNode (NNode: TNoteNode; SavePreviousContent: boolean;
                              LayoutToUse: TBasicNEntriesLayout;
                              OfferEditorForNewEntry: boolean = False;
-                             TagsToAddToNewEntry: TNoteTagArray = nil);
+                             TagsToAddToNewEntry: TNoteTagArray = nil;
+                             PanelsToLoad: TPanelsToLoad = plAll);
     procedure ReloadFromDataModel;
     procedure ReloadMetadataFromDataModel(ReloadTags: boolean = true);
     procedure SaveToDataModel;
@@ -1936,7 +1937,8 @@ end;
 procedure TKntNoteUI.LoadFromNNode(NNode: TNoteNode; SavePreviousContent: boolean;
                                    LayoutToUse: TBasicNEntriesLayout;
                                    OfferEditorForNewEntry: boolean = False;
-                                   TagsToAddToNewEntry: TNoteTagArray = nil);
+                                   TagsToAddToNewEntry: TNoteTagArray = nil;
+                                   PanelsToLoad: TPanelsToLoad = plAll);             // PanelsToLoad: See comment *2 in KntFileOpen (kn_NoteFileMng)
 var
    ShowPanels: boolean;
    Pnl, PnlEdit, PnlToSetFocus, MainPanel, PnlWithEditorInfoPanel: TNEntriesMainPanel;
@@ -2039,18 +2041,22 @@ begin
       CancelMaximizedPanel;
 
 
-   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-      ShowPanel[Pnl]:= false;
-      if (FNEntriesUI[Pnl] <> nil) and not FNEntriesUI[Pnl].HideNestedFloatingEditor then
-         exit;
-   end;
+   if PanelsToLoad <> plOnlyWithFilterEnabled then begin
 
-   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-      if (FNEntriesUI[Pnl] <> nil) then begin
-         if PreviousNodeWithNewNNodeUIConfig then
-            FreeAndNil(FNEntriesUI[Pnl].PanelConfig);
-         FNEntriesUI[Pnl].SetAsUnused;
-      end;
+       for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+          ShowPanel[Pnl]:= false;
+          if (FNEntriesUI[Pnl] <> nil) and not FNEntriesUI[Pnl].HideNestedFloatingEditor then
+             exit;
+       end;
+
+       for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+          if (FNEntriesUI[Pnl] <> nil) then begin
+             if PreviousNodeWithNewNNodeUIConfig then
+                FreeAndNil(FNEntriesUI[Pnl].PanelConfig);
+             FNEntriesUI[Pnl].SetAsUnused;
+          end;
+       end;
+
    end;
 
 
@@ -2120,14 +2126,23 @@ begin
           if (FNote.NumEntries = 1) and PanelConfig.Maximized then
              PanelConfig.Maximized:= False;
 
-          NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
+          if  (PanelsToLoad = plAll) or
+             ((PanelsToLoad = plOnlyWithFilterEnabled)    and PanelConfig.IsFiltered) or
+             ((PanelsToLoad = plOnlyWithoutFilterEnabled) and not PanelConfig.IsFiltered) then begin
 
-          if (NEntriesUI.NEntry = nil) then begin
-             NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
-             DisableChangedInEmptyPanelAt:= now;
+              NEntriesUI.LoadFromDataModel(PanelConfig, False, (Pnl = PnlToSetFocus), Action);
+
+              if (NEntriesUI.NEntry = nil) then begin
+                 NEntriesUI.Editor.OnEditorChanged := EditorChangedInEmptyPanel;
+                 DisableChangedInEmptyPanelAt:= now;
+              end
+              else
+                 NEntriesUI.Editor.OnEditorChanged := nil;
           end
           else
-             NEntriesUI.Editor.OnEditorChanged := nil;
+          if PanelsToLoad = plOnlyWithoutFilterEnabled then
+             NEntriesUI.SetAsLoadPending(PanelConfig, (Pnl = PnlToSetFocus));
+
       end;
    end
    else
@@ -2165,23 +2180,26 @@ begin
        end;
 
 
-   ShowLeftPanel(False);
-   ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);
-   ShowPanelsBottom(ShowPanel[pnBL], ShowPanel[pnBR]);
+   if PanelsToLoad <> plOnlyWithFilterEnabled then begin
+      ShowLeftPanel(False);
+      ShowPanelsTop(ShowPanel[pnTL], ShowPanel[pnTR]);
+      ShowPanelsBottom(ShowPanel[pnBL], ShowPanel[pnBR]);
 
-   if assigned(NNode) then begin
-      FixPossibleProblemWith0HeigthPanels;
+      if assigned(NNode) then begin
+         FixPossibleProblemWith0HeigthPanels;
 
-      FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
-      if not ActiveTreeUI.Focused then
-         FSelectedNEntriesUI.SetFocusOnEditor;
-      FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
+         FSelectedNEntriesUI:= GetNEntriesUI(PnlToSetFocus);
+         if not ActiveTreeUI.Focused then
+            FSelectedNEntriesUI.SetFocusOnEditor;
+         FSelectedNEntriesUI.Editor.NavigatePanelsEnabled:= EnableNavigatePanels;
 
-      KeepInfoPanelTemporarilyVisible;
+         KeepInfoPanelTemporarilyVisible;
 
-      if not QueryLayout then
-         ActiveFile.SetNoteIsOnEditingLayout(FNote, True);
+         if not QueryLayout then
+            ActiveFile.SetNoteIsOnEditingLayout(FNote, True);
+      end;
    end;
+
 
 {$IFDEF KNT_DEBUG}
    GetDBG_NEntriesUI;
@@ -2191,7 +2209,8 @@ begin
 
  finally
     LockControl(pnlAuxC, False);
-    FrameResize(nil);
+    if PanelsToLoad <> plOnlyWithFilterEnabled then
+       FrameResize(nil);
     AdjustScrollBars;
     FChangingLayout:= False;
  end;

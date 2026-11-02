@@ -1141,6 +1141,12 @@ type
   TContentInMultiEntryMode_Selectable = cmOnlyHeader..cmOnlyFirstLines;
   TContentInEntryModeArray = Array of TContentInMultiEntryMode;
 
+  TPanelsToLoad = (
+     plAll,
+     plOnlyWithoutFilterEnabled,
+     plOnlyWithFilterEnabled
+   );
+
 
 var
   DEFAULT_NEW_FOLDER_NAME : string;  // default name for new folders

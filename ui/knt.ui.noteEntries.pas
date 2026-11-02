@@ -243,6 +243,7 @@ type
     property OnUse: boolean read FOnUse;
     property PanelHidden: boolean read FPanelHidden write SetPanelHidden;
     procedure SetAsUnused;
+    procedure SetAsLoadPending(APanelConfig: TPanelConfiguration; InformReloaded: boolean);
 
   protected
     function GetImagesInstances: TImageIDs;
@@ -519,6 +520,30 @@ begin
   Editor.BeginUpdate;
   Editor.Clear;
   Editor.EndUpdate;
+end;
+
+procedure TKntNoteEntriesUI.SetAsLoadPending(APanelConfig: TPanelConfiguration; InformReloaded: boolean);
+begin
+  FOnUse:= True;
+  FPanelConfig:= APanelConfig;
+  FPanelHidden:= False;
+
+  case PanelConfig.Scope of
+    fsSelectedNode: begin
+       FNNode:= PanelConfig.SelectedNNode;
+       FNote:= FNNode.Note;
+       FNEntry:= FNote.MainEntry;
+    end;
+  end;
+  ConfigureEditor(-1);
+
+  Editor.BeginUpdate;
+  Editor.Clear;
+  Editor.EndUpdate;
+
+  if InformReloaded and not ClipCapMng.IsBusy then
+     App.EditorReloaded(Editor, Editor.Focused);
+
 end;
 
 

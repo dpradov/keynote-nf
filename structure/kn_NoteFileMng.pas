@@ -232,6 +232,18 @@ var
   ClipCapIdx: integer;
   Editor: TKntRichEdit;
   KntFile: TKntFile;
+
+  procedure LoadOnlyNEntriesUIWithFilterEnabled;        // See comment *2, below
+  var
+     i: integer;
+     myFolder: TKntFolder;
+  begin
+    for i := 0 to pred( KntFile.Folders.Count ) do begin
+       myFolder := KntFile.Folders[i];
+       myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False, plOnlyWithFilterEnabled);
+    end;
+  end;
+
 begin
   if assigned( ActiveFile ) then
     if ( not KntFileClose ) then exit(-2);
@@ -456,12 +468,27 @@ begin
            Note: If this KntFileOpen ins called on initiating the application, then the above call to EnsureNodeAndCaretVisibleInEditors
            and the below call to App.ActivateFolder will not ensure that the carets are visbile. For this reason there is also
            a call to these methods in Form_Main.Activate (they will run only the first time, when opening the app).
+
+           *2
+           The verification of filter compliance, performed within TKntNoteEntriesUI.ReloadFromDataModel, relies on the RunFindAllEx method
+           (located in kn_FindReplaceMng). This method requires that ActiveFolder be defined and that the condition ActiveFileIsBusy = nil
+           be met. If it is called before these requirements are satisfied, it will return False.
+             Consequently, a load operation initiated from this method (triggered via SetupAndShowVCLControls -> myFolder.LoadEditorFromNNode)
+           would result in the message "No entries visible or matching the current filter" appearing in any panels where a filter is enabled.
+           Therefore, it is necessary to perform a separate pass to load only those specific panels once the file loading process is complete.
+           To prevent the system from attempting to calculate these panels during the initial call —-which would result in an initial load
+           displaying that (ultimately invisible) message-— SetupAndShowVCLControls calls myFolder.LoadEditorFromNNode with the parameter
+           plOnlyWithoutFilterEnabled. Conversely, LoadOnlyNEntriesUIWithFilterEnabled uses the parameter plOnlyWithFilterEnabled.
+           For all other calls to myFolder.LoadEditorFromNNode, the default value (plAll) is used.
+
          }
           App.FileOpen(KntFile, FN);     // KntFile can be nil. It will set ActiveFile and ActiveFileIsBusy (False)         // <======== APP.FILEOPEN
 
           if opensuccess then begin
             if assigned( KntFile ) then begin
                KntFile.IsBusy := false;
+               LoadOnlyNEntriesUIWithFilterEnabled;    // *2
+
                KntFile.ReadOnly := ( OpenReadOnly or KntFile.ReadOnly );
                KntFile.Modified := linksModified;
             end;

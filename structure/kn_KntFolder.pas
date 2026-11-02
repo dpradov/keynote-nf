@@ -295,7 +295,7 @@ type
     destructor Destroy; override;
 
 
-    procedure LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+    procedure LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; PanelsToLoad: TPanelsToLoad = plAll);
     procedure ReloadEditorFromDataModel(SavePreviousContent: boolean= true);
     procedure SaveEditorToDataModel;
     procedure SetEditorProperties( const aProps : TFolderEditorProperties );
@@ -1923,20 +1923,22 @@ end;
 // TODO: We will have to manage the possible multiple entries of a note.
 // FOR THE MOMENT we will work with what we will assume is the only entry
 
-procedure TKntFolder.LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+procedure TKntFolder.LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; PanelsToLoad: TPanelsToLoad = plAll);
 var
   Node: PVirtualNode;
   HintStatusBar: string;
   EnableInsertImg: boolean;
 
 begin
+  // PanelsToLoad: See comment *2 in KntFileOpen (kn_NoteFileMng)
+
   if NNode = nil then exit;
 
   Log_StoreTick('TKntNoteFolder.LoadEditorFromNNode - BEGIN', 3, +1);
 
   with Form_Main do begin
       try
-        NoteUI.LoadFromNNode(NNode, SavePreviousContent, neLastLayout);
+        NoteUI.LoadFromNNode(NNode, SavePreviousContent, neLastLayout, false,nil, PanelsToLoad);
 
         if assigned(NNode) then begin
              Node:= NNode.TVNode;
