@@ -3430,6 +3430,8 @@ begin
 
    if ForceApplyFilter or not (BothEmpty or (FiltersEqual and SameEnabled)) then begin
       FilterChanged:= true;
+      if MECustomiz.Filter.TextFilter = '' then
+         MECustomiz.Filter.ShowExcerpts:= false;
       PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
       PanelConfig.CurrentMode:= meMultiEntry;
 

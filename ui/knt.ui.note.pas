@@ -1984,64 +1984,71 @@ begin
  LockControl(pnlAuxC, True);
  FChangingLayout:= True;
  //FReturnToQLFromAllEntriesInSingleMode:= True;
+
  try
-   CancelMaximizedPanelNeeded:= (FNNodeUIConfig <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone);
+
+   { It will be called with plOnlyWithFilterEnabled exclusively from KntFileOpen (kn_NoteFileMng), following the prior loading of
+     the remaining panels using plOnlyWithoutFilterEnabled. It should be noted that this second, consecutive call will be executed with
+     SavePreviousContent=False, and without the configuration for this note having been persisted to Folders.NNodesUIConfig.
+     We must ensure that the existing FNewNNodeUIConfig (which contains the PanelConfig settings established within the NEntriesUI of
+     this note) is not lost. }
+   if PanelsToLoad <> plOnlyWithFilterEnabled then begin    // ----------------
+
+       CancelMaximizedPanelNeeded:= (FNNodeUIConfig <> nil) and (FNNodeUIConfig.MaximizedPanel <> pnNone);
 
 
-   { *1
-     When switching from EditingLayout (EL) to QueryLayout (QL), set the entry selected in EL as the active entry (*)
-     in the panel that held the focus in QL (e.g., the one from which Ctrl+Enter was pressed), subject to the following constraints:
-     - If the panel that held the focus in QL is linked to tags, and the entry selected in EL lacks those tags, move the focus in QL
-       to the main panel (AllEntries).
-     - Set the entry selected in EL —along with the selection position within it— in the panel that held the focus in QL.
-       For the other QL panels: update the selection position and length only if they currently have the same entry selected in EL active.
+       { *1
+         When switching from EditingLayout (EL) to QueryLayout (QL), set the entry selected in EL as the active entry (*)
+         in the panel that held the focus in QL (e.g., the one from which Ctrl+Enter was pressed), subject to the following constraints:
+         - If the panel that held the focus in QL is linked to tags, and the entry selected in EL lacks those tags, move the focus in QL
+           to the main panel (AllEntries).
+         - Set the entry selected in EL —along with the selection position within it— in the panel that held the focus in QL.
+           For the other QL panels: update the selection position and length only if they currently have the same entry selected in EL active.
 
-       (*) This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
-   }
-   SetNoteSelEntry:= (LayoutToUse = neQueryLayout) and not FQueryLayout;              // *1
+           (*) This will have been saved in FNote.SelEntry from TKntNoteUI.SaveToDataModel
+       }
+       SetNoteSelEntry:= (LayoutToUse = neQueryLayout) and not FQueryLayout;              // *1
 
-   if (LayoutToUse = neLastLayout) then begin
-      FNNodeUIConfig_QL:= nil;
-      FNNodeUIConfig_EL:= nil;
-   end;
-
-
-   FNNode:= NNode;
-   FNNodeUIConfig:= nil;
-   QueryLayout:= True;
-
-   if assigned(NNode) then begin
-     FNote:= NNode.Note;
-     if LayoutToUse = neLastLayout then
-        QueryLayout:= not ActiveFile.GetNoteIsOnEditingLayout(FNote)
-     else
-        QueryLayout:= (LayoutToUse = neQueryLayout);
-
-     FNNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, QueryLayout);
-     FNewNNodeUIConfig:= false;
-     if FNNodeUIConfig = nil then begin
-        FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, QueryLayout);
-        FNewNNodeUIConfig:= true;
-     end;
-     if (FNNodeUIConfig.MaximizedPanel <> pnNone) and (FNote.NumEntries = 1) then
-        FNNodeUIConfig.MaximizedPanel:= pnNone;
-   end
-   else
-      FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, QueryLayout);
-
-   if QueryLayout then
-      FNNodeUIConfig_QL:= FNNodeUIConfig
-   else
-      FNNodeUIConfig_EL:= FNNodeUIConfig;
+       if (LayoutToUse = neLastLayout) then begin
+          FNNodeUIConfig_QL:= nil;
+          FNNodeUIConfig_EL:= nil;
+       end;
 
 
-   FQueryLayout:= QueryLayout;
+       FNNode:= NNode;
+       FNNodeUIConfig:= nil;
+       QueryLayout:= True;
 
-   if CancelMaximizedPanelNeeded then
-      CancelMaximizedPanel;
+       if assigned(NNode) then begin
+         FNote:= NNode.Note;
+         if LayoutToUse = neLastLayout then
+            QueryLayout:= not ActiveFile.GetNoteIsOnEditingLayout(FNote)
+         else
+            QueryLayout:= (LayoutToUse = neQueryLayout);
+
+         FNNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, QueryLayout);
+         FNewNNodeUIConfig:= false;
+         if FNNodeUIConfig = nil then begin
+            FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (NNode, Folder, QueryLayout);
+            FNewNNodeUIConfig:= true;
+         end;
+         if (FNNodeUIConfig.MaximizedPanel <> pnNone) and (FNote.NumEntries = 1) then
+            FNNodeUIConfig.MaximizedPanel:= pnNone;
+       end
+       else
+          FNNodeUIConfig:= TNNodeUIConfiguration.CreateDefault (nil, Folder, QueryLayout);
+
+       if QueryLayout then
+          FNNodeUIConfig_QL:= FNNodeUIConfig
+       else
+          FNNodeUIConfig_EL:= FNNodeUIConfig;
 
 
-   if PanelsToLoad <> plOnlyWithFilterEnabled then begin
+       FQueryLayout:= QueryLayout;
+
+       if CancelMaximizedPanelNeeded then
+          CancelMaximizedPanel;
+
 
        for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
           ShowPanel[Pnl]:= false;
@@ -2057,7 +2064,7 @@ begin
           end;
        end;
 
-   end;
+   end;   //------- PanelsToLoad <> plOnlyWithFilterEnabled
 
 
    if assigned(NNode) then begin
@@ -2292,7 +2299,7 @@ begin
 
    SetLength(FNNodeUIConfig.PanelsConfig, iOnUse);
    if FNewNNodeUIConfig and
-      (NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) or IsCustomized then begin
+      ((NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) or IsCustomized) then begin
          Folder.AddNNodeUIConfig(FNNodeUIConfig);
          FNewNNodeUIConfig:= false;
    end;

@@ -1257,7 +1257,7 @@ end;
 
 function TFilterOptionsInPanel.IsEqualToBuiltIn: boolean;
 begin
-   Result:= not TagsModeOR and (FindTagsIncl = nil) and (FindTagsExcl = nil) and not TagsText and (TextFilter = '') and
+   Result:= not Enabled and not TagsModeOR and (FindTagsIncl = nil) and (FindTagsExcl = nil) and not TagsText and (TextFilter = '') and
             not MatchCase and not WholeWordsOnly and (SearchMode = smPhrase) and not ConsiderHidden and not ShowExcerpts;
 end;
 
