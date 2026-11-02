@@ -105,8 +105,8 @@ type
     Tab_EL: TTab95Sheet;
     Tab_Custom: TTab95Sheet;
     lbl9: TLabel;
-    ExcerptMaxL: TSpinEdit;
-    ExcerptMaxC: TSpinEdit;
+    FirstLinesMaxL: TSpinEdit;
+    FirstLinesMaxC: TSpinEdit;
     Tab_AdvGral: TTab95Sheet;
     cUseTLq: TComboBox;
     cUseTRq: TComboBox;
@@ -747,8 +747,8 @@ begin
 
      NewEntriesAlwaysOnEdLayout:= cb_NewInEL.Checked;
      EditTagLinkedEntryInSelectedEntryPanel:= cb_VincTagInSel.Checked;
-     ExtractOfText_MaxLength:= ExcerptMaxC.Value;
-     ExtractOfText_MaxLines:= ExcerptMaxL.Value;
+     FirstLinesOfText_MaxLength:= FirstLinesMaxC.Value;
+     FirstLinesOfText_MaxLines:= FirstLinesMaxL.Value;
      AutoExpandInPanels:= cb_AutoExp.Checked;
      EditorInfoBarPos:=  TEditorInfoBarPos(cInfoBarPos.ItemIndex);
      ShowNewestEntryAtStartup:= cb_ShowNewest.Checked;
@@ -840,8 +840,8 @@ begin
 
      cb_NewInEL.Checked:= NewEntriesAlwaysOnEdLayout;
      cb_VincTagInSel.Checked:= EditTagLinkedEntryInSelectedEntryPanel;
-     ExcerptMaxC.Value:= ExtractOfText_MaxLength;
-     ExcerptMaxL.Value:= ExtractOfText_MaxLines;
+     FirstLinesMaxC.Value:= FirstLinesOfText_MaxLength;
+     FirstLinesMaxL.Value:= FirstLinesOfText_MaxLines;
      cb_AutoExp.Checked:= AutoExpandInPanels;
      cInfoBarPos.ItemIndex:= Ord(EditorInfoBarPos);
      cb_ShowNewest.Checked:= ShowNewestEntryAtStartup;

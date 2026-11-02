@@ -402,7 +402,7 @@ type
     function TagsToString: string;
     procedure StringToTags(Str: string);
 
-    function GetExtractOfText(MaxLength: integer = 30; MaxLines: integer = -1): string;
+    function GetFirstLinesOfText(MaxLength: integer = 30; MaxLines: integer = -1): string;
   end;
 
 
@@ -1681,7 +1681,7 @@ begin
 end;
 
 
-function TNoteEntry.GetExtractOfText (MaxLength: integer = 30; MaxLines: integer = -1): string;
+function TNoteEntry.GetFirstLinesOfText (MaxLength: integer = 30; MaxLines: integer = -1): string;
 var
   RTFAux: TAuxRichEdit;
   i, p, LastPos: integer;

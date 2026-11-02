@@ -957,8 +957,8 @@ type
      EditTagLinkedEntryInSelectedEntryPanel: boolean;   // Also for new entries
      EditorInfoBarPos:  TEditorInfoBarPos;
 
-     ExtractOfText_MaxLength: integer;
-     ExtractOfText_MaxLines: integer;
+     FirstLinesOfText_MaxLength: integer;
+     FirstLinesOfText_MaxLines: integer;
 
      SizeRatiosQL: TPanelSizeRatios;
      SizeRatiosEL: TPanelSizeRatios;
@@ -1307,8 +1307,8 @@ begin
 
     ShowNewestEntryAtStartup:= true;
     AutoExpandInPanels:= false;
-    ExtractOfText_MaxLength:= 250;
-    ExtractOfText_MaxLines:= 3;
+    FirstLinesOfText_MaxLength:= 250;
+    FirstLinesOfText_MaxLines:= 3;
     EditorInfoBarPos:= ibpMostExtremeExcVincTag;
  end;
 

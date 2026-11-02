@@ -658,8 +658,8 @@ var
           Note_ResetMECustomizNeeded:= true;
 
        if MECustomizationRestoreDefaults or
-          (myNoteAdvOptions.ExtractOfText_MaxLength <> myFolder.NoteAdvOptions.ExtractOfText_MaxLength) or
-          (myNoteAdvOptions.ExtractOfText_MaxLines  <> myFolder.NoteAdvOptions.ExtractOfText_MaxLines)       then
+          (myNoteAdvOptions.FirstLinesOfText_MaxLength <> myFolder.NoteAdvOptions.FirstLinesOfText_MaxLength) or
+          (myNoteAdvOptions.FirstLinesOfText_MaxLines  <> myFolder.NoteAdvOptions.FirstLinesOfText_MaxLines)       then
           Note_RefreshNeeded:= true;
 
        if MECustomizationRestoreDefaults or

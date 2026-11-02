@@ -1695,7 +1695,7 @@ var
          end;
 
          if (Mode = meMultiEntry) and (FEntriesShown[iEntry].Content = cmOnlyFirstLines) then begin
-            str:= NEntry.GetExtractOfText(Folder.NoteAdvOptions.ExtractOfText_MaxLength, Folder.NoteAdvOptions.ExtractOfText_MaxLines);
+            str:= NEntry.GetFirstLinesOfText(Folder.NoteAdvOptions.FirstLinesOfText_MaxLength, Folder.NoteAdvOptions.FirstLinesOfText_MaxLines);
             if str <> '' then begin
                if str[length(str)] <> #13 then
                   str:= str + ' ';

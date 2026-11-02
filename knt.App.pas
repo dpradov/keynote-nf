@@ -1010,7 +1010,7 @@ begin
    end;
    if not CheckEntryHasEncryptedContent then exit;
 
-   if KntTreeOptions.ConfirmNodeDelete and (App.DoMessageBox(Format(GetRS(sEntry01), [NEntry.GetExtractOfText]), mtWarning, [mbYes,mbNo,mbCancel]) <> mrYes) then exit;
+   if KntTreeOptions.ConfirmNodeDelete and (App.DoMessageBox(Format(GetRS(sEntry01), [NEntry.GetFirstLinesOfText]), mtWarning, [mbYes,mbNo,mbCancel]) <> mrYes) then exit;
 
    Log_StoreTick('TKntApp.DeleteNEntry - BEGIN', 4, +1);
    try
@@ -1070,7 +1070,7 @@ begin
 
    ToIsHidden:= not NEntry.IsHidden;
    if ToIsHidden then
-     if App.DoMessageBox(Format(GetRS(sEntry05), [CreatedBeforeIt, NEntry.GetExtractOfText]), mtConfirmation, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
+     if App.DoMessageBox(Format(GetRS(sEntry05), [CreatedBeforeIt, NEntry.GetFirstLinesOfText]), mtConfirmation, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
 
    Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - BEGIN', 4, +1);
    try

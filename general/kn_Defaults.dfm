@@ -892,9 +892,9 @@ object Form_Defaults: TForm_Defaults
           object lbl9: TLabel
             Left = 7
             Top = 125
-            Width = 213
+            Width = 224
             Height = 13
-            Caption = 'Excerpt from entries. Max characters / Lines'
+            Caption = 'First Lines from entries: Max characters / Lines'
           end
           object lbl8: TLabel
             Left = 8
@@ -906,7 +906,7 @@ object Form_Defaults: TForm_Defaults
               'on'#39't cover all the note'#39's width'
             Caption = 'Editor Information bar position'
           end
-          object ExcerptMaxL: TSpinEdit
+          object FirstLinesMaxL: TSpinEdit
             Left = 75
             Top = 145
             Width = 49
@@ -917,7 +917,7 @@ object Form_Defaults: TForm_Defaults
             TabOrder = 4
             Value = 3
           end
-          object ExcerptMaxC: TSpinEdit
+          object FirstLinesMaxC: TSpinEdit
             Left = 12
             Top = 145
             Width = 49
