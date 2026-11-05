@@ -908,9 +908,8 @@ type
     ConsiderHidden: boolean;          // Consider hidden entries
     ShowExcerpts: boolean;            // (when using TextFilter) "x"
 
-    function Equal(aFilter: TFilterOptionsInPanel): boolean;
+    function Equal(const aFilter: TFilterOptionsInPanel): boolean;
     function Empty: boolean;
-    function IsEqualToBuiltIn: boolean;
   end;
 
 type
@@ -925,7 +924,10 @@ type
     FoldedTextMode: TExportFoldedTextMode;
     Filter: TFilterOptionsInPanel;
 
-    function IsEqualToBuiltIn: boolean;
+    procedure Initialize;
+    function Equal(const aMEPanelCustomiz: TMEPanelCustomization; IgnoreFilterEnabled: boolean = false): boolean;
+    function ToString(const PanelCustomizReference: TMEPanelCustomization): string;
+    procedure LoadFromString(Str: string);
   end;
 
  TPanelSizeRatios = record
@@ -938,6 +940,8 @@ type
    BottomAutoFromHidden: Single;  // ,,    Bottom
 
    procedure Initialize;
+   function Equal(const SizeRatios: TPanelSizeRatios): boolean;
+   function ToString: string;
  end;
  PPanelSizeRatios = ^TPanelSizeRatios;
 
@@ -1230,8 +1234,37 @@ begin
    TopAutoFromHidden:= 0.15;
 end;
 
+function TPanelSizeRatios.Equal(const SizeRatios: TPanelSizeRatios): boolean;
+begin
+   Result:= ((Top = 0) or (Top = SizeRatios.Top)) and
+            ((Bottom = 0) or (Bottom = SizeRatios.Bottom)) and
+            ((TLTR = 0) or (TLTR = SizeRatios.TLTR)) and
+            ((BLBR = 0) or (BLBR = SizeRatios.BLBR)) and
+            ((BottomAutoFromHidden = 0) or (BottomAutoFromHidden = SizeRatios.BottomAutoFromHidden)) and
+            ((TopAutoFromHidden = 0) or (TopAutoFromHidden = SizeRatios.TopAutoFromHidden));
+end;
 
-function TFilterOptionsInPanel.Equal(aFilter: TFilterOptionsInPanel): boolean;
+
+function TPanelSizeRatios.ToString: string;
+var
+   Config: TFormatSettings;
+begin
+   Config := TFormatSettings.Create('en-US');                             // -> 0.1234
+
+   Result:= Format('%.4g|%.4g|%.4g|%.4g|%.4g|%.4g',
+               [
+               Top,
+               Bottom,
+               TLTR,
+               BLBR,
+               TopAutoFromHidden,
+               BottomAutoFromHidden
+               ], Config);
+end;
+
+
+
+function TFilterOptionsInPanel.Equal(const aFilter: TFilterOptionsInPanel): boolean;
 begin
   Result:= False;
   with aFilter do begin
@@ -1253,12 +1286,6 @@ end;
 function TFilterOptionsInPanel.Empty: boolean;
 begin
    Result:= (TextFilter = '') and (FindTagsIncl = nil) and (FindTagsExcl = nil);
-end;
-
-function TFilterOptionsInPanel.IsEqualToBuiltIn: boolean;
-begin
-   Result:= not Enabled and not TagsModeOR and (FindTagsIncl = nil) and (FindTagsExcl = nil) and not TagsText and (TextFilter = '') and
-            not MatchCase and not WholeWordsOnly and (SearchMode = smPhrase) and not ConsiderHidden and not ShowExcerpts;
 end;
 
 
@@ -1341,31 +1368,7 @@ begin
     // Visual customization:
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-       with DefaultMECustomizForQL[p] do begin
-          Content:= cmWholeEntry;
-          ShowDateInHeader:= true;
-          ShowTimeInHeader:= true;
-          ShowTagsInHeader:= true;
-          ShowLineInHeader:= true;
-          CompactHeader:= false;
-          DescendingOrder:= True;
-          FoldedTextMode:= fmKeepUnchanged;
-
-          with Filter do begin
-             Enabled:= False;
-             TagsModeOR:= false;
-             FindTagsIncl:= nil;
-             FindTagsExcl:= nil;
-             TagsText:= false;
-             TextFilter:= '';
-             MatchCase:= false;
-             WholeWordsOnly:= false;
-             SearchMode:= smPhrase;
-             ConsiderHidden:= false;
-             ShowExcerpts:= false;
-          end;
-
-       end;
+       DefaultMECustomizForQL[p].Initialize;
        DefaultMECustomizForEL[p]:= DefaultMECustomizForQL[p];
     end;
 
@@ -1380,12 +1383,156 @@ begin
  end;
 
 
-function TMEPanelCustomization.IsEqualToBuiltIn: boolean;
+procedure TMEPanelCustomization.Initialize;
 begin
-   Result:= (Content = cmWholeEntry) and
-             ShowDateInHeader and ShowTimeInHeader and ShowTagsInHeader and ShowLineInHeader and not CompactHeader and
-             DescendingOrder and
-             (FoldedTextMode = fmKeepUnchanged) and Filter.Empty;
+    Content:= cmWholeEntry;
+    ShowDateInHeader:= true;
+    ShowTimeInHeader:= true;
+    ShowTagsInHeader:= true;
+    ShowLineInHeader:= true;
+    CompactHeader:= false;
+    DescendingOrder:= True;
+    FoldedTextMode:= fmKeepUnchanged;
+
+    with Filter do begin
+       Enabled:= False;
+       TagsModeOR:= false;
+       FindTagsIncl:= nil;
+       FindTagsExcl:= nil;
+       TagsText:= false;
+       TextFilter:= '';
+       MatchCase:= false;
+       WholeWordsOnly:= false;
+       SearchMode:= smPhrase;
+       ConsiderHidden:= false;
+       ShowExcerpts:= false;
+    end;
+end;
+
+
+function TMEPanelCustomization.Equal(const aMEPanelCustomiz: TMEPanelCustomization; IgnoreFilterEnabled: boolean = false): boolean;
+begin
+   Result:= (Content = aMEPanelCustomiz.Content) and
+             (ShowDateInHeader = aMEPanelCustomiz.ShowDateInHeader) and
+             (ShowTimeInHeader = aMEPanelCustomiz.ShowTimeInHeader) and
+             (ShowTagsInHeader = aMEPanelCustomiz.ShowTagsInHeader) and
+             (ShowLineInHeader = aMEPanelCustomiz.ShowLineInHeader) and
+             (CompactHeader =    aMEPanelCustomiz.CompactHeader) and
+             (DescendingOrder = aMEPanelCustomiz.DescendingOrder)  and
+             (FoldedTextMode = aMEPanelCustomiz.FoldedTextMode) and
+             (IgnoreFilterEnabled or (Filter.Enabled = aMEPanelCustomiz.Filter.Enabled)) and
+             Filter.Equal(aMEPanelCustomiz.Filter);
+end;
+
+
+function TMEPanelCustomization.ToString(const PanelCustomizReference: TMEPanelCustomization): string;
+var
+   FilterStr: string;
+   txtFilter: string;
+begin
+     Result:= '';
+     if not Equal(PanelCustomizReference) then begin
+           if not Filter.Equal(PanelCustomizReference.Filter) then begin
+              txtFilter:= Filter.TextFilter;
+              txtFilter:= StringReplace(txtFilter, '"', '\"', [rfReplaceAll]);
+              with Filter do begin
+                FilterStr:= Format('%s;%s;%s;%s;%s;%s;%s;%d;"%s";%s;%s',
+                  [
+                  BOOLEANSTR[Enabled],
+                  BOOLEANSTR[TagsModeOR],
+                  BOOLEANSTR[TagsText],
+                  BOOLEANSTR[MatchCase],
+                  BOOLEANSTR[WholeWordsOnly],
+                  BOOLEANSTR[ConsiderHidden],
+                  BOOLEANSTR[ShowExcerpts],
+                  Ord(SearchMode),
+                  txtFilter,
+                  TNoteTagArrayUtils.ToString(FindTagsIncl),
+                  TNoteTagArrayUtils.ToString(FindTagsExcl)
+                   ]);
+              end;
+           end
+           else
+           if (Filter.Enabled = PanelCustomizReference.Filter.Enabled) then
+              FilterStr:= '='
+           else
+              FilterStr:= '*';
+
+
+
+           Result:= Format('%d:%s:%s:%s:%s:%s:%s:%d:%s',
+             [
+             Ord(Content),
+             BOOLEANSTR[ShowDateInHeader],
+             BOOLEANSTR[ShowTimeInHeader],
+             BOOLEANSTR[ShowTagsInHeader],
+             BOOLEANSTR[ShowLineInHeader],
+             BOOLEANSTR[CompactHeader],
+             BOOLEANSTR[DescendingOrder],
+             Ord(FoldedTextMode),
+             FilterStr]);
+     end;
+end;
+
+
+procedure TMEPanelCustomization.LoadFromString(Str: string);
+var
+   FilterStr: string;
+   txtFilter: string;
+   Strs: TStrings;
+begin
+   if Str = '' then exit;
+
+   Strs:= TStringList.Create;
+   try
+
+      Strs.Clear;
+      SplitString(Strs, Str, ':', false);
+
+      Content:=            TContentInMultiEntryMode(StrToInt(Strs[0]));
+      ShowDateInHeader:=   Strs[1] = BOOLEANSTR[true];
+      ShowTimeInHeader:=   Strs[2] = BOOLEANSTR[true];
+      ShowTagsInHeader:=   Strs[3] = BOOLEANSTR[true];
+      ShowLineInHeader:=   Strs[4] = BOOLEANSTR[true];
+      CompactHeader:=      Strs[5] = BOOLEANSTR[true];
+      DescendingOrder:=    Strs[6] = BOOLEANSTR[true];
+      FoldedTextMode:=     TExportFoldedTextMode(StrToInt(Strs[7]));
+
+      if Strs[8] = '=' then
+         // Equal (including Enabled status)
+      else
+      if Strs[8] = '*' then
+         Filter.Enabled:= not Filter.Enabled
+
+      else begin
+         FilterStr:= Strs[8];
+         Strs.Clear;
+         SplitString(Strs, FilterStr, ';', false);
+
+         with Filter do begin
+            Enabled:=        Strs[0] = BOOLEANSTR[true];
+            TagsModeOR:=     Strs[1] = BOOLEANSTR[true];
+            TagsText:=       Strs[2] = BOOLEANSTR[true];
+            MatchCase:=      Strs[3] = BOOLEANSTR[true];
+            WholeWordsOnly:= Strs[4] = BOOLEANSTR[true];
+            ConsiderHidden:= Strs[5] = BOOLEANSTR[true];
+            ShowExcerpts:=   Strs[6] = BOOLEANSTR[true];
+            SearchMode:=     TSearchMode(StrToInt(Strs[7]));
+            txtFilter:=      Strs[8];
+            if txtFilter <> '' then begin
+               txtFilter:=  StringReplace(txtFilter, '\"', '"', [rfReplaceAll]);
+               txtFilter:=  txtFilter.Substring(1, Length(txtFilter)-2);
+               TextFilter:=     txtFilter;
+            end;
+            FindTagsIncl:=   TNoteTagArrayUtils.StringToFindTags(Strs[9]);
+            FindTagsExcl:=   TNoteTagArrayUtils.StringToFindTags(Strs[10]);
+         end;
+
+      end;
+
+   finally
+       Strs.Free;
+   end;
 
 end;
 
@@ -1397,53 +1544,7 @@ var
   DefUseForQL, DefUseForEL, SEP: String;
   LinkedTagsQL, LinkedTagsEL: String;
   DefMECustomizForQL, DefMECustomizForEL: String;
-  Config: TFormatSettings;
-
-  function PanelCustomizToString(PanelCustomiz: TMEPanelCustomization): string;
-  var
-     FilterStr: string;
-     txtFilter: string;
-  begin
-       Result:= '';
-       if not PanelCustomiz.IsEqualToBuiltIn then
-          with PanelCustomiz do begin
-             FilterStr:= '*';
-             if not Filter.IsEqualToBuiltIn then begin
-                txtFilter:= Filter.TextFilter;
-                txtFilter:= StringReplace(txtFilter, '"', '\"', [rfReplaceAll]);
-                with Filter do begin
-                  FilterStr:= Format('%s;%s;%s;%s;%s;%s;%s;%d;"%s";%s;%s',
-                    [
-                    BOOLEANSTR[Enabled],
-                    BOOLEANSTR[TagsModeOR],
-                    BOOLEANSTR[TagsText],
-                    BOOLEANSTR[MatchCase],
-                    BOOLEANSTR[WholeWordsOnly],
-                    BOOLEANSTR[ConsiderHidden],
-                    BOOLEANSTR[ShowExcerpts],
-                    Ord(SearchMode),
-                    txtFilter,
-                    TNoteTagArrayUtils.ToString(FindTagsIncl),
-                    TNoteTagArrayUtils.ToString(FindTagsExcl)
-                     ]);
-                end;
-             end;
-
-
-             Result:= Format('%d:%s:%s:%s:%s:%s:%s:%d:%s',
-               [
-               Ord(Content),
-               BOOLEANSTR[ShowDateInHeader],
-               BOOLEANSTR[ShowTimeInHeader],
-               BOOLEANSTR[ShowTagsInHeader],
-               BOOLEANSTR[ShowLineInHeader],
-               BOOLEANSTR[CompactHeader],
-               BOOLEANSTR[DescendingOrder],
-               Ord(FoldedTextMode),
-               FilterStr]);
-          end;
-
-  end;
+  PanelCustomizReference: TMEPanelCustomization;
 
 begin
      (*
@@ -1473,13 +1574,17 @@ begin
              Content:ShowDateInHeader:ShowTimeInHeader:ShowTagsInHeader:ShowLineInHeader:CompactHeader:DescendingOrder:FoldedTextMode:Filter
 
              Filter:
-                  '*' (if equals to built-in)  or
+                  '=' (if equals to built-in)  or
+                  '*' (if equals to built-in), BUT with different Enabled state  or
 
                    Enabled;TagsModeOR;TagsText;MatchCase;WholeWordsOnly;ConsiderHidden;ShowExcerpts;SearchMode;TextFilter;FindTagsIncl;FindTagsExcl
                    FindTagsIncl: Tag1,Tag2,... TagsN&...&Tag1',Tag2',... TagsN&...'    (ex: 3,2&1&1,10 )
                    FindTagsExcl:   ,,
 
      *)
+
+
+   PanelCustomizReference.Initialize;
 
    SEP:= '';
    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
@@ -1489,16 +1594,14 @@ begin
        LinkedTagsQL:= LinkedTagsQL + SEP + TNoteTagArrayUtils.ToString(LinkedTagsForQL[p]);
        LinkedTagsEL:= LinkedTagsEL + SEP + TNoteTagArrayUtils.ToString(LinkedTagsForEL[p]);
 
-       DefMECustomizForQL:= DefMECustomizForQL + SEP + PanelCustomizToString(DefaultMECustomizForQL[p]);
-       DefMECustomizForEL:= DefMECustomizForEL + SEP + PanelCustomizToString(DefaultMECustomizForEL[p]);
+       DefMECustomizForQL:= DefMECustomizForQL + SEP + DefaultMECustomizForQL[p].ToString(PanelCustomizReference);
+       DefMECustomizForEL:= DefMECustomizForEL + SEP + DefaultMECustomizForEL[p].ToString(PanelCustomizReference);
 
        SEP:= '/';
    end;
 
 
-   Config := TFormatSettings.Create('en-US');                             // -> 0.1234
-
-   Result:= Format('%s|%s|%s|%s|%s|%d|%d|%d|%.4g|%.4g|%.4g|%.4g|%.4g|%.4g|%.4g|%.4g|%.4g|%.4g|%.4g|%.4g|%s|%s|%s|%s|%s|%s',
+   Result:= Format('%s|%s|%s|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s',
                [
                BOOLEANSTR[EnableAdvEditionInSingleEntryNotes],
                BOOLEANSTR[AutoExpandInPanels],
@@ -1510,19 +1613,8 @@ begin
                FirstLinesOfText_MaxLength,
                FirstLinesOfText_MaxLines,
 
-               SizeRatiosQL.Top,
-               SizeRatiosQL.Bottom,
-               SizeRatiosQL.TLTR,
-               SizeRatiosQL.BLBR,
-               SizeRatiosQL.TopAutoFromHidden,
-               SizeRatiosQL.BottomAutoFromHidden,
-
-               SizeRatiosEL.Top,
-               SizeRatiosEL.Bottom,
-               SizeRatiosEL.TLTR,
-               SizeRatiosEL.BLBR,
-               SizeRatiosEL.TopAutoFromHidden,
-               SizeRatiosEL.BottomAutoFromHidden,
+               SizeRatiosQL.ToString,
+               SizeRatiosEL.ToString,
 
                DefUseForQL,
                DefUseForEL,
@@ -1530,7 +1622,7 @@ begin
                LinkedTagsEL,
                DefMECustomizForQL,
                DefMECustomizForEL
-               ], Config);
+               ]);
 
 
 end;
@@ -1547,6 +1639,7 @@ var
   LinkedTagsQL, LinkedTagsEL: String;
   DefMECustomizForQL, DefMECustomizForEL: String;
   PanelCustomiz: TMEPanelCustomization;
+  Config: TFormatSettings;
 
 
   procedure LoadMEPanelCustomization(DefMECustomiz: string; Layout: TPanelLayout);
@@ -1638,19 +1731,21 @@ begin
       FirstLinesOfText_MaxLength:=     StrToInt(Strs[6]);
       FirstLinesOfText_MaxLines:=      StrToInt(Strs[7]);
 
-      SizeRatiosQL.Top:=                  StrToFloatDef( Strs[8],  0.1354);
-      SizeRatiosQL.Bottom:=               StrToFloatDef( Strs[9],  0.15);
-      SizeRatiosQL.TLTR:=                 StrToFloatDef( Strs[10], 0.5);
-      SizeRatiosQL.BLBR:=                 StrToFloatDef( Strs[11], 0.5);
-      SizeRatiosQL.TopAutoFromHidden:=    StrToFloatDef( Strs[12], 0.15);
-      SizeRatiosQL.BottomAutoFromHidden:= StrToFloatDef( Strs[13], 0.15);
+      Config := TFormatSettings.Create('en-US');                             // -> 0.1234
 
-      SizeRatiosEL.Top:=                  StrToFloatDef( Strs[14], 0.1354);
-      SizeRatiosEL.Bottom:=               StrToFloatDef( Strs[15], 0.15);
-      SizeRatiosEL.TLTR:=                 StrToFloatDef( Strs[16], 0.5);
-      SizeRatiosEL.BLBR:=                 StrToFloatDef( Strs[17], 0.5);
-      SizeRatiosEL.TopAutoFromHidden:=    StrToFloatDef( Strs[18], 0.15);
-      SizeRatiosEL.BottomAutoFromHidden:= StrToFloatDef( Strs[19], 0.15);
+      SizeRatiosQL.Top:=                  StrToFloatDef( Strs[8],  0.1354, Config);
+      SizeRatiosQL.Bottom:=               StrToFloatDef( Strs[9],  0.15, Config);
+      SizeRatiosQL.TLTR:=                 StrToFloatDef( Strs[10], 0.5, Config);
+      SizeRatiosQL.BLBR:=                 StrToFloatDef( Strs[11], 0.5, Config);
+      SizeRatiosQL.TopAutoFromHidden:=    StrToFloatDef( Strs[12], 0.15, Config);
+      SizeRatiosQL.BottomAutoFromHidden:= StrToFloatDef( Strs[13], 0.15, Config);
+
+      SizeRatiosEL.Top:=                  StrToFloatDef( Strs[14], 0.1354, Config);
+      SizeRatiosEL.Bottom:=               StrToFloatDef( Strs[15], 0.15, Config);
+      SizeRatiosEL.TLTR:=                 StrToFloatDef( Strs[16], 0.5, Config);
+      SizeRatiosEL.BLBR:=                 StrToFloatDef( Strs[17], 0.5, Config);
+      SizeRatiosEL.TopAutoFromHidden:=    StrToFloatDef( Strs[18], 0.15, Config);
+      SizeRatiosEL.BottomAutoFromHidden:= StrToFloatDef( Strs[19], 0.15, Config);
 
       DefUseForQL:=         Strs[20];
       DefUseForEL:=         Strs[21];

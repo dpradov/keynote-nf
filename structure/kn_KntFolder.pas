@@ -103,7 +103,7 @@ type
 
 
       class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
-      class function CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
+      class function CreateFromString (NNodeGID: Cardinal; Folder: TKntFolder; Str: string): TNNodeUIConfiguration;
       class procedure GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder; var DescendingOrder: boolean);
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
       function GetMainPanel: TNEntriesMainPanel;
@@ -111,7 +111,8 @@ type
       function GetUpperVisiblePanel (Pnl: TNEntriesMainPanel; var UpperPnl: TNEntriesMainPanel): boolean;
       function GetBelowVisiblePanel (Pnl: TNEntriesMainPanel; var BelowPnl: TNEntriesMainPanel): boolean;
       function AnyPanelInQL_ets: boolean;
-      function SaveToString: string;
+      function DiffersFromFolderDef(Pnl: TNEntriesMainPanel; var ChangesInCustomiz: boolean; var ChangesInRatios: boolean): boolean;
+      function ToString: string;
 
       property NNode: TNoteNode read FNNode;
       function GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
@@ -331,6 +332,8 @@ type
     procedure DeleteNNodesUIConfig(QueryLayout: boolean);
     procedure ResetMEPanelsCustomiz;
     procedure ClearFilterInfo(NEntry: TNoteEntry);
+    procedure GetNNodeUIConfigs(NNode : TNoteNode; var NNodeUIConfigQL: TNNodeUIConfiguration; var NNodeUIConfigEL: TNNodeUIConfiguration);
+    function SaveNNodesUIConfigToString(NNode : TNoteNode): string;
 
     procedure NoteNameModified(NNode: TNoteNode);
 
@@ -1552,6 +1555,57 @@ begin
 
 end;
 
+
+procedure TKntFolder.GetNNodeUIConfigs(NNode : TNoteNode; var NNodeUIConfigQL: TNNodeUIConfiguration; var NNodeUIConfigEL: TNNodeUIConfiguration);
+var
+  i: integer;
+begin
+  NNodeUIConfigQL:= nil;
+  NNodeUIConfigEL:= nil;
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     if (NNodesUIConfig[i].NNode = NNode) then begin
+        if NNodesUIConfig[i].FQueryLayout then
+           NNodeUIConfigQL:= NNodesUIConfig[i]
+        else
+           NNodeUIConfigEL:= NNodesUIConfig[i];
+
+        if (NNodeUIConfigQL <> nil) and (NNodeUIConfigEL <> nil) then exit;
+     end;
+  end;
+end;
+
+
+function TKntFolder.SaveNNodesUIConfigToString(NNode : TNoteNode): string;
+var
+  NNodeUIConfigQL, NNodeUIConfigEL: TNNodeUIConfiguration;
+
+begin
+  Result:= '';
+
+  {  Only those TNNodeUIConfiguration objects are saved that contain changes —-relative to the configuration stored in the folder (for a given panel and layout)--
+     in the MECustomiz property of any PanelConfig (among the panels currently in use), or in the size ratios of any of the panels.
+
+     For each TNNodeUIConfiguration object, only the field indicating the layout, the size ratio fields, and the MECustomiz properties for each
+     PanelConfig are saved. The maximized state of the current panel is not preserved. }
+
+  GetNNodeUIConfigs(NNode, NNodeUIConfigQL, NNodeUIConfigEL);
+  if (NNodeUIConfigQL = nil) and (NNodeUIConfigEL = nil) then exit;
+
+  if (NNodeUIConfigQL <> nil) then
+     Result:= NNodeUIConfigQL.ToString;
+
+  if (NNodeUIConfigEL <> nil) then begin
+     if Result <> '' then
+        Result:= Result + #13#10;
+
+     Result:= Result + NNodeUIConfigEL.ToString;
+  end;
+
+end;
+
+
+
+
 {$ENDREGION}
 
 
@@ -2507,6 +2561,8 @@ var
   var
      NNode : TNoteNode;
      Level: integer;
+     str: string;
+
   begin
      NNode:= TreeUI.GetNNode(Node);
 
@@ -2542,6 +2598,11 @@ var
         tf.WriteLine( _NodeFontFace + '=' + NNode.NodeFontFace );
 
       AlarmMng.SaveAlarms(tf, NNode, Self);
+
+      str:= SaveNNodesUIConfigToString(NNode);
+      if str <> '' then
+         tf.WriteLine(str, true);
+
 
       inc(nodessaved);
   end;
@@ -2656,7 +2717,7 @@ begin
     tf.WriteLine( _CHTRFontSize + '=' + FTreeChrome.Font.Size.ToString );
     tf.WriteLine( _CHTRFontStyle + '=' + FontStyleToStr( FTreeChrome.Font.Style ) );
 
-    tf.WriteLine(_FolderAdvOptions + '=' + NoteAdvOptions.ToString);
+    tf.WriteLine(_FolderAdvOptions + '=' + NoteAdvOptions.ToString, True);
 
 
     tf.WriteLine(_NumNNodes + '=' + NumNodesToSave.ToString);
@@ -3122,7 +3183,7 @@ begin
                   AlarmMng.ProcessAlarm(s, NNode, Self)
               else
               if ( key = _NodeUIConfig ) then begin
-                 NNodeUIConfig:= TNNodeUIConfiguration.CreateFromString (NNode.GID, s);
+                 NNodeUIConfig:= TNNodeUIConfiguration.CreateFromString (NNode.GID, Self, TryUTF8ToUnicodeString(s));
                  if NNodeUIConfig <> nil then
                     AddNNodeUIConfig(NNodeUIConfig);
               end;
@@ -3939,16 +4000,195 @@ begin
 end;
 
 
-
-class function TNNodeUIConfiguration.CreateFromString (NNodeGID: Cardinal; Str: string): TNNodeUIConfiguration;
+function TNNodeUIConfiguration.DiffersFromFolderDef(Pnl: TNEntriesMainPanel; var ChangesInCustomiz: boolean; var ChangesInRatios: boolean): boolean;
+var
+   PanelConfig: TPanelConfiguration;
+   IgnoreFilterEnabled: boolean;
 begin
+   PanelConfig:= GetCreatedPanelConfig(Pnl);
+   IgnoreFilterEnabled:= FNNode.Note.NumEntries = 1;
+
+   if FQueryLayout then begin
+      ChangesInCustomiz:= not PanelConfig.MECustomiz.Equal(FFolder.NoteAdvOptions.DefaultMECustomizForQL[pnl], IgnoreFilterEnabled);
+      ChangesInRatios:= not InternalSizeRatios.Equal(FFolder.NoteAdvOptions.SizeRatiosQL);
+   end
+   else begin
+      ChangesInCustomiz:= not PanelConfig.MECustomiz.Equal(FFolder.NoteAdvOptions.DefaultMECustomizForEL[pnl], IgnoreFilterEnabled);
+      ChangesInRatios:= not InternalSizeRatios.Equal(FFolder.NoteAdvOptions.SizeRatiosEL);
+   end;
+
+   Result:= ChangesInCustomiz or ChangesInRatios;
+end;
+
+
+function TNNodeUIConfiguration.ToString: string;
+var
+  i: integer;
+  MECustomiz: TMEPanelCustomization;
+  PanelCustomizReference: ^TMEPanelCustomization;
+  pnl: TNEntriesMainPanel;
+  ChangesInCustomiz, ChangesInRatios, DoSave: boolean;
+  RatiosStr, PanelStr, PanelCustStr: string;
+  SEP: string;
+
+begin
+  {  For each TNNodeUIConfiguration object, only the field indicating the layout, the size ratio fields, and the MECustomiz properties for each
+     PanelConfig that doesn't match the configuration in the folder for that panel and layout, are saved.
+     The maximized state of the current panel is not preserved.
+     A line will be included for each layout (if needed).
+
+
+     Ex:
+     UI=0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
+        QL                             TL                   C
+
+     Ex:
+     UI=0||1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
+        QL TL                  C
+
+
+       NNodeUIConfig:   UI=Layout|SizeRatios|PanelCustomize1|....|PanelCustomizeN  or
+                        UI=Layout|SizeRatios|
+
+              Layout:
+                    0  (QueryLayout)
+                    1  (EditingLayout)
+
+          SizeRatios:
+                 '' (Empty, if it matches the configuration in the folder (for that panel and layout))  or
+
+                  Top|Bottom|TLTR|BLBR|TopAutoFromHidden|BottomAutoFromHidden
+
+     PanelCustomizeM:
+                 Panel|PanelCustomize
+
+                 Panel: TL,TR,BL,BR,Center --> 1,2,3,4,5
+
+       PanelCustomize:
+             Content:ShowDateInHeader:ShowTimeInHeader:ShowTagsInHeader:ShowLineInHeader:CompactHeader:DescendingOrder:FoldedTextMode:Filter
+
+             Filter:
+                  '=' if it matches the configuration in the folder (for that panel and layout)  or
+                  '*' if it matches the configuration in the folder (for that panel and layout),BUT with different Enabled state  or
+
+                   Enabled;TagsModeOR;TagsText;MatchCase;WholeWordsOnly;ConsiderHidden;ShowExcerpts;SearchMode;TextFilter;FindTagsIncl;FindTagsExcl
+                   FindTagsIncl: Tag1,Tag2,... TagsN&...&Tag1',Tag2',... TagsN&...'    (ex: 3,2&1&1,10 )
+                   FindTagsExcl:   ,,
+    }
+
+     Result:= '';
+     DoSave:= false;
+     SEP:= '';
+
+     for i:= 0 to Length(PanelsConfig)-1 do begin
+         MECustomiz:= PanelsConfig[i].MECustomiz;
+         pnl:= PanelsConfig[i].Panel;
+         PanelCustStr:= '';
+
+         if DiffersFromFolderDef(pnl, ChangesInCustomiz, ChangesInRatios) then begin
+            DoSave:= true;
+            if ChangesInCustomiz then begin
+               if FQueryLayout then
+                  PanelCustStr:= MECustomiz.ToString(FFolder.NoteAdvOptions.DefaultMECustomizForQL[pnl])
+               else
+                  PanelCustStr:= MECustomiz.ToString(FFolder.NoteAdvOptions.DefaultMECustomizForEL[pnl]);
+            end;
+         end;
+
+         if PanelCustStr <> '' then begin
+            Result:= Result + SEP + Ord(pnl).ToString + '|' + PanelCustStr;
+            SEP:= '|';
+         end;
+     end;
+
+     if DoSave then begin
+        RatiosStr:= '';
+        if ChangesInRatios then
+           RatiosStr:= InternalSizeRatios.ToString;
+        Result:= _NodeUIConfig + '=' + BOOLEANSTR[not FQueryLayout] + '|' + RatiosStr + '|' + Result;
+     end
+     else
+        Result:= '';
 
 end;
 
-function TNNodeUIConfiguration.SaveToString: string;
+
+class function TNNodeUIConfiguration.CreateFromString (NNodeGID: Cardinal; Folder: TKntFolder; Str: string): TNNodeUIConfiguration;
+var
+   NNode: TNoteNode;
+   QueryLayout: boolean;
+   Strs: TStrings;
+
+   RatiosStr, PanelCustStr: string;
+   i, iFirstPanelCustomiz: integer;
+   Pnl: TNEntriesMainPanel;
+   PnlUse: TNEntriesPanelUse;
+   Config: TFormatSettings;
+
 begin
+   Result:= nil;
+
+   if Str = '' then exit;
+
+   NNode:= Folder.GetNNodeByGID(NNodeGID);
+   if NNode = nil then exit;
+
+
+   {
+     Ex:
+        0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
+        QL                             TL                   C
+
+       Layout|SizeRatios|PanelCustomize1|....|PanelCustomizeN
+       Layout|SizeRatios|
+   }
+
+
+   Strs:= TStringList.Create;
+   try
+     try
+       SplitString(Strs, Str, '|', false);
+       QueryLayout:= (Strs[0]=BOOLEANSTR[false]);
+       Result:= TNNodeUIConfiguration.CreateDefault(NNode, Folder, QueryLayout);
+
+       Config := TFormatSettings.Create('en-US');                             // -> 0.1234
+
+       with Result do begin
+          iFirstPanelCustomiz:= 2;
+          if Strs[1] <> '' then begin
+             FSizeRatios.Top:=                  StrToFloatDef( Strs[1], 0, Config);
+             FSizeRatios.Bottom:=               StrToFloatDef( Strs[2], 0, Config);
+             FSizeRatios.TLTR:=                 StrToFloatDef( Strs[3], 0, Config);
+             FSizeRatios.BLBR:=                 StrToFloatDef( Strs[4], 0, Config);
+             FSizeRatios.TopAutoFromHidden:=    StrToFloatDef( Strs[5], 0, Config);
+             FSizeRatios.BottomAutoFromHidden:= StrToFloatDef( Strs[6], 0, Config);
+             iFirstPanelCustomiz:= 7;
+          end;
+
+       end;
+
+       i:= iFirstPanelCustomiz;
+       repeat
+           if Strs[i] = '' then break;
+
+           Pnl:= TNEntriesMainPanel(Ord(StrToInt(Strs[i])));
+           PanelCustStr:= Strs[i+1];
+           Result.GetCreatedPanelConfig(Pnl).MECustomiz.LoadFromString(PanelCustStr);
+
+           inc(i,2);
+       until i >= Strs.Count;
+
+     except
+       On E: Exception do
+          Result:= nil;
+     end;
+
+   finally
+      Strs.Free;
+   end;
 
 end;
+
 
 
 {$ENDREGION}

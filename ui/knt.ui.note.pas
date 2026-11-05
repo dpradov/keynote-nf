@@ -2243,7 +2243,8 @@ var
   p: TNEntriesPanel;
   iOnUse: integer;
   SelNEntriesUI: TKntNoteEntriesUI;
-  IsCustomized: boolean;
+  DoSaveNNodeUIConfig, ChangesInCustomiz, ChangesInRatios: boolean;
+  i: integer;
 
 begin
    if FNNode = nil then exit;
@@ -2264,15 +2265,12 @@ begin
    SetLength(FNNodeUIConfig.PanelsConfig, TNEntriesPanel_Count);
    SelNEntriesUI:= nil;
    iOnUse:= 0;
-   IsCustomized:= False;
    for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
-      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then begin
+      if (FNEntriesUI[p] <> nil) then begin
          if FNEntriesUI[p].OnUse then begin
             FNEntriesUI[p].SavePositionInPanel;
             FNEntriesUI[p].SaveCustomizeInfo;
             FNNodeUIConfig.PanelsConfig[iOnUse]:= FNEntriesUI[p].PanelConfig;
-            if FNEntriesUI[p].PanelConfig.IsFiltered or (FNEntriesUI[p].PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then
-               IsCustomized:= True;
             inc(iOnUse);
             if p in MainPanels then begin                              // Main panels: [pnTL..pnBR]
                if FNEntriesUI[p].PanelConfig.LinkedTags = nil then
@@ -2296,12 +2294,26 @@ begin
    else
       FNote.SelEntry:= nil;
 
-
    SetLength(FNNodeUIConfig.PanelsConfig, iOnUse);
-   if FNewNNodeUIConfig and
-      ((NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal) or IsCustomized) then begin
-         Folder.AddNNodeUIConfig(FNNodeUIConfig);
-         FNewNNodeUIConfig:= false;
+
+
+
+   if FNewNNodeUIConfig then begin
+       DoSaveNNodeUIConfig:= (NNode.Note.NumEntries > 1) or (Editor.ZoomCurrent <> Editor.ZoomGoal);
+
+       if not DoSaveNNodeUIConfig then
+           for i:= 0 to iOnUse - 1 do begin
+               if FNNodeUIConfig.DiffersFromFolderDef(FNNodeUIConfig.PanelsConfig[i].Panel, ChangesInCustomiz, ChangesInRatios) then begin
+                  DoSaveNNodeUIConfig:= True;
+                  break;
+               end;
+           end;
+
+       if DoSaveNNodeUIConfig then begin
+          Folder.AddNNodeUIConfig(FNNodeUIConfig);
+          FNewNNodeUIConfig:= false;
+       end;
+
    end;
 
    Log_StoreTick('TKntNoteUI.SaveToDataModel - END', 4, -1);

@@ -435,6 +435,10 @@ NA=21-05-2007 15:24:50
    NA=D10-06-2010 08:00:00/10-06-2010 07:55:00*B100/1200|I should do something..
 
 
+Panel configuration options for node [Multi-Entry] (see "About Advanced Options in Folder", below)       (New in 3.0.0 -- file format 3.3)
+UI=0||5|2:1:1:1:1:0:1:0:0;0;0;0;0;0;1;0;"important";;
+   
+
 
 --------------------------------------
 BOOKMARKS SECTION
@@ -686,9 +690,10 @@ c) NODE STATE
 
 
 
-3. About Advanced Options in Folder
+3. About Advanced Options in Folder [Multi-entry]
 ===================================
-The key "AO" is used to store the advanced options configured for each folder, specifically those that differ from the factory settings.
+The "AO" key is used to store the advanced options configured for each folder (related to the ability to create multiple entries within each note)
+specifically those that differ from the factory settings.
 The associated value contains multiple sets of parameters, separated by "|". Some of these are further divided into several parameters—separated by "/",
 with one for each panel to which they apply.
 Some of these parameters are broken down into sub-parameters using ":", and some of these are further subdivided using ";".
@@ -731,7 +736,8 @@ The stored data are as follows (where QL corresponds to "QueryLayout" and EL to 
          - Content:ShowDateInHeader:ShowTimeInHeader:ShowTagsInHeader:ShowLineInHeader:CompactHeader:DescendingOrder:FoldedTextMode:Filter
 
             Filter:
-               '*' (if equals to built-in)  or
+               '=' (if equals to built-in)  or
+               '*' (if equals to built-in), BUT with different Enabled state  or
 
                Enabled;TagsModeOR;TagsText;MatchCase;WholeWordsOnly;ConsiderHidden;ShowExcerpts;SearchMode;TextFilter;FindTagsIncl;FindTagsExcl
                FindTagsIncl: Tag1,Tag2,... TagsN&...&Tag1',Tag2',... TagsN&...'    ( ex: 3,2&1&5,10   (Tag3 OR Tag2) AND (Tag1) AND (Tag5 OR Tag10) )
@@ -767,6 +773,60 @@ The stored data are as follows (where QL corresponds to "QueryLayout" and EL to 
             0: fmKeepUnchanged   // Keep unchanged
             1: fmUnfold          // Unfold all
             2: fmRemoveAll       // Remove all
+
+
+
+[Multi-Entry] Panel configuration options for node
+--------------------------------------------------
+The "UI" key is used to store, for individual nodes, differences in panel configuration options (Ctrl+F4), relative to the settings in the folder
+(in advanced options, as defined in "AO" key)
+
+Two examples of value for UI could be:
+
+UI=0|0|0.3431|0|0|0|0|
+UI=1||5|2:1:1:1:1:0:1:0:0;0;0;0;0;0;1;0;"important";;
+
+The stored data are as follows:
+
+     For each node and layout with differences, only the panels that doesn't match the configuration in the folder for that panel and layout, will be considered.
+	 A line will be included for each layout with differences.
+
+     Ex:
+     UI=0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
+        QL                             TL                   C
+
+     Ex:
+     UI=1||1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
+        EL TL                  C
+
+
+       NNodeUIConfig:   UI=Layout|SizeRatios|PanelCustomize1|....|PanelCustomizeN  or
+	                    UI=Layout|SizeRatios|
+
+              Layout:
+                    0  (QueryLayout)
+                    1  (EditingLayout)
+
+          SizeRatios:
+                 '' (Empty, if it matches the configuration in the folder (for that panel and layout))  or
+
+                  Top|Bottom|TLTR|BLBR|TopAutoFromHidden|BottomAutoFromHidden
+
+     PanelCustomizeM:
+                 Panel|PanelCustomize
+
+                 Panel: TL,TR,BL,BR,Center --> 1,2,3,4,5
+
+       PanelCustomize:
+             Content:ShowDateInHeader:ShowTimeInHeader:ShowTagsInHeader:ShowLineInHeader:CompactHeader:DescendingOrder:FoldedTextMode:Filter
+
+             Filter:
+                  '=' if it matches the configuration in the folder (for that panel and layout)  or
+                  '*' if it matches the configuration in the folder (for that panel and layout),BUT with different Enabled state  or
+
+                   Enabled;TagsModeOR;TagsText;MatchCase;WholeWordsOnly;ConsiderHidden;ShowExcerpts;SearchMode;TextFilter;FindTagsIncl;FindTagsExcl
+                   FindTagsIncl: Tag1,Tag2,... TagsN&...&Tag1',Tag2',... TagsN&...'    (ex: 3,2&1&1,10 )
+                   FindTagsExcl:   ,,
 
 
 
