@@ -1394,9 +1394,9 @@ var
 begin
   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
-        if (FNEntriesUI[p].Note = nil) or (FNEntriesUI[p].Note.NumEntries > 1) then
-           FNEntriesUI[p].ClearFilterInfoInAllEntries;
+        FNEntriesUI[p].ClearFilterInfoInAllEntries;
 end;
+
 
 
 {$IFDEF KNT_DEBUG}

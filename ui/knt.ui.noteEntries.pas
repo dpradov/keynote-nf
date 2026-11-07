@@ -193,7 +193,7 @@ type
   protected
     function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
     //function GetHeaderCellx: AnsiString;
-    function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
+    function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False; FilteredOrHiddenIgnored: boolean = false): AnsiString;
     function GetFilterInfUsingFindAll (FolderToUse: TKntFolder; NNodeToUse: TNoteNode; NEntryToUse: TNoteEntry; TxtPlain: string; ResultsSearch: TResultsSearch): boolean;
     function NEntryToBeFilteredIn (NNode: TNoteNode; NEntry: TNoteEntry): boolean;
     function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
@@ -1821,7 +1821,9 @@ var
 
  procedure ShowHeader(iEntry: integer);
  begin
-    Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, FEntriesShown[iEntry].NEntry, (iEntry=0), (FEntriesShown[iEntry].Content=cmOnlyHeader)), True,True);
+    Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, FEntriesShown[iEntry].NEntry, (iEntry=0), (FEntriesShown[iEntry].Content=cmOnlyHeader),
+                                    ((FEntriesShown[iEntry].Filtered=fFilteredIgnored) or FEntriesShown[iEntry].NEntry.IsHidden) ),
+                      True,True);
     FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
  end;
 
@@ -2799,10 +2801,10 @@ end;
 *)
 
 
-function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False): AnsiString;
+function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False; FilteredOrHiddenIgnored: boolean = false): AnsiString;
 var
   strLine: AnsiString;
-  s, strIni, strInfo, strSA, strFontInfo: string;
+  s, strIni, strInfo, strSA, strFontInfo, strFilteredOrHidden: string;
   MainIni, MainEnd: string;
   EditorBackColor, ColorLine, ColorInfo: TColor;
   ShowTags, ShowDate: boolean;
@@ -2820,6 +2822,9 @@ begin
 
    ShowTags:= false;
    ShowDate:= false;
+
+   if FilteredOrHiddenIgnored then
+      strFilteredOrHidden:= ' *  ';
 
    if MEopt.ShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
       strInfo:= '# ' + Trim(NEntry.TagsNames);
@@ -2855,7 +2860,7 @@ begin
    else
       strIni:= '   ';
 
-   strInfo:= strIni + MainIni + strInfo;
+   strInfo:= strIni + strFilteredOrHidden + MainIni + strInfo;
 
    if not MEopt.CompactHeader or (ShowDate or ShowTags or Folded) then
       strSA:= '\sa80';

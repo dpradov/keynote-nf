@@ -1528,8 +1528,6 @@ begin
         NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosEL;
 
      for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
-        if (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode <> nil) and (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode.Note.NumEntries = 1) then continue;
-
         NNodesUIConfig[i].PanelsConfig[j].ClearCustomizeInfo(nil);
 
         pnl:= NNodesUIConfig[i].PanelsConfig[j].Panel;
@@ -1537,6 +1535,9 @@ begin
            NNodesUIConfig[i].PanelsConfig[j].MECustomiz:=  NoteAdvOptions.DefaultMECustomizForQL[pnl]
         else
            NNodesUIConfig[i].PanelsConfig[j].MECustomiz:=  NoteAdvOptions.DefaultMECustomizForEL[pnl];
+
+        if (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode <> nil) and (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode.Note.NumEntries = 1) then
+           NNodesUIConfig[i].PanelsConfig[j].MECustomiz.Filter.Enabled:= false;
      end;
   end;
 
