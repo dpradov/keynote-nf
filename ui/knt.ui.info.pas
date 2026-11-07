@@ -240,7 +240,7 @@ type
      procedure ReloadNoteName;
      procedure SaveToDataModel;
      procedure SetAsDefaultLayoutInFolder(var NoteAdvOptions: TNoteAdvancedOptions);
-     procedure ResetPanelSizes;
+     procedure ResetPanelSizes(QL: boolean);
      procedure NewEntryRequested(ReqFromEditor: TKntRichEdit);
      procedure IntroInEditorOfEntriesUI(RequestedFromEditor: TKntRichEdit; CtrlDown: boolean);
      procedure SelectNextEntry;

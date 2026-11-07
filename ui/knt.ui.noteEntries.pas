@@ -3396,7 +3396,7 @@ begin
              if ApplyFilterToAll[QL] then
                 NoteUI.ApplyChangeinPanelCustomiz(Customiz, ForceApplyFilter, PanelConfig.Panel);
              if ResetSizes then
-                NoteUI.ResetPanelSizes;
+                NoteUI.ResetPanelSizes(QL);
 
              FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
          end;

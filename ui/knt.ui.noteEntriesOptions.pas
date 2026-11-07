@@ -496,7 +496,10 @@ end;
 
 procedure TForm_NoteEntriesOptions.btnRestoreDefClick(Sender: TObject);
 begin
-   Customiz:= ActiveFolder.NoteAdvOptions.DefaultMECustomizForQL[Panel];
+   if QueryLayout then
+      Customiz:= ActiveFolder.NoteAdvOptions.DefaultMECustomizForQL[Panel]
+   else
+      Customiz:= ActiveFolder.NoteAdvOptions.DefaultMECustomizForEL[Panel];
    PropsToForm;
 
    EntryContChanged:= True;

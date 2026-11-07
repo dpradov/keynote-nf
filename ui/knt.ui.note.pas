@@ -132,7 +132,7 @@ type
     procedure ReloadNoteName;
     procedure ConfigureEditor;
     procedure SetAsDefaultLayoutInFolder(var NoteAdvOptions: TNoteAdvancedOptions);
-    procedure ResetPanelSizes;
+    procedure ResetPanelSizes (QL: boolean);
 
   protected
     procedure SetInfoPanelHidden(value: boolean);
@@ -2394,23 +2394,27 @@ begin
 end;
 
 
-procedure TKntNoteUI.ResetPanelSizes;
+procedure TKntNoteUI.ResetPanelSizes(QL: boolean);
 var
   NNodeUIConfig: TNNodeUIConfiguration;
 begin
-   // Query Layout
-   if FQueryLayout then
-      NNodeUIConfig:= FNNodeUIConfig
-   else begin
-      SaveToDataModel;
-      NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, true);
-   end;
-   NNodeUIConfig.InternalSizeRatios:= Folder.NoteAdvOptions.SizeRatiosQL;
+   if QL then begin
+     // Query Layout
+      if FQueryLayout then
+         NNodeUIConfig:= FNNodeUIConfig
+      else begin
+         SaveToDataModel;
+         NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, true);
+      end;
+      NNodeUIConfig.InternalSizeRatios:= Folder.NoteAdvOptions.SizeRatiosQL;
 
-   // Editing Layout
-   NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, false);
-   if NNodeUIConfig <> nil then
-      NNodeUIConfig.InternalSizeRatios:= Folder.NoteAdvOptions.SizeRatiosEL;
+   end
+   else begin
+      // Editing Layout
+      NNodeUIConfig:= Folder.GetNNodeUIConfig(NNode, false);
+      if NNodeUIConfig <> nil then
+         NNodeUIConfig.InternalSizeRatios:= Folder.NoteAdvOptions.SizeRatiosEL;
+   end;
 
    FramResizePendingInNoteUI:= Self;
 end;
