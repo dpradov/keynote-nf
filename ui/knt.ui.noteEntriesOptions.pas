@@ -36,7 +36,8 @@ uses
    kn_Info,
    kn_Const,
    knt.ui.info,
-   knt.model.note
+   knt.model.note,
+   kn_KntFolder
    ;
 
 
@@ -72,11 +73,22 @@ type
     chkHidden: TCheckBox;
     btnRestoreDef: TButton;
     chkEnabled: TCheckBox;
-    chkResetSizes: TCheckBox;
     chkApplyAll: TCheckBox;
     cbFoldedText: TComboBox;
     lbl3: TLabel;
     cb_HTime: TCheckBox;
+    gbLayout: TGroupBox;
+    chkResetSizes: TCheckBox;
+    lTL: TLabel;
+    cb_TL: TCheckBox;
+    cb_TR: TCheckBox;
+    cb_C: TCheckBox;
+    cb_BL: TCheckBox;
+    cb_BR: TCheckBox;
+    lTR: TLabel;
+    lC: TLabel;
+    lBL: TLabel;
+    lBR: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -104,6 +116,7 @@ type
     procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure ChangeFindInclToModeOR;
+    procedure cb_PanelEnableClick(Sender: TObject);
 
   protected
     procedure DoShow; override;
@@ -116,6 +129,8 @@ type
     Panel: TNEntriesPanelBase;
     Customiz: TMEPanelCustomization;
     QueryLayout: boolean;
+    EnabledPanelsForLayoutInNote: TNEntriesPanelEnabledArray;
+    Folder: TKntFolder;
     HeaderChanged: boolean;
     EntryContChanged: boolean;
     OrderChanged: boolean;
@@ -216,6 +231,7 @@ procedure TForm_NoteEntriesOptions.FormActivate(Sender: TObject);
 var
   tabName: string;
   strPanel, strLayout: string;
+  DefaultUseForLayout: TNEntriesPanelUseArray;
 
 begin
   OnActivate := nil;
@@ -225,14 +241,39 @@ begin
   ModalFormWithTxtTagsVisible:= true;
 
   strPanel:= ENTRIES_PANELS[Panel];
-  if QueryLayout then
-     strLayout:= GetRS(sEntry18)
-  else
+  if QueryLayout then begin
+     strLayout:= GetRS(sEntry18);
+     DefaultUseForLayout:= ActiveFolder.NoteAdvOptions.DefaultUseForQL;
+  end
+  else begin
      strLayout:= GetRS(sEntry19);
+     DefaultUseForLayout:= ActiveFolder.NoteAdvOptions.DefaultUseForEL;
+  end;
 
   Caption:= Format(Caption, [strPanel, strLayout]);
   chkResetSizes.Hint:= Format(chkResetSizes.Hint, [strLayout]);
   btnRestoreDef.Hint:= Format(btnRestoreDef.Hint, [strPanel, strLayout]);
+
+  cb_TL.Enabled:= (DefaultUseForLayout[pnTL] <> pnuHidePanel);
+  cb_TR.Enabled:= (DefaultUseForLayout[pnTR] <> pnuHidePanel);
+  cb_BL.Enabled:= (DefaultUseForLayout[pnBL] <> pnuHidePanel);
+  cb_BR.Enabled:= (DefaultUseForLayout[pnBR] <> pnuHidePanel);
+  cb_C.Enabled:= (DefaultUseForLayout[pnCenter] <> pnuHidePanel);
+  if cb_TL.Enabled then
+     lTL.Font.Style:= [fsBold];
+  if cb_TR.Enabled then
+     lTR.Font.Style:= [fsBold];
+  if cb_BL.Enabled then
+     lBL.Font.Style:= [fsBold];
+  if cb_BR.Enabled then
+     lBR.Font.Style:= [fsBold];
+  lC.Font.Style:= [fsBold];
+
+  cb_TL.OnClick:= cb_PanelEnableClick;
+  cb_TR.OnClick:= cb_PanelEnableClick;
+  cb_BL.OnClick:= cb_PanelEnableClick;
+  cb_BR.OnClick:= cb_PanelEnableClick;
+  cb_C.OnClick:= cb_PanelEnableClick;
 
   PropsToForm;
   if txtTagsIncl.CanFocus then
@@ -308,6 +349,12 @@ begin
   end;
 
   ResetSizes:= chkResetSizes.Checked;
+
+  EnabledPanelsForLayoutInNote[pnTL]:= cb_TL.Checked;
+  EnabledPanelsForLayoutInNote[pnTR]:= cb_TR.Checked;
+  EnabledPanelsForLayoutInNote[pnBL]:= cb_BL.Checked;
+  EnabledPanelsForLayoutInNote[pnBR]:= cb_BR.Checked;
+  EnabledPanelsForLayoutInNote[pnCenter]:= true;
 end;
 
 
@@ -342,6 +389,30 @@ begin
      chkExcerpts.Checked:=   Filter.ShowExcerpts;
   end;
 
+  cb_TL.Checked:= EnabledPanelsForLayoutInNote[pnTL];
+  cb_TR.Checked:= EnabledPanelsForLayoutInNote[pnTR];
+  cb_BL.Checked:= EnabledPanelsForLayoutInNote[pnBL];
+  cb_BR.Checked:= EnabledPanelsForLayoutInNote[pnBR];
+  cb_C.Checked:= True;
+end;
+
+procedure TForm_NoteEntriesOptions.cb_PanelEnableClick(Sender: TObject);
+var
+  CB: TCheckBox;
+  pnl: TNEntriesMainPanel;
+  DefUsePanelArray: TNEntriesPanelUseArray;
+begin
+   CB:= TCheckBox(Sender);
+   if CB.Checked then exit;
+
+   pnl:= TNEntriesMainPanel(CB.Tag);
+   if QueryLayout then
+      DefUsePanelArray:= Folder.NoteAdvOptions.DefaultUseForQL
+   else
+      DefUsePanelArray:= Folder.NoteAdvOptions.DefaultUseForEL;
+
+   if (pnl = pnCenter) or (DefUsePanelArray[pnl] = pnuShowAllEntries) then
+      CB.Checked:= True;
 end;
 
 

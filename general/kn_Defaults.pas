@@ -186,7 +186,7 @@ type
     procedure CheckScope;
     procedure CheckZoomValue;
 
-    procedure cb_ShowEntriesPanelClick(Sender: TObject);
+    procedure cb_EnabledPanelClick(Sender: TObject);
     procedure ComboUseChange(Sender: TObject);
     procedure txtTagsEnter(Sender: TObject);
     procedure OnChangeTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
@@ -324,12 +324,11 @@ begin
   for InfoBarPos := low(InfoBarPos) to high(InfoBarPos) do
       cInfoBarPos.Items.Add(EDITOR_INFOBAR_POS[InfoBarPos]);
 
+  cb_Cq.Checked:= True;
+  cb_Ce.Checked:= True;
+  cb_Cq.OnClick:= cb_EnabledPanelClick;
+  cb_Ce.OnClick:= cb_EnabledPanelClick;
 
-  cb_TLq.OnClick:= cb_ShowEntriesPanelClick;
-  cb_TRq.OnClick:= cb_ShowEntriesPanelClick;
-  cb_Cq.OnClick:= cb_ShowEntriesPanelClick;
-  cb_BLq.OnClick:= cb_ShowEntriesPanelClick;
-  cb_BRq.OnClick:= cb_ShowEntriesPanelClick;
   cUseTLq.ItemIndex:= 0;
   cUseTRq.ItemIndex:= 0;
   cUseCq.ItemIndex:= 0;
@@ -356,11 +355,6 @@ begin
   TagsBLq.OnEnter:= txtTagsEnter;
   TagsBRq.OnEnter:= txtTagsEnter;
 
-  cb_TLe.OnClick:= cb_ShowEntriesPanelClick;
-  cb_TRe.OnClick:= cb_ShowEntriesPanelClick;
-  cb_Ce.OnClick:= cb_ShowEntriesPanelClick;
-  cb_BLe.OnClick:= cb_ShowEntriesPanelClick;
-  cb_BRe.OnClick:= cb_ShowEntriesPanelClick;
   cUseTLe.ItemIndex:= 0;
   cUseTRe.ItemIndex:= 0;
   cUseCe.ItemIndex:= 0;
@@ -741,6 +735,19 @@ begin
      DefaultUseForEL[pnBL]:= TNEntriesPanelUse(cUseBLe.ItemIndex);
      DefaultUseForEL[pnBR]:= TNEntriesPanelUse(cUseBRe.ItemIndex);
 
+     DefaultEnabledForQL[pnTL]:= cb_TLq.Checked;
+     DefaultEnabledForQL[pnTR]:= cb_TRq.Checked;
+     DefaultEnabledForQL[pnCenter]:= true;
+     DefaultEnabledForQL[pnBL]:= cb_BLq.Checked;
+     DefaultEnabledForQL[pnBR]:= cb_BRq.Checked;
+
+     DefaultEnabledForEL[pnTL]:= cb_TLe.Checked;
+     DefaultEnabledForEL[pnTR]:= cb_TRe.Checked;
+     DefaultEnabledForEL[pnCenter]:= true;
+     DefaultEnabledForEL[pnBL]:= cb_BLe.Checked;
+     DefaultEnabledForEL[pnBR]:= cb_BRe.Checked;
+
+
      // LinkedTagsForQL and LinkedTagsForEL are updated from OnChangeTagsIntrod
 
      NewEntriesAlwaysOnEdLayout:= cb_NewInEL.Checked;
@@ -763,7 +770,7 @@ procedure TForm_Defaults.PropsToForm;
   var
     Tags: TNoteTagArray;
   begin
-     CB_Panel.Checked:= (myNoteAdvOptions.DefaultUseForQL[pnl] <> pnuHidePanel);
+     CB_Panel.Checked:= myNoteAdvOptions.DefaultEnabledForQL[pnl];
      ComboUse.ItemIndex:= Ord(myNoteAdvOptions.DefaultUseForQL[Pnl]);
      ComboUseChange(ComboUse);
      Tags:= myNoteAdvOptions.LinkedTagsForQL[Pnl];
@@ -775,7 +782,7 @@ procedure TForm_Defaults.PropsToForm;
   var
     Tags: TNoteTagArray;
   begin
-     CB_Panel.Checked:= (myNoteAdvOptions.DefaultUseForEL[pnl] <> pnuHidePanel);
+     CB_Panel.Checked:= myNoteAdvOptions.DefaultEnabledForEL[pnl];
      ComboUse.ItemIndex:= Ord(myNoteAdvOptions.DefaultUseForEL[Pnl]);
      ComboUseChange(ComboUse);
      Tags:= myNoteAdvOptions.LinkedTagsForEL[Pnl];
@@ -1070,53 +1077,11 @@ begin
 end;
 
 
-procedure TForm_Defaults.cb_ShowEntriesPanelClick(Sender: TObject);
-var
-  pnl: TNEntriesMainPanel;
-  IsChecked: boolean;
-  ComboUse: TComboBox;
-  pu: TNEntriesPanelUse;
-  idPnl: integer;
-  EL: boolean;       // Editing layout
+procedure TForm_Defaults.cb_EnabledPanelClick(Sender: TObject);
 begin
-   idPnl:= TCheckBox(Sender).Tag;
-   EL:= false;
-   if idPnl >= 10 then begin
-      EL:= true;
-      dec(idPnl, 10);
-   end;
-
-   pnl:= TNEntriesMainPanel(idPnl);
-   IsChecked:= TCheckBox(Sender).Checked;
-
-   if EL then
-       case pnl of
-          pnTL: ComboUse:= cUseTLe;
-          pnTR: ComboUse:= cUseTRe;
-          pnCenter: ComboUse:= cUseCe;
-          pnBL: ComboUse:= cUseBLe;
-          pnBR: ComboUse:= cUseBRe;
-       end
-   else
-       case pnl of
-          pnTL: ComboUse:= cUseTLq;
-          pnTR: ComboUse:= cUseTRq;
-          pnCenter: ComboUse:= cUseCq;
-          pnBL: ComboUse:= cUseBLq;
-          pnBR: ComboUse:= cUseBRq;
-       end;
-
-   ComboUse.Enabled:= IsChecked;
-   if LoadedForm then begin
-      pu:= pnuShowTagLinkedEntries;
-      if not IsChecked then
-         pu:= pnuHidePanel;
-
-      ComboUse.ItemIndex:= Ord(pu);
-      ComboUseChange(ComboUse);
-   end;
+  if not TCheckBox(Sender).Checked then
+     TCheckBox(Sender).Checked:= True;
 end;
-
 
 procedure TForm_Defaults.ComboUseChange(Sender: TObject);
 var
@@ -1185,8 +1150,13 @@ begin
           end;
        end;
 
-   if pu = pnuHidePanel then
-      CheckBox.Checked:= False;
+   if (pu = pnuHidePanel) then begin
+      CheckBox.Font.Style:= [];
+      if (pnl <> pnCenter) then
+         CheckBox.Checked:= False;
+   end
+   else
+      CheckBox.Font.Style:= [fsBold];
 
    txtTags.Enabled:= (pu = pnuShowTagLinkedEntries);
    if pu <> pnuShowTagLinkedEntries then begin

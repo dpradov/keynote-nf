@@ -208,6 +208,8 @@ type
     procedure ReviewInfoBarVisibility;
     property ChangingLayout: boolean read FChangingLayout;
     procedure RefreshPanelsLayout;
+    function GetNNodeUIConfig: TNNodeUIConfiguration;
+    procedure CheckChangeInEnabledPanels(EnabledPanelsForLayout: TNEntriesPanelEnabledArray);
     procedure TreeFocused;
     //procedure TestPanels;
 
@@ -460,7 +462,7 @@ procedure TKntNoteUI.splBMoved(Sender: TObject);
 begin
   if CtrlDown then begin
      FNNodeUIConfig.BottomAutoFromHidden_Ratio:= Max(0.15, pnlBottom.Height / Self.Height);
-     FramResizePendingInNoteUI:= Self;
+     FrameResizePendingInNoteUI:= Self;
   end
   else
      FNNodeUIConfig.Bottom_Ratio:= pnlBottom.Height / Self.Height;
@@ -502,7 +504,7 @@ begin
   else
   if CtrlDown then begin
      FNNodeUIConfig.TopAutoFromHidden_Ratio:= Max(0.15, pnlTop.Height / Self.Height);
-     FramResizePendingInNoteUI:= Self;
+     FrameResizePendingInNoteUI:= Self;
   end
   else
      FNNodeUIConfig.Top_Ratio:= pnlTop.Height / Self.Height;
@@ -849,7 +851,10 @@ begin
    end;
 end;
 
-
+function TKntNoteUI.GetNNodeUIConfig: TNNodeUIConfiguration;
+begin
+  Result:= FNNodeUIConfig;
+end;
 
 procedure TKntNoteUI.RefreshPanelsLayout;
 begin
@@ -861,6 +866,82 @@ begin
    finally
      LockControl(pnlAuxC, false);
    end;
+
+end;
+
+
+procedure TKntNoteUI.CheckChangeInEnabledPanels(EnabledPanelsForLayout: TNEntriesPanelEnabledArray);
+var
+  pnl: TNEntriesMainPanel;
+  CurrentEnabledPanelsForLayout: TNEntriesPanelEnabledArray;
+  PnlUse: TNEntriesPanelUse;
+  PanelConfig: TPanelConfiguration;
+  NumDeleted, N: integer;
+  i, j: integer;
+  Changes: boolean;
+begin
+   CurrentEnabledPanelsForLayout:= FNNodeUIConfig.GetEnabledPanels;
+   Changes:= false;
+
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+       if (CurrentEnabledPanelsForLayout[pnl] <> EnabledPanelsForLayout[pnl]) then begin
+          Changes:= true;
+          break;
+       end;
+
+   if not Changes then exit;
+
+   SaveToDataModel;
+
+   NumDeleted:= 0;
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+       if (CurrentEnabledPanelsForLayout[pnl] <> EnabledPanelsForLayout[pnl]) and not EnabledPanelsForLayout[pnl] then begin
+          PanelConfig:= FNNodeUIConfig.GetCreatedPanelConfig(pnl);
+          if PanelConfig <> nil then begin
+             for i:= 0 to Length(FNNodeUIConfig.PanelsConfig) -1 do
+                 if (FNNodeUIConfig.PanelsConfig[i] <> nil) and (FNNodeUIConfig.PanelsConfig[i].Panel = pnl) then begin
+                    GetNEntriesUI(Pnl).SetAsUnused;
+                    FNNodeUIConfig.PanelsConfig[i]:= nil;
+                    FreeAndNil(PanelConfig);
+                    inc(NumDeleted);
+                    break;
+                 end;
+          end;
+       end;
+
+    if NumDeleted > 0 then begin
+       N:= Length(FNNodeUIConfig.PanelsConfig) - NumDeleted;
+       j:= -1;
+       for i:= 0 to N -1 do begin
+          repeat
+              inc(j);
+              if (FNNodeUIConfig.PanelsConfig[j] <> nil) then begin
+                  FNNodeUIConfig.PanelsConfig[i]:= FNNodeUIConfig.PanelsConfig[j];
+                  break;
+              end;
+          until j = Length(FNNodeUIConfig.PanelsConfig)-1;
+       end;
+       SetLength(FNNodeUIConfig.PanelsConfig, N);
+    end;
+
+
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+       if (CurrentEnabledPanelsForLayout[pnl] <> EnabledPanelsForLayout[pnl]) and EnabledPanelsForLayout[pnl]then begin
+          PanelConfig:= FNNodeUIConfig.GetCreatedPanelConfig(pnl);
+
+          if FNNodeUIConfig.QueryLayout then
+             PnlUse:= Folder.NoteAdvOptions.DefaultUseForQL[pnl]
+          else
+             PnlUse:= Folder.NoteAdvOptions.DefaultUseForEL[pnl];
+
+          if PnlUse = pnuHidePanel then continue;                               // It shouldn't
+          if PanelConfig <> nil then continue;    // ,,
+
+          Changes:= true;
+          FNNodeUIConfig.CreateDefaultPanelConfig (pnl, PnlUse, FNNode);
+       end;
+
+   LoadFromNNode(FNNode, False, neLastLayout);   // The content will have been saved previously (from TKntNoteEntriesUI.btnOptionsClick)
 
 end;
 
@@ -1836,7 +1917,7 @@ begin
      ((FocPanel in [pnCenter, pnBL,pnBR]) and
          ( ((FNNodeUIConfig.PanelReducedToHidden(pnBL)) and (PnlBL.Visible or PnlBR.Visible)) or
            ((PnlBL.Visible and (NumberOfVisibleEntries(pnBL) = 0)) or ((PnlBR.Visible and (NumberOfVisibleEntries(pnBR)=0)))) ) )  then
-     FramResizePendingInNoteUI:= Self;
+     FrameResizePendingInNoteUI:= Self;
 
   TimerInfoPanel.Enabled:= False;
   TimerInfoPanel.Enabled:= True;
@@ -2416,7 +2497,7 @@ begin
          NNodeUIConfig.InternalSizeRatios:= Folder.NoteAdvOptions.SizeRatiosEL;
    end;
 
-   FramResizePendingInNoteUI:= Self;
+   FrameResizePendingInNoteUI:= Self;
 end;
 
 

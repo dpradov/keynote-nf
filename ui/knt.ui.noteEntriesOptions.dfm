@@ -4,7 +4,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   HelpContext = 30
   BorderStyle = bsDialog
   Caption = '%s panel in %s'
-  ClientHeight = 485
+  ClientHeight = 534
   ClientWidth = 394
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   TextHeight = 13
   object btn_OK: TButton
     Left = 15
-    Top = 451
+    Top = 503
     Width = 75
     Height = 25
     Caption = 'OK'
@@ -33,7 +33,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   end
   object btn_Cancel: TButton
     Left = 103
-    Top = 451
+    Top = 503
     Width = 75
     Height = 25
     Hint = 'Discard changes and close dialog box'
@@ -44,7 +44,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   end
   object btn_Help: TButton
     Left = 305
-    Top = 451
+    Top = 503
     Width = 75
     Height = 25
     Caption = 'Help'
@@ -54,7 +54,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
   object gbDisplay: TGroupBox
     Left = 8
     Top = 6
-    Width = 374
+    Width = 378
     Height = 147
     Caption = ' Display '
     DefaultHeaderFont = False
@@ -65,7 +65,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     HeaderFont.Style = [fsBold]
     TabOrder = 5
     DesignSize = (
-      374
+      378
       147)
     object lbl10: TLabel
       Left = 13
@@ -147,7 +147,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       TabOrder = 3
     end
     object cbFoldedText: TComboBox
-      Left = 17
+      Left = 21
       Top = 116
       Width = 204
       Height = 21
@@ -173,10 +173,10 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
   end
   object gbFilter: TGroupBox
-    Left = 9
-    Top = 163
+    Left = 8
+    Top = 161
     Width = 377
-    Height = 240
+    Height = 230
     Caption = ' Filter entries / content '
     DefaultHeaderFont = False
     HeaderFont.Charset = DEFAULT_CHARSET
@@ -187,10 +187,10 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     TabOrder = 0
     DesignSize = (
       377
-      240)
+      230)
     object Label3: TLabel
       Left = 14
-      Top = 100
+      Top = 97
       Width = 161
       Height = 13
       AutoSize = False
@@ -224,7 +224,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
     object cbType: TComboBox
       Left = 194
-      Top = 117
+      Top = 114
       Width = 140
       Height = 21
       Hint = 'Select type of search to perform'
@@ -233,7 +233,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
     object txtText: TEdit
       Left = 19
-      Top = 119
+      Top = 116
       Width = 143
       Height = 19
       Ctl3D = False
@@ -242,7 +242,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
     object chkWholeWords: TCheckBox
       Left = 194
-      Top = 144
+      Top = 141
       Width = 180
       Height = 17
       Hint = 'Consider only complete words'
@@ -251,7 +251,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
     object chkCaseSens: TCheckBox
       Left = 19
-      Top = 144
+      Top = 141
       Width = 169
       Height = 17
       Hint = 'Distinguish between lowercase and uppercase letters'
@@ -293,7 +293,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
     object chkExcerpts: TCheckBox
       Left = 194
-      Top = 216
+      Top = 204
       Width = 177
       Height = 17
       Hint = 'Show only excerpts satisfying the filter condition'
@@ -312,7 +312,7 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
     object chkHidden: TCheckBox
       Left = 194
-      Top = 194
+      Top = 182
       Width = 177
       Height = 17
       Hint = 'Consider hidden entries'
@@ -332,8 +332,8 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
       OnClick = chkEnabledClick
     end
     object chkApplyAll: TCheckBox
-      Left = 13
-      Top = 216
+      Left = 12
+      Top = 204
       Width = 177
       Height = 17
       Hint = 'Apply the filter to all the panels in this layout'
@@ -342,33 +342,127 @@ object Form_NoteEntriesOptions: TForm_NoteEntriesOptions
     end
   end
   object btnRestoreDef: TButton
-    Left = 235
-    Top = 418
-    Width = 145
+    Left = 202
+    Top = 397
+    Width = 178
     Height = 25
     Hint = 
       'Reset the configuration (display, filter) of %s panel in %s to t' +
       'he folder defaults'
-    Caption = 'Restore Defaults'
+    Caption = 'Restore Defaults in Panel'
     TabOrder = 1
     OnClick = btnRestoreDefClick
   end
-  object chkResetSizes: TCheckBox
-    Left = 14
-    Top = 418
-    Width = 206
-    Height = 17
-    Hint = 
-      'Restore the width/height ratio of the panels in this note to the' +
-      ' default for %s of the current folder'
-    Caption = 'Reset Panel Sizes'
+  object gbLayout: TGroupBox
+    Left = 8
+    Top = 424
+    Width = 378
+    Height = 73
+    Caption = ' Layout '
+    DefaultHeaderFont = False
+    HeaderFont.Charset = DEFAULT_CHARSET
+    HeaderFont.Color = clWindowText
+    HeaderFont.Height = -12
+    HeaderFont.Name = 'Tahoma'
+    HeaderFont.Style = [fsBold]
     TabOrder = 6
+    object lTL: TLabel
+      Left = 146
+      Top = 14
+      Width = 20
+      Height = 13
+      AutoSize = False
+      Caption = 'TL'
+    end
+    object lTR: TLabel
+      Left = 176
+      Top = 14
+      Width = 20
+      Height = 13
+      AutoSize = False
+      Caption = 'TR'
+    end
+    object lC: TLabel
+      Left = 225
+      Top = 14
+      Width = 20
+      Height = 13
+      AutoSize = False
+      Caption = 'C'
+    end
+    object lBL: TLabel
+      Left = 274
+      Top = 14
+      Width = 20
+      Height = 13
+      AutoSize = False
+      Caption = 'BL'
+    end
+    object lBR: TLabel
+      Left = 305
+      Top = 14
+      Width = 20
+      Height = 13
+      AutoSize = False
+      Caption = 'BR'
+    end
+    object chkResetSizes: TCheckBox
+      Left = 12
+      Top = 51
+      Width = 163
+      Height = 17
+      Hint = 
+        'Restore the width/height ratio of the panels in this note to the' +
+        ' default for %s of the current folder'
+      Caption = 'Reset Panel Sizes'
+      TabOrder = 0
+    end
+    object cb_TL: TCheckBox
+      Tag = 1
+      Left = 144
+      Top = 30
+      Width = 18
+      Height = 17
+      TabOrder = 1
+    end
+    object cb_TR: TCheckBox
+      Tag = 2
+      Left = 174
+      Top = 30
+      Width = 18
+      Height = 17
+      TabOrder = 2
+    end
+    object cb_C: TCheckBox
+      Tag = 5
+      Left = 221
+      Top = 30
+      Width = 18
+      Height = 17
+      TabOrder = 3
+    end
+    object cb_BL: TCheckBox
+      Tag = 3
+      Left = 272
+      Top = 30
+      Width = 18
+      Height = 17
+      TabOrder = 4
+    end
+    object cb_BR: TCheckBox
+      Tag = 4
+      Left = 303
+      Top = 30
+      Width = 18
+      Height = 17
+      TabOrder = 5
+    end
   end
   object FormPlacement: TFormPlacement
     IniSection = 'PropDlg'
     Options = [fpPosition]
     UseRegistry = True
     Left = 376
-    Top = 450
+    Top = 498
   end
 end

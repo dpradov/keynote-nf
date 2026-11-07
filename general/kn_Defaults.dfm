@@ -82,7 +82,7 @@ object Form_Defaults: TForm_Defaults
     Top = 90
     Width = 405
     Height = 320
-    ActivePage = Tab_Tree
+    ActivePage = Tab_Advanced
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -547,111 +547,112 @@ object Form_Defaults: TForm_Defaults
             Left = 6
             Top = 2
             Width = 375
-            Height = 13
+            Height = 36
             AutoSize = False
             Caption = 
-              'Display the panels in Query Layout under the specified condition' +
-              's:'
+              'Define the use and visibility of the panels in Query Layout'#13#10'and' +
+              ' mark those that will be enabled by default:'
           end
           object cUseTLq: TComboBox
             Tag = 1
             Left = 45
-            Top = 27
+            Top = 42
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 1
           end
           object cUseTRq: TComboBox
             Tag = 2
             Left = 45
-            Top = 50
+            Top = 65
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 4
           end
           object cb_TLq: TCheckBox
             Tag = 1
-            Left = 3
-            Top = 29
+            Left = 2
+            Top = 44
             Width = 40
             Height = 17
-            Caption = 'TL'
+            Caption = ' TL'
             TabOrder = 0
           end
           object cb_TRq: TCheckBox
             Tag = 2
-            Left = 3
-            Top = 52
+            Left = 2
+            Top = 67
             Width = 40
             Height = 17
-            Caption = 'TR'
+            Caption = ' TR'
             TabOrder = 3
           end
           object cb_BLq: TCheckBox
             Tag = 3
-            Left = 3
-            Top = 104
+            Left = 2
+            Top = 119
             Width = 40
             Height = 17
-            Caption = 'BL'
+            Caption = ' BL'
             TabOrder = 9
           end
           object cUseBRq: TComboBox
             Tag = 4
             Left = 45
-            Top = 125
+            Top = 140
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 13
           end
           object cb_BRq: TCheckBox
             Tag = 4
-            Left = 3
-            Top = 127
+            Left = 2
+            Top = 142
             Width = 40
             Height = 17
-            Caption = 'BR'
+            Caption = ' BR'
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'Tahoma'
+            Font.Style = []
+            ParentFont = False
             TabOrder = 12
           end
           object cUseBLq: TComboBox
             Tag = 3
             Left = 45
-            Top = 102
+            Top = 117
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 10
           end
           object cUseCq: TComboBox
             Tag = 5
             Left = 45
-            Top = 76
+            Top = 91
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 7
           end
           object cb_Cq: TCheckBox
             Tag = 5
-            Left = 3
-            Top = 78
+            Left = 2
+            Top = 93
             Width = 40
             Height = 17
-            Caption = 'C'
+            Caption = ' C'
             TabOrder = 6
           end
           object TagsTLq: TEdit
             Tag = 1
             Left = 290
-            Top = 28
+            Top = 43
             Width = 87
             Height = 19
             Ctl3D = False
@@ -661,7 +662,7 @@ object Form_Defaults: TForm_Defaults
           object TagsTRq: TEdit
             Tag = 2
             Left = 290
-            Top = 51
+            Top = 66
             Width = 87
             Height = 19
             Ctl3D = False
@@ -671,7 +672,7 @@ object Form_Defaults: TForm_Defaults
           object TagsCq: TEdit
             Tag = 5
             Left = 290
-            Top = 77
+            Top = 92
             Width = 87
             Height = 19
             Ctl3D = False
@@ -681,7 +682,7 @@ object Form_Defaults: TForm_Defaults
           object TagsBLq: TEdit
             Tag = 3
             Left = 290
-            Top = 103
+            Top = 118
             Width = 87
             Height = 19
             Ctl3D = False
@@ -691,7 +692,7 @@ object Form_Defaults: TForm_Defaults
           object TagsBRq: TEdit
             Tag = 4
             Left = 290
-            Top = 126
+            Top = 141
             Width = 87
             Height = 19
             Ctl3D = False
@@ -700,7 +701,7 @@ object Form_Defaults: TForm_Defaults
           end
           object BitBtn_QL: TBitBtn
             Left = 353
-            Top = 151
+            Top = 166
             Width = 25
             Height = 25
             ImageIndex = 60
@@ -720,111 +721,106 @@ object Form_Defaults: TForm_Defaults
             Left = 6
             Top = 2
             Width = 375
-            Height = 13
+            Height = 36
             AutoSize = False
             Caption = 
-              'Display the panels in Editing Layout under the specified conditi' +
-              'ons:'
+              'Define the use and visibility of the panels in Editing Layout'#13#10'a' +
+              'nd mark those that will be enabled by default:'
           end
           object cUseTLe: TComboBox
             Tag = 11
             Left = 45
-            Top = 27
+            Top = 42
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 1
           end
           object cUseTRe: TComboBox
             Tag = 12
             Left = 45
-            Top = 50
+            Top = 65
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 4
           end
           object cb_TLe: TCheckBox
             Tag = 11
-            Left = 3
-            Top = 29
+            Left = 2
+            Top = 44
             Width = 40
             Height = 17
-            Caption = 'TL'
+            Caption = ' TL'
             TabOrder = 0
           end
           object cb_TRe: TCheckBox
             Tag = 12
-            Left = 3
-            Top = 52
+            Left = 2
+            Top = 67
             Width = 40
             Height = 17
-            Caption = 'TR'
+            Caption = ' TR'
             TabOrder = 3
           end
           object cb_BLe: TCheckBox
             Tag = 13
-            Left = 3
-            Top = 104
+            Left = 2
+            Top = 119
             Width = 40
             Height = 17
-            Caption = 'BL'
+            Caption = ' BL'
             TabOrder = 9
           end
           object cUseBRe: TComboBox
             Tag = 14
             Left = 45
-            Top = 125
+            Top = 140
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 13
           end
           object cb_BRe: TCheckBox
             Tag = 14
-            Left = 3
-            Top = 127
+            Left = 2
+            Top = 142
             Width = 40
             Height = 17
-            Caption = 'BR'
+            Caption = ' BR'
             TabOrder = 12
           end
           object cUseBLe: TComboBox
             Tag = 13
             Left = 45
-            Top = 102
+            Top = 117
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 10
           end
           object cUseCe: TComboBox
             Tag = 15
             Left = 45
-            Top = 76
+            Top = 91
             Width = 240
             Height = 21
             Style = csDropDownList
-            Enabled = False
             TabOrder = 7
           end
           object cb_Ce: TCheckBox
             Tag = 15
-            Left = 3
-            Top = 78
+            Left = 2
+            Top = 93
             Width = 40
             Height = 17
-            Caption = 'C'
+            Caption = ' C'
             TabOrder = 6
           end
           object TagsTLe: TEdit
             Tag = 11
             Left = 290
-            Top = 28
+            Top = 43
             Width = 87
             Height = 19
             Ctl3D = False
@@ -834,7 +830,7 @@ object Form_Defaults: TForm_Defaults
           object TagsTRe: TEdit
             Tag = 12
             Left = 290
-            Top = 51
+            Top = 66
             Width = 87
             Height = 19
             Ctl3D = False
@@ -844,7 +840,7 @@ object Form_Defaults: TForm_Defaults
           object TagsCe: TEdit
             Tag = 15
             Left = 290
-            Top = 77
+            Top = 92
             Width = 87
             Height = 19
             Ctl3D = False
@@ -854,7 +850,7 @@ object Form_Defaults: TForm_Defaults
           object TagsBLe: TEdit
             Tag = 13
             Left = 290
-            Top = 103
+            Top = 118
             Width = 87
             Height = 19
             Ctl3D = False
@@ -864,7 +860,7 @@ object Form_Defaults: TForm_Defaults
           object TagsBRe: TEdit
             Tag = 14
             Left = 290
-            Top = 126
+            Top = 141
             Width = 87
             Height = 19
             Ctl3D = False
@@ -873,7 +869,7 @@ object Form_Defaults: TForm_Defaults
           end
           object BitBtn_EL: TBitBtn
             Left = 352
-            Top = 151
+            Top = 166
             Width = 25
             Height = 25
             ImageIndex = 60

@@ -96,7 +96,6 @@ type
     protected
       constructor Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
       destructor Destroy; override;
-      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aUse: TNEntriesPanelUse; NNode: TNoteNode): TPanelConfiguration;
 
     public
       PanelsConfig: array of TPanelConfiguration;
@@ -105,6 +104,7 @@ type
       class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
       class function CreateFromString (NNodeGID: Cardinal; Folder: TKntFolder; Str: string): TNNodeUIConfiguration;
       class procedure GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder; var DescendingOrder: boolean);
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aUse: TNEntriesPanelUse; NNode: TNoteNode): TPanelConfiguration;
       function GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
       function GetMainPanel: TNEntriesMainPanel;
       function GetWhereToShowEditorInfoBar: TNEntriesMainPanel;
@@ -115,8 +115,10 @@ type
       function ToString: string;
 
       property NNode: TNoteNode read FNNode;
+      property QueryLayout: boolean read FQueryLayout;
       function GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
       function PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+      function GetEnabledPanels: TNEntriesPanelEnabledArray;
 
       property InternalSizeRatios: TPanelSizeRatios  read FSizeRatios write FSizeRatios;
 
@@ -643,19 +645,25 @@ var
 
     with Form_Defaults do begin
 
-       for pnl := Low(pnl) to High(pnl) do
-          if (myNoteAdvOptions.DefaultUseForQL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQL[pnl]) or
-             (myNoteAdvOptions.LinkedTagsForQL[pnl] <> myFolder.NoteAdvOptions.LinkedTagsForQL[pnl])      then begin
+       for pnl := Low(pnl) to High(pnl) do begin
+          if not myNoteAdvOptions.DefaultEnabledForQL[pnl] and (myFolder.NoteAdvOptions.DefaultUseForQL[pnl] = pnuHidePanel) then continue;
+
+          if ((myNoteAdvOptions.DefaultUseForQL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQL[pnl]) or
+             (myNoteAdvOptions.LinkedTagsForQL[pnl] <> myFolder.NoteAdvOptions.LinkedTagsForQL[pnl]))      then begin
              ChangeInQL:= true;
              break;
           end;
+       end;
 
-       for pnl := Low(pnl) to High(pnl) do
+       for pnl := Low(pnl) to High(pnl) do begin
+          if not myNoteAdvOptions.DefaultEnabledForEL[pnl] and (myFolder.NoteAdvOptions.DefaultUseForEL[pnl] = pnuHidePanel) then continue;
+
           if (myNoteAdvOptions.DefaultUseForEL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForEL[pnl]) or
              (myNoteAdvOptions.LinkedTagsForEL[pnl] <> myFolder.NoteAdvOptions.LinkedTagsForEL[pnl])      then begin
              ChangeInEL:= true;
              break;
           end;
+       end;
 
        if UpdatedMECustomization then
           Note_ResetMECustomizNeeded:= true;
@@ -3734,7 +3742,7 @@ var
   i: integer;
 begin
    for i := 0 to High(PanelsConfig) do begin
-       if PanelsConfig[i].Panel = Panel then
+       if (PanelsConfig[i] <> nil) and (PanelsConfig[i].Panel = Panel) then
           exit(PanelsConfig[i]);
    end;
    Result:= nil;
@@ -3746,6 +3754,19 @@ begin
    Result:= GetCreatedPanelConfig(Panel);
    if Result = nil then
       Result:= CreateDefaultPanelConfig(Panel, pnuShowAllEntries, FNNode);
+end;
+
+
+function TNNodeUIConfiguration.GetEnabledPanels: TNEntriesPanelEnabledArray;
+var
+  i: integer;
+  pnl: TNEntriesMainPanel;
+begin
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+      Result[Pnl]:= false;
+
+   for i:= 0 to Length(PanelsConfig) -1 do
+      Result[PanelsConfig[i].Panel]:= True;
 end;
 
 
@@ -3809,6 +3830,7 @@ var
    p: TNEntriesPanel;
    EntryID: Word;
    PnlUse: TNEntriesPanelUse;
+   DefEnabled: boolean;
 begin
     Result:= TNNodeUIConfiguration.Create(NNode, Folder, QueryLayout);
     if (NNode = nil) or
@@ -3819,12 +3841,16 @@ begin
     end;
 
     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-       if QueryLayout then
-          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQL[p]
-       else
+       if QueryLayout then begin
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQL[p];
+          DefEnabled:= Folder.NoteAdvOptions.DefaultEnabledForQL[p];
+       end
+       else begin
           PnlUse:= Folder.NoteAdvOptions.DefaultUseForEL[p];
+          DefEnabled:= Folder.NoteAdvOptions.DefaultEnabledForEL[p];
+       end;
 
-       if PnlUse = pnuHidePanel then continue;
+       if (PnlUse = pnuHidePanel) or not DefEnabled then continue;
 
        Result.CreateDefaultPanelConfig (p, PnlUse, NNode);
     end;
@@ -4034,14 +4060,15 @@ var
 
 begin
   {  For each TNNodeUIConfiguration object, only the field indicating the layout, the size ratio fields, and the MECustomiz properties for each
-     PanelConfig that doesn't match the configuration in the folder for that panel and layout, are saved.
+     PanelConfig that doesn't match the configuration in the folder for that panel and layout (or that panel is not enabled by default in
+     the folder), are saved.
      The maximized state of the current panel is not preserved.
      A line will be included for each layout (if needed).
 
 
      Ex:
-     UI=0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
-        QL                             TL                   C
+     UI=0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;|4|=
+        QL                             TL                   C                                      BR
 
      Ex:
      UI=0||1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
@@ -4061,6 +4088,7 @@ begin
                   Top|Bottom|TLTR|BLBR|TopAutoFromHidden|BottomAutoFromHidden
 
      PanelCustomizeM:
+                 Panel|=               (if match the configuration in the folder but that panel is not enabled by default in the folder)  or
                  Panel|PanelCustomize
 
                  Panel: TL,TR,BL,BR,Center --> 1,2,3,4,5
@@ -4096,6 +4124,14 @@ begin
             end;
          end;
 
+         if (PanelCustStr = '') and
+            ( (FQueryLayout and not FFolder.NoteAdvOptions.DefaultEnabledForQL[pnl]) or
+              (not FQueryLayout and not FFolder.NoteAdvOptions.DefaultEnabledForEL[pnl]) ) then begin
+
+              PanelCustStr := '=';
+              DoSave:= true;
+         end;
+
          if PanelCustStr <> '' then begin
             Result:= Result + SEP + Ord(pnl).ToString + '|' + PanelCustStr;
             SEP:= '|';
@@ -4125,6 +4161,7 @@ var
    Pnl: TNEntriesMainPanel;
    PnlUse: TNEntriesPanelUse;
    Config: TFormatSettings;
+   PanelConfig: TPanelConfiguration;
 
 begin
    Result:= nil;
@@ -4137,8 +4174,8 @@ begin
 
    {
      Ex:
-        0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
-        QL                             TL                   C
+        0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;|4|=
+        QL                             TL                   C                                     BR
 
        Layout|SizeRatios|PanelCustomize1|....|PanelCustomizeN
        Layout|SizeRatios|
@@ -4173,8 +4210,19 @@ begin
            if Strs[i] = '' then break;
 
            Pnl:= TNEntriesMainPanel(Ord(StrToInt(Strs[i])));
+           PanelConfig:= Result.GetCreatedPanelConfig(Pnl);
+
            PanelCustStr:= Strs[i+1];
-           Result.GetCreatedPanelConfig(Pnl).MECustomiz.LoadFromString(PanelCustStr);
+
+           if PanelCustStr = '=' then begin
+              if QueryLayout then
+                 PnlUse:= Folder.NoteAdvOptions.DefaultUseForQL[Pnl]
+              else
+                 PnlUse:= Folder.NoteAdvOptions.DefaultUseForEL[Pnl];
+              Result.CreateDefaultPanelConfig(Pnl, PnlUse, NNode);
+           end
+           else
+              PanelConfig.MECustomiz.LoadFromString(PanelCustStr);
 
            inc(i,2);
        until i >= Strs.Count;

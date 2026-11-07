@@ -2085,7 +2085,7 @@ begin
                  App.NEntrySelected(Editor, FNEntry);
                  ConfigureEditor;
                  if PanelConfig.StLayout = spInEL then
-                    FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+                    FrameResizePendingInNoteUI:= TKntNoteUI(NoteUI);
                  ShowControlsPanelIdentif(True);
                  FNoteUI.KeepInfoPanelTemporarilyVisible;
               end
@@ -2536,7 +2536,7 @@ begin
 
      if PanelConfig.StLayout = spInEL then begin
         if (NumVisibleEntriesBefore <> NumVisibleEntriesAfter) and (NumVisibleEntriesBefore * NumVisibleEntriesAfter = 0) then
-           FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+           FrameResizePendingInNoteUI:= TKntNoteUI(NoteUI);
      end;
 
      if NumVisibleEntriesAfter = 0 then
@@ -3384,6 +3384,8 @@ begin
       with Form_NoteEntriesOptions do begin
          Panel:= Self.PanelConfig.Panel;
          QueryLayout:= QL;
+         Folder:= FKntFolder;
+         EnabledPanelsForLayoutInNote:= TKntNoteUI(NoteUI).GetNNodeUIConfig.GetEnabledPanels;
          Customiz:= PanelConfig.MECustomiz;
          chkApplyAll.Checked:= ApplyFilterToAll[QL];
       end;
@@ -3398,7 +3400,9 @@ begin
              if ResetSizes then
                 NoteUI.ResetPanelSizes(QL);
 
-             FramResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+             NoteUI.CheckChangeInEnabledPanels(EnabledPanelsForLayoutInNote);
+
+             FrameResizePendingInNoteUI:= TKntNoteUI(NoteUI);
          end;
       end;
 

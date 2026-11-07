@@ -273,6 +273,7 @@ type
      procedure SwitchLayout(RequestedFromEditor: TKntRichEdit);
      procedure EditEntry(RequestedFromEditor: TKntRichEdit);
      function IsQueryLayout: boolean;
+     procedure CheckChangeInEnabledPanels(EnabledPanelsForLayout: TNEntriesPanelEnabledArray);
 
 
      procedure SetReadOnly( AReadOnly : boolean );
@@ -303,6 +304,7 @@ begin
     if assigned(NNodes) then begin
       FreeAndNil(NNodes);
     end;
+    ClearCustomizeInfo(nil);
 
    inherited;
 end;

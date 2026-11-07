@@ -2500,10 +2500,10 @@ begin
     if (DisableChangedInEmptyPanelAt <> 0) and (MilliSecondsBetween(DisableChangedInEmptyPanelAt, now) > 200)  then
        DisableChangedInEmptyPanelAt:= 0;
 
-    if FramResizePendingInNoteUI <> nil then begin
+    if FrameResizePendingInNoteUI <> nil then begin
        sleep(85);
-       TKntNoteUI(FramResizePendingInNoteUI).RefreshPanelsLayout;
-       FramResizePendingInNoteUI:= nil;
+       TKntNoteUI(FrameResizePendingInNoteUI).RefreshPanelsLayout;
+       FrameResizePendingInNoteUI:= nil;
     end;
 
    Done := True;

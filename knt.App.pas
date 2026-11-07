@@ -264,7 +264,7 @@ var
    FloatingEditorCannotBeSaved: boolean;
    EditorToBeCheckedForContentUpdate: TKntRichEdit;
    DisableChangedInEmptyPanelAt: TDateTime;
-   FramResizePendingInNoteUI: TObject;  // TKntNoteUI
+   FrameResizePendingInNoteUI: TObject;  // TKntNoteUI
 
    ModalFormWithTxtTagsVisible: boolean;
    InformingSomeoneChangedOurFile: boolean;
@@ -411,7 +411,7 @@ begin
    InformingSomeoneChangedOurFile:= false;
    EditorToBeCheckedForContentUpdate:= nil;
    DisableChangedInEmptyPanelAt:= 0;
-   FramResizePendingInNoteUI:= nil;
+   FrameResizePendingInNoteUI:= nil;
    IGNORE_TVFocusChanged:= false;
 
    LongDateToFileSettings:= TFormatSettings.Create;
@@ -1224,7 +1224,7 @@ begin
   if ActiveFolder.FocusMemory = focTree then begin
      Form_Main.EnableActionsForTree(Tree, ActiveFolder.ReadOnly);
      TKntNoteUI(ActiveFolder.NoteUI).TreeFocused;
-     FramResizePendingInNoteUI:= TKntNoteUI(ActiveFolder.NoteUI);
+     FrameResizePendingInNoteUI:= TKntNoteUI(ActiveFolder.NoteUI);
   end;
 
   if Form_Main.ShortcutAltDownMenuItem <> nil then

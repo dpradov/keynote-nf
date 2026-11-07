@@ -947,6 +947,7 @@ type
 
 
  TNoteTagArrayPanelArray = array[TNEntriesMainPanel] of TNoteTagArray;
+ TNEntriesPanelEnabledArray = array[TNEntriesMainPanel] of boolean;
 
 type
    TNoteAdvancedOptions = packed record
@@ -955,6 +956,8 @@ type
 
      DefaultUseForQL: TNEntriesPanelUseArray;   // QL: QueryLayout
      DefaultUseForEL: TNEntriesPanelUseArray;   // EL: EditingLayout
+     DefaultEnabledForQL:  TNEntriesPanelEnabledArray;
+     DefaultEnabledForEL:  TNEntriesPanelEnabledArray;
 
      LinkedTagsForQL: TNoteTagArrayPanelArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
      LinkedTagsForEL: TNoteTagArrayPanelArray;
@@ -1296,17 +1299,24 @@ var
   p: TNEntriesPanel;
 begin
    if Layout = lQL then begin
-       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
           DefaultUseForQL[p] := pnuHidePanel;
+          DefaultEnabledForQL[p] := false;
+       end;
 
        DefaultUseForQL[pnCenter] := pnuShowAllEntries;
+       DefaultEnabledForQL[pnCenter] := true;
    end
    else begin
-       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
           DefaultUseForEL[p] := pnuHidePanel;
+          DefaultEnabledForEL[p] := false;
+       end;
 
        DefaultUseForEL[pnTL]     := pnuShowSelectedEntry;
        DefaultUseForEL[pnCenter] := pnuShowAllEntries;
+       DefaultEnabledForEL[pnTL] := true;
+       DefaultEnabledForEL[pnCenter] := true;
    end;
 
 end;
@@ -1542,6 +1552,7 @@ function TNoteAdvancedOptions.ToString: String;
 var
   p: TNEntriesMainPanel;
   DefUseForQL, DefUseForEL, SEP: String;
+  DefEnabledForQL, DefEnabledForEL: String;
   LinkedTagsQL, LinkedTagsEL: String;
   DefMECustomizForQL, DefMECustomizForEL: String;
   PanelCustomizReference: TMEPanelCustomization;
@@ -1556,6 +1567,7 @@ begin
        Top|Bottom|TLTR|BLBR|TopAutoFromHidden|BottomAutoFromHidden|     <--- [SizeRatiosEL]
        DefaultUseForQL|DefaultUseForEL|
        LinkedTagsForQL|LinkedTagsForEL|
+       DefaultEnabledForQL|DefaultEnabledForEL|
        DefaultMECustomizForQL|DefaultMECustomizForQL
 
        DefaultUseForQL: PanelUseForQL_TL/PanelUseForQL_TR/PanelUseForQL_BL/PanelUseForQL_BR/PanelUseForQL_Center  (ex:  1/0/2/0/3 )
@@ -1563,6 +1575,9 @@ begin
 
        LinkedTagsForQL:  TagsForQL_TL/TagsForQL_TR/TagsForQL_BL/TagsForQL_BR/TagsForQL_Center     (ex: 1/2,5///)
        LinkedTagsForEL:   ,, for EditingLayout
+
+       DefaultEnabledForQL:  0|1|....                        (Enabled:1  Not enabled:0)
+       DefaultEnabledForEL:  ,, for EditingLayout
 
        DefaultMECustomizForQL:   PanelCustomForQL_TL/PanelCustomForQL_TR/PanelCustomForQL_BL/PanelCustomForQL_BR/PanelCustomForQL_Center
        DefaultMECustomizForEL:    ,, for EditingLayout
@@ -1594,6 +1609,9 @@ begin
        LinkedTagsQL:= LinkedTagsQL + SEP + TNoteTagArrayUtils.ToString(LinkedTagsForQL[p]);
        LinkedTagsEL:= LinkedTagsEL + SEP + TNoteTagArrayUtils.ToString(LinkedTagsForEL[p]);
 
+       DefEnabledForQL:= DefEnabledForQL + SEP + BOOLEANSTR[DefaultEnabledForQL[p]];
+       DefEnabledForEL:= DefEnabledForEL + SEP + BOOLEANSTR[DefaultEnabledForEL[p]];
+
        DefMECustomizForQL:= DefMECustomizForQL + SEP + DefaultMECustomizForQL[p].ToString(PanelCustomizReference);
        DefMECustomizForEL:= DefMECustomizForEL + SEP + DefaultMECustomizForEL[p].ToString(PanelCustomizReference);
 
@@ -1601,7 +1619,7 @@ begin
    end;
 
 
-   Result:= Format('%s|%s|%s|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s',
+   Result:= Format('%s|%s|%s|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s',
                [
                BOOLEANSTR[EnableAdvEditionInSingleEntryNotes],
                BOOLEANSTR[AutoExpandInPanels],
@@ -1620,6 +1638,8 @@ begin
                DefUseForEL,
                LinkedTagsQL,
                LinkedTagsEL,
+               DefEnabledForQL,
+               DefEnabledForEL,
                DefMECustomizForQL,
                DefMECustomizForEL
                ]);
@@ -1637,6 +1657,7 @@ var
   p: TNEntriesMainPanel;
   DefUseForQL, DefUseForEL, SEP: String;
   LinkedTagsQL, LinkedTagsEL: String;
+  DefEnabledForQL, DefEnabledForEL: String;
   DefMECustomizForQL, DefMECustomizForEL: String;
   PanelCustomiz: TMEPanelCustomization;
   Config: TFormatSettings;
@@ -1751,8 +1772,10 @@ begin
       DefUseForEL:=         Strs[21];
       LinkedTagsQL:=        Strs[22];
       LinkedTagsEL:=        Strs[23];
-      DefMECustomizForQL:=  Strs[24];
-      DefMECustomizForEL:=  Strs[25];
+      DefEnabledForQL:=     Strs[24];
+      DefEnabledForEL:=     Strs[25];
+      DefMECustomizForQL:=  Strs[26];
+      DefMECustomizForEL:=  Strs[27];
 
 
       Strs.Clear;
@@ -1779,8 +1802,6 @@ begin
          DefaultUseForQL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
          inc(i);
       end;
-      if not ValidateLayout(lQL) then
-         InitializeDefUseForLayout(lQL);
 
       Strs.Clear;
       SplitString(Strs, DefUseForEL, '/', false);
@@ -1789,6 +1810,28 @@ begin
          DefaultUseForEL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
          inc(i);
       end;
+
+
+      Strs.Clear;
+      SplitString(Strs, DefEnabledForQL, '/', false);
+      i:= 0;
+      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+         DefaultEnabledForQL[p]:=  Strs[i] = BOOLEANSTR[true];
+         inc(i);
+      end;
+
+      Strs.Clear;
+      SplitString(Strs, DefEnabledForEL, '/', false);
+      i:= 0;
+      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+         DefaultEnabledForEL[p]:=  Strs[i] = BOOLEANSTR[true];
+         inc(i);
+      end;
+
+
+      if not ValidateLayout(lQL) then
+         InitializeDefUseForLayout(lQL);
+
       if not ValidateLayout(lEL) then
          InitializeDefUseForLayout(lEL);
 
@@ -1817,6 +1860,7 @@ var
   Num_ShowSelectedEntry, Num_ShowAllEntries: integer;
   DefaultUseForLayout: TNEntriesPanelUseArray;
   LinkedTagsForLayout: TNoteTagArrayPanelArray;
+  DefaultEnabledForLayout: TNEntriesPanelEnabledArray;
 begin
   {
   Review the purposes for "Query Layout". Make sure to:
@@ -1836,17 +1880,22 @@ begin
    if Layout = lQL then begin
       DefaultUseForLayout:=  DefaultUseForQL;
       LinkedTagsForLayout:= LinkedTagsForQL;
+      DefaultEnabledForLayout:= DefaultEnabledForQL;
    end
    else begin
       DefaultUseForLayout:=  DefaultUseForEL;
       LinkedTagsForLayout:= LinkedTagsForEL;
+      DefaultEnabledForLayout:= DefaultEnabledForEL;
    end;
 
    for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
       case DefaultUseForLayout[pnl] of
          pnuShowTagLinkedEntries:   if (pnl = pnCenter) or (LinkedTagsForLayout[pnl] = nil) then exit;
          pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
-         pnuShowAllEntries:         inc(Num_ShowAllEntries);
+         pnuShowAllEntries:         begin
+                                       if not DefaultEnabledForLayout[pnl] then exit;
+                                       inc(Num_ShowAllEntries);
+                                    end;
          pnuHidePanel:              if (pnl = pnCenter) then exit;
       end;
    end;

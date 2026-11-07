@@ -1057,7 +1057,7 @@ const
    sEntry17 = 55167;   // Review the uses for "%s".
    sEntry18 = 55168;   // Query layout
    sEntry19 = 55169;   // Editing Layout
-   sEntry20 = 55170;   // Make sure to:\^\^ * Select '%s' in one (and only one) panel\^\^ * Do not select more than one panel with:\^   '%s'\^\^ * Select for panel C:\^   '%s' or '%s'\^\^ * Specify a tag for each:\^   '%s'
+   sEntry20 = 55170;   // Make sure to:\^\^ * Select '%s' in one (and only one) enabled panel\^\^ * Do not select more than one panel with:\^   '%s'\^\^ * Select for panel C:\^   '%s' or '%s'\^\^ * Specify a tag for each:\^   '%s'
 
    sEntry21 = 55171;   // On the "All Entries" panel
    sEntry22 = 55172;   // On the highest panel (full width)
