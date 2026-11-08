@@ -183,6 +183,7 @@ begin
   if ( _LoadedRichEditVersion > 2 ) then
     SendMessage( aEditor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
 
+  aEditor.SetMargins;
   aEditor.SetZoom(Zoom, '' );
 end; // SetUpEditor
 

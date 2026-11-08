@@ -2061,6 +2061,7 @@ var
    Action: TActionOnEntry;
    CancelMaximizedPanelNeeded: boolean;
    PreviousNodeWithNewNNodeUIConfig: boolean;
+   NewEditorCreated: boolean;
 
    procedure AdjustScrollBars;
    var
@@ -2092,6 +2093,8 @@ begin
  LockControl(pnlAuxC, True);
  FChangingLayout:= True;
  //FReturnToQLFromAllEntriesInSingleMode:= True;
+
+ NewEditorCreated:= False;
 
  try
 
@@ -2215,7 +2218,12 @@ begin
           PanelConfig.Hidden:= false;               // By now
           PanelConfig.ShowEditorInfoPanel:= False;  //  ,,
 
-          NEntriesUI:= GetNEntriesUI(Pnl);
+          NEntriesUI:= FNEntriesUI[Pnl];
+          if NEntriesUI = nil then begin
+             NEntriesUI:= GetNEntriesUI(Pnl);
+             NewEditorCreated:= True;
+          end;
+
 
           if SetNoteSelEntry then begin                                                         // *1
              if (Pnl = PnlToSetFocus) or (PanelConfig.SelNEntry = FNote.SelEntry) then begin
@@ -2324,6 +2332,11 @@ begin
 
  finally
     LockControl(pnlAuxC, False);
+    if NewEditorCreated and KeyOptions.AltMargins then begin
+       SetMargins;
+       Refresh;
+    end;
+
     if PanelsToLoad <> plOnlyWithFilterEnabled then
        FrameResize(nil);
     AdjustScrollBars;

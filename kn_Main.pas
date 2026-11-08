@@ -9005,7 +9005,7 @@ begin
          ShowInsMode;
 
          if MMAlternativeMargins.Checked then
-            Editor.Refresh;
+            myFolder.NoteUI.Refresh;
       end;
 
     except
