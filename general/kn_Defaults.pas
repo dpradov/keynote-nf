@@ -226,6 +226,7 @@ type
 
     procedure FormToProps;
     procedure PropsToForm;
+    procedure NoteAdvOptionsToForm;
     procedure UpdateSampleFont;
 
   end;
@@ -763,8 +764,7 @@ end;
 // FormToProps
 
 
-
-procedure TForm_Defaults.PropsToForm;
+procedure TForm_Defaults.NoteAdvOptionsToForm;
 
   procedure LoadPanelConfigQL(Pnl: TNEntriesMainPanel; CB_Panel: TCheckBox; ComboUse: TComboBox; txtTags: TEdit);
   var
@@ -791,6 +791,35 @@ procedure TForm_Defaults.PropsToForm;
   end;
 
 
+begin
+
+  with myNoteAdvOptions do begin
+     cb_EnableAdv.Checked:= EnableAdvEditionInSingleEntryNotes;
+     LoadPanelConfigQL(pnTL, cb_TLq, cUseTLq, TagsTLq);
+     LoadPanelConfigQL(pnTR, cb_TRq, cUseTRq, TagsTRq);
+     LoadPanelConfigQL(pnCenter, cb_Cq, cUseCq, TagsCq);
+     LoadPanelConfigQL(pnBL, cb_BLq, cUseBLq, TagsBLq);
+     LoadPanelConfigQL(pnBR, cb_BRq, cUseBRq, TagsBRq);
+
+     LoadPanelConfigEL(pnTL, cb_TLe, cUseTLe, TagsTLe);
+     LoadPanelConfigEL(pnTR, cb_TRe, cUseTRe, TagsTRe);
+     LoadPanelConfigEL(pnCenter, cb_Ce, cUseCe, TagsCe);
+     LoadPanelConfigEL(pnBL, cb_BLe, cUseBLe, TagsBLe);
+     LoadPanelConfigEL(pnBR, cb_BRe, cUseBRe, TagsBRe);
+
+     cb_NewInEL.Checked:= NewEntriesAlwaysOnEdLayout;
+     cb_VincTagInSel.Checked:= EditTagLinkedEntryInSelectedEntryPanel;
+     FirstLinesMaxC.Value:= FirstLinesOfText_MaxLength;
+     FirstLinesMaxL.Value:= FirstLinesOfText_MaxLines;
+     cb_AutoExp.Checked:= AutoExpandInPanels;
+     cInfoBarPos.ItemIndex:= Ord(EditorInfoBarPos);
+     cb_ShowNewest.Checked:= ShowNewestEntryAtStartup;
+  end;
+
+end;
+
+
+procedure TForm_Defaults.PropsToForm;
 begin
 
   with myTabProperties do
@@ -829,28 +858,7 @@ begin
 
   CB_InheritBGColor.Checked:= myInheritBGColor;
 
-  with myNoteAdvOptions do begin
-     cb_EnableAdv.Checked:= EnableAdvEditionInSingleEntryNotes;
-     LoadPanelConfigQL(pnTL, cb_TLq, cUseTLq, TagsTLq);
-     LoadPanelConfigQL(pnTR, cb_TRq, cUseTRq, TagsTRq);
-     LoadPanelConfigQL(pnCenter, cb_Cq, cUseCq, TagsCq);
-     LoadPanelConfigQL(pnBL, cb_BLq, cUseBLq, TagsBLq);
-     LoadPanelConfigQL(pnBR, cb_BRq, cUseBRq, TagsBRq);
-
-     LoadPanelConfigEL(pnTL, cb_TLe, cUseTLe, TagsTLe);
-     LoadPanelConfigEL(pnTR, cb_TRe, cUseTRe, TagsTRe);
-     LoadPanelConfigEL(pnCenter, cb_Ce, cUseCe, TagsCe);
-     LoadPanelConfigEL(pnBL, cb_BLe, cUseBLe, TagsBLe);
-     LoadPanelConfigEL(pnBR, cb_BRe, cUseBRe, TagsBRe);
-
-     cb_NewInEL.Checked:= NewEntriesAlwaysOnEdLayout;
-     cb_VincTagInSel.Checked:= EditTagLinkedEntryInSelectedEntryPanel;
-     FirstLinesMaxC.Value:= FirstLinesOfText_MaxLength;
-     FirstLinesMaxL.Value:= FirstLinesOfText_MaxLines;
-     cb_AutoExp.Checked:= AutoExpandInPanels;
-     cInfoBarPos.ItemIndex:= Ord(EditorInfoBarPos);
-     cb_ShowNewest.Checked:= ShowNewestEntryAtStartup;
-  end;
+  NoteAdvOptionsToForm();
 
   LoadedForm:= True;
 
@@ -973,12 +981,14 @@ begin
   if ActiveNNode = nil then exit;
 
   ActiveFolder.NoteUI.SetAsDefaultLayoutInFolder(myNoteAdvOptions);
+  NoteAdvOptionsToForm;
   UpdatedMECustomization:= True;
 end;
 
 procedure TForm_Defaults.btnRestDefClick(Sender: TObject);
 begin
-  myNoteAdvOptions.Initialize(True);
+  myNoteAdvOptions:= DefaultNoteAdvOptions;
+  NoteAdvOptionsToForm;
   UpdatedMECustomization:= True;
   MECustomizationRestoreDefaults:= True;
 end;

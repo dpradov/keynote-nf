@@ -944,7 +944,7 @@ object Form_Defaults: TForm_Defaults
             Height = 25
             Hint = 
               'Reset the layout customization (size ratios, headers and filters' +
-              ') of this folder to the application'#39's built-in default values'
+              ') of this folder to the default values for this file'
             Caption = 'Restore Defaults'
             TabOrder = 6
             OnClick = btnRestDefClick
