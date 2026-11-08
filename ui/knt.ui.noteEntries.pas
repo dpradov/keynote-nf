@@ -1233,13 +1233,20 @@ var
    end;
 
    procedure CheckCandidateEntry;
+   var
+    DefContent: TContentInMultiEntryMode;
    begin
       NEntry:= Note.Entries[iEntry];
       if (PanelConfig.LinkedTags = nil) or NEntry.HasTags(PanelConfig.LinkedTags) then begin
+         if (PanelConfig.Use = pnuShowAllEntries) and (NoteUI.EntryIsContainedInTagLinkedPanels(NEntry)) then
+            DefContent:= cmOnlyHeader
+         else
+            DefContent:= PanelConfig.MECustomiz.Content;
+
          FEntriesShown[N].NEntry:= NEntry;
          FEntriesShown[N].NNode:= FNNode;
          FEntriesShown[N].Note:= FNote;
-         FEntriesShown[N].Content:= GetContentToAssign(NEntry, PanelConfig.MECustomiz.Content);
+         FEntriesShown[N].Content:= GetContentToAssign(NEntry, DefContent);
          FEntriesShown[N].ExcerptsInfo:= nil;
          FEntriesShown[N].RTFWithFoldedBlocksModif:= '';
          FEntriesShown[N].Filtered:= fFilteredUnknown;
@@ -2809,9 +2816,34 @@ var
   EditorBackColor, ColorLine, ColorInfo: TColor;
   ShowTags, ShowDate: boolean;
   MEopt: TMEPanelCustomization;
+  EntryToDim: boolean;
+  var Luminosity: Double;
+
+  function GetColorFactorDark(Factor: Byte): Byte;
+  var
+    X: Double;
+  begin
+     X:= Factor + (Factor * (Luminosity)*0.5);
+     if X < 0 then
+        X:= 0;
+     Result:= Round(X);
+  end;
+
+  function GetColorFactor(Factor: Byte): Byte;
+  var
+    X: Double;
+  begin
+     X:= Factor - (Factor * (1-Luminosity)*0.5);
+     if X > 255 then
+        X:= 255;
+     Result:= Round(X);
+  end;
+
 
 begin
    // # ToDO —  08/11/2025 - 11:36  —
+
+   EntryToDim:= (PanelConfig.Use = pnuShowAllEntries) and (NoteUI.EntryIsContainedInTagLinkedPanels(NEntry));
 
    if NEntry.IsMain then begin
       MainIni:= '{\ul ';
@@ -2830,7 +2862,7 @@ begin
       strInfo:= '# ' + Trim(NEntry.TagsNames);
       ShowTags:= true;
    end;
-   if MEopt.ShowDateInHeader and (NEntry.Created <> 0) then begin
+   if not (Folded and EntryToDim) and MEopt.ShowDateInHeader and (NEntry.Created <> 0) then begin
       if ShowTags then
          strInfo:= strInfo + '  · ';
       if MEopt.ShowTimeInHeader and ((NEntry.Created).GetTime <> 0) then
@@ -2881,14 +2913,23 @@ begin
    // Change the header color according to the brightness of the background color, as happens with hyperlinks
 
    EditorBackColor:= ColorToRGB(Editor.Color);
-   if GetRelativeLuminosity(EditorBackColor) >= 0.45 then begin
-      ColorLine:= clSilver;
-      ColorInfo:= RGB(100,100,100);
+   Luminosity:= GetRelativeLuminosity(EditorBackColor);
+   var CLine, CInfo, CInfoDim: Byte;
+   if Luminosity >= 0.25 then begin
+      CLine:= GetColorFactor(192);    // clSilver: RGB(192,192,192)
+      CInfo:= GetColorFactor(100);
+      CInfoDim:= GetColorFactor(170);
    end
    else begin
-      ColorLine:= RGB(155,155,155);
-      ColorInfo:= RGB(220,220,220);
+      CLine:= GetColorFactorDark(100);
+      CInfo:= GetColorFactorDark(170);
+      CInfoDim:= GetColorFactorDark(135);
    end;
+   ColorLine:= RGB(CLine,CLine,CLine);
+   ColorInfo:= RGB(CInfo,CInfo,CInfo);
+   if EntryToDim then
+      ColorInfo:= RGB(CInfoDim,CInfoDim,CInfoDim);
+
 
    if NEntry.IsEncrypted and ActiveFile.HighlightProtectedNodesAndEntries then
       ColorInfo:= clRed;

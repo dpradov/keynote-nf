@@ -184,6 +184,7 @@ type
     procedure SwitchLayout(RequestedFromEditor: TKntRichEdit);
     procedure EditEntry(RequestedFromEditor: TKntRichEdit);
     function IsQueryLayout: boolean;
+    function EntryIsContainedInTagLinkedPanels(NEntry: TNoteEntry): boolean;
 
 
    {$IFDEF KNT_DEBUG}
@@ -867,6 +868,21 @@ begin
      LockControl(pnlAuxC, false);
    end;
 
+end;
+
+
+function TKntNoteUI.EntryIsContainedInTagLinkedPanels(NEntry: TNoteEntry): boolean;
+var
+  i: integer;
+begin
+   Result:= false;
+   if NEntry.Tags = nil then exit;
+
+   for i:= 0 to Length(FNNodeUIConfig.PanelsConfig) -1 do begin
+      if (FNNodeUIConfig.PanelsConfig[i].Use <> pnuShowTagLinkedEntries) or FNNodeUIConfig.PanelsConfig[i].Hidden then continue;
+      if NEntry.HasTags(FNNodeUIConfig.PanelsConfig[i].LinkedTags) then
+         exit(true);
+   end;
 end;
 
 

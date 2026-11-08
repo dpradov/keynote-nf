@@ -274,6 +274,7 @@ type
      procedure EditEntry(RequestedFromEditor: TKntRichEdit);
      function IsQueryLayout: boolean;
      procedure CheckChangeInEnabledPanels(EnabledPanelsForLayout: TNEntriesPanelEnabledArray);
+     function EntryIsContainedInTagLinkedPanels(NEntry: TNoteEntry): boolean;
 
 
      procedure SetReadOnly( AReadOnly : boolean );
