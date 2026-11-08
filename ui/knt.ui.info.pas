@@ -246,6 +246,7 @@ type
      procedure SelectNextEntry;
      procedure SelectPreviousEntry;
      procedure Refresh;
+     procedure SetMargins;
 
      procedure SetBGColorInEditors(Color: TColor);
      procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);

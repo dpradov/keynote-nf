@@ -212,6 +212,7 @@ type
     function GetNNodeUIConfig: TNNodeUIConfiguration;
     procedure CheckChangeInEnabledPanels(EnabledPanelsForLayout: TNEntriesPanelEnabledArray);
     procedure TreeFocused;
+    procedure SetMargins;
     //procedure TestPanels;
 
   protected
@@ -1525,6 +1526,16 @@ begin
       if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
          FNEntriesUI[p].RefreshEntry;
 end;
+
+procedure TKntNoteUI.SetMargins;
+var
+  p: TNEntriesPanel;
+begin
+   for p := Low(TNEntriesPanel) to High(TNEntriesPanel) do
+      if (FNEntriesUI[p] <> nil) and (FNEntriesUI[p].OnUse) then
+         FNEntriesUI[p].Editor.SetMargins;
+end;
+
 
 
 // Only Ctrl+INTRO are intercepted

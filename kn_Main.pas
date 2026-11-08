@@ -8993,7 +8993,7 @@ begin
          Editor:= myFolder.Editor;
          ClipCapMng.ShowState;
          UpdateAlarmStatus;
-         Editor.SetMargins;
+         myFolder.NoteUI.SetMargins;
          UpdateWordWrap;
          Editor.CheckWordCount(true);
          Editor.Change;                 // It will only refresh UI if there is changes

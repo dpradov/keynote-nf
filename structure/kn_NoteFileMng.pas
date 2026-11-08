@@ -538,8 +538,8 @@ begin
    for i := 0 to ActiveFile.Folders.Count -1 do begin
        Folder:= ActiveFile.Folders[i];
        Folder.TreeUI.TV.ScrollIntoView(Folder.TreeUI.FocusedNode, false);
+       Folder.NoteUI.SetMargins;
        Editor:= Folder.Editor;
-       Editor.SetMargins;
        SendMessage(Editor.Handle, EM_SCROLLCARET, 0, 0);
 
        TKntNoteUI(Folder.NoteUI).RestoreSplits;

@@ -4892,7 +4892,7 @@ begin
    end;
 
    if KeyOptions.AltMargins then
-      Folder.Editor.Refresh;
+      Folder.NoteUI.Refresh;
 
    OnAfterChangesOnTreeWidth;
 
