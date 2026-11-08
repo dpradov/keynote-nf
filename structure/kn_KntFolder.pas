@@ -452,6 +452,7 @@ begin
         myFolder.EditorChrome := DefaultEditorChrome;
         myFolder.SetTreeProperties( DefaultTreeProperties );
         myFolder.TreeChrome := DefaultTreeChrome;
+        myFolder.NoteAdvOptions:= DefaultNoteAdvOptions;
       end
       else begin
         Form_NewNote := TForm_NewKntFolder.Create( Form_Main );
@@ -459,6 +460,7 @@ begin
           with Form_NewNote do begin
             ShowHint := KeyOptions.ShowTooltips;
             myEditorProperties := DefaultEditorProperties;
+            myNoteAdvOptions:= DefaultNoteAdvOptions;
             myTabProperties := DefaultTabProperties;
             myChrome :=  DefaultEditorChrome;
             myTabNameHistory := KeyOptions.TabNameHistory;
@@ -473,6 +475,7 @@ begin
             KeyOptions.TabNameHistory := Form_NewNote.myTabNameHistory;
             myFolder := TKntFolder.Create (ActiveFile);
             myFolder.SetEditorProperties( Form_NewNote.myEditorProperties );
+            myFolder.NoteAdvOptions:= Form_NewNote.myNoteAdvOptions;
             myFolder.SetTabProperties( Form_NewNote.myTabProperties );
             myFolder.EditorChrome := Form_NewNote.myChrome;
             KeyOptions.NodeNameHistory := Form_NewNote.myNodeNameHistory;
@@ -775,7 +778,7 @@ begin
 
               myTreeChrome := DefaultTreeChrome;
               myTreeProperties := DefaultTreeProperties;
-              //myNoteAdvOptions:= myFolder.NoteAdvOptions;        // TODO ***
+              myNoteAdvOptions:= DefaultNoteAdvOptions;
             end;
 
           end;
@@ -889,6 +892,7 @@ begin
 
                 DefaultEditorChrome := myEditorChrome;
                 DefaultEditorProperties := myEditorProperties;
+                DefaultNoteAdvOptions:= myNoteAdvOptions;
                 DefaultTabProperties := myTabProperties;
                 DEFAULT_NEW_FOLDER_NAME := DefaultTabProperties.Name;
 
@@ -1001,13 +1005,15 @@ begin
   //FAutoNumberNotes := false;
   FVerticalLayout := false;
   InitializeChrome( FTreeChrome );
+  NoteAdvOptions:= DefaultNoteAdvOptions;
   FDefaultNoteName := DEFAULT_NEW_NOTE_NAME;
   fNNodes := TNoteNodeList.Create;
-  NoteAdvOptions.Initialize;
   fNNodesUIConfig := TNNodeUIConfigList.Create;
   FLoadingLevels:= TIntegerList.Create;
   FEditorInfoPanelHidden:= false;
 
+ {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+ {
   // Example ***
   var Tags1, Tags2: TNoteTagArray;
   SetLength(Tags1, 1);
@@ -1030,6 +1036,8 @@ begin
   Tags2[0]:= TKntFile(FKntFile).NoteTags[1];
   NoteAdvOptions.DefaultUseForEL[pnTR] := pnuShowTagLinkedEntries;
   NoteAdvOptions.LinkedTagsForEL[pnTR]:= Tags2;
+}
+{$ENDIF}
 
 end; // CREATE
 
@@ -3283,8 +3291,12 @@ begin
      if ( key = _FolderName ) then
          FName := TryUTF8ToUnicodeString(s)
      else
-     if ( key = _FolderAdvOptions ) then
-         NoteAdvOptions.LoadFromString(TryUTF8ToUnicodeString(s))
+     if ( key = _FolderAdvOptions ) then begin
+         var ErrorsLoading: boolean;
+         NoteAdvOptions.LoadFromString(TryUTF8ToUnicodeString(s), ErrorsLoading);
+         if ErrorsLoading then
+            App.WarningPopup(Format(GetRS(sFile29),[Self.Name]));
+     end
      else
      if ( key = _FolderID ) then
          FID := StrToUIntDef( s, 0 )        // 0 -> owning file will generate new ID when note is added
@@ -3515,35 +3527,6 @@ begin
    for i:= 0 to Length(PanelsConfig)-1 do
        PanelsConfig[i].Free;
 end;
-
-{
-   Panel P Maximized =>
-   case P of
-     pnCenter: begin
-       FNNodeUIConfig.Bottom_Ratio:= 0;
-       FNNodeUIConfig.Top_Ratio:= 0;
-     end;
-     pnTL: begin
-       FNNodeUIConfig.Top_Ratio:= 1;
-       FNNodeUIConfig.TLTR_Ratio:= 1;
-     end;
-     pnTR: begin
-       FNNodeUIConfig.Top_Ratio:= 1;
-       FNNodeUIConfig.TLTR_Ratio:= 0;
-     end;
-     pnBL: begin
-       FNNodeUIConfig.Bottom_Ratio:= 1;
-       FNNodeUIConfig.Top_Ratio:= 0;
-       FNNodeUIConfig.BLBR_Ratio:= 1;
-     end;
-     pnBR: begin
-       FNNodeUIConfig.Bottom_Ratio:= 1;
-       FNNodeUIConfig.Top_Ratio:= 0;
-       FNNodeUIConfig.BLBR_Ratio:= 0;
-     end;
-   end;
-
-}
 
 function TNNodeUIConfiguration.GetTopAutoFromHidden_Ratio: Single;
 begin

@@ -57,6 +57,7 @@ procedure SaveKeyNoteOptions(
 procedure SaveKeyNoteDefaults(
   const INIFileName : string;
   const DefaultEditorProperties : TFolderEditorProperties;
+  const DefaultNoteAdvOptions: TNoteAdvancedOptions;
   const DefaultEditorChrome : TChrome;
   const DefaultTabProperties : TFolderTabProperties;
   const DefaultTreeProperties : TFolderTreeProperties;
@@ -67,6 +68,7 @@ procedure LoadKeyNoteDefaults(
   const OnlyChrome : boolean;
   const INIFileName : string;
   var DefaultEditorProperties : TFolderEditorProperties;
+  var DefaultNoteAdvOptions: TNoteAdvancedOptions;
   var DefaultEditorChrome : TChrome;
   var DefaultTabProperties : TFolderTabProperties;
   var DefaultTreeProperties : TFolderTreeProperties;
@@ -171,7 +173,8 @@ type
     URLDetect,
     UseTabChar,
     WordWrap,
-    DefaultZoom : string;
+    DefaultZoom,
+    AdvOptions : string;
   end;
 
 const
@@ -182,7 +185,8 @@ const
     URLDetect : 'URLDetect';
     UseTabChar : 'UseTabChar';
     WordWrap : 'WordWrap';
-    DefaultZoom: 'DefaultZoom'
+    DefaultZoom: 'DefaultZoom';
+    AdvOptions: 'AdvOptions';
   );
 
 
@@ -1022,7 +1026,8 @@ uses
   kn_Main,
   knt.model.note,
   knt.ui.editor,
-  knt.RS;
+  knt.RS,
+  knt.App;
 
 
 
@@ -2214,9 +2219,10 @@ end; // LoadMailOptions
 procedure SaveKeyNoteDefaults(
   const INIFileName : string;
   const DefaultEditorProperties : TFolderEditorProperties;
+  const DefaultNoteAdvOptions: TNoteAdvancedOptions;
   const DefaultEditorChrome : TChrome;
-  const DefaultTabProperties : TFolderTabProperties
-  ; const DefaultTreeProperties : TFolderTreeProperties;
+  const DefaultTabProperties : TFolderTabProperties;
+  const DefaultTreeProperties : TFolderTreeProperties;
   const DefaultTreeChrome : TChrome
   );
 var
@@ -2235,6 +2241,7 @@ begin
       writebool( section, NoteEditorPropertiesIniStr.UseTabChar, DefaultEditorProperties.UseTabChar );
       writebool( section, NoteEditorPropertiesIniStr.WordWrap, DefaultEditorProperties.WordWrap );
       writeinteger( section, NoteEditorPropertiesIniStr.DefaultZoom, DefaultEditorProperties.DefaultZoom );
+      writestring( section, NoteEditorPropertiesIniStr.AdvOptions, DefaultNoteAdvOptions.ToString );
 
       section := 'EditorChrome';
       writestring( section, ChromeIniStr.BGColor, ColorToString( DefaultEditorChrome.BGColor ));
@@ -2294,14 +2301,16 @@ procedure LoadKeyNoteDefaults(
   const OnlyChrome : boolean;
   const INIFileName : string;
   var DefaultEditorProperties : TFolderEditorProperties;
+  var DefaultNoteAdvOptions: TNoteAdvancedOptions;
   var DefaultEditorChrome : TChrome;
-  var DefaultTabProperties : TFolderTabProperties
-  ; var DefaultTreeProperties : TFolderTreeProperties;
+  var DefaultTabProperties : TFolderTabProperties;
+  var DefaultTreeProperties : TFolderTreeProperties;
   var DefaultTreeChrome : TChrome
   );
 var
   IniFile : TMemIniFile;
   section : string;
+  ErrorsLoading: boolean;
 begin
 
   IniFile := TMemIniFile.Create( INIFileName );
@@ -2360,6 +2369,10 @@ begin
       DefaultEditorProperties.UseTabChar := readbool( section, NoteEditorPropertiesIniStr.UseTabChar, DefaultEditorProperties.UseTabChar );
       DefaultEditorProperties.WordWrap := readbool( section, NoteEditorPropertiesIniStr.WordWrap, DefaultEditorProperties.WordWrap );
       DefaultEditorProperties.DefaultZoom := readinteger( section, NoteEditorPropertiesIniStr.DefaultZoom, DefaultEditorProperties.DefaultZoom );
+      DefaultNoteAdvOptions.LoadFromString(readstring( section, NoteEditorPropertiesIniStr.AdvOptions, ''), ErrorsLoading);
+      if ErrorsLoading then
+         App.WarningPopup(GetRS(sFile30));
+
 
       section := NoteTreePropertiesIniStr.section;
       DefaultTreeProperties.DefaultName := readstring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );

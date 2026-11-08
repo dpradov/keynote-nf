@@ -2909,5 +2909,7 @@ Button_OK.Caption=&Close
 55179_knt_RS_sEntry29=Panel options are not available in single-entry notes if advanced edition is not enabled
 55180_knt_RS_sEntry30=Switch to 
 55181_knt_RS_sINFTreeSel0=Current entry
+55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
+55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

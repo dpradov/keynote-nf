@@ -934,6 +934,7 @@ begin
         true, // load ONLY chrome
         DefaultsFN,
         myEditorProperties,
+        myNoteAdvOptions,
         myEditorChrome, // only THIS will get loaded from file
         myTabProperties,
         myTreeProperties,
@@ -953,6 +954,7 @@ begin
         true, // load ONLY chrome
         DefaultsFN,
         myEditorProperties,
+        myNoteAdvOptions,
         tmpChrome,
         myTabProperties,
         myTreeProperties,

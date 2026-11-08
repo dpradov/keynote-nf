@@ -286,6 +286,7 @@ var
    DefaultEditorChrome : TChrome;
    DefaultTreeChrome : TChrome;
    DefaultTreeProperties : TFolderTreeProperties;
+   DefaultNoteAdvOptions: TNoteAdvancedOptions;
 
    LongDateToFileSettings: TFormatSettings;
 
@@ -1331,6 +1332,9 @@ begin
    ActiveTreeUI:= nil;
    if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then
       ActiveEditor:= nil;
+
+   if aFile <> nil then
+      TagMng.ImportTagsFromFile(Tags_FN, True);   // Import common tags (new or modified tags)
 end;
 
 

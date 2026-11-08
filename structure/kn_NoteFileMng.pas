@@ -155,11 +155,12 @@ begin
               DEF_FN := OrigDEF_FN;
             end;
 
+            KntFile := TKntFile.Create;
+            App.FileNew(KntFile);
+
             LoadDefaults;
             LoadTabImages( false );
 
-            KntFile := TKntFile.Create;
-            App.FileNew(KntFile);
             KntFile.PageCtrl := Pages;
             KntFile.PassphraseFunc := GetFilePassphrase;
             KntFile.FileFormat := KeyOptions.SaveDefaultFormat;
@@ -1970,6 +1971,7 @@ begin
                 myFolder.SetEditorProperties( DefaultEditorProperties );
                 myFolder.SetTabProperties( DefaultTabProperties );
                 myFolder.EditorChrome := DefaultEditorChrome;
+                myFolder.NoteAdvOptions:= DefaultNoteAdvOptions;
                 if KeyOptions.ImportFileNamesWithExt then
                   s := ExtractFilename( FN )
                 else

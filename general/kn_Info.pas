@@ -978,10 +978,8 @@ type
      AutoExpandInPanels: boolean;           // for TL,TR, BL and BR
 
      public procedure Initialize (OnlyCustomiz: boolean = false);
-     public procedure InitializeDefUseForLayout(Layout: TPanelLayout);
-     public procedure InitializeMEPanelCustomization(Layout: TPanelLayout; Panel: TNEntriesMainPanel);
      public function ToString: String;
-     public procedure LoadFromString(Str: String);
+     public procedure LoadFromString(Str: String; var ErrorsLoading: boolean);
      public function ValidateLayout(Layout: TPanelLayout): boolean;
   end;
 
@@ -1037,6 +1035,7 @@ procedure InitializeChrome( var Struct : TChrome );
 procedure InitializeFolderTabProperties( var Struct : TFolderTabProperties );
 procedure InitializeFolderEditorProperties( var Struct : TFolderEditorProperties );
 procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
+procedure InitializeDefaultNoteAdvOptions(var Struct: TNoteAdvancedOptions);
 
 procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont; dpi: integer = 96);
 procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo; dpi: integer = 96);
@@ -1048,7 +1047,8 @@ procedure ClearObjectStringList( const AList : TStringList );
 
 implementation
 
-uses gf_strings;
+uses gf_strings,
+     knt.App;
 
 procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont; dpi: integer = 96); // 96: 100% scaling
 begin
@@ -1125,6 +1125,12 @@ begin
     DefaultZoom:= 100;
   end;
 end; // InitializeNoteEditorProperties
+
+
+procedure InitializeDefaultNoteAdvOptions(var Struct: TNoteAdvancedOptions);
+begin
+   Struct.Initialize();
+end;
 
 procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
 begin
@@ -1292,70 +1298,7 @@ begin
 end;
 
 
-// Load built-in default values
-
-procedure TNoteAdvancedOptions.InitializeDefUseForLayout(Layout: TPanelLayout);
-var
-  p: TNEntriesPanel;
-begin
-   if Layout = lQL then begin
-       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-          DefaultUseForQL[p] := pnuHidePanel;
-          DefaultEnabledForQL[p] := false;
-       end;
-
-       DefaultUseForQL[pnCenter] := pnuShowAllEntries;
-       DefaultEnabledForQL[pnCenter] := true;
-   end
-   else begin
-       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-          DefaultUseForEL[p] := pnuHidePanel;
-          DefaultEnabledForEL[p] := false;
-       end;
-
-       DefaultUseForEL[pnTL]     := pnuShowSelectedEntry;
-       DefaultUseForEL[pnCenter] := pnuShowAllEntries;
-       DefaultEnabledForEL[pnTL] := true;
-       DefaultEnabledForEL[pnCenter] := true;
-   end;
-
-end;
-
-procedure TNoteAdvancedOptions.InitializeMEPanelCustomization(Layout: TPanelLayout; Panel: TNEntriesMainPanel);
-var
-   PanelCustomiz: ^TMEPanelCustomization;
-begin
-   if Layout = lQL then
-      PanelCustomiz:= @DefaultMECustomizForQL[Panel]
-    else
-      PanelCustomiz:= @DefaultMECustomizForEL[Panel];
-
-   with PanelCustomiz^ do begin
-      Content:= cmWholeEntry;
-      ShowDateInHeader:= true;
-      ShowTimeInHeader:= true;
-      ShowTagsInHeader:= true;
-      ShowLineInHeader:= true;
-      CompactHeader:= false;
-      DescendingOrder:= True;
-      FoldedTextMode:= fmKeepUnchanged;
-
-      with Filter do begin
-         Enabled:= False;
-         TagsModeOR:= false;
-         FindTagsIncl:= nil;
-         FindTagsExcl:= nil;
-         TagsText:= false;
-         TextFilter:= '';
-         MatchCase:= false;
-         WholeWordsOnly:= false;
-         SearchMode:= smPhrase;
-         ConsiderHidden:= false;
-         ShowExcerpts:= false;
-      end;
-   end;
-end;
-
+// Set built-in default values
 
 procedure TNoteAdvancedOptions.Initialize(OnlyCustomiz: boolean = false);
 var
@@ -1366,12 +1309,21 @@ begin
        NewEntriesAlwaysOnEdLayout:= false;
        EditTagLinkedEntryInSelectedEntryPanel:= true;
 
-       InitializeDefUseForLayout(lQL);
-       InitializeDefUseForLayout(lEL);
        for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+          DefaultUseForQL[p] := pnuHidePanel;
+          DefaultEnabledForQL[p] := false;
+          DefaultUseForEL[p] := pnuHidePanel;
+          DefaultEnabledForEL[p] := false;
+
           LinkedTagsForQL[p]:= nil;
           LinkedTagsForEL[p]:= nil;
        end;
+       DefaultUseForQL[pnCenter] := pnuShowAllEntries;
+       DefaultEnabledForQL[pnCenter] := true;
+       DefaultUseForEL[pnTL]     := pnuShowSelectedEntry;
+       DefaultUseForEL[pnCenter] := pnuShowAllEntries;
+       DefaultEnabledForEL[pnTL] := true;
+       DefaultEnabledForEL[pnCenter] := true;
     end;
 
 
@@ -1649,7 +1601,7 @@ end;
 
 
 
-procedure TNoteAdvancedOptions.LoadFromString(Str: String);
+procedure TNoteAdvancedOptions.LoadFromString(Str: String; var ErrorsLoading: boolean);
 var
   i: integer;
   Strs, Strs2: TStrings;
@@ -1661,6 +1613,7 @@ var
   DefMECustomizForQL, DefMECustomizForEL: String;
   PanelCustomiz: TMEPanelCustomization;
   Config: TFormatSettings;
+  LayoutOK: boolean;
 
 
   procedure LoadMEPanelCustomization(DefMECustomiz: string; Layout: TPanelLayout);
@@ -1675,7 +1628,10 @@ var
      SplitString(Strs, DefMECustomiz, '/', false);
      i:= 0;
      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-        InitializeMEPanelCustomization(Layout, p);
+        if Layout = lQL then
+            DefaultMECustomizForQL[p]:= DefaultNoteAdvOptions.DefaultMECustomizForQL[p]
+        else
+            DefaultMECustomizForEL[p]:= DefaultNoteAdvOptions.DefaultMECustomizForEL[p];
 
         if Strs[i] <> '' then begin
            if Layout = lQL then
@@ -1731,10 +1687,11 @@ var
 
 
 begin
-   Initialize;
+   Self:= DefaultNoteAdvOptions;
 
    if Str = '' then exit;
 
+   ErrorsLoading:= false;
 
    Strs:= TStringList.Create;
    Strs2:= TStringList.Create;
@@ -1778,63 +1735,88 @@ begin
       DefMECustomizForEL:=  Strs[27];
 
 
-      Strs.Clear;
-      SplitString(Strs, LinkedTagsQL, '/', false);
-      i:= 0;
-      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         LinkedTagsForQL[p]:=  TNoteTagArrayUtils.StringToTags(Strs[i]);
-         inc(i);
+      try
+          LayoutOK:= false;
+
+          Strs.Clear;
+          SplitString(Strs, LinkedTagsQL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             LinkedTagsForQL[p]:=  TNoteTagArrayUtils.StringToTags(Strs[i]);
+             inc(i);
+          end;
+
+          Strs.Clear;
+          SplitString(Strs, DefUseForQL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultUseForQL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
+             inc(i);
+          end;
+
+          Strs.Clear;
+          SplitString(Strs, DefEnabledForQL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultEnabledForQL[p]:=  Strs[i] = BOOLEANSTR[true];
+             inc(i);
+          end;
+
+          LayoutOK:= ValidateLayout(lQL);
+
+      except
+        on E: Exception do begin
+           LayoutOK:= false;
+           ErrorsLoading:= true;
+        end;
       end;
 
-      Strs.Clear;
-      SplitString(Strs, LinkedTagsEL, '/', false);
-      i:= 0;
-      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         LinkedTagsForEL[p]:=  TNoteTagArrayUtils.StringToTags(Strs[i]);
-         inc(i);
-      end;
-
-
-      Strs.Clear;
-      SplitString(Strs, DefUseForQL, '/', false);
-      i:= 0;
-      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         DefaultUseForQL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
-         inc(i);
-      end;
-
-      Strs.Clear;
-      SplitString(Strs, DefUseForEL, '/', false);
-      i:= 0;
-      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         DefaultUseForEL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
-         inc(i);
-      end;
-
-
-      Strs.Clear;
-      SplitString(Strs, DefEnabledForQL, '/', false);
-      i:= 0;
-      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         DefaultEnabledForQL[p]:=  Strs[i] = BOOLEANSTR[true];
-         inc(i);
-      end;
-
-      Strs.Clear;
-      SplitString(Strs, DefEnabledForEL, '/', false);
-      i:= 0;
-      for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
-         DefaultEnabledForEL[p]:=  Strs[i] = BOOLEANSTR[true];
-         inc(i);
+      if not LayoutOK then begin
+         DefaultUseForQL:= DefaultNoteAdvOptions.DefaultUseForQL;
+         DefaultEnabledForQL:= DefaultNoteAdvOptions.DefaultEnabledForQL;
       end;
 
 
-      if not ValidateLayout(lQL) then
-         InitializeDefUseForLayout(lQL);
+      try
+          LayoutOK:= false;
 
-      if not ValidateLayout(lEL) then
-         InitializeDefUseForLayout(lEL);
+          Strs.Clear;
+          SplitString(Strs, LinkedTagsEL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             LinkedTagsForEL[p]:=  TNoteTagArrayUtils.StringToTags(Strs[i]);
+             inc(i);
+          end;
 
+          Strs.Clear;
+          SplitString(Strs, DefUseForEL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultUseForEL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
+             inc(i);
+          end;
+
+          Strs.Clear;
+          SplitString(Strs, DefEnabledForEL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultEnabledForEL[p]:=  Strs[i] = BOOLEANSTR[true];
+             inc(i);
+          end;
+
+          LayoutOK:= ValidateLayout(lEL);
+
+      except
+        on E: Exception do begin
+           LayoutOK:= false;
+           ErrorsLoading:= true;
+        end;
+      end;
+
+      if not LayoutOK then begin
+         DefaultUseForEL:= DefaultNoteAdvOptions.DefaultUseForEL;
+         DefaultEnabledForEL:= DefaultNoteAdvOptions.DefaultEnabledForEL;
+      end;
 
       LoadMEPanelCustomization(DefMECustomizForQL, lQL);
       LoadMEPanelCustomization(DefMECustomizForEL, lEL);
@@ -1842,7 +1824,8 @@ begin
 
     except
        On E: Exception do begin
-          i:= 0;
+          Self:= DefaultNoteAdvOptions;
+          ErrorsLoading:= true;
        end;
     end;
 

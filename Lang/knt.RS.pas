@@ -351,6 +351,8 @@ const
    sFile26 = 55132;   // : Cannot open encrypted file
    sFile27 = 55133;   // : Cannot show encrypted content
    sFile28 = 55136;   // Error loading encrypted content
+   sFile29 = 55182;   // Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
+   sFile30 = 55183;   // Error loading default advanced options. Built-in will be used
 
    sFileM01 = 54361;   // Cannot create a new file:
    sFileM02 = 54362;   //  New KNT file created.

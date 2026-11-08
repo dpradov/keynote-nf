@@ -367,6 +367,7 @@ begin
   SaveKeyNoteDefaults(
     DEF_FN,
     DefaultEditorProperties,
+    DefaultNoteAdvOptions,
     DefaultEditorChrome,
     DefaultTabProperties,
     DefaultTreeProperties,
@@ -384,6 +385,7 @@ begin
       false,
       DEF_FN,
       DefaultEditorProperties,
+      DefaultNoteAdvOptions,
       DefaultEditorChrome,
       DefaultTabProperties,
       DefaultTreeProperties,
