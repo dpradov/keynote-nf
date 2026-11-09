@@ -1006,8 +1006,8 @@ begin
      SL := TStringList.Create;
      try
         if ExportALL then
-           for i := 0 to ActiveFile.NoteTagsSorted.Count-1 do begin
-              NTag:= ActiveFile.NoteTagsSorted[i];
+           for i := 0 to ActiveFile.NoteTags.Count-1 do begin
+              NTag:= ActiveFile.NoteTags[i];
               ExportTag;
            end
         else
