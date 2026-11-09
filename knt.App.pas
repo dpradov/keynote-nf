@@ -116,16 +116,17 @@ type
       FLckStream: TStream;                       // for locking of .lck file
       FActiveFileEditedByOtherUser: boolean;
 
+      FInmersiveMode: boolean;
+
       constructor Create;
       procedure Initialize;
 
    protected
-      procedure UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
-
       procedure EditorSelected (Editor: TKntRichEdit; Focused: boolean); overload;
-      procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
       procedure FolderSelected(Folder: TKntFolder; PrevFolder: TKntFolder);
       procedure NNodeSelected(NNode: TNoteNode);
+      procedure MarkNEntryAsModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+      procedure NEntryModified_NecessaryActions(NEntry: TNoteEntry; Note: TNote; Editor: TKntRichEdit = nil; ReloadOtherEditors: boolean = True);
 
       procedure ShowWordCountInfoInStatusBar(const str: string);
       function GetWordCountInfoInStatusBar: string;
@@ -144,6 +145,10 @@ type
       procedure AuxEditorFocused(Sender: TObject);
       procedure SetTopMost(hWND: HWND; OnlyWithFloatingEditor: boolean = True);
       procedure HideNestedFloatingEditors;
+      procedure EnsureContentEditorUpdated (Editor: TKntRichEdit);
+      procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+
+      procedure UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 
       procedure EditorAvailable (Editor: TKntRichEdit);
       procedure EditorUnavailable (Editor: TKntRichEdit);
@@ -151,15 +156,24 @@ type
       procedure EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
       procedure EditorSaved (Editor: TKntRichEdit);
       procedure ChangeInEditor (Editor: TKntRichEdit);
-      procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+      procedure NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
+      procedure NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);         // To inform of a change made from a readonly editor (inserting a marker in a MultiEntry panel)
+      procedure DeleteActiveNEntry;
+      procedure ActiveNEntryHiddenChanged;
+      procedure ReconsiderVisibilityOfEntries(Note: TNote = nil);
+      procedure ActiveNEntryReadOnlyChanged;
+      procedure ActiveNEntryMain;
       procedure EditorPropertiesModified (Editor: TKntRichEdit);
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
+      procedure SaveEditorModifiedWithNEntry (NEntry: TNoteEntry);
 
       procedure TreeFocused (Tree: TKntTreeUI);
       procedure NNodeFocused(NNode: TNoteNode);
       procedure FolderDeleted (Folder: TKntFolder; TabIndex: integer);
       procedure FolderPropertiesModified (Folder: TKntFolder);
+
+      property InmersiveMode: boolean read FInmersiveMode write FInmersiveMode;
 
       procedure FileNew (aFile: TKntFile);
       function  FileOpening (aFile: TKntFile; const FN: string; var OpenReadOnly: boolean): boolean;
@@ -186,14 +200,16 @@ type
       procedure ShowTipOfTheDay;
 
       function CheckActiveEditor: boolean;
-      function CheckActiveEditorNotReadOnly: boolean;
+      function CheckActiveEditorNotReadOnly(AllowMultiEntries: boolean = false): boolean;
 
       procedure TagsUpdated;
       property TagsState: TTagsState read fTagsState write fTagsState;
 
       procedure ShowInfoInStatusBar(const str: string);
+      procedure WarnFolderIsReadOnly(Folder: TKntFolder);
       procedure WarnEditorIsReadOnly;
       procedure WarnNoTextSelected;
+      procedure WarnEntryIsReadOnly;
 
       function DoMessageBox(const Str: string; DlgType: TMsgDlgType;
                             const Buttons: TMsgDlgButtons;
@@ -241,12 +257,18 @@ var
    AFileIsLoading: boolean;
    HandlingTimerTick: boolean;
    UpdatingTextPlain: boolean;
+   CreatingNewEntry: boolean;
+
 
    IgnoringEditorChanges: boolean;
    FloatingEditorCannotBeSaved: boolean;
+   EditorToBeCheckedForContentUpdate: TKntRichEdit;
+   DisableChangedInEmptyPanelAt: TDateTime;
+   FrameResizePendingInNoteUI: TObject;  // TKntNoteUI
 
-   ExportingFormVisible: boolean;
+   ModalFormWithTxtTagsVisible: boolean;
    InformingSomeoneChangedOurFile: boolean;
+   IGNORE_TVFocusChanged: boolean;
 
    //================================================ APPLICATION OPTIONS
    // these are declared in kn_Info.pas
@@ -264,6 +286,7 @@ var
    DefaultEditorChrome : TChrome;
    DefaultTreeChrome : TChrome;
    DefaultTreeProperties : TFolderTreeProperties;
+   DefaultNoteAdvOptions: TNoteAdvancedOptions;
 
    LongDateToFileSettings: TFormatSettings;
 
@@ -283,6 +306,8 @@ uses
    kn_NoteFileMng,
    knt.ui.TagMng,
    knt.ui.tagSelector,
+   knt.ui.note,
+   knt.ui.noteEntries,
    knt.RS;
 
 
@@ -381,9 +406,14 @@ begin
    IgnoringEditorChanges:= false;
    HandlingTimerTick:= false;
    UpdatingTextPlain:= false;
+   CreatingNewEntry:= false;
    fTagsState:= tsPendingUpdate;
-   ExportingFormVisible:= false;
+   ModalFormWithTxtTagsVisible:= false;
    InformingSomeoneChangedOurFile:= false;
+   EditorToBeCheckedForContentUpdate:= nil;
+   DisableChangedInEmptyPanelAt:= 0;
+   FrameResizePendingInNoteUI:= nil;
+   IGNORE_TVFocusChanged:= false;
 
    LongDateToFileSettings:= TFormatSettings.Create;
    with LongDateToFileSettings do begin
@@ -462,7 +492,7 @@ begin
     Result:= True;
 end;
 
-function TKntApp.CheckActiveEditorNotReadOnly: boolean;
+function TKntApp.CheckActiveEditorNotReadOnly(AllowMultiEntries: boolean = false): boolean;
 begin
     Result:= False;
     if not assigned(ActiveEditor) then begin
@@ -470,7 +500,7 @@ begin
        exit;
     end;
 
-    if ActiveEditor.ReadOnly then begin
+    if ActiveEditor.ReadOnly and not (AllowMultiEntries and ActiveEditor.MultiEntry) then begin
        WarnEditorIsReadOnly;
        exit;
     end;
@@ -549,14 +579,21 @@ end;
 procedure TKntApp.UpdateEnabledActionsAndRTFState(Editor: TKntRichEdit);
 var
   Edit_PlainText, Edit_SupportsImages, Edit_SupportsRegImages, Edit_NoteObj, Edit_Enabled: boolean;
+  Edit_HasMultipleEntries: boolean;
+  Edit_HasAnyEntryNonVisible: boolean;
+  Edit_DisplayingAnyHiddenEntry: boolean;
 
 begin
+  Edit_HasAnyEntryNonVisible:= false;
+  Edit_DisplayingAnyHiddenEntry:= false;
+
   if (Editor = nil) or not Editor.Enabled then begin
       Edit_PlainText:= true;
       Edit_SupportsImages:= false;
       Edit_SupportsRegImages:= false;
       Edit_NoteObj:= false;
       Edit_Enabled:= false;
+      Edit_HasMultipleEntries:= false;
   end
   else begin
       Edit_PlainText:= Editor.PlainText;
@@ -564,10 +601,16 @@ begin
       Edit_SupportsRegImages:= Editor.SupportsRegisteredImages;
       Edit_NoteObj:= (Editor.NNodeObj <> nil);
       Edit_Enabled:= not Editor.ReadOnly;
+
+      Edit_HasMultipleEntries:= Edit_NoteObj and (TNoteNode(Editor.NNodeObj).Note.NumEntries > 1);
+      if Edit_NoteObj then begin
+         Edit_HasAnyEntryNonVisible:=   (TKntNoteEntriesUI(Editor.NEntriesUIObj)).HasAnyEntryNonVisible;
+         Edit_DisplayingAnyHiddenEntry:=(TKntNoteEntriesUI(Editor.NEntriesUIObj)).DisplayingAnyHiddenEntry;
+      end;
   end;
 
   Form_Main.EnableActionsForEditor(not Edit_PlainText, Edit_Enabled);
-  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages);
+  Form_Main.EnableActionsForEditor(Edit_NoteObj, Edit_SupportsImages, Edit_SupportsRegImages, Edit_HasMultipleEntries, Edit_HasAnyEntryNonVisible, Edit_DisplayingAnyHiddenEntry);
   Form_Main.RxChangedSelection(Editor, true);
   Form_Main.UpdateWordWrap;
   ClipCapMng.ShowState;
@@ -609,7 +652,7 @@ end;
 
 procedure TKntApp.EditorReloaded (Editor: TKntRichEdit; Focused: boolean);
 begin
-   if Editor = nil then exit;
+   if (Editor = nil) then exit;
 
    EditorSelected(Editor, Focused);     // Focused=False: Will not set ActiveFolder.FocusMemory:= focRTF (but will not set := focTree either)
 end;
@@ -622,15 +665,10 @@ var
 begin
     Log_StoreTick('TKntApp.EditorSelected - BEGIN', 4, +1);
 
-    EnsureContentEditorUpdated (Editor);
+    if Focused and ((Editor.NEntryObj <> nil) or (Editor.MultiEntry)) then
+       EditorToBeCheckedForContentUpdate:= Editor;
 
     ActiveEditor:= Editor;
-
-    if Focused then begin
-       UpdateEnabledActionsAndRTFState(Editor);
-       ShowCurrentZoom(Editor.GetZoom);
-       Editor.UpdateCursorPos;
-    end;
 
     if assigned(Editor.NNodeObj) then begin
        OldFolder:= ActiveFolder;
@@ -658,6 +696,37 @@ begin
           NNodeSelected(ActiveNNode);
     end;
 
+    if Focused and not Initializing then begin
+       UpdateEnabledActionsAndRTFState(Editor);
+       ShowCurrentZoom(Editor.GetZoom);
+       Editor.UpdateCursorPos;
+    end;
+
+
+{$IFDEF KNT_DEBUG}
+{
+   var str: string;
+   if Editor = nil then
+      str:= 'EditorSelected: nil'
+   else begin
+      str:= Editor.GetTextRange(0,20) + '...';
+      if ActiveNNode = nil then
+         str:= #13 + '- ActiveNNode: nil '
+      else
+         str:= #13 + '- ActiveNNode.Note: ' + ActiveNNode.NoteName;
+
+      if ActiveNEntry = nil then
+         str:= str + #13 + '- ActiveNEntry: nil '
+      else
+         str:= str + #13 + '- ActiveNEntry.ID: ' + ActiveNEntry.ID.ToString + ' TextPlain: ' + ActiveNEntry.TextPlain.Substring(0,10) + '...';
+
+      str:= str + #13 + '- EditorSelected: ' + Editor.GetTextRange(0,20) + '...';
+
+   end;
+   Form_Main.Res_RTF.Text:= '=========     ' + str + #13#13 + Form_Main.Res_RTF.Text;
+}
+{$ENDIF}
+
     Log_StoreTick('TKntApp.EditorSelected - END', 4, -1);
 end;
 
@@ -672,45 +741,74 @@ begin
    fAvailableEditors.Remove(Editor);
 end;
 
-procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
+procedure TKntApp.NEntryModified_NecessaryActions(NEntry: TNoteEntry; Note: TNote; Editor: TKntRichEdit = nil; ReloadOtherEditors: boolean = True);
 var
-   NNodeSavedEditor, NNode: TNoteNode;
-   NoteSavedEditor: TNote;
+   NNode: TNoteNode;
    E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
    i: integer;
-   SP: TPoint;
-   SS,SL: integer;
+
+   procedure ExecuteOnNEntriesUI(DoFreeCustomizeInfo: boolean);
+   var
+      i: integer;
+   begin
+      for i:= 0 to fAvailableEditors.Count-1 do begin
+         E:= fAvailableEditors[i];
+         if not DoFreeCustomizeInfo and (E = Editor) then continue;
+         NNode:= TNoteNode(E.NNodeObj);
+         if assigned(NNode) and (NNode.Note = Note) then begin
+            NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+            if assigned(NEntriesUI) and (NEntriesUI.PanelConfig <> nil) then begin
+               if DoFreeCustomizeInfo then begin
+                  NEntriesUI.PanelConfig.ClearCustomizeInfo(NEntry);
+                  NEntriesUI.CleanCustomizeInfo(NEntry);
+               end
+               else begin
+                  NEntriesUI.SavePositionInPanel;
+                  NEntriesUI.SaveCustomizeInfo(NEntriesUI.GetIndexOfSelectedEntry);
+                  NEntriesUI.ReloadFromDataModel(false, NEntry, aModified, false);
+               end;
+            end;
+         end;
+      end;
+   end;
 
 begin
+
+   // Clear any saved filtering information related to the modified entry so that it is recalculated.
+   ExecuteOnNEntriesUI(true);    // Some of its PanelConfigs may not have been saved to Folder.NNodesUIConfig yet
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].ClearFilterInfo(NEntry);
+
+   if not ReloadOtherEditors then exit;
+
+   ExecuteOnNEntriesUI(false);
+end;
+
+
+procedure TKntApp.EditorSaved (Editor: TKntRichEdit);
+var
+   NNodeSavedEditor: TNoteNode;
+   NoteSavedEditor: TNote;
+   NEntrySaved: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   ReloadOtherEditors: boolean;
+begin
    if Editor = nil then exit;
+
+   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, +1);
 
    NNodeSavedEditor:= TNoteNode(Editor.NNodeObj);
    if NNodeSavedEditor = nil then exit;
    NoteSavedEditor:= NNodeSavedEditor.Note;
 
-   if NoteSavedEditor.NumNNodes <= 1 then exit;
+   NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
+   NEntrySaved:= NEntriesUI.NEntry;
+   ReloadOtherEditors:= (NoteSavedEditor.NumNNodes > 1) or NEntriesUI.NoteUI.MultipleVisibleEditors;
 
-   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, +1);
+   NEntryModified_NecessaryActions(NEntrySaved, NoteSavedEditor, Editor, ReloadOtherEditors);
 
-   for i:= 0 to fAvailableEditors.Count-1 do begin
-      E:= fAvailableEditors[i];
-      if (E = Editor) then continue;
-
-      NNode:= TNoteNode(E.NNodeObj);
-      if NNode = nil then continue;
-      if NoteSavedEditor = NNode.Note then begin
-         SP:= E.GetScrollPosInEditor;
-         SS := E.SelStart;
-         SL := E.SelLength;
-         TKntFolder(E.FolderObj).ReloadEditorFromDataModel(false);
-         E.SelStart:= SS;
-         E.SelLength:= SL;
-         E.SetScrollPosInEditor(SP);
-      end;
-   end;
-
-   Log_StoreTick('TKntApp.EditorSaved - BEGIN', 4, -1);
-
+   Log_StoreTick('TKntApp.EditorSaved - END', 4, -1);
 end;
 
 
@@ -719,32 +817,73 @@ var
    NNodeSelecEditor, NNode: TNoteNode;
    NoteSelecEditor: TNote;
    E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
    i: integer;
 begin
+   if EditorToBeCheckedForContentUpdate = nil then exit;
+
+   EditorToBeCheckedForContentUpdate:= nil;
    if Editor = nil then exit;
 
    NNodeSelecEditor:= TNoteNode(Editor.NNodeObj);
    if NNodeSelecEditor = nil then exit;
    NoteSelecEditor:= NNodeSelecEditor.Note;
 
-   if NoteSelecEditor.NumNNodes <= 1 then exit;
+   NEntriesUI:= TKntNoteEntriesUI(Editor.NEntriesUIObj);
+   if not ( (NoteSelecEditor.NumNNodes > 1) or NEntriesUI.NoteUI.MultipleVisibleEditors) then exit;
 
    Log_StoreTick('TKntApp.EnsureContentEditorUpdated - BEGIN', 4, +1);
 
    for i:= 0 to fAvailableEditors.Count-1 do begin
       E:= fAvailableEditors[i];
-      if (E = Editor) or (not E.Modified) then continue;
+      if (E = Editor) then continue;
 
       NNode:= TNoteNode(E.NNodeObj);
       if NNode = nil then continue;
-      if NoteSelecEditor = NNode.Note then begin
-         TKntFolder(E.FolderObj).SaveEditorToDataModel;   // Will force reload from any Editor with the same (linked) NNode open => App.EditorSaved()
+      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if (NEntriesUI = nil) or (NEntriesUI.PanelConfig = nil) then continue;
+      if (NoteSelecEditor = NNode.Note) and E.Modified then begin
+         NEntriesUI.SaveToDataModel;
          exit;
       end;
    end;
 
    Log_StoreTick('TKntApp.EnsureContentEditorUpdated - END', 4, -1);
 
+end;
+
+
+procedure TKntApp.ModifiedMetadataOfEntry(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+var
+   i: integer;
+begin
+   Log_StoreTick('TKntApp.ModifiedMetadataOfEntry - BEGIN', 4, +1);
+
+   MarkNEntryAsModified(NEntry, Note, Folder);
+
+
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].NoteUI.ModifiedMetadataOfEntry(NEntry);
+
+
+   Log_StoreTick('TKntApp.ModifiedMetadataOfEntry - END', 4, -1);
+end;
+
+procedure TKntApp.SaveEditorModifiedWithNEntry (NEntry: TNoteEntry);
+var
+   E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   for i:= 0 to fAvailableEditors.Count-1 do begin
+      E:= fAvailableEditors[i];
+      if not E.Modified then continue;
+      if TNoteEntry(E.NEntryObj) <> NEntry then continue;
+
+      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then
+         NEntriesUI.SaveToDataModel;
+   end;
 end;
 
 
@@ -782,13 +921,42 @@ begin
   if CopyFormatMode= cfEnabled then
      EnableCopyFormat(False);
 
-  if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad)
+  if not Editor.VinculatedNNode(NNodeObj, NEntryObj, FolderObj) then exit;     // Eg. Scratchpad  (or a floating editor of Scratchpad) (or a 'blank' editor of a panel, with NEntryObj= nil)
 
-  NEntryModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
+  MarkNEntryAsModified (TNoteEntry(NEntryObj), TNoteNode(NNodeObj).Note, TKntFolder(FolderObj));
 end;
 
 
-procedure TKntApp.NEntryModified(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+procedure TKntApp.NEntrySelected (Editor: TKntRichEdit; NEntry: TNoteEntry);
+begin
+   if (Editor = nil) or (ActiveEditor <> Editor) then exit;
+
+   ActiveNEntry:= NEntry;
+   UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+{$IFDEF KNT_DEBUG}
+{
+   var str: string;
+
+   if ActiveNEntry = nil then
+      str:= str + #13 + '- New ActiveNEntry: nil '
+   else
+      str:= str + #13 + '- New ActiveNEntry.ID: ' + ActiveNEntry.ID.ToString + ' TextPlain: ' + ActiveNEntry.TextPlain.Substring(0,10) + '...';
+
+   Form_Main.Res_RTF.Text:= '-------     ' + str + #13#13 + Form_Main.Res_RTF.Text;
+}
+{$ENDIF}
+
+end;
+
+
+procedure TKntApp.NEntryModified (NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
+begin
+   MarkNEntryAsModified(NEntry, Note, Folder);
+   NEntryModified_NecessaryActions(NEntry, Note, nil, True);
+end;
+
+procedure TKntApp.MarkNEntryAsModified(NEntry: TNoteEntry; Note: TNote; Folder: TKntFolder);
 begin
   if ActiveFileIsBusy then exit;
 
@@ -796,6 +964,224 @@ begin
   Note.Modified:= true;         // Will also update last modified in note
   Folder.Modified := true;      // => KntFile.Modified := true;
 end;
+
+
+procedure TKntApp.DeleteActiveNEntry;
+var
+   NEntry: TNoteEntry;
+   E: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+   wasMain: boolean;
+
+  function CheckEntryHasEncryptedContent: boolean;
+  var
+    HasEncrypContent: boolean;
+  begin
+    HasEncrypContent:= NEntry.IsEncrypted;
+    if not HasEncrypContent then begin
+       if ImageMng.FileContainsEncryptedImages then
+          HasEncrypContent:= ImageMng.ContainsEncryptedImages(NEntry);
+    end;
+    Result:= True;
+    if HasEncrypContent then
+       if (App.DoMessageBox (GetRS(sEntry03), mtWarning, [mbYes,mbNo]) <> mrYes) then
+          Result:= False
+       else
+          Result:= ActiveFile.CheckAuthorized(false);
+  end;
+
+
+begin
+   NEntry:= ActiveNEntry;
+
+   if ActiveNNode.Note.NumEntries = 1 then begin
+      if NEntry = nil then begin
+         ActiveFolder.NoteUI.LoadFromNNode(ActiveNNode, True, neQueryLayout);
+         UpdateEnabledActionsAndRTFState(ActiveEditor);
+      end;
+      exit;
+   end;
+
+   if NEntry = nil then exit;
+   if ActiveTreeUI.CheckReadOnly then exit;
+   if NEntry.IsReadOnly then begin
+      WarnEntryIsReadOnly;
+      exit;
+   end;
+   if not CheckEntryHasEncryptedContent then exit;
+
+   if KntTreeOptions.ConfirmNodeDelete and (App.DoMessageBox(Format(GetRS(sEntry01), [NEntry.GetFirstLinesOfText]), mtWarning, [mbYes,mbNo,mbCancel]) <> mrYes) then exit;
+
+   Log_StoreTick('TKntApp.DeleteNEntry - BEGIN', 4, +1);
+   try
+     WasMain:= NEntry.IsMain;
+
+     for i:= 0 to fAvailableEditors.Count-1 do begin
+        E:= fAvailableEditors[i];
+        NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+        if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then
+           NEntriesUI.NEntryDeleted(NEntry);
+     end;
+
+     ActiveNNode.Note.DeleteEntry(ActiveNNode.Note.GetEntryIndex(NEntry));
+     ActiveFolder.Modified := true;      // => KntFile.Modified := true;
+     if ActiveNNode.Note.NumEntries = 1 then
+        ActiveFolder.NoteUI.LoadFromNNode(ActiveNNode, True, neQueryLayout);
+
+     if WasMain then begin
+        ActiveFolder.NoteUI.RefreshTags;
+        for i := 0 to ActiveFile.Folders.Count -1 do
+            ActiveFile.Folders[i].NoteUI.RefreshTags;
+     end;
+
+     UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+   except
+     on E : Exception do
+       App.ErrorPopup(E, GetRS(sEntry04));
+   end;
+   Log_StoreTick('TKntApp.DeleteNEntry - END', 4, -1);
+
+end;
+
+
+procedure TKntApp.ActiveNEntryHiddenChanged;
+var
+   E: TKntRichEdit;
+   Note: TNote;
+   NEntry: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+   CreatedBeforeIt: string;
+   CreatedBefore: TDateTime;
+   ToIsHidden: boolean;
+   AlsoToCreatedBeforeIt: boolean;
+
+begin
+   NEntry:= ActiveNEntry;
+   Note:= ActiveNNode.Note;
+
+   AlsoToCreatedBeforeIt:= CtrlDown;             // Ctrl : Apply to selected entry and to all created before it
+
+   if AlsoToCreatedBeforeIt then begin
+      CreatedBeforeIt:= GetRS(sEntry08);
+      CreatedBefore:= NEntry.Created;
+   end;
+
+   ToIsHidden:= not NEntry.IsHidden;
+   if ToIsHidden then
+     if App.DoMessageBox(Format(GetRS(sEntry05), [CreatedBeforeIt, NEntry.GetFirstLinesOfText]), mtConfirmation, [mbYes,mbNo,mbCancel]) <> mrYes then exit;
+
+   Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - BEGIN', 4, +1);
+   try
+
+     if AlsoToCreatedBeforeIt then begin
+        for i:= Note.NumEntries-1 downto 0 do begin
+            if (Note.Entries[i].Created <= CreatedBefore) then
+                Note.Entries[i].IsHidden:= ToIsHidden;
+        end;
+        NEntry:= nil;
+     end
+     else
+        NEntry.IsHidden:= ToIsHidden;
+
+     Note.SetModified;
+     ActiveFolder.Modified:= True;
+     UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+     for i:= 0 to fAvailableEditors.Count-1 do begin
+        E:= fAvailableEditors[i];
+        NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+        if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then begin
+           NEntriesUI.NEntryHidden(NEntry, ToIsHidden, CreatedBefore);
+           if ToIsHidden and (E = ActiveEditor) then
+              NEntriesUI.SelectNextEntry(false);
+        end
+     end;
+
+   except
+     on E : Exception do
+       App.ErrorPopup(E, GetRS(sEntry06));
+   end;
+
+   Log_StoreTick('TKntApp.ActiveNEntryHiddenChanged - END', 4, -1);
+end;
+
+
+procedure TKntApp.ReconsiderVisibilityOfEntries(Note: TNote = nil);
+var
+   i: integer;
+begin
+   if Note <> nil then begin
+      ActiveNNode.Note.SetModified;
+      ActiveFolder.Modified:= True;
+   end;
+
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].NoteUI.ReconsiderVisibilityOfEntries;
+
+   UpdateEnabledActionsAndRTFState(ActiveEditor);
+end;
+
+
+procedure TKntApp.ActiveNEntryReadOnlyChanged;
+var
+   E: TKntRichEdit;
+   NEntry: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   NEntry:= ActiveNEntry;
+
+   Log_StoreTick('TKntApp.ActiveNEntryReadOnlyChanged - BEGIN', 4, +1);
+
+   NEntry.IsReadOnly:= not NEntry.IsReadOnly;
+   ActiveNNode.Note.SetModified;
+   ActiveFolder.Modified:= True;
+   UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+   for i:= 0 to fAvailableEditors.Count-1 do begin
+      E:= fAvailableEditors[i];
+      NEntriesUI:= TKntNoteEntriesUI(E.NEntriesUIObj);
+      if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig <> nil) then
+         NEntriesUI.NEntryReadOnlyChanged(NEntry);
+   end;
+
+   Log_StoreTick('TKntApp.ActiveNEntryReadOnlyChanged - END', 4, -1);
+
+end;
+
+procedure TKntApp.ActiveNEntryMain;
+var
+   NEntry: TNoteEntry;
+   NEntriesUI: TKntNoteEntriesUI;
+   i: integer;
+begin
+   NEntry:= ActiveNEntry;
+
+   Log_StoreTick('TKntApp.ActiveNEntryMain - BEGIN', 4, +1);
+   try
+      ActiveNNode.Note.MainEntry:= NEntry;
+      ActiveNNode.Note.SetModified;
+      ActiveFolder.Modified:= True;
+      UpdateEnabledActionsAndRTFState(ActiveEditor);
+
+      ActiveFolder.NoteUI.RefreshTags;
+      for i := 0 to ActiveFile.Folders.Count -1 do
+         ActiveFile.Folders[i].NoteUI.RefreshHeaderOfEntries;
+
+      if ActiveTreeUI.ShowUseOfTags then
+         Form_Main.RefreshFilterOnTags;
+
+   except
+     on E : Exception do
+       App.ErrorPopup(E, GetRS(sEntry07));
+   end;
+   Log_StoreTick('TKntApp.ActiveNEntryMain - BEGIN', 4, +1);
+end;
+
+
 
 
 procedure TKntApp.EditorPropertiesModified (Editor: TKntRichEdit);
@@ -834,8 +1220,13 @@ begin
   else
      ActiveFolder.FocusMemory:= focTree;
 
-  if ActiveFolder.FocusMemory = focTree then
+  ShowCurrentZoom(ActiveFolder.ZoomGoal);
+
+  if ActiveFolder.FocusMemory = focTree then begin
      Form_Main.EnableActionsForTree(Tree, ActiveFolder.ReadOnly);
+     TKntNoteUI(ActiveFolder.NoteUI).TreeFocused;
+     FrameResizePendingInNoteUI:= TKntNoteUI(ActiveFolder.NoteUI);
+  end;
 
   if Form_Main.ShortcutAltDownMenuItem <> nil then
      Form_Main.ShortcutAltDownMenuItem.Enabled:= True;
@@ -941,6 +1332,9 @@ begin
    ActiveTreeUI:= nil;
    if assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then
       ActiveEditor:= nil;
+
+   if aFile <> nil then
+      TagMng.ImportTagsFromFile(Tags_FN, True);   // Import common tags (new or modified tags)
 end;
 
 
@@ -1198,16 +1592,27 @@ begin
 
   if CtrlDown then begin
      if assigned(ActiveEditor) then
-        ActiveEditor.SetZoom (ZoomValue, ZoomString, Increment)
+        if ActiveEditor.NNodeObj <> nil then begin
+           ActiveFolder.NoteUI.SetEditorZoom (ZoomValue, ZoomString, Increment);
+           ActiveFolder.ZoomGoal:= ActiveFolder.NoteUI.Editor.ZoomGoal;
+           ActiveFolder.ResetZoomCurrent(ActiveFolder.ZoomGoal);
+        end
+        else
+           ActiveEditor.SetZoom (ZoomValue, ZoomString, Increment);
   end
   else begin
      if assigned(ActiveFile) then
-        for i := 0 to ActiveFile.Folders.Count -1 do
-           ActiveFile.Folders[i].Editor.SetZoom (ZoomValue, ZoomString, Increment);
+        for i := 0 to ActiveFile.Folders.Count -1 do begin
+           ActiveFile.Folders[i].NoteUI.SetEditorZoom (ZoomValue, ZoomString, Increment);
+           ActiveFile.Folders[i].ZoomGoal:= ActiveFile.Folders[i].NoteUI.Editor.ZoomGoal;
+           ActiveFile.Folders[i].ResetZoomCurrent(ActiveFile.Folders[i].ZoomGoal);
+        end;
+
 
      Form_Main.Res_RTF.SetZoom (ZoomValue, ZoomString, Increment);
   end;
 
+  ActiveEditor.Refresh;
 end;
 
 
@@ -1224,9 +1629,19 @@ begin
    Form_Main.StatusBar.Panels[PANEL_HINT].Text := str;
 end;
 
+procedure TKntApp.WarnFolderIsReadOnly(Folder: TKntFolder);
+begin
+   ShowInfoInStatusBar(Format(GetRS(sTree52), [Folder.Name]));
+end;
+
 procedure TKntApp.WarnEditorIsReadOnly;
 begin
    ShowInfoInStatusBar(GetRS(sApp01));
+end;
+
+procedure TKntApp.WarnEntryIsReadOnly;
+begin
+   ShowInfoInStatusBar(GetRS(sEntry02));
 end;
 
 procedure TKntApp.WarnNoTextSelected;

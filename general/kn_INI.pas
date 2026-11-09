@@ -57,6 +57,7 @@ procedure SaveKeyNoteOptions(
 procedure SaveKeyNoteDefaults(
   const INIFileName : string;
   const DefaultEditorProperties : TFolderEditorProperties;
+  const DefaultNoteAdvOptions: TNoteAdvancedOptions;
   const DefaultEditorChrome : TChrome;
   const DefaultTabProperties : TFolderTabProperties;
   const DefaultTreeProperties : TFolderTreeProperties;
@@ -67,6 +68,7 @@ procedure LoadKeyNoteDefaults(
   const OnlyChrome : boolean;
   const INIFileName : string;
   var DefaultEditorProperties : TFolderEditorProperties;
+  var DefaultNoteAdvOptions: TNoteAdvancedOptions;
   var DefaultEditorChrome : TChrome;
   var DefaultTabProperties : TFolderTabProperties;
   var DefaultTreeProperties : TFolderTreeProperties;
@@ -171,7 +173,8 @@ type
     URLDetect,
     UseTabChar,
     WordWrap,
-    DefaultZoom : string;
+    DefaultZoom,
+    AdvOptions : string;
   end;
 
 const
@@ -182,7 +185,8 @@ const
     URLDetect : 'URLDetect';
     UseTabChar : 'UseTabChar';
     WordWrap : 'WordWrap';
-    DefaultZoom: 'DefaultZoom'
+    DefaultZoom: 'DefaultZoom';
+    AdvOptions: 'AdvOptions';
   );
 
 
@@ -203,7 +207,6 @@ const
 type
   TNoteTreePropertiesIniStr = packed record
     Section,
-    AutoNumberNodes,
     DefaultName,
     ShowCheckBoxes,
     IconKind,
@@ -216,7 +219,6 @@ type
 const
   NoteTreePropertiesIniStr : TNoteTreePropertiesIniStr = (
     Section : 'NoteTreeProperties';
-    AutoNumberNodes : 'AutoNumberNodes';
     DefaultName : 'DefaultName';
     ShowCheckBoxes : 'ShowCheckBoxes';
     IconKind : 'IconKind';
@@ -822,7 +824,8 @@ type
     SearchPathInNodeNames,
     ShowChildren,
     InheritedTags,
-    FoldedMode: string;
+    FoldedMode,
+    DefaultTagsExcl: string;
   end;
 
 const
@@ -860,7 +863,43 @@ const
     ShowChildren: 'ShowChildren';
     InheritedTags: 'InheritedTags';
     FoldedMode: 'FoldedMode';
+    DefaultTagsExcl: 'DefTagsExcl';
   );
+
+
+type
+  TNoteAdvancedOptionsIniStr = packed record
+    Section,
+    EditCPnelInPnl,
+    PnTLInNewNote,
+    PnTRInNewNote,
+    PnBLInNewNote,
+    PnBRInNewNote,
+    DefTagsInPanels,
+    DefTagsOrder,
+    PnlTRatio,
+    PnlBRatio,
+    PnlTLTRRatio,
+    PnlBLBRRatio: string;
+  end;
+
+const
+  NoteAdvancedOptionsIniStr : TNoteAdvancedOptionsIniStr = (
+    Section : 'NoteAdvOptions';
+    EditCPnelInPnl : 'EditCPnelInPnl';
+    PnTLInNewNote: 'PnTLInNewNote';
+    PnTRInNewNote: 'PnTRInNewNote';
+    PnBLInNewNote: 'PnBLInNewNote';
+    PnBRInNewNote: 'PnBRInNewNote';
+    DefTagsInPanels: 'DefTagsInPanels';
+    DefTagsOrder: 'DefTagsOrder';
+    PnlTRatio: 'PnlTRatio';
+    PnlBRatio: 'PnlBRatio';
+    PnlTLTRRatio: 'PnlTLTRRatio';
+    PnlBLBRRatio: 'PnlBLTRRatio';
+  );
+
+
 
 type
   TResPanelOptionsIniStr = record
@@ -985,8 +1024,10 @@ uses
   kn_KntFolder,
   kn_Const,
   kn_Main,
+  knt.model.note,
   knt.ui.editor,
-  knt.RS;
+  knt.RS,
+  knt.App;
 
 
 
@@ -1302,6 +1343,7 @@ begin
     WordAtCursor := true;
     Wrap := false;
     FoldedMode:= sfAll;
+    DefaultTagsExcl:= nil;
   end;
 end; // InitializeFindOptions
 
@@ -1356,6 +1398,7 @@ begin
     TopLevelCheck := false;
   end;
 end; // InitializeTreeOptions
+
 
 
 procedure SaveKeyNoteOptions(
@@ -1678,6 +1721,7 @@ begin
       writebool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       writebool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
       writebool( section, FindOptionsIniStr.InheritedTags, FindOptions.InheritedTags );
+      writestring( section, FindOptionsIniStr.DefaultTagsExcl, TNoteTagArrayUtils.ToString(FindOptions.DefaultTagsExcl) );
 
       section := ResPanelOptionsIniStr.section;
       //writebool( section, ResPanelOptionsIniStr.ColorFindList, ResPanelOptions.ColorFindList );
@@ -2092,6 +2136,8 @@ begin
       FindOptions.SearchPathInNodeNames := readbool( section, FindOptionsIniStr.SearchPathInNodeNames, FindOptions.SearchPathInNodeNames );
       FindOptions.ShowChildren := readbool( section, FindOptionsIniStr.ShowChildren, FindOptions.ShowChildren );
       FindOptions.InheritedTags := readbool( section, FindOptionsIniStr.InheritedTags, FindOptions.InheritedTags );
+      FindOptions.DefaultTagsExcl := TNoteTagArrayUtils.StringToTags(readstring( section, FindOptionsIniStr.DefaultTagsExcl,
+                                                                                  TNoteTagArrayUtils.ToString(FindOptions.DefaultTagsExcl) )   );
 
       section := ResPanelOptionsIniStr.section;
       {
@@ -2173,9 +2219,10 @@ end; // LoadMailOptions
 procedure SaveKeyNoteDefaults(
   const INIFileName : string;
   const DefaultEditorProperties : TFolderEditorProperties;
+  const DefaultNoteAdvOptions: TNoteAdvancedOptions;
   const DefaultEditorChrome : TChrome;
-  const DefaultTabProperties : TFolderTabProperties
-  ; const DefaultTreeProperties : TFolderTreeProperties;
+  const DefaultTabProperties : TFolderTabProperties;
+  const DefaultTreeProperties : TFolderTreeProperties;
   const DefaultTreeChrome : TChrome
   );
 var
@@ -2194,6 +2241,7 @@ begin
       writebool( section, NoteEditorPropertiesIniStr.UseTabChar, DefaultEditorProperties.UseTabChar );
       writebool( section, NoteEditorPropertiesIniStr.WordWrap, DefaultEditorProperties.WordWrap );
       writeinteger( section, NoteEditorPropertiesIniStr.DefaultZoom, DefaultEditorProperties.DefaultZoom );
+      writestring( section, NoteEditorPropertiesIniStr.AdvOptions, DefaultNoteAdvOptions.ToString );
 
       section := 'EditorChrome';
       writestring( section, ChromeIniStr.BGColor, ColorToString( DefaultEditorChrome.BGColor ));
@@ -2219,7 +2267,6 @@ begin
       writestring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
       writebool( section, NoteTreePropertiesIniStr.ShowCheckBoxes, DefaultTreeProperties.CheckBoxes );
       writeinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind ));
-      writebool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
       writebool( section, NoteTreePropertiesIniStr.VerticalLayout, DefaultTreeProperties.VerticalLayout );
       writebool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );
       writebool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );
@@ -2254,14 +2301,16 @@ procedure LoadKeyNoteDefaults(
   const OnlyChrome : boolean;
   const INIFileName : string;
   var DefaultEditorProperties : TFolderEditorProperties;
+  var DefaultNoteAdvOptions: TNoteAdvancedOptions;
   var DefaultEditorChrome : TChrome;
-  var DefaultTabProperties : TFolderTabProperties
-  ; var DefaultTreeProperties : TFolderTreeProperties;
+  var DefaultTabProperties : TFolderTabProperties;
+  var DefaultTreeProperties : TFolderTreeProperties;
   var DefaultTreeChrome : TChrome
   );
 var
   IniFile : TMemIniFile;
   section : string;
+  ErrorsLoading: boolean;
 begin
 
   IniFile := TMemIniFile.Create( INIFileName );
@@ -2320,11 +2369,14 @@ begin
       DefaultEditorProperties.UseTabChar := readbool( section, NoteEditorPropertiesIniStr.UseTabChar, DefaultEditorProperties.UseTabChar );
       DefaultEditorProperties.WordWrap := readbool( section, NoteEditorPropertiesIniStr.WordWrap, DefaultEditorProperties.WordWrap );
       DefaultEditorProperties.DefaultZoom := readinteger( section, NoteEditorPropertiesIniStr.DefaultZoom, DefaultEditorProperties.DefaultZoom );
+      DefaultNoteAdvOptions.LoadFromString(readstring( section, NoteEditorPropertiesIniStr.AdvOptions, ''), ErrorsLoading);
+      if ErrorsLoading then
+         App.WarningPopup(GetRS(sFile30));
+
 
       section := NoteTreePropertiesIniStr.section;
       DefaultTreeProperties.DefaultName := readstring( section, NoteTreePropertiesIniStr.DefaultName, DefaultTreeProperties.DefaultName );
       DefaultTreeProperties.CheckBoxes := readbool( section, NoteTreePropertiesIniStr.ShowCheckBoxes, DefaultTreeProperties.CheckBoxes );
-      DefaultTreeProperties.AutoNumberNodes := readbool( section, NoteTreePropertiesIniStr.AutoNumberNodes, DefaultTreeProperties.AutoNumberNodes );
       DefaultTreeProperties.IconKind := TNodeIconKind( readinteger( section, NoteTreePropertiesIniStr.IconKind, ord( DefaultTreeProperties.IconKind )));
       DefaultTreeProperties.VerticalLayout := readbool( section, NoteTreePropertiesIniStr.VerticalLayout, DefaultTreeProperties.VerticalLayout );
       DefaultTreeProperties.HideChecked := readbool( section, NoteTreePropertiesIniStr.HideChecked, DefaultTreeProperties.HideChecked );

@@ -225,7 +225,7 @@ const
    sDef28 = 54922;   // <no icon>
    sDef29 = 54923;   // Invalid zoom ratio:
    sDef30 = 54924;   //  (and apply to "%s" folder)
-   sDef31 = 54202;   // REMEMBER:\^\^- Folder settings apply only to NEW notes, except:\^   - 'Plain note only': modifies ALL the notes\^   - 'WordWrap': affects ALL the notes\^       (not explicitly set WordWrap previously)\^\^>> More info in Help File (F1)
+   sDef31 = 54202;   // REMEMBER:\^\^- Folder settings apply only to NEW notes, except:\^   - 'WordWrap': affects ALL the notes\^       (not explicitly set WordWrap previously)\^\^>> More info in Help File (F1)
    sDef32 = 54203;   // REMEMBER:\^\^- Font change affect only to NEW nodes (all if Plain note)\^- BG Color depends on 'Inherit BG color from active node':\^   - If set, background color of selected node is shown\^     (=> BG color of its new child nodes)\^   - If not set, default BG color for all NEW nodes is shown\^   * To edit this option -> F5 | General settings| Rich Text editor\^\^- BG Color can be changed for ALL nodes in a Folder:\^    [Shift] + "Format | Background color"\^\^>> More info in Help File (F1)
    sDef33 = 54204;   // REMEMBER:\^\^- BG Color sets backgroud color for the Tree Panel and\^  default BG color of tree nodes\^- Previous changes to individual nodes won't be affected\^- 'Inherit properties from active node' option is\^  considered in NEW nodes\^- Font and BG color can be changed for ALL tree panels at once:\^    "Apply to ALL folders"\^\^- Note: 'Inherit BG color from active node' option does NOT\^  affect (refers to Editor) \^\^>> More info in Help File (F1)
 
@@ -301,7 +301,7 @@ const
    sExpFrm17 = 54287;   // Current node has no text: nothing to export.
    sExpFrm18 = 54256;   //  Node exported to
    sExpFrm19 = 54257;   // Error exporting node:
-   sExpFrm20 = 54258;   // 'Current node' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
+   sExpFrm20 = 54258;   // 'Current node' or 'Current entry' will be managed as 'Current node and subtree' for KeyNote format\^ Continue?
    sExpFrm21 = 55095;   // E&xport
    sExpFrm22 = 55096;   // Print
    sExpFrm23 = 55126;   // Nothing to export
@@ -351,6 +351,8 @@ const
    sFile26 = 55132;   // : Cannot open encrypted file
    sFile27 = 55133;   // : Cannot show encrypted content
    sFile28 = 55136;   // Error loading encrypted content
+   sFile29 = 55182;   // Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
+   sFile30 = 55183;   // Error loading default advanced options. Built-in will be used
 
    sFileM01 = 54361;   // Cannot create a new file:
    sFileM02 = 54362;   //  New KNT file created.
@@ -642,6 +644,7 @@ const
    sINFSymb7 = 54968;   // Dots
    sINFSymb8 = 54969;   // French parenthesis (left)
    sINFSymb9 = 54970;   // French parenthesis (right)
+   sINFTreeSel0 = 55181;   // Current entry
    sINFTreeSel1 = 55022;   // Current node
    sINFTreeSel2 = 55023;   // Current node and subtree
    sINFTreeSel3 = 54992;   // Checked nodes
@@ -1031,7 +1034,43 @@ const
    sTree66 = 54200;   // Flagged
    sTree67 = 55135;   // Node (or its children) contains encrypted content! CONTINUE?
 
-   sUInote01 = 54201;   // Created: %s  ==  Last modified: %s
+   sUInote01 = 54201;   // [Note] Created: %s  ==  Last modified: %s
+   sUInote02 = 55150;   // [Entry] Created: %s
+
+   sEntry01 = 55151;   // OK to delete entry?\^\^%s ...
+   sEntry02 = 55152;   // Cannot perform operation: entry '%s' is read-only
+   sEntry03 = 55153;   // Entry contains encrypted content! CONTINUE?
+   sEntry04 = 55154;   // Error deleting entry:
+   sEntry05 = 55155;   // OK to set entry as hidden?%s\^\^%s ...
+   sEntry06 = 55156;   // Error hiding entry:
+   sEntry07 = 55157;   // Error setting main entry:
+   sEntry08 = 55158;   //  (AND ALL created before it)
+
+   sEntry09 = 55159;   // Keep panel hidden                                      (pnuHidePanel)
+   sEntry10 = 55160;   // Only if there is any entry with the tag[s]:            (pnuShowTagLinkedEntries with QueryLayout)
+   sEntry11 = 55161;   // Linked to the tag[s]:                                  (               ,,            EditingLayout)
+   sEntry12 = 55162;   // Selected entry                                         (pnuShowSelectedEntry)
+   sEntry13 = 55163;   // All entries                                            (pnuShowAllEntries)
+
+   sEntry14 = 55164;   // Only header
+   sEntry15 = 55165;   // Whole entry
+   sEntry16 = 55166;   // Only an extract from the beginning
+
+   sEntry17 = 55167;   // Review the uses for "%s".
+   sEntry18 = 55168;   // Query layout
+   sEntry19 = 55169;   // Editing Layout
+   sEntry20 = 55170;   // Make sure to:\^\^ * Select '%s' in one (and only one) enabled panel\^\^ * Do not select more than one panel with:\^   '%s'\^\^ * Select for panel C:\^   '%s' or '%s'\^\^ * Specify a tag for each:\^   '%s'
+
+   sEntry21 = 55171;   // On the "All Entries" panel
+   sEntry22 = 55172;   // On the highest panel (full width)
+   sEntry23 = 55173;   // On the lowest panel (full width)
+   sEntry24 = 55174;   // , excluding "Linked to tags"
+   sEntry25 = 55175;   // Single or Multi entry mode (Shift+Enter) - \^Num.Entries: %d (%d hidden) [%s]
+   sEntry26 = 55176;   // Single-Entry
+   sEntry27 = 55177;   // Multi-Entry
+   sEntry28 = 55178;   // No entries visible or matching the current filter
+   sEntry29 = 55179;   // Panel options are not available in single-entry notes if advanced edition is not enabled
+   sEntry30 = 55180;   // Switch to
 
    sUpd01 = 55052;   // You already have the latest version installed
    sUpd02 = 55053;   // There is a new version !
@@ -1063,7 +1102,7 @@ const
    sTag4  = 55110;   // OK to DELETE Tag "%s"%s?
    sTag5  = 55111;   // OK to DELETE ALL SELECTED tags%s?
    sTag6  = 55112;   // Creating new Tag
-   sTag7  = 55113;   // Edit tags applied to the note
+   sTag7  = 55113;   // Edit tags for the entry (Ctrl: for the note --main entry)
    sTag8  = 55114;   // OK to ALSO replace "#%s" with "#%s" within the EXISTING NOTES text?
    sTag9  = 55115;   //  (with ALL REFERENCES)
    sTag10 = 55116;   // OK to ALSO delete ALL REFERENCES within the EXISTING NOTES text?

@@ -16,9 +16,9 @@ uses
 type
   TTagsMode = (tmEdit, tmSearch);
 
-  TOnEndEditTagsIntrod = procedure(PressedReturn: boolean) of object;
-  TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string) of object;
-  TOnChangeFindTagsIntrod = procedure(FindTags: TFindTags; FindTagsNotRegistered: string) of object;
+  TOnEndEditTagsIntrod = procedure(PressedReturn: boolean; txtTag: TEdit) of object;
+  TOnEndFindTagsIntrod = procedure(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit) of object;
+  TOnChangeFindTagsIntrod = procedure(FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit) of object;
 
 
   TTagMng = class
@@ -32,6 +32,7 @@ type
     FAllowNotRegTags: boolean;
 
     FNote: TNote;
+    FNEntry: TNoteEntry;
     FFolder: TObject;
 
     FCanvasAux : TControlCanvas;
@@ -63,15 +64,16 @@ type
   public
     destructor Destroy; override;
 
-    procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
+    procedure StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; NEntry: TNoteEntry; Folder: TObject);
     procedure StartTxtFindTagIntrod(TagEdit: TEdit; OnEndFindTagsIntrod: TOnEndFindTagsIntrod; OnChangeFindTagsIntrod: TOnChangeFindTagsIntrod; AllowNotRegTags:boolean);
     procedure EndedTxtTagIntrod(PressedReturn: boolean);
+    procedure CancelTxtTagIntrod;
     procedure UpdateTxtTagsHint(TagEdit: TEdit = nil);
     procedure UpdateTxtFindTagsHint(txtEdit: TEdit; const ConsideredWords: string; FindTags: TFindTags; FindTagsNotReg: string; TagsNotRegModeOR: boolean);
 
     function GetSearchedIntroducedTags(txtFindTags: TEdit; var FindTagsNotReg: string): TFindTags;
 
-    procedure OfferTagSelectorInExport(InExport: boolean);
+    procedure OfferTagSelectorInModalForm(InModalForm: boolean; ModalForm: TForm);
     procedure CreateTagSelector(Form: TForm);
     procedure FreeTagSelector;
     procedure UpdateTagSelector;
@@ -142,10 +144,10 @@ begin
 end;
 
 
-procedure TTagMng.OfferTagSelectorInExport(InExport: boolean);
+procedure TTagMng.OfferTagSelectorInModalForm(InModalForm: boolean; ModalForm: TForm);
 begin
-  if InExport then
-     fTagSelectorOwnerHWND:= Form_Export.Handle
+  if InModalForm then
+     fTagSelectorOwnerHWND:= ModalForm.Handle
   else
      fTagSelectorOwnerHWND:= Form_Main.Handle;
 end;
@@ -164,8 +166,10 @@ end;
 
 procedure TTagMng.FreeTagSelector;
 begin
-  if txtTags <> nil then
-     EndedTxtTagIntrod(False);
+  if (txtTags <> nil) and (txtTags.Parent <> nil) then
+     EndedTxtTagIntrod(False)
+  else
+     txtTags:= nil;
 
   if cTagSelector <> nil then
      FreeAndNil(cTagSelector);
@@ -305,7 +309,7 @@ begin
       if (FTagsMode = tmSearch) and assigned(FOnChangeFindTagsIntrod) then begin
          fFindTagsInformed:= txtTags.Text;
          FindTags:= CommitIntroducedTags(false, FindTagsNotReg);
-         FOnChangeFindTagsIntrod(FindTags, FindTagsNotReg);
+         FOnChangeFindTagsIntrod(FindTags, FindTagsNotReg, txtTags);
       end;
    end;
    TagSubstr:= '';
@@ -421,7 +425,7 @@ begin
    end;
 end;
 
-procedure TTagMng.StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; Folder: TObject);
+procedure TTagMng.StartTxtEditTagIntrod(TagEdit: TEdit; OnEndEditTagsIntrod: TOnEndEditTagsIntrod; Note: TNote; NEntry: TNoteEntry; Folder: TObject);
 begin
    if TagEdit = txtTags then exit;
    StartTxtTagIntrod(TagEdit);
@@ -429,6 +433,7 @@ begin
    FTagsMode:= tmEdit;
    FOnEndEditTagsIntrod:= OnEndEditTagsIntrod;
    FNote:= Note;
+   FNEntry:= NEntry;
    FFolder:= Folder;
 end;
 
@@ -446,15 +451,24 @@ begin
 end;
 
 
+procedure TTagMng.CancelTxtTagIntrod;
+begin
+   txtTags:= nil;
+   if cTagSelector <> nil then
+      cTagSelector.CloseTagSelector(true);
+end;
+
 
 procedure TTagMng.EndedTxtTagIntrod(PressedReturn: boolean);
 var
   Color: TColor;
   FindTags: TFindTags;
   FindTagsNotReg: string;
+  InitialTags: TNoteTagArray;
 
   FOnEndEditTagsIntrodBAK: TOnEndEditTagsIntrod;
   FOnEndFindTagsIntrodBAK: TOnEndFindTagsIntrod;
+  txtTagsBAK: TEdit;
 
 begin
    if txtTags <> nil then begin
@@ -464,10 +478,9 @@ begin
       fChangingInCode:= True;
       cTagSelector.CloseTagSelector(true);
 
-      FindTags:= CommitIntroducedTags(true, FindTagsNotReg);
-
       if FTagsMode = tmEdit then
-         UpdateTxtTagsHint;
+         InitialTags:= FNEntry.Tags;
+      FindTags:= CommitIntroducedTags(true, FindTagsNotReg);
 
       Color:= clWindowText;
       if txtTags.Text = '' then begin
@@ -475,6 +488,8 @@ begin
          Color:= clGray;
       end;
       txtTags.Font.Color:= Color;
+
+
 
       with txtTags do begin
          OnKeyDown:=  nil;
@@ -489,6 +504,7 @@ begin
       FOnEndEditTagsIntrodBAK:= FOnEndEditTagsIntrod;
       FOnEndFindTagsIntrodBAK:= FOnEndFindTagsIntrod;
 
+      txtTagsBAK:= txtTags;
       txtTags:= nil;
       FOnEndEditTagsIntrod:= nil;
       FOnEndFindTagsIntrod:= nil;
@@ -498,12 +514,18 @@ begin
 
       if FTagsMode = tmEdit then begin
          if assigned(FOnEndEditTagsIntrodBAK) then
-             FOnEndEditTagsIntrodBAK(PressedReturn);
+             FOnEndEditTagsIntrodBAK(PressedReturn, txtTagsBAK);
       end
       else begin
          if assigned(FOnEndFindTagsIntrodBAK) then
-            FOnEndFindTagsIntrodBAK(PressedReturn, FindTags, FindTagsNotReg);
+            FOnEndFindTagsIntrodBAK(PressedReturn, FindTags, FindTagsNotReg, txtTagsBAK);
       end;
+
+      if (FTagsMode = tmEdit) and (InitialTags <> FNEntry.Tags) then begin
+         App.ModifiedMetadataOfEntry(FNEntry, FNote, TKntFolder(FFolder));
+         UpdateTxtTagsHint(txtTagsBAK);
+      end;
+
 
       fChangingInCode:= False;
    end;
@@ -552,6 +574,8 @@ var
    txt: string;
 begin
    SS:= txtTags.SelStart;
+   if SS = 0 then
+      SS:= 1;
    txt:= txtTags.Text;
 
    for i:= SS to txtTags.GetTextLen do
@@ -570,7 +594,7 @@ begin
      if (FTagsMode = tmSearch) and assigned(FOnChangeFindTagsIntrod) and (Trim(txtTags.Text) <> Trim(fFindTagsInformed)) then begin
          fFindTagsInformed:= txtTags.Text;
          FindTags:= CommitIntroducedTags(false, FindTagsNotReg);
-         FOnChangeFindTagsIntrod(FindTags, FindTagsNotReg);
+         FOnChangeFindTagsIntrod(FindTags, FindTagsNotReg, txtTags);
      end;
 
      CaretPosTag:= GetCaretPosTag;
@@ -593,8 +617,11 @@ end;
 
 procedure TTagMng.txtTagsChange(Sender: TObject);
 begin
-  if not ActiveFileIsBusy and not fChangingInCode then
+  if not ActiveFileIsBusy and not fChangingInCode then begin
      CheckBeginOfTag;
+     if (txtTags.SelStart = 0) and (txtTags.SelLength = 0) then
+        cTagSelector.CloseTagSelector(false);
+  end;
 end;
 
 
@@ -712,7 +739,6 @@ var
    TagsNames: array of string;
    N: integer;
    TagsStateBAK: TTagsState;
-   NEntry: TNoteEntry;
    FindTags: TFindTags;
    NTagsOR: TNoteTagList;
    ConsideredWords: string;
@@ -849,15 +875,13 @@ begin
         App.TagsState := TagsStateBAK;
         App.TagsUpdated;                            // Perform the sorting only once
 
-        NEntry:= FNote.Entries[0];                               // %%%%
-        if not NEntry.HaveSameTags(TagsAssigned) then begin
-           NEntry.Tags:= TagsAssigned;
-           App.NEntryModified(NEntry, FNote, TKntFolder(FFolder));
+        if not FNEntry.HaveSameTags(TagsAssigned) then begin
+           FNEntry.Tags:= TagsAssigned;
            Form_Main.ClearFindTags;
            if TKntFolder(FFolder).TreeUI.ShowUseOfTags then
               Form_Main.RefreshFilterOnTags;
         end;
-        txtTags.Text:= NEntry.TagsNames;
+        txtTags.Text:= FNEntry.TagsNames;
 
       end
       else begin     // FTagsMode = tmSearch
@@ -1085,3 +1109,4 @@ initialization
    TagMng:= TTagMng.Create;
 
 end.
+

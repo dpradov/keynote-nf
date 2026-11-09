@@ -1229,7 +1229,7 @@ object Form_Main: TForm_Main
               614)
             object Label2: TLabel
               Left = 7
-              Top = 451
+              Top = 453
               Width = 80
               Height = 13
               Caption = 'Last modification'
@@ -1237,7 +1237,7 @@ object Form_Main: TForm_Main
             end
             object Label3: TLabel
               Left = 7
-              Top = 527
+              Top = 529
               Width = 66
               Height = 13
               Caption = 'Creation date'
@@ -1245,7 +1245,7 @@ object Form_Main: TForm_Main
             end
             object lblCalNotSup: TLabel
               Left = 50
-              Top = 511
+              Top = 513
               Width = 114
               Height = 13
               Caption = 'Calendar not supported'
@@ -1254,7 +1254,7 @@ object Form_Main: TForm_Main
             end
             object Label4: TLabel
               Left = 8
-              Top = 390
+              Top = 402
               Width = 183
               Height = 13
               Anchors = [akLeft, akTop, akRight]
@@ -1264,7 +1264,7 @@ object Form_Main: TForm_Main
             end
             object lbl1: TLabel
               Left = 8
-              Top = 130
+              Top = 129
               Width = 45
               Height = 13
               AutoSize = False
@@ -1272,7 +1272,7 @@ object Form_Main: TForm_Main
             end
             object lbl2: TLabel
               Left = 8
-              Top = 157
+              Top = 156
               Width = 45
               Height = 13
               AutoSize = False
@@ -1281,7 +1281,7 @@ object Form_Main: TForm_Main
             end
             object lbl3: TLabel
               Left = 8
-              Top = 184
+              Top = 183
               Width = 45
               Height = 13
               AutoSize = False
@@ -1290,7 +1290,7 @@ object Form_Main: TForm_Main
             end
             object lbl8: TLabel
               Left = 8
-              Top = 272
+              Top = 267
               Width = 45
               Height = 13
               Hint = 'Include text/notes with ALL or ANY of the selected tags'
@@ -1300,7 +1300,7 @@ object Form_Main: TForm_Main
             end
             object lbl9: TLabel
               Left = 8
-              Top = 296
+              Top = 291
               Width = 45
               Height = 13
               Hint = 'Exclude text/notes with ANY of the selected tags'
@@ -1310,7 +1310,7 @@ object Form_Main: TForm_Main
             end
             object lbl4: TLabel
               Left = 8
-              Top = 248
+              Top = 243
               Width = 81
               Height = 13
               AutoSize = False
@@ -1319,7 +1319,7 @@ object Form_Main: TForm_Main
             end
             object lbl7: TLabel
               Left = 86
-              Top = 249
+              Top = 244
               Width = 34
               Height = 13
               Alignment = taRightJustify
@@ -1374,7 +1374,7 @@ object Form_Main: TForm_Main
             end
             object RG_ResFind_Type: TComboBox
               Left = 56
-              Top = 127
+              Top = 126
               Width = 137
               Height = 21
               Hint = 'Select type of search to perform'
@@ -1384,7 +1384,7 @@ object Form_Main: TForm_Main
             end
             object RG_ResFind_Scope: TComboBox
               Left = 56
-              Top = 154
+              Top = 153
               Width = 137
               Height = 21
               Hint = 'Select scope of search to perform'
@@ -1395,7 +1395,7 @@ object Form_Main: TForm_Main
             end
             object RG_ResFind_ChkMode: TComboBox
               Left = 56
-              Top = 181
+              Top = 180
               Width = 137
               Height = 21
               Hint = 'Select whether to consider nodes based on checked status'
@@ -1408,90 +1408,90 @@ object Form_Main: TForm_Main
               Top = 95
               Width = 192
               Height = 17
-              Hint = 'Consider hidden nodes'
+              Hint = 'Consider hidden nodes and entries'
               Anchors = [akLeft, akTop, akRight]
-              Caption = 'Search hidden nodes'
+              Caption = 'Search hidden nodes/entries'
               Checked = True
               State = cbChecked
               TabOrder = 4
             end
             object chk_LastModifFrom: TCheckBox
               Left = 8
-              Top = 473
+              Top = 475
               Width = 17
               Height = 17
-              TabOrder = 16
+              TabOrder = 17
               OnClick = chk_LastModifFromClick
             end
             object CB_LastModifFrom: TDateTimePicker
               Left = 32
-              Top = 471
+              Top = 473
               Width = 80
               Height = 21
               Hint = 'From'
               Checked = False
               Enabled = False
-              TabOrder = 17
+              TabOrder = 18
               Visible = False
             end
             object chk_LastModifUntil: TCheckBox
               Left = 8
-              Top = 498
+              Top = 500
               Width = 17
               Height = 17
-              TabOrder = 18
+              TabOrder = 19
               OnClick = chk_LastModifUntilClick
             end
             object CB_LastModifUntil: TDateTimePicker
               Left = 32
-              Top = 497
+              Top = 499
               Width = 80
               Height = 21
               Hint = 'Until'
               Enabled = False
-              TabOrder = 19
+              TabOrder = 20
               Visible = False
             end
             object chk_CreatedFrom: TCheckBox
               Left = 8
-              Top = 547
+              Top = 549
               Width = 17
               Height = 17
-              TabOrder = 20
+              TabOrder = 21
               OnClick = chk_CreatedFromClick
             end
             object CB_CreatedFrom: TDateTimePicker
               Left = 32
-              Top = 545
+              Top = 547
               Width = 80
               Height = 21
               Hint = 'From'
               Checked = False
               Enabled = False
-              TabOrder = 21
+              TabOrder = 22
               Visible = False
             end
             object chk_CreatedUntil: TCheckBox
               Left = 8
-              Top = 572
+              Top = 574
               Width = 17
               Height = 17
-              TabOrder = 22
+              TabOrder = 23
               OnClick = chk_CreatedUntilClick
             end
             object CB_CreatedUntil: TDateTimePicker
               Left = 32
-              Top = 571
+              Top = 573
               Width = 80
               Height = 21
               Hint = 'Until'
               Enabled = False
-              TabOrder = 23
+              TabOrder = 24
               Visible = False
             end
             object CB_ResFind_PathInNames: TCheckBox
               Left = 8
-              Top = 208
+              Top = 207
               Width = 194
               Height = 17
               Hint = 'Search in whole path of nodes'
@@ -1502,7 +1502,7 @@ object Form_Main: TForm_Main
             end
             object CbFindFoldedMode: TComboBox
               Left = 8
-              Top = 408
+              Top = 420
               Width = 183
               Height = 21
               Hint = 
@@ -1512,11 +1512,11 @@ object Form_Main: TForm_Main
               HelpKeyword = '40-13'
               Style = csDropDownList
               Anchors = [akLeft, akTop, akRight]
-              TabOrder = 15
+              TabOrder = 16
             end
             object txtTagsIncl: TEdit
               Left = 56
-              Top = 270
+              Top = 265
               Width = 137
               Height = 19
               HelpType = htKeyword
@@ -1529,7 +1529,7 @@ object Form_Main: TForm_Main
             end
             object cbTagFindMode: TComboBox
               Left = 122
-              Top = 244
+              Top = 239
               Width = 71
               Height = 21
               Style = csDropDownList
@@ -1542,7 +1542,7 @@ object Form_Main: TForm_Main
             end
             object txtTagsExcl: TEdit
               Left = 56
-              Top = 294
+              Top = 289
               Width = 137
               Height = 19
               HelpType = htKeyword
@@ -1555,7 +1555,7 @@ object Form_Main: TForm_Main
             end
             object chkTagsMetad: TCheckBox
               Left = 8
-              Top = 318
+              Top = 313
               Width = 194
               Height = 17
               Hint = 'Tags will be searched for in the notes'#39' metadata.'
@@ -1568,24 +1568,35 @@ object Form_Main: TForm_Main
             end
             object chkTagsText: TCheckBox
               Left = 8
-              Top = 338
+              Top = 351
               Width = 194
               Height = 17
               Hint = 'Tags will be searched for in the notes'#39' text'
               Anchors = [akLeft, akTop, akRight]
               Caption = 'Consider text of notes'
-              TabOrder = 13
+              TabOrder = 14
               OnClick = chkTagsTextClick
             end
             object chkInhTagsFind: TCheckBox
               Left = 8
-              Top = 358
+              Top = 371
               Width = 194
               Height = 17
               Anchors = [akLeft, akTop, akRight]
               Caption = 'Inherited tags (metadata)'
-              TabOrder = 14
+              TabOrder = 15
               OnClick = chkInhTagsFindClick
+            end
+            object chkTagsEntries: TCheckBox
+              Left = 8
+              Top = 332
+              Width = 194
+              Height = 17
+              Hint = 'Tags will be searched for in all entries'#39' metadata'
+              Anchors = [akLeft, akTop, akRight]
+              Caption = 'Consider metadata of entries'
+              TabOrder = 13
+              OnClick = chkTagsMetadClick
             end
           end
         end
@@ -2095,7 +2106,7 @@ object Form_Main: TForm_Main
     object actTVExport: TAction
       Caption = 'E&xport...'
       HelpContext = 57
-      Hint = 'Export node contents (or selection) to file'
+      Hint = 'Export the active editor (or selection) to file'
       OnExecute = actTVExportExecute
     end
     object actTVDeleteNode: TAction
@@ -2729,7 +2740,7 @@ object Form_Main: TForm_Main
       end
       object MMViewEditorInfoPanel: TMenuItem
         Caption = 'Editor Info'
-        Hint = 'Show or hide the editor information panel (Ctrl: All Folders)'
+        Hint = 'Show or hide the editor information bar (Ctrl: All Folders)'
         OnClick = MMViewEditorInfoPanelClick
       end
       object MMViewHistory: TMenuItem
@@ -2784,7 +2795,9 @@ object Form_Main: TForm_Main
       object MMViewEncryptedCont: TMenuItem
         Caption = 'Encrypted content'
         Enabled = False
-        Hint = 'Show or hide nodes, entries and images with encrypted content (Shift: highlight encrypted nodes)'
+        Hint = 
+          'Show or hide nodes, entries and images with encrypted content (S' +
+          'hift: highlight encrypted nodes)'
         OnClick = MMViewEncryptedContClick
       end
       object N106: TMenuItem
@@ -3943,6 +3956,12 @@ object Form_Main: TForm_Main
       object N35: TMenuItem
         Caption = '-'
       end
+      object MMPanelOpt: TMenuItem
+        Caption = 'Multi-Entry panel &options...'
+        Hint = 'Displays the Multi-Entry panel options dialog box'
+        ShortCut = 16499
+        OnClick = MMPanelOptClick
+      end
       object MMToolsUAS: TMenuItem
         Caption = 'UAS Integration'
         Hint = 'Enable or disable UltimaShell Autocompletion Server integration'
@@ -4164,11 +4183,6 @@ object Form_Main: TForm_Main
     object N21: TMenuItem
       Caption = '-'
     end
-    object RTFMProperties: TMenuItem
-      Caption = 'Folder P&roperties...'
-      Hint = 'Edit folder properties'
-      OnClick = MMNotePropertiesClick
-    end
     object RTFMPlainText: TMenuItem
       Caption = 'Plain Text'
       Hint = 'Convert to plain text or rich text format (RTF)'
@@ -4177,6 +4191,97 @@ object Form_Main: TForm_Main
     object RTFM_RTL: TMenuItem
       Caption = 'Reading from right to left (RTL)'
       OnClick = RTFM_RTLClick
+    end
+    object RTFMEntry_: TMenuItem
+      Caption = 'Multi-Entry'
+      object RTFMReadOnly: TMenuItem
+        Caption = 'Read only'
+        OnClick = RTFMReadOnlyClick
+      end
+      object RTFMMain: TMenuItem
+        Caption = 'Main'
+        Hint = 'Set as main entry (its tags establish those of the note)'
+        OnClick = RTFMMainClick
+      end
+      object N114: TMenuItem
+        Caption = '-'
+      end
+      object RTFMHidden: TMenuItem
+        Caption = 'Hidden'
+        Hint = 
+          'Make entry hidden (Ctrl: Apply to selected entry and to all crea' +
+          'ted before it)'
+        OnClick = RTFMHiddenClick
+      end
+      object RTFMShowHidden: TMenuItem
+        Caption = 'Show hidden'
+        Hint = 
+          'Show hidden entries (Ctrl: Also undo hidden state) (Shift: Only ' +
+          'not "hidden" (Alt+DblClick)))'
+        OnClick = RTFMShowHiddenClick
+      end
+      object RTFMHideAgain: TMenuItem
+        Caption = 'Hide revealed'
+        Hint = 'Hide entries displayed with "Show hidden" without Ctrl'
+        OnClick = RTFMHideAgainClick
+      end
+      object RTFMEncryp: TMenuItem
+        Caption = 'Encrypted'
+        Hint = 
+          'The content of the entry, and optionally its tags, will be saved' +
+          ' encrypted in the file'
+        OnClick = RTFMEncrypClick
+      end
+      object N115: TMenuItem
+        Caption = '-'
+      end
+      object RTFMOnlyFLines: TMenuItem
+        Caption = 'Show only first lines'
+        Hint = 
+          'Show only an initial extract of the entries (Ctrl: On selected e' +
+          'ntry and all created before it)'
+        OnClick = RTFMOnlyFLinesClick
+      end
+      object RTFMHdWh: TMenuItem
+        Caption = 'Only Headers / Whole content'
+        Hint = 
+          'Toggle between showing only the headers or all the content (Ctrl' +
+          ': On selected entry and all created before it)'
+        OnClick = RTFMHdWhClick
+      end
+      object N93: TMenuItem
+        Caption = '-'
+      end
+      object RTFMDeleteEntry: TMenuItem
+        Caption = 'Delete'
+        Hint = 'Delete selected entry'
+        OnClick = RTFMDeleteEntryClick
+      end
+      object RTFMAddEntry: TMenuItem
+        Caption = 'Add new entry'
+        Hint = 
+          'Jump to an empty editor; as soon as an edit is made, a new entry' +
+          ' will be created  (Ctrl+Shift+Enter)'
+        OnClick = RTFMAddEntryClick
+      end
+      object N121: TMenuItem
+        Caption = '-'
+      end
+      object RTFMEditEntry: TMenuItem
+        Caption = 'Edit entry'
+        Hint = 'Edit selected entry  (Enter or Shift+Enter)'
+        OnClick = RTFMEditEntryClick
+      end
+      object RTFMSwLayout: TMenuItem
+        Caption = ' '
+        Hint = 'Switch between Query and Editing Layout  (Ctrl+Enter)'
+        OnClick = RTFMSwLayoutClick
+      end
+      object RTFMPanelOpt: TMenuItem
+        Caption = 'Multi-Entry Panel options...'
+        Hint = 'Display Multi-Entry panel options'
+        OnClick = RTFMPanelOptClick
+      end
     end
     object N88: TMenuItem
       Caption = '-'

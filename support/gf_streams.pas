@@ -662,7 +662,8 @@ begin
      end
      else begin
         posI:= posF + 1;
-        if F.Position < F.Size then begin
+        if (SizePending = 0) then break;
+        if (F.Position < F.Size) then begin
           try
             OutStream.CopyFrom(F, SizePending);
             SizePending:= 0;

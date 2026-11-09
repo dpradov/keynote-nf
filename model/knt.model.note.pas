@@ -125,7 +125,7 @@ type
     fResources: TResourceList;
 
     fSelEntry : TNoteEntry;
-    fSelStart : Cardinal;         // In SelEntry
+    fSSImLink : Cardinal;         // In SelEntry           (fSelStart -> fSSImLink: see comments in knt.ui.info:TPanelConfiguration)
     fSelLength : Cardinal;        // ,,
     fScrollPosInEditor: TPoint;   // ,,
 
@@ -138,7 +138,9 @@ type
     procedure SetModified_(value: boolean);
 
     function GetSelEntry : TNoteEntry;
+    procedure SetSelEntry(value: TNoteEntry);
     function GetNumEntries: integer; inline;
+    function GetNumHiddenEntries: integer;
     function GetNextNumEntry: Word;
     function GetDateCreated: TDateTime;
 
@@ -146,6 +148,9 @@ type
 
     function GetIsEncrypted: boolean;
     procedure SetIsEncrypted(value: boolean);
+
+    function GetTags: TNoteTagArray;
+    procedure SetTags(value: TNoteTagArray);
 
 
   public
@@ -160,9 +165,11 @@ type
     property States: TNoteStates read fStates;
     property LastModified: TDateTime read fLastModified write fLastModified;
     property DateCreated: TDateTime read GetDateCreated;
+    property Tags: TNoteTagArray read GetTags write SetTags;
 
-    property SelEntry : TNoteEntry read GetSelEntry write fSelEntry;
-    property SelStart : Cardinal read fSelStart write fSelStart;
+
+    property SelEntry : TNoteEntry read GetSelEntry write {$IFDEF KNT_DEBUG}SetSelEntry{$ELSE}fSelEntry{$ENDIF};
+    property SSImLink : Cardinal read fSSImLink write fSSImLink;
     property SelLength : Cardinal read fSelLength write fSelLength;
     property ScrollPosInEditor: TPoint read fScrollPosInEditor write fScrollPosInEditor;
 
@@ -177,15 +184,20 @@ type
 
    protected
     function InternalAddEntry(Entry: TNoteEntry): integer;
+    function GetMainEntry: TNoteEntry;
+    procedure SetMainEntry(value: TNoteEntry);
    public
     property NumEntries: integer read GetNumEntries;
+    property NumHiddenEntries: integer read GetNumHiddenEntries;
     property Entries: TNoteEntryArray read fEntries;
     function AddEntry(Entry: TNoteEntry; ID: Word): integer;
     function AddNewEntry: TNoteEntry;
     procedure DeleteEntry(IndexToRemove: integer);
     function GetEntry(ID: Word): TNoteEntry;
+    function GetEntryIndex(Entry: TNoteEntry): integer;
+    property MainEntry: TNoteEntry read GetMainEntry write SetMainEntry;
     function IsValid(Entry: TNoteEntry): Boolean;
-
+    function HasEncryptedEntries: boolean;
 
     property Resources: TResourceList read fResources;
     function AddResource(Resource: TNote): integer;
@@ -222,26 +234,27 @@ type
     nesHTML,           // If assigned => content is HTML
 
     nesEncrypted,      // Entry marked as encrypted
+    nesMain,           // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
+    nesHidden,         // Entry won't be displayed by default (not allowed if Main)
+    nesReadOnly,       // Entry marked as read-only
 
  // TODO ------------ :
-    nesReadOnly,       // Entry marked as read-only
+
   //--
     nesArchived,       // Entry that we do not want to appear by default in searches or complicate the display of notes
-    nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself 
+    nesEntryAndNote,   // It allows to point out that an entry also constitutes a note in itself
                        // (it is the 'first' entry of that one, or its Main entry, and that it may have other Entries)
-    nesFixed,          // When viewing the note, pin to the top. Can also be used as a search criterion 
-  //--  
-  
-    // Internal and basic way of categorizing the entries of a note. Can also be used as a search criterion	
+    nesFixed,          // When viewing the note, pin to the top. Can also be used as a search criterion
+  //--
+
+    // Internal and basic way of categorizing the entries of a note. Can also be used as a search criterion
     // (and complemented with the use of custom tags):
-  
-    nesIsMain,         // Main entry in a note, which identifies the note, usually the first. Its tags will apply globally to the entire note
+
     nesIsSummary,      // Only one entry can be used as Summary in a note
     nesIsStarred,
     nesIsDoc,
   //--
-    nesIsToDO,
-    nesIsRequirements
+    nesIsToDO
   );
 
   TNoteEntryStates = set of TNoteEntryState;
@@ -270,7 +283,19 @@ type
    public
      class function HasTag(Tags: TNoteTagArray; TagName: string): boolean; overload;
      class function HasTag(Tags: TNoteTagArray; Tag: TNoteTag): boolean; overload;
+     class function HasTags(Tags: TNoteTagArray; TagsIncluded: TNoteTagArray): boolean; overload;
      class procedure AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
+     class function ToNames(Tags: TNoteTagArray): string;
+     class function ToString(Tags: TNoteTagArray): string; overload;
+     class function StringToTags(Str: string): TNoteTagArray;
+     class function ToString(FindTags: TFindTags): string; overload;
+     class function StringToFindTags(Str: string): TFindTags;
+
+     class function FindTagsToModeOR(FindTags: TFindTags): TFindTags;
+     class function FindTagsANDToTags(FindTags: TFindTags): TNoteTagArray;
+     class function TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
+     class function TagsToFindTagsModeAND(Tags: TNoteTagArray): TFindTags;
+     class function FindTagsEqual(FindTagsA: TFindTags; FindTagsB: TFindTags): boolean;
    end;
 
 
@@ -328,11 +353,17 @@ type
     function GetIsPlainTXT: boolean; inline;
     function GetIsHTML: boolean; inline;
     function GetIsEncrypted: boolean; inline;
+    function GetIsMain: boolean; inline;
+    function GetIsHidden: boolean; inline;
+    function GetIsReadOnly: boolean; inline;
     procedure SetModified_(value: boolean);
     procedure SetIsRTF(value: boolean);
     procedure SetIsPlainTXT(value: boolean);
     procedure SetIsHTML(value: boolean);
     procedure SetIsEncrypted(value: boolean);
+    procedure SetIsMain(value: boolean);
+    procedure SetIsHidden(value: boolean);
+    procedure SetIsReadOnly(value: boolean);
     function GetTags: TNoteTagArray;
 
   public
@@ -347,6 +378,7 @@ type
     procedure SetModified;
     property Modified: boolean read GetModified write SetModified_;
     property Tags: TNoteTagArray read GetTags write fTags;
+    property TagsToSave: TNoteTagArray read fTags;
     property Created: TDateTime read fDateCreated write fDateCreated;
 
 
@@ -354,6 +386,9 @@ type
     property IsPlainTXT: boolean read GetIsPlainTXT write SetIsPlainTXT;
     property IsHTML: boolean read GetIsHTML write SetIsHTML;
     property IsEncrypted: boolean read GetIsEncrypted write SetIsEncrypted;
+    property IsMain: boolean read GetIsMain;
+    property IsHidden: boolean read GetIsHidden write SetIsHidden;
+    property IsReadOnly: boolean read GetIsReadOnly write SetIsReadOnly;
 
     function StatesToString: string;
     procedure StringToStates(HexStr: string);
@@ -365,8 +400,11 @@ type
     function TagsNames: string;
     function HaveSameTags(SomeTags: TNoteTagArray): boolean;
     function MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
+    function HasTags(TagsIncluded: TNoteTagArray): boolean;
     function TagsToString: string;
     procedure StringToTags(Str: string);
+
+    function GetFirstLinesOfText(MaxLength: integer = 30; MaxLines: integer = -1): string;
   end;
 
 
@@ -392,7 +430,7 @@ type
     nnsShowOutlineOnlyNumber,    // ,,                                   only number
     nnsCustomNumberingSubtree,   // Node configured as start of numbering subtree
     nnsWordWrap,                 // Apply WordWrap in the node
-    
+
     nnsNoWordWrap,               // Do not apply WordWrap in the node (If neither WordWrap nor NoWordWrap => default value in folder)
     nnsFlagged,                  // Node is flagged
     nnsSaved_Expanded,           // Node is expanded in the folder tree (only updates when saving)
@@ -494,17 +532,17 @@ type
   PNoteNode = ^TNoteNode;
 
 
-  function FindTagsGetModeOR(FindTags: TFindTags): TFindTags;
-
 
 implementation
 uses
    gf_files,
    gf_streams,
+   gf_strings,
    kn_Global,
    kn_LinksMng,
    knt.ui.tree,
    kn_KntFolder,
+   knt.ui.editor,
    knt.App,
    kn_Info
    ;
@@ -528,7 +566,7 @@ begin
   fVirtualFN := '';
 
   fSelEntry := nil;
-  fSelStart := 0;
+  fSSImLink := 0;
   fSelLength := 0;
   fScrollPosInEditor.X:= -1;
   fScrollPosInEditor.Y:= -1;
@@ -639,15 +677,58 @@ end;
 function TNote.GetSelEntry : TNoteEntry;
 begin
    Result:= fSelEntry;
-   if (Result = nil) and (fEntries <> nil) then
-      Result:= Entries[0];
 end;
+
+procedure TNote.SetSelEntry(value: TNoteEntry);
+var
+  i: integer;
+  ok: boolean;
+begin
+   fSelEntry:= value;
+
+ {$IFDEF KNT_DEBUG}
+   if fSelEntry = nil then
+      exit;
+   for i:= 0 to High(fEntries) do
+      if fSelEntry = fEntries[i] then begin
+         exit;
+      end;
+
+  App.ErrorPopup('Entry not belongs to Note');
+ {$ENDIF}
+
+end;
+
+
 
 function TNote.GetNumEntries: integer;
 begin
    Result:= Length(fEntries);
 end;
 
+function TNote.GetNumHiddenEntries: integer;
+var
+  i: integer;
+begin
+   Result:= 0;
+   if (fEntries = nil) then exit;
+
+   for i:= 0 to High(fEntries) do
+      if fEntries[i].IsHidden then
+         inc(Result);
+end;
+
+function TNote.HasEncryptedEntries: boolean;
+var
+  i: integer;
+begin
+   Result:= false;
+   if (fEntries = nil) then exit;
+
+   for i:= 0 to High(fEntries) do
+      if fEntries[i].IsEncrypted then
+         exit(true);
+end;
 
 function TNote.GetDateCreated: TDateTime;
 begin
@@ -729,6 +810,7 @@ end;
 procedure TNote.DeleteEntry(IndexToRemove: integer);
 var
   NEntry: TNoteEntry;
+  WasMain: boolean;
 begin
    if (fEntries = nil) then exit;
 
@@ -736,23 +818,33 @@ begin
    NEntry:= fEntries[IndexToRemove];
    Delete(fEntries, IndexToRemove, 1);
 
-   if NEntry <> nil then
+   if NEntry <> nil then begin
+      WasMain:= NEntry.IsMain;
       NEntry.Free;
+      if WasMain then
+         fEntries[0].SetIsMain(True);
+   end;
 
    SetModified;
 end;
 
 
-function TNote.IsValid(Entry: TNoteEntry): Boolean;
+function TNote.GetEntryIndex(Entry: TNoteEntry): integer;
 var
    i: integer;
 begin
-   Result:= false;
+   Result:= -1;
    if (Entry = nil) then exit;
 
    for i:= 0 to High(fEntries) do
       if fEntries[i] = Entry then
-         exit(true)
+         exit(i)
+end;
+
+
+function TNote.IsValid(Entry: TNoteEntry): Boolean;
+begin
+   Result:= GetEntryIndex(Entry) >= 0;
 end;
 
 function TNote.GetEntry(ID: Word): TNoteEntry;
@@ -764,6 +856,40 @@ begin
       if fEntries[i].ID = ID then
          exit(fEntries[i]);
 end;
+
+
+function TNote.GetMainEntry: TNoteEntry;
+var
+   i: integer;
+begin
+   Result:= nil;
+   for i:= 0 to High(fEntries) do
+      if fEntries[i].IsMain then
+         exit(fEntries[i]);
+
+   Result:= fEntries[0];
+   fEntries[0].SetIsMain(True);
+end;
+
+procedure TNote.SetMainEntry(value: TNoteEntry);
+begin
+   if not IsValid(value) then exit;
+
+   MainEntry.SetIsMain(False);
+   value.SetIsMain(True);
+end;
+
+
+function TNote.GetTags: TNoteTagArray;
+begin
+   Result:= MainEntry.Tags;
+end;
+
+procedure TNote.SetTags(value: TNoteTagArray);
+begin
+   MainEntry.Tags:= value;
+end;
+
 
 
 function TNote.AddResource(Resource: TNote): integer;
@@ -1030,6 +1156,19 @@ begin
 end;
 
 
+class function TNoteTagArrayUtils.HasTags(Tags: TNoteTagArray; TagsIncluded: TNoteTagArray): boolean;
+var
+   i: integer;
+begin
+   Result:= True;
+   if TagsIncluded = nil then exit;
+
+   for i:= 0 to High(TagsIncluded) do
+      if not TNoteTagArrayUtils.HasTag(Tags, TagsIncluded[i]) then
+         exit (False);
+end;
+
+
 class procedure TNoteTagArrayUtils.AddTags(var Tags: TNoteTagArray; TagsToAdd: TNoteTagArray);
 var
    i, j: integer;
@@ -1065,8 +1204,108 @@ begin
 
 end;
 
+class function TNoteTagArrayUtils.ToNames(Tags: TNoteTagArray): string;
+var
+   i: integer;
+begin
+   Result:= '';
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         Result:= Result + Tags[i].Name + ' ';
+   end;
+end;
 
-function FindTagsGetModeOR(FindTags: TFindTags): TFindTags;
+
+class function TNoteTagArrayUtils.ToString(Tags: TNoteTagArray): string;
+var
+   i: integer;
+begin
+   Result:= '';
+   if Tags <> nil then begin
+      for i:= 0 to High(Tags) do
+         Result:= Result + Tags[i].ID.ToString + ',';
+      delete(Result, Length(Result),1);           // Remove last ','
+   end;
+end;
+
+class function TNoteTagArrayUtils.StringToTags(Str: string): TNoteTagArray;
+var
+   i, pI: integer;
+   N: integer;
+   IDTag: Cardinal;
+   NTag: TNoteTag;
+begin
+   if Str = '' then begin
+      Result:= nil;
+      exit;
+   end;
+
+   N:= 0;
+   Str:= Str + ',';
+   pI:= 1;
+   for i:= 1 to Length(Str) do begin
+      if Str[i] = ',' then begin
+         IDTag:= StrToUIntDef(Copy(Str, pI, i-pI), 0);
+         if (IDTag <> 0) then begin
+            NTag:= ActiveFile.GetNTagByID(IDTag);
+            if (NTag <> nil) then begin
+               inc(N);
+               SetLength(Result, N);
+               Result[N-1]:= NTag;
+            end;
+         end;
+         pI:= i+1;
+      end;
+   end;
+end;
+
+
+class function TNoteTagArrayUtils.ToString(FindTags: TFindTags): string;
+var
+   i, j: integer;
+   SepAND,SepOR: string;
+begin
+   Result:= '';
+   if FindTags = nil then exit;
+
+   for i:= 0 to High(FindTags) do begin
+      Result:= Result + SepAND;
+      SepOR:= '';
+      for j:= 0 to High(FindTags[i]) do begin
+         Result:= Result + FindTags[i][j].ID.ToString + SepOR;
+         SepOR:= ',';
+      end;
+      SepAND:= '&';
+   end;
+end;
+
+
+class function TNoteTagArrayUtils.StringToFindTags(Str: string): TFindTags;
+var
+   Strs: TStrings;
+   i: integer;
+begin
+  // 1,4&3&1,6,7
+
+   Result:= nil;
+   if Str = '' then exit;
+
+   Strs:= TStringList.Create;
+   try
+      SplitString(Strs, Str, '&', false);
+      SetLength(Result, Strs.Count);
+      for i:= 0 to Strs.Count-1 do
+         Result[i]:= TNoteTagArrayUtils.StringToTags(Strs[i]);
+
+   finally
+      Strs.Free;
+   end;
+
+end;
+
+
+
+class function TNoteTagArrayUtils.FindTagsToModeOR(FindTags: TFindTags): TFindTags;
 var
   i, j, N: integer;
   FindOR: TNoteTagArray;
@@ -1074,7 +1313,7 @@ begin
    if FindTags = nil then
       exit(nil);
 
-   SetLength(Result, 1);                      // All tags be OR operands
+   SetLength(Result, 1);                      // All tags will be OR operands
    SetLength(FindOR, MAX_SEARCHED_TAGS);
 
    N:= 0;
@@ -1086,6 +1325,74 @@ begin
    end;
    SetLength(FindOR, N);
    Result[0]:= FindOR;
+end;
+
+class function TNoteTagArrayUtils.FindTagsANDToTags(FindTags: TFindTags): TNoteTagArray;
+var
+  i, N: integer;
+begin
+   if FindTags = nil then
+      exit(nil);
+
+   SetLength(Result, MAX_SEARCHED_TAGS);      // All tags will be included
+   N:= 0;
+   for i:= 0 to High(FindTags) do begin
+      Result[N]:= FindTags[i][0];
+      inc(N);
+   end;
+   SetLength(Result, N);
+end;
+
+
+class function TNoteTagArrayUtils.TagsToFindTagsModeOR(Tags: TNoteTagArray): TFindTags;
+begin
+   if Tags = nil then
+      exit(nil);
+
+   SetLength(Result, 1);                      // All tags will be OR operands
+   Result[0]:= Tags;
+end;
+
+
+class function TNoteTagArrayUtils.TagsToFindTagsModeAND(Tags: TNoteTagArray): TFindTags;
+var
+  i: integer;
+  FindOR: TNoteTagArray;
+begin
+   if Tags = nil then
+      exit(nil);
+
+   SetLength(Result, Length(Tags));                      // All tags will be AND operands
+   for i:= 0 to High(Tags) do begin
+      SetLength(FindOR, 1);
+      FindOR[0]:= Tags[i];
+      Result[i]:= FindOR;
+   end;
+end;
+
+
+class function TNoteTagArrayUtils.FindTagsEqual(FindTagsA: TFindTags; FindTagsB: TFindTags): boolean;
+var
+  i, j: integer;
+begin
+   if Assigned(FindTagsA) <> Assigned(FindTagsA) then
+      Result:= false
+
+   else begin
+      if Length(FindTagsA) <> Length(FindTagsB) then
+         Result:= false
+
+      else begin
+         Result:= false;
+         for i:= 0 to High(FindTagsA) do begin
+            for j:= 0 to High(FindTagsA[i]) do
+               if FindTagsA[i][j] <> FindTagsB[i][j] then
+                  exit;
+         end;
+         Result:= true;
+      end;
+
+   end;
 end;
 
 
@@ -1179,6 +1486,21 @@ begin
   Result:= (nesEncrypted in fStates);
 end;
 
+function TNoteEntry.GetIsMain: boolean;
+begin
+  Result:= (nesMain in fStates);
+end;
+
+function TNoteEntry.GetIsHidden: boolean;
+begin
+  Result:= (nesHidden in fStates);
+end;
+
+function TNoteEntry.GetIsReadOnly: boolean;
+begin
+  Result:= (nesReadOnly in fStates);
+end;
+
 procedure TNoteEntry.SetIsRTF(value: boolean);
 begin
   if value then begin
@@ -1214,6 +1536,31 @@ begin
   else
      Exclude(fStates, nesEncrypted);
 end;
+
+procedure TNoteEntry.SetIsMain(value: boolean);
+begin
+  if value then
+     Include(fStates, nesMain)
+  else
+     Exclude(fStates, nesMain);
+end;
+
+procedure TNoteEntry.SetIsHidden(value: boolean);
+begin
+  if value then
+     Include(fStates, nesHidden)
+  else
+     Exclude(fStates, nesHidden);
+end;
+
+procedure TNoteEntry.SetIsReadOnly(value: boolean);
+begin
+  if value then
+     Include(fStates, nesReadOnly)
+  else
+     Exclude(fStates, nesReadOnly);
+end;
+
 
 
 function TNoteEntry.StatesToString: String;
@@ -1311,52 +1658,18 @@ begin
    if ActiveFile.EncryptedContentMustBeHidden and IsEncrypted then
       exit;
 
-   if Tags <> nil then begin
-      for i:= 0 to High(Tags) do
-         Result:= Result + Tags[i].Name + ' ';
-   end;
+   Result:= TNoteTagArrayUtils.ToNames(Tags);
 end;
 
+
 function TNoteEntry.TagsToString: string;
-var
-   i: integer;
 begin
-   if Tags <> nil then begin
-      for i:= 0 to High(Tags) do
-         Result:= Result + Tags[i].ID.ToString + ',';
-      delete(Result, Length(Result),1);           // Remove last ','
-   end;
+  Result:= TNoteTagArrayUtils.ToString(fTags);
 end;
 
 procedure TNoteEntry.StringToTags(Str: string);
-var
-   i, pI: integer;
-   N: integer;
-   IDTag: Cardinal;
-   NTag: TNoteTag;
 begin
-   if Str = '' then begin
-      fTags:= nil;
-      exit;
-   end;
-
-   N:= 0;
-   Str:= Str + ',';
-   pI:= 1;
-   for i:= 1 to Length(Str) do begin
-      if Str[i] = ',' then begin
-         IDTag:= StrToUIntDef(Copy(Str, pI, i-pI), 0);
-         if (IDTag <> 0) then begin
-            NTag:= ActiveFile.GetNTagByID(IDTag);
-            if (NTag <> nil) then begin
-               inc(N);
-               SetLength(fTags, N);
-               fTags[N-1]:= NTag;
-            end;
-         end;
-         pI:= i+1;
-      end;
-   end;
+  fTags:= TNoteTagArrayUtils.StringToTags(Str);
 end;
 
 // Consider also the order of tags
@@ -1385,7 +1698,7 @@ var
  i, j: integer;
 begin
  if FindTags = nil then exit(True);
- 
+
  Result:= False;
  if (Tags = nil) and (InheritedTags = nil) then exit;
 
@@ -1404,10 +1717,50 @@ begin
             break;
          end;
        end;
-     
+
     if not Result then
        exit;
  end;
+end;
+
+
+function TNoteEntry.HasTags(TagsIncluded: TNoteTagArray): boolean;
+begin
+   Result:= TNoteTagArrayUtils.HasTags(Tags, TagsIncluded);
+end;
+
+
+function TNoteEntry.GetFirstLinesOfText (MaxLength: integer = 30; MaxLines: integer = -1): string;
+var
+  RTFAux: TAuxRichEdit;
+  i, p, LastPos: integer;
+begin
+  RTFAux:= CreateAuxRichEdit;
+  try
+    RTFAux.BeginUpdate;
+    LoadStreamInRTFAux (Stream, RTFAux);
+    Result:= RTFAux.VisibleText;
+    if Result <> '' then
+       Result:= Copy(Result, 1, MaxLength);
+
+    if MaxLines > 0 then begin
+       p:= 0;
+       LastPos:= Length(Result);
+       for i:= 1 to MaxLines do begin
+          p:= Pos(#13, Result, p+1);
+          if p > 0 then
+             LastPos:= p
+          else begin
+             LastPos:= MaxLength;
+             break;
+          end;
+       end;
+       Result:= Copy(Result, 1, LastPos);
+    end;
+
+  finally
+    RTFAux.Free;
+  end;
 end;
 
 
@@ -1656,7 +2009,7 @@ end;
 
 function TNoteNode.MatchesTags(FindTags: TFindTags; InheritedTags: TNoteTagArray = nil): boolean;
 begin
-  Result:= Note.Entries[0].MatchesTags(FindTags, InheritedTags);        // %%%
+  Result:= Note.MainEntry.MatchesTags(FindTags, InheritedTags);
 end;
 
 

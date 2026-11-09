@@ -45,7 +45,7 @@ uses
    knt.model.note,
    kn_History,
    kn_LocationObj,
-   kn_FindReplaceMng,
+   knt.ui.info,
    knt.ui.editor
    ;
 
@@ -59,7 +59,7 @@ type
 
 
    // Links related routines
-    procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil);
+    procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil; aNEntry: TNoteEntry = nil);
     procedure InsertFileOrLink( const aFileName : string; const AsLink : boolean; Relative: boolean= false );
     procedure InsertOrMarkKNTLink( aLocation : TLocation; const AsInsert : boolean ; TextURL: string; NumBookmark09: integer= 0);
     procedure InsertMarker(Editor: TRxRichEdit; KEY_Marker: Char; TargetMarker: integer);
@@ -80,15 +80,21 @@ type
                               myURLAction: TURLAction = urlOpen;
                               OpenInCurrentFile: boolean= false;
                               ConsiderOffset: boolean = false;
-                              WordInRS: TWordInResultSearch = nil ): boolean;
+                              WordInRS: TWordInResultSearch = nil
+                              {; PatternSearched: string = ''} ): boolean;
     procedure OpenLocationInOtherInstance( aLocation : TLocation );
     function SearchCaretPos (Editor: TKntRichEdit;
                              CaretPosition: integer; SelectionLength: integer; PlaceCaret: boolean;
                              ScrollPosInEditor: TPoint;
                              AdjustVisiblePosition: boolean = true;
                              ContainsRegImages: boolean = true;
-                             ConsiderOffset: boolean = false): integer;
-    function PositionInImLinkTextPlain (myFolder: TKntFolder; NNode: TNoteNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+                             ConsiderOffset: boolean = false;
+                             NEntry: TNoteEntry = nil;
+                             PosStartEntry: integer = 0; PosEndEntry: integer= -1): integer;
+    function PositionInImLinkTextPlain (Editor: TKntRichEdit; NEntry: TNoteEntry; CaretPosition: integer; ForceCalc: boolean = false;
+                                        PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
+    function GetPositionOffset (Editor: TKntRichEdit; NEntry: TNoteEntry; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false;
+                               PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 
     procedure ClickOnURL(const URLstr: string; chrgURL: TCharRange; myURLAction: TURLAction; EnsureAsk: boolean = false; Button: TMouseButton = mbLeft);
     procedure InsertURL(URLStr : string; TextURL : string; Editor: TKntRichEdit);
@@ -128,6 +134,7 @@ uses
    gf_files,
    gf_strings,
    gf_streams,
+   gf_miscvcl,
    kn_Global,
    kn_Main,
    kn_URL,
@@ -138,6 +145,7 @@ uses
    kn_ImageForm,
    kn_NoteFileMng,
    kn_KntFile,
+   knt.ui.noteEntries,
    knt.App,
    knt.RS
   ;
@@ -303,7 +311,7 @@ begin
                 raise EInvalidLocation.Create(Format(GetRS(sLnk03b), [NNodeGID]))
          end
          else begin
-            NEntry:= NNode.Note.Entries[0];        // %%%
+            NEntry:= NNode.Note.GetEntry(NEntryID);
             exit (True)
          end;
       end;
@@ -336,7 +344,8 @@ begin
                raise EInvalidLocation.Create(Format( GetRS(sLnk04), [NoteName] ));
          end;
          if NNode <> nil then
-            NEntry:= NNode.Note.Entries[0];        // %%%
+            NEntry:= NNode.Note.GetEntry(NEntryID);
+
       end;
 
       if NEntry <> nil then begin
@@ -556,7 +565,10 @@ end; // InsertFileOrLink
 //===============================================================
 // GetKNTLocation
 //===============================================================
-procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil);
+procedure GetKNTLocation (const aFolder : TKntFolder; var Location: TLocation; GetNames: Boolean= false; aNNode: TNoteNode = nil; aNEntry: TNoteEntry = nil);
+var
+  NoteEntriesUI: TKntNoteEntriesUI;
+  PosStartEntry, PosEndEntry: integer;
 begin
 {$IFDEF DEBUG_HISTORY}
    Simplified:= false;
@@ -578,12 +590,27 @@ begin
       NoteName := '';
       NNodeID := 0;
       NNodeGID:= 0;
+      NEntryID:= 0;
+      PosStartEntry:= 0;
       if aNNode <> nil then begin
          NNodeID := NNode.ID;
          NNodeGID:= NNode.GID;
-         NEntry:= aNNode.Note.Entries[0];       // %%%
+         if aNEntry <> nil then
+            NEntry:= aNEntry
+         else begin
+            NoteEntriesUI:= TKntNoteEntriesUI(aFolder.Editor.NEntriesUIObj);
+            if NoteEntriesUI <> nil then begin
+               NEntry:= NoteEntriesUI.NEntry;
+               NoteEntriesUI.GetEntryBoundaries(NEntry, PosStartEntry, PosEndEntry);
+               NEntriesUIObj:= NoteEntriesUI;
+            end;
+         end;
+         if (NEntry = nil) or not aNNode.Note.IsValid(NEntry) then
+            NEntry:= aNNode.Note.Entries[0]                           // If no Entry is valid, use default one
+         else
+            NEntryID:= NEntry.ID;
       end;
-      CaretPos := aFolder.Editor.SelStart;
+      CaretPos := aFolder.Editor.SelStart - PosStartEntry;            // aFolder.Editor: Selected Editor (of a TKntNoteEntriesUI) in the folder
       SelLength := aFolder.Editor.SelLength;
       Mark := 0;
 
@@ -713,7 +740,12 @@ var
    str, strTargetMarker: string;
    RTFMarker: AnsiString;
    KEY_Marker: Char;
+   EditorBase: TRxRichEdit;
    Editor: TKntRichEdit;
+   NEntriesUI: TKntNoteEntriesUI;
+   RTFAux: TAuxRichEdit;
+   SS: integer;
+
 
    function GetActualTargetMarker (Editor: TRxRichEdit): integer;
    var
@@ -780,33 +812,61 @@ begin
     App.ShowInfoInStatusBar(GetRS(sLnk09) + strTargetMarker);
   end
   else begin
+    NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.Editor.NEntriesUIObj);
+    if (NEntriesUI <> nil) and (NEntriesUI.NEntry = nil) then exit;     // Ignore when applied to an empty panel, where no NEntry has been created yet
+
     // mark caret position as TLocation
     GetKNTLocation (ActiveFolder, aLocation, true);
 
     // If we are pointing to the start of a node or a folder (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
     strTargetMarker:= '';
 
-    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and (assigned(Editor.NNodeObj)) then begin
-        // Allow the mark (hidden) although Folder is ReadOnly
-      if NumBookmark09 <= 0 then
-         TargetMarker:= GetActualTargetMarker(Editor);             // If a marker already exists at that position, we will use it
+    if (aLocation.CaretPos <> 0) and assigned(Editor) and (not Editor.PlainText) and assigned(Editor.NNodeObj) and
+        assigned(NEntriesUI) and assigned(NEntriesUI.NEntry) and not NEntriesUI.NEntry.IsPlainTXT then begin
 
-      if TargetMarker = 0 then begin
-         {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
-         if NumBookmark09 >= 1 then begin              // Bookmark0-9 -> [1-10]
-            TargetMarker:= NumBookmark09;
-            aLocation.Bookmark09:= true;
-            KEY_Marker:= KNT_RTF_HIDDEN_Bookmark09;
-         end
-         else begin
-            TargetMarker:= 1 + GetLastTargetMarker(Editor.TextPlain);
-            KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
-         end;
-
-         InsertMarker(Editor, KEY_Marker, TargetMarker);
+      // Allow the mark (hidden) although Folder is ReadOnly
+      EditorBase:= Editor;
+      RTFAux:= nil;
+      if (NEntriesUI <> nil) and (NEntriesUI.PanelConfig.CurrentMode = meMultiEntry) then begin
+         SS:= Editor.SelStart;
+         NEntriesUI.SavePositionInPanel;        // Save in PanelConfig.SSImLink considering fragments, unfolded o removed blocks, ...
+         RTFAux:= CreateAuxRichEdit;
+         RTFAux.BeginUpdate;
+         LoadStreamInRTFAux (NEntriesUI.NEntry.Stream, RTFAux);
+         EditorBase:= RTFAux;
+         EditorBase.SelStart:= NEntriesUI.PanelConfig.SSImLink;
       end;
-      strTargetMarker:= Format(GetRS(sLnk31) + GetRS(sLnk32), [TargetMarker]);
-      aLocation.Mark:= TargetMarker;
+      try
+          if NumBookmark09 <= 0 then
+             TargetMarker:= GetActualTargetMarker(EditorBase);             // If a marker already exists at that position, we will use it
+
+          if TargetMarker = 0 then begin
+             {$IFDEF KNT_DEBUG}Log.Add('Insert Marker for HyperLink',  4 ); {$ENDIF}
+             if NumBookmark09 >= 1 then begin              // Bookmark0-9 -> [1-10]
+                TargetMarker:= NumBookmark09;
+                aLocation.Bookmark09:= true;
+                KEY_Marker:= KNT_RTF_HIDDEN_Bookmark09;
+             end
+             else begin
+                TargetMarker:= 1 + GetLastTargetMarker(EditorBase.TextPlain);
+                KEY_Marker:= KNT_RTF_HIDDEN_BOOKMARK;
+             end;
+
+             if assigned(RTFAux) then begin
+                NEntriesUI.InsertMarkerInMultiEntryEditor(NEntriesUI.NEntry, KEY_Marker, TargetMarker, RTFAux);
+                Editor.SelStart:= SS;
+             end
+             else
+                InsertMarker(EditorBase, KEY_Marker, TargetMarker);
+
+          end;
+          strTargetMarker:= Format(GetRS(sLnk31) + GetRS(sLnk32), [TargetMarker]);
+          aLocation.Mark:= TargetMarker;
+      finally
+         if RTFAux <> nil then
+            RTFAux.Free;
+      end;
+
     end;
 
     App.ShowInfoInStatusBar(GetRS(sLnk10) + strTargetMarker);
@@ -1249,17 +1309,20 @@ end;
 function BuildKntURL( const aLocation : TLocation) : string;
 var
   LocationString : string;
-  FolderID_WithSEP, NodeId, LocationMark: string;
+  FolderID_WithSEP, NodeId, NEntryID, LocationMark: string;
 begin
   if ( aLocation.FileName = normalFN( ActiveFile.FileName )) then
      LocationString := ''
   else
      LocationString := FileNameToURL( aLocation.FileName );
 
-     if aLocation.NNodeGID <> 0 then begin           // New created links will use newer format, with GIDs: file:///"NoteGID|...
+     if aLocation.NNodeGID <> 0 then begin           // New created links will use newer format, with GIDs: file:///<NoteGID|...  (or file:///<NoteGID.EntryID|...
         LocationMark:= KNTLOCATION_MARK_NEW2;
         NodeId:= IntToStr(aLocation.NNodeGID);
         FolderID_WithSEP:= '';
+        if aLocation.NEntryID <> 0 then
+           NEntryID:= '.' + IntToStr(aLocation.NEntryID);
+
      end
      else begin
         LocationMark:= KNTLOCATION_MARK_NEW;
@@ -1269,7 +1332,7 @@ begin
 
     LocationString := 'file:///' + LocationString + LocationMark +
       FolderID_WithSEP +
-      NodeId + KNTLINK_SEPARATOR +
+      NodeId + NEntryID + KNTLINK_SEPARATOR +
       IntToStr( aLocation.CaretPos ) + KNTLINK_SEPARATOR +
       IntToStr( aLocation.SelLength );
 
@@ -1286,7 +1349,7 @@ end;
 
 function BuildLocationFromKntURL( KntURL : string): TLocation;
 var
-  p, pMin: integer;
+  p, pMin, p2: integer;
   FormatLink: TKntLinkFormat;
   Bak_KntURL : string;
   str: string;
@@ -1380,7 +1443,17 @@ begin
         case FormatLink of
            lfOld:  NoteName := HTTPDecode(str);
            lfNew:  NNodeID:=  StrToUIntDef(str, 0);
-           lfNew2: NNodeGID:= StrToUIntDef(str, 0);
+           lfNew2: begin
+                   p2 := pos( '.', KntURL );
+                   if p2 > 0 then begin
+                      NNodeGID:= StrToUIntDef(copy(str, 1, p2-1), 0);
+                      NEntryID:= StrToUIntDef(copy(str, p2+1, p-1), 0);
+                   end
+                   else begin
+                      NNodeGID:= StrToUIntDef(str, 0);
+                      NEntryID:= 0;
+                   end;
+           end;
         end;
      end;
      delete(KntURL, 1, p);
@@ -1414,6 +1487,7 @@ begin
 end;
 
 
+{
 function BuildBookmark09FromString( KntURL : AnsiString ): TLocation;
 var
    Strs: TStrings;
@@ -1472,6 +1546,17 @@ begin
   end;
 
 end;
+}
+
+function BuildBookmark09FromString( KntURL : AnsiString ): TLocation;
+begin
+   try
+      Result:= BuildLocationFromKntURL(KntURL);
+      Result.Bookmark09:= true;
+   except
+   end;
+end;
+
 
 
 function GetTextURLFromKntURL (KntURL : string; RelativePath: boolean = false): string;
@@ -1509,8 +1594,11 @@ begin
          if NoteName <> '' then
             Result:= Format('%s: ?%s/%s', [FN, FolderName, NoteName])
          else begin
-            if NNodeGID > 0 then
-               Result:= Format('%s: <%d', [FN, NNodeGID])
+            if NNodeGID > 0 then begin
+               Result:= Format('%s: <%d', [FN, NNodeGID]);
+               if NEntryID > 0 then
+                  Result:= Result + '.' + IntToStr(NEntryID);
+            end
             else
                Result:= Format('%s: *%d|%d', [FN, FolderID, NNodeID]);
          end;
@@ -1523,49 +1611,40 @@ begin
 end;
 
 
-function GetPositionOffset (myFolder: TKntFolder; NNode: TNoteNode; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false): integer;
+function GetPositionOffset (Editor: TKntRichEdit; NEntry: TNoteEntry; Pos_ImLinkTextPlain: integer; CaretPosition: integer; ForceCalc: boolean = false;
+                            PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 var
   Stream: TMemoryStream;
   imLinkTextPlain: String;
   Offset: integer;
   Modified: boolean;
-  NEntry: TNoteEntry;
 begin
    Offset:= 0;
    if (CaretPosition < 0) and (Pos_ImLinkTextPlain < 0) then exit(0);
 
    Stream:= nil;
 
-   if myFolder.Editor.SupportsRegisteredImages then begin
+   if (Editor = nil) or Editor.SupportsRegisteredImages then begin       // (Editor = nil) => will assume that all images are visible
      imLinkTextPlain:= '';
-      if assigned(NNode) then begin
-          NEntry:= NNode.Note.Entries[0];                              // %%%
-          Stream:= NEntry.Stream;
-          imLinkTextPlain := NEntry.TextPlain;
-          Modified := NEntry.Modified;
+      if assigned(NEntry) then begin
+         Stream:= NEntry.Stream;
+         imLinkTextPlain := NEntry.TextPlain;
+         Modified := NEntry.Modified;
       end;
    end;
 
    if Stream = nil then exit(0);
 
-   if imLinkTextPlain = '' then begin
-      var RTFAux: TAuxRichEdit;
-      RTFAux:= CreateAuxRichEdit;
-      try
-         imLinkTextPlain:= myFolder.PrepareTextPlain(NNode, RTFAux);
-      finally
-         RTFAux.Free;
-      end;
-   end;
-
+   if imLinkTextPlain = '' then
+      imLinkTextPlain:= PrepareTextPlain(NEntry);
 
 
    // See notes in ImagesManager.GetPositionOffset
 
    if CaretPosition >= 0 then
-      Offset:= ImageMng.GetPositionOffset_FromEditorTP (Stream, CaretPosition, imLinkTextPlain, Modified, ForceCalc)
+      Offset:= ImageMng.GetPositionOffset_FromEditorTP (Editor, Stream, CaretPosition, imLinkTextPlain, Modified, ForceCalc, PosStartEntry, PosEndEntry)
    else
-      Offset:= ImageMng.GetPositionOffset_FromImLinkTP (Stream, Pos_ImLinkTextPlain, imLinkTextPlain, Modified, ForceCalc);
+      Offset:= ImageMng.GetPositionOffset_FromImLinkTP (Editor, Stream, Pos_ImLinkTextPlain, imLinkTextPlain, Modified, ForceCalc, PosStartEntry, PosEndEntry);
 
 
    Result:= Offset;
@@ -1577,13 +1656,16 @@ function SearchCaretPos (Editor: TKntRichEdit;
                          ScrollPosInEditor: TPoint;
                          AdjustVisiblePosition: boolean = true;
                          ContainsRegImages: boolean = true;
-                         ConsiderOffset: boolean = false): integer;
+                         ConsiderOffset: boolean = false;
+                         NEntry: TNoteEntry = nil;
+                         PosStartEntry: integer = 0; PosEndEntry: integer= -1): integer;
 var
   Offset: integer;
   Pos_ImLinkTextPlain: integer;
   myFolder : TKntFolder;
   NNode: TNoteNode;
   InFoldedBlock: boolean;
+  ScrollYBefore: integer;
 begin
   // ContainsRegImages = True => We have not verified that there are no registered images
   // ConsiderOffset = True    => What we receive in CaretPosition is a position in imLinkTextPlain
@@ -1592,9 +1674,8 @@ begin
   if ConsiderOffset and Editor.SupportsRegisteredImages and ContainsRegImages then begin
      Pos_ImLinkTextPlain:= CaretPosition;
      myFolder:= TKntFolder(Editor.FolderObj);
-     NNode:= TNoteNode(Editor.NNodeObj);
      if (myFolder <> nil) then
-        Offset:= GetPositionOffset(myFolder, NNode, Pos_ImLinkTextPlain, -1);
+        Offset:= GetPositionOffset(Editor, NEntry, Pos_ImLinkTextPlain, -1, False, PosStartEntry, PosEndEntry);
   end;
 
   if PlaceCaret then
@@ -1602,8 +1683,11 @@ begin
      with Editor do begin
        BeginUpdate;
        try
+          if AdjustVisiblePosition then
+             ScrollYBefore:= GetScrollPosInEditor.Y;
+
           if CaretPosition >= 0 then
-             SelStart := CaretPosition - Offset;
+             SelStart := CaretPosition - Offset + PosStartEntry;
 
           if SelAttributes.Protected then begin
              var pI, pF: integer;
@@ -1616,7 +1700,7 @@ begin
           if not InFoldedBlock and (SelectionLength >= 0) then
              SelLength := SelectionLength;
 
-          if AdjustVisiblePosition then begin
+          if AdjustVisiblePosition and (GetScrollPosInEditor.Y <> ScrollYBefore) then begin   // If the scroll hasn't changed, let's leave it as is. It means the desired position was visible.
              ScrollLinesBy(80);
              Perform( EM_SCROLLCARET, 0, 0 );
           end
@@ -1633,12 +1717,25 @@ begin
   Result:= Offset;
 end;
 
-function PositionInImLinkTextPlain (myFolder: TKntFolder; NNode: TNoteNode; CaretPosition: integer; ForceCalc: boolean = false): integer;
+{
+  This function retrieves the position relative to text, based on the format used when saving an entry, with images folded: ImLink
+  starting from a position in an editor (CaretPosition).
+  For this calculation, the provided NEntry is used only to compare the sizes of Editor.TextPlain and NEntry.TextPlain and quickly determine
+  whether further calculation is needed. Beyond that, this calculation (supported by GetPositionOffset, which in turn relies on
+  ImageMng.GetPositionOffset_FromEditorTP) relies solely on the content of the editor, adding to the provided position (CaretPosition)
+  the offset corresponding to the images found (and whether they are visible or not) up to that position.
+
+  By default, it is assumed that the editor includes only the content of the specified entry. If this is not the case, it is necessary
+  to define the limits within which to search the editor. In the case of using editors with multiple entries, the beginning and end of
+  the entry should be specified.
+}
+function PositionInImLinkTextPlain (Editor: TKntRichEdit; NEntry: TNoteEntry; CaretPosition: integer; ForceCalc: boolean = false;
+                                    PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 var
    Offset: integer;
 begin
-   Offset:= GetPositionOffset(myFolder, NNode, -1, CaretPosition, ForceCalc);
-   Result:= CaretPosition + Offset;
+   Offset:= GetPositionOffset(Editor, NEntry, -1, CaretPosition, ForceCalc, PosStartEntry, PosEndEntry);
+   Result:= CaretPosition + Offset - PosStartEntry;
 end;
 
 
@@ -1741,14 +1838,21 @@ begin
                           myURLAction: TURLAction = urlOpen;
                           OpenInCurrentFile: boolean= false;
                           ConsiderOffset: boolean = false;
-                          WordInRS: TWordInResultSearch = nil): boolean;
+                          WordInRS: TWordInResultSearch = nil
+                          {;PatternSearched: string = ''} ): boolean;
  var
    myFolder : TKntFolder;
    myTreeNode : PVirtualNode;
+   NoteEntriesUI: TKntNoteEntriesUI;
+   TargetEditor: TKntRichEdit;
+   PosStartEntry, PosEndEntry: integer;
    origLocationStr : string;
    LocBeforeJump: TLocation;
    FN, FN_ActiveFile: string;
    ResultOpen: integer;
+   ScrollYBefore: integer;
+   SS, SL: integer;
+   AdjustedToProcessedFoldedBlocks: boolean;
 
    function SearchTargetMark (SearchBookmark09: boolean = false): boolean;
    var
@@ -1765,17 +1869,19 @@ begin
       Result:= false;
       if Location.Mark > 0 then begin
         TargetMark:=  KNT_RTF_HIDDEN_MARK_L_CHAR + KeyBookmark + IntToStr(Location.Mark) + KNT_RTF_HIDDEN_MARK_R_CHAR;
-        with myFolder.Editor do begin
-          p:= FindText(TargetMark, 0, -1, [stMatchCase]);
+        with TargetEditor do begin
+          p:= FindText(TargetMark, PosStartEntry, -1, [stMatchCase]);
           if p > 0 then begin
             BeginUpdate;
             try
+               ScrollYBefore:= GetScrollPosInEditor.Y;
                SelStart := p;
                selLen:= 0;
+               InFoldedBlock:= False;
 
                if SelAttributes.Protected then begin
                   var pI, pF: integer;
-                  if PositionInFoldedBlock(TextPlain, SelStart, myFolder.Editor, pI, pF) then begin
+                  if PositionInFoldedBlock(TextPlain, SelStart, TargetEditor, pI, pF) then begin
                      InFoldedBlock:= True;
                      SelStart:= pI;
                      selLen:= 1;
@@ -1784,16 +1890,54 @@ begin
                if not InFoldedBlock and (Location.SelLength > 0) then
                   selLen:= Location.SelLength + Length(TargetMark);
                SelLength := selLen;
-
-               myFolder.Editor.ScrollLinesBy(80);
-               Perform( EM_SCROLLCARET, 0, 0 );
+               if GetScrollPosInEditor.Y <> ScrollYBefore then begin      // If the scroll hasn't changed, let's leave it as is. It means the desired position was visible.
+                  TargetEditor.ScrollLinesBy(80);
+                  Perform( EM_SCROLLCARET, 0, 0 );
+               end;
                Result:= true;
+
             finally
                EndUpdate;
             end;
           end;
         end;
       end;
+  end;
+
+
+  {
+   *1
+   This added method will not be useful for now...
+   It could not enter in the IF section, because TKntNoteUI.GetNEntriesUITargetForJump will not return a panel (NoteEntriesUI) where
+   CurrentMode=MultiEntry and NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged.
+   Although we can call GetPositionInFolderIntvEquiv, the adjusted position could fail if the entry has several nested folded blocks or
+   images and/or links inside a folded block.
+
+   The process required to generate a conversion table, which allows for navigating from a specific position in the standard entry
+   format to the corresponding position when that entry is displayed with "folded" blocks either expanded or removed, becomes
+   significantly more complex if the presence of nested blocks must also be analyzed. The conversion currently implemented
+   is sufficient for navigating between these two views based on visible positions; this applies, for example, when switching from
+   the QueryLayout (QL) to the EditingLayout (EL) by pressing Ctrl+Enter, or when moving from an entry within a "MultiEntry" panel
+   to its corresponding editing panel in the same layout by pressing Enter.
+
+   See:
+      TKntNoteEntriesUI.ReloadFromDataModel
+      -> PrepareEntryContent
+         -> CreateIntvsEquivalence
+         -> CalculateAndSaveIntvsEquivalence
+  }
+  procedure AdjustToProcessedFoldedBlocks(const CaretPos, SelLength: integer; var CaretPosModif, SelLengthModif: integer);
+  begin
+    CaretPosModif:= CaretPos;
+    SelLengthModif:= SelLength;
+
+//    if Location.NEntry.IsRTF and
+//       (NoteEntriesUI.PanelConfig.CurrentMode = meMultiEntry) and
+//       (NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then begin       // ProcessingFoldedBlocks?
+//
+//       CaretPosModif:= NoteEntriesUI.GetPositionInFolderIntvEquiv(NoteEntriesUI.GetIndexOfSelectedEntry, CaretPosModif, SelLengthModif, True);
+//       AdjustedToProcessedFoldedBlocks:= True;
+//    end;
   end;
 
 begin
@@ -1907,18 +2051,58 @@ begin
 
          result := true;
 
-         if not SearchTargetMark (Location.Bookmark09) then begin
-            if WordInRS <> nil then begin                             // Jump to a word in a serch result
-               if WordInRS.BeginOfParagraph >= 0 then
-                  SearchCaretPos(myFolder.Editor, WordInRS.BeginOfParagraph, 0, True, Location.ScrollPosInEditor, true, true, true);
-               SearchCaretPos(myFolder.Editor, WordInRS.WordPos, WordInRS.WordSel, True, Location.ScrollPosInEditor, false, true, true);
-            end
-            else
-               SearchCaretPos(myFolder.Editor, Location.CaretPos, Location.SelLength, True, Location.ScrollPosInEditor,
-                             AdjustVisiblePosition, true, ConsiderOffset);
-         end;
+         NoteEntriesUI:= TKntNoteEntriesUI(myFolder.NoteUI.GetNEntriesUITargetForJump(Location));
+         if (NoteEntriesUI <> nil) then begin
+           TargetEditor:= NoteEntriesUI.Editor;
+           LockControl(TargetEditor, True);
+           try
+             if NoteEntriesUI.GetPreparedForJump(Location.NEntry, PosStartEntry, PosEndEntry) then begin
+                AdjustedToProcessedFoldedBlocks:= False;
+                if Location.NEntry.IsPlainTXT or not SearchTargetMark (Location.Bookmark09) then begin
+                   if WordInRS <> nil then begin                             // Jump to a word in a search result
+                      if WordInRS.BeginOfParagraph >= 0 then begin
+                         AdjustToProcessedFoldedBlocks(WordInRS.BeginOfParagraph, 0, SS, SL);              // See *1
+                         SearchCaretPos(TargetEditor, SS, 0, True, Location.ScrollPosInEditor, true, true, true, Location.NEntry, PosStartEntry, PosEndEntry);
+                      end;
+                      AdjustToProcessedFoldedBlocks(WordInRS.WordPos, WordInRS.WordSel, SS, SL);           // See *1
+                      SearchCaretPos(TargetEditor, SS, SL, True, Location.ScrollPosInEditor,
+                                     false, true, true,Location.NEntry, PosStartEntry, PosEndEntry);
+                   end
+                   else begin
+                      AdjustToProcessedFoldedBlocks(Location.CaretPos, Location.SelLength, SS, SL);        // See *1
+                      SearchCaretPos(TargetEditor, SS, SL, True, Location.ScrollPosInEditor,
+                                    AdjustVisiblePosition, true, ConsiderOffset, Location.NEntry, PosStartEntry, PosEndEntry);
+                   end;
+                end;
 
-         myFolder.Editor.SetFocus;
+// See *1
+//                if AdjustedToProcessedFoldedBlocks and (PatternSearched <> '') and (NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode = fmUnfold) then begin
+//                   { Consider the problem of selecting a term located within a "folded" block that itself contains another, nested folded block.
+//                     If the term appears before the nested block, there is no issue; however, if it is located inside or after the nested block,
+//                     one must subtract the character lengths of the nested block’s start (and potentially its end) markers, as these were not
+//                     accounted for when determining the conversions.
+//                     This is a simple, approximate solution that only works for cases involving a single nested block,
+//                     and assuming no images or links are inside a folded block -- see *1 }
+//
+//                   if TargetEditor.SelText.ToUpper <> PatternSearched.ToUpper then begin
+//                      SL:= TargetEditor.SelLength;
+//                      SS:= TargetEditor.SelStart - Length(KNT_RTF_FOLDED_LINK_BLOCK_CHAR);  // In case the pattern is inside a nested folded block;
+//                      TargetEditor.SelStart:= SS;
+//                      TargetEditor.SelLength:= SL;
+//                      if TargetEditor.SelText.ToUpper <> PatternSearched.ToUpper then begin
+//                         SS:= SS - Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);                // In case the pattern is outside a nested folded block
+//                         TargetEditor.SelStart:= SS;
+//                         TargetEditor.SelLength:= SL;
+//                      end;
+//                   end;
+//                end;
+
+                TargetEditor.SetFocus;
+             end;
+           finally
+             LockControl(TargetEditor, False);
+           end;
+         end;
 
       finally
          _Executing_JumpToKNTLocation_ToOtherNote:= false;
@@ -2669,6 +2853,7 @@ begin
 end;
 
 
+// Note: Older link formats only understood one entry
 
 function ConvertKNTLinksToNewFormat(const Buffer: Pointer; BufSize: integer; NoteGIDs: TMergedNotes; FolderIDs: array of TMergeFolders;
                                     var GIDsNotConverted: integer): AnsiString;

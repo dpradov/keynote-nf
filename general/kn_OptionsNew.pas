@@ -409,6 +409,7 @@ type
 
     myEditorOptions : TEditorOptions;
     myTreeOptions : TKntTreeOptions;
+    myNoteAdvOptions: TNoteAdvancedOptions;
 
     Icons_Changed : boolean;
     Icons_RefList : TStringList;
@@ -528,12 +529,12 @@ begin
   Combo_URLAction.ItemIndex := 0;
   Combo_URLCtrlAction.ItemIndex := 0;
 
-    InitializeKeyOptions( myOpts );
-    InitializeTabOptions( myTabOpts );
-    InitializeClipOptions( myClipOpts );
-    InitializeTreeOptions( myTreeOpts );
-    InitializeEditorOptions( myEditorOptions );
-    InitializeTreeOptions( myTreeOptions );
+  InitializeKeyOptions( myOpts );
+  InitializeTabOptions( myTabOpts );
+  InitializeClipOptions( myClipOpts );
+  InitializeTreeOptions( myTreeOpts );
+  InitializeEditorOptions( myEditorOptions );
+  InitializeTreeOptions( myTreeOptions );
 
   // Combo_ICN.ImageList := Chest.IMG_Categories;
   List_ICN.ImageList := Chest.IMG_Categories;
@@ -1178,6 +1179,10 @@ begin
     ExpandMode := TTreeExpandMode( Combo_ExpandMode.ItemIndex );
   end;
 
+  with myNoteAdvOptions do begin
+
+  end;
+
 end; // FormToOptions
 
 procedure TForm_OptionsNew.OptionsToForm;
@@ -1438,6 +1443,10 @@ begin
     CB_InheritNodeProperties.Checked := InheritNodeProperties;
     CB_ConfirmNodeRefresh.Checked := ConfirmNodeRefresh;
     Combo_ExpandMode.ItemIndex := ord( ExpandMode );
+  end;
+
+  with myNoteAdvOptions do begin
+
   end;
 
   CB_ShowFullPathClick(nil);

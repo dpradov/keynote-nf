@@ -1,4 +1,4 @@
-ï»¿unit kn_KntFolder;
+unit kn_KntFolder;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -28,6 +28,7 @@ uses
    System.AnsiStrings,
    System.IniFiles,
    System.DateUtils,
+   System.Math,
    Vcl.Graphics,
    Vcl.FileCtrl,
    Vcl.Controls,
@@ -66,9 +67,73 @@ type
   TBeforeEditorLoadedEvent = procedure(Note: TNote) of object;
   TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
 
+type
   TKntFolder = class;
   TFolderList = TSimpleObjList<TKntFolder>;
   TKNTHistoryObj = TObject;            // To avoid circular references
+
+  TNNodeUIConfiguration = class
+
+    private
+      FNNode: TNoteNode;
+      FFolder: TKntFolder;
+      FQueryLayout: boolean;
+
+      FSizeRatios: TPanelSizeRatios;
+
+      FMaximizedPanel: TNEntriesPanelBase;
+      FFocusedPanel: TNEntriesPanelBase;
+
+    protected
+      function GetTop_Ratio: Single;
+      function GetBottom_Ratio: Single;
+      function GetTLTR_Ratio: Single;
+      function GetBLBR_Ratio: Single;
+      function GetTopAutoFromHidden_Ratio: Single;
+      function GetBottomAutoFromHidden_Ratio: Single;
+      procedure SetMaximizedPanel(value: TNEntriesPanelBase);
+
+    protected
+      constructor Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
+      destructor Destroy; override;
+
+    public
+      PanelsConfig: array of TPanelConfiguration;
+
+
+      class function CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
+      class function CreateFromString (NNodeGID: Cardinal; Folder: TKntFolder; Str: string): TNNodeUIConfiguration;
+      class procedure GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder; var DescendingOrder: boolean);
+      function CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aUse: TNEntriesPanelUse; NNode: TNoteNode): TPanelConfiguration;
+      function GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
+      function GetMainPanel: TNEntriesMainPanel;
+      function GetWhereToShowEditorInfoBar: TNEntriesMainPanel;
+      function GetUpperVisiblePanel (Pnl: TNEntriesMainPanel; var UpperPnl: TNEntriesMainPanel): boolean;
+      function GetBelowVisiblePanel (Pnl: TNEntriesMainPanel; var BelowPnl: TNEntriesMainPanel): boolean;
+      function AnyPanelInQL_ets: boolean;
+      function DiffersFromFolderDef(Pnl: TNEntriesMainPanel; var ChangesInCustomiz: boolean; var ChangesInRatios: boolean): boolean;
+      function ToString: string;
+
+      property NNode: TNoteNode read FNNode;
+      property QueryLayout: boolean read FQueryLayout;
+      function GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+      function PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+      function GetEnabledPanels: TNEntriesPanelEnabledArray;
+
+      property InternalSizeRatios: TPanelSizeRatios  read FSizeRatios write FSizeRatios;
+
+      property Top_Ratio: Single read GetTop_Ratio write FSizeRatios.Top;
+      property Bottom_Ratio: Single read GetBottom_Ratio write FSizeRatios.Bottom;
+      property TLTR_Ratio: Single read GetTLTR_Ratio write FSizeRatios.TLTR;
+      property BLBR_Ratio: Single read GetBLBR_Ratio write FSizeRatios.BLBR;
+      property TopAutoFromHidden_Ratio: Single read GetTopAutoFromHidden_Ratio write FSizeRatios.TopAutoFromHidden;
+      property BottomAutoFromHidden_Ratio: Single read GetBottomAutoFromHidden_Ratio write FSizeRatios.BottomAutoFromHidden;
+      function PanelReducedToHidden(Panel: TNEntriesPanel): boolean;
+      property MaximizedPanel: TNEntriesPanelBase read FMaximizedPanel write SetMaximizedPanel;
+      property FocusedPanel: TNEntriesPanelBase read FFocusedPanel write FFocusedPanel;
+  end;
+
+  TNNodeUIConfigList = TSimpleObjList<TNNodeUIConfiguration>;   // TList<TNNodeUIConfiguration>;
 
 
   // [*] -> Folder properties saved to .knt
@@ -80,6 +145,7 @@ type
     FID : Cardinal;               // [*] unique folder ID
     FKntFile: TObject;
     fNNodes: TNoteNodeList;
+    fNNodesUIConfig: TNNodeUIConfigList;
 
     FEditorChrome : TChrome;      // [*] user-defined fonts, colors etc.
     FName : TNoteNameStr;         // [*] user-defined name for the folder object
@@ -95,6 +161,7 @@ type
     FTabSize : byte;               // [*]
     FUseTabChar : boolean;         // [*]
     FRTL : boolean;                // [*]
+    FZoomGoal: integer;
 
     FIsInsertMode : boolean;
     FInfo : Byte;                 // internal use only
@@ -168,6 +235,8 @@ type
     procedure UpdateLoadingLevels;
 
   public
+    NoteAdvOptions: TNoteAdvancedOptions;
+
     class function NewKntFolder(const DefaultFolder, CanFocus : boolean) : boolean;
     class procedure CreateNewKntFolder;
     class procedure DeleteKntFolder;
@@ -177,6 +246,7 @@ type
     property ID : Cardinal read FID write SetID;
     property Name : string read fName write SetName;
     property NNodes: TNoteNodeList read fNNodes;
+    property NNodesUIConfig: TNNodeUIConfigList read fNNodesUIConfig;
 
     property EditorChrome : TChrome read FEditorChrome write SetEditorChrome;
     property ImageIndex : integer read FImageIndex write SetImageIndex;
@@ -197,6 +267,7 @@ type
     property TagSelectorDisabled : boolean read FTagSelectorDisabled write FTagSelectorDisabled;
     property IsInsertMode : boolean read FIsInsertMode write FIsInsertMode;
     property FocusMemory : TFocusMemory read FFocusMemory write FFocusMemory;
+    property ZoomGoal: integer read FZoomGoal write FZoomGoal;
 
     property IconKind : TNodeIconKind read FIconKind write FIconKind;
     property TreeWidth : integer read FTreeWidth write FTreeWidth;
@@ -209,7 +280,6 @@ type
     property Checkboxes : boolean read FCheckboxes write FCheckboxes;
     property TreeChrome : TChrome read FTreeChrome write SetTreeChrome;
     property DefaultNoteName : string read FDefaultNoteName write FDefaultNoteName;
-    //property AutoNumberNodes : boolean read FAutoNumberNotes write FAutoNumberNotes;
     property VerticalLayout : boolean read FVerticalLayout write FVerticalLayout;
     property TreeHidden : boolean read FTreeHidden write FTreeHidden;
     property EditorInfoPanelHidden : boolean read FEditorInfoPanelHidden write SetEditorInfoPanelHidden;
@@ -228,9 +298,9 @@ type
     destructor Destroy; override;
 
 
-    procedure LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+    procedure LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; PanelsToLoad: TPanelsToLoad = plAll);
     procedure ReloadEditorFromDataModel(SavePreviousContent: boolean= true);
-    function  SaveEditorToDataModel: TMemoryStream;
+    procedure SaveEditorToDataModel;
     procedure SetEditorProperties( const aProps : TFolderEditorProperties );
     procedure GetEditorProperties( var aProps : TFolderEditorProperties );
     procedure SetFocusOnNoteEditor;
@@ -258,6 +328,15 @@ type
     function GetFocusedNNode : TNoteNode;
     property FocusedNNode : TNoteNode read GetFocusedNNode;
 
+    function GetNNodeUIConfig(NNode : TNoteNode; QueryLayout: boolean): TNNodeUIConfiguration;
+    function AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
+    procedure ResetZoomCurrent(Zoom: integer);
+    procedure DeleteNNodesUIConfig(QueryLayout: boolean);
+    procedure ResetMEPanelsCustomiz;
+    procedure ClearFilterInfo(NEntry: TNoteEntry);
+    procedure GetNNodeUIConfigs(NNode : TNoteNode; var NNodeUIConfigQL: TNNodeUIConfiguration; var NNodeUIConfigEL: TNNodeUIConfiguration);
+    function SaveNNodesUIConfigToString(NNode : TNoteNode): string;
+
     procedure NoteNameModified(NNode: TNoteNode);
 
     function GetImagesInstances: TImageIDs;
@@ -270,12 +349,18 @@ type
 
     procedure LoadFromFile( var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; LoadOldSimpleNote: boolean= false);
     procedure LoadFromTreePadFile( const FN : string );
-    function SaveToFile( var tf : TTextFile;  OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false): integer;
+    function SaveToFile(var tf : TTextFile;
+                        ExportingMode: boolean = false;
+                        OnlyCurrentNodeAndSubtree: PVirtualNode= nil; OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
+                        ExportEncryptedContent: boolean = false;
+                        ExportFoundNodes: TNodeList = nil ): integer;
+
     procedure GetNotesToBeSaved(NoteList: TNoteList;
                                 OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                                 OnlyNotHiddenNodes: boolean= false;
-                                OnlyCheckedNodes: boolean= false );
+                                OnlyCheckedNodes: boolean= false;
+                                ExportEncryptedContent: boolean = false;
+                                SaveFoundNotes: TNoteList = nil);
 
     property LoadingLevels: TIntegerList read FLoadingLevels;
   protected
@@ -292,12 +377,20 @@ type
 
 
     function InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit ): boolean;
-    function PrepareTextPlain (NNode: TNoteNode; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
-
   end; // TKntFolder
 
   function InitializeTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit): boolean;
+  function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string; overload;
+  function PrepareTextPlain(NEntry: TNoteEntry; ClearRTFAux: boolean= False): string; overload;
   procedure LoadStreamInRTFAux(Stream: TMemoryStream; RTFAux: TAuxRichEdit); forward;
+
+
+const SPLT_WIDTH = 2;
+const RATIO_EQUIV_HIDDEN = 0.004;
+const RATIO_EQUIV_HIDDEN_Check = 0.0041;           // RATIO_EQUIV_HIDDEN will not be saved exactly as 0.004
+const HEIGHT_REDUCED_TO_HIDDEN = 4;
+
+
 
 implementation
 uses
@@ -323,6 +416,8 @@ uses
    kn_History,
    kn_KntFile,
    knt.App,
+   knt.ui.note,
+   knt.ui.TagMng,
    knt.RS
    ;
 
@@ -357,6 +452,7 @@ begin
         myFolder.EditorChrome := DefaultEditorChrome;
         myFolder.SetTreeProperties( DefaultTreeProperties );
         myFolder.TreeChrome := DefaultTreeChrome;
+        myFolder.NoteAdvOptions:= DefaultNoteAdvOptions;
       end
       else begin
         Form_NewNote := TForm_NewKntFolder.Create( Form_Main );
@@ -364,6 +460,7 @@ begin
           with Form_NewNote do begin
             ShowHint := KeyOptions.ShowTooltips;
             myEditorProperties := DefaultEditorProperties;
+            myNoteAdvOptions:= DefaultNoteAdvOptions;
             myTabProperties := DefaultTabProperties;
             myChrome :=  DefaultEditorChrome;
             myTabNameHistory := KeyOptions.TabNameHistory;
@@ -378,6 +475,7 @@ begin
             KeyOptions.TabNameHistory := Form_NewNote.myTabNameHistory;
             myFolder := TKntFolder.Create (ActiveFile);
             myFolder.SetEditorProperties( Form_NewNote.myEditorProperties );
+            myFolder.NoteAdvOptions:= Form_NewNote.myNoteAdvOptions;
             myFolder.SetTabProperties( Form_NewNote.myTabProperties );
             myFolder.EditorChrome := Form_NewNote.myChrome;
             KeyOptions.NodeNameHistory := Form_NewNote.myNodeNameHistory;
@@ -533,6 +631,61 @@ var
   F: TKntFolder;
   NewPropertiesAction : TPropertiesAction;
   TreeUI: TKntTreeUI;
+  ChangeInQL, ChangeInEL, Note_RefreshNeeded, Note_ResetMECustomizNeeded, Note_ReloadNeeded: boolean;
+  ActiveNoteInQL: boolean;
+
+
+  procedure CheckChangesInNoteAdvOptions;
+  var
+    pnl: TNEntriesMainPanel;
+
+  begin
+    ChangeInQL:= false;
+    ChangeInEL:= false;
+    Note_RefreshNeeded:= false;
+    Note_ResetMECustomizNeeded:= false;
+    Note_ReloadNeeded:= false;
+
+    with Form_Defaults do begin
+
+       for pnl := Low(pnl) to High(pnl) do begin
+          if not myNoteAdvOptions.DefaultEnabledForQL[pnl] and (myFolder.NoteAdvOptions.DefaultUseForQL[pnl] = pnuHidePanel) then continue;
+
+          if ((myNoteAdvOptions.DefaultUseForQL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForQL[pnl]) or
+             (myNoteAdvOptions.LinkedTagsForQL[pnl] <> myFolder.NoteAdvOptions.LinkedTagsForQL[pnl]))      then begin
+             ChangeInQL:= true;
+             break;
+          end;
+       end;
+
+       for pnl := Low(pnl) to High(pnl) do begin
+          if not myNoteAdvOptions.DefaultEnabledForEL[pnl] and (myFolder.NoteAdvOptions.DefaultUseForEL[pnl] = pnuHidePanel) then continue;
+
+          if (myNoteAdvOptions.DefaultUseForEL[pnl] <> myFolder.NoteAdvOptions.DefaultUseForEL[pnl]) or
+             (myNoteAdvOptions.LinkedTagsForEL[pnl] <> myFolder.NoteAdvOptions.LinkedTagsForEL[pnl])      then begin
+             ChangeInEL:= true;
+             break;
+          end;
+       end;
+
+       if UpdatedMECustomization then
+          Note_ResetMECustomizNeeded:= true;
+
+       if MECustomizationRestoreDefaults or
+          (myNoteAdvOptions.FirstLinesOfText_MaxLength <> myFolder.NoteAdvOptions.FirstLinesOfText_MaxLength) or
+          (myNoteAdvOptions.FirstLinesOfText_MaxLines  <> myFolder.NoteAdvOptions.FirstLinesOfText_MaxLines)       then
+          Note_RefreshNeeded:= true;
+
+       if MECustomizationRestoreDefaults or
+          (myNoteAdvOptions.EditorInfoBarPos        <> myFolder.NoteAdvOptions.EditorInfoBarPos) or
+          (myNoteAdvOptions.EnableAdvEditionInSingleEntryNotes <> myFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes) or
+          (myNoteAdvOptions.ShowNewestEntryAtStartup           <> myFolder.NoteAdvOptions.ShowNewestEntryAtStartup)  then
+          Note_ReloadNeeded:= true;
+
+    end;
+
+  end;
+
 
 begin
   myFile:= ActiveFile;
@@ -549,6 +702,7 @@ begin
       oldShowCheckboxes := false;
 
       try
+       TagMng.OfferTagSelectorInModalForm(True, Form_Defaults);
 
         with Form_Defaults do begin
           ShowHint := KeyOptions.ShowTooltips;
@@ -570,6 +724,7 @@ begin
               myEditorChrome := myFolder.EditorChrome;
               myFolder.GetTabProperties( myTabProperties );
               myFolder.GetEditorProperties( myEditorProperties );
+              myNoteAdvOptions:= myFolder.NoteAdvOptions;
 
               myEditorProperties.DefaultZoom:= DefaultEditorProperties.DefaultZoom;    // Just for show it
 
@@ -623,6 +778,7 @@ begin
 
               myTreeChrome := DefaultTreeChrome;
               myTreeProperties := DefaultTreeProperties;
+              myNoteAdvOptions:= DefaultNoteAdvOptions;
             end;
 
           end;
@@ -630,6 +786,7 @@ begin
 
         if ( Form_Defaults.ShowModal = mrOK ) then begin
 
+          ActiveNoteInQL:= not ActiveFile.GetNoteIsOnEditingLayout(ActiveNNode.Note);
           with Form_Defaults do begin
             NewPropertiesAction:= Action;        // User can now select the check 'Save as Defaults'
 
@@ -644,6 +801,9 @@ begin
                 myFolder.SetTabProperties( myTabProperties, not (NewPropertiesAction = propDefaults));
                 myFolder.SetEditorProperties( myEditorProperties );
                 myFolder.EditorChrome := myEditorChrome;
+
+                CheckChangesInNoteAdvOptions;
+                myFolder.NoteAdvOptions:= myNoteAdvOptions;
 
                 // reflect changes in controls
                 UpdateEditor (myFolder.Editor, myFolder, true);
@@ -679,7 +839,30 @@ begin
                 TreeUI.UpdateTreeChrome;
                 TreeUI.UpdateTreeColumns;
 
+                if ChangeInQL or ChangeInEL or Note_ResetMECustomizNeeded or Note_ReloadNeeded then
+                   myFolder.NoteUI.SaveToDataModel;
 
+                if Note_ResetMECustomizNeeded then begin
+                   myFolder.ResetMEPanelsCustomiz;
+                   if Note_ReloadNeeded then
+                      myFolder.NoteUI.ClearFilterInfoInAllEntries;
+                end;
+
+                if ChangeInQL or ChangeInEL then begin
+                   if ChangeInQL then
+                      myFolder.DeleteNNodesUIConfig(true);
+                   if ChangeInEL then
+                      myFolder.DeleteNNodesUIConfig(false);
+
+                   if (ChangeInQL and ActiveNoteInQL) or (ChangeInEL and not ActiveNoteInQL) then
+                      myFolder.NoteUI.LoadFromNNode(ActiveNNode, false, neLastLayout);
+                end
+                else
+                if Note_ReloadNeeded then
+                   myFolder.NoteUI.LoadFromNNode(ActiveNNode, false, neLastLayout)
+                else
+                if Note_RefreshNeeded then
+                   myFolder.NoteUI.RefreshHeaderOfEntries(nil);
             end;
 
             if ApplyTreeChromeToAllFolders and HaveKntFolders( false, true ) then begin
@@ -709,6 +892,7 @@ begin
 
                 DefaultEditorChrome := myEditorChrome;
                 DefaultEditorProperties := myEditorProperties;
+                DefaultNoteAdvOptions:= myNoteAdvOptions;
                 DefaultTabProperties := myTabProperties;
                 DEFAULT_NEW_FOLDER_NAME := DefaultTabProperties.Name;
 
@@ -730,11 +914,12 @@ begin
           end;
 
           if myFolder <> nil then
-             myFolder.Editor.RestoreZoomGoal;
+             myFolder.NoteUI.RestoreZoomGoal;
 
         end;
 
       finally
+        TagMng.OfferTagSelectorInModalForm(false, nil);
         if myFolder <> nil then
            myFolder.Editor.UpdateCursorPos;
         UpdateFolderDisplay;
@@ -800,6 +985,7 @@ begin
   FTabSize := DEF_TAB_SIZE;
   FUseTabChar := false;
   FIsInsertMode := true;
+  FZoomGoal:= DefaultEditorProperties.DefaultZoom;
 
   FHistory := TKNTHistory.Create;
 
@@ -819,10 +1005,39 @@ begin
   //FAutoNumberNotes := false;
   FVerticalLayout := false;
   InitializeChrome( FTreeChrome );
+  NoteAdvOptions:= DefaultNoteAdvOptions;
   FDefaultNoteName := DEFAULT_NEW_NOTE_NAME;
   fNNodes := TNoteNodeList.Create;
+  fNNodesUIConfig := TNNodeUIConfigList.Create;
   FLoadingLevels:= TIntegerList.Create;
   FEditorInfoPanelHidden:= false;
+
+ {$IF Defined(DEBUG) AND Defined(KNT_DEBUG)}
+ {
+  // Example ***
+  var Tags1, Tags2: TNoteTagArray;
+  SetLength(Tags1, 1);
+  if TKntFile(FKntFile).NoteTags.Count = 0 then
+     TKntFile(FKntFile).AddNTag('ToDO', 'TEST');
+  Tags1[0]:= TKntFile(FKntFile).NoteTags[0];
+  NoteAdvOptions.DefaultUseForQL[pnTL]:= pnuShowTagLinkedEntries;
+  NoteAdvOptions.LinkedTagsForQL[pnTL]:= Tags1;
+  NoteAdvOptions.DefaultUseForQL[pnBL] := pnuShowSelectedEntry;
+  NoteAdvOptions.DefaultUseForQL[pnCenter] := pnuShowAllEntries;
+
+  NoteAdvOptions.DefaultUseForEL[pnTL] := pnuShowTagLinkedEntries;
+  NoteAdvOptions.DefaultUseForEL[pnCenter] := pnuShowSelectedEntry;
+  NoteAdvOptions.DefaultUseForEL[pnBL] := pnuShowAllEntries;
+  NoteAdvOptions.LinkedTagsForEL[pnTL]:= Tags1;
+
+  SetLength(Tags2, 1);
+  if TKntFile(FKntFile).NoteTags.Count <= 1 then
+     TKntFile(FKntFile).AddNTag('BUG', 'TEST');
+  Tags2[0]:= TKntFile(FKntFile).NoteTags[1];
+  NoteAdvOptions.DefaultUseForEL[pnTR] := pnuShowTagLinkedEntries;
+  NoteAdvOptions.LinkedTagsForEL[pnTR]:= Tags2;
+}
+{$ENDIF}
 
 end; // CREATE
 
@@ -856,6 +1071,13 @@ begin
 
        fNNodes.Free;
     end;
+
+    if fNNodesUIConfig <> nil then begin
+       for i := 0 to fNNodesUIConfig.Count-1 do
+           fNNodesUIConfig[i].Free;
+       fNNodesUIConfig.Free;
+    end;
+
 
   except
   end;
@@ -1173,7 +1395,7 @@ begin
    end;
 
    if (CopyFromNNode = nil) then
-       NNode.Note.Entries[0].IsPlainTXT := Self.DefaultPlainText;
+       NNode.Note.Entries[0].IsPlainTXT := Self.DefaultPlainText;     // New created note, with a single entry at first
 
    Result:= NNode;
 end;
@@ -1204,7 +1426,7 @@ end;
 
 procedure TKntFolder.NoNodeInTree;
 begin
-   NoteUI.LoadFromNNode(nil, true);
+   NoteUI.LoadFromNNode(nil, true, neQueryLayout);
 end;
 
 
@@ -1263,6 +1485,145 @@ end;
 
 {$ENDREGION}
 
+
+// NNodes UI Config  =========================================
+
+{$REGION NNodes UI Config }
+
+function TKntFolder.GetNNodeUIConfig(NNode : TNoteNode; QueryLayout: boolean): TNNodeUIConfiguration;
+var
+  i: integer;
+begin
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     Result:= NNodesUIConfig[i];
+     if (Result.NNode = NNode) and (Result.FQueryLayout = QueryLayout) then exit;
+  end;
+  Result:= nil;
+end;
+
+function TKntFolder.AddNNodeUIConfig(NNodeUIConfig: TNNodeUIConfiguration): integer;
+begin
+  Result:= NNodesUIConfig.Add(NNodeUIConfig);
+end;
+
+
+procedure TKntFolder.ResetZoomCurrent(Zoom: integer);
+var
+  i, j: integer;
+begin
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do
+        NNodesUIConfig[i].PanelsConfig[j].ZoomCurrent:= Zoom;
+  end;
+end;
+
+
+procedure TKntFolder.DeleteNNodesUIConfig(QueryLayout: boolean);
+var
+  i: integer;
+  Config: TNNodeUIConfiguration;
+begin
+  for i:= NNodesUIConfig.Count-1 downto 0 do begin
+     Config:= NNodesUIConfig[i];
+     if (Config.FQueryLayout = QueryLayout) then begin
+         NNodesUIConfig.Remove(Config);
+         Config.Free;
+     end;
+  end;
+end;
+
+procedure TKntFolder.ResetMEPanelsCustomiz;
+var
+  i, j: integer;
+  pnl: TNEntriesMainPanel;
+begin
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     if NNodesUIConfig[i].FQueryLayout then
+        NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosQL
+     else
+        NNodesUIConfig[i].InternalSizeRatios:= NoteAdvOptions.SizeRatiosEL;
+
+     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
+        NNodesUIConfig[i].PanelsConfig[j].ClearCustomizeInfo(nil);
+
+        pnl:= NNodesUIConfig[i].PanelsConfig[j].Panel;
+        if NNodesUIConfig[i].FQueryLayout then
+           NNodesUIConfig[i].PanelsConfig[j].MECustomiz:=  NoteAdvOptions.DefaultMECustomizForQL[pnl]
+        else
+           NNodesUIConfig[i].PanelsConfig[j].MECustomiz:=  NoteAdvOptions.DefaultMECustomizForEL[pnl];
+
+        if (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode <> nil) and (NNodesUIConfig[i].PanelsConfig[j].SelectedNNode.Note.NumEntries = 1) then
+           NNodesUIConfig[i].PanelsConfig[j].MECustomiz.Filter.Enabled:= false;
+     end;
+  end;
+
+end;
+
+
+procedure TKntFolder.ClearFilterInfo (NEntry: TNoteEntry);
+var
+  i, j: integer;
+begin
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     for j:= 0 to High(NNodesUIConfig[i].PanelsConfig) do begin
+        NNodesUIConfig[i].PanelsConfig[j].ClearCustomizeInfo(NEntry);
+     end;
+  end;
+
+end;
+
+
+procedure TKntFolder.GetNNodeUIConfigs(NNode : TNoteNode; var NNodeUIConfigQL: TNNodeUIConfiguration; var NNodeUIConfigEL: TNNodeUIConfiguration);
+var
+  i: integer;
+begin
+  NNodeUIConfigQL:= nil;
+  NNodeUIConfigEL:= nil;
+  for i:= 0 to NNodesUIConfig.Count-1 do begin
+     if (NNodesUIConfig[i].NNode = NNode) then begin
+        if NNodesUIConfig[i].FQueryLayout then
+           NNodeUIConfigQL:= NNodesUIConfig[i]
+        else
+           NNodeUIConfigEL:= NNodesUIConfig[i];
+
+        if (NNodeUIConfigQL <> nil) and (NNodeUIConfigEL <> nil) then exit;
+     end;
+  end;
+end;
+
+
+function TKntFolder.SaveNNodesUIConfigToString(NNode : TNoteNode): string;
+var
+  NNodeUIConfigQL, NNodeUIConfigEL: TNNodeUIConfiguration;
+
+begin
+  Result:= '';
+
+  {  Only those TNNodeUIConfiguration objects are saved that contain changes —-relative to the configuration stored in the folder (for a given panel and layout)--
+     in the MECustomiz property of any PanelConfig (among the panels currently in use), or in the size ratios of any of the panels.
+
+     For each TNNodeUIConfiguration object, only the field indicating the layout, the size ratio fields, and the MECustomiz properties for each
+     PanelConfig are saved. The maximized state of the current panel is not preserved. }
+
+  GetNNodeUIConfigs(NNode, NNodeUIConfigQL, NNodeUIConfigEL);
+  if (NNodeUIConfigQL = nil) and (NNodeUIConfigEL = nil) then exit;
+
+  if (NNodeUIConfigQL <> nil) then
+     Result:= NNodeUIConfigQL.ToString;
+
+  if (NNodeUIConfigEL <> nil) then begin
+     if Result <> '' then
+        Result:= Result + #13#10;
+
+     Result:= Result + NNodeUIConfigEL.ToString;
+  end;
+
+end;
+
+
+
+
+{$ENDREGION}
 
 
 // Virtual Notes  =========================================
@@ -1580,7 +1941,6 @@ begin
   FCheckboxes := aProps.CheckBoxes;
   FIconKind := aProps.IconKind;
   FDefaultNoteName := aProps.DefaultName;
-  //FAutoNumberNotes := aProps.AutoNumberNodes;
   if FVerticalLayout <> aProps.VerticalLayout then
      FTreeMaxWidth:= -Abs(FTreeMaxWidth);
   FVerticalLayout := aProps.VerticalLayout;
@@ -1595,7 +1955,6 @@ begin
   aProps.CheckBoxes := FCheckboxes;
   aProps.IconKind := FIconKind;
   aProps.DefaultName := FDefaultNoteName;
-  //aProps.AutoNumberNodes := FAutoNumberNotes;
   aProps.VerticalLayout := FVerticalLayout;
   aProps.HideChecked:= FHideCheckedNodes;
   aProps.PosDateCol := FPosDateCol;
@@ -1635,20 +1994,22 @@ end;
 // TODO: We will have to manage the possible multiple entries of a note.
 // FOR THE MOMENT we will work with what we will assume is the only entry
 
-procedure TKntFolder.LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean);
+procedure TKntFolder.LoadEditorFromNNode(NNode: TNoteNode; SavePreviousContent: boolean; PanelsToLoad: TPanelsToLoad = plAll);
 var
   Node: PVirtualNode;
   HintStatusBar: string;
   EnableInsertImg: boolean;
 
 begin
+  // PanelsToLoad: See comment *2 in KntFileOpen (kn_NoteFileMng)
+
   if NNode = nil then exit;
 
   Log_StoreTick('TKntNoteFolder.LoadEditorFromNNode - BEGIN', 3, +1);
 
   with Form_Main do begin
       try
-        NoteUI.LoadFromNNode(NNode, SavePreviousContent);
+        NoteUI.LoadFromNNode(NNode, SavePreviousContent, neLastLayout, false,nil, PanelsToLoad);
 
         if assigned(NNode) then begin
              Node:= NNode.TVNode;
@@ -1702,12 +2063,9 @@ begin
 end;
 
 
-{
-  If Editor was modified then it will return the Stream associated to the node that will be updated
-}
-function TKntFolder.SaveEditorToDataModel: TMemoryStream;
+procedure TKntFolder.SaveEditorToDataModel;
 begin
-  Result:= NoteUI.SaveToDataModel;
+  NoteUI.SaveToDataModel;
 end;
 
 
@@ -1805,7 +2163,7 @@ end;
 
 function TKntFolder.InitializeTextPlainVariables( nMax: integer; RTFAux: TAuxRichEdit): boolean;
 var
-  i, N: integer;
+  i, j, N: integer;
   NEntry: TNoteEntry;
   LastTick, Tick: integer;
 
@@ -1825,29 +2183,41 @@ begin
         end;
      end;
 
-     NEntry:= NNodes[i].Note.Entries[0];                  // %%%
-     if InitializeTextPlain (NEntry, RTFAux) then
-        inc (N);
+     for j := 0 to High(NNodes[i].Note.Entries) do begin
+        NEntry:= NNodes[i].Note.Entries[j];
+        if InitializeTextPlain (NEntry, RTFAux) then
+           inc (N);
 
-     if N >= nMax then Exit;
+        if N >= nMax then Exit;
+     end;
+
   end;
 
   Result:= true;
 end;
 
 // myTreeNode must be active node in folder, so that the Editor is showing its content
-function TKntFolder.PrepareTextPlain(NNode: TNoteNode; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
-var
-   NEntry: TNoteEntry;
+function PrepareTextPlain(NEntry: TNoteEntry; RTFAux: TAuxRichEdit; ClearRTFAux: boolean= False): string;
 begin
-   if NoteUI.Editor.Modified then
-      NoteUI.SaveToDataModel;
+   if not CreatingNewEntry then
+      App.SaveEditorModifiedWithNEntry(NEntry);
 
-   NEntry:= NNode.Note.Entries[0];         // %%%
    InitializeTextPlain(NEntry, RTFAux);
    if ClearRTFAux and (RTFAux.TextLength > 0) then
       RTFAux.Clear;
    Result:= NEntry.TextPlain;
+end;
+
+function PrepareTextPlain(NEntry: TNoteEntry; ClearRTFAux: boolean= False): string;
+var
+   RTFAux: TAuxRichEdit;
+begin
+   RTFAux:= CreateAuxRichEdit;
+   try
+      Result:= PrepareTextPlain(NEntry, RTFAux, ClearRTFAux);
+   finally
+      RTFAux.Free;
+   end;
 end;
 
 
@@ -2192,18 +2562,24 @@ end;
 
 {$REGION Load / Save }
 
-function TKntFolder.SaveToFile( var tf : TTextFile; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                               OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false ): integer;
+function TKntFolder.SaveToFile(var tf : TTextFile;
+                               ExportingMode: boolean = false;
+                               OnlyCurrentNodeAndSubtree: PVirtualNode= nil; OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
+                               ExportEncryptedContent: boolean = false;
+                               ExportFoundNodes: TNodeList = nil ): integer;
 var
   Node : PVirtualNode;
   nodessaved : integer;
   wasmismatch : boolean;
   LastSavedLevel: integer;
+  NumNodesToSave: integer;
 
   procedure SaveNNode(Node: PVirtualNode);
   var
      NNode : TNoteNode;
      Level: integer;
+     str: string;
+
   begin
      NNode:= TreeUI.GetNNode(Node);
 
@@ -2240,9 +2616,56 @@ var
 
       AlarmMng.SaveAlarms(tf, NNode, Self);
 
+      str:= SaveNNodesUIConfigToString(NNode);
+      if str <> '' then
+         tf.WriteLine(str, true);
+
+
       inc(nodessaved);
   end;
 
+  function SaveNNodes(DoSave: boolean): integer;
+  begin
+    Result:= 0;
+
+    if not ExportingMode then begin
+       Node := TV.GetFirst;
+       while assigned(Node) do begin
+           inc(Result);
+           SaveNNode(Node);
+           Node := TV.GetNext(Node);
+       end;
+    end
+    else begin
+        // obtain first node
+        if OnlyCurrentNodeAndSubtree <> nil then
+           Node := OnlyCurrentNodeAndSubtree
+        else
+           Node := TV.GetFirst;
+
+        while assigned(Node) do begin
+          if not ( (OnlyCheckedNodes   and (Node.CheckState <> csCheckedNormal)) or
+                   (OnlyNotHiddenNodes and not TV.IsVisible[Node])                     )  then begin
+              if ((ExportFoundNodes = nil) or (ExportFoundNodes.IndexOf(Node) >= 0)) and
+                 (ExportEncryptedContent or not GetNNode(Node).Note.IsEncrypted )        then begin
+
+                 inc(Result);
+                 if DoSave then
+                    SaveNNode(Node);
+              end;
+          end;
+
+          // obtain next node, or bail out if NIL
+          Node := TV.GetNext(Node);
+          if OnlyCurrentNodeAndSubtree <> nil then begin
+              if (OnlyCurrentNodeAndSubtree.NextSibling = Node) then
+                 Node := nil;
+          end;
+        end;
+
+    end
+
+  end;
 
 begin
   nodessaved := 0;
@@ -2255,6 +2678,15 @@ begin
          raise EKntFolderError.Create(GetRS(sFld07));
 
   end;
+
+  if ExportingMode then begin
+     NumNodesToSave:= SaveNNodes(False);      // False: only count
+     if NumNodesToSave = 0 then
+        exit;
+  end
+  else
+     NumNodesToSave:= fNNodes.Count;
+
 
 
   if assigned( TV.FocusedNode ) then
@@ -2302,30 +2734,14 @@ begin
     tf.WriteLine( _CHTRFontSize + '=' + FTreeChrome.Font.Size.ToString );
     tf.WriteLine( _CHTRFontStyle + '=' + FontStyleToStr( FTreeChrome.Font.Style ) );
 
+    tf.WriteLine(_FolderAdvOptions + '=' + NoteAdvOptions.ToString, True);
 
-    tf.WriteLine(_NumNNodes + '=' + fNNodes.Count.ToString);
+
+    tf.WriteLine(_NumNNodes + '=' + NumNodesToSave.ToString);
 
     LastSavedLevel:= -1;
 
-    // obtain first node
-    if OnlyCurrentNodeAndSubtree <> nil then
-       Node := OnlyCurrentNodeAndSubtree
-    else
-       Node := TV.GetFirst;
-
-    while assigned(Node) do begin
-      if not ( (OnlyCheckedNodes   and (Node.CheckState <> csCheckedNormal)) or
-               (OnlyNotHiddenNodes and not TV.IsVisible[Node])
-                )  then
-          SaveNNode(Node);
-
-      // obtain next node, or bail out if NIL
-      Node := TV.GetNext(Node);
-      if OnlyCurrentNodeAndSubtree <> nil then begin
-          if (OnlyCurrentNodeAndSubtree.NextSibling = Node) then
-             Node := nil;
-      end;
-    end;
+    NumNodesToSave:= SaveNNodes(True);      // True: Do Save
 
     Modified := false;
 
@@ -2341,12 +2757,14 @@ end; // SaveToFile
 
 
 procedure TKntFolder.GetNotesToBeSaved(NoteList: TNoteList;
-                                      OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
-                                      OnlyNotHiddenNodes: boolean= false;
-                                      OnlyCheckedNodes: boolean= false );
+                                       OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
+                                       OnlyNotHiddenNodes: boolean= false;
+                                       OnlyCheckedNodes: boolean= false;
+                                       ExportEncryptedContent: boolean = false;
+                                       SaveFoundNotes: TNoteList = nil);
 var
   Node : PVirtualNode;
-  NNode: TNoteNode;
+  Note: TNote;
 
 begin
 
@@ -2360,9 +2778,12 @@ begin
     if not ( (OnlyCheckedNodes   and (Node.CheckState <> csCheckedNormal)) or
              (OnlyNotHiddenNodes and not TV.IsVisible[Node])
               )  then begin
-        NNode:= TreeUI.GetNNode(Node);
-        if NoteList.IndexOf(NNode.Note) < 0 then
-           NoteList.Add(NNode.Note);
+        Note:= TreeUI.GetNNode(Node).Note;
+
+        if ((SaveFoundNotes = nil) or (SaveFoundNotes.IndexOf(Note) >= 0)) and
+            (ExportEncryptedContent or not Note.IsEncrypted) then
+          if NoteList.IndexOf(Note) < 0 then
+             NoteList.Add(Note);
     end;
 
     // obtain next node, or bail out if NIL
@@ -2426,6 +2847,7 @@ var
   Note: TNote;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
+  NNodeUIConfig: TNNodeUIConfiguration;
   GID: Cardinal;
   VirtualFN, RelativeVirtualFN: string;
   C: TColor;
@@ -2620,9 +3042,9 @@ begin
               else
               if ( key = _NEntrySelStart ) then begin
                   if _SAVE_RESTORE_CARETPOS then
-                     Note.SelStart := StrToIntDef( s, 0 )
+                     Note.SSImLink := StrToIntDef( s, 0 )
                   else
-                     Note.SelStart := 0;
+                     Note.SSImLink := 0;
               end
               else
               if ( key = _NodeImageIndex ) then
@@ -2657,7 +3079,7 @@ begin
               if ( key = _NodeDC_DM ) then begin
                   var DC,DM: TDateTime;
                   if OldCreationAndModificationDates( s, DC, DM) then begin
-                     Note.Entries[0].Created:= DC;
+                     Note.Entries[0].Created:= DC;             // _NodeDC_DM: "NT" Used in Keynote v.1.6.9: creation and modification dates of nodes  (No multiple entries in that version)
                      Note.LastModified:= DM;
                   end;
               end;
@@ -2775,7 +3197,13 @@ begin
               end
               else
               if ( key = _NodeAlarm ) then
-                  AlarmMng.ProcessAlarm(s, NNode, Self);
+                  AlarmMng.ProcessAlarm(s, NNode, Self)
+              else
+              if ( key = _NodeUIConfig ) then begin
+                 NNodeUIConfig:= TNNodeUIConfiguration.CreateFromString (NNode.GID, Self, TryUTF8ToUnicodeString(s));
+                 if NNodeUIConfig <> nil then
+                    AddNNodeUIConfig(NNodeUIConfig);
+              end;
 
               continue;
            end; // if InNoteNode ...
@@ -2863,6 +3291,13 @@ begin
      if ( key = _FolderName ) then
          FName := TryUTF8ToUnicodeString(s)
      else
+     if ( key = _FolderAdvOptions ) then begin
+         var ErrorsLoading: boolean;
+         NoteAdvOptions.LoadFromString(TryUTF8ToUnicodeString(s), ErrorsLoading);
+         if ErrorsLoading then
+            App.WarningPopup(Format(GetRS(sFile29),[Self.Name]));
+     end
+     else
      if ( key = _FolderID ) then
          FID := StrToUIntDef( s, 0 )        // 0 -> owning file will generate new ID when note is added
      else
@@ -2935,7 +3370,7 @@ begin
                 level := StrToIntDef(s, 0);
                 NNode:= TKntFile(KntFile).AddLoadedNote(Self);
                 Note:= NNode.Note;
-                NEntry:= Note.Entries[0];
+                NEntry:= Note.Entries[0];       // A TreePad file does not use multiple entries
                 Note.Name:= nodeName;
                 LoadingLevels.Add(level);
 
@@ -3064,6 +3499,731 @@ begin
 end;
 
 {$ENDREGION }
+
+
+// TNNodeUIConfiguration =========================================
+
+{$REGION TNNodeUIConfiguration}
+
+//=====  TNNodeUIConfiguration ================
+
+constructor TNNodeUIConfiguration.Create (NNode: TNoteNode; Folder: TKntFolder; QueryLayout: boolean);
+begin
+  FNNode:= NNode;
+  with FSizeRatios do begin
+    Top:= 0;
+    Bottom:= 0;
+    TLTR:= 0;
+    BLBR:= 0;
+  end;
+  FFolder:= Folder;
+  FQueryLayout:= QueryLayout;
+end;
+
+destructor TNNodeUIConfiguration.Destroy;
+var
+   i: integer;
+begin
+   for i:= 0 to Length(PanelsConfig)-1 do
+       PanelsConfig[i].Free;
+end;
+
+function TNNodeUIConfiguration.GetTopAutoFromHidden_Ratio: Single;
+begin
+   Result:= FSizeRatios.TopAutoFromHidden;
+   if Result <= 0 then
+      if FQueryLayout then
+         Result:= FFolder.NoteAdvOptions.SizeRatiosQL.TopAutoFromHidden
+      else
+         Result:= FFolder.NoteAdvOptions.SizeRatiosEL.TopAutoFromHidden;
+end;
+
+function TNNodeUIConfiguration.GetBottomAutoFromHidden_Ratio: Single;
+begin
+   Result:= FSizeRatios.BottomAutoFromHidden;
+   if Result <= 0 then
+      if FQueryLayout then
+         Result:= FFolder.NoteAdvOptions.SizeRatiosQL.BottomAutoFromHidden
+      else
+         Result:= FFolder.NoteAdvOptions.SizeRatiosEL.BottomAutoFromHidden;
+end;
+
+
+function TNNodeUIConfiguration.GetTop_Ratio: Single;
+var
+   NumInTL, NumInTR: integer;
+begin
+   if FMaximizedPanel = pnNone then begin
+      Result:= FSizeRatios.Top;
+      if Result = 0 then
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.Top
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.Top;
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel in [pnTL, pnTR]) then
+            Result:= Max(Result, Max(0.5, GetTopAutoFromHidden_Ratio));
+      end;
+
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin
+         if not (FFocusedPanel in [pnTL, pnTR]) then begin
+            NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
+            NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
+            if (NumInTL = 0) and (NumInTR = 0) and (Result > 0.05) then // (FSizeRatios.Top > 0.05) then
+               Result:= 0.05;
+         end
+         else
+         if PanelReducedToHidden(pnTL) then
+            Result:= GetTopAutoFromHidden_Ratio;
+      end;
+
+   end
+   else
+   if FMaximizedPanel in [pnTL, pnTR] then
+      Result:= 1
+   else
+      Result:= 0;
+end;
+
+function TNNodeUIConfiguration.GetBottom_Ratio: Single;
+var
+   NumInBL, NumInBR: integer;
+begin
+   if FMaximizedPanel = pnNone then begin
+      Result:= FSizeRatios.Bottom;
+      if Result = 0 then
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.Bottom
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.Bottom;
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel in [pnBL, pnBR]) then
+            Result:= Max(Result, Max(0.5, GetBottomAutoFromHidden_Ratio));
+      end;
+
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels then begin
+         if not (FFocusedPanel in [pnBL, pnBR]) then begin
+            NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
+            NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
+            if (NumInBL = 0) and (NumInBR = 0) and (Result > 0.05) then // (FSizeRatios.Bottom > 0.05) then
+               Result:= 0.05;
+         end
+         else
+         if PanelReducedToHidden(pnBL) then
+            Result:= GetBottomAutoFromHidden_Ratio;
+      end;
+
+   end
+   else
+   if FMaximizedPanel in [pnBL, pnBR] then
+      Result:= 1
+   else
+      Result:= 0;
+end;
+
+function TNNodeUIConfiguration.GetTLTR_Ratio: Single;
+var
+   NumInTL, NumInTR: integer;
+begin
+   if FMaximizedPanel = pnNone then begin
+      Result:= FSizeRatios.TLTR;
+      if Result = 0 then
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.TLTR
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.TLTR;
+
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel = pnTL) then
+            Result:= 0.9
+         else
+         if (FFocusedPanel = pnTR) then
+            Result:= 0.1
+      end;
+
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels or not (FFocusedPanel in [pnTL, pnTR]) then begin
+         NumInTL:= FFolder.NoteUI.NumberOfVisibleEntries(pnTL);
+         NumInTR:= FFolder.NoteUI.NumberOfVisibleEntries(pnTR);
+         if ((NumInTL > 0) or (FFocusedPanel = pnTL)) and ((NumInTR = 0) and (FFocusedPanel <> pnTR)) then
+            Result:= 0.95
+         else
+         if ((NumInTR > 0) or (FFocusedPanel = pnTR)) and ((NumInTL = 0) and (FFocusedPanel <> pnTL)) then
+            Result:= 0.05
+      end;
+
+   end
+   else
+   if FMaximizedPanel in [pnTL] then
+      Result:= 1
+   else
+      Result:= 0;
+end;
+
+function TNNodeUIConfiguration.GetBLBR_Ratio: Single;
+var
+   NumInBL, NumInBR: integer;
+begin
+   if FMaximizedPanel = pnNone then begin
+      Result:= FSizeRatios.BLBR;
+      if Result = 0 then
+         if FQueryLayout then
+             Result:= FFolder.NoteAdvOptions.SizeRatiosQL.BLBR
+         else
+             Result:= FFolder.NoteAdvOptions.SizeRatiosEL.BLBR;
+
+      if (FFolder.NoteAdvOptions.AutoExpandInPanels) then begin
+         if (FFocusedPanel = pnBL) then
+            Result:= 0.95
+         else
+         if (FFocusedPanel = pnBR) then
+            Result:= 0.05
+      end;
+
+      if not FFolder.NoteAdvOptions.AutoExpandInPanels or not (FFocusedPanel in [pnBL, pnBR]) then begin
+         NumInBL:= FFolder.NoteUI.NumberOfVisibleEntries(pnBL);
+         NumInBR:= FFolder.NoteUI.NumberOfVisibleEntries(pnBR);
+         if ((NumInBL > 0) or (FFocusedPanel = pnBL)) and ((NumInBR = 0) and (FFocusedPanel <> pnBR)) then
+            Result:= 0.9
+         else
+         if ((NumInBR > 0) or (FFocusedPanel = pnBR)) and ((NumInBL = 0) and (FFocusedPanel <> pnBL)) then
+            Result:= 0.1
+      end;
+
+   end
+   else
+   if FMaximizedPanel in [pnBL] then
+      Result:= 1
+   else
+      Result:= 0;
+end;
+
+
+function TNNodeUIConfiguration.PanelReducedToHidden(Panel: TNEntriesPanel): boolean;
+begin
+
+   case Panel of
+      pnTL, pnTR: Result:= (FSizeRatios.Top > 0) and (FSizeRatios.Top <= RATIO_EQUIV_HIDDEN_Check);
+      pnBL, pnBR: Result:= (FSizeRatios.Bottom > 0) and (FSizeRatios.Bottom <= 30 / TKntNoteUI(FFolder.NoteUI).Height);
+      else
+         Result:= false;
+   end;
+
+end;
+
+
+procedure TNNodeUIConfiguration.SetMaximizedPanel(value: TNEntriesPanelBase);
+begin
+   FMaximizedPanel:= Value;
+end;
+
+
+function TNNodeUIConfiguration.GetCreatedPanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+var
+  i: integer;
+begin
+   for i := 0 to High(PanelsConfig) do begin
+       if (PanelsConfig[i] <> nil) and (PanelsConfig[i].Panel = Panel) then
+          exit(PanelsConfig[i]);
+   end;
+   Result:= nil;
+end;
+
+
+function TNNodeUIConfiguration.PanelConfig(Panel: TNEntriesPanel): TPanelConfiguration;
+begin
+   Result:= GetCreatedPanelConfig(Panel);
+   if Result = nil then
+      Result:= CreateDefaultPanelConfig(Panel, pnuShowAllEntries, FNNode);
+end;
+
+
+function TNNodeUIConfiguration.GetEnabledPanels: TNEntriesPanelEnabledArray;
+var
+  i: integer;
+  pnl: TNEntriesMainPanel;
+begin
+   for Pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do
+      Result[Pnl]:= false;
+
+   for i:= 0 to Length(PanelsConfig) -1 do
+      Result[PanelsConfig[i].Panel]:= True;
+end;
+
+
+function TNNodeUIConfiguration.CreateDefaultPanelConfig (aPanel : TNEntriesPanel; aUse: TNEntriesPanelUse; NNode: TNoteNode): TPanelConfiguration;
+var
+   L: integer;
+begin
+    L:= Length(PanelsConfig);
+    SetLength(PanelsConfig, L + 1);
+
+    Result:= TPanelConfiguration.Create;
+    PanelsConfig[L]:= Result;
+    with Result do begin
+       if FQueryLayout then
+          StLayout:= spInQL
+       else
+          StLayout:= spInEL;
+       Panel:= aPanel;
+       ShowEditorInfoPanel:= False;
+       Hidden:= false;
+       Scope:= fsSelectedNode;
+       Use:= aUse;
+       CurrentMode:= Result.EntryModeForUse;
+       SelectedNNode:= NNode;
+       NNodes:= nil;
+       if FQueryLayout then begin
+          LinkedTags:= FFolder.NoteAdvOptions.LinkedTagsForQL[aPanel];
+          Result.MECustomiz:=  FFolder.NoteAdvOptions.DefaultMECustomizForQL[aPanel];
+       end
+       else begin
+          LinkedTags:= FFolder.NoteAdvOptions.LinkedTagsForEL[aPanel];
+          Result.MECustomiz:=  FFolder.NoteAdvOptions.DefaultMECustomizForEL[aPanel];
+       end;
+       if (NNode <> nil) and (NNode.Note.NumEntries = 1) and (Result.IsFiltered) then
+           Result.MECustomiz.Filter.Enabled:= False;
+
+
+       if (NNode <> nil) and (NNode.Note.SelEntry <> nil) then begin
+          SSImLink:= NNode.Note.SSImLink;
+          SelLength:= NNode.Note.SelLength;
+          SelNEntry:= NNode.Note.SelEntry;
+          ScrollPosInEditor:= NNode.Note.ScrollPosInEditor;
+       end
+       else begin
+          SSImLink:= 0;
+          SelLength:= 0;
+          SelNEntry:= nil;
+          ScrollPosInEditor.X:= 0;
+          ScrollPosInEditor.Y:= 0;
+       end;
+
+       ZoomCurrent:= FFolder.ZoomGoal;
+
+    end;
+
+end;
+
+
+class function TNNodeUIConfiguration.CreateDefault (NNode : TNoteNode; Folder: TKntFolder; QueryLayout: boolean): TNNodeUIConfiguration;
+var
+   p: TNEntriesPanel;
+   EntryID: Word;
+   PnlUse: TNEntriesPanelUse;
+   DefEnabled: boolean;
+begin
+    Result:= TNNodeUIConfiguration.Create(NNode, Folder, QueryLayout);
+    if (NNode = nil) or
+       (not Folder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes and (NNode.Note.NumEntries = 1)) then begin
+
+       Result.CreateDefaultPanelConfig (pnCenter, pnuShowSelectedEntry, NNode);
+       exit;
+    end;
+
+    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+       if QueryLayout then begin
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForQL[p];
+          DefEnabled:= Folder.NoteAdvOptions.DefaultEnabledForQL[p];
+       end
+       else begin
+          PnlUse:= Folder.NoteAdvOptions.DefaultUseForEL[p];
+          DefEnabled:= Folder.NoteAdvOptions.DefaultEnabledForEL[p];
+       end;
+
+       if (PnlUse = pnuHidePanel) or not DefEnabled then continue;
+
+       Result.CreateDefaultPanelConfig (p, PnlUse, NNode);
+    end;
+
+end;
+
+
+class procedure TNNodeUIConfiguration.GetDefaultPanelOrder (NNode : TNoteNode; Folder: TKntFolder; var DescendingOrder: boolean);
+begin
+   DescendingOrder:= True;     // ToDO **
+end;
+
+
+function TNNodeUIConfiguration.GetSingleEntryPanelForEditing(var Pnl: TNEntriesMainPanel): boolean;
+var
+  i: integer;
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= true;
+   for i := 0 to High(PanelsConfig) do begin
+       PanelConfig:= PanelsConfig[i];
+       if PanelConfig.Use = pnuShowSelectedEntry then begin
+          Pnl:= PanelConfig.Panel;
+          exit;
+       end;
+   end;
+
+   Result:= false;
+end;
+
+function TNNodeUIConfiguration.GetMainPanel: TNEntriesMainPanel;
+var
+  i: integer;
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= pnCenter;
+   for i := 0 to High(PanelsConfig) do begin
+       PanelConfig:= PanelsConfig[i];
+       if PanelConfig.Use = pnuShowAllEntries then
+          exit (PanelConfig.Panel);
+   end;
+end;
+
+
+function TNNodeUIConfiguration.AnyPanelInQL_ets: boolean;
+var
+  i: integer;
+begin
+   Result:= False;
+   for i := 0 to High(PanelsConfig) do
+       if PanelsConfig[i].StLayout = spInQL_ets then exit(true);
+end;
+
+
+function TNNodeUIConfiguration.GetWhereToShowEditorInfoBar: TNEntriesMainPanel;
+var
+  i: integer;
+  BLv,BRv,TLv,TRv: boolean;
+  BLt,BRt,TLt,TRt: boolean;
+  CanUseVincTags: boolean;
+  PanelConfig: TPanelConfiguration;
+begin
+   if MaximizedPanel <> pnNone then
+      exit( MaximizedPanel );
+
+   if not FFolder.NoteUI.MultipleVisibleEditors then
+      exit( pnCenter );
+
+   if FFolder.NoteAdvOptions.EditorInfoBarPos = ibpAllEntries then
+      exit( GetMainPanel );
+
+
+   TLv:= False; TRv:= False;  BLv:= False;  BRv:= False;
+   TLt:= False; TRt:= False;  BLt:= False;  BRt:= False;
+
+   for i := 0 to High(PanelsConfig) do begin
+       PanelConfig:= PanelsConfig[i];
+       case PanelConfig.Panel of
+          pnTL: begin
+             TLv:= not PanelConfig.Hidden;
+             TLt:= (PanelConfig.LinkedTags<>nil);
+          end;
+          pnTR: begin
+             TRv:= not PanelConfig.Hidden;
+             TRt:= (PanelConfig.LinkedTags<>nil);
+          end;
+          pnBL: begin
+             BLv:= not PanelConfig.Hidden;
+             BLt:= (PanelConfig.LinkedTags<>nil);
+          end;
+          pnBR: begin
+             BRv:= not PanelConfig.Hidden;
+             BRt:= (PanelConfig.LinkedTags<>nil);
+          end;
+       end;
+   end;
+
+
+   CanUseVincTags:= (FFolder.NoteAdvOptions.EditorInfoBarPos = ibpMostExtreme);
+
+   if KeyOptions.EditorInfoPanelTop then begin
+      if TLv and not TRv and (CanUseVincTags or not TLt) then
+         exit(pnTL);
+      if TRv and not TLv and (CanUseVincTags or not TRt) then
+         exit(pnTR);
+   end
+   else begin
+      if BLv and not BRv and (CanUseVincTags or not BLt) then
+         exit(pnBL);
+      if TRv and not TLv and (CanUseVincTags or not BRt) then
+         exit(pnBR);
+   end;
+
+   exit(pnCenter);
+end;
+
+
+function TNNodeUIConfiguration.GetUpperVisiblePanel (Pnl: TNEntriesMainPanel; var UpperPnl: TNEntriesMainPanel): boolean;
+var
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= False;
+
+   if Pnl in [pnTL, pnTR] then
+      exit
+   else
+   if Pnl = pnCenter then begin
+      UpperPnl:= pnTL;
+      PanelConfig:= GetCreatedPanelConfig(UpperPnl);
+      if (PanelConfig = nil) or PanelConfig.Hidden then begin
+         UpperPnl:= pnTR;
+         PanelConfig:= GetCreatedPanelConfig(UpperPnl);
+         if (PanelConfig = nil) or PanelConfig.Hidden then exit;
+      end;
+      Result:= True;
+   end
+   else
+   if Pnl in [pnBL, pnBR] then begin
+      UpperPnl:= pnCenter;
+      PanelConfig:= GetCreatedPanelConfig(UpperPnl);
+      if (PanelConfig <> nil) and not PanelConfig.Hidden then
+         Result:= True;
+   end
+end;
+
+
+function TNNodeUIConfiguration.GetBelowVisiblePanel (Pnl: TNEntriesMainPanel; var BelowPnl: TNEntriesMainPanel): boolean;
+var
+  PanelConfig: TPanelConfiguration;
+begin
+   Result:= False;
+
+   if Pnl in [pnBL, pnBR] then
+      exit
+   else
+   if Pnl = pnCenter then begin
+      BelowPnl:= pnBL;
+      PanelConfig:= GetCreatedPanelConfig(BelowPnl);
+      if (PanelConfig = nil) or PanelConfig.Hidden then begin
+         BelowPnl:= pnBR;
+         PanelConfig:= GetCreatedPanelConfig(BelowPnl);
+         if (PanelConfig = nil) or PanelConfig.Hidden then exit;
+      end;
+      Result:= True;
+   end
+   else
+   if Pnl in [pnTL, pnTR] then begin
+      BelowPnl:= pnCenter;
+      PanelConfig:= GetCreatedPanelConfig(BelowPnl);
+      if (PanelConfig <> nil) and not PanelConfig.Hidden then
+         Result:= True;
+   end;
+
+end;
+
+
+function TNNodeUIConfiguration.DiffersFromFolderDef(Pnl: TNEntriesMainPanel; var ChangesInCustomiz: boolean; var ChangesInRatios: boolean): boolean;
+var
+   PanelConfig: TPanelConfiguration;
+   IgnoreFilterEnabled: boolean;
+begin
+   PanelConfig:= GetCreatedPanelConfig(Pnl);
+   IgnoreFilterEnabled:= FNNode.Note.NumEntries = 1;
+
+   if FQueryLayout then begin
+      ChangesInCustomiz:= not PanelConfig.MECustomiz.Equal(FFolder.NoteAdvOptions.DefaultMECustomizForQL[pnl], IgnoreFilterEnabled);
+      ChangesInRatios:= not InternalSizeRatios.Equal(FFolder.NoteAdvOptions.SizeRatiosQL);
+   end
+   else begin
+      ChangesInCustomiz:= not PanelConfig.MECustomiz.Equal(FFolder.NoteAdvOptions.DefaultMECustomizForEL[pnl], IgnoreFilterEnabled);
+      ChangesInRatios:= not InternalSizeRatios.Equal(FFolder.NoteAdvOptions.SizeRatiosEL);
+   end;
+
+   Result:= ChangesInCustomiz or ChangesInRatios;
+end;
+
+
+function TNNodeUIConfiguration.ToString: string;
+var
+  i: integer;
+  MECustomiz: TMEPanelCustomization;
+  PanelCustomizReference: ^TMEPanelCustomization;
+  pnl: TNEntriesMainPanel;
+  ChangesInCustomiz, ChangesInRatios, DoSave: boolean;
+  RatiosStr, PanelStr, PanelCustStr: string;
+  SEP: string;
+
+begin
+  {  For each TNNodeUIConfiguration object, only the field indicating the layout, the size ratio fields, and the MECustomiz properties for each
+     PanelConfig that doesn't match the configuration in the folder for that panel and layout (or that panel is not enabled by default in
+     the folder), are saved.
+     The maximized state of the current panel is not preserved.
+     A line will be included for each layout (if needed).
+
+
+     Ex:
+     UI=0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;|4|=
+        QL                             TL                   C                                      BR
+
+     Ex:
+     UI=0||1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;
+        QL TL                  C
+
+
+       NNodeUIConfig:   UI=Layout|SizeRatios|PanelCustomize1|....|PanelCustomizeN  or
+                        UI=Layout|SizeRatios|
+
+              Layout:
+                    0  (QueryLayout)
+                    1  (EditingLayout)
+
+          SizeRatios:
+                 '' (Empty, if it matches the configuration in the folder (for that panel and layout))  or
+
+                  Top|Bottom|TLTR|BLBR|TopAutoFromHidden|BottomAutoFromHidden
+
+     PanelCustomizeM:
+                 Panel|=               (if match the configuration in the folder but that panel is not enabled by default in the folder)  or
+                 Panel|PanelCustomize
+
+                 Panel: TL,TR,BL,BR,Center --> 1,2,3,4,5
+
+       PanelCustomize:
+             Content:ShowDateInHeader:ShowTimeInHeader:ShowTagsInHeader:ShowLineInHeader:CompactHeader:DescendingOrder:FoldedTextMode:Filter
+
+             Filter:
+                  '=' if it matches the configuration in the folder (for that panel and layout)  or
+                  '*' if it matches the configuration in the folder (for that panel and layout),BUT with different Enabled state  or
+
+                   Enabled;TagsModeOR;TagsText;MatchCase;WholeWordsOnly;ConsiderHidden;ShowExcerpts;SearchMode;TextFilter;FindTagsIncl;FindTagsExcl
+                   FindTagsIncl: Tag1,Tag2,... TagsN&...&Tag1',Tag2',... TagsN&...'    (ex: 3,2&1&1,10 )
+                   FindTagsExcl:   ,,
+    }
+
+     Result:= '';
+     DoSave:= false;
+     SEP:= '';
+
+     for i:= 0 to Length(PanelsConfig)-1 do begin
+         MECustomiz:= PanelsConfig[i].MECustomiz;
+         pnl:= PanelsConfig[i].Panel;
+         PanelCustStr:= '';
+
+         if DiffersFromFolderDef(pnl, ChangesInCustomiz, ChangesInRatios) then begin
+            DoSave:= true;
+            if ChangesInCustomiz then begin
+               if FQueryLayout then
+                  PanelCustStr:= MECustomiz.ToString(FFolder.NoteAdvOptions.DefaultMECustomizForQL[pnl])
+               else
+                  PanelCustStr:= MECustomiz.ToString(FFolder.NoteAdvOptions.DefaultMECustomizForEL[pnl]);
+            end;
+         end;
+
+         if (PanelCustStr = '') and
+            ( (FQueryLayout and not FFolder.NoteAdvOptions.DefaultEnabledForQL[pnl]) or
+              (not FQueryLayout and not FFolder.NoteAdvOptions.DefaultEnabledForEL[pnl]) ) then begin
+
+              PanelCustStr := '=';
+              DoSave:= true;
+         end;
+
+         if PanelCustStr <> '' then begin
+            Result:= Result + SEP + Ord(pnl).ToString + '|' + PanelCustStr;
+            SEP:= '|';
+         end;
+     end;
+
+     if DoSave then begin
+        RatiosStr:= '';
+        if ChangesInRatios then
+           RatiosStr:= InternalSizeRatios.ToString;
+        Result:= _NodeUIConfig + '=' + BOOLEANSTR[not FQueryLayout] + '|' + RatiosStr + '|' + Result;
+     end
+     else
+        Result:= '';
+
+end;
+
+
+class function TNNodeUIConfiguration.CreateFromString (NNodeGID: Cardinal; Folder: TKntFolder; Str: string): TNNodeUIConfiguration;
+var
+   NNode: TNoteNode;
+   QueryLayout: boolean;
+   Strs: TStrings;
+
+   RatiosStr, PanelCustStr: string;
+   i, iFirstPanelCustomiz: integer;
+   Pnl: TNEntriesMainPanel;
+   PnlUse: TNEntriesPanelUse;
+   Config: TFormatSettings;
+   PanelConfig: TPanelConfiguration;
+
+begin
+   Result:= nil;
+
+   if Str = '' then exit;
+
+   NNode:= Folder.GetNNodeByGID(NNodeGID);
+   if NNode = nil then exit;
+
+
+   {
+     Ex:
+        0|0.1354|0.15|0.5|0.5|0.15|0.15|1|2:0:0:0:1:1:1:1:*|5|2:1:0:1:1:0:1:0:1;0;0;0;0;0;1;0;"";;|4|=
+        QL                             TL                   C                                     BR
+
+       Layout|SizeRatios|PanelCustomize1|....|PanelCustomizeN
+       Layout|SizeRatios|
+   }
+
+
+   Strs:= TStringList.Create;
+   try
+     try
+       SplitString(Strs, Str, '|', false);
+       QueryLayout:= (Strs[0]=BOOLEANSTR[false]);
+       Result:= TNNodeUIConfiguration.CreateDefault(NNode, Folder, QueryLayout);
+
+       Config := TFormatSettings.Create('en-US');                             // -> 0.1234
+
+       with Result do begin
+          iFirstPanelCustomiz:= 2;
+          if Strs[1] <> '' then begin
+             FSizeRatios.Top:=                  StrToFloatDef( Strs[1], 0, Config);
+             FSizeRatios.Bottom:=               StrToFloatDef( Strs[2], 0, Config);
+             FSizeRatios.TLTR:=                 StrToFloatDef( Strs[3], 0, Config);
+             FSizeRatios.BLBR:=                 StrToFloatDef( Strs[4], 0, Config);
+             FSizeRatios.TopAutoFromHidden:=    StrToFloatDef( Strs[5], 0, Config);
+             FSizeRatios.BottomAutoFromHidden:= StrToFloatDef( Strs[6], 0, Config);
+             iFirstPanelCustomiz:= 7;
+          end;
+
+       end;
+
+       i:= iFirstPanelCustomiz;
+       repeat
+           if Strs[i] = '' then break;
+
+           Pnl:= TNEntriesMainPanel(Ord(StrToInt(Strs[i])));
+           PanelConfig:= Result.GetCreatedPanelConfig(Pnl);
+
+           PanelCustStr:= Strs[i+1];
+
+           if PanelCustStr = '=' then begin
+              if QueryLayout then
+                 PnlUse:= Folder.NoteAdvOptions.DefaultUseForQL[Pnl]
+              else
+                 PnlUse:= Folder.NoteAdvOptions.DefaultUseForEL[Pnl];
+              Result.CreateDefaultPanelConfig(Pnl, PnlUse, NNode);
+           end
+           else
+              PanelConfig.MECustomiz.LoadFromString(PanelCustStr);
+
+           inc(i,2);
+       until i >= Strs.Count;
+
+     except
+       On E: Exception do
+          Result:= nil;
+     end;
+
+   finally
+      Strs.Free;
+   end;
+
+end;
+
+
+
+{$ENDREGION}
 
 
 

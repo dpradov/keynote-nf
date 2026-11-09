@@ -4,7 +4,7 @@ object Form_ExportNew: TForm_ExportNew
   HelpContext = 57
   BorderStyle = bsDialog
   Caption = 'Export note Folders'
-  ClientHeight = 463
+  ClientHeight = 476
   ClientWidth = 676
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -22,7 +22,7 @@ object Form_ExportNew: TForm_ExportNew
   TextHeight = 13
   object Button_OK: TButton
     Left = 267
-    Top = 431
+    Top = 442
     Width = 90
     Height = 25
     Hint = 'Begin exporting note folders'
@@ -34,7 +34,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object Button_Cancel: TButton
     Left = 370
-    Top = 431
+    Top = 442
     Width = 90
     Height = 25
     Hint = 'Cancel and close this dialog box'
@@ -44,8 +44,8 @@ object Form_ExportNew: TForm_ExportNew
     TabOrder = 4
   end
   object Button_Help: TButton
-    Left = 569
-    Top = 431
+    Left = 576
+    Top = 442
     Width = 90
     Height = 25
     Caption = 'Help'
@@ -55,8 +55,8 @@ object Form_ExportNew: TForm_ExportNew
   object Pages: TPage95Control
     Left = 5
     Top = 5
-    Width = 663
-    Height = 417
+    Width = 669
+    Height = 430
     ActivePage = Tab_Main
     HotTrack = False
     TabInactiveColor = clBtnFace
@@ -76,9 +76,9 @@ object Form_ExportNew: TForm_ExportNew
       TabVisible = True
       object GroupBox_Source: TGroupBox
         Left = 5
-        Top = 8
-        Width = 322
-        Height = 376
+        Top = 7
+        Width = 327
+        Height = 391
         HelpType = htKeyword
         HelpKeyword = '57-1'
         Caption = ' Source: What to export? '
@@ -90,11 +90,11 @@ object Form_ExportNew: TForm_ExportNew
         HeaderFont.Style = [fsBold]
         TabOrder = 0
         DesignSize = (
-          322
-          376)
+          327
+          391)
         object lbl3: TLabel
           Left = 12
-          Top = 307
+          Top = 320
           Width = 117
           Height = 13
           AutoSize = False
@@ -102,64 +102,64 @@ object Form_ExportNew: TForm_ExportNew
         end
         object RB_CurrentNote: TRadioButton
           Left = 9
-          Top = 26
-          Width = 304
+          Top = 47
+          Width = 123
           Height = 17
           Hint = 'Click to export active folder only'
           Caption = '&Current folder'
           Checked = True
-          TabOrder = 0
+          TabOrder = 1
           TabStop = True
         end
         object RB_AllNotes: TRadioButton
           Left = 9
-          Top = 73
+          Top = 71
           Width = 173
           Height = 17
           Hint = 'Click to export all folders in the knt file'
           Caption = '&All folders'
-          TabOrder = 2
+          TabOrder = 3
         end
         object RB_SelectedNotes: TRadioButton
           Left = 9
-          Top = 95
+          Top = 94
           Width = 181
           Height = 17
           Hint = 'Click to export only selected folders'
           Caption = '&Selected folders'
-          TabOrder = 3
+          TabOrder = 4
         end
         object Button_Select: TButton
           Left = 188
-          Top = 91
+          Top = 90
           Width = 125
           Height = 25
           Hint = 'Choose which folders to export'
           Caption = 'Select &Folders...'
-          TabOrder = 4
+          TabOrder = 5
           OnClick = Button_SelectClick
         end
         object Combo_TreeSelection: TComboBox
-          Left = 29
-          Top = 46
-          Width = 286
+          Left = 133
+          Top = 45
+          Width = 187
           Height = 21
           Hint = 'Select what part of folder to export'
           Style = csDropDownList
-          TabOrder = 1
+          TabOrder = 2
         end
         object CheckBox_ExcludeHiddenNodes: TCheckBox
           Left = 9
-          Top = 120
-          Width = 288
+          Top = 121
+          Width = 307
           Height = 17
           Hint = 'Don'#39't export nodes hidden'
           Caption = 'Exclude &hidden nodes'
-          TabOrder = 5
+          TabOrder = 6
         end
         object CB_ShowHiddenMarkers: TCheckBox
           Left = 9
-          Top = 353
+          Top = 366
           Width = 300
           Height = 17
           Hint = 
@@ -168,11 +168,11 @@ object Form_ExportNew: TForm_ExportNew
           HelpType = htKeyword
           HelpKeyword = '57-11'
           Caption = 'Show hidden marks and IDs'
-          TabOrder = 10
+          TabOrder = 11
         end
         object Spin_TblMaxDepth: TSpinEdit
-          Left = 273
-          Top = 330
+          Left = 277
+          Top = 343
           Width = 40
           Height = 22
           HelpType = htKeyword
@@ -181,45 +181,47 @@ object Form_ExportNew: TForm_ExportNew
           MaxLength = 2
           MaxValue = 99
           MinValue = 1
-          TabOrder = 9
+          TabOrder = 10
           Value = 3
         end
         object CB_TableCont: TCheckBox
           Left = 9
-          Top = 332
-          Width = 260
+          Top = 345
+          Width = 264
           Height = 17
           HelpType = htKeyword
           HelpKeyword = '57-14'
           Caption = 'Top N levels on a Table of Contents'
-          TabOrder = 8
+          TabOrder = 9
         end
         object cbFoldedText: TComboBox
-          Left = 134
-          Top = 304
+          Left = 139
+          Top = 317
           Width = 179
           Height = 21
           HelpType = htKeyword
           HelpKeyword = '57-18'
           Style = csDropDownList
           Anchors = [akTop, akRight]
-          TabOrder = 7
-          OnChange = cbTagFindModeChange
+          TabOrder = 8
           Items.Strings = (
             'Keep unchanged'
             'Unfold'
-            'Remove "tagged"'
-            'Remove All')
+            'Remove All'
+            'Remove "tagged"')
         end
         object PnlTags: TPanel
           Left = 9
-          Top = 148
-          Width = 306
-          Height = 145
+          Top = 149
+          Width = 310
+          Height = 160
           HelpType = htKeyword
           HelpKeyword = '57-17'
           BevelOuter = bvLowered
-          TabOrder = 6
+          TabOrder = 7
+          DesignSize = (
+            310
+            160)
           object lbl4: TLabel
             Left = 9
             Top = 7
@@ -267,22 +269,22 @@ object Form_ExportNew: TForm_ExportNew
           end
           object chkInhTagsFind: TCheckBox
             Left = 25
-            Top = 121
+            Top = 136
             Width = 272
             Height = 17
             Caption = 'Inherited tags (metadata)'
-            TabOrder = 5
+            TabOrder = 6
           end
           object chkTagsText: TCheckBox
             Left = 25
-            Top = 98
+            Top = 116
             Width = 272
             Height = 17
             Hint = 
               'Export will only include text fragments that meet the tag criter' +
               'ia'
             Caption = 'Consider extracts from notes'
-            TabOrder = 4
+            TabOrder = 5
             OnClick = chkTagsTextClick
           end
           object chkTagsMetad: TCheckBox
@@ -313,16 +315,27 @@ object Form_ExportNew: TForm_ExportNew
             Width = 87
             Height = 21
             Style = csDropDownList
-            TabOrder = 6
+            TabOrder = 7
             OnChange = cbTagFindModeChange
             Items.Strings = (
               'ALL'
               'ANY')
           end
+          object chkTagsEntries: TCheckBox
+            Left = 25
+            Top = 97
+            Width = 276
+            Height = 17
+            Hint = 'Tags will be searched for in all entries'#39' metadata'
+            Anchors = [akLeft, akTop, akRight]
+            Caption = 'Consider metadata of entries'
+            TabOrder = 4
+            OnClick = chkTagsMetadClick
+          end
         end
         object CB_UseNote: TCheckBox
           Left = 9
-          Top = 353
+          Top = 366
           Width = 173
           Height = 17
           Hint = 'Include notes'#39'content as plain text in "_note" attribute'
@@ -330,26 +343,36 @@ object Form_ExportNew: TForm_ExportNew
           Caption = 'Use '#39'_note'#39' attribute'
           Checked = True
           State = cbChecked
-          TabOrder = 11
+          TabOrder = 12
         end
         object chkEncrypted: TCheckBox
           Left = 185
-          Top = 353
+          Top = 366
           Width = 130
           Height = 17
           Hint = 
             'NOTE: Content will only remain encrypted with .knt as target for' +
             'mat'
           Caption = 'Encrypted content'
-          TabOrder = 12
+          TabOrder = 13
           OnClick = chkEncryptedClick
+        end
+        object RB_Editor: TRadioButton
+          Left = 9
+          Top = 23
+          Width = 315
+          Height = 17
+          Hint = 
+            'Click to export only the selected editor (or selection), as shown'
+          Caption = 'Current Editor'
+          TabOrder = 0
         end
       end
       object GroupBox_Target: TGroupBox
-        Left = 333
-        Top = 8
+        Left = 338
+        Top = 7
         Width = 319
-        Height = 376
+        Height = 391
         HelpType = htKeyword
         HelpKeyword = '57-2'
         Caption = ' Target: Where and how to export?  '
@@ -362,7 +385,7 @@ object Form_ExportNew: TForm_ExportNew
         TabOrder = 1
         object Label1: TLabel
           Left = 10
-          Top = 29
+          Top = 30
           Width = 295
           Height = 13
           AutoSize = False
@@ -371,7 +394,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Label2: TLabel
           Left = 10
-          Top = 75
+          Top = 78
           Width = 282
           Height = 13
           AutoSize = False
@@ -380,7 +403,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object TB_OpenDlgDir: TToolbarButton97
           Left = 285
-          Top = 91
+          Top = 94
           Width = 25
           Height = 21
           AllowAllUp = True
@@ -393,7 +416,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Combo_Format: TComboBox
           Left = 10
-          Top = 46
+          Top = 47
           Width = 295
           Height = 21
           Hint = 'Select format for exported files'
@@ -402,7 +425,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CheckBox_PromptOverwrite: TCheckBox
           Left = 10
-          Top = 120
+          Top = 127
           Width = 302
           Height = 17
           Hint = 'Warn if file by the same name already exists'
@@ -413,7 +436,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Edit_Folder: TEdit
           Left = 18
-          Top = 91
+          Top = 95
           Width = 262
           Height = 21
           Hint = 'Folder where exported files will be placed'
@@ -427,7 +450,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CheckBox_Ask: TCheckBox
           Left = 10
-          Top = 142
+          Top = 149
           Width = 302
           Height = 17
           Hint = 'Manually supply name for each exported file'
@@ -436,7 +459,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_Section: TCheckBox
           Left = 10
-          Top = 189
+          Top = 201
           Width = 258
           Height = 17
           HelpType = htKeyword
@@ -446,7 +469,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object Spin_SectDepth: TSpinEdit
           Left = 270
-          Top = 187
+          Top = 199
           Width = 40
           Height = 22
           HelpType = htKeyword
@@ -460,7 +483,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SaveImgDefWP: TCheckBox
           Left = 10
-          Top = 353
+          Top = 365
           Width = 302
           Height = 17
           Hint = 
@@ -473,7 +496,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SectionToFile: TCheckBox
           Left = 25
-          Top = 212
+          Top = 225
           Width = 245
           Height = 17
           HelpType = htKeyword
@@ -484,7 +507,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_SectionNewPg: TCheckBox
           Left = 25
-          Top = 235
+          Top = 248
           Width = 245
           Height = 17
           HelpType = htKeyword
@@ -495,7 +518,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_NoteNewPg: TCheckBox
           Left = 10
-          Top = 279
+          Top = 291
           Width = 302
           Height = 17
           HelpType = htKeyword
@@ -506,7 +529,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_FolderNewFile: TCheckBox
           Left = 10
-          Top = 306
+          Top = 318
           Width = 302
           Height = 17
           HelpType = htKeyword
@@ -529,7 +552,7 @@ object Form_ExportNew: TForm_ExportNew
         Left = 14
         Top = 11
         Width = 272
-        Height = 246
+        Height = 374
         Caption = ' Optional headings '
         DefaultHeaderFont = False
         HeaderFont.Charset = DEFAULT_CHARSET
@@ -539,25 +562,25 @@ object Form_ExportNew: TForm_ExportNew
         HeaderFont.Style = [fsBold]
         TabOrder = 0
         object lblSymbols: TLabel
-          Left = 25
-          Top = 210
+          Left = 17
+          Top = 212
           Width = 39
           Height = 13
           Caption = 'Symbols'
           FocusControl = Edit_Folder
         end
         object lblLength: TLabel
-          Left = 25
-          Top = 186
+          Left = 17
+          Top = 188
           Width = 74
           Height = 13
           Caption = 'Length heading'
           FocusControl = Edit_Folder
         end
         object CB_IncNoteHeading: TCheckBox
-          Left = 25
-          Top = 28
-          Width = 182
+          Left = 17
+          Top = 30
+          Width = 202
           Height = 17
           Hint = 'Include folder headings'
           HelpType = htKeyword
@@ -566,8 +589,8 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 0
         end
         object CB_IncNodeHeading: TCheckBox
-          Left = 25
-          Top = 78
+          Left = 17
+          Top = 80
           Width = 182
           Height = 17
           Hint = 'Include node headings'
@@ -577,8 +600,8 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 2
         end
         object Edit_NodeHead: TComboBox
-          Left = 48
-          Top = 99
+          Left = 40
+          Top = 101
           Width = 179
           Height = 21
           HelpType = htKeyword
@@ -592,8 +615,8 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 3
         end
         object Edit_NoteHead: TComboBox
-          Left = 48
-          Top = 49
+          Left = 40
+          Top = 51
           Width = 181
           Height = 21
           HelpType = htKeyword
@@ -607,9 +630,9 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 1
         end
         object CB_LevelTemplates: TCheckBox
-          Left = 25
-          Top = 129
-          Width = 183
+          Left = 17
+          Top = 131
+          Width = 204
           Height = 17
           Hint = 'Try to use files "nodehead_1.rtf", "nodehead_2.rtf", ...'
           HelpType = htKeyword
@@ -618,8 +641,8 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 4
         end
         object CB_FontSizes: TCheckBox
-          Left = 25
-          Top = 157
+          Left = 17
+          Top = 159
           Width = 148
           Height = 17
           Hint = 
@@ -631,8 +654,8 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 5
         end
         object Edit_FontSizes: TEdit
-          Left = 172
-          Top = 154
+          Left = 164
+          Top = 156
           Width = 55
           Height = 21
           HelpType = htKeyword
@@ -647,8 +670,8 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 6
         end
         object Edit_LengthHeading: TEdit
-          Left = 172
-          Top = 181
+          Left = 164
+          Top = 183
           Width = 55
           Height = 21
           Hint = 
@@ -666,8 +689,8 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 7
         end
         object Edit_Symbols: TEdit
-          Left = 172
-          Top = 208
+          Left = 164
+          Top = 210
           Width = 55
           Height = 21
           Hint = 'Symbols to use with %< or %>:  Level1, Level2, ...'
@@ -682,10 +705,44 @@ object Form_ExportNew: TForm_ExportNew
           TabOrder = 8
           OnExit = Edit_SymbolsExit
         end
+        object CB_EntryLine: TCheckBox
+          Left = 17
+          Top = 254
+          Width = 250
+          Height = 17
+          Caption = 'Line between entries'
+          TabOrder = 9
+        end
+        object CB_EntryCreation: TCheckBox
+          Left = 17
+          Top = 278
+          Width = 250
+          Height = 17
+          Caption = 'Date and time the entry was created'
+          TabOrder = 10
+        end
+        object CB_EntriesAsc: TCheckBox
+          Left = 17
+          Top = 325
+          Width = 250
+          Height = 17
+          Caption = 'Entries in ascending order of creation date'
+          TabOrder = 12
+        end
+        object CB_ECOnlyME: TCheckBox
+          Left = 40
+          Top = 300
+          Width = 227
+          Height = 17
+          Caption = 'Only in multi-entry notes'
+          Checked = True
+          State = cbChecked
+          TabOrder = 11
+        end
       end
       object Btn_TknHlp: TBitBtn
         Left = 252
-        Top = 59
+        Top = 62
         Width = 24
         Height = 22
         ImageIndex = 60
@@ -697,7 +754,7 @@ object Form_ExportNew: TForm_ExportNew
         Left = 296
         Top = 11
         Width = 345
-        Height = 246
+        Height = 253
         Caption = 'Other formatting options'
         DefaultHeaderFont = False
         HeaderFont.Charset = DEFAULT_CHARSET
@@ -731,7 +788,7 @@ object Form_ExportNew: TForm_ExportNew
         end
         object CB_IndentNodes: TCheckBox
           Left = 12
-          Top = 31
+          Top = 30
           Width = 293
           Height = 17
           Hint = 'Indent nested nodes (heading and content)'
@@ -827,9 +884,9 @@ object Form_ExportNew: TForm_ExportNew
       end
       object gbHTML: TGroupBox
         Left = 296
-        Top = 269
+        Top = 275
         Width = 345
-        Height = 103
+        Height = 113
         Caption = 'HTML Options'
         DefaultHeaderFont = False
         HeaderFont.Charset = DEFAULT_CHARSET
@@ -905,7 +962,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object btnPreview: TButton
     Left = 133
-    Top = 431
+    Top = 442
     Width = 92
     Height = 25
     Caption = 'Pre&view'
@@ -917,7 +974,7 @@ object Form_ExportNew: TForm_ExportNew
   end
   object btnPageSetup: TButton
     Left = 9
-    Top = 431
+    Top = 442
     Width = 110
     Height = 25
     Caption = 'Page &Setup...'

@@ -94,6 +94,8 @@ function DarkenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function LightenColor(Color: TColor; Amount: Byte; BInc: byte= 0): TColor;
 function GetHotColorFor(BackColor, FontColor: TColor): TColor;
 function InvertColor(Color: TColor): TColor;
+function GetColorLuminosity(Color: TColor): Double;
+function GetRelativeLuminosity(Color: TColor): Double;
 //function ColorInformation(Color: TColor): string;      // Included in ColorPicker
 
 function CheckCalendarInTDateTimePicker(AOwner: TWinControl): boolean;
@@ -107,6 +109,9 @@ procedure AdjustRTLControls(Parent: TWinControl);
 function GetEditCaretPos(Edit: TEdit; CharIndex: integer): TPoint;
 procedure EnableShadow(FormHandle: HWND);
 procedure EnableTopMost(hWND: HWND; Enable: boolean);
+
+function IsMouseOver(Control: TWinControl): Boolean;
+procedure LockControl(AControl: TWinControl; ALock: Boolean);
 
 
 var
@@ -911,6 +916,23 @@ begin
       SetWindowPos(hWND, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE or SWP_NOSIZE);
 end;
 
+
+function IsMouseOver(Control: TWinControl): Boolean;
+var
+  MousePos: TPoint;
+begin
+  GetCursorPos(MousePos);
+  Result := FindVCLWindow(MousePos) = Control;
+end;
+
+
+procedure LockControl(AControl: TWinControl; ALock: Boolean);
+begin
+  SendMessage(AControl.Handle, WM_SETREDRAW, WPARAM(not ALock), 0);
+  if not ALock then
+    RedrawWindow(AControl.Handle, nil, 0,
+      RDW_ERASE or RDW_FRAME or RDW_INVALIDATE or RDW_ALLCHILDREN);
+end;
 
 
 initialization

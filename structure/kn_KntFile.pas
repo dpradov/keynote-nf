@@ -18,6 +18,7 @@
 interface
 uses
    Winapi.Windows,
+   Winapi.Messages,
    System.Classes,
    System.SysUtils,
    System.IniFiles,
@@ -47,6 +48,7 @@ uses
    knt.model.note,
    knt.ui.info,
    knt.ui.editor,
+   knt.ui.tree,
    kn_ImagesMng,
    kn_LinksMng
    ;
@@ -89,13 +91,13 @@ type
     FLoadedEncryptedContent: TMemoryStream;        // ,,
     FEncryptedContentEnabled: Boolean;             // ,,
     FEncryptedContentOpened: Boolean;              // ,,
-    FHideEncryptedNodes : Boolean;                 // ,,
+    FHideEncryptedNodesAndEntries : Boolean;                 // ,,
     FPassphraseFunc : TGetAccessPassphraseFunc;
     FCachedEncryptionKey: THash;
     FCachedVerificationHash: THash;
     FKeysAreCached: Boolean;
     FHidingEncryptedNodes : Boolean;
-    FHighlightProtectedNodes : Boolean;
+    FHighlightProtectedNodesAndEntries : Boolean;
 
     FSavedActiveFolderID : Cardinal;
 
@@ -108,6 +110,7 @@ type
     fNotes: TNoteList;
     fNextNNodeGID: Cardinal;     // Global ID of next note node to be created
     fNotesSorted: boolean;       // Normally notes are ordered by GID
+    fNotesOnEditingLayout: TNoteList;
 
     FBookmarks : TBookmarks;
     FTextPlainVariablesInitialized: boolean;
@@ -123,7 +126,7 @@ type
     procedure SetModified( AModified : boolean );
     procedure SetEncryptedContentEnabled(Value: boolean);
     procedure SetEncryptedContentOpened(Value: boolean);
-    procedure SetHideEncryptedNodes(Value: boolean);
+    procedure SetHideEncryptedNodesAndEntries(Value: boolean);
     function  GetEncryptedContentMustBeHidden: boolean;
     function  GetEncryptedNodesMustBeHidden: boolean;
     function  GetEncryptedContentMustBeGenerated: boolean;
@@ -173,12 +176,12 @@ type
     property PassphraseFunc : TGetAccessPassphraseFunc read FPassphraseFunc write FPassphraseFunc;
     property KeyDerivIterations: Cardinal read FKeyDerivIterations write FKeyDerivIterations;
     property EncryptedContentEnabled: boolean read FEncryptedContentEnabled write SetEncryptedContentEnabled;
-    property HideEncryptedNodes : Boolean read FHideEncryptedNodes write SetHideEncryptedNodes;
+    property HideEncryptedNodesAndEntries : Boolean read FHideEncryptedNodesAndEntries write SetHideEncryptedNodesAndEntries;
     property EncryptedContentOpened: boolean read FEncryptedContentOpened write SetEncryptedContentOpened;
     property EncryptedContentMustBeHidden: boolean read GetEncryptedContentMustBeHidden;
     property EncryptedNodesMustBeHidden: boolean read GetEncryptedNodesMustBeHidden;
     property KeysAreCached: Boolean read FKeysAreCached;
-    property HighlightProtectedNodes: Boolean read FHighlightProtectedNodes;
+    property HighlightProtectedNodesAndEntries: Boolean read FHighlightProtectedNodesAndEntries;
 
     property Bookmarks[index: integer]: TLocation read GetBookmark write WriteBookmark;
 
@@ -210,7 +213,9 @@ type
                   var SavedFolders: integer; var SavedNodes: integer;
                   ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                   OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
-                  ExportEncryptedContent: boolean = false): integer;
+                  ExportEncryptedContent: boolean = false;
+                  ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                  ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged; ExportRemoveTags: boolean = false): integer;
     function  Load( FN : string; ImgManager: TImageMng; var ClipCapIdx: integer; AddProcessAlarms: boolean) : integer;
     procedure LoadNotes(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock; FromEncryptedContent: boolean);
     procedure LoadNoteTags(var tf : TTextFile; var FileExhausted : boolean; var NextBlock: TNextBlock);
@@ -293,6 +298,10 @@ type
     function HasVirtualNotes : boolean; // TRUE is file contains any notes which have VIRTUAL NODES
     function GetVirtualNoteByFileName( const aNote : TNote; FN : string ): TNote;
     procedure ConvertOldMirrorNodesToNNodes;
+  public
+    property NotesOnEditingLayout: TNoteList read fNotesOnEditingLayout;
+    function GetNoteIsOnEditingLayout(Note: TNote): Boolean;
+    procedure SetNoteIsOnEditingLayout(Note: TNote; OnEditingLayout: boolean);
 
     procedure TryToDeduceDates(RemoveDateFromName: boolean);
 
@@ -320,7 +329,6 @@ uses
    kn_Global,
    kn_Main,
    kn_EditorUtils,
-   knt.ui.tree,
    kn_AlertMng,
    kn_BookmarksMng,
    kn_FindReplaceMng,
@@ -357,9 +365,9 @@ begin
   FKeyDerivIterations := KEY_ITERATIONS_VERIF_DEFAULT;
   FEncryptedContentEnabled:= False;
   FEncryptedContentOpened:= True;
-  FHideEncryptedNodes:= False;
+  FHideEncryptedNodesAndEntries:= False;
   FHidingEncryptedNodes:= False;
-  FHighlightProtectedNodes:= False;
+  FHighlightProtectedNodesAndEntries:= False;
   InvalidateKeyCache;
   FReadOnly := false;
   FOpenAsReadOnly := false;
@@ -378,6 +386,7 @@ begin
   fNoteTags:= TNoteTagList.Create;
   fFolders := TFolderList.Create;
   fNotes := TNoteList.Create;
+  fNotesOnEditingLayout:= TNoteList.Create;
 
   for i:= 0 to MAX_BOOKMARKS do
      FBookmarks[i]:= nil;
@@ -416,6 +425,9 @@ begin
     fFolders.Free;
     fFolders := nil;
   end;
+
+  if fNotesOnEditingLayout <> nil then
+     fNotesOnEditingLayout.Free;
 
   if fNotes <> nil then begin
      for i := 0 to fNotes.Count-1 do begin
@@ -1325,7 +1337,7 @@ begin
         if (N.DateCreated = 0) or RemoveDateFromName or ForceReconsidere then begin
            
            if (N.DateCreated = 0) or ForceReconsidere then begin     // Search in note content
-              TextPlain:= F.PrepareTextPlain(NN, RTFAux);
+              TextPlain:= PrepareTextPlain(N.MainEntry, RTFAux);
               posLastCR:= 0;
               repeat
                  posCR:= Pos(#13, TextPlain, posLastCR+1);
@@ -1359,7 +1371,7 @@ begin
            
            if CreationDate <> 0 then begin
               if (N.DateCreated = 0) or ForceReconsidere then begin
-                 N.Entries[0].Created:= CreationDate;
+                 N.Entries[0].Created:= CreationDate;      // It is intended for old files, without that information, and where there were no multiple entries.
                  N.LastModified:= LastModif;
               end;
               if RemoveDateFromName and (DateFoundInName <> 0) then begin
@@ -1626,6 +1638,21 @@ begin
            exit(Note);
      end;
   end;
+end;
+
+
+function TKntFile.GetNoteIsOnEditingLayout(Note: TNote): Boolean;
+begin
+    Result:= FNotesOnEditingLayout.IndexOf(Note) >= 0;
+end;
+
+procedure TKntFile.SetNoteIsOnEditingLayout(Note: TNote; OnEditingLayout: boolean);
+begin
+  if not OnEditingLayout then
+     FNotesOnEditingLayout.Remove(Note)
+  else
+  if FNotesOnEditingLayout.IndexOf(Note) < 0 then
+     FNotesOnEditingLayout.Add(Note);
 end;
 
 
@@ -1935,7 +1962,7 @@ end;
 
 procedure TKntFile.UpdateImagesStorageModeInFile (ToMode: TImagesStorageMode; ApplyOnlyToFolder: TKntFolder= nil; ExitIfAllImagesInSameModeDest: boolean = true);
 var
-  i, j: integer;
+  i, j, k: integer;
   myFolder: TKntFolder;
   Note: TNote;
   NNode: TNoteNode;
@@ -1973,12 +2000,14 @@ begin
          Note:= NNode.Note;
          if not Note.IsVirtual then begin
             if Note.NNodes[0].NNode <> NNode then continue;
-            NEntry:= NNode.Note.Entries[0];                     //%%%
-            if NEntry.IsPlainTXT or (NEntry.Stream.Size = 0) then continue;
 
-            UpdateImagesStorageMode (NEntry.Stream);
-            if Length(ImagesIDs) > 0 then
-               NEntry.TextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+            for k := 0 to High(Note.Entries) do begin
+               NEntry:= Note.Entries[k];
+               if NEntry.IsPlainTXT or (NEntry.Stream.Size = 0) then continue;
+               UpdateImagesStorageMode (NEntry.Stream);
+               if Length(ImagesIDs) > 0 then
+                  NEntry.TextPlain:= '';      // Will have updated the Stream but not the editor, and been able to introduce/change image codes => force it to be recalculated when required
+            end;
 
             if NNode = myFolder.FocusedNNode  then
                myFolder.ReloadEditorFromDataModel (false);
@@ -2017,12 +2046,18 @@ begin
    NoteUI.SaveToDataModel;
    NNode:= NoteUI.NNode;
 
+   // *1 This can occur if a conversion is requested immediately after initiating the creation of a new entry (Ctrl+Shift+Enter),
+   //   while it is still completely empty (and before it has actually been created, which might not happen at all if the user
+   //   navigates to another note without editing it first).
+
    Result:= true;
 
    try
       RTFAux:= CreateAuxRichEdit;
       try
-         NEntry:= NNode.Note.Entries[0];         // %%%%
+         NEntry:= NoteUI.SelectedNEntry;
+         if NEntry = nil then exit;             // *1
+
          Stream:= nEntry.Stream;
 
          if Stream.Size <> 0 then begin
@@ -2084,17 +2119,18 @@ var
   NEntry: TNoteEntry;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
-
+  i: integer;
 begin
-   if not Note.IsVirtual then begin
-      NEntry:= Note.Entries[0];        // %%%
-      if not NEntry.IsRTF then exit;
+   if not Note.IsVirtual then
+      for i := 0 to High(Note.Entries) do begin
+         NEntry:= Note.Entries[i];
+         if not NEntry.IsRTF then continue;
 
-      Stream:= NEntry.Stream;
-      ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
-      if Length(ImagesIDs) > 0 then
-         ImageMng.RemoveImagesReferences (ImagesIDs);
-   end;
+         Stream:= NEntry.Stream;
+         ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+         if Length(ImagesIDs) > 0 then
+            ImageMng.RemoveImagesReferences (ImagesIDs);
+      end;
 end;
 
 procedure TKntFile.UpdateImagesCountReferences (Note: TNote);
@@ -2102,14 +2138,16 @@ var
   NEntry: TNoteEntry;
   Stream: TMemoryStream;
   ImagesIDs: TImageIDs;
-
+  i: integer;
 begin
-   NEntry:= Note.Entries[0];        // %%%
-   if not NEntry.IsRTF then exit;
-   Stream:= NEntry.Stream;
-   ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
-   if Length(ImagesIDs) > 0 then
-      ImageMng.UpdateImagesCountReferences (nil, ImagesIDs);
+   for i := 0 to High(Note.Entries) do begin
+      NEntry:= Note.Entries[i];
+      if not NEntry.IsRTF then continue;
+      Stream:= NEntry.Stream;
+      ImagesIDs:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+      if Length(ImagesIDs) > 0 then
+         ImageMng.UpdateImagesCountReferences (nil, ImagesIDs);
+   end;
 end;
 
 
@@ -2588,9 +2626,9 @@ begin
    except
      on E : Exception do begin
        str:= GetRS(sFld39) + _CRLF + Note.VirtualFN + _CRLF + E.Message;
-       Note.Entries[0].Stream.WriteBuffer(str[1], Length(str));
+       Note.Entries[0].Stream.WriteBuffer(str[1], Length(str));                  // Virtual notes always have a single entry, 0.
        Note.VirtualFN := _VIRTUAL_NODE_ERROR_CHAR + Note.VirtualFN;
-       Note.Entries[0].IsRTF:= False;
+       Note.Entries[0].IsRTF:= False;                                            // ,,
      end;
    end;
 end;
@@ -2604,7 +2642,8 @@ var
 
   Note: TNote;
   NEntry: TNoteEntry;
-  NEntryID, NoteSelEntryID: Word;
+  NEntryID: Word;
+  NoteSelEntryID: integer;
   GID: Cardinal;
 
   VirtualFN, RelativeVirtualFN: string;
@@ -2640,7 +2679,7 @@ var
              assert((NEntry.IsRTF = RTFContent) or (NEntry.Stream.Size=0));
           end;
 
-          if ClosingNote then begin
+          if ClosingNote and (NoteSelEntryID >= 0) then begin
              NSelEntry:= Note.GetEntry(NoteSelEntryID);
              Note.SelEntry:= NSelEntry;
           end;
@@ -2682,7 +2721,7 @@ begin
        if not FromEncryptedContent then begin
           Note:= TNote.Create;
           fNotes.Add(Note);
-          NoteSelEntryID:= 0;
+          NoteSelEntryID:= -1;
           NEntry:= nil;
        end;
        continue;
@@ -2790,13 +2829,15 @@ begin
           RelativeVirtualFN := TryUTF8ToUnicodeString(s)
         else
         if ( key = _NoteSelEntry ) then
-           NoteSelEntryID:= StrToUIntDef(s, 0)
+           if _SAVE_RESTORE_CARETPOS then begin
+              NoteSelEntryID:= StrToUIntDef(s, 0)
+           end
         else
         if ( key = _NEntrySelStart ) then begin
             if _SAVE_RESTORE_CARETPOS then
-               Note.SelStart := StrToIntDef( s, 0 )
+               Note.SSImLink := StrToIntDef( s, 0 )
             else
-               Note.SelStart := 0;
+               Note.SSImLink := 0;
         end;
 
         //	ToDO:     fResources: TResourceList;  _NoteResources = 'NR';
@@ -2916,7 +2957,7 @@ begin
 
 
     //FEncryptedContentEnabled:= True;                          // We will 'activate' at the end of KntFileOpen -> KntFile.InitialConfigurationEncryptedContent;
-    FHideEncryptedNodes:= EncrypInfo.HideEncryptedNodes;
+    FHideEncryptedNodesAndEntries:= EncrypInfo.HideEncryptedNodesAndEntries;
     FKeyDerivIterations:=  EncrypInfo.KeyDerivIterations;
     FLoadedVerificationHash:= EncrypInfo.Hash;
 
@@ -3035,7 +3076,7 @@ end;
 
 function TKntFile.ConvertKNTLinksToNewFormatInNotes (FolderIDs: array of TMergeFolders; NoteGIDs: TMergedNotes; var GIDsNotConverted: integer): boolean;
 var
-  i, j: integer;
+  i, j, k: integer;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
   Folder: TKntFolder;
@@ -3050,16 +3091,20 @@ begin
 
      for j := 0 to Folder.NNodes.Count-1 do begin
         NNode := Folder.NNodes[j];
-        NEntry:= NNode.Note.Entries[0];          // %%%
-        if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
 
-        NewRTF:= ConvertKNTLinksToNewFormat(NEntry.Stream.Memory, NEntry.Stream.Size, NoteGIDs, FolderIDs, GIDsNotConverted);
-        if NewRTF <> '' then begin
-           NEntry.Stream.SetSize(Length(NewRTF));
-           NEntry.Stream.Position:= 0;
-           StringToMemoryStream(NewRTF, NEntry.Stream);
-           Result:= true;
+        for k := 0 to High(NNode.Note.Entries) do begin
+           NEntry:= NNode.Note.Entries[k];
+           if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
+
+           NewRTF:= ConvertKNTLinksToNewFormat(NEntry.Stream.Memory, NEntry.Stream.Size, NoteGIDs, FolderIDs, GIDsNotConverted);
+           if NewRTF <> '' then begin
+              NEntry.Stream.SetSize(Length(NewRTF));
+              NEntry.Stream.Position:= 0;
+              StringToMemoryStream(NewRTF, NEntry.Stream);
+              Result:= true;
+           end;
         end;
+
      end;
   end;
 
@@ -3070,7 +3115,7 @@ end;
 
 function TKntFile.ConvertLinksForColorInNotes: boolean;
 var
-  i, j: integer;
+  i, j, k: integer;
   NNode: TNoteNode;
   NEntry: TNoteEntry;
   Folder: TKntFolder;
@@ -3084,16 +3129,20 @@ begin
 
      for j := 0 to Folder.NNodes.Count-1 do begin
         NNode := Folder.NNodes[j];
-        NEntry:= NNode.Note.Entries[0];          // %%%
-        if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
 
-        RTF:= MemoryStreamToString(NEntry.Stream);
-        if AdaptLinksForColor(RTF, NewRTF) then begin
-           NEntry.Stream.SetSize(Length(NewRTF));
-           NEntry.Stream.Position:= 0;
-           StringToMemoryStream(NewRTF, NEntry.Stream);
-           Result:= true;
+        for k := 0 to High(NNode.Note.Entries) do begin
+           NEntry:= NNode.Note.Entries[k];
+           if NEntry.IsHTML or (NEntry.Stream.Size = 0) then continue;
+
+           RTF:= MemoryStreamToString(NEntry.Stream);
+           if AdaptLinksForColor(RTF, NewRTF) then begin
+              NEntry.Stream.SetSize(Length(NewRTF));
+              NEntry.Stream.Position:= 0;
+              StringToMemoryStream(NewRTF, NEntry.Stream);
+              Result:= true;
+           end;
         end;
+
      end;
   end;
 
@@ -3118,11 +3167,14 @@ end;
       files nodes must be backed (if it applies, based on configuration), it is done.
       The assingment of _VNKeyKntFileName ensures it (must be done by the caller)
 }
-function TKntFile.Save(FN: string;
+function TKntFile.Save (FN: string;
                         var SavedFolders: integer; var SavedNodes: integer;
                         ExportingMode: boolean= false; OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                         OnlyNotHiddenNodes: boolean= false; OnlyCheckedNodes: boolean= false;
-                        ExportEncryptedContent: boolean = false): integer;
+                        ExportEncryptedContent: boolean = false;
+                        ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                        ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged;
+                        ExportRemoveTags: boolean = false): integer;
 var
   i : integer;
   Stream : TFileStream;
@@ -3132,12 +3184,114 @@ var
   AuxStream : TMemoryStream;
   NotesToSave: TNoteList;
   ToEncryptStream, EncryptedStream, AuxEncryptStream : TMemoryStream;
+  EntryFragments: TEntryFragments;
+  RTFAuxFrag : TAuxRichEdit;
+  FragStream: TMemoryStream;
+
+
+  procedure PrepareAuxObjectsFragment;
+  begin
+     RTFAuxFrag:= nil;
+     FragStream:= nil;
+
+     if ExportingMode and (ExportFoundEntriesInNotes <> nil)  then begin
+        RTFAuxFrag:= CreateAuxRichEdit;
+        RTFAuxFrag.BeginUpdate;
+        FragStream:= TMemoryStream.Create;
+     end;
+  end;
+
+
+  function NEntryToBeSaved(Note: TNote; NEntry: TNoteEntry; var EntryFragments: TEntryFragments): boolean;
+  var
+    EntriesInNote: TFoundEntryInNoteList;
+    iNote, i: integer;
+  begin
+     Result:= False;
+     if NEntry = nil then exit;
+
+     if not ExportEncryptedContent and NEntry.IsEncrypted then exit;
+     if ExportFoundNotes = nil then exit (true);
+
+     iNote:= ExportFoundNotes.IndexOf(Note);
+     if iNote < 0 then exit;                        // It shouldn't
+     EntriesInNote:= ExportFoundEntriesInNotes[iNote];
+     for i:= 0 to EntriesInNote.Count-1 do
+        if EntriesInNote[i].NEntry = NEntry then begin
+           EntryFragments:= EntriesInNote[i].FragmentsInEntry;
+           exit(True);
+        end;
+  end;
 
 
   procedure WriteNEntry (NEntry: TNoteEntry; Note: TNote);
+
+     procedure SaveFragments;
+     var
+        i, EntryTextSize: integer;
+        pFLastExportedFragm, Offset: integer;
+        EntryText: AnsiString;
+        RTFFrag: AnsiString;
+        Encoding: TEncoding;
+     begin
+        if NEntry.Stream.Size = 0 then exit;
+
+        Encoding:= nil;
+        if NEntry.IsPlainTXT then
+           RTFAuxFrag.StreamFormat:= sfPlainText
+        else
+           RTFAuxFrag.StreamFormat:= sfRichText;
+
+        NEntry.Stream.Position := 0;
+        RTFAuxFrag.Lines.LoadFromStream( NEntry.Stream );
+
+
+        if (EntryFragments.NumFrag = 1) and (EntryFragments.Fragments[0].PosI = 0) and (EntryFragments.Fragments[0].PosF = -1) then
+           // Use the whole content
+
+        else begin
+            pFLastExportedFragm:= 0;
+            Offset:= 0;
+            for i:= 0 to EntryFragments.NumFrag - 1 do begin
+               if EntryFragments.Fragments[i].PosI > pFLastExportedFragm +1 then begin
+                  RTFAuxFrag.SelStart:=  pFLastExportedFragm - Offset;
+                  if i = 0 then
+                     pFLastExportedFragm:= -1;
+                  RTFAuxFrag.SelLength:= EntryFragments.Fragments[i].PosI - pFLastExportedFragm -1;
+                  inc(Offset, RTFAuxFrag.SelLength);
+                  RTFAuxFrag.SelText:= '';
+               end;
+               pFLastExportedFragm:= EntryFragments.Fragments[i].PosF;
+            end;
+            RTFAuxFrag.SetSelection(pFLastExportedFragm - Offset + 1, RTFAuxFrag.TextLength, False);
+            RTFAuxFrag.SelText:= '';
+        end;
+
+        if ExportFoldedTextMode <> fmKeepUnchanged then begin
+            case ExportFoldedTextMode of
+               fmUnfold:        ExpandFoldedText(RTFAuxFrag);            // Unfold
+               fmRemoveTagged:  RemoveFoldedText(RTFAuxFrag, true);      // Remove "tagged"
+               fmRemoveAll:     RemoveFoldedText(RTFAuxFrag, false);     // Remove all
+            end;
+        end;
+        if ExportRemoveTags then
+           RemoveTags(RTFAuxFrag);
+
+        if RTFAuxFrag.TextLength = 0 then exit;
+
+        FragStream.Clear;
+        if RTFAuxFrag.StreamFormat = sfPlainText then begin
+           if not CanSaveAsANSI(RTFAuxFrag.Text) then
+              Encoding:= TEncoding.UTF8;
+        end;
+        RTFAuxFrag.Lines.SaveToStream( FragStream, Encoding);
+
+        SaveTextToFile(t, FragStream, NEntry.IsPlainTXT);             // Saved in tf or tfC
+     end;
+
   begin
      t:= tf;
-     if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
+     if GetEncryptedContentMustBeGenerated and (Note.IsEncrypted or NEntry.IsEncrypted) then begin
         t:= tfC;
         tfC.WriteLine(_NF_NEntry);                              // TNoteEntry begins
         if NEntry.ID <> 0 then
@@ -3153,11 +3307,31 @@ var
      if (NEntry.States <> []) and (NEntry.States <> [nesModified]) then
        tf.WriteLine(_NEntryState + '=' + NEntry.StatesToString);
 
-     if NEntry.Tags <> nil then
+     if NEntry.TagsToSave <> nil then
         t.WriteLine(_NEntryTags + '=' + NEntry.TagsToString);            // Saved in tf or tfC
 
-     if not Note.IsVirtual then
-        SaveTextToFile(t, NEntry.Stream, NEntry.IsPlainTXT);             // Saved in tf or tfC
+     if not Note.IsVirtual then begin
+        if NEntry.IsPlainTXT then
+           t.WriteLine(_NF_TxtContent)     // end of TNoteEntry header; Plain Text data follows       Saved in tf or tfC
+        else
+           t.WriteLine(_NF_RTFContent);    // end of TNoteEntry header; RTF data follows                    ,,
+
+        if ExportingMode and (EntryFragments <> nil) and
+               ( (EntryFragments.NumFrag > 1) or
+                 ExportRemoveTags or (ExportFoldedTextMode <> fmKeepUnchanged) or
+                ((EntryFragments.NumFrag = 1) and ((EntryFragments.Fragments[0].PosI <> 0) or (EntryFragments.Fragments[0].PosF <> -1)))
+               )  then
+           SaveFragments
+        else
+           SaveTextToFile(t, NEntry.Stream, NEntry.IsPlainTXT);             // Saved in tf or tfC
+
+        if t <> tf then begin
+           if NEntry.IsPlainTXT then
+              tf.WriteLine(_NF_TxtContent)
+           else
+              tf.WriteLine(_NF_RTFContent);
+        end;
+     end;
   end;
 
 
@@ -3168,19 +3342,19 @@ var
     t:= nil;
     if not Note.IsEncrypted then
        t:= tf;
-    if GetEncryptedContentMustBeGenerated and Note.IsEncrypted then begin
+    if GetEncryptedContentMustBeGenerated and (Note.IsEncrypted or Note.HasEncryptedEntries) then begin
        t:= tfC;
        tfC.WriteLine(_NF_Note);              // TNote begins
        tfC.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
 
-       if FHideEncryptedNodes then
+       if FHideEncryptedNodesAndEntries then
           tfC.WriteLine(_NoteName + '=' + Note.Name, True);
     end;
 
     tf.WriteLine(_NF_Note);              // TNote begins
     tf.WriteLine(_NoteGID + '=' + Note.GID.ToString );    // Here means NoteGID
 
-    if not Note.IsEncrypted or not FHideEncryptedNodes then
+    if not Note.IsEncrypted or not FHideEncryptedNodesAndEntries then
        tf.WriteLine(_NoteName + '=' + Note.Name, True);
 
     if Note.Alias <> '' then
@@ -3190,10 +3364,10 @@ var
     if (Note.States <> []) and (Note.States <> [nsModified]) then
        tf.WriteLine(_NoteState + '=' + Note.StatesToString);
 
-    if Note.SelEntry.ID > 0 then
+    if (Note.SelEntry <> nil) and (Note.SelEntry.ID > 0) then
        tf.WriteLine(_NoteSelEntry + '=' + Note.SelEntry.ID.ToString  );
-    if ( _SAVE_RESTORE_CARETPOS and ( Note.SelStart > 0 )) then
-       tf.WriteLine( _NEntrySelStart + '=' + Note.SelStart.ToString  );
+    if ( _SAVE_RESTORE_CARETPOS and ( Note.SSImLink > 0 )) then
+       tf.WriteLine( _NEntrySelStart + '=' + Note.SSImLink.ToString  );
     if Note.Resources <> nil then
        tf.WriteLine(_NoteResources + '=' + Note.ResourcesToString  );
 
@@ -3217,20 +3391,28 @@ var
           end;
     end;
 
-    for i := 0 to High(Note.Entries) do
+    EntryFragments:= nil;
+    for i := 0 to High(Note.Entries) do begin
+       if ExportingMode and not NEntryToBeSaved(Note, Note.Entries[i], EntryFragments) then continue;
        WriteNEntry(Note.Entries[i], Note);
+    end;
 
   end;
 
   procedure WriteFolder (myFolder: TKntFolder);
+  var
+     NumNodes: integer;
   begin
       try
         if assigned( myFolder ) then begin
           if ExportingMode and not (myFolder.Info > 0) then     // Folders to be exported are marked with Info=1
              Exit;
 
-          SavedNodes:= SavedNodes + myFolder.SaveToFile( tf, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
-          inc (SavedFolders);
+          NumNodes:= myFolder.SaveToFile( tf, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent, ExportFoundNodes);
+          if not ExportingMode or (NumNodes > 0) then begin
+             inc(SavedNodes, NumNodes);
+             inc (SavedFolders);
+          end;
         end;
       except
         on E : Exception do begin
@@ -3265,6 +3447,8 @@ var
        tfC.assignstream( ToEncryptStream );
        tfC.rewrite;
     end;
+
+    PrepareAuxObjectsFragment;
 
     try
         //writeln(tf, _NF_COMMENT, _NF_AID, FVersion.ID, #32, FVersion.Major + '.' + FVersion.Minor );
@@ -3313,7 +3497,7 @@ var
            NotesToSave:= TNoteList.Create;
            for i := 0 to FFolders.Count -1 do
               if FFolders[i].Info > 0 then          // Folders to be exported are marked with Info=1
-                 FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes);
+                 FFolders[i].GetNotesToBeSaved(NotesToSave, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent, ExportFoundNotes);
 
            // Save Notes (TNote) with its Entries (TNoteEntry)
            tf.WriteLine(_NumNotes + '=' + NotesToSave.Count.ToString);
@@ -3406,6 +3590,10 @@ var
           FreeAndNil(EncryptedStream);
           FreeAndNil(tfC);
        end;
+       if FragStream <> nil then
+          FragStream.Free;
+       if RTFAuxFrag <> nil then
+          RTFAuxFrag.Free;
     end;
   end;
 
@@ -3597,10 +3785,6 @@ begin
 
     DataStream.Position := 0;
 
-    if PlainText then
-       tf.WriteLine(_NF_TxtContent)     // end of TNoteEntry header; Plain Text data follows
-    else
-       tf.WriteLine(_NF_RTFContent);    // end of TNoteEntry header; RTF data follows
 
 
     if PlainText then begin
@@ -3757,13 +3941,13 @@ begin
 
       if not FEncryptedContentOpened then begin
          InvalidateKeyCache;
-         FHighlightProtectedNodes:= False;
+         FHighlightProtectedNodesAndEntries:= False;
       end;
 
       if not IsMergeFile then begin
          ReloadFocusedNodesWithEncryptedContent;
 
-         if FHideEncryptedNodes then
+         if FHideEncryptedNodesAndEntries then
             ShowOrHideEncryptedNodes;
 
          if Form_Main.chkFilterOnTags.Checked then   // -> ShowUseOfTags = True
@@ -3772,10 +3956,10 @@ begin
    end;
 end;
 
-procedure TKntFile.SetHideEncryptedNodes(Value: boolean);
+procedure TKntFile.SetHideEncryptedNodesAndEntries(Value: boolean);
 begin
-   if FHideEncryptedNodes <> Value then begin
-      FHideEncryptedNodes:= Value;
+   if FHideEncryptedNodesAndEntries <> Value then begin
+      FHideEncryptedNodesAndEntries:= Value;
 
       ShowOrHideEncryptedNodes;
    end;
@@ -3792,20 +3976,20 @@ end;
 
 function TKntFile.GetEncryptedContentMustBeHidden: boolean;
 begin
-   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened;
+   Result:= Initializing or (FEncryptedContentEnabled and not FEncryptedContentOpened);
 end;
 
 
 function TKntFile.GetEncryptedNodesMustBeHidden: boolean;
 begin
-   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened and FHideEncryptedNodes;
+   Result:= FEncryptedContentEnabled and not FEncryptedContentOpened and FHideEncryptedNodesAndEntries;
 end;
 
 function  TKntFile.GetEncryptedContentMustBeGenerated: boolean;
 begin
    // If FLoadedEncryptedContent <> nil => The content loaded when opening the file have not been opened and so it is not modified
 
-   Result:= FEncryptedContentEnabled and (FLoadedEncryptedContent = nil);
+   Result:= Initializing or (FEncryptedContentEnabled and (FLoadedEncryptedContent = nil));
 end;
 
 procedure TKntFile.ShowOrHideEncryptedNodes;
@@ -3814,7 +3998,7 @@ var
   myFolder : TKntFolder;
   Hide: boolean;
 begin
-  Hide:= not FEncryptedContentOpened and FHideEncryptedNodes;
+  Hide:= not FEncryptedContentOpened and FHideEncryptedNodesAndEntries;
   if FHidingEncryptedNodes = Hide then exit;
 
   for i := 0 to FFolders.Count-1 do begin
@@ -3834,14 +4018,18 @@ var
   ImgsEncr: boolean;
   CurrentEditor: TKntRichEdit;
 begin
+  if Initializing or AFileIsLoading then exit;
+
   CurrentEditor:= ActiveFolder.Editor;
   ImgsEncr:= ImageMng.FileContainsEncryptedImages;
 
   for i := 0 to FFolders.Count-1 do begin
      myFolder := FFolders[i];
      NNode:= myFolder.FocusedNNode;
-     if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted) then
-        myFolder.NoteUI.LoadFromNNode(NNode, True);
+     if (NNode <> nil) and (ImgsEncr or NNode.Note.IsEncrypted or NNode.Note.HasEncryptedEntries) then begin
+        myFolder.NoteUI.ReconsiderFilteredStatusOnEncryptedEntries;
+        myFolder.NoteUI.LoadFromNNode(NNode, True, neLastLayout);
+     end;
 
      if myFolder.Filtered then begin
         if myFolder.TreeUI.TagFilterApplied then
@@ -3873,7 +4061,7 @@ begin
       end;
 
       if CheckPassword(GetEncryptionInfo) then begin
-         FHighlightProtectedNodes:= WasShiftDown;
+         FHighlightProtectedNodesAndEntries:= WasShiftDown;
          EncryptedContentOpened:= True;
          exit (True);
       end;
@@ -4067,7 +4255,7 @@ begin
       Method := FCryptMethod;
       KeyDerivIterations:= FKeyDerivIterations;
       Hash := FLoadedVerificationHash;
-      HideEncryptedNodes:= FHideEncryptedNodes;
+      HideEncryptedNodesAndEntries:= FHideEncryptedNodesAndEntries;
     end;
 end;
 

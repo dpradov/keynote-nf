@@ -307,7 +307,7 @@ object Form_KntFileMgr: TForm_KntFileMgr
     Font.Style = []
     Header.AutoSizeIndex = 0
     Header.MainColumn = -1
-    Images = Chest.MGRImages
+    Images = Form_Main.MGRImages
     IncrementalSearch = isAll
     ParentFont = False
     TabOrder = 1

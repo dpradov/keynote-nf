@@ -62,11 +62,21 @@ procedure EnableOrDisableUAS;
 procedure ConfigureUAS;
 procedure ConvertStreamContent(Stream: TMemoryStream; FromFormat, ToFormat: TRichStreamFormat; RTFAux : TRxRichEdit; KntFolder: TKntFolder);
 procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
+procedure SetEditorDefAttributes (AEditor: TRxRichEdit; KntFolder: TKntFolder);
 function GetColor(Color: TColor; ColorIfNone: TColor): TColor; inline;
-function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
+function GetCellxEditorWidth(Editor: TRxRichEdit): integer;
 function GetRTFLine(Editor: TRxRichEdit): AnsiString;
-function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
+function GetRTFPrintableLineAux(WidthTwips: integer): AnsiString;
+function GetRTFPrintableLine(Editor: TRxRichEdit; ColorLine: TColor; WidthTwips: integer): AnsiString; overload;
+function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString; overload;
 function GetRTFTable(Editor: TRxRichEdit; Printable: boolean): AnsiString;
+
+function MarkFirstLevelFoldedBlocks(RTF : TRxRichEdit): boolean;
+procedure RemoveFirstLevelFoldedBlocksMarks(RTF : TRxRichEdit);
+procedure ExpandFoldedText(RTF : TRxRichEdit);
+procedure RemoveFoldedText(RTF : TRxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
+
+procedure CheckSelectionHiddenInFoldedBlock(Editor : TKntRichEdit; var SS, SL: integer; DoNotModifyCaret: boolean = false);
 
 type
    TClipCapMng = class
@@ -1181,6 +1191,7 @@ var
   PageRect: TRect;
   DPI: Integer;
   PrnPreviews: TList;
+  i: integer;
 
 begin
   if ( not Form_Main.HaveKntFolders( true, true )) then exit;
@@ -1258,25 +1269,33 @@ begin
            Node := TV.GetNextNotHidden(Node);
 
         while assigned( Node ) do begin
-           RTFAux.Clear;
            NNode:= TreeUI.GetNNode(Node);
-           NEntry:= NNode.Note.Entries[0];            // %%%
-           NEntry.Stream.Position := 0;
-           RTFwithImages:= '';
-           NEntryText:= '';
-           NEntryTextSize := NEntry.Stream.Size;
-           if NEntry.Stream.Size > 0 then begin
-               SetLength( NEntryText, NEntryTextSize );
-               move( NEntry.Stream.Memory^, NEntryText[1], NEntryTextSize );
+           RTFAux.Clear;
+
+           for i := 0 to High(NNode.Note.Entries) do begin
+               NEntry:= NNode.Note.Entries[i];
+               NEntry.Stream.Position := 0;
+               RTFwithImages:= '';
+               NEntryText:= '';
+               NEntryTextSize := NEntry.Stream.Size;
+               if NEntry.Stream.Size > 0 then begin
+                   SetLength( NEntryText, NEntryTextSize );
+                   move( NEntry.Stream.Memory^, NEntryText[1], NEntryTextSize );
+               end;
+
+               if NEntry.IsRTF then
+                  RTFwithImages:= ImageMng.ProcessImagesInRTF(NEntryText, '', imImage, '', 0, false);
+
+               if RTFwithImages <> '' then
+                  RTFAux.PutRtfText(RTFwithImages, false)
+               else
+                  RTFAux.PutRtfText(NEntryText, false);
+
+               if i < High(NNode.Note.Entries) then begin
+                  RTFAux.PutRtfText(#13, false);
+                  RTFAux.PutRtfText(GetRTFPrintableLine(RTFAux, clSilver, 99999), false);
+               end;
            end;
-
-           if NEntry.IsRTF then
-              RTFwithImages:= ImageMng.ProcessImagesInRTF(NEntryText, '', imImage, '', 0, false);
-
-           if RTFwithImages <> '' then
-              RTFAux.PutRtfText(RTFwithImages, false)
-           else
-              RTFAux.PutRtfText(NEntryText, false);
 
            if RTFAux.TextLength <> 0 then begin
               FirstPageMarginTop:= -1;
@@ -1443,9 +1462,10 @@ begin
    RTFAux.Clear;
    RTFAux.StreamMode := [];
 
-   UpdateEditor(RTFAux, KntFolder, True, True);
-
    RTFAux.StreamFormat:= FromFormat;
+   if (ToFormat = sfRichText) then
+      SetEditorDefAttributes(RTFAux, KntFolder);
+
    RTFAux.Lines.LoadFromStream(Stream);
    RTFAux.StreamFormat := ToFormat;
 
@@ -1456,6 +1476,19 @@ begin
    RTFAux.Lines.SaveToStream(Stream, Encoding);
 end;
 
+
+procedure SetEditorDefAttributes (AEditor: TRxRichEdit; KntFolder: TKntFolder);
+begin
+  with KntFolder do
+     with AEditor.DefAttributes do begin
+       Charset := EditorChrome.Font.Charset;
+       Name := EditorChrome.Font.Name;
+       Size := EditorChrome.Font.Size;
+       Style := EditorChrome.Font.Style;
+       Color := EditorChrome.Font.Color;
+       Language := EditorChrome.Language;
+    end;
+end;
 
 procedure UpdateEditor (AEditor: TRxRichEdit; KntFolder: TKntFolder; SetWordWrap: boolean; KeepNotVisible: boolean = false);
 var
@@ -1483,15 +1516,7 @@ begin
        AEditor.Color := EditorChrome.BGColor;
        TextLen:= AEditor.TextLength;
        if (TextLen = 0) or AEditor.PlainText then begin          // Solves the problem indicated in EditProperties...*1
-          with AEditor.DefAttributes do begin
-            Charset := EditorChrome.Font.Charset;
-            Name := EditorChrome.Font.Name;
-            Size := EditorChrome.Font.Size;
-            Style := EditorChrome.Font.Style;
-            Color := EditorChrome.Font.Color;
-            Language := EditorChrome.Language;
-          end;
-
+          SetEditorDefAttributes(AEditor, KntFolder);
           if (TextLen = 0) and RTL then
              AEditor.BiDiMode:= bdRightToLeft;
        end;
@@ -1555,7 +1580,7 @@ begin
 end;
 
 
-function GetCellxEditorWidth(Editor: TRxRichEdit): AnsiString;
+function GetCellxEditorWidth(Editor: TRxRichEdit): integer;
 var
   widthTwips: integer;
 begin
@@ -1563,29 +1588,41 @@ begin
       widthTwips := GetEditorWidthInTwips(Editor)
    else
       widthTwips := 999999;
-   Result:= '\cellx' + widthTwips.ToString;
+   Result:= widthTwips;
 end;
 
 
 function GetRTFLine(Editor: TRxRichEdit): AnsiString;
 begin
-  Result:= '{\rtf1\ansi\trowd' + GetCellxEditorWidth(Editor) + ' \pard\intbl\fs1\cell\row \pard}';
+  Result:= '{\rtf1\ansi\trowd\cellx' + GetCellxEditorWidth(Editor).ToString + ' \pard\intbl\fs1\cell\row \pard}';
+end;
+
+function GetRTFPrintableLineAux(WidthTwips: integer): AnsiString;
+begin
+  Result:=
+      '\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3'+
+      '\clbrdrt\brdrw10\brdrcf2'+
+      '\clbrdrb\brdrw1\brdrcf1'+
+      '\clbrdrl\brdrw1\brdrcf1'+
+      '\clbrdrr\brdrw1\brdrcf1\cellx'+
+      WidthTwips.ToString +
+      ' \pard\intbl\fs1\cell\row\pard';
+end;
+
+
+function GetRTFPrintableLine(Editor: TRxRichEdit; ColorLine: TColor; WidthTwips: integer): AnsiString;
+begin
+  Result:=
+      '{\rtf1\ansi{\colortbl ;'
+          + GetRTFColor(ColorToRGB(Editor.Color)) + ';'
+          + GetRTFColor(ColorToRGB(ColorLine))   + ';}' +
+       GetRTFPrintableLineAux(WidthTwips) + '}';
 end;
 
 
 function GetRTFPrintableLine(Editor: TRxRichEdit): AnsiString;
 begin
-  Result:=
-      '{\rtf1\ansi{\colortbl ;'
-          + GetRTFColor(ColorToRGB(Editor.Color)) + ';'
-          + GetRTFColor(ColorToRGB(Form_Main.TB_Color.ActiveColor))   + ';}' +
-      '\trowd\trgaph10\trpaddl10\trpaddr10\trpaddfl3\trpaddfr3'+
-      '\clbrdrt\brdrw10\brdrcf2'+
-      '\clbrdrb\brdrw1\brdrcf1'+
-      '\clbrdrl\brdrw1\brdrcf1'+
-      '\clbrdrr\brdrw1\brdrcf1'+
-      GetCellxEditorWidth(Editor) +
-      ' \pard\intbl\fs1\cell\row \pard}';
+   Result:= GetRTFPrintableLine(Editor, Form_Main.TB_Color.ActiveColor, GetCellxEditorWidth(Editor));
 end;
 
 
@@ -1633,6 +1670,106 @@ begin
   Result:= Result + '}';
 end;
 
+
+function MarkFirstLevelFoldedBlocks(RTF : TRxRichEdit): boolean;
+var
+  TxtPlain: string;
+  SS, pI, pF, pMark: integer;
+begin
+  Result:= false;
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then begin
+        PositionInFoldedBlock(TxtPlain, SS, RTF, pI, pF);
+        pMark:= pI;
+        RTF.SetSelection(pMark, pMark, false);
+        RTF.SelText:= KNT_RTF_AUX_CHAR;
+        pMark:= pF+3;
+        RTF.SetSelection(pMark, pMark, false);
+        RTF.SelText:= KNT_RTF_AUX_CHAR;
+        SS:= pMark;
+        Result:= True;
+     end;
+  until SS = 0;
+end;
+
+
+procedure RemoveFirstLevelFoldedBlocksMarks(RTF : TRxRichEdit);
+var
+  TxtPlain: string;
+  SS, pMark: integer;
+  Offset: integer;
+begin
+  Offset:= 0;
+  TxtPlain:= RTF.TextPlain;
+  SS:= 1;
+  repeat
+     SS:= Pos(KNT_RTF_AUX_CHAR, TxtPlain, SS);
+     if SS > 0 then begin
+        pMark:= SS - Offset;
+        RTF.SetSelection(pMark-1, pMark, false);
+        RTF.SelText:= '';
+        Inc(Offset);
+        Inc(SS);
+     end;
+  until SS = 0;
+end;
+
+
+
+procedure ExpandFoldedText(RTF : TRxRichEdit);
+var
+  TxtPlain: string;
+  SS: integer;
+begin
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then
+        Unfold(RTF, TxtPlain, SS);
+  until SS = 0;
+end;
+
+
+procedure RemoveFoldedText(RTF : TRxRichEdit; OnlyIfTaggedFolded: boolean; KeepVisibleText: boolean = false);
+var
+  TxtPlain: string;
+  SS: integer;
+begin
+  SS:= 1;
+  repeat
+     TxtPlain:= RTF.TextPlain;
+     SS:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain, SS);
+     if SS > 0 then
+        SS:= RemoveFoldedBlock(RTF, TxtPlain, SS, OnlyIfTaggedFolded, KeepVisibleText);
+  until SS = 0;
+end;
+
+
+procedure CheckSelectionHiddenInFoldedBlock(Editor : TKntRichEdit; var SS, SL: integer; DoNotModifyCaret: boolean = false);
+var
+  pI, pF: integer;
+  SSbak, SLbak: integer;
+begin
+   if DoNotModifyCaret then begin
+      SSbak:= Editor.SelStart;
+      SLbak:= Editor.SelLength;
+   end;
+
+   Editor.SelStart := SS;
+   if Editor.SelAttributes.Protected and (Editor.SelStart <> SS) and PositionInFoldedBlock(Editor.TextPlain, SS, Editor, pI, pF) then begin
+      SS:= pI;
+      SL:= 1;
+   end;
+
+   if DoNotModifyCaret then begin
+      Editor.SelStart:= SSbak;
+      Editor.SelLength:= SLbak;
+   end;
+end;
 
 
 initialization

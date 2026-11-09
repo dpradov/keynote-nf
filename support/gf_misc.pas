@@ -59,7 +59,7 @@ type
     property Items[Index: Integer]: T read GetItem write SetItem; default;
     function Count: Integer; inline;
     procedure Sort(Compare: TListSortCompare); inline;
-    procedure Free; inline;
+    //procedure Free; inline;            // It is not correct to use this method:
   end;
 
 
@@ -85,7 +85,7 @@ type
     property Items[Index: Integer]: integer read GetItem write SetItem; default;
     function Count: Integer; inline;
     procedure Sort(Compare: TListSortCompare); inline;
-    procedure Free; inline;
+    //procedure Free; inline;              // It is not correct to use this method:
   end;
 
   function CompareIntegers(Item1, Item2: Pointer): Integer;
@@ -1901,11 +1901,20 @@ begin
    FList.Sort(Compare);
 end;
 
+{
+ It is not correct to use this method:
+ TObject.Free is not virtual, and so this method is not overriding it (and there is no override keyword, and in fact,
+ it couldn't use one); instead, we are hiding the name for any code working with a variable typed as TSimpleObjList<T>.
+ As a consequences, the instance is never truly destroyed. When standard usage code calls obj.Free, the compiler
+ statically resolves the call to this method, which simply executes FList.Free and stops there. It never calls Destroy,
+ meaning the `inherited Destroy` belonging to TSimpleObjList<T> itself is never executed via this path. So, FList is freed,
+ but the `TSimpleObjList<T>` object itself remains in memory
+
 procedure TSimpleObjList<T>.Free;
 begin
     FList.Free;
 end;
-
+}
 
 // =============================================
 // TIntegerList
@@ -1978,10 +1987,12 @@ begin
    FList.Sort(Compare);
 end;
 
+{
 procedure TIntegerList.Free;
 begin
     FList.Free;
 end;
+}
 
 function CompareIntegers(Item1, Item2: Pointer): Integer;
 var

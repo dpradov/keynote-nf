@@ -53,6 +53,7 @@ type
 type
   TKntRichEdit= class;
   TChangedSelectionEvent = procedure(Sender: TKntRichEdit; ConsiderAllOnPlainText: boolean = false) of object;
+  TEditorChangedEvent = procedure(Sender: TKntRichEdit) of object;
 
 
 //======================================
@@ -90,11 +91,15 @@ type
     fFolderObj: TObject;
     fNNodeObj:  TObject;
     fNEntryObj: TObject;
+    fMultiEntries: boolean;
+    fNEntriesUIObj: TObject;
 
     FAutoIndent : boolean;
     FUseTabChar : boolean;
     FTabSize : byte;
     FRecreateWndProtect : boolean;
+
+    FNavigatePanelsEnabled: boolean;
 
    	// Fields initialized in Folder.ConfigureEditor. Also in CreateScratchEditor()
     FPlainText: boolean;
@@ -109,7 +114,9 @@ type
 
     FIgnoreSelectionChange: boolean;
     FChangedSelection: TChangedSelectionEvent;
+    FEditorChanged: TEditorChangedEvent;
     FLinkHover: TCharRange;
+    FIgnoreNextKeyPress: boolean;
 
     FKeepEndCR: boolean;       // in folded block open in floating editor
 
@@ -150,6 +157,8 @@ type
     property FolderObj: TObject read fFolderObj;
     property NNodeObj: TObject read fNNodeObj;
     property NEntryObj: TObject read fNEntryObj;
+    property NEntriesUIObj: TObject read fNEntriesUIObj;
+    property MultiEntry: boolean read fMultiEntries;
 
     class property Copying: boolean read FCopying write FCopying;
     class property FoldingInScrapbook: boolean read FFoldingInScrapbook write FFoldingInScrapbook;
@@ -161,9 +170,10 @@ type
     property DoRegisterNewImages: boolean read GetDoRegisterNewImages;
     property Chrome: TChrome read FChrome write FChrome;
     property ZoomGoal: integer read FZoomGoal;
-    property ZoomCurrent: integer read FZoomCurrent;
+    property ZoomCurrent: integer read FZoomCurrent write FZoomCurrent;
 
-    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject);
+    procedure SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntry: boolean);
+    procedure SetVinculatedEntryObj(NEntryObj: TObject);
     function ContainsRegisteredImages: boolean;
 
     procedure SetLangOptions(AfterChangeRTL: boolean);
@@ -174,9 +184,11 @@ type
     property RecreateWndProtect : boolean read FRecreateWndProtect write FRecreateWndProtect;
 
     property OnChangedSelection: TChangedSelectionEvent read FChangedSelection write FChangedSelection;
+    property OnEditorChanged: TEditorChangedEvent read FEditorChanged write FEditorChanged;
     procedure ChangedSelection; virtual;
     procedure Change; override;
     function GetSelectedImageID: integer;
+    property NavigatePanelsEnabled: boolean read FNavigatePanelsEnabled write FNavigatePanelsEnabled;
 
     function FontInfoString : string;
     function ParaInfoString : string;
@@ -188,6 +200,7 @@ type
     procedure GetIndentInformation(var Indent: integer; var NextIndent: integer;
                                    var LineStr: string; var posBegin : integer;
                                    paragraphMode: boolean= false);
+    function IsVerticalScrollBarVisible: boolean;
 
     procedure GetLinkAtCursor(var URL: string; var TextURL: string;
                               var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
@@ -384,6 +397,7 @@ uses
    knt.ui.tagSelector,
    knt.ui.TagMng,
    knt.ui.floatingEditor,
+   knt.ui.noteEntries,
    knt.App,
    knt.RS
   ;
@@ -522,7 +536,11 @@ begin
   FUseTabChar := true;
   FTabSize := DEF_TAB_SIZE;
 
+  FEditorChanged:= nil;
+  FChangedSelection:= nil;
   FIgnoreSelectionChange:= false;
+  FNavigatePanelsEnabled:= False;
+  FIgnoreNextKeyPress:= false;
   DraggingImageID:= 0;
 
   FZoomGoal:= 100;
@@ -558,14 +576,20 @@ begin
   inherited Destroy;
 end;
 
-procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject);
+procedure TKntRichEdit.SetVinculatedObjs(FileObj, FolderObj, NNodeObj, NEntryObj: TObject; NEntriesUIObj: TObject; MultiEntry: boolean);
 begin
    fFileObj:= FileObj;
    fFolderObj:= FolderObj;
    fNNodeObj:= NNodeObj;
    fNEntryObj:= NEntryObj;
+   fNEntriesUIObj:= NEntriesUIObj;
+   fMultiEntries:= MultiEntry;
 end;
 
+procedure TKntRichEdit.SetVinculatedEntryObj(NEntryObj: TObject);
+begin
+  fNEntryObj:= NEntryObj;
+end;
 
 procedure TKntRichEdit.SetLangOptions(AfterChangeRTL: boolean);
 var
@@ -585,7 +609,7 @@ function TKntRichEdit.ContainsRegisteredImages: boolean;
 var
   ImgIDs: TImageIDs;
 begin
-  ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain (TextPlain);
+  ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain (TextPlain, True);
   Result:= (ImgIDs <> nil);
 end;
 
@@ -602,7 +626,7 @@ begin
        NNodeObj:= Self.NNodeObj;
        NEntryObj:= Self.NEntryObj;
        FolderObj:= Self.FolderObj;
-       Result:= True;
+       Result:= (Self.NEntryObj <> nil);
    end
    else
    if (ParentEditor <> nil) then
@@ -3619,10 +3643,12 @@ var
   FE: TFloatingEditor;
   KeepEndCR: boolean;
   SL: integer;
+  ModifiedBak: boolean;
 begin
    if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
       try
+         ModifiedBak:= Self.Modified;
          SuspendUndo;
          SelectTextToBeUnfolded(Self, pI, pF);
          SL:= SelLength;
@@ -3638,6 +3664,9 @@ begin
          PrepareRTFtoBeExpanded(RTFIn, RTFOut, Self, KeepEndCR, False);
          FKeepEndCR:= KeepEndCR;
          SelStart:= pI;
+
+         Modified:= ModifiedBak;      // Necessary because SelectTextToBeUnfolded will modify the editor (See comment FOLD*1)
+
       finally
          ResumeUndo;
          EndUpdate;
@@ -4159,6 +4188,13 @@ var
   ch: char;
 
 begin
+  if (Key = VK_RETURN) and (shift = []) and FMultiEntries and (FNNodeObj <> nil) and
+       (TKntFolder(FolderObj).NoteAdvOptions.EnableAdvEditionInSingleEntryNotes or (TNoteNode(fNNodeObj).Note.NumEntries > 1) ) then begin
+       key:= 0;
+       FIgnoreNextKeyPress:= true;
+       ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, False);
+       exit;
+  end;
 
   if ( not ( key in [16..18] )) then begin  // skip bare modifier keys
     App.Kbd.LastRTFKey.Key:= Key;
@@ -4324,6 +4360,18 @@ begin
            PopupMenu.Popup(ptCursor.X, ptCursor.Y);
       end;
     end;
+  end
+  else
+  if ( shift = [ssCtrl] ) then begin
+    case key of
+      VK_SPACE : begin
+         key := 0;
+         FIgnoreNextKeyPress:= true;
+         if (fNNodeObj <> nil) and TKntNoteEntriesUI(fNEntriesUIObj).NoteUI.MultipleVisibleEditors then
+            TKntNoteEntriesUI(fNEntriesUIObj).NoteUI.ToggleMaximizeSelectedPanel;
+         exit;
+      end;
+    end;
   end;
 
   inherited;
@@ -4414,10 +4462,23 @@ var
 
 
 begin
+  if FIgnoreNextKeyPress then begin
+     FIgnoreNextKeyPress:= false;
+     Key:= #0;
+     exit;
+  end;
+
   if ( App.Kbd.RxRTFKeyProcessed or ((Key = #9) and (GetKeyState(VK_CONTROL) < 0)) ) then begin
     Key := #0;
     App.Kbd.RxRTFKeyProcessed := false;
     exit;
+  end;
+
+  if fMultiEntries and ReadOnly and (key = #32) then begin
+     if (fNEntriesUIObj <> nil) then begin
+        TKntNoteEntriesUI(FNEntriesUIObj).ToggleOnlyHeader_WholeContent;
+        exit;
+     end;
   end;
 
   if CheckReadOnly then begin
@@ -4649,6 +4710,9 @@ var
 begin
   if FUpdating > 0 then exit;
   if FIgnoreSelectionChange then exit;
+
+  FNavigatePanelsEnabled:= True;
+
   if (IntroducingTagsState <> itDisabled) then
      if (IntroducingTagsState <> itNoTags) and (cTagSelector.EditorCtrlUI = Self) then begin
         if (Self.SelLength > 0) then
@@ -4659,6 +4723,9 @@ begin
      else
      if IgnoreSelectorForTagSubsr = ' ' then
         IgnoreSelectorForTagSubsr := '';
+
+  if fMultiEntries and (FNEntriesUIObj <> nil) then
+     TKntNoteEntriesUI(FNEntriesUIObj).EditorChangedSelectionInMultiEntries;
 
   if FLinkHover.cpMin <> -1 then begin
      App.ShowInfoInStatusBar('');
@@ -4766,8 +4833,11 @@ begin
   if FUpdating > 0 then exit;
 
   if FUpdating = 0 then begin
-    if Modified and not IgnoringEditorChanges then
+    if Modified and not IgnoringEditorChanges then begin
+       if assigned(FEditorChanged) then
+          OnEditorChanged(Self);
        App.ChangeInEditor(Self);
+    end;
   end;
 
   inherited;
@@ -4776,7 +4846,7 @@ end; // Change
 
 procedure TKntRichEdit.ChangedSelection;
 begin
-    if assigned(OnChangedSelection) then
+    if assigned(FChangedSelection) then
        OnChangedSelection(Self);
 end;
 
@@ -4859,7 +4929,7 @@ begin
 
       else if SL > 1 then begin
          if Length(txt) < SL then begin
-           ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain(SelText);
+           ImgIDs:= ImageMng.GetImagesIDInstancesFromTextPlain(SelText, True);
            if ImgIDs <> nil then
               ImgID:= ImgIDs[0];
          end
@@ -4889,6 +4959,10 @@ begin
       if nSL < SL then
          SelLength:= nSL;
    end;
+
+
+   if fMultiEntries and (FNEntriesUIObj <> nil) then
+     TKntNoteEntriesUI(FNEntriesUIObj).EditorDblClickInMultiEntries(CtrlDown, AltDown);
 
    inherited;
 end;
@@ -6113,6 +6187,11 @@ begin
         NextIndent:= Indent;
 end;
 
+
+function TKntRichEdit.IsVerticalScrollBarVisible: boolean;
+begin
+   Result := (GetWindowLong(Self.Handle, GWL_STYLE) and WS_VSCROLL) <> 0;
+end;
 
 //--------------------------------------------------------------------------
 

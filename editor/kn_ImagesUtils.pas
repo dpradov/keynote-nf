@@ -104,7 +104,7 @@ uses
                            var PosRTFImageEnd: integer;
                            GetStream: boolean= true
                            ): boolean;
-  
+
   function RTFLinkToImage (Buffer: Pointer;
                            PictOffset: integer;
                            var WidthGoal, HeightGoal: integer;
@@ -122,6 +122,8 @@ uses
                                          const ImgFormat: TImageFormat;
                                          var ImgFormatDest: TImageFormat );
 
+
+  procedure CombineImagesInstances(Src: TImageIDs; var Dest: TImageIDs);
 
 
 implementation
@@ -1131,18 +1133,30 @@ begin
   try
    // RTF (+ LinkOffset): Text that starts with {\field{\*\fldinst{HYPERLINK "img: ...
 
-   //  {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{textOfHyperlink}}}
-   //  {\field{\*\fldinst{HYPERLINK "img:1,255,142"}}{\fldrslt {NOTE1\\1_Image_15nov.png}}}
+   // There is no guarantee that there will be a space before the visible text, because the format of the link was moved outside that part
+   // Although it is still possible, if a format is applied -> use commands -> \...
+
+   //  Before: {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{\ul\cf1 textOfHyperlink}}}
+   //  Now:    {\field{\*\fldinst{HYPERLINK "img:ImgID,WGoal,HGoal"}}{\fldrslt{textOfHyperlink}}}
+   //          {\field{\*\fldinst{HYPERLINK "img:1,255,142"}}{\fldrslt {NOTE1\\1_Image_15nov.png}}}
 
 
    p1:= PosPAnsiChar('HYPERLINK', RTF, LinkOffset);
    p2:= PosPAnsiChar('"', RTF, p1 + Length('HYPERLINK')+2);
-   p3:= PosPAnsiChar(' ', RTF, p2+1);
-   if RTF[p3] = '{' then
+
+   p3:= PosPAnsiChar('\fldrslt', RTF, p2+1);
+   inc(p3, Length('\fldrslt')-1);
+   if RTF[p3] = ' ' then
       inc(p3);
+   if RTF[p3] = '{' then begin
+      inc(p3);
+      if RTF[p3] = '\' then
+         p3:= PosPAnsiChar(' ', RTF, p3);
+   end;
+
    p4:= PosPAnsiChar('}', RTF, p3+1);
 
-   // Los caracteres \ los hemos debido escapar duplicándolos ->
+   // We had to escape the \ characters by doubling them ->
    StrAux:= CopyPAnsiChar(RTF, p3+1,p4-p3-1);
    StrAux:= StringReplace(StrAux,'\\','*', [rfReplaceAll]);
 
@@ -1292,6 +1306,21 @@ begin
   end;
 
 
+end;
+
+
+procedure CombineImagesInstances(Src: TImageIDs; var Dest: TImageIDs);
+var
+  CurrentLen, L: Integer;
+begin
+   if Src <> nil then begin
+      CurrentLen := Length(Dest);
+      L := Length(Src);
+      if L > 0 then begin
+         SetLength(Dest, CurrentLen + L);
+         Move(Src[0], Dest[CurrentLen], L * SizeOf(Integer));
+      end;
+   end;
 end;
 
 

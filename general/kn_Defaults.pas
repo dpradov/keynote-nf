@@ -1,18 +1,18 @@
 unit kn_Defaults;
 
 (****** LICENSE INFORMATION **************************************************
- 
+
  - This Source Code Form is subject to the terms of the Mozilla Public
  - License, v. 2.0. If a copy of the MPL was not distributed with this
- - file, You can obtain one at http://mozilla.org/MPL/2.0/.           
- 
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 ------------------------------------------------------------------------------
- (c) 2007-2023 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2007-2026 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
  (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
 
  [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
      and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
-   
+
  *****************************************************************************)
 
 
@@ -38,7 +38,8 @@ uses
    LCCombo,
    gf_miscvcl,
    kn_Info,
-   kn_Const
+   kn_Const,
+   knt.model.note
    ;
 
 
@@ -65,7 +66,6 @@ type
     CB_TreeCheck: TCheckBox;
     Label5: TLabel;
     Edit_NodeName: TComboBox;
-    CB_AutoNumberNodes: TCheckBox;
     BitBtn_TknHlp: TBitBtn;
     Label_EditorFonts: TLabel;
     FormPlacement: TFormPlacement;
@@ -99,6 +99,57 @@ type
     CB_ShowFlagCol: TCheckBox;
     CB_RTL: TCheckBox;
     CB_DisableTagSel: TCheckBox;
+    Tab_Advanced: TTab95Sheet;
+    PagesAdv: TPage95Control;
+    Tab_QL: TTab95Sheet;
+    Tab_EL: TTab95Sheet;
+    Tab_Custom: TTab95Sheet;
+    lbl9: TLabel;
+    FirstLinesMaxL: TSpinEdit;
+    FirstLinesMaxC: TSpinEdit;
+    Tab_AdvGral: TTab95Sheet;
+    cUseTLq: TComboBox;
+    cUseTRq: TComboBox;
+    cUseCq: TComboBox;
+    cUseBLq: TComboBox;
+    cUseBRq: TComboBox;
+    cb_TLq: TCheckBox;
+    cb_TRq: TCheckBox;
+    cb_Cq: TCheckBox;
+    cb_BLq: TCheckBox;
+    cb_BRq: TCheckBox;
+    TagsTLq: TEdit;
+    TagsTRq: TEdit;
+    TagsCq: TEdit;
+    TagsBLq: TEdit;
+    TagsBRq: TEdit;
+    lblQL: TLabel;
+    cUseTLe: TComboBox;
+    cUseTRe: TComboBox;
+    cUseCe: TComboBox;
+    cUseBLe: TComboBox;
+    cUseBRe: TComboBox;
+    cb_TLe: TCheckBox;
+    cb_TRe: TCheckBox;
+    cb_Ce: TCheckBox;
+    cb_BLe: TCheckBox;
+    cb_BRe: TCheckBox;
+    TagsTLe: TEdit;
+    TagsTRe: TEdit;
+    TagsCe: TEdit;
+    TagsBLe: TEdit;
+    TagsBRe: TEdit;
+    BitBtn_QL: TBitBtn;
+    BitBtn_EL: TBitBtn;
+    cb_NewInEL: TCheckBox;
+    cb_VincTagInSel: TCheckBox;
+    cb_EnableAdv: TCheckBox;
+    btn_DefFromNode: TButton;
+    btnRestDef: TButton;
+    cInfoBarPos: TComboBox;
+    lbl8: TLabel;
+    cb_AutoExp: TCheckBox;
+    cb_ShowNewest: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -121,8 +172,11 @@ type
     procedure BitBtn_FolderChromeHelpClick(Sender: TObject);
     procedure BitBtn_FolderHelpClick(Sender: TObject);
     procedure BitBtn_TreeChromeHelpClick(Sender: TObject);
-    function FormHelp(Command: Word; Data: NativeInt;
-      var CallHelp: Boolean): Boolean;
+    function FormHelp(Command: Word; Data: NativeInt; var CallHelp: Boolean): Boolean;
+    procedure BitBtn_QLClick(Sender: TObject);
+    procedure BitBtn_ELClick(Sender: TObject);
+    procedure btn_DefFromNodeClick(Sender: TObject);
+    procedure btnRestDefClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -132,9 +186,17 @@ type
     procedure CheckScope;
     procedure CheckZoomValue;
 
+    procedure cb_EnabledPanelClick(Sender: TObject);
+    procedure ComboUseChange(Sender: TObject);
+    procedure txtTagsEnter(Sender: TObject);
+    procedure OnChangeTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnEndTagsIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+
+
   public
     { Public declarations }
     Initializing : boolean;
+    LoadedForm : boolean;
     Action : TPropertiesAction;
     OK_Click : boolean;
     StartWithEditorTab : boolean;
@@ -147,6 +209,9 @@ type
     myTreeChrome : TChrome;
     ApplyTreeChromeToAllFolders : boolean;
     myTreeProperties : TFolderTreeProperties;
+    myNoteAdvOptions: TNoteAdvancedOptions;
+    UpdatedMECustomization: boolean;
+    MECustomizationRestoreDefaults: boolean;
 
     myTabNameHistory : string;
     myHistoryCnt : integer;
@@ -161,6 +226,7 @@ type
 
     procedure FormToProps;
     procedure PropsToForm;
+    procedure NoteAdvOptionsToForm;
     procedure UpdateSampleFont;
 
   end;
@@ -174,6 +240,8 @@ uses
    kn_Chest,
    kn_Ini,
    knt.App,
+   knt.ui.TagMng,
+   knt.ui.noteEntriesOptions,
    knt.RS
   ;
 
@@ -185,8 +253,13 @@ procedure TForm_Defaults.FormCreate(Sender: TObject);
 var
   i : integer;
   nodeicn : TNodeIconKind;
+  pu: TNEntriesPanelUse;
+  cont: TContentInMultiEntryMode_Selectable;
+  InfoBarPos: TEditorInfoBarPos;
+  pnl: TNEntriesMainPanel;
 begin
   Initializing := true;
+  LoadedForm:= False;
   Pages.Visible := false; // to avoid flicker
   Pages.TabInactiveColor := _GF_CLWINDOW;
   myNoteIsReadOnly := false;
@@ -230,6 +303,86 @@ begin
   for i := 0 to pred( Chest.IMG_Categories.Count ) do
     Combo_Icons.AddItem( ' - ' + inttostr( succ( i )), i );
   Combo_Icons.ItemIndex := 0;
+
+
+  UpdatedMECustomization:= false;
+  MECustomizationRestoreDefaults:= false;
+
+  for pu := low(TNEntriesPanelUse) to high(TNEntriesPanelUse) do begin
+     cUseTLq.Items.Add( ENTRIES_PANEL_USES_QL[pu] );
+     cUseTRq.Items.Add( ENTRIES_PANEL_USES_QL[pu] );
+     cUseCq.Items.Add(  ENTRIES_PANEL_USES_QL[pu] );
+     cUseBLq.Items.Add( ENTRIES_PANEL_USES_QL[pu] );
+     cUseBRq.Items.Add( ENTRIES_PANEL_USES_QL[pu] );
+
+     cUseTLe.Items.Add( ENTRIES_PANEL_USES_EL[pu] );
+     cUseTRe.Items.Add( ENTRIES_PANEL_USES_EL[pu] );
+     cUseCe.Items.Add(  ENTRIES_PANEL_USES_EL[pu] );
+     cUseBLe.Items.Add( ENTRIES_PANEL_USES_EL[pu] );
+     cUseBRe.Items.Add( ENTRIES_PANEL_USES_EL[pu] );
+  end;
+
+  for InfoBarPos := low(InfoBarPos) to high(InfoBarPos) do
+      cInfoBarPos.Items.Add(EDITOR_INFOBAR_POS[InfoBarPos]);
+
+  cb_Cq.Checked:= True;
+  cb_Ce.Checked:= True;
+  cb_Cq.OnClick:= cb_EnabledPanelClick;
+  cb_Ce.OnClick:= cb_EnabledPanelClick;
+
+  cUseTLq.ItemIndex:= 0;
+  cUseTRq.ItemIndex:= 0;
+  cUseCq.ItemIndex:= 0;
+  cUseBLq.ItemIndex:= 0;
+  cUseBRq.ItemIndex:= 0;
+  TagsTLq.Enabled:= false;
+  TagsTRq.Enabled:= false;
+  TagsCq.Enabled:= false;
+  TagsBLq.Enabled:= false;
+  TagsBRq.Enabled:= false;
+  TagsTLq.Color:= clBtnFace;
+  TagsTRq.Color:= clBtnFace;
+  TagsCq.Color:= clBtnFace;
+  TagsBLq.Color:= clBtnFace;
+  TagsBRq.Color:= clBtnFace;
+  cUseTLq.OnChange:= ComboUseChange;
+  cUseTRq.OnChange:= ComboUseChange;
+  cUseCq.OnChange:=  ComboUseChange;
+  cUseBLq.OnChange:= ComboUseChange;
+  cUseBRq.OnChange:= ComboUseChange;
+  TagsTLq.OnEnter:= txtTagsEnter;
+  TagsTRq.OnEnter:= txtTagsEnter;
+  TagsCq.OnEnter:= txtTagsEnter;
+  TagsBLq.OnEnter:= txtTagsEnter;
+  TagsBRq.OnEnter:= txtTagsEnter;
+
+  cUseTLe.ItemIndex:= 0;
+  cUseTRe.ItemIndex:= 0;
+  cUseCe.ItemIndex:= 0;
+  cUseBLe.ItemIndex:= 0;
+  cUseBRe.ItemIndex:= 0;
+  TagsTLe.Enabled:= false;
+  TagsTRe.Enabled:= false;
+  TagsCe.Enabled:= false;
+  TagsBLe.Enabled:= false;
+  TagsBRe.Enabled:= false;
+  TagsTLe.Color:= clBtnFace;
+  TagsTRe.Color:= clBtnFace;
+  TagsCe.Color:= clBtnFace;
+  TagsBLe.Color:= clBtnFace;
+  TagsBRe.Color:= clBtnFace;
+  cUseTLe.OnChange:= ComboUseChange;
+  cUseTRe.OnChange:= ComboUseChange;
+  cUseCe.OnChange:=  ComboUseChange;
+  cUseBLe.OnChange:= ComboUseChange;
+  cUseBRe.OnChange:= ComboUseChange;
+  TagsTLe.OnEnter:= txtTagsEnter;
+  TagsTRe.OnEnter:= txtTagsEnter;
+  TagsCe.OnEnter:= txtTagsEnter;
+  TagsBLe.OnEnter:= txtTagsEnter;
+  TagsBRe.OnEnter:= txtTagsEnter;
+
+
 
   App.ApplyBiDiModeOnForm(Self);
 end;
@@ -304,9 +457,12 @@ procedure TForm_Defaults.FormActivate(Sender: TObject);
 var
   tabName: string;
 begin
+  OnActivate := nil;
   if ( not Initializing ) then exit;
   Initializing := false;
   App.SetTopMost(Handle, True);
+
+  ModalFormWithTxtTagsVisible:= true;
 
   fOriginalAction:= Action;
 
@@ -400,6 +556,7 @@ procedure TForm_Defaults.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 var
   i : integer;
+  ValidatedQL, ValidatedEL: boolean;
 begin
   if OK_Click then
   begin
@@ -432,6 +589,7 @@ begin
       exit;
     end;
 
+
     myTabNameHistory := AnsiQuotedStr( Edit_FolderName.Text, '"' );
     for i := 0 to pred( Edit_FolderName.Items.Count ) do
     begin
@@ -449,7 +607,39 @@ begin
       if (( Edit_NodeName.Items[i] <> Edit_NodeName.Text ) and ( Edit_NodeName.Items[i] <> '' )) then
         myNodeNameHistory :=  myNodeNameHistory + HISTORY_SEPARATOR + AnsiQuotedStr( Edit_NodeName.Items[i], '"' );
     end;
+
     FormToProps;
+
+    ValidatedQL:= myNoteAdvOptions.ValidateLayout(lQL);
+    ValidatedEL:= myNoteAdvOptions.ValidateLayout(lEL);
+
+
+    if not ValidatedQL or not ValidatedEL then begin
+      var Layout: string;
+      var OptAllEntries: string := GetRS(sEntry13);
+      var OptSelectedEntry: string := GetRS(sEntry12);
+      var OptVincTags: string;
+
+      CanClose := false;
+      Pages.ActivePage := Tab_Advanced;
+      if not ValidatedQL then begin
+         Layout:= GetRS(sEntry18);           // Query layout
+         OptVincTags:= GetRS(sEntry10);
+         PagesAdv.ActivePage := Tab_QL;
+         cb_TLq.SetFocus;
+      end
+      else begin
+         Layout:= GetRS(sEntry19);           // Editing Layout
+         OptVincTags:= GetRS(sEntry11);
+         PagesAdv.ActivePage := Tab_EL;
+         cb_TLe.SetFocus;
+      end;
+      App.ErrorPopup(Format( GetRS(sEntry17) + GetRS(sEntry20), [Layout, OptAllEntries, OptSelectedEntry, OptAllEntries, OptSelectedEntry, OptVincTags]) );
+      exit;
+    end
+    else
+       ModalFormWithTxtTagsVisible:= false;
+
   end;
   OK_Click := false;
 end; // CLOSEQUERY
@@ -459,7 +649,9 @@ procedure TForm_Defaults.FormKeyDown(Sender: TObject; var Key: Word;
 begin
   case key of
     27 : if (( shift = [] ) and ( not
-      ( Combo_Icons.DroppedDown or Edit_FolderName.DroppedDown or Edit_NodeName.DroppedDown ))) then
+      ( Combo_Icons.DroppedDown or Edit_FolderName.DroppedDown or Edit_NodeName.DroppedDown or cInfoBarPos.DroppedDown or
+         cUseTLq.DroppedDown or cUseTRq.DroppedDown  or cUseBLq.DroppedDown  or cUseBRq.DroppedDown  or cUseCq.DroppedDown  or
+         cUseTLe.DroppedDown or cUseTRe.DroppedDown  or cUseBLe.DroppedDown  or cUseBRe.DroppedDown  or cUseCe.DroppedDown))) then
     begin
       key := 0;
       OK_Click := false;
@@ -507,7 +699,6 @@ begin
     IconKind := TNodeIconKind( Combo_TreeImages.ItemIndex );
     Checkboxes := CB_TreeCheck.Checked;
     VerticalLayout := CB_Vertical.Checked;
-    AutoNumberNodes := CB_AutoNumberNodes.Checked;
     HideChecked:= CB_HideChecked.Checked;
 
     if not CB_ShowFlagCol.Checked then
@@ -531,7 +722,102 @@ begin
   // myInheritBGColor:= CB_InheritBGColor.Checked;      // -> To modify in Global options form
   ApplyTreeChromeToAllFolders:= CB_TreeChrome_AllNotes.Checked;
 
-end; // FormToProps
+  with myNoteAdvOptions do begin
+     EnableAdvEditionInSingleEntryNotes:= cb_EnableAdv.Checked;
+     DefaultUseForQL[pnTL]:= TNEntriesPanelUse(cUseTLq.ItemIndex);
+     DefaultUseForQL[pnTR]:= TNEntriesPanelUse(cUseTRq.ItemIndex);
+     DefaultUseForQL[pnCenter]:= TNEntriesPanelUse(cUseCq.ItemIndex);
+     DefaultUseForQL[pnBL]:= TNEntriesPanelUse(cUseBLq.ItemIndex);
+     DefaultUseForQL[pnBR]:= TNEntriesPanelUse(cUseBRq.ItemIndex);
+
+     DefaultUseForEL[pnTL]:= TNEntriesPanelUse(cUseTLe.ItemIndex);
+     DefaultUseForEL[pnTR]:= TNEntriesPanelUse(cUseTRe.ItemIndex);
+     DefaultUseForEL[pnCenter]:= TNEntriesPanelUse(cUseCe.ItemIndex);
+     DefaultUseForEL[pnBL]:= TNEntriesPanelUse(cUseBLe.ItemIndex);
+     DefaultUseForEL[pnBR]:= TNEntriesPanelUse(cUseBRe.ItemIndex);
+
+     DefaultEnabledForQL[pnTL]:= cb_TLq.Checked;
+     DefaultEnabledForQL[pnTR]:= cb_TRq.Checked;
+     DefaultEnabledForQL[pnCenter]:= true;
+     DefaultEnabledForQL[pnBL]:= cb_BLq.Checked;
+     DefaultEnabledForQL[pnBR]:= cb_BRq.Checked;
+
+     DefaultEnabledForEL[pnTL]:= cb_TLe.Checked;
+     DefaultEnabledForEL[pnTR]:= cb_TRe.Checked;
+     DefaultEnabledForEL[pnCenter]:= true;
+     DefaultEnabledForEL[pnBL]:= cb_BLe.Checked;
+     DefaultEnabledForEL[pnBR]:= cb_BRe.Checked;
+
+
+     // LinkedTagsForQL and LinkedTagsForEL are updated from OnChangeTagsIntrod
+
+     NewEntriesAlwaysOnEdLayout:= cb_NewInEL.Checked;
+     EditTagLinkedEntryInSelectedEntryPanel:= cb_VincTagInSel.Checked;
+     FirstLinesOfText_MaxLength:= FirstLinesMaxC.Value;
+     FirstLinesOfText_MaxLines:= FirstLinesMaxL.Value;
+     AutoExpandInPanels:= cb_AutoExp.Checked;
+     EditorInfoBarPos:=  TEditorInfoBarPos(cInfoBarPos.ItemIndex);
+     ShowNewestEntryAtStartup:= cb_ShowNewest.Checked;
+  end;
+
+end;
+// FormToProps
+
+
+procedure TForm_Defaults.NoteAdvOptionsToForm;
+
+  procedure LoadPanelConfigQL(Pnl: TNEntriesMainPanel; CB_Panel: TCheckBox; ComboUse: TComboBox; txtTags: TEdit);
+  var
+    Tags: TNoteTagArray;
+  begin
+     CB_Panel.Checked:= myNoteAdvOptions.DefaultEnabledForQL[pnl];
+     ComboUse.ItemIndex:= Ord(myNoteAdvOptions.DefaultUseForQL[Pnl]);
+     ComboUseChange(ComboUse);
+     Tags:= myNoteAdvOptions.LinkedTagsForQL[Pnl];
+     if Tags <> nil then
+        txtTags.Text:= TNoteTagArrayUtils.ToNames(Tags);
+  end;
+
+  procedure LoadPanelConfigEL(Pnl: TNEntriesMainPanel; CB_Panel: TCheckBox; ComboUse: TComboBox; txtTags: TEdit);
+  var
+    Tags: TNoteTagArray;
+  begin
+     CB_Panel.Checked:= myNoteAdvOptions.DefaultEnabledForEL[pnl];
+     ComboUse.ItemIndex:= Ord(myNoteAdvOptions.DefaultUseForEL[Pnl]);
+     ComboUseChange(ComboUse);
+     Tags:= myNoteAdvOptions.LinkedTagsForEL[Pnl];
+     if Tags <> nil then
+        txtTags.Text:= TNoteTagArrayUtils.ToNames(Tags);
+  end;
+
+
+begin
+
+  with myNoteAdvOptions do begin
+     cb_EnableAdv.Checked:= EnableAdvEditionInSingleEntryNotes;
+     LoadPanelConfigQL(pnTL, cb_TLq, cUseTLq, TagsTLq);
+     LoadPanelConfigQL(pnTR, cb_TRq, cUseTRq, TagsTRq);
+     LoadPanelConfigQL(pnCenter, cb_Cq, cUseCq, TagsCq);
+     LoadPanelConfigQL(pnBL, cb_BLq, cUseBLq, TagsBLq);
+     LoadPanelConfigQL(pnBR, cb_BRq, cUseBRq, TagsBRq);
+
+     LoadPanelConfigEL(pnTL, cb_TLe, cUseTLe, TagsTLe);
+     LoadPanelConfigEL(pnTR, cb_TRe, cUseTRe, TagsTRe);
+     LoadPanelConfigEL(pnCenter, cb_Ce, cUseCe, TagsCe);
+     LoadPanelConfigEL(pnBL, cb_BLe, cUseBLe, TagsBLe);
+     LoadPanelConfigEL(pnBR, cb_BRe, cUseBRe, TagsBRe);
+
+     cb_NewInEL.Checked:= NewEntriesAlwaysOnEdLayout;
+     cb_VincTagInSel.Checked:= EditTagLinkedEntryInSelectedEntryPanel;
+     FirstLinesMaxC.Value:= FirstLinesOfText_MaxLength;
+     FirstLinesMaxL.Value:= FirstLinesOfText_MaxLines;
+     cb_AutoExp.Checked:= AutoExpandInPanels;
+     cInfoBarPos.ItemIndex:= Ord(EditorInfoBarPos);
+     cb_ShowNewest.Checked:= ShowNewestEntryAtStartup;
+  end;
+
+end;
+
 
 procedure TForm_Defaults.PropsToForm;
 begin
@@ -560,7 +846,6 @@ begin
     Combo_TreeImages.ItemIndex := ord( IconKind );
     CB_TreeCheck.Checked := Checkboxes;
     CB_Vertical.Checked := VerticalLayout;
-    CB_AutoNumberNodes.Checked := AutoNumberNodes;
     CB_HideChecked.Checked := HideChecked;
     CB_ShowDateCol.Checked:= PosDateCol > 0;
     CB_ShowFlagCol.Checked:= PosFlaggedCol > 0;
@@ -572,6 +857,10 @@ begin
   end;
 
   CB_InheritBGColor.Checked:= myInheritBGColor;
+
+  NoteAdvOptionsToForm();
+
+  LoadedForm:= True;
 
 end; // PropsToForm
 
@@ -653,6 +942,7 @@ begin
         true, // load ONLY chrome
         DefaultsFN,
         myEditorProperties,
+        myNoteAdvOptions,
         myEditorChrome, // only THIS will get loaded from file
         myTabProperties,
         myTreeProperties,
@@ -672,6 +962,7 @@ begin
         true, // load ONLY chrome
         DefaultsFN,
         myEditorProperties,
+        myNoteAdvOptions,
         tmpChrome,
         myTabProperties,
         myTreeProperties,
@@ -685,8 +976,34 @@ begin
 
 end;
 
-procedure TForm_Defaults.PagesChange(Sender: TObject);
+procedure TForm_Defaults.btn_DefFromNodeClick(Sender: TObject);
 begin
+  if ActiveNNode = nil then exit;
+
+  ActiveFolder.NoteUI.SetAsDefaultLayoutInFolder(myNoteAdvOptions);
+  NoteAdvOptionsToForm;
+  UpdatedMECustomization:= True;
+end;
+
+procedure TForm_Defaults.btnRestDefClick(Sender: TObject);
+begin
+  myNoteAdvOptions:= DefaultNoteAdvOptions;
+  NoteAdvOptionsToForm;
+  UpdatedMECustomization:= True;
+  MECustomizationRestoreDefaults:= True;
+end;
+
+
+procedure TForm_Defaults.PagesChange(Sender: TObject);
+var
+  NotInTabAdv: boolean;
+begin
+  NotInTabAdv:= (Pages.ActivePage <> Tab_Advanced);
+  BTN_Font.Visible:= NotInTabAdv;
+  BTN_Color.Visible:= NotInTabAdv;
+  BTN_Defaults.Visible:= NotInTabAdv;
+  Edit_Sample.Visible:= NotInTabAdv;
+
   UpdateSampleFont;
 end;
 
@@ -772,6 +1089,146 @@ begin
 end;
 
 
+procedure TForm_Defaults.cb_EnabledPanelClick(Sender: TObject);
+begin
+  if not TCheckBox(Sender).Checked then
+     TCheckBox(Sender).Checked:= True;
+end;
+
+procedure TForm_Defaults.ComboUseChange(Sender: TObject);
+var
+  pnl: TNEntriesMainPanel;
+  pu: TNEntriesPanelUse;
+  CheckBox: TCheckBox;
+  txtTags: TEdit;
+  idPnl: integer;
+  EL: boolean;       // Editing layout
+
+begin
+   idPnl:= TComboBox(Sender).Tag;
+   EL:= false;
+   if idPnl >= 10 then begin
+      EL:= true;
+      dec(idPnl, 10);
+   end;
+
+   pnl:= TNEntriesMainPanel(idPnl);
+   pu:= TNEntriesPanelUse(TComboBox(Sender).ItemIndex);
+
+   if EL then
+       case pnl of
+          pnTL: begin
+             txtTags:= TagsTLe;
+             CheckBox:= cb_TLe;
+          end;
+          pnTR: begin
+             txtTags:= TagsTRe;
+             CheckBox:= cb_TRe;
+          end;
+          pnCenter: begin
+             txtTags:= TagsCe;
+             CheckBox:= cb_Ce;
+          end;
+          pnBL: begin
+             txtTags:= TagsBLe;
+             CheckBox:= cb_BLe;
+          end;
+          pnBR: begin
+             txtTags:= TagsBRe;
+             CheckBox:= cb_BRe;
+          end;
+       end
+   else
+       case pnl of
+          pnTL: begin
+             txtTags:= TagsTLq;
+             CheckBox:= cb_TLq;
+          end;
+          pnTR: begin
+             txtTags:= TagsTRq;
+             CheckBox:= cb_TRq;
+          end;
+          pnCenter: begin
+             txtTags:= TagsCq;
+             CheckBox:= cb_Cq;
+          end;
+          pnBL: begin
+             txtTags:= TagsBLq;
+             CheckBox:= cb_BLq;
+          end;
+          pnBR: begin
+             txtTags:= TagsBRq;
+             CheckBox:= cb_BRq;
+          end;
+       end;
+
+   if (pu = pnuHidePanel) then begin
+      CheckBox.Font.Style:= [];
+      if (pnl <> pnCenter) then
+         CheckBox.Checked:= False;
+   end
+   else
+      CheckBox.Font.Style:= [fsBold];
+
+   txtTags.Enabled:= (pu = pnuShowTagLinkedEntries);
+   if pu <> pnuShowTagLinkedEntries then begin
+      txtTags.Text:= '';
+      OnChangeTagsIntrod(nil, '', txtTags);
+      txtTags.Color:= clBtnFace;
+   end
+   else
+      txtTags.Color:= clWindow;
+end;
+
+
+procedure TForm_Defaults.txtTagsEnter(Sender: TObject);
+begin
+   if CtrlDown then begin
+      TEdit(Sender).Text:= '';
+      OnChangeTagsIntrod(nil, '', TEdit(Sender));
+   end;
+
+   Button_Ok.Default:= False;
+   TagMng.StartTxtFindTagIntrod(TEdit(Sender), OnEndTagsIntrod, OnChangeTagsIntrod, false);
+end;
+
+procedure TForm_Defaults.OnChangeTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+var
+  pnl: TNEntriesMainPanel;
+  idPnl: integer;
+  EL: boolean;       // Editing layout
+  Tags: TNoteTagArray;
+begin
+   idPnl:= txtTags.Tag;
+   EL:= false;
+   if idPnl >= 10 then begin
+      EL:= true;
+      dec(idPnl, 10);
+   end;
+   pnl:= TNEntriesMainPanel(idPnl);
+
+   Tags:= nil;
+   if FindTags <> nil then
+      Tags:= TNoteTagArrayUtils.FindTagsANDToTags(FindTags);
+
+   if EL then
+      myNoteAdvOptions.LinkedTagsForEL[pnl]:= Tags
+   else
+      myNoteAdvOptions.LinkedTagsForQL[pnl]:= Tags;
+end;
+
+
+procedure TForm_Defaults.OnEndTagsIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+begin
+   OnChangeTagsIntrod(FindTags, FindTagsNotRegistered, txtTags);
+   if PressedReturn then
+      SelectNext(txtTags, True, True);
+
+   if txtTags.Focused then
+      txtTagsEnter(txtTags)
+   else
+      Button_Ok.Default:= True;
+end;
 
 
 procedure TForm_Defaults.Button_HelpClick(Sender: TObject);
@@ -779,8 +1236,7 @@ begin
   Application.HelpCommand( HELP_CONTEXT, Pages.ActivePage.HelpContext );
 end;
 
-procedure TForm_Defaults.Edit_FolderNameKeyPress(Sender: TObject;
-  var Key: Char);
+procedure TForm_Defaults.Edit_FolderNameKeyPress(Sender: TObject;  var Key: Char);
 begin
   if ( Key = KNTLINK_SEPARATOR ) then
     Key := #0;
@@ -791,6 +1247,24 @@ end; // Edit_NoteNameKeyPress
 procedure TForm_Defaults.BitBtn_FolderHelpClick(Sender: TObject);
 begin
   App.InfoPopup(GetRS(sDef31));
+end;
+
+procedure TForm_Defaults.BitBtn_QLClick(Sender: TObject);
+begin
+  var OptAllEntries: string := GetRS(sEntry13);
+  var OptSelectedEntry: string := GetRS(sEntry12);
+  var OptVincTags: string := GetRS(sEntry10);
+
+  App.InfoPopup(Format( GetRS(sEntry20), [OptAllEntries, OptSelectedEntry, OptAllEntries, OptSelectedEntry, OptVincTags]) );
+end;
+
+procedure TForm_Defaults.BitBtn_ELClick(Sender: TObject);
+begin
+  var OptAllEntries: string := GetRS(sEntry13);
+  var OptSelectedEntry: string := GetRS(sEntry12);
+  var OptVincTags: string := GetRS(sEntry11);
+
+  App.InfoPopup(Format( GetRS(sEntry20), [OptAllEntries, OptSelectedEntry, OptAllEntries, OptSelectedEntry, OptVincTags]) );
 end;
 
 procedure TForm_Defaults.BitBtn_FolderChromeHelpClick(Sender: TObject);

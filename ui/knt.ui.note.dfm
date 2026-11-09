@@ -5,80 +5,161 @@ object KntNoteUI: TKntNoteUI
   Height = 480
   Align = alClient
   BiDiMode = bdLeftToRight
+  Ctl3D = True
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
   Font.Name = 'Tahoma'
   Font.Style = []
   ParentBiDiMode = False
+  ParentCtl3D = False
   ParentFont = False
   TabOrder = 0
-  object pnlEntries: TPanel
-    Left = 0
+  object splL: TSplitter
+    Left = 97
     Top = 0
-    Width = 578
-    Height = 456
+    Height = 480
+    OnMoved = splLMoved
+    ExplicitLeft = 191
+    ExplicitTop = -3
+  end
+  object pnlAuxC: TPanel
+    Left = 100
+    Top = 0
+    Width = 478
+    Height = 480
     Align = alClient
     BevelOuter = bvNone
-    Ctl3D = True
-    ParentCtl3D = False
     TabOrder = 1
-  end
-  object pnlIdentif: TPanel
-    Left = 0
-    Top = 456
-    Width = 578
-    Height = 24
-    Align = alBottom
-    BevelOuter = bvNone
-    Ctl3D = False
-    ParentCtl3D = False
-    TabOrder = 0
-    DesignSize = (
-      578
-      24)
-    object txtCreationDate: TEdit
-      Left = 458
-      Top = 2
-      Width = 120
-      Height = 22
-      TabStop = False
-      Alignment = taCenter
-      Anchors = [akTop, akRight]
-      ParentShowHint = False
-      ReadOnly = True
-      ShowHint = True
-      TabOrder = 0
-      OnEnter = txtEnter
-      OnMouseEnter = txtCreationDateMouseEnter
-    end
-    object txtName: TEdit
-      Left = 35
-      Top = 2
-      Width = 421
-      Height = 22
-      TabStop = False
-      Alignment = taCenter
-      Anchors = [akLeft, akTop, akRight]
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
-      OnChange = txtNameChange
-      OnEnter = txtEnter
-      OnExit = txtNameExit
-      OnMouseEnter = txtNameMouseEnter
-    end
-    object txtTags: TEdit
+    object pnlAuxC2: TPanel
       Left = 0
-      Top = 2
-      Width = 33
-      Height = 22
-      HelpContext = 122
-      TabStop = False
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 2
-      OnEnter = txtTagsEnter
+      Top = 0
+      Width = 478
+      Height = 480
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 0
+      object splT: TSplitter
+        Left = 0
+        Top = 65
+        Width = 478
+        Height = 3
+        Cursor = crVSplit
+        Align = alTop
+        OnCanResize = splTCanResize
+        OnMoved = splTMoved
+        ExplicitTop = 97
+        ExplicitWidth = 383
+      end
+      object pnlTop: TPanel
+        Left = 0
+        Top = 0
+        Width = 478
+        Height = 65
+        Align = alTop
+        BevelOuter = bvNone
+        TabOrder = 0
+        object splTC: TSplitter
+          Left = 233
+          Top = 0
+          Height = 65
+          OnMoved = splTCMoved
+          ExplicitLeft = 57
+          ExplicitHeight = 129
+        end
+        object pnlTL: TPanel
+          Left = 0
+          Top = 0
+          Width = 233
+          Height = 65
+          Align = alLeft
+          BevelOuter = bvNone
+          TabOrder = 0
+        end
+        object pnlTR: TPanel
+          Left = 236
+          Top = 0
+          Width = 242
+          Height = 65
+          Align = alClient
+          BevelOuter = bvNone
+          TabOrder = 1
+        end
+      end
+      object pnlAuxC3: TPanel
+        Left = 0
+        Top = 68
+        Width = 478
+        Height = 412
+        Align = alClient
+        BevelOuter = bvNone
+        TabOrder = 1
+        object splB: TSplitter
+          Left = 0
+          Top = 337
+          Width = 478
+          Height = 3
+          Cursor = crVSplit
+          Align = alTop
+          OnMoved = splBMoved
+          ExplicitTop = 97
+          ExplicitWidth = 283
+        end
+        object pnlCenter: TPanel
+          Left = 0
+          Top = 0
+          Width = 478
+          Height = 337
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 0
+        end
+        object pnlBottom: TPanel
+          Left = 0
+          Top = 340
+          Width = 478
+          Height = 72
+          Align = alClient
+          BevelOuter = bvNone
+          TabOrder = 1
+          object splBC: TSplitter
+            Left = 233
+            Top = 0
+            Height = 72
+            OnMoved = splBCMoved
+            ExplicitLeft = 128
+            ExplicitTop = 72
+            ExplicitHeight = 100
+          end
+          object pnlBL: TPanel
+            Left = 0
+            Top = 0
+            Width = 233
+            Height = 72
+            Align = alLeft
+            BevelOuter = bvNone
+            TabOrder = 0
+          end
+          object pnlBR: TPanel
+            Left = 236
+            Top = 0
+            Width = 242
+            Height = 72
+            Align = alClient
+            BevelOuter = bvNone
+            TabOrder = 1
+          end
+        end
+      end
     end
+  end
+  object pnlLeft: TPanel
+    Left = 0
+    Top = 0
+    Width = 97
+    Height = 480
+    Align = alLeft
+    BevelOuter = bvNone
+    TabOrder = 0
   end
 end

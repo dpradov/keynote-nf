@@ -71,6 +71,7 @@ type
     myTreeProperties : TFolderTreeProperties;
     myTreeChrome : TChrome;
     myTreeOptions : TKntTreeOptions;
+    myNoteAdvOptions: TNoteAdvancedOptions;
 
     myTabNameHistory : string;
     myHistoryCnt : integer;
@@ -110,6 +111,8 @@ begin
   InitializeChrome( myTreeChrome );
   InitializeFolderTreeProperties( myTreeProperties );
   InitializeTreeOptions( myTreeOptions );
+  InitializeDefaultNoteAdvOptions(myNoteAdvOptions);
+
 
   TAB_CHANGEABLE := true;
   StateChanged := false;
@@ -259,12 +262,14 @@ begin
     Form_Defaults.myNodeNameHistory := myNodeNameHistory;
     Form_Defaults.myTreeProperties := myTreeProperties;
     Form_Defaults.myTreeChrome := myTreeChrome;
+    Form_Defaults.myNoteAdvOptions := myNoteAdvOptions;
 
     // Form_Defaults.Defaults := false;
     if ( Form_Defaults.ShowModal = mrOK ) then begin
       myChrome := Form_Defaults.myEditorChrome;
       myTabProperties := Form_Defaults.myTabProperties;
       myEditorProperties := Form_Defaults.myEditorProperties;
+      myNoteAdvOptions := Form_Defaults.myNoteAdvOptions;
 
       myTreeProperties := Form_Defaults.myTreeProperties;
       myTreeChrome := Form_Defaults.myTreeChrome;

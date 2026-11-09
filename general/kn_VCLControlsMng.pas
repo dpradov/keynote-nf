@@ -41,12 +41,14 @@ uses
    TB97Ctls,
 
    kn_KntFolder,
+   knt.ui.editor,
    knt.model.note
 ;
 
 
 
     // dynamically create and destroy controls (folder tabs, RichEdits, trees, etc)
+    procedure SetUpEditor( aEditor : TKntRichEdit; Zoom: Integer );
     procedure SetUpVCLControls( aFolder : TKntFolder ); // sets up VCL controls for knt folder (events, menus, etc - only stuff that is handled in this unit, not stuff that TTabNote handles internally)
     procedure CreateVCLControls; // creates VCL controls for ALL folders in ActiveFile object
     procedure CreateScratchEditor;
@@ -123,7 +125,6 @@ uses
    kn_Macro,
    kn_Chest,
    kn_EditorUtils,
-   knt.ui.editor,
    knt.ui.tree,
    knt.ui.note,
    kn_MacroMng,
@@ -150,8 +151,20 @@ begin
       FindAllResults.ShowHint:= False;
       FindAllResults.AutoURLDetect:= False;
 
-      if assigned( aFolder.Editor ) then begin
-        with aFolder.Editor do begin
+      SetUpEditor(aFolder.Editor, DefaultEditorProperties.DefaultZoom);
+      aFolder.TV.Perform(WM_HSCROLL, SB_TOP, 0);  // scroll to left border
+  end;
+
+end; // SetUpVCLControls
+
+
+procedure SetUpEditor( aEditor : TKntRichEdit; Zoom: Integer );
+begin
+  if not assigned( aEditor ) then exit;
+
+  with Form_Main do begin
+
+        with aEditor do begin
           PopUpMenu := Menu_RTF;
           OnChangedSelection:= RxChangedSelection;
 
@@ -163,19 +176,17 @@ begin
           // AllowInPlace := false;
           HelpContext:= 20;  // KeyNote Editor
         end;
-      end;
-
-      // enable "advanced typography options" for the richedit;
-      // this gives us full justification and other goodies.
-      if ( _LoadedRichEditVersion > 2 ) then
-        SendMessage( aFolder.Editor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
-
-      aFolder.TV.Perform(WM_HSCROLL, SB_TOP, 0);  // scroll to left border
-
-      aFolder.Editor.SetZoom(DefaultEditorProperties.DefaultZoom, '' );
   end;
 
-end; // SetUpVCLControls
+  // enable "advanced typography options" for the richedit;
+  // this gives us full justification and other goodies.
+  if ( _LoadedRichEditVersion > 2 ) then
+    SendMessage( aEditor.Handle, EM_SETTYPOGRAPHYOPTIONS, TO_ADVANCEDTYPOGRAPHY, TO_ADVANCEDTYPOGRAPHY );
+
+  aEditor.SetMargins;
+  aEditor.SetZoom(Zoom, '' );
+end; // SetUpEditor
+
 
 //=================================================================
 // CreateVCLControls
@@ -239,7 +250,7 @@ begin
      OnKeyPress:= Form_Main.RxResTabRTFKeyPress;
      OnKeyDown:= Form_Main.RxResTabRTFKeyDown;
 
-     SetVinculatedObjs(nil, nil, nil, nil);
+     SetVinculatedObjs(nil, nil, nil, nil, nil, false);
 
      PlainText:= False;
      SupportsRegisteredImages:= True;
@@ -280,7 +291,7 @@ begin
 
     for i := 0 to pred( ActiveFile.Folders.Count ) do begin
       myFolder := ActiveFile.Folders[i];
-      myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False);
+      myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False, plOnlyWithoutFilterEnabled);      // plOnlyWithoutFilterEnabled: See comment *2 in KntFileOpen (kn_NoteFileMng)
       SetUpVCLControls( myFolder );
     end;
 
@@ -417,6 +428,11 @@ begin
 
           myNoteUI:= TKntNoteUI.Create( myTab, aFolder );
           myNoteUI.Parent:= myTab;
+          myNoteUI.pnlTL.Visible:= false;
+          myNoteUI.pnlTR.Visible:= false;
+          myNoteUI.pnlBL.Visible:= false;
+          myNoteUI.pnlBR.Visible:= false;
+          myNoteUI.pnlLeft.Visible:= false;
 
           aFolder.NoteUI := myNoteUI;
           myTab.PrimaryObject := aFolder;
@@ -446,6 +462,7 @@ begin
 
    _ALLOW_VCL_UPDATES := false;
    try
+     TKntNoteUI(aFolder.NoteUI).OnResize:= nil;
      aFolder.NoteUI:= nil;       // Unbind interface before releasing object (which is done after aFolder.TabSheet.Free;)
 
      if assigned( aFolder.Splitter ) then

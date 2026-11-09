@@ -83,7 +83,7 @@ const
   _KNM_FILETYPE = 'KeyNote macro';
   _KNL_FILETYPE = 'KeyNote plugin';
 
-const                  
+const
   swMinimize     = 'min'; // minimize on startup
   //swSetup        = 'setup'; // run Setup routine (UNUSED, we have installer now instead)
   swDebug        = 'debug'; // save some debug info
@@ -368,7 +368,6 @@ type
 
 type
   TFolderTreeProperties = packed record
-    AutoNumberNodes : boolean;
     DefaultName : string;
     CheckBoxes : boolean;
     IconKind : TNodeIconKind;
@@ -383,7 +382,7 @@ type
   TKntTreeOptions = packed record
     AutoNameVNodes : boolean;
     AutoScroll : boolean;
-    ConfirmNodeDelete : boolean;
+    ConfirmNodeDelete : boolean;          // It will also be used to confirm the deletion of entries
     ConfirmNodeRefresh : boolean;
     ExpandMode : TTreeExpandMode;
     FullRowSelect : boolean; // [*]
@@ -638,7 +637,7 @@ type
     AltMargins: boolean;  // [*] Saves the state of View|Alternative margins
     ModifiedOnTreeResized: boolean;  // [*]
     HintsAccesible: boolean;  // [*] 1 => When hints are shown in status bar, other text panels will be shown blank
-    EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom
+    EditorInfoPanelTop: boolean;   // [*] 1 => Top  0 => Bottom           ("EditorInfoPanel" = "InfoBar")
     //AutoDiscoverTags: boolean;
     FixEmojisProblem : boolean;  // [*]   (See issue Lost the bullets - how to get back? #896
     RTLkeyShct: boolean;          // [*] 0 => Don't use keyboard shortcut for RTL detection (RTL: RCtrl+RShft  LTR: LCtrl+LShft,  on key release)  (Default: 0)
@@ -818,7 +817,9 @@ type
     AllNodes : boolean; // search all nodes in tree
     AllTabs : boolean;   // search all folders in file (resource panel)
     AllTabs_FindReplace : boolean; // search all folders in file (FindReplace dialog)
+    AllEntries_FindReplace: boolean;   // search all entries in note (FindReplace dialog)
     CurrentNodeAndSubtree : boolean;   // search only in current node and subtree
+    HiddenEntries_FindReplace: boolean;
     AutoClose : boolean; // auto close find dialog box when Find button clicked
     EntireScope : boolean; // search from top of text rather than from current position in active note
     FindAllHistory : string;
@@ -850,16 +851,138 @@ type
     ShowChildren: boolean;      // show children of matching nodes
     InheritedTags: boolean;     // Each node will be considered as having its own tags and the tags of its ancestors
     EmphasizedSearch: TEmphasizedSerch;  // for "Find all" (resource panel) ONLY
-    ProtectedNodesOnly: boolean;             //   ,,
+    ProtectedNodesAndEntriesOnly: boolean;             //   ,,
     TagSearch: boolean;   // Search for a tag (#MyTag). It must meet certain other criteria.
     FindTagsIncl: TFindTags;   // Include text/notes with ALL or ANY of the selected tags
     FindTagsExcl: TFindTags;   // Exclude text/notes with ANY of the selected tags
     FindTagsInclNotReg: string;
     FindTagsExclNotReg: string;
+    FindTagsIncl_FindReplace: TNoteTagArray; // Consider entries with ALL the selected tags (for use with Find/Replace)
     TagsModeOR: boolean;       // Tags include, ¿mode OR? (vs ALL)
     TagsMetadata: boolean;     // Tags will be searched for in the notes' metadata
+    TagsEntriesMetadata: boolean;  // Tags will be searched for in all entries' metadata
     TagsText: boolean;         // Tags will be searched for in the notes' text
+    DefaultTagsExcl: TNoteTagArray;    // Saved in .ini as string: "TagID1,TagID2,..."
   end;
+
+
+type
+  TTextInterval = record
+     PosI:    integer;
+     PosF:    integer;
+  end;
+
+  TEntryFragments = class
+     NumFrag: integer;
+     Fragments: Array of TTextInterval;
+  end;
+
+  TFoundEntry = class
+     NEntry: TNoteEntry;
+     FragmentsInEntry: TEntryFragments;
+  end;
+  TFoundEntryInNoteList = TSimpleObjList<TFoundEntry>;
+  TFoundEntriesInNotesList = TSimpleObjList<TFoundEntryInNoteList>;
+
+
+type
+  TExportFoldedTextMode = (fmKeepUnchanged, fmUnfold, fmRemoveAll, fmRemoveTagged );
+
+
+const
+  MainPanels: set of TNEntriesPanel = [Low(TNEntriesMainPanel)..High(TNEntriesMainPanel)];
+  TNEntriesPanel_Count = Ord(High(TNEntriesPanel)) - Ord(Low(TNEntriesPanel)) + 1;
+
+
+type
+  TFilterOptionsInPanel = packed record
+    Enabled: boolean;
+    TagsModeOR: boolean;              // Tags include, ¿mode OR? (vs ALL)
+    FindTagsIncl: TFindTags;          // Consider text/entries with ALL/ANY of the selected tags in its metadata
+    FindTagsExcl: TFindTags;          // Exclude text/entries with ANY of the selected tags
+    TagsText: boolean;                // Tags will be searched for in the notes' text
+    TextFilter : string;              // Text/entry to consider must include the pattern
+    MatchCase : boolean;              // case-sensitive ("c")
+    WholeWordsOnly : boolean;         // only match whole words ("w")
+    SearchMode : TSearchMode;         // "e":Exact phrase, "&":All the words, "|":Any of the words
+    ConsiderHidden: boolean;          // Consider hidden entries
+    ShowExcerpts: boolean;            // (when using TextFilter) "x"
+
+    function Equal(const aFilter: TFilterOptionsInPanel): boolean;
+    function Empty: boolean;
+  end;
+
+type
+  TMEPanelCustomization = packed record         // ME: Multi-Entry
+    Content: TContentInMultiEntryMode;
+    ShowDateInHeader: boolean;
+    ShowTimeInHeader: boolean;
+    ShowTagsInHeader: boolean;
+    ShowLineInHeader: boolean;
+    CompactHeader: boolean;
+    DescendingOrder: boolean;
+    FoldedTextMode: TExportFoldedTextMode;
+    Filter: TFilterOptionsInPanel;
+
+    procedure Initialize;
+    function Equal(const aMEPanelCustomiz: TMEPanelCustomization; IgnoreFilterEnabled: boolean = false): boolean;
+    function ToString(const PanelCustomizReference: TMEPanelCustomization): string;
+    procedure LoadFromString(Str: string);
+  end;
+
+ TPanelSizeRatios = record
+   Top:    Single;   // Ratio Top vs Other (Center+Bottom)
+   Bottom: Single;   // Ratio Bottom vs Other (Center+Top)
+   TLTR:   Single;   // Ratio TL vs TR
+   BLBR:   Single;   // Ratio BL vs BR
+
+   TopAutoFromHidden: Single;     // Ratio Top vs Other to be applied when entering a panel reduced to hidden
+   BottomAutoFromHidden: Single;  // ,,    Bottom
+
+   procedure Initialize;
+   function Equal(const SizeRatios: TPanelSizeRatios): boolean;
+   function ToString: string;
+ end;
+ PPanelSizeRatios = ^TPanelSizeRatios;
+
+
+ TNoteTagArrayPanelArray = array[TNEntriesMainPanel] of TNoteTagArray;
+ TNEntriesPanelEnabledArray = array[TNEntriesMainPanel] of boolean;
+
+type
+   TNoteAdvancedOptions = packed record
+
+     EnableAdvEditionInSingleEntryNotes: boolean;    // If false -> ignore Ctrl+Enter, Ctrl+Shift+Enter in notes with one entry
+
+     DefaultUseForQL: TNEntriesPanelUseArray;   // QL: QueryLayout
+     DefaultUseForEL: TNEntriesPanelUseArray;   // EL: EditingLayout
+     DefaultEnabledForQL:  TNEntriesPanelEnabledArray;
+     DefaultEnabledForEL:  TNEntriesPanelEnabledArray;
+
+     LinkedTagsForQL: TNoteTagArrayPanelArray;   // Serialized as string: "TagID1,TagID2,...|TagID1,TagID2,...|..."
+     LinkedTagsForEL: TNoteTagArrayPanelArray;
+
+     DefaultMECustomizForQL: array[TNEntriesMainPanel] of TMEPanelCustomization;
+     DefaultMECustomizForEL: array[TNEntriesMainPanel] of TMEPanelCustomization;
+
+     ShowNewestEntryAtStartup: boolean;   // Show newest or oldest entry at startup, instead of last selected when TEditorOptions.SaveCaretPos = 0 (False)
+     NewEntriesAlwaysOnEdLayout: boolean;
+     EditTagLinkedEntryInSelectedEntryPanel: boolean;   // Also for new entries
+     EditorInfoBarPos:  TEditorInfoBarPos;
+
+     FirstLinesOfText_MaxLength: integer;
+     FirstLinesOfText_MaxLines: integer;
+
+     SizeRatiosQL: TPanelSizeRatios;
+     SizeRatiosEL: TPanelSizeRatios;
+     AutoExpandInPanels: boolean;           // for TL,TR, BL and BR
+
+     public procedure Initialize (OnlyCustomiz: boolean = false);
+     public function ToString: String;
+     public procedure LoadFromString(Str: String; var ErrorsLoading: boolean);
+     public function ValidateLayout(Layout: TPanelLayout): boolean;
+  end;
+
 
 const
    NoteGID_NotConverted = 9999999;
@@ -912,6 +1035,7 @@ procedure InitializeChrome( var Struct : TChrome );
 procedure InitializeFolderTabProperties( var Struct : TFolderTabProperties );
 procedure InitializeFolderEditorProperties( var Struct : TFolderEditorProperties );
 procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
+procedure InitializeDefaultNoteAdvOptions(var Struct: TNoteAdvancedOptions);
 
 procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont; dpi: integer = 96);
 procedure FontToFontInfo( const aFont : TFont; var FI : TFontInfo; dpi: integer = 96);
@@ -922,6 +1046,9 @@ procedure ClearObjectList( const AList : TList );
 procedure ClearObjectStringList( const AList : TStringList );
 
 implementation
+
+uses gf_strings,
+     knt.App;
 
 procedure FontInfoToFont( const FI : TFontInfo; aFont : TFont; dpi: integer = 96); // 96: 100% scaling
 begin
@@ -999,10 +1126,15 @@ begin
   end;
 end; // InitializeNoteEditorProperties
 
+
+procedure InitializeDefaultNoteAdvOptions(var Struct: TNoteAdvancedOptions);
+begin
+   Struct.Initialize();
+end;
+
 procedure InitializeFolderTreeProperties( var Struct : TFolderTreeProperties );
 begin
   with Struct do begin
-    AutoNumberNodes := false;
     DefaultName := DEFAULT_NEW_NOTE_NAME;
     CheckBoxes := false;
     IconKind := niStandard;
@@ -1097,6 +1229,663 @@ begin
 
   if SameFile then
      Result:= GID;
+end;
+
+
+procedure TPanelSizeRatios.Initialize;
+begin
+   TLTR:= 0.5;
+   BLBR:= 0.5;
+   Top:= 0.1354;
+   Bottom:= 0.15;
+
+   BottomAutoFromHidden:= 0.15;
+   TopAutoFromHidden:= 0.15;
+end;
+
+function TPanelSizeRatios.Equal(const SizeRatios: TPanelSizeRatios): boolean;
+begin
+   Result:= ((Top = 0) or (Top = SizeRatios.Top)) and
+            ((Bottom = 0) or (Bottom = SizeRatios.Bottom)) and
+            ((TLTR = 0) or (TLTR = SizeRatios.TLTR)) and
+            ((BLBR = 0) or (BLBR = SizeRatios.BLBR)) and
+            ((BottomAutoFromHidden = 0) or (BottomAutoFromHidden = SizeRatios.BottomAutoFromHidden)) and
+            ((TopAutoFromHidden = 0) or (TopAutoFromHidden = SizeRatios.TopAutoFromHidden));
+end;
+
+
+function TPanelSizeRatios.ToString: string;
+var
+   Config: TFormatSettings;
+begin
+   Config := TFormatSettings.Create('en-US');                             // -> 0.1234
+
+   Result:= Format('%.4g|%.4g|%.4g|%.4g|%.4g|%.4g',
+               [
+               Top,
+               Bottom,
+               TLTR,
+               BLBR,
+               TopAutoFromHidden,
+               BottomAutoFromHidden
+               ], Config);
+end;
+
+
+
+function TFilterOptionsInPanel.Equal(const aFilter: TFilterOptionsInPanel): boolean;
+begin
+  Result:= False;
+  with aFilter do begin
+    if Self.TagsModeOR <> TagsModeOR then exit;
+    if Self.TextFilter <> TextFilter then exit;
+    if Self.MatchCase <> MatchCase then exit;
+    if Self.WholeWordsOnly <> WholeWordsOnly then exit;
+    if Self.SearchMode <> SearchMode then exit;
+    if Self.ConsiderHidden <> ConsiderHidden then exit;
+    if Self.ShowExcerpts <> ShowExcerpts then exit;
+    if Self.TagsText <> TagsText then exit;
+    if not TNoteTagArrayUtils.FindTagsEqual(Self.FindTagsIncl, FindTagsIncl) then exit;
+    if not TNoteTagArrayUtils.FindTagsEqual(Self.FindTagsExcl, FindTagsExcl) then exit;
+  end;
+
+  Result:= True;
+end;
+
+function TFilterOptionsInPanel.Empty: boolean;
+begin
+   Result:= (TextFilter = '') and (FindTagsIncl = nil) and (FindTagsExcl = nil);
+end;
+
+
+// Set built-in default values
+
+procedure TNoteAdvancedOptions.Initialize(OnlyCustomiz: boolean = false);
+var
+  p: TNEntriesPanel;
+begin
+    if not OnlyCustomiz then begin
+       EnableAdvEditionInSingleEntryNotes:= True;
+       NewEntriesAlwaysOnEdLayout:= false;
+       EditTagLinkedEntryInSelectedEntryPanel:= true;
+
+       for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+          DefaultUseForQL[p] := pnuHidePanel;
+          DefaultEnabledForQL[p] := false;
+          DefaultUseForEL[p] := pnuHidePanel;
+          DefaultEnabledForEL[p] := false;
+
+          LinkedTagsForQL[p]:= nil;
+          LinkedTagsForEL[p]:= nil;
+       end;
+       DefaultUseForQL[pnCenter] := pnuShowAllEntries;
+       DefaultEnabledForQL[pnCenter] := true;
+       DefaultUseForEL[pnTL]     := pnuShowSelectedEntry;
+       DefaultUseForEL[pnCenter] := pnuShowAllEntries;
+       DefaultEnabledForEL[pnTL] := true;
+       DefaultEnabledForEL[pnCenter] := true;
+    end;
+
+
+    // Visual customization:
+
+    for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+       DefaultMECustomizForQL[p].Initialize;
+       DefaultMECustomizForEL[p]:= DefaultMECustomizForQL[p];
+    end;
+
+    SizeRatiosQL.Initialize;
+    SizeRatiosEL.Initialize;
+
+    ShowNewestEntryAtStartup:= true;
+    AutoExpandInPanels:= false;
+    FirstLinesOfText_MaxLength:= 250;
+    FirstLinesOfText_MaxLines:= 3;
+    EditorInfoBarPos:= ibpMostExtremeExcVincTag;
+ end;
+
+
+procedure TMEPanelCustomization.Initialize;
+begin
+    Content:= cmWholeEntry;
+    ShowDateInHeader:= true;
+    ShowTimeInHeader:= true;
+    ShowTagsInHeader:= true;
+    ShowLineInHeader:= true;
+    CompactHeader:= false;
+    DescendingOrder:= True;
+    FoldedTextMode:= fmKeepUnchanged;
+
+    with Filter do begin
+       Enabled:= False;
+       TagsModeOR:= false;
+       FindTagsIncl:= nil;
+       FindTagsExcl:= nil;
+       TagsText:= false;
+       TextFilter:= '';
+       MatchCase:= false;
+       WholeWordsOnly:= false;
+       SearchMode:= smPhrase;
+       ConsiderHidden:= false;
+       ShowExcerpts:= false;
+    end;
+end;
+
+
+function TMEPanelCustomization.Equal(const aMEPanelCustomiz: TMEPanelCustomization; IgnoreFilterEnabled: boolean = false): boolean;
+begin
+   Result:= (Content = aMEPanelCustomiz.Content) and
+             (ShowDateInHeader = aMEPanelCustomiz.ShowDateInHeader) and
+             (ShowTimeInHeader = aMEPanelCustomiz.ShowTimeInHeader) and
+             (ShowTagsInHeader = aMEPanelCustomiz.ShowTagsInHeader) and
+             (ShowLineInHeader = aMEPanelCustomiz.ShowLineInHeader) and
+             (CompactHeader =    aMEPanelCustomiz.CompactHeader) and
+             (DescendingOrder = aMEPanelCustomiz.DescendingOrder)  and
+             (FoldedTextMode = aMEPanelCustomiz.FoldedTextMode) and
+             (IgnoreFilterEnabled or (Filter.Enabled = aMEPanelCustomiz.Filter.Enabled)) and
+             Filter.Equal(aMEPanelCustomiz.Filter);
+end;
+
+
+function TMEPanelCustomization.ToString(const PanelCustomizReference: TMEPanelCustomization): string;
+var
+   FilterStr: string;
+   txtFilter: string;
+begin
+     Result:= '';
+     if not Equal(PanelCustomizReference) then begin
+           if not Filter.Equal(PanelCustomizReference.Filter) then begin
+              txtFilter:= Filter.TextFilter;
+              txtFilter:= StringReplace(txtFilter, '"', '\"', [rfReplaceAll]);
+              with Filter do begin
+                FilterStr:= Format('%s;%s;%s;%s;%s;%s;%s;%d;"%s";%s;%s',
+                  [
+                  BOOLEANSTR[Enabled],
+                  BOOLEANSTR[TagsModeOR],
+                  BOOLEANSTR[TagsText],
+                  BOOLEANSTR[MatchCase],
+                  BOOLEANSTR[WholeWordsOnly],
+                  BOOLEANSTR[ConsiderHidden],
+                  BOOLEANSTR[ShowExcerpts],
+                  Ord(SearchMode),
+                  txtFilter,
+                  TNoteTagArrayUtils.ToString(FindTagsIncl),
+                  TNoteTagArrayUtils.ToString(FindTagsExcl)
+                   ]);
+              end;
+           end
+           else
+           if (Filter.Enabled = PanelCustomizReference.Filter.Enabled) then
+              FilterStr:= '='
+           else
+              FilterStr:= '*';
+
+
+
+           Result:= Format('%d:%s:%s:%s:%s:%s:%s:%d:%s',
+             [
+             Ord(Content),
+             BOOLEANSTR[ShowDateInHeader],
+             BOOLEANSTR[ShowTimeInHeader],
+             BOOLEANSTR[ShowTagsInHeader],
+             BOOLEANSTR[ShowLineInHeader],
+             BOOLEANSTR[CompactHeader],
+             BOOLEANSTR[DescendingOrder],
+             Ord(FoldedTextMode),
+             FilterStr]);
+     end;
+end;
+
+
+procedure TMEPanelCustomization.LoadFromString(Str: string);
+var
+   FilterStr: string;
+   txtFilter: string;
+   Strs: TStrings;
+begin
+   if Str = '' then exit;
+
+   Strs:= TStringList.Create;
+   try
+
+      Strs.Clear;
+      SplitString(Strs, Str, ':', false);
+
+      Content:=            TContentInMultiEntryMode(StrToInt(Strs[0]));
+      ShowDateInHeader:=   Strs[1] = BOOLEANSTR[true];
+      ShowTimeInHeader:=   Strs[2] = BOOLEANSTR[true];
+      ShowTagsInHeader:=   Strs[3] = BOOLEANSTR[true];
+      ShowLineInHeader:=   Strs[4] = BOOLEANSTR[true];
+      CompactHeader:=      Strs[5] = BOOLEANSTR[true];
+      DescendingOrder:=    Strs[6] = BOOLEANSTR[true];
+      FoldedTextMode:=     TExportFoldedTextMode(StrToInt(Strs[7]));
+
+      if Strs[8] = '=' then
+         // Equal (including Enabled status)
+      else
+      if Strs[8] = '*' then
+         Filter.Enabled:= not Filter.Enabled
+
+      else begin
+         FilterStr:= Strs[8];
+         Strs.Clear;
+         SplitString(Strs, FilterStr, ';', false);
+
+         with Filter do begin
+            Enabled:=        Strs[0] = BOOLEANSTR[true];
+            TagsModeOR:=     Strs[1] = BOOLEANSTR[true];
+            TagsText:=       Strs[2] = BOOLEANSTR[true];
+            MatchCase:=      Strs[3] = BOOLEANSTR[true];
+            WholeWordsOnly:= Strs[4] = BOOLEANSTR[true];
+            ConsiderHidden:= Strs[5] = BOOLEANSTR[true];
+            ShowExcerpts:=   Strs[6] = BOOLEANSTR[true];
+            SearchMode:=     TSearchMode(StrToInt(Strs[7]));
+            txtFilter:=      Strs[8];
+            if txtFilter <> '' then begin
+               txtFilter:=  StringReplace(txtFilter, '\"', '"', [rfReplaceAll]);
+               txtFilter:=  txtFilter.Substring(1, Length(txtFilter)-2);
+               TextFilter:=     txtFilter;
+            end;
+            FindTagsIncl:=   TNoteTagArrayUtils.StringToFindTags(Strs[9]);
+            FindTagsExcl:=   TNoteTagArrayUtils.StringToFindTags(Strs[10]);
+         end;
+
+      end;
+
+   finally
+       Strs.Free;
+   end;
+
+end;
+
+
+
+function TNoteAdvancedOptions.ToString: String;
+var
+  p: TNEntriesMainPanel;
+  DefUseForQL, DefUseForEL, SEP: String;
+  DefEnabledForQL, DefEnabledForEL: String;
+  LinkedTagsQL, LinkedTagsEL: String;
+  DefMECustomizForQL, DefMECustomizForEL: String;
+  PanelCustomizReference: TMEPanelCustomization;
+
+begin
+     (*
+       QL: QueryLayout     EL: EditingLayout
+
+       EnableAdvEditionInSingleEntryNotes|AutoExpandInPanels|ShowNewestEntryAtStartup|NewEntriesAlwaysOnEdLayout|EditTagLinkedEntryInSelectedEntryPanel|
+       EditorInfoBarPos|FirstLinesOfText_MaxLength|FirstLinesOfText_MaxLines|
+       Top|Bottom|TLTR|BLBR|TopAutoFromHidden|BottomAutoFromHidden|     <--- [SizeRatiosQL]
+       Top|Bottom|TLTR|BLBR|TopAutoFromHidden|BottomAutoFromHidden|     <--- [SizeRatiosEL]
+       DefaultUseForQL|DefaultUseForEL|
+       LinkedTagsForQL|LinkedTagsForEL|
+       DefaultEnabledForQL|DefaultEnabledForEL|
+       DefaultMECustomizForQL|DefaultMECustomizForQL
+
+       DefaultUseForQL: PanelUseForQL_TL/PanelUseForQL_TR/PanelUseForQL_BL/PanelUseForQL_BR/PanelUseForQL_Center  (ex:  1/0/2/0/3 )
+       DefaultUseForEL:   ,,  for EditingLayout
+
+       LinkedTagsForQL:  TagsForQL_TL/TagsForQL_TR/TagsForQL_BL/TagsForQL_BR/TagsForQL_Center     (ex: 1/2,5///)
+       LinkedTagsForEL:   ,, for EditingLayout
+
+       DefaultEnabledForQL:  0|1|....                        (Enabled:1  Not enabled:0)
+       DefaultEnabledForEL:  ,, for EditingLayout
+
+       DefaultMECustomizForQL:   PanelCustomForQL_TL/PanelCustomForQL_TR/PanelCustomForQL_BL/PanelCustomForQL_BR/PanelCustomForQL_Center
+       DefaultMECustomizForEL:    ,, for EditingLayout
+
+
+       PanelCustomForX_X:
+             '' (Empty, if equals to built-in)  or
+
+             Content:ShowDateInHeader:ShowTimeInHeader:ShowTagsInHeader:ShowLineInHeader:CompactHeader:DescendingOrder:FoldedTextMode:Filter
+
+             Filter:
+                  '=' (if equals to built-in)  or
+                  '*' (if equals to built-in), BUT with different Enabled state  or
+
+                   Enabled;TagsModeOR;TagsText;MatchCase;WholeWordsOnly;ConsiderHidden;ShowExcerpts;SearchMode;TextFilter;FindTagsIncl;FindTagsExcl
+                   FindTagsIncl: Tag1,Tag2,... TagsN&...&Tag1',Tag2',... TagsN&...'    (ex: 3,2&1&1,10 )
+                   FindTagsExcl:   ,,
+
+     *)
+
+
+   PanelCustomizReference.Initialize;
+
+   SEP:= '';
+   for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+       DefUseForQL:= DefUseForQL + SEP + Ord(DefaultUseForQL[p]).ToString;
+       DefUseForEL:= DefUseForEL + SEP + Ord(DefaultUseForEL[p]).ToString;
+
+       LinkedTagsQL:= LinkedTagsQL + SEP + TNoteTagArrayUtils.ToString(LinkedTagsForQL[p]);
+       LinkedTagsEL:= LinkedTagsEL + SEP + TNoteTagArrayUtils.ToString(LinkedTagsForEL[p]);
+
+       DefEnabledForQL:= DefEnabledForQL + SEP + BOOLEANSTR[DefaultEnabledForQL[p]];
+       DefEnabledForEL:= DefEnabledForEL + SEP + BOOLEANSTR[DefaultEnabledForEL[p]];
+
+       DefMECustomizForQL:= DefMECustomizForQL + SEP + DefaultMECustomizForQL[p].ToString(PanelCustomizReference);
+       DefMECustomizForEL:= DefMECustomizForEL + SEP + DefaultMECustomizForEL[p].ToString(PanelCustomizReference);
+
+       SEP:= '/';
+   end;
+
+
+   Result:= Format('%s|%s|%s|%s|%s|%d|%d|%d|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s',
+               [
+               BOOLEANSTR[EnableAdvEditionInSingleEntryNotes],
+               BOOLEANSTR[AutoExpandInPanels],
+               BOOLEANSTR[ShowNewestEntryAtStartup],
+               BOOLEANSTR[NewEntriesAlwaysOnEdLayout],
+               BOOLEANSTR[EditTagLinkedEntryInSelectedEntryPanel],
+
+               Ord(EditorInfoBarPos),
+               FirstLinesOfText_MaxLength,
+               FirstLinesOfText_MaxLines,
+
+               SizeRatiosQL.ToString,
+               SizeRatiosEL.ToString,
+
+               DefUseForQL,
+               DefUseForEL,
+               LinkedTagsQL,
+               LinkedTagsEL,
+               DefEnabledForQL,
+               DefEnabledForEL,
+               DefMECustomizForQL,
+               DefMECustomizForEL
+               ]);
+
+
+end;
+
+
+
+procedure TNoteAdvancedOptions.LoadFromString(Str: String; var ErrorsLoading: boolean);
+var
+  i: integer;
+  Strs, Strs2: TStrings;
+
+  p: TNEntriesMainPanel;
+  DefUseForQL, DefUseForEL, SEP: String;
+  LinkedTagsQL, LinkedTagsEL: String;
+  DefEnabledForQL, DefEnabledForEL: String;
+  DefMECustomizForQL, DefMECustomizForEL: String;
+  PanelCustomiz: TMEPanelCustomization;
+  Config: TFormatSettings;
+  LayoutOK: boolean;
+
+
+  procedure LoadMEPanelCustomization(DefMECustomiz: string; Layout: TPanelLayout);
+  var
+     p: TNEntriesMainPanel;
+     PanelCustomiz: ^TMEPanelCustomization;
+     FilterStr: string;
+     txtFilter: string;
+  begin
+
+     Strs.Clear;
+     SplitString(Strs, DefMECustomiz, '/', false);
+     i:= 0;
+     for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+        if Layout = lQL then
+            DefaultMECustomizForQL[p]:= DefaultNoteAdvOptions.DefaultMECustomizForQL[p]
+        else
+            DefaultMECustomizForEL[p]:= DefaultNoteAdvOptions.DefaultMECustomizForEL[p];
+
+        if Strs[i] <> '' then begin
+           if Layout = lQL then
+              PanelCustomiz:= @DefaultMECustomizForQL[p]
+           else
+              PanelCustomiz:= @DefaultMECustomizForEL[p];
+
+           Strs2.Clear;
+           SplitString(Strs2, Strs[i], ':', false);
+
+           with PanelCustomiz^ do begin
+              Content:=            TContentInMultiEntryMode(StrToInt(Strs2[0]));
+              ShowDateInHeader:=   Strs2[1] = BOOLEANSTR[true];
+              ShowTimeInHeader:=   Strs2[2] = BOOLEANSTR[true];
+              ShowTagsInHeader:=   Strs2[3] = BOOLEANSTR[true];
+              ShowLineInHeader:=   Strs2[4] = BOOLEANSTR[true];
+              CompactHeader:=      Strs2[5] = BOOLEANSTR[true];
+              DescendingOrder:=    Strs2[6] = BOOLEANSTR[true];
+              FoldedTextMode:=     TExportFoldedTextMode(StrToInt(Strs2[7]));
+              if Strs2[8] <> '*' then begin
+                 FilterStr:= Strs2[8];
+                 Strs2.Clear;
+                 SplitString(Strs2, FilterStr, ';', false);
+
+                 with Filter do begin
+                    Enabled:=        Strs2[0] = BOOLEANSTR[true];
+                    TagsModeOR:=     Strs2[1] = BOOLEANSTR[true];
+                    TagsText:=       Strs2[2] = BOOLEANSTR[true];
+                    MatchCase:=      Strs2[3] = BOOLEANSTR[true];
+                    WholeWordsOnly:= Strs2[4] = BOOLEANSTR[true];
+                    ConsiderHidden:= Strs2[5] = BOOLEANSTR[true];
+                    ShowExcerpts:=   Strs2[6] = BOOLEANSTR[true];
+                    SearchMode:=     TSearchMode(StrToInt(Strs2[7]));
+                    txtFilter:=      Strs2[8];
+                    if txtFilter <> '' then begin
+                       txtFilter:=  StringReplace(txtFilter, '\"', '"', [rfReplaceAll]);
+                       txtFilter:=  txtFilter.Substring(1, Length(txtFilter)-2);
+                       TextFilter:=     txtFilter;
+                    end;
+                    FindTagsIncl:=   TNoteTagArrayUtils.StringToFindTags(Strs2[9]);
+                    FindTagsExcl:=   TNoteTagArrayUtils.StringToFindTags(Strs2[10]);
+                 end;
+
+              end;
+           end;
+
+        end;
+        inc(i);
+     end;
+
+  end;
+
+
+
+begin
+   Self:= DefaultNoteAdvOptions;
+
+   if Str = '' then exit;
+
+   ErrorsLoading:= false;
+
+   Strs:= TStringList.Create;
+   Strs2:= TStringList.Create;
+   try
+    try
+      SplitString(Strs, Str, '|', false);
+
+      EnableAdvEditionInSingleEntryNotes:=      Strs[0] = BOOLEANSTR[true];
+      AutoExpandInPanels:=                      Strs[1] = BOOLEANSTR[true];
+      ShowNewestEntryAtStartup:=                Strs[2] = BOOLEANSTR[true];
+      NewEntriesAlwaysOnEdLayout:=              Strs[3] = BOOLEANSTR[true];
+      EditTagLinkedEntryInSelectedEntryPanel:=  Strs[4] = BOOLEANSTR[true];
+
+      EditorInfoBarPos:=            TEditorInfoBarPos(StrToInt(Strs[5]));
+      FirstLinesOfText_MaxLength:=     StrToInt(Strs[6]);
+      FirstLinesOfText_MaxLines:=      StrToInt(Strs[7]);
+
+      Config := TFormatSettings.Create('en-US');                             // -> 0.1234
+
+      SizeRatiosQL.Top:=                  StrToFloatDef( Strs[8],  0.1354, Config);
+      SizeRatiosQL.Bottom:=               StrToFloatDef( Strs[9],  0.15, Config);
+      SizeRatiosQL.TLTR:=                 StrToFloatDef( Strs[10], 0.5, Config);
+      SizeRatiosQL.BLBR:=                 StrToFloatDef( Strs[11], 0.5, Config);
+      SizeRatiosQL.TopAutoFromHidden:=    StrToFloatDef( Strs[12], 0.15, Config);
+      SizeRatiosQL.BottomAutoFromHidden:= StrToFloatDef( Strs[13], 0.15, Config);
+
+      SizeRatiosEL.Top:=                  StrToFloatDef( Strs[14], 0.1354, Config);
+      SizeRatiosEL.Bottom:=               StrToFloatDef( Strs[15], 0.15, Config);
+      SizeRatiosEL.TLTR:=                 StrToFloatDef( Strs[16], 0.5, Config);
+      SizeRatiosEL.BLBR:=                 StrToFloatDef( Strs[17], 0.5, Config);
+      SizeRatiosEL.TopAutoFromHidden:=    StrToFloatDef( Strs[18], 0.15, Config);
+      SizeRatiosEL.BottomAutoFromHidden:= StrToFloatDef( Strs[19], 0.15, Config);
+
+      DefUseForQL:=         Strs[20];
+      DefUseForEL:=         Strs[21];
+      LinkedTagsQL:=        Strs[22];
+      LinkedTagsEL:=        Strs[23];
+      DefEnabledForQL:=     Strs[24];
+      DefEnabledForEL:=     Strs[25];
+      DefMECustomizForQL:=  Strs[26];
+      DefMECustomizForEL:=  Strs[27];
+
+
+      try
+          LayoutOK:= false;
+
+          Strs.Clear;
+          SplitString(Strs, LinkedTagsQL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             LinkedTagsForQL[p]:=  TNoteTagArrayUtils.StringToTags(Strs[i]);
+             inc(i);
+          end;
+
+          Strs.Clear;
+          SplitString(Strs, DefUseForQL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultUseForQL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
+             inc(i);
+          end;
+
+          Strs.Clear;
+          SplitString(Strs, DefEnabledForQL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultEnabledForQL[p]:=  Strs[i] = BOOLEANSTR[true];
+             inc(i);
+          end;
+
+          LayoutOK:= ValidateLayout(lQL);
+
+      except
+        on E: Exception do begin
+           LayoutOK:= false;
+           ErrorsLoading:= true;
+        end;
+      end;
+
+      if not LayoutOK then begin
+         DefaultUseForQL:= DefaultNoteAdvOptions.DefaultUseForQL;
+         DefaultEnabledForQL:= DefaultNoteAdvOptions.DefaultEnabledForQL;
+      end;
+
+
+      try
+          LayoutOK:= false;
+
+          Strs.Clear;
+          SplitString(Strs, LinkedTagsEL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             LinkedTagsForEL[p]:=  TNoteTagArrayUtils.StringToTags(Strs[i]);
+             inc(i);
+          end;
+
+          Strs.Clear;
+          SplitString(Strs, DefUseForEL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultUseForEL[p]:=  TNEntriesPanelUse(StrToIntDef(Strs[i], 0));
+             inc(i);
+          end;
+
+          Strs.Clear;
+          SplitString(Strs, DefEnabledForEL, '/', false);
+          i:= 0;
+          for p := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+             DefaultEnabledForEL[p]:=  Strs[i] = BOOLEANSTR[true];
+             inc(i);
+          end;
+
+          LayoutOK:= ValidateLayout(lEL);
+
+      except
+        on E: Exception do begin
+           LayoutOK:= false;
+           ErrorsLoading:= true;
+        end;
+      end;
+
+      if not LayoutOK then begin
+         DefaultUseForEL:= DefaultNoteAdvOptions.DefaultUseForEL;
+         DefaultEnabledForEL:= DefaultNoteAdvOptions.DefaultEnabledForEL;
+      end;
+
+      LoadMEPanelCustomization(DefMECustomizForQL, lQL);
+      LoadMEPanelCustomization(DefMECustomizForEL, lEL);
+
+
+    except
+       On E: Exception do begin
+          Self:= DefaultNoteAdvOptions;
+          ErrorsLoading:= true;
+       end;
+    end;
+
+   finally
+      Strs.Free;
+      Strs2.Free;
+   end;
+end;
+
+
+
+function TNoteAdvancedOptions.ValidateLayout(Layout: TPanelLayout): boolean;
+var
+  pnl: TNEntriesMainPanel;
+  Num_ShowSelectedEntry, Num_ShowAllEntries: integer;
+  DefaultUseForLayout: TNEntriesPanelUseArray;
+  LinkedTagsForLayout: TNoteTagArrayPanelArray;
+  DefaultEnabledForLayout: TNEntriesPanelEnabledArray;
+begin
+  {
+  Review the purposes for "Query Layout". Make sure to:
+  - Select "All entries" in one (and only one) panel
+  - Do not select more than one panel with "Selected entry"
+  - Select "All entries" or "Selected entry" for panel C
+
+  - Specify a tag for each "Linked to the tag[s]:"                       [Query Layout]
+  - Specify a tag for each "Only if there is any entry with the tag[s]:" [Editing Layout]
+  }
+
+   Result:= False;
+
+   Num_ShowSelectedEntry:= 0;
+   Num_ShowAllEntries:= 0;
+
+   if Layout = lQL then begin
+      DefaultUseForLayout:=  DefaultUseForQL;
+      LinkedTagsForLayout:= LinkedTagsForQL;
+      DefaultEnabledForLayout:= DefaultEnabledForQL;
+   end
+   else begin
+      DefaultUseForLayout:=  DefaultUseForEL;
+      LinkedTagsForLayout:= LinkedTagsForEL;
+      DefaultEnabledForLayout:= DefaultEnabledForEL;
+   end;
+
+   for pnl := Low(TNEntriesMainPanel) to High(TNEntriesMainPanel) do begin
+      case DefaultUseForLayout[pnl] of
+         pnuShowTagLinkedEntries:   if (pnl = pnCenter) or (LinkedTagsForLayout[pnl] = nil) then exit;
+         pnuShowSelectedEntry:      inc(Num_ShowSelectedEntry);
+         pnuShowAllEntries:         begin
+                                       if not DefaultEnabledForLayout[pnl] then exit;
+                                       inc(Num_ShowAllEntries);
+                                    end;
+         pnuHidePanel:              if (pnl = pnCenter) then exit;
+      end;
+   end;
+
+   if (Num_ShowAllEntries = 1) and (Num_ShowSelectedEntry <= 1) then
+      Result:= True;
+
 end;
 
 

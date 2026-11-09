@@ -247,7 +247,6 @@ type
     MMInsertTime: TMenuItem;
     MMFindGoTo: TMenuItem;
     N25: TMenuItem;
-    RTFMProperties: TMenuItem;
     MMCopyFormat_: TMenuItem;
     MMPasteFormat_: TMenuItem;
     MMFormatCopyFont: TMenuItem;
@@ -917,6 +916,7 @@ type
     txtTagsExcl: TEdit;
     lbl9: TLabel;
     chkTagsMetad: TCheckBox;
+    chkTagsEntries: TCheckBox;
     chkTagsText: TCheckBox;
     lbl4: TLabel;
     chkInhTagsFind: TCheckBox;
@@ -932,6 +932,25 @@ type
     actTVEncrypNode: TAction;
     RTFMEncryptImg: TMenuItem;
     MGRImages: TImageList;
+    RTFMEntry_: TMenuItem;
+    RTFMReadOnly: TMenuItem;
+    RTFMHidden: TMenuItem;
+    RTFMShowHidden: TMenuItem;
+    RTFMEncryp: TMenuItem;
+    RTFMMain: TMenuItem;
+    RTFMDeleteEntry: TMenuItem;
+    N93: TMenuItem;
+    N114: TMenuItem;
+    RTFMHideAgain: TMenuItem;
+    N115: TMenuItem;
+    RTFMOnlyFLines: TMenuItem;
+    RTFMHdWh: TMenuItem;
+    MMPanelOpt: TMenuItem;
+    RTFMAddEntry: TMenuItem;
+    RTFMEditEntry: TMenuItem;
+    RTFMPanelOpt: TMenuItem;
+    RTFMSwLayout: TMenuItem;
+    N121: TMenuItem;
     //---------
     procedure MMStartsNewNumberClick(Sender: TObject);
     procedure MMRightParenthesisClick(Sender: TObject);
@@ -1363,6 +1382,20 @@ type
     procedure MMViewEncryptedContClick(Sender: TObject);
     procedure actTVEncrypNodeExecute(Sender: TObject);
     procedure RTFMEncryptImgClick(Sender: TObject);
+    procedure RTFMReadOnlyClick(Sender: TObject);
+    procedure RTFMMainClick(Sender: TObject);
+    procedure RTFMHiddenClick(Sender: TObject);
+    procedure RTFMShowHiddenClick(Sender: TObject);
+    procedure RTFMEncrypClick(Sender: TObject);
+    procedure RTFMDeleteEntryClick(Sender: TObject);
+    procedure RTFMHideAgainClick(Sender: TObject);
+    procedure RTFMOnlyFLinesClick(Sender: TObject);
+    procedure RTFMHdWhClick(Sender: TObject);
+    procedure MMPanelOptClick(Sender: TObject);
+    procedure RTFMEditEntryClick(Sender: TObject);
+    procedure RTFMSwLayoutClick(Sender: TObject);
+    procedure RTFMPanelOptClick(Sender: TObject);
+    procedure RTFMAddEntryClick(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1440,7 +1473,8 @@ type
     procedure UpdateFolderDisplay (OnlyActionsState: boolean = false);
     procedure UpdateWordWrap;
     procedure EnableActionsForEditor(SupportsRTF: boolean; EditEnabled: boolean); overload;
-    procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean); overload;
+    procedure EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
+                                     HasMultipleEntries: boolean; HasAnyEntryNonVisible: boolean; DisplayingAnyHiddenEntry: boolean); overload;
     procedure EnableActionsForTree(TreeUI: TKntTreeUI; ReadOnly: boolean= false);
     procedure ShowNodeChromeState(TreeUI: TKntTreeUI);
     procedure EnsureCalendarSupported;
@@ -1516,10 +1550,10 @@ type
 
     procedure ClearFindTags;
     procedure CheckFindTagsRecalc;
-    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
+    procedure OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
     procedure ChangeFindInclToModeOR;
 
   end;
@@ -1567,8 +1601,11 @@ uses
    kn_AlertMng,
    kn_KntFile,
    kn_VCLControlsMng,
+   knt.ui.info,
    knt.ui.tagSelector,
    knt.ui.TagMng,
+   knt.ui.note,
+   knt.ui.noteEntries,
    knt.App,
    knt.RS
    {$IFNDEF EXCLUDEEMAIL}
@@ -1794,6 +1831,7 @@ begin
   cbTagFilterMode.ItemIndex:= 0;
 
   Initializing := false;
+  EditorToBeCheckedForContentUpdate:= nil;
 
   if _GLOBAL_URLText = '' then
      App.ActivateFolder(nil);            // Activate (and focus) current active folder       View comment in KntFileOpen
@@ -2451,10 +2489,22 @@ begin
     end;
 
     if (IntroducingTagsState = itNoTags) and (FRestoreFocusInEditor = 0) and (ActiveEditor <> nil) and ((ActiveControl = ActiveEditor) or ActiveEditor.Focused)
-       and not ExportingFormVisible
+       and not ModalFormWithTxtTagsVisible
        and (GetAsyncKeyState(VK_LEFT) = 0) and (GetAsyncKeyState(VK_RIGHT) = 0)
        and (GetAsyncKeyState(VK_UP) = 0) and (GetAsyncKeyState(VK_DOWN) = 0) then
        ActiveEditor.CheckSelectingRegisteredTag;
+
+    if EditorToBeCheckedForContentUpdate <> nil then
+       App.EnsureContentEditorUpdated (EditorToBeCheckedForContentUpdate);
+
+    if (DisableChangedInEmptyPanelAt <> 0) and (MilliSecondsBetween(DisableChangedInEmptyPanelAt, now) > 200)  then
+       DisableChangedInEmptyPanelAt:= 0;
+
+    if FrameResizePendingInNoteUI <> nil then begin
+       sleep(85);
+       TKntNoteUI(FrameResizePendingInNoteUI).RefreshPanelsLayout;
+       FrameResizePendingInNoteUI:= nil;
+    end;
 
    Done := True;
 
@@ -2903,7 +2953,10 @@ begin
 
     VK_PRIOR : if ( shift = [ssCtrl] ) then begin // Page Up
       key := 0;
-      Pages.SelectNextPage( false );
+      if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and (ActiveNNode.Note.NumEntries > 1) then
+         ActiveFolder.NoteUI.SelectPreviousEntry
+      else
+         Pages.SelectNextPage( false );
     end
     else
     if ( KeyOptions.ResPanelShow and ( shift = [ssAlt] )) then begin
@@ -2913,7 +2966,10 @@ begin
 
     VK_NEXT : if ( shift = [ssCtrl] ) then begin // Page Down
       key := 0;
-      Pages.SelectNextPage( true );
+      if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and (ActiveNNode.Note.NumEntries > 1) then
+         ActiveFolder.NoteUI.SelectNextEntry
+      else
+         Pages.SelectNextPage( true );
     end
     else
     if ( KeyOptions.ResPanelShow and ( shift = [ssAlt] )) then begin
@@ -3062,7 +3118,7 @@ end;
 
 procedure TForm_Main.FormShortCut(var Msg: TWMKey; var Handled: Boolean);
 var
-  ShiftPressed: boolean;
+  ShiftPressed, CtrlPressed: boolean;
   ShortCut: TShortCut;
   ShortCutItem: TMenuItem;
 begin
@@ -3074,7 +3130,8 @@ begin
        Handled:= true;
    end;
 
-   if (GetKeyState(VK_CONTROL) < 0) and not (GetKeyState(VK_MENU) < 0) then begin
+   CtrlPressed:= GetKeyState(VK_CONTROL) < 0;
+   if CtrlPressed and not (GetKeyState(VK_MENU) < 0) then begin
       ShiftPressed:= (GetKeyState(VK_SHIFT) < 0);
 
 
@@ -3116,7 +3173,8 @@ begin
           if CmdCut then Handled:= true;
 
       end
-      else if (not ShiftPressed) then begin
+      else
+      if (not ShiftPressed) then begin
         if assigned(ActiveEditor) and (Msg.CharCode in [VK_DOWN, VK_UP]) then
            case EditorOptions.CtrlUpDownMode of
               TCtrlUpDownMode.cudDefault: exit;
@@ -3144,6 +3202,12 @@ begin
 
         else begin
            if Msg.CharCode = VK_RETURN then begin
+              if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and
+                   (ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes or (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1)) then begin
+                 ActiveFolder.NoteUI.IntroInEditorOfEntriesUI(ActiveEditor, True);
+                 Handled:= true;
+              end
+              else
               if activeControl = ListBox_ResFav then begin
                 JumpToFavorite;
                 Handled:= true;
@@ -3151,7 +3215,17 @@ begin
            end;
         end;
 
+      end
+      else begin
+        if Msg.CharCode = VK_RETURN then begin
+           if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and
+               (ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes or (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1)) then begin
+              ActiveFolder.NoteUI.NewEntryRequested(ActiveEditor);
+              Handled:= true;
+           end;
+        end;
       end;
+
 
       if (not Handled) and KeyOptions.UseCtrlHideTreePanel then begin
           // Check if the keys combination, without Ctrl, is a shortcut to MMViewTree
@@ -3185,6 +3259,26 @@ begin
                 ShortcutAltDownMenuItem.Enabled:= True
              else
                 ShortcutAltDownMenuItem.Enabled:= False;
+      end
+      else
+      if (Msg.CharCode = VK_RETURN) and (GetKeyState(VK_SHIFT) < 0) then begin
+         if (ActiveControl = ActiveEditor) and (ActiveEditor <> nil) and (ActiveEditor.NNodeObj <> nil) and
+            (ActiveEditor.MultiEntry or (ActiveNEntry = nil) or ActiveFolder.NoteUI.MultipleVisibleEditors or (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries > 1)) then begin
+
+            var NEntriesUI: TKntNoteEntriesUI;
+            NEntriesUI := TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
+            if NEntriesUI <> nil then begin
+               if (NEntriesUI.PanelConfig.StLayout = spInQL) and (TNoteNode(ActiveEditor.NNodeObj).Note.NumEntries = 1) then begin
+                  if ActiveEditor.MultiEntry or (ActiveNEntry = nil) then
+                     ActiveFolder.NoteUI.LoadFromNNode(ActiveNNode, True, neQueryLayout);
+               end
+               else
+               if ActiveNEntry <> nil then
+                  NEntriesUI.btnToggleMultiClick(nil);
+            end;
+
+            Handled:= true;
+         end;
       end;
    end;
 
@@ -3225,7 +3319,7 @@ var
   Enabled: boolean;
 begin
   if assigned(ActiveEditor) then begin
-    Enabled:= ActiveEditor.Enabled and not ActiveEditor.ReadOnly;
+    Enabled:= ActiveEditor.Enabled and (not ActiveEditor.ReadOnly or (not ActiveFolder.ReadOnly and ActiveEditor.MultiEntry));
     MMFormatWordWrap.Enabled:= Enabled;
     TB_WordWrap.Enabled:= Enabled;
     RTFMWordwrap.Enabled:= Enabled;
@@ -4019,6 +4113,9 @@ end;
 
 procedure TForm_Main.TB_CopyFormatClick(Sender: TObject);
 begin
+  //ActiveFolder.NoteUI.TestPanels;                 // %%%
+  //exit;
+
   FormatCopyClick(True);
 end;
 
@@ -4689,6 +4786,82 @@ begin
 end;
 
 
+procedure TForm_Main.RTFMReadOnlyClick(Sender: TObject);
+begin
+   App.ActiveNEntryReadOnlyChanged;
+end;
+
+procedure TForm_Main.RTFMMainClick(Sender: TObject);
+begin
+   App.ActiveNEntryMain;
+end;
+
+procedure TForm_Main.RTFMOnlyFLinesClick(Sender: TObject);
+begin
+  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ReloadVisibleContentOfEntries(True, cmOnlyFirstLines,  -1,true,false,   CtrlDown);
+end;
+
+procedure TForm_Main.RTFMHdWhClick(Sender: TObject);
+begin
+  TKntNoteEntriesUI(ActiveEditor.NEntriesUIObj).ToggleOnlyHeaders_WholeContent;
+end;
+
+procedure TForm_Main.RTFMHiddenClick(Sender: TObject);
+begin
+   App.ActiveNEntryHiddenChanged;
+end;
+
+procedure TForm_Main.RTFMHideAgainClick(Sender: TObject);
+begin
+  ActiveFolder.NoteUI.HideHiddenRevealed;
+end;
+
+procedure TForm_Main.RTFMShowHiddenClick(Sender: TObject);
+begin
+  ActiveFolder.NoteUI.ShowHiddenEntries;                  // (Ctrl: Show and undo hidden) // Shift: Only not hidden (Alt+DblClick)
+end;
+
+procedure TForm_Main.RTFMEncrypClick(Sender: TObject);
+begin
+  if not ActiveFile.CheckAuthorized(True) then exit;
+
+  ActiveNEntry.IsEncrypted:= not ActiveNEntry.IsEncrypted;
+  ActiveNNode.Note.SetModified;
+  ActiveFolder.Modified:= True;
+  if ActiveFile.HighlightProtectedNodesAndEntries then
+     ActiveFolder.NoteUI.RefreshHeaderOfEntries(ActiveNEntry);
+  App.NEntrySelected(ActiveEditor, ActiveNEntry);    // --> UpdateEnabledActionsAndRTFState
+end;
+
+procedure TForm_Main.RTFMDeleteEntryClick(Sender: TObject);
+begin
+   App.DeleteActiveNEntry;
+end;
+
+
+procedure TForm_Main.RTFMAddEntryClick(Sender: TObject);
+begin
+   ActiveFolder.NoteUI.NewEntryRequested(ActiveEditor);
+   App.UpdateEnabledActionsAndRTFState(ActiveEditor);
+end;
+
+procedure TForm_Main.RTFMSwLayoutClick(Sender: TObject);
+begin
+   ActiveFolder.NoteUI.SwitchLayout(ActiveEditor);
+end;
+
+procedure TForm_Main.RTFMEditEntryClick(Sender: TObject);
+begin
+  ActiveFolder.NoteUI.EditEntry(ActiveEditor);
+end;
+
+procedure TForm_Main.RTFMPanelOptClick(Sender: TObject);
+begin
+  MMPanelOptClick(nil);
+end;
+
+
+
 procedure TForm_Main.RTFMRestoreProportionsClick(Sender: TObject);
 begin
    if Assigned(ActiveEditor.NNodeObj) then
@@ -5289,6 +5462,17 @@ begin
    PlainDefaultPaste_Toggled
 end;
 
+procedure TForm_Main.MMPanelOptClick(Sender: TObject);
+var
+   NEntriesUI: TKntNoteEntriesUI;
+begin
+  if ActiveFolder = nil then exit;
+
+  NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.NoteUI.GetSelectedNEntriesUI(ActiveEditor));
+  if NEntriesUI <> nil then
+     NEntriesUI.btnOptionsClick(nil);
+end;
+
 procedure TForm_Main.MMP_PlainDefaultPasteClick(Sender: TObject);
 begin
    EditorOptions.PlainDefaultPaste:= not EditorOptions.PlainDefaultPaste;
@@ -5635,7 +5819,7 @@ begin
      Res_RTF.Refresh;
 
   if KeyOptions.AltMargins and assigned(ActiveFolder) then
-      ActiveFolder.Editor.Refresh;
+      ActiveFolder.NoteUI.Refresh;
 end;
 
 procedure TForm_Main.VisibilityControlsFindAllResults (Visible: boolean);
@@ -6118,13 +6302,27 @@ var
   var
     NNode: TNoteNode;
     NEntry: TNoteEntry;
+    i: integer;
   begin
      NNode:= ActiveTreeUI.GetNNode(Node);
-     NEntry:= NNode.Note.Entries[0];                          //%%%
+     // *1 We will only act on the tags directly associated with the note itself, that is, its main entry ([0] by default)
+
+  {  *1
+     for i := 0 to High(NNode.Note.Entries) do begin
+        NEntry:= NNode.Note.Entries[i];
+        if Add then
+           NEntry.AddTags(SelectedTags)
+        else
+           NEntry.RemoveTags(SelectedTags);
+     end;
+  }
+     NEntry:= NNode.Note.MainEntry;
      if Add then
         NEntry.AddTags(SelectedTags)
      else
         NEntry.RemoveTags(SelectedTags);
+
+     App.ModifiedMetadataOfEntry(NEntry, NNode.Note, ActiveFolder);
   end;
 
 begin
@@ -6143,7 +6341,6 @@ begin
   end;
 
   ClearFindTags;
-  ActiveFolder.NoteUI.RefreshTags;
 end;
 
 
@@ -6378,7 +6575,7 @@ begin
   ActiveTreeUI.txtTags.Text:= TagsStr;
   ActiveTreeUI.txtTags.Hint:= TagsStr;
   ActiveTreeUI.txtTags.Font.Color:= clWindowText;
-  ActiveTreeUI.OnEndFindTagsIntroduction(true, FindTags, '');
+  ActiveTreeUI.OnEndFindTagsIntroduction(true, FindTags, '', ActiveTreeUI.txtTags);
 end;
 
 
@@ -6694,6 +6891,8 @@ var
 begin
   VisibilityControlsFindAllResults (true);
 
+  CheckFindTagsRecalc;
+
   // transfer FindAll options to myFindOptions
   myFindOptions.MatchCase := CB_ResFind_CaseSens.Checked;
   myFindOptions.WholeWordsOnly := CB_ResFind_WholeWords.Checked;
@@ -6710,6 +6909,7 @@ begin
   myFindOptions.FindTagsInclNotReg:= FindTagsIncl_NotRegistered;
   myFindOptions.FindTagsExclNotReg:= FindTagsExcl_NotRegistered;
   myFindOptions.TagsMetadata:= chkTagsMetad.Checked;
+  myFindOptions.TagsEntriesMetadata:= chkTagsEntries.Checked;
   myFindOptions.TagsText:= chkTagsText.Checked;
   myFindOptions.InheritedTags:= FindOptions.InheritedTags;
   myFindOptions.TagsModeOR:= (cbTagFindMode.ItemIndex = 1);
@@ -6730,7 +6930,7 @@ begin
 
   myFindOptions.EmphasizedSearch:= esNone;
   myFindOptions.FoldedMode:= TSearchFoldedMode(CbFindFoldedMode.ItemIndex);
-  myFindOptions.ProtectedNodesOnly:= false;
+  myFindOptions.ProtectedNodesAndEntriesOnly:= false;
   
 
   ApplyFilter:= CB_ResFind_Filter.Checked;
@@ -6783,7 +6983,7 @@ end;
 procedure TForm_Main.CheckFindAllEnabled;
 begin
    if CB_LastModifFrom.Enabled or CB_LastModifUntil.Enabled or CB_CreatedFrom.Enabled or CB_CreatedUntil.Enabled or
-      ( (chkTagsMetad.Checked or chkTagsText.Checked) and
+      ( (chkTagsMetad.Checked or chkTagsEntries.Checked or chkTagsText.Checked) and
          ((FindTagsIncl <> nil) or (FindTagsExcl <> nil) or (FindTagsIncl_NotRegistered <> '') or (FindTagsExcl_NotRegistered <> '')  )) then
       Btn_ResFind.Enabled := true
    else
@@ -6794,7 +6994,7 @@ procedure TForm_Main.CheckTxtTagsEnabled;
 var
   Enable: boolean;
 begin
-  Enable:= (chkTagsMetad.Checked or chkTagsText.Checked);
+  Enable:= (chkTagsMetad.Checked or chkTagsEntries.Checked or chkTagsText.Checked);
   txtTagsIncl.Enabled:= Enable;
   txtTagsExcl.Enabled:= Enable;
   lbl8.Enabled:= Enable;
@@ -7060,14 +7260,18 @@ begin
   if SS = ssOnlyNodeName then begin
      chkTagsText.Checked:= False;
      chkTagsText.Enabled:= False;
+     chkTagsEntries.Checked:= False;
+     chkTagsEntries.Enabled:= False;
   end
-  else
+  else begin
      chkTagsText.Enabled:= True;
+     chkTagsEntries.Enabled:= True;
+  end;
 end;
 
 procedure TForm_Main.ChangeFindInclToModeOR;
 begin
-   FindTagsIncl:= FindTagsGetModeOR(FindTagsIncl);
+   FindTagsIncl:= TNoteTagArrayUtils.FindTagsToModeOR(FindTagsIncl);
    TagMng.UpdateTxtFindTagsHint(txtTagsIncl, txtTagsIncl.Text, FindTagsIncl, FindTagsIncl_NotRegistered, True);
 end;
 
@@ -7109,17 +7313,17 @@ var
 begin
     if (FindTagsIncl = nil) and (FindTagsIncl_NotRegistered = '') and (txtTagsIncl.Text <> '') and (txtTagsIncl.Text <> EMPTY_TAGS) then begin
        FindTags:= TagMng.GetSearchedIntroducedTags(txtTagsIncl, FindTagsNotRegistered);
-       OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+       OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered, txtTagsIncl);
     end;
 
     if (FindTagsExcl = nil) and (FindTagsExcl_NotRegistered = '') and (txtTagsExcl.Text <> '') and (txtTagsExcl.Text <> EMPTY_TAGS) then begin
        FindTags:= TagMng.GetSearchedIntroducedTags(txtTagsExcl, FindTagsNotRegistered);
-       OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+       OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered, txtTagsExcl);
     end;
 end;
 
 
-procedure TForm_Main.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnChangeFindTagsInclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
    FindTagsIncl:= FindTags;
    if cbTagFindMode.ItemIndex = 1 then
@@ -7129,9 +7333,9 @@ begin
    CheckFindAllEnabled;
 end;
 
-procedure TForm_Main.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnEndFindTagsInclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
-   OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered);
+   OnChangeFindTagsInclIntrod(FindTags, FindTagsNotRegistered, txtTagsIncl);
    if PressedReturn then
       txtTagsExcl.SetFocus;
 
@@ -7151,9 +7355,9 @@ begin
 end;
 
 
-procedure TForm_Main.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnChangeFindTagsExclIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
-   FindTagsExcl:= FindTagsGetModeOR(FindTags);
+   FindTagsExcl:= TNoteTagArrayUtils.FindTagsToModeOR(FindTags);
    FindTagsExcl_NotRegistered:= Trim(FindTagsNotRegistered);
    TagMng.UpdateTxtFindTagsHint(txtTagsExcl, txtTagsExcl.Text, FindTagsExcl, FindTagsExcl_NotRegistered, True);
    CheckFindAllEnabled;
@@ -7161,9 +7365,9 @@ end;
 
 
 
-procedure TForm_Main.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TForm_Main.OnEndFindTagsExclIntrod(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTags: TEdit);
 begin
-   OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered);
+   OnChangeFindTagsExclIntrod(FindTags, FindTagsNotRegistered, txtTagsExcl);
    if PressedReturn then
       chkTagsMetad.SetFocus;
 
@@ -7180,6 +7384,7 @@ end;
 
 procedure TForm_Main.chkTagsMetadClick(Sender: TObject);
 begin
+   chkInhTagsFind.Enabled:= chkTagsMetad.Checked;
    CheckFindAllEnabled;
    CheckTxtTagsEnabled;
 end;
@@ -7392,18 +7597,23 @@ end;
 
 
 procedure TForm_Main.MMTreeNavRightClick(Sender: TObject);
+var
+  NavDir: TNavDirection;
 begin
   {
     If the tree has focus, Alt+arrow scrolls the editor;         (Alt+Up, ALt+Down, Alt+Shift+Left,Alt+Shift+Right)
-    if the editor is focused, Alt+arrow scrolls the tree
+    if the editor is focused, navigate the panels or scroll the tree
   }
 
   if ( sender is TMenuItem ) then begin
     if Assigned(ActiveTreeUI) and ActiveTreeUI.Focused then
        ActiveEditor.Navigate(TNavDirection((sender as TMenuItem ).Tag))
     else
-    if Assigned(ActiveEditor) then
-       ActiveTreeUI.Navigate(TNavDirection((sender as TMenuItem).Tag ));
+    if Assigned(ActiveEditor) and (ActiveEditor.NNodeObj <> nil) then begin
+       NavDir:= TNavDirection((sender as TMenuItem).Tag);
+       if not ActiveFolder.NoteUI.NavigatePanels(NavDir) then
+          ActiveTreeUI.Navigate(NavDir);
+    end;
   end;
 end;
 
@@ -7490,7 +7700,7 @@ begin
 
   if assigned(ActiveFolder) then begin
      EnsureNodeAndCaretVisibleInFolders;
-     ActiveFolder.Editor.Refresh;
+     ActiveFolder.NoteUI.Refresh;
   end;
 end;
 
@@ -7516,23 +7726,19 @@ begin
    ForceMode:= false;
    Show:= not MMShowImages.Checked;
 
-   try
-      if CtrlDown then begin
-         if ImageMng.ImagesMode = imImage then begin
-            ActiveFolder.NoteUI.ReloadImagesOnEditor;
-            exit;
-         end
-         else begin
-            Show:= false;
-            ForceMode:= true;
-         end;
+   if CtrlDown then begin
+      if ImageMng.ImagesMode = imImage then begin
+         ActiveFolder.NoteUI.ReloadImagesOnEditor;
+         exit;
+      end
+      else begin
+         Show:= false;
+         ForceMode:= true;
       end;
-
-     ShowImages (Show, ForceMode);
-
-   finally
-     ActiveEditor.RestoreZoomCurrent;
    end;
+
+  ShowImages (Show, ForceMode);
+
 
 end;
 
@@ -7564,7 +7770,6 @@ begin
    Editor:= ActiveEditor;
 
    if CtrlDown or AltDown then begin
-      SS:= Editor.SelStart;
       TB_Images.Down:= not TB_Images.Down;
 
       if CtrlDown then begin
@@ -7576,14 +7781,10 @@ begin
       else
          ActiveFolder.ReconsiderImageDimensionGoalsOnEditor (Editor.SelLength > 0);
 
-      Editor.SelStart:= SS;
-      Application.ProcessMessages;
-      Editor.SelLength:= 0;
    end
    else
       ShowImages (TB_Images.Down, False);
 
-   Editor.RestoreZoomCurrent;
 end;
 
 
@@ -8295,7 +8496,7 @@ end;
 
 procedure TForm_Main.actTVExportExecute(Sender: TObject);
 begin
-  ExportTreeNode;
+  ExportSelectedEditor;
 end;
 
 procedure TForm_Main.actTVSortSubtreeExecute(Sender: TObject);
@@ -8364,6 +8565,7 @@ var
   SubscriptStyle: TSubscriptStyle;
   Numbering: TRxNumbering;
   TextSelected: boolean;
+  EditorNotRO: boolean;
 
 begin
     if (Sender = nil) or (Sender <> ActiveEditor) or (not Sender.Focused) then exit;
@@ -8373,13 +8575,24 @@ begin
     ParagraphAttrib:= Sender.Paragraph;
 
     TextSelected:= ( Sender.SelLength > 0 );
-    TB_EditCut.Enabled := TextSelected;
+    EditorNotRO:= not Sender.MultiEntry and
+                  ((ActiveEditor.FileObj=nil) or
+                   (not ActiveFolder.ReadOnly and ((ActiveNEntry = nil) or not ActiveNEntry.IsReadOnly)));
+
+    TB_EditCut.Enabled := TextSelected and EditorNotRO;
     TB_EditCopy.Enabled := TextSelected;
-    MMEditCut.Enabled := TextSelected;
+    MMEditCut.Enabled := TextSelected and EditorNotRO;
     MMEditCopy.Enabled := TextSelected;
-    RTFMCut.Enabled := TextSelected;
+    RTFMCut.Enabled := TextSelected and EditorNotRO;
     RTFMCopy.Enabled := TextSelected;
     RTFM_RTL.Checked:= ParagraphAttrib.RTL;
+
+    TB_EditPaste.Enabled := EditorNotRO;
+    MMEditPaste.Enabled := EditorNotRO;
+    MMEditDelete.Enabled := EditorNotRO;
+    RTFMPaste.Enabled := EditorNotRO;
+    RTFMPasteAsText.Enabled := EditorNotRO;
+    RTFMDelete.Enabled := EditorNotRO;
 
     if Sender.PlainText and not ConsiderAllOnPlainText then exit;
 
@@ -8501,10 +8714,16 @@ begin
     RTFMPlainText.Enabled:= EditEnabled;
     RTFMFold.Enabled:= RTFandEnabled;
     RTFMUnfold.Enabled:= RTFandEnabled;
+    RTFMExpand.Enabled:= RTFandEnabled;
     RTFM_RTL.Enabled:= EditEnabled;
 end;
 
-procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean);
+procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
+                                            HasMultipleEntries: boolean; HasAnyEntryNonVisible: boolean; DisplayingAnyHiddenEntry: boolean);
+var
+  IsNotMain: boolean;
+  ShowOnlyWithMultEntryOption: boolean;
+  Layout: string;
 begin
     MMInsertMarkLocation.Enabled := VinculatedToNote;
     MMBkmSet_.Enabled:= VinculatedToNote;
@@ -8516,6 +8735,52 @@ begin
     RTFMTags.Enabled:= VinculatedToNote;
     if (not VinculatedToNote) then
        RTFMTags.Hint:= '';
+
+    IsNotMain:= (ActiveNEntry <> nil) and not ActiveNEntry.IsMain;
+
+    if not VinculatedToNote or (ActiveFolder = nil) then
+       RTFMEntry_.Visible:= False
+
+    else begin
+       RTFMEntry_.Visible:=   (HasMultipleEntries or HasAnyEntryNonVisible or ActiveFolder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes);
+       ShowOnlyWithMultEntryOption:= (HasMultipleEntries or HasAnyEntryNonVisible);
+
+
+       RTFMHidden.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMShowHidden.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMMain.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMEncryp.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMReadOnly.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMHideAgain.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMDeleteEntry.Visible:= ShowOnlyWithMultEntryOption or ActiveFolder.NoteUI.MultipleVisibleEditors;
+       RTFMHdWh.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMOnlyFLines.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMSwLayout.Visible:= ShowOnlyWithMultEntryOption;
+       RTFMEditEntry.Visible:= ShowOnlyWithMultEntryOption;
+
+       if ShowOnlyWithMultEntryOption then begin
+          RTFMHidden.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsHidden;
+          RTFMHidden.Enabled:=   (ActiveNEntry <> nil);
+          RTFMShowHidden.Enabled:= HasAnyEntryNonVisible;
+          RTFMMain.Enabled:=     IsNotMain;
+          RTFMMain.Checked:=     (ActiveNEntry <> nil) and ActiveNEntry.IsMain;
+          RTFMEncryp.Enabled:=   (ActiveNEntry <> nil);
+          RTFMEncryp.Checked:=   (ActiveNEntry <> nil) and ActiveNEntry.IsEncrypted;
+          RTFMReadOnly.Checked:= (ActiveNEntry <> nil) and ActiveNEntry.IsReadOnly;
+          RTFMHideAgain.Enabled:=  DisplayingAnyHiddenEntry;
+          RTFMDeleteEntry.Enabled:=   (ActiveNEntry <> nil);
+          RTFMHdWh.Enabled:=        (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+          RTFMOnlyFLines.Enabled:=  (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+          RTFMEditEntry.Enabled:= (ActiveEditor <> nil) and ActiveEditor.MultiEntry;
+
+          if ActiveFolder.NoteUI.IsQueryLayout then
+             Layout:= GetRS(sEntry19)
+          else
+             Layout:= GetRS(sEntry18);
+          RTFMSwLayout.Caption:= GetRS(sEntry30) + Layout;
+       end;
+    end;
+
 end;
 
 procedure TForm_Main.ShowNodeChromeState(TreeUI: TKntTreeUI);
@@ -8728,7 +8993,7 @@ begin
          Editor:= myFolder.Editor;
          ClipCapMng.ShowState;
          UpdateAlarmStatus;
-         Editor.SetMargins;
+         myFolder.NoteUI.SetMargins;
          UpdateWordWrap;
          Editor.CheckWordCount(true);
          Editor.Change;                 // It will only refresh UI if there is changes
@@ -8740,7 +9005,7 @@ begin
          ShowInsMode;
 
          if MMAlternativeMargins.Checked then
-            Editor.Refresh;
+            myFolder.NoteUI.Refresh;
       end;
 
     except

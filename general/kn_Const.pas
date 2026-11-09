@@ -29,13 +29,13 @@ uses
    knt.RS;
 
 
-procedure DefineConst;
+procedure DefineStringConst;
 
 const
   Program_Name     = 'KeyNote NF';
-  Program_Version  = '2.1.7 .01';
-  Program_Version_Number  = '2.1.7.1';
-  Program_Version_Date    = '21/03/2026';
+  Program_Version  = '2.2.0 .01';
+  Program_Version_Number  = '2.2.0.1';
+  Program_Version_Date    = 'XX/XX/2026';
   Program_License  = 'Free software, Open Source (Mozilla Public License 2.0)';
 
   Program_URL            = 'https://github.com/dpradov/keynote-nf'; //'http://keynote.prv.pl';
@@ -469,7 +469,7 @@ type
 
 type
   TTreeSelection = (
-    tsNode, tsSubtree, tsCheckedNodes, tsFullTree
+    tsEntry, tsNode, tsSubtree, tsCheckedNodes, tsFullTree
   );
 
 type
@@ -483,7 +483,7 @@ type
 
 type
   TExportSource = (
-    expCurrentFolder, expAllFolders, expSelectedFolders
+    expCurrentFolder, expAllFolders, expSelectedFolders, expCurrentEditor
   );
 
 type
@@ -550,6 +550,8 @@ const
   KNT_RTF_HIDDEN_MARK_R_CHAR       = Chr(18);    // 18 ($12): DC2 (Device Control 2)
   KNT_RTF_HIDDEN_MARK_EndLink_CHAR = Chr(19);    // 19 ($13): DC3 (Device Control 3)
   KNT_RTF_HIDDEN_MARK_AUX_CHAR     = Chr(20);    // 20 ($14): DC4 (Device Control 4)
+  KNT_RTF_AUX_CHAR     = Chr(4);                 // 4  EOT: End of Transmission
+
   KNT_RTF_HIDDEN_BOOKMARK = 'B';
   KNT_RTF_HIDDEN_Bookmark09 = 'b';       // Used with 9 bookmarks set with Search|Set Bookmark
   KNT_RTF_HIDDEN_BMK_POSITION = 'P';     // Used to mark positons referenced by internal links without markers (in Export)
@@ -693,7 +695,7 @@ type
     Method : TCryptMethod;
     KeyDerivIterations: Cardinal;
     Hash : THash;                      // Verification hash
-    HideEncryptedNodes: boolean;       // To be used with encryption of notes or entries
+    HideEncryptedNodesAndEntries: boolean;       // To be used with encryption of notes or entries
     DataSize : integer;
   end;
 
@@ -941,6 +943,7 @@ const
   _TabIndex = 'TI';
   _TabSize = 'TS';
   _Flags = 'FL';
+  _FolderAdvOptions = 'AO';
 
   // Tokens for folders (tree folders..)
   _SelectedNode = 'SN';
@@ -962,7 +965,6 @@ const
   _Visible = 'NV';
   _UseTabChar = 'UT';
 
-  _AutoNumberNodes = 'AN';
   _ShowCheckBoxes = 'SC';
   _ShowIcons = 'SI';
   }
@@ -999,6 +1001,7 @@ const
   _NodeFontFace = 'FF';
   _NodeImageIndex = 'IX';
   _NodeAlarm = 'NA';        // [dpv]
+  _NodeUIConfig = 'UI';     // [dpv]
 
   _VirtualNode = 'VN';      // Replaced by normal "linked" nodes (TNoteNode) since NFILEVERSION_MAJOR >= 3
   _NodeFlags = 'NF';        // => NFILEVERSION_MAJOR < 3
@@ -1036,6 +1039,7 @@ const
 const
   alph13 = AnsiString('abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz');
   alph13UP = AnsiString('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ');
+
 
 {$IFDEF WITH_IE}
 type
@@ -1081,6 +1085,69 @@ const
     #187 // right french brace
   );
 
+
+type
+  TPanelLayout = (lQL, lEL);
+
+type
+  TNEntriesPanelBase = (pnNone, pnTL, pnTR, pnBL, pnBR, pnCenter, pnLeft, pnR1, pnR2, pnR3);
+  TNEntriesPanel     = pnTL..pnR3;
+  TNEntriesMainPanel = pnTL..pnCenter;
+  TNEntriesAuxPanel  = pnLeft..pnR3;
+
+type
+  TNEntriesPanelUse = (
+     pnuHidePanel,                 //  Keep panel hidden
+     pnuShowTagLinkedEntries,      //  QueryLayout:  Show only if there is any entry with any of the indicated tag
+                                   //  EdtingLayout: Show linked to the indicated tags
+     pnuShowSelectedEntry,         //  Show Selected entry    (0 or 1)
+     pnuShowAllEntries             //  Show All entries       (1)
+  );
+
+  TNEntriesPanelUseArray = array[TNEntriesMainPanel] of TNEntriesPanelUse;
+
+type
+  TEditorInfoBarPos = (
+    ibpAllEntries,               // Always in the "All Entries" panel
+    ibpMostExtreme,              // In the lowest (or highest, depending on configuration) possible panel
+    ibpMostExtremeExcVincTag     // In the lowest (or highest, depending on configuration) possible panel, excluding those linked to tags
+  );
+
+type
+  TBasicNEntriesLayout = (neQueryLayout, neEditingLayout, neLastLayout);
+
+type
+  TModeEntriesUI = (
+    meMultiEntry,
+    meSingleEntry
+  );
+
+  TScopeInEntriesPanel = (
+    fsSelectedNode,
+    fsSelectedNodeAndSubtree,
+    fsSelectedNodeAndAncestors,
+    fsSelectedNodes,
+    fsFolder,
+    fsFile
+  );
+
+  TContentInMultiEntryMode = (
+    cmHidden,
+    cmOnlyHeader,
+    cmWholeEntry,
+    cmOnlyFirstLines
+  );
+
+  TContentInMultiEntryMode_Selectable = cmOnlyHeader..cmOnlyFirstLines;
+  TContentInEntryModeArray = Array of TContentInMultiEntryMode;
+
+  TPanelsToLoad = (
+     plAll,
+     plOnlyWithoutFilterEnabled,
+     plOnlyWithFilterEnabled
+   );
+
+
 var
   DEFAULT_NEW_FOLDER_NAME : string;  // default name for new folders
   DEFAULT_NEW_NOTE_NAME : string; // default name for new tree nodes
@@ -1108,17 +1175,28 @@ var
   HTMLImportMethods : array[THTMLImportMethod] of string;
   HTMLExportMethods : array[THTMLExportMethod] of string;
 
+  MODE_ENTRIES_UI: array[TModeEntriesUI] of string;
+  ENTRIES_PANELS : array[TNEntriesPanelBase] of string;
+  ENTRIES_PANEL_USES_QL : array[TNEntriesPanelUse] of string;
+  ENTRIES_PANEL_USES_EL : array[TNEntriesPanelUse] of string;
+  CONTENT_IN_MULTIENTRY_MODE : array[TContentInMultiEntryMode_Selectable] of string;
+  EDITOR_INFOBAR_POS : array[TEditorInfoBarPos] of string;
+
 
 implementation
 uses kn_Info,
-     kn_PluginBase;
+     kn_PluginBase,
+     knt.App;
 
 
-procedure DefineConst;
+procedure DefineStringConst;
+var
+  str: string;
 begin
   DEFAULT_NEW_FOLDER_NAME := GetRS(sINFDefaults1);
   DEFAULT_NEW_NOTE_NAME := GetRS(sINFDefaults2);
 
+  TREE_SELECTION_NAMES[tsEntry ]:=       GetRS(sINFTreeSel0);
   TREE_SELECTION_NAMES[tsNode ]:=        GetRS(sINFTreeSel1);
   TREE_SELECTION_NAMES[tsSubtree ]:=     GetRS(sINFTreeSel2);
   TREE_SELECTION_NAMES[tsCheckedNodes]:= GetRS(sINFTreeSel3);
@@ -1268,10 +1346,48 @@ begin
   PluginFeatureNames[plWantsSavedFile]:= GetRS(sPlg11);
   PluginFeatureNames[plReloadFile]:=     GetRS(sPlg12);
   PluginFeatureNames[plStaysResident]:=  GetRS(sPlg13);
+
+  MODE_ENTRIES_UI[meSingleEntry]:= GetRS(sEntry26);
+  MODE_ENTRIES_UI[meMultiEntry]:=  GetRS(sEntry27);
+
+  ENTRIES_PANELS[pnNone]:= '';
+  ENTRIES_PANELS[pnTL]:= 'TL';
+  ENTRIES_PANELS[pnTR]:= 'TR';
+  ENTRIES_PANELS[pnBL]:= 'BL';
+  ENTRIES_PANELS[pnBR]:= 'BR';
+  ENTRIES_PANELS[pnCenter]:= 'C';
+  ENTRIES_PANELS[pnLeft]:= 'L';
+  ENTRIES_PANELS[pnR1]:= 'R1';
+  ENTRIES_PANELS[pnR2]:= 'R2';
+  ENTRIES_PANELS[pnR3]:= 'R3';
+
+  ENTRIES_PANEL_USES_QL[pnuHidePanel]:=               GetRS(sEntry09);
+  ENTRIES_PANEL_USES_QL[pnuShowTagLinkedEntries]:=    GetRS(sEntry10);
+  ENTRIES_PANEL_USES_QL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
+  ENTRIES_PANEL_USES_QL[pnuShowAllEntries]:=          GetRS(sEntry13);
+
+  ENTRIES_PANEL_USES_EL[pnuHidePanel]:=               GetRS(sEntry09);
+  ENTRIES_PANEL_USES_EL[pnuShowTagLinkedEntries]:=    GetRS(sEntry11);
+  ENTRIES_PANEL_USES_EL[pnuShowSelectedEntry]:=       GetRS(sEntry12);
+  ENTRIES_PANEL_USES_EL[pnuShowAllEntries]:=          GetRS(sEntry13);
+
+  CONTENT_IN_MULTIENTRY_MODE[cmOnlyHeader]:=      GetRS(sEntry14);
+  CONTENT_IN_MULTIENTRY_MODE[cmWholeEntry]:=      GetRS(sEntry15);
+  CONTENT_IN_MULTIENTRY_MODE[cmOnlyFirstLines]:=  GetRS(sEntry16);
+
+
+  if KeyOptions.EditorInfoPanelTop then
+     str:= GetRS(sEntry22)               // On the highest (*) panel
+  else
+     str:= GetRS(sEntry23);              // On the lowest (*) panel
+  EDITOR_INFOBAR_POS[ibpAllEntries]:=            GetRS(sEntry21);
+  EDITOR_INFOBAR_POS[ibpMostExtreme]:=           str;
+  EDITOR_INFOBAR_POS[ibpMostExtremeExcVincTag]:= str + GetRS(sEntry24);
+
+
 end;
 
 Initialization
-  DefineConst;
 
 end.
 

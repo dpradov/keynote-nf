@@ -443,15 +443,18 @@ type
     procedure ResetAllImagesCountReferences;
     procedure RemoveImagesReferences (const IDs: TImageIDs);
     function  GetImagesIDInstancesFromRTF (Stream: TMemoryStream): TImageIDs;
-    function  GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
+    function  GetImagesIDInstancesFromTextPlain (TextPlain: String; GetOnlyFirstImgID: boolean = false): TImageIDs;
     procedure UpdateImagesCountReferences (const IDsBefore: TImageIDs;  const IDsAfter: TImageIDs);
     function  ImageInCurrentEditors (ImgID: integer; UseFreshTextPlain: boolean= false): Boolean;
 
     procedure ReloadImages(const IDs: TImageIDs);
 
-    function GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
-    function GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
-    function GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+    function GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
+    function GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                             PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
+    function GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                             PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 
 
     procedure LoadState (const tf: TTextFile; var FileExhausted: Boolean);
@@ -479,6 +482,7 @@ type
     function FileContainsEncryptedImages: boolean;
     function ContainsEncryptedImages(const IDs: TImageIDs): boolean; overload;
     function ContainsEncryptedImages(Note: TNote): boolean; overload;
+    function ContainsEncryptedImages(NEntry: TNoteEntry): boolean; overload;
   end;
 
 
@@ -504,6 +508,7 @@ uses  System.DateUtils,
       kn_ImagesUtils,
       kn_Main,
       kn_KntFile,
+      knt.ui.info,
       knt.App,
       knt.RS
       ;
@@ -3700,7 +3705,7 @@ begin
 end;
 
 
-function TImageMng.GetImagesIDInstancesFromTextPlain (TextPlain: String): TImageIDs;
+function TImageMng.GetImagesIDInstancesFromTextPlain (TextPlain: String; GetOnlyFirstImgID: boolean = false): TImageIDs;
 var
   pID,pIDr: integer;
   ImgID, Num: integer;
@@ -3724,6 +3729,7 @@ begin
                Inc(Num);
                SetLength(Result, Num);
                Result[Num-1]:= ImgID;
+               if GetOnlyFirstImgID then exit;
             end;
          end;
       end;
@@ -3827,7 +3833,8 @@ begin
 end;
 
 
-function TImageMng.GetPositionOffset (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                      PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 var
   pID,pIDr: integer;
   pID_e,pIDr_e: integer;
@@ -3837,6 +3844,8 @@ var
   TextPlainInEditor: String;
   ImagesVisible: Array of integer;
   SomeImagesAreVisible: boolean;
+  SS, SL: integer;
+  ScrollPosInEditorBAK: TPoint;
 
 
 const
@@ -3866,6 +3875,27 @@ const
           Result:= true;
        end;
    end;
+
+   function CheckValidImageHiddenMark_WithoutEditor: boolean;
+   begin
+       Result:= false;
+       if (pIDr > 0) and ((pIDr-pID) <= 10) then begin
+          // We consider the hidden mark valid -> we count the hyperlink
+          Inc(nLinks);
+          SetLength(ImagesVisible, nLinks);
+          ImagesVisible[nLinks-1]:= 0;
+          if imLinkTextPlain[pIDr+1] = 'H' then begin           // <L>1I999999<R>HYPERLINK  or  <L>I999999<R><L>"img:<ImgID>,... in Folded mode
+             if Copy(imLinkTextPlain, pIDr+1, Length(KNT_IMG_FOLDED_PREFIX)) = KNT_IMG_FOLDED_PREFIX then
+                // It is an image inside a folded block => hidden   (See comment *1, below)
+             else begin
+                ImagesVisible[nLinks-1]:= 1;
+                SomeImagesAreVisible:= true;
+             end;
+          end;
+          Result:= true;
+       end;
+   end;
+
 
 begin
 
@@ -3934,6 +3964,10 @@ begin
      Therefore, unless we can confirm that the above has not happened, we must also go through the TextPlain obtained
      from the editor (TextPlainInEditor), as it is being displayed at this moment, to know which of the images are in
      one mode or another and thus consider them or not when calculating the offset.
+
+
+     *2 We can obtain Offset from Pos_ImLinkTextPlain even if Editor = nil. In this case, it will be assumed that all
+        images in the editor will be visible
      }
 
      (*
@@ -3967,58 +4001,100 @@ begin
     if Pos(beginIDImgChar, imLinkTextPlain, 1) = 0 then
        exit;
 
-    TextPlainInEditor:= ActiveEditor.TextPlain;
 
-    { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
-      are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
-      of visible images equal to the number of characters added to the folder/node and not yet saved to the stream. }
-    if (not ForceCalc) and (Length(imLinkTextPlain) = Length(TextPlainInEditor)) then
-       exit;
+    if Editor <> nil then begin        //*2   See comments in TKntNoteEntriesUI.GetPositionInEntry
+
+        if (PosStartEntry <> 0) or (PosEndEntry <> -1) then begin
+           Editor.BeginUpdate;
+
+           if PosEndEntry= -1 then
+              PosEndEntry := Editor.TextLength;
+           SS:= Editor.SelStart;
+           SL:= Editor.SelLength;
+           ScrollPosInEditorBAK:= Editor.GetScrollPosInEditor;
+
+           Editor.SetSelection(PosStartEntry, PosEndEntry, False);
+           TextPlainInEditor:= Editor.TextPlain(true);
+
+           Editor.SelStart:= SS;
+           Editor.SelLength:= SL;
+           Editor.SetScrollPosInEditor(ScrollPosInEditorBAK);
+
+           Editor.EndUpdate;
+        end
+        else
+           TextPlainInEditor:= Editor.TextPlain;
+
+        { If the length of TextPlainInEditor = length of imLinkTextPlain this will be because there are images but they
+          are all hidden, hence the coincidence in the lengths. It would be highly unlikely that there would be a number
+          of visible images equal to the number of characters added to the folder/node and not yet saved to the stream.
+          - Editor.TextPlain(true) can add an extra #$D at the end
+          }
+        if (not ForceCalc) and (Abs(Length(TextPlainInEditor) - Length(imLinkTextPlain)) <= 1) then
+           exit;
 
 
+        pID:= 0;
+        pID_e:= 0;
+        nLinks:= 0;
 
-    pID:= 0;
-    pID_e:= 0;
-    nLinks:= 0;
 
+        if CaretPos >= 0 then begin
+           dec(CaretPos, PosStartEntry);
 
-    if CaretPos >= 0 then begin
+           repeat
+              pID_e:= Pos(beginIDImgChar, TextPlainInEditor, pID_e + 1);
+              if  (pID_e > 0) and (pID_e < Length(TextPlainInEditor)) and (pID_e < CaretPos) then begin
+                 pIDr_e:= Pos(endIDImgChar, TextPlainInEditor, pID_e);                             // L1I999999R
+                 CheckValidImageHiddenMark;     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
+                 pID_e:= pIDr_e;
+              end
+              else
+                 break;
+           until (pID_e >= Length(TextPlainInEditor)) or (pID_e >= CaretPos);
 
-       repeat
-          pID_e:= Pos(beginIDImgChar, TextPlainInEditor, pID_e + 1);
-          if  (pID_e > 0) and (pID_e < Length(TextPlainInEditor)) and (pID_e < CaretPos) then begin
-             pIDr_e:= Pos(endIDImgChar, TextPlainInEditor, pID_e);                             // L1I999999R
-             CheckValidImageHiddenMark;     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
-             pID_e:= pIDr_e;
-          end
-          else
-             break;
-       until (pID_e >= Length(TextPlainInEditor)) or (pID_e >= CaretPos);
+        end
+        else begin
+           repeat
+              pID:= Pos(beginIDImgChar, imLinkTextPlain, pID + 1);
+              pID_e:= Pos(beginIDImgChar, TextPlainInEditor, pID_e + 1);
+              if  (pID > 0) and (pID < Length(imLinkTextPlain)) and (pID < Pos_ImLinkTextPlain) and
+                  (pID_e > 0) and (pID_e < Length(TextPlainInEditor))
+              then begin
+                 pIDr:= Pos(endIDImgChar, imLinkTextPlain, pID);                             // L1I999999R
+                 pIDr_e:= Pos(endIDImgChar, TextPlainInEditor, pID_e);
+                 if CheckValidImageHiddenMark then     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
+                    pID:= pIDr + 20
+                 else
+                    pID:= pIDr;
+
+                 pID_e:= pIDr_e;
+              end
+              else
+                 break;
+           until (pID >= Length(imLinkTextPlain)) or (pID >= Pos_ImLinkTextPlain)
+              or (pID_e >= Length(TextPlainInEditor));
+
+        end;
 
     end
-    else begin
-       repeat
-          pID:= Pos(beginIDImgChar, imLinkTextPlain, pID + 1);
-          pID_e:= Pos(beginIDImgChar, TextPlainInEditor, pID_e + 1);
-          if  (pID > 0) and (pID < Length(imLinkTextPlain)) and (pID < Pos_ImLinkTextPlain) and
-              (pID_e > 0) and (pID_e < Length(TextPlainInEditor))
-          then begin
-             pIDr:= Pos(endIDImgChar, imLinkTextPlain, pID);                             // L1I999999R
-             pIDr_e:= Pos(endIDImgChar, TextPlainInEditor, pID_e);
-             if CheckValidImageHiddenMark then     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
-                pID:= pIDr + 20
-             else
-                pID:= pIDr;
+    else begin        // *2  Editor = nil      (and CaretPos < 0)
+        pID:= 0;
+        nLinks:= 0;
 
-             pID_e:= pIDr_e;
-          end
-          else
-             break;
-       until (pID >= Length(imLinkTextPlain)) or (pID >= Pos_ImLinkTextPlain)
-          or (pID_e >= Length(TextPlainInEditor));
-
+        repeat
+           pID:= Pos(beginIDImgChar, imLinkTextPlain, pID + 1);
+           if  (pID > 0) and (pID < Length(imLinkTextPlain)) and (pID < Pos_ImLinkTextPlain) then begin
+              pIDr:= Pos(endIDImgChar, imLinkTextPlain, pID);                             // L1I999999R
+              if CheckValidImageHiddenMark_WithoutEditor then     // Can update nLinks, ImagesVisible and SomeImagesAreVisible
+                 pID:= pIDr + 20
+              else
+                 pID:= pIDr;
+           end
+           else
+              break;
+        until (pID >= Length(imLinkTextPlain)) or (pID >= Pos_ImLinkTextPlain);
     end;
-
 
 
     if not SomeImagesAreVisible then
@@ -4062,15 +4138,17 @@ begin
 end;
 
 
-function TImageMng.GetPositionOffset_FromImLinkTP (Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromImLinkTP (Editor: TKntRichEdit; Stream: TMemoryStream; Pos_ImLinkTextPlain: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                                   PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 begin
-   Result:= GetPositionOffset(Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc);
+   Result:= GetPositionOffset(Editor, Stream, Pos_ImLinkTextPlain, -1, imLinkTextPlain, RTFModified, ForceCalc, PosStartEntry, PosEndEntry);
 end;
 
 
-function TImageMng.GetPositionOffset_FromEditorTP (Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false): integer;
+function TImageMng.GetPositionOffset_FromEditorTP (Editor: TKntRichEdit; Stream: TMemoryStream; CaretPos: integer; const imLinkTextPlain: String; RTFModified: boolean; ForceCalc: boolean = false;
+                                                   PosStartEntry: integer= 0; PosEndEntry: integer= -1): integer;
 begin
-   Result:= GetPositionOffset(Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc);
+   Result:= GetPositionOffset(Editor, Stream, -1, CaretPos, imLinkTextPlain, RTFModified, ForceCalc, PosStartEntry, PosEndEntry);
 end;
 
 
@@ -4192,11 +4270,23 @@ end;
 
 function TImageMng.ContainsEncryptedImages(Note: TNote): boolean;
 var
-  NEntry: TNoteEntry;
+  i: integer;
+begin
+  Result:= False;
+
+  for i := 0 to High(Note.Entries) do begin
+     if ContainsEncryptedImages(Note.Entries[i]) then
+        exit(true);
+  end;
+
+end;
+
+
+function TImageMng.ContainsEncryptedImages(NEntry: TNoteEntry): boolean;
+var
   IDs: TImageIDs;
 begin
   Result:= False;
-  NEntry:= Note.Entries[0];               // ####
   if not NEntry.IsRTF then exit;
 
   if (NEntry.TextPlain <> '') then
@@ -4204,8 +4294,11 @@ begin
   else
      IDs:= ImageMng.GetImagesIDInstancesFromRTF (NEntry.Stream);
 
-  Result:= ContainsEncryptedImages(IDs);
+  if ContainsEncryptedImages(IDs) then
+     exit (true);
 end;
+
+
 
 
 //-----------------------------------------
@@ -4286,7 +4379,7 @@ begin
 
       if Img.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
          if ActiveFile.CheckAuthorized(True) then
-            ActiveFolder.NoteUI.LoadFromNNode(ActiveFolder.FocusedNNode, True)
+            ActiveFolder.NoteUI.LoadFromNNode(ActiveFolder.FocusedNNode, True, neLastLayout)
          else
             exit;
       end;

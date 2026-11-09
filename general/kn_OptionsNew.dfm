@@ -1725,8 +1725,8 @@ object Form_OptionsNew: TForm_OptionsNew
           Top = 76
           Width = 355
           Height = 17
-          Hint = 'Prompt before removing a node'
-          Caption = 'Confirm deleting tree &nodes'
+          Hint = 'Prompt before removing a node or an entry'
+          Caption = 'Confirm deleting tree &nodes or entries'
           TabOrder = 2
         end
         object CB_ConfirmNodeRefresh: TCheckBox

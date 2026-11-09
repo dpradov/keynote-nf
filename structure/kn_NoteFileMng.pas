@@ -33,7 +33,9 @@ uses
 
    kn_const,
    kn_Info,
-   knt.ui.editor
+   knt.model.note,
+   knt.ui.editor,
+   knt.ui.tree
    ;
 
 
@@ -48,7 +50,9 @@ uses
                             OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                             OnlyNotHiddenNodes: boolean= false;
                             OnlyCheckedNodes: boolean= false;
-                            ExportEncryptedContent: boolean = false);
+                            ExportEncryptedContent: boolean = false;
+                            ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                            ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged; RemoveTags: boolean = false);
 
     procedure EnsureNodeAndCaretVisibleInFolders;
 
@@ -92,7 +96,6 @@ uses
    kn_filemgr,
    kn_KntFile,
    kn_FileInfo,
-   knt.model.note,
    kn_EditorUtils,
    kn_TabSelect,
    kn_FileDropAction,
@@ -110,7 +113,7 @@ uses
    kn_PluginsMng,
    kn_ImagesMng,
    kn_FindReplaceMng,
-   knt.ui.tree,
+   knt.ui.note,
    knt.App,
    knt.RS
    ;
@@ -152,11 +155,12 @@ begin
               DEF_FN := OrigDEF_FN;
             end;
 
+            KntFile := TKntFile.Create;
+            App.FileNew(KntFile);
+
             LoadDefaults;
             LoadTabImages( false );
 
-            KntFile := TKntFile.Create;
-            App.FileNew(KntFile);
             KntFile.PageCtrl := Pages;
             KntFile.PassphraseFunc := GetFilePassphrase;
             KntFile.FileFormat := KeyOptions.SaveDefaultFormat;
@@ -229,6 +233,18 @@ var
   ClipCapIdx: integer;
   Editor: TKntRichEdit;
   KntFile: TKntFile;
+
+  procedure LoadOnlyNEntriesUIWithFilterEnabled;        // See comment *2, below
+  var
+     i: integer;
+     myFolder: TKntFolder;
+  begin
+    for i := 0 to pred( KntFile.Folders.Count ) do begin
+       myFolder := KntFile.Folders[i];
+       myFolder.LoadEditorFromNNode(myFolder.FocusedNNode, False, plOnlyWithFilterEnabled);
+    end;
+  end;
+
 begin
   if assigned( ActiveFile ) then
     if ( not KntFileClose ) then exit(-2);
@@ -445,20 +461,35 @@ begin
            On the other hand, from the tests done it seems that it is when we establish Pages.ActivePage
            when the editor with its content becomes visible. We are interested in ensuring that when this happens,
            the editor displays the content taking into account the zoom to be applied and the possible alternative
-           margins. In EnsureCaretVisibleInEditors, both the zoom and the alternative margins are set and it is asked to
+           margins. In EnsureNodeAndCaretVisibleInEditors, both the zoom and the alternative margins are set and it is asked to
            make the cursor visible.
            It is also indicated in the call to LoadTrayIcon, with the second parameter set to False, that Application.ProcessMessages
            is not called, all of this to try to ensure that the editor is displayed from the beginning with the content adapted to
            the zoom and the corresponding margins, with the cursor correctly positioned.
-           Note: If this KntFileOpen ins called on initiating the application, then the above call to EnsureCaretVisibleInEditors
+           Note: If this KntFileOpen ins called on initiating the application, then the above call to EnsureNodeAndCaretVisibleInEditors
            and the below call to App.ActivateFolder will not ensure that the carets are visbile. For this reason there is also
            a call to these methods in Form_Main.Activate (they will run only the first time, when opening the app).
+
+           *2
+           The verification of filter compliance, performed within TKntNoteEntriesUI.ReloadFromDataModel, relies on the RunFindAllEx method
+           (located in kn_FindReplaceMng). This method requires that ActiveFolder be defined and that the condition ActiveFileIsBusy = nil
+           be met. If it is called before these requirements are satisfied, it will return False.
+             Consequently, a load operation initiated from this method (triggered via SetupAndShowVCLControls -> myFolder.LoadEditorFromNNode)
+           would result in the message "No entries visible or matching the current filter" appearing in any panels where a filter is enabled.
+           Therefore, it is necessary to perform a separate pass to load only those specific panels once the file loading process is complete.
+           To prevent the system from attempting to calculate these panels during the initial call —-which would result in an initial load
+           displaying that (ultimately invisible) message-— SetupAndShowVCLControls calls myFolder.LoadEditorFromNNode with the parameter
+           plOnlyWithoutFilterEnabled. Conversely, LoadOnlyNEntriesUIWithFilterEnabled uses the parameter plOnlyWithFilterEnabled.
+           For all other calls to myFolder.LoadEditorFromNNode, the default value (plAll) is used.
+
          }
           App.FileOpen(KntFile, FN);     // KntFile can be nil. It will set ActiveFile and ActiveFileIsBusy (False)         // <======== APP.FILEOPEN
 
           if opensuccess then begin
             if assigned( KntFile ) then begin
                KntFile.IsBusy := false;
+               LoadOnlyNEntriesUIWithFilterEnabled;    // *2
+
                KntFile.ReadOnly := ( OpenReadOnly or KntFile.ReadOnly );
                KntFile.Modified := linksModified;
             end;
@@ -508,9 +539,11 @@ begin
    for i := 0 to ActiveFile.Folders.Count -1 do begin
        Folder:= ActiveFile.Folders[i];
        Folder.TreeUI.TV.ScrollIntoView(Folder.TreeUI.FocusedNode, false);
+       Folder.NoteUI.SetMargins;
        Editor:= Folder.Editor;
-       Editor.SetMargins;
        SendMessage(Editor.Handle, EM_SCROLLCARET, 0, 0);
+
+       TKntNoteUI(Folder.NoteUI).RestoreSplits;
    end;
 end;
 
@@ -1167,7 +1200,9 @@ procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
                         OnlyCurrentNodeAndSubtree: PVirtualNode= nil;
                         OnlyNotHiddenNodes: boolean= false;
                         OnlyCheckedNodes: boolean= false;
-                        ExportEncryptedContent: boolean = false);
+                        ExportEncryptedContent: boolean = false;
+                        ExportFoundNodes: TNodeList = nil; ExportFoundNotes: TNoteList = nil; ExportFoundEntriesInNotes: TFoundEntriesInNotesList = nil;
+                        ExportFoldedTextMode: TExportFoldedTextMode = fmKeepUnchanged; RemoveTags: boolean = false);
 var
   currentFN, newFN : string;
   cr : integer;
@@ -1229,7 +1264,8 @@ begin
             try
               ImageMng.ExportingMode:= true;
               try
-                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent);
+                 cr := KntFile.Save( newFN, SavedFolders, SavedNodes, ExportingMode, OnlyCurrentNodeAndSubtree, OnlyNotHiddenNodes, OnlyCheckedNodes, ExportEncryptedContent,
+                                     ExportFoundNodes, ExportFoundNotes, ExportFoundEntriesInNotes, ExportFoldedTextMode, RemoveTags);
               finally
                  ImageMng.ExportingMode:= false;
               end;
@@ -1452,7 +1488,6 @@ begin
                 newFolder.Checkboxes := CheckBoxes;
                 newFolder.TreeChrome := TreeChrome;
                 newFolder.DefaultNoteName := DefaultNoteName;
-                //newFolder.AutoNumberNodes := AutoNumberNodes;
                 newFolder.VerticalLayout := VerticalLayout;
                 newFolder.HideCheckedNodes := HideCheckedNodes;
 
@@ -1936,6 +1971,7 @@ begin
                 myFolder.SetEditorProperties( DefaultEditorProperties );
                 myFolder.SetTabProperties( DefaultTabProperties );
                 myFolder.EditorChrome := DefaultEditorChrome;
+                myFolder.NoteAdvOptions:= DefaultNoteAdvOptions;
                 if KeyOptions.ImportFileNamesWithExt then
                   s := ExtractFilename( FN )
                 else
@@ -1949,7 +1985,7 @@ begin
                   if ImportFileType <> itTreePad then begin
                      CreateVCLControlsForFolder( myFolder );
                      NNode:= myFolder.TreeUI.NewNode(tnTop, nil, s, true );
-                     NEntry:= NNode.Note.Entries[0];        //%%%
+                     NEntry:= NNode.Note.Entries[0];         // First entry of the created note
                      myFolder.TreeHidden:= true;
                   end;
 
@@ -2489,7 +2525,7 @@ begin
                    end;
 
                    NNode := ActiveTreeUI.NewNode(TKntTreeUI.DropTargetNodeInsMode, TKntTreeUI.DropTargetNode, '', true);
-                   NEntry:= NNode.Note.Entries[0];       //%%%
+                   NEntry:= NNode.Note.Entries[0];       // First entry of the created note
 
                    if ( FileIsHTML and ( KeyOptions.HTMLImportMethod <> htmlSource )) then begin
                      NEntry.Stream.LoadFromStream(OutStream);
@@ -2704,7 +2740,7 @@ begin
                      KntFile.EncryptedContentOpened:= True;
                      KntFile.UpdateLoadedVerificationHash;
                   end;
-                  KntFile.HideEncryptedNodes:= cbHideEncrNodes.Checked;
+                  KntFile.HideEncryptedNodesAndEntries:= cbHideEncrNodes.Checked;
                end;
             end
             else begin

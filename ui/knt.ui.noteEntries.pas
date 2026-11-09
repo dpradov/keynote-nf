@@ -1,0 +1,4376 @@
+﻿unit knt.ui.noteEntries;
+
+(****** LICENSE INFORMATION **************************************************
+
+ - This Source Code Form is subject to the terms of the Mozilla Public
+ - License, v. 2.0. If a copy of the MPL was not distributed with this
+ - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+------------------------------------------------------------------------------
+ (c) 2007-2025 Daniel Prado Velasco <dprado.keynote@gmail.com> (Spain) [^]
+ (c) 2000-2005 Marek Jedlinski <marek@tranglos.com> (Poland)
+
+ [^]: Changes since v. 1.7.0. Fore more information, please see 'README.md'
+     and 'doc/README_SourceCode.txt' in https://github.com/dpradov/keynote-nf
+
+ *****************************************************************************)
+
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
+
+  RxRichEd,
+  VirtualTrees,
+  TB97Ctls,
+
+  gf_streams,
+  gf_strings,
+  kn_info,
+  kn_Const,
+  kn_Global,
+  kn_KntFolder,
+  knt.model.note,
+  kn_FindReplaceMng,
+  knt.ui.tree,
+  knt.ui.info,
+  knt.ui.editor,
+  knt.ui.noteEntriesOptions,
+  knt.App
+  ;
+
+
+
+type
+  TBeforeEditorLoadedEvent = procedure(Note: TNote) of object;
+  TAfterEditorLoadedEvent  = procedure(Note: TNote) of object;
+
+type
+  TEntryShown = record
+    Note: TNote;
+    NNode: TNoteNode;
+    NEntry: TNoteEntry;
+    StartingPos: integer;
+    StartingContentPos: integer;
+    FinalPos: integer;
+    Content: TContentInMultiEntryMode;
+    Filtered: TNEntryFiltered;
+    ExcerptsInfo: TEntryExcerptsInfo;       // <> nil if Filtered and ShowExcerpts = True
+    RTFWithFoldedBlocksModif: AnsiString;
+    RTFFoldIntvEquivInfo: TIntervalsEquivalenceInfo;
+
+    function IsVisible: boolean;
+    function ContainsExcerpts: boolean;
+  end;
+
+  TActionOnEntry = (aModified, aCreating, aCreatingFromOtherPanel, aCreated, aDeleted, aModifiedMetadata, aChangedVisibility, aRefreshHeader, aNull);
+
+type
+  TKntNoteEntriesUI = class(TFrame)
+    pnlEntries: TPanel;
+    pnlButtons: TPanel;
+    txtCreationDate: TEdit;
+    txtName: TEdit;
+    txtTags: TEdit;
+    btnNextEntry: TToolbarButton97;
+    btnPrevEntry: TToolbarButton97;
+    btnOptions: TToolbarButton97;
+    btnToggleMulti: TToolbarButton97;
+    cFocusedFlag: TPaintBox;
+    procedure txtNameChange(Sender: TObject);
+    procedure txtEnter(Sender: TObject);
+    procedure txtNameMouseEnter(Sender: TObject);
+    procedure txtCreationDateMouseEnter(Sender: TObject);
+    procedure txtNameExit(Sender: TObject);
+    procedure txtTagsEnter(Sender: TObject);
+    procedure btnPrevEntryClick(Sender: TObject);
+    procedure btnNextEntryClick(Sender: TObject);
+    procedure btnToggleMultiClick(Sender: TObject);
+    procedure btnOptionsClick(Sender: TObject);
+    procedure cFocusedFlagPaint(Sender: TObject);
+    procedure txtTagsExit(Sender: TObject);
+
+  private class var
+    FColorTxts: TColor;
+
+  private
+    FNote: TNote;                  // Selected Note
+    FNNode: TNoteNode;             //  ,,     Note Node
+    FNEntry: TNoteEntry;           //  ,,     Note Entry
+    FKntFolder: TKntFolder;
+    FEditor: TKntRichEdit;
+    FNoteUI: INoteUI;
+    FOnUse: boolean;
+    FPanelHidden: boolean;               // To mark panels, in QueryLayout, where no entry is available (panels not shown because of maximized other panel will not be marked)
+    FEntriesShown: Array of TEntryShown;
+    FiEntry: integer;
+    FPanelConfig: TPanelConfiguration;
+    FTagsToUseOnNewEntry: TNoteTagArray;
+
+    RTFAux: TAuxRichEdit;
+
+    FInfoPanelHidden: boolean;
+    fImagesReferenceCount: TImageIDs;
+
+    //FLastEditorUIWidth: string;
+
+    fChangingInCode: boolean;
+    FReadOnly: boolean;
+    FPanelInitialized: boolean;
+
+    FOnEnterOnEditor: TNotifyEvent;
+    FOnMouseUpOnNoteEntries: TNotifyEvent;
+    FOnMouseMoveOnNoteEntries: TNotifyEvent;
+
+
+  public
+    constructor Create(AOwner: TComponent; NoteUI: INoteUI);
+    destructor Destroy; override;
+
+    property Editor : TKntRichEdit read FEditor;
+
+  public
+    property Folder: TKntFolder read FKntFolder;
+    property Note: TNote read FNote;
+    property NNode: TNoteNode read FNNode;
+    property NEntry: TNoteEntry read FNEntry write FNEntry;
+    property NoteUI: INoteUI read FNoteUI;
+    property PanelConfig: TPanelConfiguration read FPanelConfig write FPanelConfig;
+    procedure LoadFromDataModel (APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false; ActionOnEntry: TActionOnEntry = aNull);
+    procedure ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
+                                   NEntryToConsider: TNoteEntry = nil;
+                                   ActionOnEntry: TActionOnEntry = aNull;
+                                   InformReloaded: boolean = false);
+    procedure ReloadMetadataFromDataModel (ReloadTags: boolean = true);
+    procedure ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultiEntryMode; iEntry: integer= -1;
+                                             IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;
+                                             LimitToCreatedBeforeSelectedEntry: boolean = false;
+                                             IgnoreFilter: boolean = false);
+    procedure ShowHiddenEntries;
+    procedure HideHiddenRevealed;
+    procedure ReconsiderFilteredStatusOnEncryptedEntries;
+    procedure RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
+    procedure ModifiedMetadataOfEntry(NEntry: TNoteEntry);
+    procedure NEntryDeleted(NEntry: TNoteEntry);
+    procedure NEntryHidden(NEntry: TNoteEntry; Hidden: boolean; CreatedBefore: TDateTime = 0);
+    procedure NEntryReadOnlyChanged(NEntry: TNoteEntry);
+    procedure SaveToDataModel; overload;
+    procedure InsertMarkerInMultiEntryEditor (NEntry: TNoteEntry; KEYMarker: Char; TargetMarker: integer; RTFAux: TAuxRichEdit);
+    procedure SavePositionInPanel;
+    procedure SaveCustomizeInfo(iEntry: integer = -1; ClearRTFFoldedModifInfo: boolean = True);
+    procedure CleanCustomizeInfo(NEntry: TNoteEntry);
+    procedure ReloadNoteName;
+    procedure EditorChangedSelectionInMultiEntries;
+    procedure EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false;
+                                           FromOnlyHeaderToFirstLines: boolean = false);
+    procedure ToggleOnlyHeaders_WholeContent;
+    procedure ToggleOnlyHeader_WholeContent;
+    function GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
+    property GetIndexOfSelectedEntry: integer read FiEntry;
+    function GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
+    function IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntryMode): boolean;
+    function EntryWithNoAlteredContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
+    function NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
+    function NumberOfEntriesBeingDisplayed: integer;
+    function DisplayingAnyHiddenEntry: boolean;
+    function HasAnyEntryNonVisible: boolean;
+    procedure GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
+    procedure ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultiEntryMode);
+    procedure ConfigureEditor(iEntry: integer = -1);
+    //procedure UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
+    procedure ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean;
+                                         HeaderChanged: boolean = false;
+                                         EntryContChanged: boolean = false;
+                                         OrderChanged: boolean = false);
+    function GetImLinkPositionInEntry(iEntry: integer; CaretPosInEditorWithExcerpts: integer): integer;
+    function GetImLinkPositionInEntryExcerpts(iEntry: integer; PosInEntry: integer; var SelLength: integer): integer;
+    function IsDisplayingExcerptsForSelectedEntry: boolean;
+    procedure ClearFilterInfoInAllEntries;
+    procedure ClearRTFFoldedModifInfoInAllEntries (Free: boolean = False);
+    function GetPositionInFolderIntvEquiv(iEntry: integer; SS: integer; var SL: integer; FromUnchanged: boolean): integer;
+  protected
+    function StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
+    //function GetHeaderCellx: AnsiString;
+    function GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False; FilteredOrHiddenIgnored: boolean = false): AnsiString;
+    function GetFilterInfUsingFindAll (FolderToUse: TKntFolder; NNodeToUse: TNoteNode; NEntryToUse: TNoteEntry; TxtPlain: string; ResultsSearch: TResultsSearch): boolean;
+    function NEntryToBeFilteredIn (NNode: TNoteNode; NEntry: TNoteEntry): boolean;
+    function NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
+    function CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
+    procedure FreeFilterInfoInAllEntries;
+    procedure ResetFilterInfo;
+    procedure ResetIgnoredFilteredStatusInAllEntries;
+    function CheckFilterInfoUpdated(iEntry: integer; ForceCalc: boolean = false): boolean;
+    procedure SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry); overload;
+
+  protected
+    procedure SetInfoPanelHidden(value: boolean);
+    procedure ShowControlsPanelIdentif(Show: boolean);
+    procedure CheckPnlButtonsLocation;
+    procedure OnEndEditTagsIntroduction(PressedReturn: boolean; txtTags: TEdit);
+    procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
+    procedure ShowEntriesButtons(Show: boolean);
+    procedure SelectEntry(iEntry: integer; LastPos: boolean = false; InformReloaded: boolean = True);
+    procedure FrameResize(Sender: TObject);
+    function InfoBarShowingNoteMetadata: boolean;
+    function EntryShownWithExcerpts(iEntry: integer): boolean;
+    function EntryShownFiltered(iEntry: integer): TNEntryFiltered;
+    function EntryShownIsVisible(iEntry: integer): boolean; inline;
+    function EntryShownIsBeingDisplayed(iEntry: integer): boolean; inline;
+
+  public
+    procedure EditTags;
+    procedure RefreshTags;
+    property TagsToUseOnNewEntry: TNoteTagArray read FTagsToUseOnNewEntry write FTagsToUseOnNewEntry;
+    function HideTemporarilyEditorInfoBar: boolean;
+    property InfoPanelHidden: boolean read FInfoPanelHidden write SetInfoPanelHidden;
+    procedure ReconsiderColorInfoPanel;
+    procedure ReconsiderEditorInfoBarVisibility;
+    procedure SetTopInControlsOfInfoPanel;
+    procedure RefreshEntry;
+    procedure SelectNextEntry(InformReloaded: boolean);
+    procedure SelectPrevEntry(InformReloaded: boolean);
+
+  protected
+    function GetReadOnly: boolean;
+    procedure SetReadOnly( AReadOnly : boolean );
+    procedure ForceTempReadOnly( AReadOnly : boolean );
+    procedure SetPanelHidden( Value : boolean );
+    procedure SetBtnOptionsFontColor;
+  public
+    property ReadOnly : boolean read GetReadOnly write SetReadOnly;
+    property OnUse: boolean read FOnUse;
+    property PanelHidden: boolean read FPanelHidden write SetPanelHidden;
+    procedure SetAsUnused;
+    procedure SetAsLoadPending(APanelConfig: TPanelConfiguration; InformReloaded: boolean);
+
+  protected
+    function GetImagesInstances: TImageIDs;
+    property ImagesReferenceCount: TImageIDs read fImagesReferenceCount write fImagesReferenceCount;
+  public
+    property ImagesInstances: TImageIDs read GetImagesInstances;
+    function GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String): TImageIDs;
+    procedure ResetImagesReferenceCount;
+    procedure ReloadImagesOnEditor;
+    procedure ReconsiderImageDimensionGoalsOnEditor (Selection: boolean; ImagesMode: TImagesMode);
+    procedure SetImagesMode(ImagesMode: TImagesMode);
+
+  protected
+    procedure NoteEntriesUIEnter(Sender: TObject);
+    procedure NoteEntriesUIExit(Sender: TObject);
+    procedure EditorMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure EditorMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+  public
+    function HideNestedFloatingEditor: boolean;
+  public
+    procedure SetOnEnter(AEvent: TNotifyEvent);
+    procedure SetOnMouseUpOnNote(AEvent: TNotifyEvent);
+    procedure SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
+    procedure SetFocusOnEditor;
+  end;
+
+
+
+implementation
+
+{$R *.dfm}
+
+uses
+  System.DateUtils,
+  System.Math,
+  gf_misc,
+  gf_miscvcl,
+  kn_LinksMng,
+  kn_EditorUtils,
+  kn_ImagesUtils,
+  kn_RTFUtils,
+  kn_KntFile,
+  knt.ui.TagMng,
+  knt.ui.note,
+  knt.RS;
+
+const
+  MIN_TAGS_WIDTH = 17;
+  SEP_CREATION_DATE_FROM_PNLBUTTONS= 121;     // pnlButtons.Left - txtCreationDate.Left
+
+
+var
+  ApplyFilterToAll: array[boolean] of boolean;    // True: QL    false: EL
+
+  RTFAuxFrag : TAuxRichEdit;
+
+
+function TEntryShown.IsVisible: boolean;
+begin
+    Result:= (Content <> cmHidden) and (Filtered <> fFilteredOut);
+end;
+
+function TEntryShown.ContainsExcerpts: boolean;
+begin
+    Result:= (Filtered = fFilteredIn) and (ExcerptsInfo <> nil);
+end;
+
+// Create  / Destroy =========================================
+
+{$REGION Create / Destroy}
+
+constructor TKntNoteEntriesUI.Create(AOwner: TComponent; NoteUI: INoteUI);
+var
+ i: integer;
+begin
+   inherited Create(AOwner);
+
+   FNoteUI:= NoteUI;
+   FKntFolder:= TKntFolder(NoteUI.GetFolder);
+
+   FEditor := TKntRichEdit.Create( pnlEntries );
+   with FEditor do begin
+      Parent := pnlEntries;
+
+      Align := alClient;
+      HelpContext := 11;
+      MaxLength := 0; // unlimited text size
+      ParentFont := false;
+      WantTabs := true;
+      WantReturns := true;
+      AllowInPlace := true;
+      AllowObjects := true;
+      AutoVerbMenu := true;
+      HideSelection := false;
+      SelectionBar := true;
+      UndoLimit := EditorOptions.UndoLimit;
+      WordSelection := EditorOptions.WordSelect;
+      RecreateWndProtect := KeyOptions.RichEditv3;
+      LangOptions := [];
+      if EditorOptions.AutoKeyboard then
+        LangOptions := LangOptions + [rlAutoKeyboard];
+      if EditorOptions.AutoFont then
+        LangOptions := LangOptions + [rlAutoFont];
+      ScrollBars := ssBoth;
+
+      OnMouseUp := EditorMouseUp;
+      OnMouseMove := EditorMouseMove;
+   end;
+
+   OnEnter:= NoteEntriesUIEnter;
+   OnExit:= NoteEntriesUIExit;
+   OnResize:= FrameResize;
+
+   FColorTxts:= RGB(248,248,248);
+   txtName.Color:= FColorTxts;
+   txtCreationDate.Color:= FColorTxts;
+   txtTags.Color:= FColorTxts;
+
+   SetTopInControlsOfInfoPanel;
+
+   btnToggleMulti.Font.Size:= 8;
+   btnOptions.Caption:= #$22EF; //  (U+22EF, Midline Horizontal Ellipsis)
+   btnOptions.Font.Size:= 12;
+   btnOptions.Font.Style:= [fsBold];
+
+   SetReadOnly(FKntFolder.ReadOnly);
+   fChangingInCode:= false;
+   //FLastEditorUIWidth:= '';
+   FPanelConfig:= nil;
+   FOnUse:= False;
+   FPanelHidden:= True;
+   FPanelInitialized:= false;
+   FTagsToUseOnNewEntry:= nil;
+
+   UpdateEditor (FEditor, FKntFolder, true); // do this BEFORE placing RTF text in editor
+
+   App.EditorAvailable(FEditor);
+end;
+
+
+destructor TKntNoteEntriesUI.Destroy;
+begin
+   if assigned( FEditor ) then begin
+      App.EditorUnavailable(FEditor);
+      FreeAndNil(FEditor);
+   end;
+   FreeAndNil(RTFAux);
+
+   fImagesReferenceCount:= nil;
+
+   FreeFilterInfoInAllEntries;
+   ClearRTFFoldedModifInfoInAllEntries(True);
+   FreeAndNil(RTFAuxFrag);
+
+   inherited;
+end;
+
+
+
+procedure TKntNoteEntriesUI.FreeFilterInfoInAllEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do begin
+     FEntriesShown[i].Filtered:= fFilteredUnknown;
+     FreeAndNil(FEntriesShown[i].ExcerptsInfo);
+  end;
+end;
+
+
+procedure TKntNoteEntriesUI.ResetIgnoredFilteredStatusInAllEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do
+     if FEntriesShown[i].Filtered = fFilteredIgnored then
+        FEntriesShown[i].Filtered:= fFilteredUnknown;
+end;
+
+
+procedure TKntNoteEntriesUI.ResetFilterInfo;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do begin
+     FEntriesShown[i].Filtered:= fFilteredUnknown;
+     FEntriesShown[i].ExcerptsInfo:= nil;
+  end;
+end;
+
+procedure TKntNoteEntriesUI.ClearFilterInfoInAllEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do begin
+     FEntriesShown[i].Filtered:= fFilteredUnknown;
+     if FEntriesShown[i].ExcerptsInfo <> nil then
+        FEntriesShown[i].ExcerptsInfo.Clear;
+  end;
+end;
+
+procedure TKntNoteEntriesUI.ReconsiderFilteredStatusOnEncryptedEntries;
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do
+     if FEntriesShown[i].NEntry.IsEncrypted then
+        FEntriesShown[i].Filtered:= fFilteredUnknown;
+end;
+
+
+procedure TKntNoteEntriesUI.ClearRTFFoldedModifInfoInAllEntries(Free: boolean = False);
+var
+  i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do begin
+     FEntriesShown[i].RTFWithFoldedBlocksModif:= '';
+     if FEntriesShown[i].RTFFoldIntvEquivInfo <> nil then begin
+        if Free then
+           FreeAndNil(FEntriesShown[i].RTFFoldIntvEquivInfo)
+        else
+           FEntriesShown[i].RTFFoldIntvEquivInfo.Clear;
+     end;
+  end;
+end;
+
+
+
+{$ENDREGION}
+
+
+// Controls. Events
+
+{$REGION Controls. Properties and Events }
+
+
+function TKntNoteEntriesUI.GetReadOnly: boolean;
+begin
+   Result:= Editor.ReadOnly;
+end;
+
+procedure TKntNoteEntriesUI.SetReadOnly( AReadOnly : boolean );
+begin
+   FReadOnly:= AReadOnly;
+   Editor.ReadOnly:= AReadOnly;
+   txtName.ReadOnly:= AReadOnly;
+   txtTags.ReadOnly:= AReadOnly;
+end;
+
+procedure TKntNoteEntriesUI.ForceTempReadOnly( AReadOnly : boolean );
+begin
+   Editor.ReadOnly:= AReadOnly;
+   txtName.ReadOnly:= AReadOnly;
+   txtTags.ReadOnly:= AReadOnly;
+end;
+
+procedure TKntNoteEntriesUI.SetPanelHidden( Value : boolean );
+begin
+   FPanelHidden:= Value;
+   if FPanelConfig <> nil then begin
+      FPanelConfig.Hidden:= Value;
+      if not Value and (PanelConfig.StLayout = spInQL_ets) then
+         PanelConfig.StLayout:= spInQL;
+   end;
+end;
+
+procedure TKntNoteEntriesUI.SetAsUnused;
+begin
+  FOnUse:= False;
+  FPanelConfig:= nil;
+  PanelHidden:= True;
+  FNNode:= nil;
+  FNEntry:= nil;
+  Editor.BeginUpdate;
+  Editor.Clear;
+  Editor.EndUpdate;
+end;
+
+procedure TKntNoteEntriesUI.SetAsLoadPending(APanelConfig: TPanelConfiguration; InformReloaded: boolean);
+begin
+  FOnUse:= True;
+  FPanelConfig:= APanelConfig;
+  FPanelHidden:= False;
+
+  case PanelConfig.Scope of
+    fsSelectedNode: begin
+       FNNode:= PanelConfig.SelectedNNode;
+       FNote:= FNNode.Note;
+       FNEntry:= FNote.MainEntry;
+    end;
+  end;
+  ConfigureEditor(-1);
+
+  Editor.BeginUpdate;
+  Editor.Clear;
+  Editor.EndUpdate;
+
+  if InformReloaded and not ClipCapMng.IsBusy then
+     App.EditorReloaded(Editor, Editor.Focused);
+
+end;
+
+
+procedure TKntNoteEntriesUI.SetOnEnter(AEvent: TNotifyEvent);
+begin
+  FOnEnterOnEditor:= AEvent;
+end;
+
+procedure TKntNoteEntriesUI.SetOnMouseUpOnNote(AEvent: TNotifyEvent);
+begin
+   FOnMouseUpOnNoteEntries:= AEvent;
+end;
+
+procedure TKntNoteEntriesUI.SetOnMouseMoveOnNote(AEvent: TNotifyEvent);
+begin
+   FOnMouseMoveOnNoteEntries:= AEvent;
+end;
+
+
+procedure TKntNoteEntriesUI.NoteEntriesUIEnter(Sender: TObject);
+begin
+  if FNote = nil then exit;
+  if TKntNoteUI(FNoteUI).ChangingLayout then exit;
+
+  FloatingEditorCannotBeSaved:= False;
+  Editor.HideNestedFloatingEditor;
+  App.EditorFocused(Editor);
+  TagMng.UpdateTxtTagsHint(txtTags);
+  if Assigned(FOnEnterOnEditor) then
+    FOnEnterOnEditor(Self);
+
+  TKntNoteUI(FNoteUI).NEntriesUIEditorEnter(Self);
+
+  if FloatingEditorCannotBeSaved then
+     Editor.ActivateFloatingEditor;
+
+  cFocusedFlag.Refresh;
+  ReconsiderEditorInfoBarVisibility;
+end;
+
+
+function TKntNoteEntriesUI.HideNestedFloatingEditor: boolean;
+begin
+  Result:= True;
+  FloatingEditorCannotBeSaved:= False;
+  Editor.HideNestedFloatingEditor;
+
+  if FloatingEditorCannotBeSaved then begin
+     Editor.ActivateFloatingEditor;
+     Result:= False;
+  end;
+end;
+
+
+procedure TKntNoteEntriesUI.NoteEntriesUIExit(Sender: TObject);
+begin
+   cFocusedFlag.Refresh;
+   if (PanelConfig = nil) then exit;
+   HideTemporarilyEditorInfoBar;
+end;
+
+procedure TKntNoteEntriesUI.EditorMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Assigned(FOnMouseUpOnNoteEntries) then
+    FOnMouseUpOnNoteEntries(Self);
+end;
+
+procedure TKntNoteEntriesUI.EditorMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+begin
+  if Assigned(FOnMouseMoveOnNoteEntries) then
+    FOnMouseMoveOnNoteEntries(Self);
+end;
+
+procedure TKntNoteEntriesUI.SetInfoPanelHidden(value: boolean);
+begin
+   FInfoPanelHidden:= value;
+   if FOnUse then
+      ShowControlsPanelIdentif(not value);
+end;
+
+
+procedure TKntNoteEntriesUI.CheckPnlButtonsLocation;
+var
+  W, X, D: integer;
+begin
+   if pnlButtons.Visible then begin
+      W:= 0;
+      if not txtName.Visible and Editor.IsVerticalScrollBarVisible then
+         W:= GetSystemMetrics(SM_CXVSCROLL);
+
+      X:= (Self.Width-W) - pnlButtons.Width;
+
+      pnlButtons.Left:= X;
+      txtCreationDate.Left:= X - SEP_CREATION_DATE_FROM_PNLBUTTONS;
+   end;
+   if pnlButtons.Top <> txtTags.Top -1 then
+      SetTopInControlsOfInfoPanel;
+end;
+
+
+procedure TKntNoteEntriesUI.ShowControlsPanelIdentif(Show: boolean);
+var
+  W, SW, X: integer;
+begin
+   txtName.Visible:= Show and ((PanelConfig = nil) or PanelConfig.ShowEditorInfoPanel);
+   txtCreationDate.Visible:= Show and ((PanelConfig = nil) or PanelConfig.ShowEditorInfoPanel); // or (Mode = meSingleEntry));
+   txtTags.Visible:= Show;
+   pnlButtons.Visible:= Show;
+   CheckPnlButtonsLocation;
+
+  if not txtName.Visible then
+     pnlEntries.Height:= Self.Height
+  else
+     pnlEntries.Height:= Self.Height - txtTags.Height -2; //txtTags.Top -2;
+end;
+
+function TKntNoteEntriesUI.HideTemporarilyEditorInfoBar: boolean;
+var
+  KeepVisible: boolean;
+begin
+  KeepVisible:= CtrlDown or txtTags.Focused or txtName.Focused; // or txtCreationDate.Focused;
+  if not KeepVisible then
+     KeepVisible:= IsMouseOver(txtTags) or IsMouseOver(pnlButtons);
+
+  if (FInfoPanelHidden or not PanelConfig.ShowEditorInfoPanel) and not KeepVisible then
+     ShowControlsPanelIdentif(false);
+
+  Result:= not KeepVisible;
+end;
+
+
+procedure TKntNoteEntriesUI.ReconsiderColorInfoPanel;
+var
+  colorEdLay, colorMax: TColor;
+begin
+  //colorEdLay:= txtName.Color;
+  colorMax:= clBtnFace;
+  if PanelConfig.ShowEditorInfoPanel then begin
+    if PanelConfig.StLayout = spInEL then begin
+       //colorEdLay:= RGB(190,190,190);
+       colorMax:= RGB(220,220,240);
+    end;
+    if PanelConfig.Maximized then
+       colorMax:= clLtGray;
+  end;
+  //Self.Color:= colorEdLay;
+  btnPrevEntry.Color:= colorMax;
+  btnNextEntry.Color:= colorMax;
+  btnToggleMulti.Color:= colorMax;
+  btnOptions.Color:= colorMax;
+end;
+
+
+procedure TKntNoteEntriesUI.ReconsiderEditorInfoBarVisibility;
+var
+  colorEdLay, colorMax: TColor;
+begin
+  if PanelConfig = nil then exit;
+  if Height <= HEIGHT_REDUCED_TO_HIDDEN then exit;
+
+  ShowControlsPanelIdentif(True);        // Temporarily if not PanelConfig.ShowEditorInfoPanel
+  if (PanelConfig.Maximized) or
+     (PanelConfig.ShowEditorInfoPanel and
+          ( ((txtTags.Left + txtTags.Width + 2) <> txtName.Left ) or
+            ((txtName.Left + txtName.Width + 2) <> txtCreationDate.Left ) )) or
+     ((txtTags.Width <= MIN_TAGS_WIDTH) And (FNEntry <> nil) and (FNEntry.Tags <> nil)) then
+     FrameResize(nil);
+
+  ReconsiderColorInfoPanel;
+
+  FNoteUI.KeepInfoPanelTemporarilyVisible;
+end;
+
+
+procedure TKntNoteEntriesUI.SetTopInControlsOfInfoPanel;
+var
+  T, T2: integer;
+begin
+     if KeyOptions.EditorInfoPanelTop then begin
+      T:= 0;
+      T2:= txtCreationDate.Height + 2;
+   end
+   else begin
+      T:= Self.Height - txtCreationDate.Height;
+      T2:= 0;
+   end;
+   txtName.Top:= T;
+   txtCreationDate.Top:= T;
+   txtTags.Top:= T;
+   pnlButtons.Top:= T-1;
+   pnlEntries.Top:= T2;
+end;
+
+
+procedure TKntNoteEntriesUI.cFocusedFlagPaint(Sender: TObject);
+begin
+  with cFocusedFlag.Canvas do
+  begin
+    if (PanelConfig <> nil) and not PanelConfig.Maximized and NoteUI.MultipleVisibleEditors and not NoteUI.HideFocusFlag and Editor.Focused then
+       Brush.Color := clRed
+    else
+       Brush.Color := clBtnFace;
+    Brush.Style := bsSolid;
+    Pen.Style   := psClear;
+    FillRect(cFocusedFlag.ClientRect);
+  end;
+end;
+
+
+
+procedure TKntNoteEntriesUI.txtNameChange(Sender: TObject);
+begin
+   if not ActiveFileIsBusy and assigned(NNode) then begin
+      NNode.Note.Name:= txtName.Text;
+      FKntFolder.Modified:= True;
+   end;
+end;
+
+procedure TKntNoteEntriesUI.txtNameMouseEnter(Sender: TObject);
+var
+   s, path: string;
+   AncestorPathLen: integer;
+
+begin
+   s:= NNode.NoteName;
+   if NNode <> nil then begin
+      path:= FKntFolder.TreeUI.GetNodePath(NNode.TVNode, KntTreeOptions.NodeDelimiter, true );
+      AncestorPathLen:= Length(path) - Length(NNode.NoteName);
+      if AncestorPathLen > 1 then
+         s:= s + '  (' +  Copy(path, 1, AncestorPathLen) + ')';
+
+      if (NNode.Note.Tags <> nil) then
+         s:= s + '  # [' + FNNode.Note.MainEntry.TagsNames + ']';
+   end;
+   txtName.Hint:= s;
+end;
+
+procedure TKntNoteEntriesUI.txtCreationDateMouseEnter(Sender: TObject);
+var
+  s, lm: string;
+begin
+  if (FNote <> nil) then begin
+      if (PanelConfig.CurrentMode = meMultiEntry) or (FNote.NumEntries = 1) then begin
+         if FNote.LastModified <> 0 then begin
+            if (FNote.LastModified).GetTime <> 0 then
+                S:= ' - ' + FormatSettings.ShortTimeFormat;
+            lm:= FormatDateTime(FormatSettings.ShortDateFormat + S, FNote.LastModified);
+         end;
+         s:= Format(GetRS(sUInote01), [txtCreationDate.Text, lm]);
+      end
+      else
+         s:= Format(GetRS(sUInote02), [txtCreationDate.Text]);
+  end;
+  txtCreationDate.Hint:= s;
+end;
+
+procedure TKntNoteEntriesUI.txtEnter(Sender: TObject);
+begin
+   if (FNote = nil) then exit;
+
+   if txtName.Focused and not txtName.ReadOnly then
+      txtName.Color:= clWindow;
+
+   txtName.SelLength:= 0;
+   NoteEntriesUIEnter(Sender);
+end;
+
+procedure TKntNoteEntriesUI.txtNameExit(Sender: TObject);
+begin
+   txtName.Color:= FColorTxts;
+end;
+
+
+procedure TKntNoteEntriesUI.SetFocusOnEditor;
+begin
+  try
+     Editor.SetFocus;
+  except
+  end;
+end;
+
+
+{$ENDREGION}
+
+
+// Tags =========================================
+
+{$REGION Tags }
+
+procedure TKntNoteEntriesUI.EditTags;
+begin
+   SetInfoPanelHidden(False);
+   txtTags.SetFocus;
+   txtTags.SelStart:= txtTags.GetTextLen;
+end;
+
+
+function TKntNoteEntriesUI.InfoBarShowingNoteMetadata: boolean;
+begin
+   Result:= (FNEntry = FNNode.Note.MainEntry);
+
+//   if FNNode.Note.MainEntry = FNEntry then
+//      Result:= True;
+//   else
+//      Result:= PanelConfig.ShowEditorInfoPanel and
+//              ((PanelConfig.CurrentMode = meMultiEntry) or (FNNode.Note.NumEntries = 1));
+end;
+
+
+procedure TKntNoteEntriesUI.RefreshTags;
+var
+   S: string;
+   Color: TColor;
+   NEntry: TNoteEntry;
+   Tags: TNoteTagArray;
+begin
+   if FNNode = nil then exit;
+
+   Color:= clWindowText;
+
+   if InfoBarShowingNoteMetadata then
+      NEntry:= FNNode.Note.MainEntry
+   else begin
+      NEntry:= FNEntry;
+      Color:= RGB(0,0, 180);
+   end;
+
+   if NEntry <> nil then begin
+      S:= NEntry.TagsNames;
+   end
+   else begin
+      Tags:= TagsToUseOnNewEntry;
+      if Tags = nil then
+         Tags:= PanelConfig.LinkedTags;
+      if (Tags <> nil) then begin
+         S:= TNoteTagArrayUtils.ToNames(Tags);
+         Color:= clMaroon;
+      end
+   end;
+
+   txtTags.Text:= S;
+   TagMng.UpdateTxtTagsHint(txtTags);
+   if S = '' then
+      txtTags.Text:= EMPTY_TAGS;
+
+   txtTags.Font.Color:= Color;
+   AdjustTxtTagsWidth;
+end;
+
+procedure TKntNoteEntriesUI.txtTagsEnter(Sender: TObject);
+var
+   NEntry: TNoteEntry;
+begin
+   if PanelConfig = nil then exit;
+
+   if InfoBarShowingNoteMetadata then
+      NEntry:= FNNode.Note.MainEntry
+   else begin
+      if CtrlDown then begin
+         NEntry:= FNNode.Note.MainEntry;
+         txtTags.Text:= NEntry.TagsNames;
+      end
+      else
+         NEntry:= FNEntry;
+   end;
+
+   if (NEntry = nil) or txtTags.ReadOnly then begin
+      SetFocusOnEditor;
+      exit;
+   end;
+
+   TagMng.StartTxtEditTagIntrod(txtTags, OnEndEditTagsIntroduction, FNote, NEntry, Folder);
+   AdjustTxtTagsWidth(True);
+end;
+
+procedure TKntNoteEntriesUI.txtTagsExit(Sender: TObject);
+begin
+   RefreshTags;                   // In case we have forced the use of MainEntry from txtTagsEnter because Ctrl was pressed
+   ReconsiderEditorInfoBarVisibility;
+end;
+
+procedure TKntNoteEntriesUI.OnEndEditTagsIntroduction(PressedReturn: boolean; txtTags: TEdit);
+begin
+  if PressedReturn then
+     Editor.SetFocus;
+
+   txtTags.Color:= FColorTxts;
+   if not InfoBarShowingNoteMetadata and (FNEntry <> nil) then
+      txtTags.Font.Color:= RGB(0,0, 180);
+
+   AdjustTxtTagsWidth;
+
+   InfoPanelHidden:= Folder.EditorInfoPanelHidden;
+end;
+
+
+procedure TKntNoteEntriesUI.ShowEntriesButtons(Show: boolean);
+var
+   W: integer;
+begin
+   if btnPrevEntry.Visible = Show then exit;
+
+   btnPrevEntry.Visible:= Show;
+   W:= btnPrevEntry.Width*2 + btnToggleMulti.Width;
+   if Show then
+      W:= W * -1;
+
+   pnlButtons.Left:= pnlButtons.Left + W;
+   pnlButtons.Width:= pnlButtons.Width - W;
+   txtCreationDate.Left:= pnlButtons.Left - SEP_CREATION_DATE_FROM_PNLBUTTONS;
+   txtName.Width:= txtName.Width + W;
+end;
+
+procedure TKntNoteEntriesUI.AdjustTxtTagsWidth (AllowEdition: boolean = False);
+var
+  MinNoteNameWidth, MaxAvailableWidth: integer;
+  MaxAvailableForTags, TagsWidth: integer;
+begin
+  MinNoteNameWidth:= 0;
+  if txtName.Visible then
+     MinNoteNameWidth:= TagMng.GetTextWidth(Note.Name, txtName) + 10;
+  TagsWidth:=   MIN_TAGS_WIDTH;
+  if txtTags.Text <> EMPTY_TAGS then
+     TagsWidth:= TagMng.GetTextWidth(txtTags.Text, txtTags) + 10;
+
+  MaxAvailableWidth:= (pnlButtons.Left-4);
+  if txtCreationDate.Visible then
+     dec(MaxAvailableWidth, (txtCreationDate.Width + 4));
+
+  MaxAvailableForTags:= MaxAvailableWidth;
+
+  if not AllowEdition then
+     dec(MaxAvailableForTags, MinNoteNameWidth)
+  else begin
+     TagsWidth:= TagsWidth * 2;
+     if TagsWidth < 170 then
+        TagsWidth:= 170;
+  end;
+  if TagsWidth > MaxAvailableForTags then
+     TagsWidth := MaxAvailableForTags;
+
+  if TagsWidth < MIN_TAGS_WIDTH then
+     TagsWidth := MIN_TAGS_WIDTH;
+
+  txtTags.Width:= TagsWidth;
+  if txtName.Visible then begin
+     txtName.Width:= MaxAvailableWidth - TagsWidth;
+     txtName.Left:= txtTags.Left + TagsWidth + 2;
+  end;
+end;
+
+
+procedure TKntNoteEntriesUI.FrameResize(Sender: TObject);
+begin
+   if Note <> nil then begin
+      CheckPnlButtonsLocation;
+      ShowEntriesButtons(Length(FEntriesShown) > 1);
+      AdjustTxtTagsWidth(txtTags.Focused);
+      FPanelInitialized:= true;
+   end;
+end;
+
+
+{$ENDREGION}
+
+
+// Load and save Editor from Note node =========================================
+
+{$REGION Load, save and configure Editor for a Note node }
+
+
+function TKntNoteEntriesUI.GetIndexOfIncludedEntry(NEntry: TNoteEntry): integer;
+var
+   i: integer;
+begin
+   Result:= -1;
+   if NEntry = nil then exit;
+
+   for i:= Length(FEntriesShown)-1 downto 0 do
+      if FEntriesShown[i].NEntry = NEntry then
+         exit(i);
+end;
+
+procedure TKntNoteEntriesUI.SetBtnOptionsFontColor;
+begin
+  if PanelConfig.IsFiltered then begin
+     btnOptions.Font.Color:= RGB(255,0,20);
+     btnOptions.Font.Size:= 14;
+  end
+  else begin
+     btnOptions.Font.Color:= clWindowText;
+     btnOptions.Font.Size:= 12;
+  end;
+end;
+
+procedure TKntNoteEntriesUI.ModifyContentForNextReload(NEntry: TNoteEntry; NewContent: TContentInMultiEntryMode);
+var
+   iNEntry: integer;
+begin
+    iNEntry:= GetIndexOfIncludedEntry(NEntry);
+    if iNEntry >= 0 then
+       FEntriesShown[iNEntry].Content:= NewContent;
+end;
+
+procedure TKntNoteEntriesUI.LoadFromDataModel(APanelConfig: TPanelConfiguration; SavePreviousContent: boolean; InformReloaded: boolean = false; ActionOnEntry: TActionOnEntry = aNull);
+var
+  NEntry: TNoteEntry;
+  KeepModified: boolean;
+
+begin
+   Editor.BeginUpdate;         // -> It will also ignore Enter and Change events
+
+   KeepModified:= false;
+
+   try
+     try
+       if SavePreviousContent and not FNoteUI.GetNNodeDeleted then begin
+          SaveToDataModel();
+          Editor.HideNestedFloatingEditor;
+       end;
+
+       //FNNodeDeleted:= false;    //##
+       FPanelConfig:= APanelConfig;
+       FNNode:= nil;
+       FNote:= nil;
+       FNEntry:= nil;
+       FOnUse:= False;
+
+       if FPanelConfig <> nil then begin
+           if (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode <> nil) then begin         //***
+              FOnUse:= True;
+              PanelHidden:= False;
+
+              case PanelConfig.SelectedNNode.WordWrap of
+                wwAsFolder : Editor.WordWrap := FKntFolder.WordWrap;
+                wwYes : Editor.WordWrap := true;
+                wwno :  Editor.WordWrap := false;
+              end;
+           end
+           else
+             txtName.Visible:= True;
+       end;
+
+       ApplyFilterToAll[false]:= false;
+       ApplyFilterToAll[true]:=  false;
+       ReloadFromDataModel(true, nil, ActionOnEntry, InformReloaded);
+
+       { The normal thing is to set Editor.Modified = False at the end of the LoadFocusedNNodeIntoEditor method
+         But if hidden marks to be eliminated have been identified (and corrected), it will have been kept as Modified,
+         to ensure that this correction ends up persisting. Here we will do the same }
+       if Editor.Modified then
+          KeepModified:= True;
+
+
+     except
+       On E : Exception do begin
+         App.ErrorPopup(E);
+         exit;
+       end;
+     end;
+
+   finally
+     Editor.EndUpdate;
+   end;
+end;
+
+
+procedure TKntNoteEntriesUI.ReloadMetadataFromDataModel(ReloadTags: boolean = true);
+var
+  S: string;
+  ActiveFileIsBusyBAK: boolean;
+  i: integer;
+  Created: TDateTime;
+begin
+   if not assigned(FNote) then begin
+      txtTags.Text:= '';
+      txtName.Text:= '';
+      txtCreationDate.Text:= '';
+      ShowEntriesButtons(false);
+      exit;
+   end;
+
+   ActiveFileIsBusyBAK:= ActiveFileIsBusy;
+   ActiveFileIsBusy:= True;                   // To avoid txtNameChange => Modified:True
+   try
+      txtName.Text:= FNote.Name;
+
+      if (FNEntry = nil) then
+         txtCreationDate.Visible:= False;
+      if FNEntry <> nil then begin
+        if (PanelConfig.CurrentMode = meMultiEntry) then
+           Created:= FNote.DateCreated
+        else
+           Created:= FNEntry.Created;
+        if Created <> 0  then begin
+           if (Created).GetTime <> 0 then
+                 S:= ' - ' + FormatSettings.ShortTimeFormat;
+           txtCreationDate.Text:= FormatDateTime(FormatSettings.ShortDateFormat + S, Created);
+        end
+        else
+           txtCreationDate.Text:= '';
+      end;
+
+      if ReloadTags then
+         RefreshTags;
+
+   finally
+      ActiveFileIsBusy:= ActiveFileIsBusyBAK;
+   end;
+end;
+
+
+procedure TKntNoteEntriesUI.ReloadFromDataModel (CalculateEntriesToShow: boolean = true;
+                                                 NEntryToConsider: TNoteEntry = nil;
+                                                 ActionOnEntry: TActionOnEntry = aNull;
+                                                 InformReloaded: boolean = false);
+var
+  ReadOnlyBAK: boolean;
+  str: String;
+
+{$IFDEF KNT_DEBUG}
+ dataSize: integer;
+{$ENDIF}
+
+ strRTF: AnsiString;
+ ContainsImgIDsRemoved: boolean;
+ ContainsImages: boolean;
+
+ OnEnterBak: TNotifyEvent;
+
+ cEditor: TRxRichEdit;
+ i, iEntry, iEntryToConsider, iEntryAdded, iSelectedEntry: integer;
+ ImagesAux: TImageIDs;
+ CannotShow_Encrypted: boolean;
+ SS, SL, Offset: integer;
+ EntryToAdd, EntryToRemove, MustBeIncluded: boolean;
+ Mode: TModeEntriesUI;
+ FNEntry_Initial: TNoteEntry;
+ FiEntry_Initial: integer;
+ NumOfEntriesBeingDisplayedBefore, NumVisibleEntriesBefore, NumVisibleEntriesAfter: integer;
+
+
+ function NEntryMustBeIncludedInPanel (NEntry: TNoteEntry): boolean;
+ begin
+   Result:= False;
+
+   case PanelConfig.Scope of
+      fsSelectedNode: begin
+         Result:= FNote.IsValid(NEntry) and  not ((PanelConfig.LinkedTags <> nil) and not NEntry.HasTags(PanelConfig.LinkedTags));
+      end;
+
+      fsSelectedNodeAndSubtree: ;
+      fsSelectedNodeAndAncestors: ;
+      fsSelectedNodes: ;      // -> PanelConfig.NNodes
+      fsFolder: ;
+      fsFile: ;
+   end;
+
+ end;
+
+
+ // -> FEntriesShown, FNNode, FNote, [FNEntry, CannotShow_Encrypted]
+ procedure PopulateEntriesToShow;
+ var
+   N: integer;
+   iEntry, j: integer;
+   NEntry: TNoteEntry;
+   Created: TDateTime;
+   P: integer;
+
+   function GetContentToAssign(NEntry: TNoteEntry; DefaultContentInME: TContentInMultiEntryMode; IgnoreIsHidden: boolean = false): TContentInMultiEntryMode;
+   begin
+      if (NEntry.IsHidden) and not IgnoreIsHidden then
+         Result:= cmHidden
+      else
+      if (NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then begin
+         if ActiveFile.HideEncryptedNodesAndEntries then
+            Result:= cmHidden
+         else
+            Result:= cmOnlyHeader;
+      end
+      else
+      if Mode = meMultiEntry then
+         Result:= DefaultContentInME
+      else
+         Result:= cmWholeEntry;
+   end;
+
+   procedure CheckCandidateEntry;
+   var
+    DefContent: TContentInMultiEntryMode;
+   begin
+      NEntry:= Note.Entries[iEntry];
+      if (PanelConfig.LinkedTags = nil) or NEntry.HasTags(PanelConfig.LinkedTags) then begin
+         if (PanelConfig.Use = pnuShowAllEntries) and (NoteUI.EntryIsContainedInTagLinkedPanels(NEntry)) then
+            DefContent:= cmOnlyHeader
+         else
+            DefContent:= PanelConfig.MECustomiz.Content;
+
+         FEntriesShown[N].NEntry:= NEntry;
+         FEntriesShown[N].NNode:= FNNode;
+         FEntriesShown[N].Note:= FNote;
+         FEntriesShown[N].Content:= GetContentToAssign(NEntry, DefContent);
+         FEntriesShown[N].ExcerptsInfo:= nil;
+         FEntriesShown[N].RTFWithFoldedBlocksModif:= '';
+         FEntriesShown[N].Filtered:= fFilteredUnknown;
+         FEntriesShown[N].StartingPos:= 0;
+         FEntriesShown[N].StartingContentPos:= 0;
+         FEntriesShown[N].FinalPos:= 0;
+
+         inc(N);
+      end;
+   end;
+
+
+ begin
+
+    case PanelConfig.Scope of
+      fsSelectedNode: begin
+         FNNode:= PanelConfig.SelectedNNode;
+         FNote:= FNNode.Note;
+
+         N:= Length(FEntriesShown);
+
+         if EntryToRemove then begin
+            FreeAndNil(FEntriesShown[iEntryToConsider].ExcerptsInfo);
+            FreeAndNil(FEntriesShown[iEntryToConsider].RTFFoldIntvEquivInfo);
+            for iEntry:= iEntryToConsider to Length(FEntriesShown)-2 do
+               FEntriesShown[iEntry]:= FEntriesShown[iEntry+1];
+
+            FEntriesShown[N-1].ExcerptsInfo:= nil;
+            FEntriesShown[N-1].RTFWithFoldedBlocksModif:= '';
+            FEntriesShown[N-1].RTFFoldIntvEquivInfo:= nil;
+
+            dec(N);
+
+            SetLength(FEntriesShown, N);
+            if (iEntryToConsider < FiEntry) then
+               dec(FiEntry)
+            else
+            if FiEntry > N-1 then
+               dec(FiEntry);
+
+            if N = 0 then begin
+               FiEntry:= -1;
+               FNEntry:= nil;
+            end;
+         end
+         else
+         if not EntryToAdd then begin
+             ResetFilterInfo;
+             FEntriesShown:= nil;
+
+             if ActiveFile.EncryptedContentMustBeHidden and FNote.IsEncrypted then begin
+                CannotShow_Encrypted:= True;
+                exit;
+             end;
+
+             SetLength(FEntriesShown, Note.NumEntries);
+
+             N:= 0;
+             if PanelConfig.MECustomiz.DescendingOrder then
+                 for iEntry:= Length(FEntriesShown)-1 downto 0 do
+                    CheckCandidateEntry
+             else
+                 for iEntry:= 0 to Length(FEntriesShown)-1 do
+                    CheckCandidateEntry;
+
+             SetLength(FEntriesShown, N);
+
+             if Length(PanelConfig.CustomizeInfoInEntries.FilteredStateInEntries) = Length(FEntriesShown) then begin
+                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                    FEntriesShown[iEntry].Filtered:= PanelConfig.CustomizeInfoInEntries.FilteredStateInEntries[iEntry];
+             end
+             else
+                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                   CheckFiltered(iEntry, true);
+
+             if Length(PanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries) = Length(FEntriesShown) then begin
+                for iEntry:= 0 to Length(FEntriesShown)-1 do
+                   FEntriesShown[iEntry].ExcerptsInfo:= PanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries[iEntry];
+             end;
+
+             if Length(PanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) = Length(FEntriesShown) then begin
+                for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                   FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= PanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[iEntry];
+                   FEntriesShown[iEntry].RTFFoldIntvEquivInfo:= PanelConfig.CustomizeInfoInEntries.FoldedTextIntvEquivInEntries[iEntry];
+                end;
+             end;
+
+             if Length(PanelConfig.CurrentContentModeInEntries) = Length(FEntriesShown) then
+                for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                   CheckFiltered(iEntry);
+                   if (FEntriesShown[iEntry].Filtered = fFilteredOut) then continue;
+                   if PanelConfig.CurrentContentModeInEntries[iEntry] <> cmHidden then
+                      FEntriesShown[iEntry].Content:= GetContentToAssign(FEntriesShown[iEntry].NEntry, PanelConfig.CurrentContentModeInEntries[iEntry], True);
+                end;
+
+         end
+         else begin                                         // EntryToAdd = True
+            inc(N);
+            Created:= NEntryToConsider.Created;
+            SetLength(FEntriesShown, N);
+
+            if N = 1 then
+               iEntryAdded:= 0
+
+            else begin
+
+              if not PanelConfig.MECustomiz.DescendingOrder then begin
+                 for iEntry:= N-2 downto 0 do
+                    if Created > FEntriesShown[iEntry].NEntry.Created then break;
+                 iEntryAdded:= iEntry+1;
+                 for iEntry:= iEntryAdded + 1 to N-1 do
+                    FEntriesShown[iEntry+1]:= FEntriesShown[iEntry];
+              end
+              else begin
+                 for iEntry:= 0 to N-2 do
+                    if Created > FEntriesShown[iEntry].NEntry.Created then break;
+                 iEntryAdded:= iEntry;
+
+                 for iEntry:= N-1 downto iEntryAdded + 1 do
+                    FEntriesShown[iEntry]:= FEntriesShown[iEntry-1];
+              end;
+            end;
+            if iEntryAdded <= FiEntry then
+               inc(FiEntry);
+
+            iEntryToConsider:= iEntryAdded;
+
+            FEntriesShown[iEntryAdded].NEntry:= NEntryToConsider;
+            FEntriesShown[iEntryAdded].NNode:= FNNode;
+            FEntriesShown[iEntryAdded].Note:= FNote;
+            FEntriesShown[iEntryAdded].Content:= GetContentToAssign(NEntryToConsider, cmOnlyHeader);
+            FEntriesShown[iEntryAdded].ExcerptsInfo:= nil;
+            FEntriesShown[iEntryAdded].RTFWithFoldedBlocksModif:= '';
+            FEntriesShown[iEntryAdded].StartingPos:= -1;
+            FEntriesShown[iEntryAdded].StartingContentPos:= -1;
+            FEntriesShown[iEntryAdded].FinalPos:= -1;
+            CheckFiltered(iEntryAdded, true);
+         end;
+
+      end;
+
+      fsSelectedNodeAndSubtree: ;
+      fsSelectedNodeAndAncestors: ;
+      fsSelectedNodes: ;      // -> PanelConfig.NNodes
+      fsFolder: ;
+      fsFile: ;
+    end;
+
+
+
+    // Interleave the positions that were not calculated (as they correspond to added entries that are not displayed) with those that were calculated
+    if FEntriesShown <> nil then begin
+       if FEntriesShown[0].StartingPos < 0 then begin
+          FEntriesShown[0].StartingPos:= 0;
+          FEntriesShown[0].StartingContentPos:= 0;
+          FEntriesShown[0].FinalPos:= 0;
+       end;
+    end;
+
+    for iEntry:= 1 to High(FEntriesShown) do begin
+       if FEntriesShown[iEntry].StartingPos < 0 then begin
+          P:= FEntriesShown[iEntry-1].FinalPos;
+          if FEntriesShown[iEntry-1].StartingPos <> P then
+             inc(P);
+          FEntriesShown[iEntry].StartingPos:= P;
+          FEntriesShown[iEntry].StartingContentPos:= P;
+          FEntriesShown[iEntry].FinalPos:= P;
+       end;
+    end;
+
+
+    if FPanelInitialized then
+       ShowEntriesButtons(Length(FEntriesShown) > 1);
+ end;
+
+
+ procedure PrepareFragmentsOfEntry (iEntry: integer);
+ var
+    i, j: integer;
+    NEntry: TNoteEntry;
+    ResultsSearch: TResultsSearch;
+    ResultSearch: TResultSearch;
+
+    pFLastFragm, Offset, PosI: integer;
+    RTFFrag: AnsiString;
+    TxtPlain: string;
+    ContainsFoldedBlocks: boolean;
+ begin
+     NEntry:= FEntriesShown[iEntry].NEntry;
+
+     if not CheckFilterInfoUpdated(iEntry) then exit;
+
+     ResultsSearch:= FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch;
+     NEntry.Stream.Position := 0;
+
+     cEditor.StreamFormat:= sfRichText;
+
+     if RTFAuxFrag = nil then begin
+        RTFAuxFrag:= CreateAuxRichEdit;
+        RTFAuxFrag.BeginUpdate;
+     end;
+     RTFAuxFrag.Clear;
+
+     if FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag = nil then begin
+
+         if not NEntry.IsRTF and (NEntry.Stream.Size > 0) then begin
+            RTFAuxFrag.StreamFormat:= sfPlainText;
+            SetEditorDefAttributes(RTFAuxFrag, FKntFolder);
+            RTFAuxFrag.Lines.LoadFromStream(NEntry.Stream);
+            RTFAuxFrag.StreamFormat := sfRichText;
+         end
+         else
+            LoadStreamInRTFAux (NEntry.Stream, RTFAuxFrag);
+
+         ContainsFoldedBlocks:= False;
+         if NEntry.IsRTF then begin
+            TxtPlain:= RTFAuxFrag.TextPlain;
+            ContainsFoldedBlocks:= Pos(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, TxtPlain) > 0;
+            if ContainsFoldedBlocks then begin
+             { *1
+               If the fragment is located within a folded block (that uses protected and hidden text), the subsequent text selection
+               might not yield the expected result. For instance, setting RTFAuxFrag.SelStart to 10 might actually result in it
+               being set to 9; the same applies to SelLength. Consequently, the displayed fragments may be incorrect in such cases.
+               The next three lines avoid that problem. However, I must bear in mind that this will make visible the hidden text used
+               by KNT to identify images, bookmarks, etc. Therefore, I hide these characters again at the end by searching for the
+               special characters used to mark their beginning and end }
+
+               RTFAuxFrag.SelectAll;
+               RTFAuxFrag.SelAttributes.Protected := False;
+               RTFAuxFrag.SelAttributes.Hidden:= False;
+            end;
+         end;
+
+         pFLastFragm:= 0;
+         Offset:= 0;
+
+         for i:= 0 to ResultsSearch.Count-1 do begin
+            ResultSearch:= ResultsSearch[i];
+            for j:= 0 to Length(ResultSearch.WordsPos)-1 do begin
+               RTFAuxFrag.SelStart:=  ResultSearch.WordsPos[j];
+               RTFAuxFrag.SelLength:= ResultSearch.WordsSel[j];
+               RTFAuxFrag.SelAttributes.Color:= clRed;
+               RTFAuxFrag.SelAttributes.SetBold(true);
+            end;
+         end;
+
+         for i:= 0 to ResultsSearch.Count-1 do begin
+            ResultSearch:= ResultsSearch[i];
+            if (i > 0) and (ResultSearch.BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+            if ResultSearch.BeginOfParagraph > pFLastFragm then begin
+               if i = 0 then
+                  pFLastFragm:= -1;
+
+               RTFAuxFrag.SelStart:=  pFLastFragm + 1 - Offset;
+               RTFAuxFrag.SelLength:= ResultSearch.BeginOfParagraph - pFLastFragm -1;
+               inc(Offset, RTFAuxFrag.SelLength);
+               RTFAuxFrag.SelText:= '';
+            end;
+            pFLastFragm:= ResultSearch.EndOfParagraph;
+         end;
+
+
+         if RTFAuxFrag.GetTextRange(pFLastFragm - Offset-1,pFLastFragm - Offset) <> #13 then begin
+            RTFAuxFrag.SelStart:= pFLastFragm - Offset;
+            RTFAuxFrag.SelText:= #13;
+            inc(pFLastFragm);
+         end;
+
+         PosI:= 0;
+         for i:= 1 to ResultsSearch.Count-1 do begin
+            if (i >= 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+            inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
+
+            RTFAuxFrag.SelStart:=  PosI;
+            RTFAuxFrag.Paragraph.SpaceBefore:= 5;
+         end;
+
+         RTFAuxFrag.SetSelection(0, pFLastFragm - Offset, False);
+
+         RTFFrag:= RTFAuxFrag.RtfSelText;
+         if ContainsFoldedBlocks then begin       // See *1, above
+            RTFFrag:= StringReplace(RTFFrag, KNT_RTF_HIDDEN_MARK_L, '{\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
+            RTFFrag:= StringReplace(RTFFrag, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R + '\v0}', [rfReplaceAll]);
+         end;
+         FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag:= TMemoryStream.Create;
+         StringToMemoryStream(RTFFrag, FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag);
+         TxtPlain:= RTFAuxFrag.TextPlain;
+         FEntriesShown[iEntry].ExcerptsInfo.FragTextPlain:= TxtPlain;
+     end
+     else begin
+         RTFFrag:= MemoryStreamToString(FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag);
+         TxtPlain:= FEntriesShown[iEntry].ExcerptsInfo.FragTextPlain;
+     end;
+
+
+     strRTF:= '';
+     if NEntry.IsRTF then begin
+        ImagesAux:= GetImagesIDInstances (nil, TxtPlain);
+        if ImagesAux <> nil then begin
+           strRTF:= ImageMng.ProcessImagesInRTF(RTFFrag, '', ImageMng.ImagesMode, '', 0, false);
+           CombineImagesInstances(ImagesAux, fImagesReferenceCount);
+        end;
+     end;
+
+     if strRTF = '' then
+        cEditor.PutRtfText(RTFFrag, false);
+
+     RTFAuxFrag.Clear;
+ end;
+
+
+ // Updates strRTF or cEditor
+ procedure PrepareEntryContent (iEntry: integer);
+ var
+   NEntry: TNoteEntry;
+   str: string;
+   ProcessFoldedBlocks: boolean;
+   Tick: integer;
+   ToUnchanged:   TIntervalEquivalenceArray;
+   FromUnchanged: TIntervalEquivalenceArray;
+   IntervalsEquivalenceInfo: TIntervalsEquivalenceInfo;
+
+   procedure ProcesssImagesFromNEntryStream;
+   begin
+       ImagesAux:= GetImagesIDInstances (NEntry.Stream, NEntry.TextPlain);
+       if ImagesAux = nil then exit;
+
+       strRTF:= ImageMng.ProcessImagesInRTF(NEntry.Stream.Memory, NEntry.Stream.Size, Self.Name, ImageMng.ImagesMode, '', 0, ContainsImgIDsRemoved, ContainsImages, true);
+       if (Mode = meSingleEntry) then
+          fImagesReferenceCount:= ImagesAux
+       else
+          CombineImagesInstances(ImagesAux, fImagesReferenceCount);
+   end;
+
+   function ProcesssImagesFromRTF(RTF: AnsiString; TxtPlain: String = ''): AnsiString;
+   begin
+       Result:= '';
+       if TxtPlain <> '' then begin
+          ImagesAux:= GetImagesIDInstances (nil, TxtPlain);
+          if ImagesAux = nil then exit;
+       end;
+
+       RTF:= ImageMng.ProcessImagesInRTF(RTF, '', ImageMng.ImagesMode, '', 0, false);
+       CombineImagesInstances(ImagesAux, fImagesReferenceCount);
+
+       if RTF <> '' then begin
+          cEditor.Clear;
+          cEditor.PutRtfText(RTF, false);
+          Result:= RTF;
+       end;
+   end;
+
+
+   procedure CreateIntvsEquivalence(var Intervals: TIntervalEquivalenceArray);
+   var
+      i, N, SS, LastSS, Offset, pLastEnd: integer;
+      TxtPlain: string;
+      InFolded: boolean;
+   begin
+      N:= 0;
+      TxtPlain:= cEditor.TextPlain;
+      Intervals:= nil;
+      SS:= 0;
+      LastSS:= -1;
+      Offset:= 0;                                           // To exclude the mark characters
+      pLastEnd:= -1;
+      InFolded:= False;
+      repeat
+         SS:= Pos(KNT_RTF_AUX_CHAR, TxtPlain, SS+1);
+         if SS = LastSS+1 then begin   // eg: |HYPERLINK "FOLD:"➕ bla, bla, ...[]#||HYPERLINK "FOLD:"➕
+            inc(Offset);
+            InFolded:= True;    // Next will also be Folded
+            continue;
+         end;
+
+         if (N = 0) and (SS = 1) then
+            InFolded:= True;
+
+         if SS > 0 then begin
+            inc(N);
+            SetLength(Intervals, N);
+            Intervals[N-1].PosBegin:= pLastEnd+1;
+            pLastEnd:= SS-Offset-2;          // -2:  1:Before character 1: Zero based
+            inc(Offset);
+            Intervals[N-1].PosEnd:= pLastEnd;
+            Intervals[N-1].Folded:= InFolded;
+            InFolded:= not InFolded;
+            LastSS:= SS;
+         end;
+      until SS = 0;
+
+      inc(N);
+      SetLength(Intervals, N);
+      Intervals[N-1].PosBegin:= pLastEnd+1;
+      Intervals[N-1].PosEnd:= Integer.MaxValue;
+   end;
+
+   procedure CalculateAndSaveIntvsEquivalence;
+   var
+     i, N: integer;
+     WidthFrom, WidthTo, WidthDif, Offset: integer;
+     Unfolding: boolean;
+   begin
+      Unfolding:= FPanelConfig.MECustomiz.FoldedTextMode = fmUnfold;
+      N:= Length(FromUnchanged);
+
+      { We might think that the unfolded block will take up more position space than the folded one, but it does not have
+        to be that way. Actually, the block, although folded, contains the same information along with another series of
+        hidden codes that mark the start and end of the block or the end of the visible extract. But on the other hand,
+        within the folded block the links, whether normal or internal KNT files are saved in a more compact format. And
+        within a block there may be others nested. All of this can make it so that we do not know a priori if when expanding
+        a block it will occupy more or less, that is, if the position associated with the first character after the block
+        will be greater or less.
+      }
+      if Unfolding then begin
+         Offset:= 0;
+         for i:= 0 to N-1 do begin
+            FromUnchanged[i].Offset:= Offset;
+            ToUnchanged[i].Offset:= -Offset;
+            WidthFrom:= (FromUnchanged[i].PosEnd - FromUnchanged[i].PosBegin);
+            WidthTo:=   (ToUnchanged[i].PosEnd   - ToUnchanged[i].PosBegin);
+            WidthDif:= WidthTo - WidthFrom;
+            Inc(Offset, WidthDif);
+         end;
+      end
+      else begin
+         // Removing
+         Offset:= 0;
+         for i:= 0 to N-1 do begin
+            FromUnchanged[i].Offset:= Offset;
+            if (i > 0) and ToUnchanged[i-1].Folded then
+               ToUnchanged[i].PosBegin:= ToUnchanged[i-1].PosBegin;
+
+            if ToUnchanged[i].Folded then
+               ToUnchanged[i].PosEnd:= -1
+            else
+               ToUnchanged[i].Offset:= -Offset;
+
+            if ToUnchanged[i].Folded then begin
+               WidthFrom:= (FromUnchanged[i].PosEnd - FromUnchanged[i].PosBegin);
+               Inc(Offset, -WidthFrom);
+            end;
+         end;
+      end;
+
+      IntervalsEquivalenceInfo:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo;
+      if IntervalsEquivalenceInfo = nil then begin
+         IntervalsEquivalenceInfo:= TIntervalsEquivalenceInfo.Create;
+         FEntriesShown[iEntry].RTFFoldIntvEquivInfo:= IntervalsEquivalenceInfo;
+      end;
+      IntervalsEquivalenceInfo.FromUnchanged:= FromUnchanged;
+      IntervalsEquivalenceInfo.ToUnchanged:= ToUnchanged;
+   end;
+
+ begin
+     if (Mode = meMultiEntry) then begin
+        cEditor.Clear;
+        SetEditorDefAttributes(cEditor, Folder);
+     end;
+
+     NEntry:= FEntriesShown[iEntry].NEntry;
+     NEntry.Stream.Position := 0;
+     strRTF:= '';
+     ProcessFoldedBlocks:= (Mode = meMultiEntry) and NEntry.IsRTF and (FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
+
+     if ((Mode = meSingleEntry) or (FEntriesShown[iEntry].Content <> cmOnlyHeader)) and (EntryShownFiltered(iEntry) <> fFilteredOut) then begin
+
+         if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden then begin
+            cEditor.AddText(GetRS(sEdt52));
+            exit;
+         end;
+
+         if (Mode = meMultiEntry) and EntryShownWithExcerpts(iEntry) then begin
+            PrepareFragmentsOfEntry (iEntry);
+            exit;
+         end;
+
+         if (Mode = meMultiEntry) and (FEntriesShown[iEntry].Content = cmOnlyFirstLines) then begin
+            str:= NEntry.GetFirstLinesOfText(Folder.NoteAdvOptions.FirstLinesOfText_MaxLength, Folder.NoteAdvOptions.FirstLinesOfText_MaxLines);
+            if str <> '' then begin
+               if str[length(str)] <> #13 then
+                  str:= str + ' ';
+               str:= str + '(...)';
+               cEditor.AddText(str);
+            end;
+            exit;
+         end;
+
+
+         if not NEntry.IsRTF then
+            UpdateEditor (cEditor, FKntFolder, False);
+
+         // *1 For newly created, empty notes, this must be ensured (when the note is not intended to be created as plain text. See call to ConfigureEditor).
+         //    If we don't do this, we may encounter with an exception when calling LoadFromStream while working with the note, before it
+         //    is persisted to the model (for example, when selecting another note from the tree). This can occur if in that situation
+         //    we select several lines and press Shift+TAB (to tab multiple lines, decreasing indentation)
+
+         if (not cEditor.PlainText) and (NEntry.Stream.Size = 0) then
+            cEditor.StreamFormat:= sfRichText                             // *1
+
+         else begin
+           if NodeStreamIsRTF (NEntry.Stream) then begin
+              cEditor.StreamFormat:= sfRichText;
+              if FEditor.SupportsRegisteredImages and not ProcessFoldedBlocks then
+                 ProcesssImagesFromNEntryStream;
+           end
+           else
+              cEditor.StreamFormat:= sfPlainText;
+         end;
+
+         Log_StoreTick('TKntNoteEntriesUI.LoadFromDataModel - BEGIN', 4, +1);
+        {$IFDEF KNT_DEBUG}
+         if log.Active and  (log.MaxDbgLevel >= 5) then begin
+            dataSize:= NEntry.Stream.Size;
+            if dataSize > 0 then
+               str:= Copy(String(PAnsiChar(NEntry.Stream.Memory)), 1, 90)
+            else
+               str:= '';
+            Log.Add(string.format('sfRichText?:%s DataSize:%d  RTF:"%s"...', [BoolToStr(cEditor.StreamFormat=sfRichText), dataSize, str]),  4 );
+         end;
+        {$ENDIF}
+
+
+         if StrRTF <> '' then begin
+            if (Mode = meSingleEntry) then begin
+               cEditor.PutRtfText(strRTF,True,False);               // => ImageManager.StorageMode <> smEmbRTF
+               cEditor.ClearUndo;
+            end;
+         end
+         else
+         if NEntry.Stream.Size > 0 then
+            cEditor.Lines.LoadFromStream( NEntry.Stream );
+
+
+         if ProcessFoldedBlocks then begin
+            if (FEntriesShown[iEntry].RTFWithFoldedBlocksModif <> '') and (FPanelConfig.PanelReloadedInImageMode = ImageMng.ImagesMode) then
+               StrRTF:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif
+
+            else begin
+               if (FEntriesShown[iEntry].RTFWithFoldedBlocksModif = '') then begin
+                   if MarkFirstLevelFoldedBlocks(cEditor) then begin
+                      //Tick:= GetTickCount;
+                      CreateIntvsEquivalence(FromUnchanged);
+                      case FPanelConfig.MECustomiz.FoldedTextMode of
+                         fmUnfold:        ExpandFoldedText(cEditor);
+                         fmRemoveAll:     RemoveFoldedText(cEditor, false);
+                      end;
+                      CreateIntvsEquivalence(ToUnchanged);
+                      CalculateAndSaveIntvsEquivalence;
+                      RemoveFirstLevelFoldedBlocksMarks(cEditor);
+                      //if (GetTickCount - Tick) > 45 then                                     // > 45ms? -> Save the processed RTF
+                   end
+                   else
+                      ProcessFoldedBlocks:= False;
+
+                   if FEditor.SupportsRegisteredImages then
+                      ProcesssImagesFromRTF(cEditor.RtfText, cEditor.TextPlain);
+
+                   if ProcessFoldedBlocks then
+                      FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= cEditor.RtfText;
+               end
+               else begin
+                   var RTF: AnsiString;
+                   RTF:= ProcesssImagesFromRTF(FEntriesShown[iEntry].RTFWithFoldedBlocksModif);
+                   if RTF <> '' then
+                      FEntriesShown[iEntry].RTFWithFoldedBlocksModif:= RTF
+                   else
+                      StrRTF:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif;
+               end;
+
+            end;
+         end;
+
+     end;
+
+ end;
+
+ procedure ShowHeader(iEntry: integer);
+ begin
+    Editor.PutRtfText(GetEntryHeader(FEntriesShown[iEntry].Note, FEntriesShown[iEntry].NEntry, (iEntry=0), (FEntriesShown[iEntry].Content=cmOnlyHeader),
+                                    ((FEntriesShown[iEntry].Filtered=fFilteredIgnored) or FEntriesShown[iEntry].NEntry.IsHidden) ),
+                      True,True);
+    FEntriesShown[iEntry].StartingContentPos:= Editor.SelStart;
+ end;
+
+ procedure ShowEntry(iEntry: integer);
+ var
+   TL, SS: integer;
+ begin
+     ConfigureEditor (iEntry);
+     PrepareEntryContent (iEntry);         // -> strRTF or cEditor
+
+     if (Mode = meMultiEntry) then begin
+        FEntriesShown[iEntry].StartingPos:= Editor.SelStart;
+        ShowHeader(iEntry);
+        if StrRTF = '' then begin
+           if cEditor.StreamFormat = sfPlainText then begin
+              TL:= cEditor.TextLength;
+              cEditor.StreamFormat:= sfRichText;
+              cEditor.SetSelection(0, TL, false);
+              strRTF:= cEditor.RtfSelText;
+           end
+           else
+              strRTF:= cEditor.RtfText;
+        end;
+        Editor.PutRtfText(strRTF,True,True);
+        SS:= Editor.SelStart;
+        if Editor.GetTextRange(SS-1, SS) = #13 then begin
+           Editor.SetSelection(SS-1, SS, false);
+           Editor.SelAttributes.Size:= 1;
+           Editor.SelStart:= SS;
+        end;
+        FEntriesShown[iEntry].FinalPos:= SS -1;
+     end;
+ end;
+
+ procedure ReconsiderEntry(iEntry: integer);
+ var
+   i: integer;
+   L, Offset, TL: integer;
+ begin
+    Offset:= 0;
+    for i:= 0 to High(FEntriesShown) do begin
+       if (i = iEntry) then begin
+           if EntryToRemove or not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
+              L:= FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos;
+              Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].FinalPos+1, false);
+           end
+           else begin
+              L:= FEntriesShown[i].StartingContentPos - FEntriesShown[i].StartingPos;
+              Editor.SetSelection(FEntriesShown[i].StartingPos, FEntriesShown[i].StartingContentPos, false);
+           end;
+
+           if EntryToRemove or ((ActionOnEntry = aChangedVisibility) and (not EntryShownIsVisible(i))) then begin
+              Offset:= - L - 1;
+              Editor.SelText:= '';
+              if not EntryToRemove then begin
+                 FEntriesShown[i].StartingContentPos:= FEntriesShown[i].StartingPos;
+                 FEntriesShown[i].FinalPos:= FEntriesShown[i].StartingPos;
+              end;
+           end
+           else begin
+              if not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
+                 ShowEntry (i);
+                 Offset:= (FEntriesShown[i].FinalPos - FEntriesShown[i].StartingPos) - L;
+                 if L = 0 then
+                    inc(Offset);
+              end
+              else begin
+                 ShowHeader(i);
+                 Offset:= (FEntriesShown[i].StartingContentPos - FEntriesShown[i].StartingPos) - L;
+                 inc(FEntriesShown[i].FinalPos, Offset);
+              end;
+           end;
+       end
+       else
+       if (Offset <> 0) then begin
+          inc(FEntriesShown[i].StartingPos, Offset);
+          inc(FEntriesShown[i].StartingContentPos, Offset);
+          inc(FEntriesShown[i].FinalPos, Offset);
+       end;
+    end;
+
+ end;
+
+
+ procedure SaveContentStateOfEntries;
+ var
+    i: integer;
+ begin
+
+    SetLength(PanelConfig.CurrentContentModeInEntries, Length(FEntriesShown));
+    for i:= 0 to Length(FEntriesShown)-1 do
+        PanelConfig.CurrentContentModeInEntries[i]:= FEntriesShown[i].Content;
+
+ end;
+
+
+ procedure ShowNewEntryToAdd;
+ var
+   iEntry: integer;
+ begin
+    if iEntryAdded = 0 then
+       Editor.SelStart:= 0
+    else
+       Editor.SelStart:= FEntriesShown[iEntryAdded-1].FinalPos + 1;
+
+    ShowEntry (iEntryAdded);
+    Offset:= (FEntriesShown[iEntryAdded].FinalPos - FEntriesShown[iEntryAdded].StartingPos) + 1;
+    for iEntry:= iEntryAdded+1 to Length(FEntriesShown)-1 do begin
+        inc(FEntriesShown[iEntry].StartingPos, Offset);
+        inc(FEntriesShown[iEntry].StartingContentPos, Offset);
+        inc(FEntriesShown[iEntry].FinalPos, Offset);
+    end;
+ end;
+
+ procedure ClearAndSetAsEmpty;
+ var
+   iEntry: integer;
+ begin
+    Editor.Clear;
+    fImagesReferenceCount:= nil;
+    if not (PanelConfig.Use = pnuShowAllEntries) then begin
+       PanelConfig.CurrentMode:= meSingleEntry;
+       Mode:= meSingleEntry;
+    end;
+    FiEntry:= -1;
+    FNEntry:= nil;
+
+    for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+        FEntriesShown[iEntry].StartingPos:= 0;
+        FEntriesShown[iEntry].StartingContentPos:= 0;
+        FEntriesShown[iEntry].FinalPos:= 0;
+    end;
+
+ end;
+
+
+ procedure UpdateBtnToggleMultiHint;
+ var
+    Total, NVisible: integer;
+ begin
+    NVisible:= NumberOfIncludedEntries(True);
+    Total:= NumberOfIncludedEntries(False);
+    btnToggleMulti.Hint:= Format(GetRS(sEntry25), [Total, Total-NVisible, MODE_ENTRIES_UI[PanelConfig.CurrentMode]]);
+ end;
+
+
+begin
+   if (PanelConfig = nil) or ((PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)) then begin
+      FNNode:= nil;
+      FNote:= nil;
+      ConfigureEditor;
+      ReloadMetadataFromDataModel;
+      exit;
+   end;
+
+
+   EntryToAdd:= false;
+   EntryToRemove:= false;
+   iEntryToConsider:= -1;
+   iEntryAdded:= -1;
+
+   Mode:= PanelConfig.CurrentMode;
+
+
+   { *1
+     If the note already has at least 2 entries, we will show the entry we have identified but avoided displaying
+     in the editor, so as not to offer two identical copies of the same entry }
+   if (PanelConfig.StLayout = spInQL_ets) then
+      if (FNote <> nil) and (FNote.NumEntries <= 1) or (ActionOnEntry = aCreated) then
+         exit
+      else begin
+         CalculateEntriesToShow:= True;
+         ActionOnEntry:= aNull;
+      end;
+
+
+   CannotShow_Encrypted:= False;
+   if CalculateEntriesToShow then begin
+      FNNode:= nil;
+      FNote:= nil;
+      FNEntry:= nil;
+      NEntryToConsider:= nil;
+
+      PopulateEntriesToShow;
+
+      if (FEntriesShown = nil) and (PanelConfig.StLayout = spInQL_ets) then      // *1
+         exit;
+
+      if (ActionOnEntry in [aCreating, aCreatingFromOtherPanel]) and (PanelConfig.LinkedTags = nil) then begin
+         // We must be in a note with one entry where a new entry is being created from this or other panel (a "Single Entry" panel)
+      end
+      else
+      if (PanelConfig.StLayout = spInQL) and (PanelConfig.Panel <> pnCenter) and (FNote <> nil) and (FNote.NumEntries = 1) then begin  // *1
+         PanelConfig.StLayout:= spInQL_ets;
+         PanelHidden:= True;
+         exit;
+      end
+      else
+      if Length(FEntriesShown) <= 1 then begin
+         if ( (PanelConfig.StLayout = spInEL) and (PanelConfig.Use = pnuShowAllEntries) ) then begin
+            if Length(FEntriesShown) = 1 then
+               FEntriesShown[0].Content:= cmOnlyHeader;
+         end
+         else
+            PanelConfig.CurrentMode:= meSingleEntry;
+      end;
+
+
+      SetBtnOptionsFontColor;
+   end;
+
+   if (FNote.NumEntries = 1) and (PanelConfig.StLayout = spInQL) and (PanelConfig.Panel = pnCenter) then begin
+      if (ActionOnEntry = aCreatingFromOtherPanel) or (PanelConfig.IsFiltered) or (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then
+         PanelConfig.CurrentMode:= meMultiEntry
+      else
+         PanelConfig.CurrentMode:= meSingleEntry;
+   end;
+
+
+   Mode:= PanelConfig.CurrentMode;
+   FNEntry_Initial:= FNEntry;
+   FiEntry_Initial:= FiEntry;
+
+   NumVisibleEntriesBefore:= NumberOfIncludedEntries(True);
+   NumOfEntriesBeingDisplayedBefore:= NumberOfEntriesBeingDisplayed;
+
+   // NEntryToConsider: If it's included among the considered entries, check if it should remain so and, if so,redisplay it, using its current content and tags.
+   //   If FMode = meSingleEntry, this NEntryToReconsider will be reflected in FEntriesShown, but it doesn't necessarily have to be reflected in the editor if
+   //    the entry displayed there is different.
+   //   If aCreated  -> Check if it should be included in the panel
+   //   If aModified -> Check if it is included and if it should be included o removed. Content will be updated if added or maintained.
+   //   If aModifiedMetadata -> Check if it is included and if it should be included o removed. If already included , content doesn't need to be updated
+   //   If aDeleted -> Remove if it is present
+   //
+   // PanelConfig.SelNEntry: Indicates which entry should be displayed, if FMode = meSingleEntry, or, in the case of FMode = meMultiEntry, which entry
+   //   should be selected, the one containing the cursor. In both cases, it will determine the number of the entry displayed on the button associated with btnToggleMulti.
+
+   iSelectedEntry:= GetIndexOfIncludedEntry(PanelConfig.SelNEntry);
+
+   if (NEntryToConsider <> nil) then begin
+       if not (ActionOnEntry in [aDeleted, aChangedVisibility]) then
+          MustBeIncluded:= NEntryMustBeIncludedInPanel(NEntryToConsider);
+
+       if (ActionOnEntry = aCreated) then begin
+          if not MustBeIncluded then exit;
+          EntryToAdd:= true;
+          PopulateEntriesToShow;
+          if (Mode = meSingleEntry) then begin
+              if (FiEntry_Initial = -1) and ((FNEntry = nil) or (FNEntry = NEntryToConsider)) then begin
+                // We've already prepared the editor. Once the first modification is made, we'll enter
+                // here, and what we need to do is update the information corresponding to the entry, making
+                // the information panel temporarily visible
+                 btnToggleMulti.Caption:= (iEntryAdded+1).ToString;
+                 FiEntry:= iEntryAdded;
+                 FNNode:= FEntriesShown[iEntryAdded].NNode;
+                 FNote:= FEntriesShown[iEntryAdded].Note;
+                 FNEntry:= NEntryToConsider;                   // In case FNEntry was nil (eg: Ctrl+Shift+Intro in empty panel vinculated to tags)
+                 FEditor.OnEditorChanged:= nil;                //  ,,
+                 App.NEntrySelected(Editor, FNEntry);
+                 ConfigureEditor;
+                 if PanelConfig.StLayout = spInEL then
+                    FrameResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+                 ShowControlsPanelIdentif(True);
+                 FNoteUI.KeepInfoPanelTemporarilyVisible;
+              end
+              else
+                 btnToggleMulti.Caption:= (FiEntry+1).ToString;
+
+              UpdateBtnToggleMultiHint;
+              exit;
+          end;
+       end
+       else begin
+          iEntryToConsider:= GetIndexOfIncludedEntry(NEntryToConsider);
+          if (ActionOnEntry = aDeleted) then
+             EntryToRemove:= true
+
+          else
+          if (ActionOnEntry in [aModified, aModifiedMetadata]) then begin
+             if MustBeIncluded and (iEntryToConsider < 0) then begin
+                EntryToAdd:= true;
+                PopulateEntriesToShow;
+             end
+             else
+             if not MustBeIncluded and (iEntryToConsider >= 0) then
+                EntryToRemove:= true;
+          end;
+
+          if (iEntryToConsider < 0) and not EntryToAdd then exit;
+       end;
+
+       if (Mode = meMultiEntry) and (iEntryToConsider >= 0) and not EntryToRemove and (ActionOnEntry in [aModifiedMetadata, aModified]) then begin
+           var DisplayingBefore: boolean:= (EntryShownIsBeingDisplayed(iEntryToConsider));
+           CheckFilterInfoUpdated(iEntryToConsider, (ActionOnEntry = aModifiedMetadata));
+           if (iEntryToConsider = FiEntry) or (DisplayingBefore <> (EntryShownIsVisible(iEntryToConsider))) then
+              ActionOnEntry:= aChangedVisibility;
+       end;
+
+
+       if (Mode = meSingleEntry) and not EntryToRemove and not EntryToAdd and
+           ( (ActionOnEntry = aModifiedMetadata) or
+             ((ActionOnEntry = aModified) and (FNEntry <> nil) and (FNEntry <> NEntryToConsider) )) then begin
+
+          ReloadMetadataFromDataModel;
+          exit;
+       end;
+   end;
+
+
+   for i:= 0 to Length(FEntriesShown)-1 do
+      CheckFiltered(i);
+
+   if not EntryToRemove and not EntryToAdd and (ActionOnEntry <> aChangedVisibility) and
+     (NEntryToConsider <> nil) and (iEntryToConsider >= 0) and (not EntryShownIsVisible(iEntryToConsider)) then exit;
+
+   if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aModified]) then
+      SaveCustomizeInfo(-1, false);
+
+   if EntryToAdd and (ActionOnEntry <> aChangedVisibility) and (iEntryAdded >= 0) and (not EntryShownIsVisible(iEntryAdded)) then exit;
+
+   if FPanelHidden and not
+         (EntryToAdd or (iSelectedEntry >= 0) or (ActionOnEntry = aCreating) or (NumVisibleEntriesBefore > 1) or (PanelConfig.StLayout = spInQL_ets))
+     then exit;
+
+
+   if EntryToRemove then
+       if (Mode = meSingleEntry) then begin
+          PopulateEntriesToShow;
+          if iEntryToConsider <> FiEntry_Initial then
+             exit
+          else
+          if FEntriesShown <> nil then begin
+             btnToggleMultiClick(nil);
+             exit;
+          end;                             // ELSE -> Continue: Editor.Clear, ...
+       end
+       else begin  // Mode = meMultiEntry
+          if (Length(FEntriesShown) = 2) then begin
+              PopulateEntriesToShow;
+              btnToggleMultiClick(nil);
+              exit;
+          end;
+       end;
+
+
+   if EntryToAdd then begin
+      if (Length(FEntriesShown) = 2) and (PanelConfig.Use = pnuShowAllEntries) then begin
+         EntryToAdd:= false;          // Process the two entries, not just the one to add
+         NEntryToConsider:= nil;
+      end;
+
+      // See *1, above
+      if (PanelConfig.StLayout = spInQL) and (PanelConfig.Panel <> pnCenter) and (FNote <> nil) and (FNote.NumEntries = 1) then begin
+         PanelConfig.StLayout:= spInQL_ets;
+         PanelHidden:= True;
+         exit;
+      end;
+
+
+      if (Mode = meSingleEntry) then begin
+         if (Length(FEntriesShown) = 2) then begin
+            if (PanelConfig.LinkedTags <> nil) then begin
+               if FiEntry < 0 then
+                  FiEntry:= 0;
+               if (FEntriesShown[FiEntry].Content <> cmHidden) and (EntryShownFiltered(FiEntry) <> fFilteredOut) then
+                  FEntriesShown[FiEntry].Content:= cmWholeEntry;
+               PanelConfig.CurrentMode:= meMultiEntry;
+               Mode:= meMultiEntry;
+               EntryToAdd:= false;
+               NEntryToConsider:= nil;
+            end
+         end
+         else
+         if (FNEntry <> nil) then begin
+            btnToggleMulti.Caption:= (FiEntry+1).ToString;     // First entry (1) can now be second entry (2). Show it in the navigate button
+            exit;
+         end;
+      end;
+   end;
+
+
+   if ( (EntryToAdd and PanelConfig.Hidden) or
+        ((ActionOnEntry = aNull) and (PanelConfig.StLayout = spInQL_ets)) ) and
+       (Length(FEntriesShown) >= 1) and (FEntriesShown[0].NEntry.Stream.Size = 0) then begin
+      // If we're changing the metadata of a newly created entry, and this should make a panel visible,
+      // we'll make sure to display it in multi-entry mode, showing only the header.
+       PanelConfig.CurrentMode:= meMultiEntry;
+       Mode:= meMultiEntry;
+       if (FiEntry >= 0) and (FiEntry < Length(FEntriesShown)) and EntryShownIsVisible(FiEntry) then
+          FEntriesShown[0].Content:= cmOnlyHeader;
+       NEntryToConsider:= nil;
+   end;
+
+
+   // Content of editor must be reviewed
+
+   Editor.BeginUpdate;                   // -> It will also ignore Enter and Change events
+
+   if (Mode = meMultiEntry) then begin
+      if RTFAux = nil then
+         RTFAux:= CreateAuxRichEdit();
+      cEditor:= RTFAux;
+      cEditor.BeginUpdate;
+   end
+   else
+      cEditor:= FEditor;
+
+   SetReadOnly(FKntFolder.ReadOnly);
+   ReadOnlyBAK:= FReadOnly;
+
+   ContainsImgIDsRemoved:= false;
+
+   try                                                         // -------------------------------- TRY
+
+     fChangingInCode:= True;
+     Editor.ReadOnly:= false;   // To prevent the problem indicated in issue #537
+
+     if (Mode = meMultiEntry) then begin
+         if EntryToAdd then begin
+            if EntryShownIsVisible(iEntryAdded) then
+               ShowNewEntryToAdd;
+            if FNEntry = nil then
+               FiEntry:= 0;
+            exit;
+         end;
+
+         if EntryToRemove then begin
+            ReconsiderEntry(iEntryToConsider);
+            PopulateEntriesToShow;
+            if (FiEntry >= 0) and (NumberOfIncludedEntries(true) > 0) then begin
+               if iEntryToConsider = FiEntry_Initial then begin
+                  SS:= FEntriesShown[FiEntry].StartingContentPos;
+                  PanelConfig.SSImLink:= 0;
+                  PanelConfig.SelLength:= 0;
+                  Editor.SelStart:= SS;
+               end;
+               exit;
+            end
+            else begin
+               PanelConfig.CurrentMode:= meSingleEntry;
+               Mode:= meSingleEntry;
+               NEntryToConsider:= nil;
+            end;
+         end;
+     end;
+
+
+     if (Mode = meSingleEntry) or CalculateEntriesToShow or (NumOfEntriesBeingDisplayedBefore = 0) or                 // NumOfEntriesBeingDisplayedBefore = 0 and MultiEntry => Editor shows: "** No entries visible or matching the current filter **"
+       ((NEntryToConsider = nil) and not (ActionOnEntry in [aModifiedMetadata, aRefreshHeader])) then begin
+
+        Editor.Clear;
+        Editor.ClearUndo;
+        fImagesReferenceCount:= nil;
+     end;
+
+     var ColorAux: TColor;
+     ColorAux:= GetColor(NNode.EditorBGColor, FKntFolder.EditorChrome.BGColor);
+     if Mode = meMultiEntry then begin
+        ColorAux:= ColorToRGB(ColorAux);
+        if ColorAux = clWhite then
+           ColorAux:= RGB(247,247,247)        // -8
+        else
+        if GetRelativeLuminosity(ColorAux) >= 0.45 then
+           ColorAux:= DarkenColor(ColorAux, 15)
+        else
+           ColorAux:= LightenColor(ColorAux, 15);
+     end;
+     Editor.Color:= ColorAux;
+
+
+     FiEntry:= -1;
+     if FEntriesShown <> nil then begin
+       FiEntry:= iSelectedEntry;
+
+       if CalculateEntriesToShow and (iSelectedEntry >= 0) and (not EntryShownIsVisible(FiEntry)) and
+          (not FEntriesShown[FiEntry].NEntry.IsEncrypted or not ActiveFile.EncryptedContentMustBeHidden)  then begin
+          if EntryShownFiltered(FiEntry) = fFilteredOut then
+             FEntriesShown[FiEntry].Filtered:= fFilteredIgnored;         // We must be accessing this entry through a jump. The Filtered state will be reconsidered upon re-entering the node
+          FEntriesShown[FiEntry].Content:= cmWholeEntry;
+       end;
+
+       if ((FiEntry < 0) or (FiEntry > Length(FEntriesShown)-1))
+                    and (ActionOnEntry <> aCreating) then begin
+
+           FiEntry:= 0;
+           if Folder.NoteAdvOptions.ShowNewestEntryAtStartup then begin
+              if not PanelConfig.MECustomiz.DescendingOrder then        // Descending -> 0 => most recent
+                  FiEntry:= Length(FEntriesShown)-1;
+           end
+           else begin
+              if PanelConfig.MECustomiz.DescendingOrder then
+                 FiEntry:= Length(FEntriesShown)-1;
+           end;
+       end;
+
+       // We might have an encrypted entry selected, which then becomes hidden. We must select a non-hidden entry.
+       // We'll start by selecting the entry immediately below it, and if there isn't one, the one immediately above it.
+       if (FiEntry >= 0) and (not EntryShownIsVisible(FiEntry)) then begin
+           PanelConfig.SSImLink:= 0;
+           PanelConfig.SelLength:= 0;
+           iEntry:= FiEntry;
+           FiEntry:= -1;
+           for i:= iEntry + 1 to Length(FEntriesShown)-1 do begin
+              if (EntryShownIsVisible(i)) then begin
+                  FiEntry:= i;
+                  break;
+              end;
+           end;
+
+           if FiEntry = -1 then begin
+              for i:= iEntry -1 downto 0 do begin
+                  if (EntryShownIsVisible(i)) then begin
+                      FiEntry:= i;
+                      break;
+                  end;
+              end;
+           end;
+
+           if FiEntry = -1 then begin
+              ClearAndSetAsEmpty;
+              if Mode = meMultiEntry then
+                 Editor.AddText(GetRS(sEntry28));
+              exit;
+           end;
+       end;
+
+
+
+       if Mode = meMultiEntry then begin    // --- meMultiEntry
+          if NEntryToConsider <> nil then begin
+             ReconsiderEntry(iEntryToConsider);
+             if (ActionOnEntry = aChangedVisibility) and (NumberOfIncludedEntries(true) = 0) then
+                ClearAndSetAsEmpty;
+          end
+          else begin
+              if not CalculateEntriesToShow and (ActionOnEntry in [aModifiedMetadata, aRefreshHeader]) then begin
+                 for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                    if (EntryShownIsVisible(iEntry)) then
+                       ReconsiderEntry (iEntry);
+                 end;
+              end
+              else begin
+                 var pos: integer:= 0;
+                 FEntriesShown[0].StartingPos:= 0;
+                 FEntriesShown[0].FinalPos:= 0;
+                 FEntriesShown[0].StartingContentPos:= 0;
+
+                 for iEntry:= 0 to Length(FEntriesShown)-1 do begin
+                    if (EntryShownIsVisible(iEntry)) then
+                       ShowEntry (iEntry)
+                    else begin
+                       if (iEntry > 0) then begin
+                          pos:= FEntriesShown[iEntry-1].FinalPos;
+                          if EntryShownIsVisible(iEntry-1) then
+                             inc(pos);
+                          FEntriesShown[iEntry].StartingPos:= pos;
+                          FEntriesShown[iEntry].StartingContentPos:= pos;
+                          FEntriesShown[iEntry].FinalPos:= pos;
+                       end;
+                    end;
+                 end;
+
+              end;
+          end;
+       end
+       else begin                              // --- meSingleEntry
+          if (NEntryToConsider <> nil) and (EntryShownIsVisible(iEntryToConsider)) then
+             ReconsiderEntry(iEntryToConsider)
+          else
+          if (FiEntry >= 0) and (EntryShownIsVisible(FiEntry)) then
+             ShowEntry (FiEntry)
+          else begin
+             FNEntry:= nil;
+             PanelConfig.SSImLink:= 0;
+             PanelConfig.SelLength:= 0;
+          end;
+
+       end;
+
+
+       if (Mode = meSingleEntry) and (FNEntry <> nil) and (FNEntry.Stream.Size = 0) then     // Ensures that new nodes are correctly updated based on default properties (font color, size, ...)
+          UpdateEditor (Editor, FKntFolder, false);
+
+
+     end
+     else begin                    // FEntriesShown = nil and not: (PanelConfig.Scope = fsSelectedNode) and (PanelConfig.SelectedNNode = nil)
+        if CannotShow_Encrypted then begin
+           FEditor.AddText(GetRS(sEdt52));
+           ReadOnlyBAK:= True;
+        end;
+     end;
+
+
+
+   finally
+
+     Editor.ZoomCurrent:= PanelConfig.ZoomCurrent;
+     Editor.RestoreZoomCurrent;
+
+     if (PanelConfig.ScrollPosInEditor.Y > 0) then
+        Editor.SetScrollPosInEditor(PanelConfig.ScrollPosInEditor);
+
+     if (FEntriesShown <> nil) and (FiEntry >= 0) then begin
+        FNNode:= FEntriesShown[FiEntry].NNode;
+        FNote:= FEntriesShown[FiEntry].Note;
+        FNEntry:= FEntriesShown[FiEntry].NEntry;
+        var ContentVisible: boolean := True;
+
+        SS:= PanelConfig.SSImLink;
+        SL:= PanelConfig.SelLength;
+        var StP: integer:= 0;
+        var StC: integer:= 0;
+        var FnP: integer:= -1;
+        if PanelConfig.CurrentMode = meMultiEntry then begin
+           StC:= FEntriesShown[FiEntry].StartingContentPos;
+           FnP:= FEntriesShown[FiEntry].FinalPos;
+           if FEntriesShown[FiEntry].Content = cmOnlyHeader then
+              ContentVisible:= False;
+        end;
+        if (SS >= 0) and ContentVisible then begin
+            var ProcessingFoldedBlocks: boolean:= (Mode = meMultiEntry) and FNEntry.IsRTF and (FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
+            if IsDisplayingExcerptsForSelectedEntry then
+               SS:= GetImLinkPositionInEntryExcerpts(FiEntry, SS, SL)
+            else
+            if ProcessingFoldedBlocks then
+               SS:= GetPositionInFolderIntvEquiv(FiEntry, SS, SL, True);
+
+            if FNEntry.IsRTF and (Folder.ImagesMode = imImage) then begin
+               if IsDisplayingExcerptsForSelectedEntry then
+                  SS:= SS - ImageMng.GetPositionOffset_FromImLinkTP (Editor, FEntriesShown[FiEntry].ExcerptsInfo.StreamRTFFrag, SS, FEntriesShown[FiEntry].ExcerptsInfo.FragTextPlain, False, False, StC, FnP)
+               else
+                  SS:= SS - GetPositionOffset(Editor, FNEntry, SS, -1, False, StC, FnP);
+            end;
+        end;
+        if (Mode = meMultiEntry) then begin
+           StP:=  FEntriesShown[FiEntry].StartingPos;
+           Editor.SelStart := StP;     // To try to make the header visible as well
+           if ContentVisible then begin
+              SS:= SS + StC;
+              if SS > FnP then begin
+                 SS:= FnP -2;
+                 SL:= 0;
+              end;
+              if SS + SL > FnP then
+                 SL:= 0;
+           end
+           else begin
+              SS:= StP + (StC - StP) div 2;
+              SL:= 0;
+           end;
+        end;
+
+        if InformReloaded and NEntry.IsRTF then
+           CheckSelectionHiddenInFoldedBlock(Editor, SS, SL);
+
+        Editor.SelStart := SS;
+        Editor.SelLength := SL;
+     end;
+
+
+     ReloadMetadataFromDataModel;
+
+     if (FNEntry <> nil) and (Mode = meSingleEntry) and
+        (FNEntry.IsReadOnly or (FNEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) ) then
+        ReadOnlyBAK:= True;
+
+     ForceTempReadOnly(ReadOnlyBAK);
+     if (Mode = meMultiEntry) then
+        Editor.ReadOnly:= true;
+
+     if not CalculateEntriesToShow and (FNEntry_Initial <> FNEntry) and FEditor.Focused then
+        App.NEntrySelected(Editor, FNEntry);
+     ConfigureEditor;
+
+
+     btnToggleMulti.Caption:= (FiEntry+1).ToString;
+
+     Editor.SetLangOptions(False);
+     Editor.EndUpdate;
+
+     if not ContainsImgIDsRemoved then
+        Editor.Modified := false;
+
+     Editor.CheckWordCount(true);
+
+     Editor.ChangedSelection;
+     Editor.Change;
+
+     if RTFAux <> nil then
+        RTFAux.Clear;
+
+     if InformReloaded and not ClipCapMng.IsBusy then
+        App.EditorReloaded(Editor, Editor.Focused);
+
+     SaveContentStateOfEntries;
+     fChangingInCode:= false;
+
+
+     NumVisibleEntriesAfter:= NumberOfIncludedEntries(True);
+
+     if not FPanelHidden and (FNEntry = nil) then
+        FNoteUI.PanelEmpty(PanelConfig.Panel, (NumVisibleEntriesAfter = 0))
+     else
+     if FPanelHidden and ((ActionOnEntry = aCreating) or (NumVisibleEntriesAfter > 1) or (iSelectedEntry >= 0) or (PanelConfig.StLayout = spInQL_ets)) then
+        FNoteUI.ShowEntriesUIPanel(PanelConfig.Panel, True);
+
+     if PanelConfig.StLayout = spInQL_ets then
+        PanelConfig.StLayout:= spInQL;
+
+
+     if PanelConfig.StLayout = spInEL then begin
+        if (NumVisibleEntriesBefore <> NumVisibleEntriesAfter) and (NumVisibleEntriesBefore * NumVisibleEntriesAfter = 0) then
+           FrameResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+     end;
+
+     if NumVisibleEntriesAfter = 0 then
+        PanelConfig.SelNEntry:= nil;
+
+     UpdateBtnToggleMultiHint;
+
+     FPanelConfig.PanelReloadedInImageMode:= ImageMng.ImagesMode;
+   end;
+
+
+  Editor.Enabled:= true;
+  txtName.Enabled:= True;
+  txtTags.Enabled:= true;
+  txtCreationDate.Enabled:= True;
+  btnOptions.Enabled:= true;
+end;
+
+
+function TKntNoteEntriesUI.IsDisplayingEntry(NEntry: TNoteEntry; var Content: TContentInMultiEntryMode): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   i:= GetIndexOfIncludedEntry(NEntry);
+   if i >= 0 then begin
+      Result:= True;
+      Content:= FEntriesShown[i].Content;
+   end;
+end;
+
+function TKntNoteEntriesUI.EntryWithNoAlteredContent(NEntry: TNoteEntry; AndVisible: boolean = false): boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   i:= GetIndexOfIncludedEntry(NEntry);
+   if (i >= 0)
+      and (not AndVisible or EntryShownIsVisible(i))
+      and (not EntryShownWithExcerpts(i))
+      and ((PanelConfig.CurrentMode = meSingleEntry) or
+           ( (EntryShownFiltered(i) <> fFilteredIn) or (PanelConfig.MECustomiz.FoldedTextMode = fmKeepUnchanged)) ) then begin
+
+      Result:= True;
+   end;
+end;
+
+
+function TKntNoteEntriesUI.NumberOfIncludedEntries(OnlyNotHidden: boolean; IgnoreEncrypted: boolean=True): integer;
+var
+   i: integer;
+begin
+    if OnlyNotHidden then begin
+       Result:= 0;
+       for i:= Length(FEntriesShown)-1 downto 0 do
+          if EntryShownIsVisible(i) then
+             inc(Result);
+    end
+    else
+    if not IgnoreEncrypted then
+       Result:= Length(FEntriesShown)
+    else begin
+       Result:= 0;
+       for i:= Length(FEntriesShown)-1 downto 0 do
+          if not FEntriesShown[i].NEntry.IsEncrypted then
+             inc(Result);
+    end;
+
+end;
+
+
+function TKntNoteEntriesUI.NumberOfEntriesBeingDisplayed: integer;
+var
+   i: integer;
+begin
+   Result:= 0;
+   for i:= Length(FEntriesShown)-1 downto 0 do
+      if EntryShownIsBeingDisplayed(i) then
+         inc(Result);
+end;
+
+
+function TKntNoteEntriesUI.DisplayingAnyHiddenEntry: boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   for i:= 0 to Length(FEntriesShown)-1 do
+      if (FEntriesShown[i].NEntry.IsHidden and EntryShownIsVisible(i)) or (EntryShownFiltered(i) = fFilteredIgnored) then
+         exit(true);
+end;
+
+function TKntNoteEntriesUI.HasAnyEntryNonVisible: boolean;
+var
+   i: integer;
+begin
+   Result:= False;
+   for i:= 0 to Length(FEntriesShown)-1 do
+      if (not EntryShownIsVisible(i)) and not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+         exit(true);
+end;
+
+
+procedure TKntNoteEntriesUI.GetEntryBoundaries(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer);
+var
+   i: integer;
+begin
+   PosStartEntry:= 0;
+   PosEndEntry:= -1;
+
+   if (PanelConfig = nil) or (PanelConfig.CurrentMode = meSingleEntry) then exit;
+
+   i:= GetIndexOfIncludedEntry(NEntry);
+   if i >= 0 then begin
+      PosStartEntry:= FEntriesShown[i].StartingContentPos;
+      PosEndEntry:= FEntriesShown[i].FinalPos;
+   end;
+end;
+
+
+
+function TKntNoteEntriesUI.GetPreparedForJump(NEntry: TNoteEntry; var PosStartEntry: integer; var PosEndEntry: integer; AllowEdit: boolean = false): boolean;
+ var
+    i: integer;
+
+ begin
+    Result:= False;
+    PosStartEntry:= 0;
+    PosEndEntry:= -1;
+
+    if (PanelConfig.CurrentMode = meSingleEntry) and (FNEntry = NEntry) then
+       exit (true)
+
+    else begin
+       i:= GetIndexOfIncludedEntry(NEntry);
+       if i >= 0 then begin
+          Result:= True;
+          if (PanelConfig.CurrentMode = meMultiEntry) then begin
+
+             if (FEntriesShown[i].Content = cmOnlyHeader) or not EntryShownIsVisible(i) then begin
+                PanelConfig.SelNEntry:= NEntry;
+                ReloadVisibleContentOfEntries (false, cmWholeEntry, i, true,false,false,  true);
+             end;
+
+             PosStartEntry:= FEntriesShown[i].StartingContentPos;
+             PosEndEntry:= FEntriesShown[i].FinalPos;
+             if AllowEdit  or EntryShownWithExcerpts(i) or ((EntryShownFiltered(i) = fFilteredIn) and (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged)) then begin
+                btnToggleMultiClick(nil);
+                PosStartEntry:= 0;
+                PosEndEntry:= -1;
+             end;
+          end;
+
+          SelectEntry(i);
+       end;
+    end;
+end;
+
+
+
+(*
+function TKntNoteEntriesUI.GetHeaderCellx: AnsiString;
+var
+  w, widthTwips: integer;
+begin
+      w:= Editor.Width;
+      if KeyOptions.AltMargins then
+         w:= w - KeyOptions.MarginAltLeft - KeyOptions.MarginAltRight;
+
+      widthTwips := DotsToTwips(w - 30);
+      //widthTwips := 999999;
+      Result:= '\cellx' + widthTwips.ToString;
+end;
+
+function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstHeader: boolean = False): AnsiString;
+var
+  str, strFontSize, strHiddenMarkB: AnsiString;
+  s, strInfo, strEntrID: string;
+  strEntryID: string;
+
+begin
+   if FLastEditorUIWidth = '' then
+      FLastEditorUIWidth:= GetHeaderCellx;
+
+   strFontSize:= (2 * 10).ToString + ' ';
+   strEntryID:= Format('%d.%d', [Note.GID, NEntry.ID]);
+   strInfo:= '';
+   if PanelConfig.MMShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
+      strInfo:= ' #[' + Trim(NEntry.TagsNames) + ']     ';
+   end;
+   if PanelConfig.MMShowDateInHeader and (NEntry.Created <> 0) then begin
+      if (NEntry.Created).GetTime <> 0 then
+         S:= ' - ' + FormatSettings.ShortTimeFormat;
+      strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
+   end;
+   strInfo := strInfo + '   \u8203.';                      // '\u200B'  Zero-Width Space  (invisible)
+
+   strHiddenMarkB:= '\v' + KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_DATA + strEntryID + KNT_RTF_HIDDEN_MARK_R + '\v0';
+
+   str:= '{\rtf1\ansi{\colortbl ;\red102\green102\blue102;}';
+   if FirstHeader then
+      str:= str + Format('\qr\cf1\fs%s %s\sa40\par}', [strFontSize, strInfo])
+   else
+      str:= str + Format('\fs5\par\par\trowd\trgaph0%s \intbl\fs1%s\cell\row\pard\qr\cf1\fs%s %s\sa40\par}',
+                          [FLastEditorUIWidth, strHiddenMarkB, strFontSize, strInfo]);
+   Result:= str;
+end;
+
+
+procedure TKntNoteEntriesUI.UpdateEntriesHeaderWidth(EnsureRefreshOnEditor: boolean);
+var
+  sRTF, cellWidth: string;
+  strPlain: string;
+  strHeader: string;
+  strHiddenMark: AnsiString;
+  p, pE, L,L2: integer;
+  incOffset, Offset: integer;
+  SSBak, SSLen: integer;
+
+begin
+   if FLastEditorUIWidth <> '' then begin
+      cellWidth:= GetHeaderCellx;
+      L:= cellwidth.Length;
+      if FLastEditorUIWidth = cellWidth then exit;
+
+      Offset:= 0;
+      incOffset:= L - Length(FLastEditorUIWidth);
+
+      strHiddenMark:= KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_DATA;
+      L2:= Length(strHiddenMark);
+      with Editor do begin
+          ReadOnly:= False;
+          strPlain:= TextPlain;
+          p:= Pos(strHiddenMark, strPlain);
+          BeginUpdate;
+          SSBak:= SelStart;
+          SSLen:= SelLength;
+          while p > 0 do begin
+             pE:= Pos(#13, strPlain, p + 1);
+             if pE = 0 then break;
+
+             Editor.SetSelection(p-1 + Offset, pE + Offset, False);
+             sRTF:= Editor.RtfSelText;
+             sRTF:= StringReplace(sRTF, FLastEditorUIWidth, cellWidth, []);
+             Editor.RtfSelText:= sRTF;
+             p:= Pos(strHiddenMark, strPlain, p+1);
+             inc(Offset, incOffset);
+          end;
+          SelStart:= SSBak;
+          SelLength:= SSLen;
+          EndUpdate;
+
+          ReadOnly:= True;
+          Modified:= False;
+      end;
+      FLastEditorUIWidth:= cellWidth;
+   end
+   else
+   if EnsureRefreshOnEditor then
+      Editor.Refresh;
+end;
+*)
+
+
+function TKntNoteEntriesUI.GetEntryHeader (Note: TNote; NEntry: TNoteEntry; FirstEntry: boolean = False; Folded: boolean = False; FilteredOrHiddenIgnored: boolean = false): AnsiString;
+var
+  strLine: AnsiString;
+  s, strIni, strInfo, strSA, strFontInfo, strFilteredOrHidden: string;
+  MainIni, MainEnd: string;
+  EditorBackColor, ColorLine, ColorInfo: TColor;
+  ShowTags, ShowDate: boolean;
+  MEopt: TMEPanelCustomization;
+  EntryToDim: boolean;
+  var Luminosity: Double;
+
+  function GetColorFactorDark(Factor: Byte): Byte;
+  var
+    X: Double;
+  begin
+     X:= Factor + (Factor * (Luminosity)*0.5);
+     if X < 0 then
+        X:= 0;
+     Result:= Round(X);
+  end;
+
+  function GetColorFactor(Factor: Byte): Byte;
+  var
+    X: Double;
+  begin
+     X:= Factor - (Factor * (1-Luminosity)*0.5);
+     if X > 255 then
+        X:= 255;
+     Result:= Round(X);
+  end;
+
+
+begin
+   // # ToDO —  08/11/2025 - 11:36  —
+
+   EntryToDim:= (PanelConfig.Use = pnuShowAllEntries) and (NoteUI.EntryIsContainedInTagLinkedPanels(NEntry));
+
+   if NEntry.IsMain then begin
+      MainIni:= '{\ul ';
+      MainEnd:= '}';
+   end;
+
+   MEopt:= PanelConfig.MECustomiz;
+
+   ShowTags:= false;
+   ShowDate:= false;
+
+   if FilteredOrHiddenIgnored then
+      strFilteredOrHidden:= ' *  ';
+
+   if MEopt.ShowTagsInHeader and (Length(NEntry.Tags) > 0) then begin
+      strInfo:= '# ' + Trim(NEntry.TagsNames);
+      ShowTags:= true;
+   end;
+   if not (Folded and EntryToDim) and MEopt.ShowDateInHeader and (NEntry.Created <> 0) then begin
+      if ShowTags then
+         strInfo:= strInfo + '  · ';
+      if MEopt.ShowTimeInHeader and ((NEntry.Created).GetTime <> 0) then
+         S:= ' - ' + FormatSettings.ShortTimeFormat;
+      strInfo:= strInfo + FormatDateTime(FormatSettings.ShortDateFormat + S, NEntry.Created);
+      ShowDate:= true;
+   end;
+
+   strInfo:= strInfo + MainEnd;
+
+   if MEopt.ShowLineInHeader then begin
+      strLine:= GetRTFPrintableLineAux(999999);
+      strInfo := strInfo + ' \u8203.';                      // '\u200B'  Zero-Width Space  (invisible)
+   end
+   else
+   if ShowTags or ShowDate then
+      strInfo := strInfo + ' —'
+   else
+      strInfo := strInfo + '———';
+
+
+   if Folded then
+      strIni:= ' \u10133+ '         // ➕
+   else
+   if not MEopt.ShowLineInHeader and (ShowTags or ShowDate) then
+      strIni:= ' — '
+   else
+      strIni:= '   ';
+
+   strInfo:= strIni + strFilteredOrHidden + MainIni + strInfo;
+
+   if not MEopt.CompactHeader or (ShowDate or ShowTags or Folded) then
+      strSA:= '\sa80';
+
+   if not MEopt.CompactHeader or (ShowDate or ShowTags or Folded or not MEopt.ShowLineInHeader) then
+      strFontInfo:= '\fs18 '
+   else
+      strFontInfo:= '\fs4 ';
+
+   (*
+   if MEopt.MMShowLineInHeader then
+      strLine:= '\fs1\par\trowd\trgaph0\cellx999999 \intbl\fs1\cell\row\pard';
+
+   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(clWebDarkBlue) + ';}' + StrLine + '\qr\cf1\b\fs18 ' + strInfo + '\sa80\par}';' +
+   *)
+
+
+   // Change the header color according to the brightness of the background color, as happens with hyperlinks
+
+   EditorBackColor:= ColorToRGB(Editor.Color);
+   Luminosity:= GetRelativeLuminosity(EditorBackColor);
+   var CLine, CInfo, CInfoDim: Byte;
+   if Luminosity >= 0.25 then begin
+      CLine:= GetColorFactor(192);    // clSilver: RGB(192,192,192)
+      CInfo:= GetColorFactor(100);
+      CInfoDim:= GetColorFactor(170);
+   end
+   else begin
+      CLine:= GetColorFactorDark(100);
+      CInfo:= GetColorFactorDark(170);
+      CInfoDim:= GetColorFactorDark(135);
+   end;
+   ColorLine:= RGB(CLine,CLine,CLine);
+   ColorInfo:= RGB(CInfo,CInfo,CInfo);
+   if EntryToDim then
+      ColorInfo:= RGB(CInfoDim,CInfoDim,CInfoDim);
+
+
+   if NEntry.IsEncrypted and ActiveFile.HighlightProtectedNodesAndEntries then
+      ColorInfo:= clRed;
+
+
+   Result:= '{\rtf1\ansi{\colortbl ;' + GetRTFColor(EditorBackColor) + ';' +
+                                        GetRTFColor(ColorLine) + ';' +
+                                        GetRTFColor(ColorInfo) + ';}\fs1\par' +
+              StrLine + '\qr\cf3\b' + strFontInfo  + strInfo + strSA + '\par}';
+end;
+
+
+procedure TKntNoteEntriesUI.RefreshEntry;
+begin
+   Editor.Refresh;
+end;
+
+
+// Previously: EditorToDataStream
+
+procedure TKntNoteEntriesUI.SaveToDataModel;
+var
+   KeepUTF8: boolean;
+   Encoding: TEncoding;
+   strRTF: AnsiString;
+   ImagesIDs_New: TImageIDs;
+   TextPlain: string;
+
+begin
+  Encoding:= nil;
+
+  if assigned(NNode) and (FNEntry <> nil) and (PanelConfig.CurrentMode <> meMultiEntry) then begin
+     if (FEditor.FloatingEditor <> nil) then
+        FEditor.DoSaveChangesInFloatingEditor;
+
+     if FEditor.Modified then begin
+        FEditor.BeginUpdate;
+        try
+           KeepUTF8:= False;
+           if NNode.IsVirtual and FNEntry.IsPlainTXT and NodeStreamIsUTF8WithBOM(FNEntry.Stream) then
+               KeepUTF8:= True;
+
+           FNEntry.Stream.Clear;
+
+           try
+             FEditor.StreamFormat:= StreamFormatInNEntry(FNEntry);
+             FEditor.StreamMode := [];
+             if FEditor.StreamFormat = sfPlainText then begin
+                // If it is a virtual node we will respect the UTF8 encoding it may have.
+                // Otherwise it will only be saved as UTF8 if necessary
+                if KeepUTF8 or not CanSaveAsANSI(FEditor.Text) then
+                   Encoding:= TEncoding.UTF8;
+             end;
+
+             FEditor.Lines.SaveToStream( FNEntry.Stream, Encoding);
+
+             ImagesIDs_New:= nil;
+             if FEditor.SupportsRegisteredImages then begin
+                ImagesIDs_New:= FKntFolder.CheckSavingImagesOnMode (imLink, FNEntry.Stream, true);
+                ImageMng.UpdateImagesCountReferences (fImagesReferenceCount, ImagesIDs_New);
+                fImagesReferenceCount:= ImagesIDs_New;
+             end;
+
+             if ImagesIDs_New = nil then
+                FNEntry.TextPlain:= FEditor.TextPlain
+             else begin
+                { If the node has images we will make sure that in TextPlain we save the version corresponding to imLink,
+                  to facilitate search management. See notes on TImageMng.GetPositionOffset }
+                FNEntry.TextPlain := '';
+                InitializeTextPlain(FNEntry, RTFAux_Note);
+             end;
+             FNEntry.Stream.Position := 0;
+             FEditor.Modified:= false;
+
+           finally
+             FEditor.StreamFormat := sfRichText;
+             FEditor.StreamMode := [];
+           end;
+
+
+        finally
+          FEditor.EndUpdate;
+          App.EditorSaved(FEditor);
+        end;
+     end
+     else begin
+       if (FNEntry <> nil) and (FNEntry.TextPlain = '') then
+          InitializeTextPlain(FNEntry, RTFAux_Note);
+     end;
+
+  end;
+end;
+
+
+procedure TKntNoteEntriesUI.InsertMarkerInMultiEntryEditor (NEntry: TNoteEntry; KEYMarker: Char; TargetMarker: integer; RTFAux: TAuxRichEdit);
+var
+  iEntry: integer;
+  TxtPlain: string;
+  Offset, i: integer;
+
+begin
+   if PanelConfig.CurrentMode <> meMultiEntry then exit;
+
+   iEntry:= GetIndexOfIncludedEntry(NEntry);
+   if iEntry < 0 then exit;
+
+   TxtPlain:= NEntry.TextPlain;
+   if TxtPlain = '' then
+      TxtPlain:= PrepareTextPlain(NEntry);
+
+   InsertMarker(RTFAux, KEYMarker, TargetMarker);
+   SaveToDataModel(RTFAux, NEntry);
+
+   Editor.ReadOnly:= False;
+   try
+      Editor.SelLength:= 0;
+      InsertMarker(Editor, KEYMarker, TargetMarker);
+
+      Offset:= Length(NEntry.TextPlain) - Length(TxtPlain);
+      if (Offset <> 0) then begin
+         inc(FEntriesShown[iEntry].FinalPos, Offset);
+         for i:= iEntry+1 to High(FEntriesShown) do begin
+            inc(FEntriesShown[i].StartingPos, Offset);
+            inc(FEntriesShown[i].StartingContentPos, Offset);
+            inc(FEntriesShown[i].FinalPos, Offset);
+         end;
+      end;
+
+      App.NEntryModified(NEntry, FEntriesShown[iEntry].Note, Folder);
+
+   finally
+     Editor.ReadOnly:= True;
+     Editor.Modified:= False;
+   end;
+
+end;
+
+
+procedure TKntNoteEntriesUI.SaveToDataModel (RTFAux: TAuxRichEdit; NEntry: TNoteEntry);
+var
+   KeepUTF8: boolean;
+   Encoding: TEncoding;
+
+begin
+   Encoding:= nil;
+
+   KeepUTF8:= False;
+   if FNNode.IsVirtual and NEntry.IsPlainTXT and NodeStreamIsUTF8WithBOM(NEntry.Stream) then
+      KeepUTF8:= True;
+
+   NEntry.Stream.Clear;
+   if RTFAux.StreamFormat = sfPlainText then begin
+      // If it is a virtual node we will respect the UTF8 encoding it may have.
+      // Otherwise it will only be saved as UTF8 if necessary
+      if KeepUTF8 or not CanSaveAsANSI(RTFAux.Text) then
+         Encoding:= TEncoding.UTF8;
+   end;
+
+   RTFAux.Lines.SaveToStream( NEntry.Stream, Encoding);
+
+   NEntry.TextPlain:= RTFAux.TextPlain;
+   NEntry.Stream.Position := 0;
+end;
+
+
+procedure TKntNoteEntriesUI.SavePositionInPanel;
+var
+   SS, SL: integer;
+   ProcessingFoldedBlocks: boolean;
+begin
+   if PanelConfig.StLayout = spInQL_ets then exit;
+
+   SS:= Editor.SelStart;
+   SL:= Editor.SelLength;
+
+   if FEntriesShown = nil then begin
+      FNEntry:= nil;
+      FiEntry:= -1;
+   end;
+
+   PanelConfig.ScrollPosInEditor:= Editor.GetScrollPosInEditor;
+   PanelConfig.SelNEntry := FNEntry;
+   Editor.GetAndRememberCurrentZoom;
+   PanelConfig.ZoomCurrent:= Editor.ZoomCurrent;
+
+   if (FEntriesShown <> nil) and (FiEntry >= 0) then begin
+      if IsDisplayingExcerptsForSelectedEntry then
+         SS:= GetImLinkPositionInEntry(FiEntry, SS)
+      else
+      if EntryShownFiltered(FiEntry) <> fFilteredOut then begin    // It could have been moved to `fFilteredOut` because the entry was edited in another panel
+         var StC: integer:= 0;
+         var FnP: integer:= -1;
+         ProcessingFoldedBlocks:= false;
+         if PanelConfig.CurrentMode = meMultiEntry then begin
+            StC:= FEntriesShown[FiEntry].StartingContentPos;
+            FnP:= FEntriesShown[FiEntry].FinalPos;
+            ProcessingFoldedBlocks:= FNEntry.IsRTF and (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged);
+         end;
+         SS:= PositionInImLinkTextPlain(Editor, FNEntry, SS, false, StC, FnP);
+         if ProcessingFoldedBlocks then
+            SS:= GetPositionInFolderIntvEquiv(FiEntry, SS, SL, False);
+      end
+      else begin
+         SS:= 0;
+         SL:= 0;
+         Editor.SelLength:= 0;
+      end;
+   end;
+
+   PanelConfig.SelLength := SL;
+   if SS < 0 then begin
+      SS := 0;                           // Can occur if the entry is collapsed and only shown its header
+      PanelConfig.SelLength := 0;
+   end;
+   PanelConfig.SSImLink  := SS;
+
+end;
+
+
+procedure TKntNoteEntriesUI.SaveCustomizeInfo(iEntry: integer = -1; ClearRTFFoldedModifInfo: boolean = True);
+var
+  i: integer;
+  ExcerptsInfo: TEntryExcerptsInfoArray;
+  FilteredState: TNEntryFilteredArray;
+  RTFWithFoldedBlocksModifInfo: TEntryRTFWithFoldedBlocksModifArray;
+  FoldedTextIntervalsEquivalenceInfo: TIntervalsEquivalenceInfoArray;
+  NEntries: TNoteEntryArray;
+  ContainsExcerpts, ContainsFoldedInfo, IgnoreFolded: boolean;
+begin
+   if (iEntry >= 0) and (Length(FPanelConfig.CustomizeInfoInEntries.NEntries) > iEntry) then begin
+      FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries[iEntry]:= FEntriesShown[iEntry].Filtered;
+      if Length(FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries) > iEntry then begin
+         FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries[iEntry]:= FEntriesShown[iEntry].RTFWithFoldedBlocksModif;
+         FPanelConfig.CustomizeInfoInEntries.FoldedTextIntvEquivInEntries[iEntry]:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo;
+      end;
+      if Length(FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries) > iEntry then
+         FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries[iEntry]:= FEntriesShown[iEntry].ExcerptsInfo;
+   end
+   else begin
+      NEntries:= nil;
+      FilteredState:= nil;
+      ExcerptsInfo:= nil;
+      RTFWithFoldedBlocksModifInfo:= nil;
+      FoldedTextIntervalsEquivalenceInfo:= nil;
+
+      IgnoreFolded:= False;
+      if ClearRTFFoldedModifInfo and (FPanelConfig.MECustomiz.FoldedTextMode = fmKeepUnchanged) then begin
+         ClearRTFFoldedModifInfoInAllEntries(True);
+         IgnoreFolded:= True;
+      end;
+
+      if not FPanelConfig.MECustomiz.Filter.Empty or (FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged) then begin
+         SetLength(NEntries, Length(FEntriesShown));
+         SetLength(FilteredState, Length(FEntriesShown));
+         for i:= 0 to Length(FEntriesShown)-1 do begin
+            NEntries[i]:= FEntriesShown[i].NEntry;
+            FilteredState[i]:= FEntriesShown[i].Filtered;
+         end;
+
+         if not FPanelConfig.MECustomiz.Filter.Empty then begin
+            SetLength(ExcerptsInfo, Length(FEntriesShown));
+            ContainsExcerpts:= False;
+            for i:= 0 to Length(FEntriesShown)-1 do begin
+               ExcerptsInfo[i]:= FEntriesShown[i].ExcerptsInfo;
+               if ExcerptsInfo[i] <> nil then
+                  ContainsExcerpts:= True;
+            end;
+            if not ContainsExcerpts then
+               ExcerptsInfo:= nil;
+         end;
+
+         if not IgnoreFolded then begin
+            ContainsFoldedInfo:= False;
+            SetLength(RTFWithFoldedBlocksModifInfo, Length(FEntriesShown));
+            SetLength(FoldedTextIntervalsEquivalenceInfo, Length(FEntriesShown));
+            for i:= 0 to Length(FEntriesShown)-1 do begin
+               RTFWithFoldedBlocksModifInfo[i]:= FEntriesShown[i].RTFWithFoldedBlocksModif;
+               FoldedTextIntervalsEquivalenceInfo[i]:= FEntriesShown[i].RTFFoldIntvEquivInfo;
+               if FoldedTextIntervalsEquivalenceInfo[i] <> nil then
+                  ContainsFoldedInfo:= True;
+            end;
+            if not ContainsFoldedInfo then begin
+               RTFWithFoldedBlocksModifInfo:= nil;
+               FoldedTextIntervalsEquivalenceInfo:= nil;
+            end;
+         end;
+      end
+      else
+         FreeFilterInfoInAllEntries;
+
+
+      FPanelConfig.CustomizeInfoInEntries.NEntries:= NEntries;
+      FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries:= FilteredState;
+      FPanelConfig.CustomizeInfoInEntries.ExcerptsInfoInEntries:=  ExcerptsInfo;
+      FPanelConfig.CustomizeInfoInEntries.RTFWithFoldedBlocksModifInEntries:= RTFWithFoldedBlocksModifInfo;
+      FPanelConfig.CustomizeInfoInEntries.FoldedTextIntvEquivInEntries:= FoldedTextIntervalsEquivalenceInfo;
+      if FPanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged then
+         FPanelConfig.CustomizeInfoInEntries.FoldedTextModeOfRTFs:= FPanelConfig.MECustomiz.FoldedTextMode;
+   end;
+
+end;
+
+
+procedure TKntNoteEntriesUI.CleanCustomizeInfo(NEntry: TNoteEntry);
+var
+   iNEntry: integer;
+begin
+   iNEntry:= GetIndexOfIncludedEntry(NEntry);
+   if iNEntry >= 0 then begin
+      FEntriesShown[iNEntry].Filtered:= fFilteredUnknown;
+      if assigned(FEntriesShown[iNEntry].ExcerptsInfo) then
+         FEntriesShown[iNEntry].ExcerptsInfo.Clear;
+      FEntriesShown[iNEntry].RTFWithFoldedBlocksModif:= '';
+      if assigned(FEntriesShown[iNEntry].RTFFoldIntvEquivInfo) then
+         FEntriesShown[iNEntry].RTFFoldIntvEquivInfo.Clear;
+   end;
+end;
+
+
+procedure TKntNoteEntriesUI.ReloadNoteName;
+begin
+   txtName.Text:= FNote.Name;
+end;
+
+function TKntNoteEntriesUI.EntryShownWithExcerpts(iEntry: integer): boolean;
+begin
+   Result:= (FPanelConfig.IsFiltered and FEntriesShown[iEntry].ContainsExcerpts);
+end;
+
+function TKntNoteEntriesUI.EntryShownFiltered(iEntry: integer): TNEntryFiltered;
+begin
+   if not FPanelConfig.IsFiltered then
+      Result:= fFilteredIn
+   else
+      Result:= FEntriesShown[iEntry].Filtered;
+end;
+
+function TKntNoteEntriesUI.EntryShownIsVisible(iEntry: integer): boolean;
+begin
+   Result:= (FEntriesShown[iEntry].Content <> cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut);
+end;
+
+function TKntNoteEntriesUI.EntryShownIsBeingDisplayed(iEntry: integer): boolean;
+begin
+  Result:= EntryShownIsVisible(iEntry) and (FEntriesShown[iEntry].FinalPos > FEntriesShown[iEntry].StartingPos);
+end;
+
+
+procedure TKntNoteEntriesUI.SelectPrevEntry(InformReloaded: boolean);
+var
+   iNextEntry: integer;
+   SS: integer;
+begin
+   SS:= Editor.SelStart;
+
+   if (FiEntry >= 0) and ((FiEntry > 0) or ((PanelConfig.CurrentMode = meMultiEntry) and (SS > FEntriesShown[FiEntry].StartingContentPos))) then begin
+      iNextEntry:= FiEntry;
+      repeat
+         if (PanelConfig.CurrentMode = meSingleEntry) or (SS <= FEntriesShown[iNextEntry].StartingContentPos) then
+            dec(iNextEntry);
+         if EntryShownIsVisible(iNextEntry) then begin
+            SelectEntry(iNextEntry, false, InformReloaded);
+            break;
+         end
+         else
+            dec(iNextEntry);
+      until iNextEntry <= 0;
+
+      if (iNextEntry <> FiEntry) and (iNextEntry >= 0) then
+         SelectEntry(iNextEntry, false, InformReloaded);
+   end;
+
+   ReconsiderEditorInfoBarVisibility;
+end;
+
+procedure TKntNoteEntriesUI.btnPrevEntryClick(Sender: TObject);
+begin
+   if (Sender <> nil) and (Editor <> ActiveEditor) then
+      SetFocusOnEditor;
+
+   SelectPrevEntry(True);
+end;
+
+procedure TKntNoteEntriesUI.SelectNextEntry(InformReloaded: boolean);
+var
+   iNextEntry: integer;
+begin
+   if FiEntry < Length(FEntriesShown) -1 then begin
+      iNextEntry:= FiEntry;
+      repeat
+         inc(iNextEntry);
+         if EntryShownIsVisible(iNextEntry) then begin
+            SelectEntry(iNextEntry, false, InformReloaded);
+            break;
+         end;
+      until iNextEntry >= Length(FEntriesShown) - 1;
+
+      if (iNextEntry <> FiEntry) and (iNextEntry <= Length(FEntriesShown) - 1) then
+         SelectEntry(iNextEntry, false, InformReloaded);
+   end;
+
+   ReconsiderEditorInfoBarVisibility;
+end;
+
+procedure TKntNoteEntriesUI.btnNextEntryClick(Sender: TObject);
+begin
+   if (Sender <> nil) and (Editor <> ActiveEditor) then
+      SetFocusOnEditor;
+
+   SelectNextEntry(True);
+end;
+
+
+procedure TKntNoteEntriesUI.SelectEntry(iEntry: integer; LastPos: boolean = false; InformReloaded: boolean = True);
+var
+  SS: integer;
+begin
+   if (PanelConfig.CurrentMode = meMultiEntry) then begin
+       if LastPos and (FEntriesShown[iEntry].Content <> cmOnlyHeader) then
+          Editor.SelStart:= FEntriesShown[iEntry].FinalPos
+       else begin
+          SS:= FEntriesShown[iEntry].StartingPos;
+          if (PanelConfig.MECustomiz.ShowLineInHeader) and (FEntriesShown[iEntry].Content = cmOnlyHeader) then
+             inc(SS, 6);
+          Editor.SelStart:= SS;
+          if FEntriesShown[iEntry].Content <> cmOnlyHeader then
+             Editor.SelStart:= FEntriesShown[iEntry].StartingContentPos;
+       end;
+   end
+   else begin
+       Editor.OnEditorChanged := nil;
+       SaveToDataModel();
+       btnToggleMulti.Caption:= (iEntry+1).ToString;
+       Editor.HideNestedFloatingEditor;
+       PanelConfig.SelNEntry:= FEntriesShown[iEntry].NEntry;
+       PanelConfig.SSImLink:= 0;
+       PanelConfig.SelLength:= 0;
+       ReloadFromDataModel(false, nil, aNull, InformReloaded);
+   end;
+end;
+
+
+
+procedure TKntNoteEntriesUI.btnToggleMultiClick(Sender: TObject);
+begin
+   if Sender <> nil then begin
+      //TKntNoteUI(NoteUI).ReturnToQLFromAllEntriesInSingleMode:= false;
+      if Editor <> ActiveEditor then
+         SetFocusOnEditor;
+   end;
+
+   SavePositionInPanel;
+
+   if (PanelConfig.CurrentMode = meMultiEntry) then begin
+      PanelConfig.CurrentMode:= meSingleEntry;
+   end
+   else begin
+      SaveToDataModel();
+      PanelConfig.CurrentMode:= meMultiEntry;
+   end;
+
+   Editor.NavigatePanelsEnabled:= True;
+   Editor.HideNestedFloatingEditor;
+
+   NoteUI.HideFocusFlag:= false;
+   cFocusedFlag.Refresh;
+   ReloadFromDataModel(false, nil, aNull, True);
+   ReconsiderEditorInfoBarVisibility;
+end;
+
+
+procedure TKntNoteEntriesUI.btnOptionsClick(Sender: TObject);
+var
+  Form_NoteEntriesOptions: TForm_NoteEntriesOptions;
+  CurrentFilter: TFilterOptionsInPanel;
+  QL: boolean;
+begin
+   if ActiveFile.EncryptedContentMustBeHidden and (FNote <> nil) and FNote.IsEncrypted then exit;
+
+   if (FNote <> nil) and (FNote.NumEntries = 1) and (not Folder.NoteAdvOptions.EnableAdvEditionInSingleEntryNotes)
+       and not ((PanelConfig <> nil) and (PanelConfig.IsFiltered or (PanelConfig.MECustomiz.FoldedTextMode <> fmKeepUnchanged))) then begin
+
+      App.InfoPopup(GetRS(sEntry29));
+      exit;
+   end;
+
+
+
+   Form_NoteEntriesOptions := TForm_NoteEntriesOptions.Create( Form_Main );
+   try
+      TagMng.OfferTagSelectorInModalForm(True, Form_NoteEntriesOptions);
+      QL:= (PanelConfig.StLayout <> spInEL);
+      with Form_NoteEntriesOptions do begin
+         Panel:= Self.PanelConfig.Panel;
+         QueryLayout:= QL;
+         Folder:= FKntFolder;
+         EnabledPanelsForLayoutInNote:= TKntNoteUI(NoteUI).GetNNodeUIConfig.GetEnabledPanels;
+         Customiz:= PanelConfig.MECustomiz;
+         chkApplyAll.Checked:= ApplyFilterToAll[QL];
+      end;
+
+      if ( Form_NoteEntriesOptions.ShowModal = mrOK ) then begin
+         SaveToDataModel;
+         with Form_NoteEntriesOptions do begin
+             ApplyChangeinPanelCustomiz(Customiz, ForceApplyFilter, HeaderChanged, EntryContChanged, OrderChanged);
+             ApplyFilterToAll[QL]:= chkApplyAll.Checked;
+             if ApplyFilterToAll[QL] then
+                NoteUI.ApplyChangeinPanelCustomiz(Customiz, ForceApplyFilter, PanelConfig.Panel);
+             if ResetSizes then
+                NoteUI.ResetPanelSizes(QL);
+
+             NoteUI.CheckChangeInEnabledPanels(EnabledPanelsForLayoutInNote);
+
+             FrameResizePendingInNoteUI:= TKntNoteUI(NoteUI);
+         end;
+      end;
+
+   finally
+      TagMng.OfferTagSelectorInModalForm(false, nil);
+      Form_NoteEntriesOptions.Free;
+      SetBtnOptionsFontColor;
+   end;
+
+end;
+
+
+
+
+procedure TKntNoteEntriesUI.ApplyChangeinPanelCustomiz(MECustomiz: TMEPanelCustomization; ForceApplyFilter: boolean;
+                                                       HeaderChanged: boolean = false;
+                                                       EntryContChanged: boolean = false;
+                                                       OrderChanged: boolean = false);
+var
+  CurrentFilter: TFilterOptionsInPanel;
+  FilterChanged, BothEmpty, FiltersEqual, SameEnabled, FoldedTextModeChanged: boolean;
+
+begin
+   CurrentFilter:= PanelConfig.MECustomiz.Filter;
+
+   FoldedTextModeChanged:= (PanelConfig.MECustomiz.FoldedTextMode <> MECustomiz.FoldedTextMode);
+   if HeaderChanged or EntryContChanged or OrderChanged then
+      PanelConfig.MECustomiz:= MECustomiz;
+
+   FilterChanged:= false;
+   BothEmpty:= (CurrentFilter.Empty and MECustomiz.Filter.Empty);
+   FiltersEqual:= BothEmpty or CurrentFilter.Equal(MECustomiz.Filter);
+   SameEnabled:= (CurrentFilter.Enabled = MECustomiz.Filter.Enabled);
+
+   if ForceApplyFilter or not (BothEmpty or (FiltersEqual and SameEnabled)) then begin
+      FilterChanged:= true;
+      if MECustomiz.Filter.TextFilter = '' then
+         MECustomiz.Filter.ShowExcerpts:= false;
+      PanelConfig.MECustomiz.Filter:= MECustomiz.Filter;
+      PanelConfig.CurrentMode:= meMultiEntry;
+
+      if not FiltersEqual or ForceApplyFilter then
+         FreeFilterInfoInAllEntries
+      else
+      if ForceApplyFilter then
+         ResetIgnoredFilteredStatusInAllEntries;
+   end;
+
+   if FoldedTextModeChanged and ((MECustomiz.FoldedTextMode <> fmKeepUnchanged) and (FPanelConfig.CustomizeInfoInEntries.FoldedTextModeOfRTFs <> MECustomiz.FoldedTextMode)) then
+      ClearRTFFoldedModifInfoInAllEntries(True);
+
+   if FilterChanged or OrderChanged then
+      ReloadFromDataModel(OrderChanged, nil, aNull, True)
+   else
+   if EntryContChanged then
+      ReloadVisibleContentOfEntries(True, PanelConfig.MECustomiz.Content, -1, true,  false,false )
+   else
+   if HeaderChanged then
+      ReloadFromDataModel(false, nil, aRefreshHeader, True);
+
+   SaveCustomizeInfo(-1, false);
+end;
+
+
+procedure TKntNoteEntriesUI.ConfigureEditor (iEntry: integer = -1);
+var
+   plainTxt: boolean;
+   NEntry: TNoteEntry;
+   i: integer;
+begin
+  if FNNode = nil then begin
+     FEditor.SupportsRegisteredImages:= false;
+     FEditor.SupportsImages:= false;
+     FEditor.SetVinculatedObjs(nil, nil, nil, nil, nil, false);
+     FEditor.Enabled:= False;
+     txtTags.Enabled:= False;
+     txtName.Enabled:= False;
+     txtCreationDate.Enabled:= False;
+     btnOptions.Enabled:= false;
+  end
+  else begin
+     if iEntry >= 0 then
+        NEntry:= FEntriesShown[iEntry].NEntry
+     else
+        NEntry:= FNEntry;
+
+
+     FEditor.SetVinculatedObjs(FKntFolder.KntFile, FKntFolder, FNNode, NEntry, Self, (PanelConfig.CurrentMode = meMultiEntry));
+     FEditor.Chrome:= FKntFolder.EditorChrome;
+
+     if (iEntry >=0) or (PanelConfig.CurrentMode = meSingleEntry) then begin
+        plainTxt:= (NEntry <> nil) and NEntry.IsPlainTXT;
+
+     end
+     else begin
+        plainTxt:= true;
+        for i:= 0 to Length(FEntriesShown)-1 do begin
+           if FEntriesShown[i].Content = cmOnlyHeader then continue;
+           NEntry:= FEntriesShown[i].NEntry;
+           if not NEntry.IsPlainTXT then begin
+              plainTxt:= false;
+              break;
+           end;
+        end;
+
+        if (PanelConfig.CurrentMode = meMultiEntry) then
+           FEditor.StreamFormat:= sfRichText;
+     end;
+
+     FEditor.PlainText:= plainTxt;
+     FEditor.SupportsRegisteredImages:= (ImageMng.StorageMode <> smEmbRTF) and not plainTxt and not FNNode.IsVirtual;
+     FEditor.SupportsImages:= not plainTxt;
+  end;
+
+end;
+
+procedure TKntNoteEntriesUI.EditorChangedSelectionInMultiEntries;
+var
+   SS, i: integer;
+begin
+   if fChangingInCode then exit;
+   if (FiEntry < 0) or (FEntriesShown = nil) then exit;
+
+   SS:= Editor.SelStart;
+   if (SS < FEntriesShown[FiEntry].StartingPos) or (SS > FEntriesShown[FiEntry].FinalPos) then begin
+      for i:=0 to High(FEntriesShown) do
+          if (SS >= FEntriesShown[i].StartingPos) and (SS <= FEntriesShown[i].FinalPos) and (EntryShownIsVisible(i)) then begin
+             FiEntry:= i;
+             btnToggleMulti.Caption:= (i+1).ToString;
+             FNNode:= FEntriesShown[i].NNode;
+             FNote:= FEntriesShown[i].Note;
+             FNEntry:= FEntriesShown[i].NEntry;
+             ReloadMetadataFromDataModel();
+             ReconsiderEditorInfoBarVisibility;
+             FEditor.SetVinculatedEntryObj(FNEntry);
+             App.NEntrySelected(Editor, FNEntry);
+             break;
+          end;
+   end;
+
+   if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
+       if (FiEntry > 0) and (VKeyDown(VK_LEFT) or VKeyDown(VK_UP)) then
+          SelectEntry(FiEntry-1, True)
+       else
+       if (FiEntry <= Length(FEntriesShown) -1) and (VKeyDown(VK_RIGHT) or VKeyDown(VK_DOWN)) then begin
+           if (SS = (FEntriesShown[FiEntry].StartingPos + 6)) and (FiEntry < (Length(FEntriesShown) -1)) then
+              SelectEntry(FiEntry + 1)
+           else
+              SelectEntry(FiEntry);
+       end;
+   end;
+
+end;
+
+
+
+procedure TKntNoteEntriesUI.EditorDblClickInMultiEntries(Ctrl, Alt: boolean; LimitToCreatedBeforeSelectedEntry: boolean = false;
+                                                         FromOnlyHeaderToFirstLines: boolean = false);
+var
+   SS, i: integer;
+   NewCont: TContentInMultiEntryMode;
+begin
+   {
+                 DblClick -> Toggle between cmOnlyHeader and cmWholeEntry, on selected entry
+          Ctrl + DblClick ->                   ,,                        , on all not hidden entries
+           Alt + DblClick -> Hide selected entry (-> cmHidden)
+    Ctrl + Alt + DblClick -> Toggle between cmOnlyHeader and cmWholeEntry, on all entries (included hidden)
+
+    FromOnlyHeaderToFirstLines => if Content is cmOnlyHeader -> change to cmOnlyFirstLines
+   }
+
+   SS:= Editor.SelStart;
+
+   if (SS >= FEntriesShown[FiEntry].StartingPos) and (SS < FEntriesShown[FiEntry].StartingContentPos) then begin
+
+      case FEntriesShown[FiEntry].Content of
+        cmOnlyHeader:
+            if FromOnlyHeaderToFirstLines then
+               NewCont:= cmOnlyFirstLines
+            else
+               NewCont:= cmWholeEntry;
+        cmOnlyFirstLines: NewCont:= cmWholeEntry;
+        cmWholeEntry:     NewCont:= cmOnlyHeader;
+        cmHidden:         NewCont:= cmOnlyFirstLines;
+      end;
+
+      if Alt and not Ctrl then begin
+         NewCont:= cmHidden;
+      end;
+
+      Sleep(100);
+      Application.ProcessMessages;
+
+      PanelConfig.SelNEntry:= FNEntry;
+      ReloadVisibleContentOfEntries (Ctrl, NewCont, FiEntry, not Alt,  false, LimitToCreatedBeforeSelectedEntry);
+
+      if FiEntry >= 0 then           // It could be the last visible, and Alt+DblClick was pressed on it
+         SelectEntry(FiEntry);
+   end;
+end;
+
+
+procedure TKntNoteEntriesUI.ToggleOnlyHeaders_WholeContent;
+begin
+   if (FiEntry < 0) or (PanelConfig.CurrentMode <> meMultiEntry) then exit;
+
+   Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
+   EditorDblClickInMultiEntries(True, False, CtrlDown);
+end;
+
+procedure TKntNoteEntriesUI.ToggleOnlyHeader_WholeContent;
+begin
+   if (FiEntry < 0) or (PanelConfig.CurrentMode <> meMultiEntry) then exit;
+
+   Editor.SelStart:= FEntriesShown[FiEntry].StartingPos;
+   EditorDblClickInMultiEntries(False, False, False, True);
+end;
+
+
+procedure TKntNoteEntriesUI.ReloadVisibleContentOfEntries (ModifyAll: boolean; NewContent: TContentInMultiEntryMode; iEntry: integer= -1;
+                                                           IgnoreHiddenEntries: boolean = true; OnlyHiddenEntries: boolean = false;
+                                                           LimitToCreatedBeforeSelectedEntry: boolean = false;
+                                                           IgnoreFilter: boolean = false);
+var
+   i: integer;
+   NEntryToConsider: TNoteEntry;
+   NEntry: TNoteEntry;
+   CreatedDate: TDateTime;
+begin
+   if not ModifyAll and ((iEntry < 0) or
+      (not IgnoreFilter and (FEntriesShown[iEntry].Content = NewContent) and (EntryShownFiltered(iEntry) <> fFilteredOut)) ) then exit;
+
+   if iEntry >= 0 then begin
+      if IgnoreFilter or (EntryShownFiltered(iEntry) = fFilteredOut) then
+         FEntriesShown[iEntry].Filtered:= fFilteredIgnored;
+      FEntriesShown[iEntry].Content:= NewContent;
+   end;
+
+   if ModifyAll then begin
+      CreatedDate:= 0;
+      if LimitToCreatedBeforeSelectedEntry then
+         CreatedDate:= FNEntry.Created;
+
+      for i:=0 to High(FEntriesShown) do begin
+         if IgnoreHiddenEntries and (not EntryShownIsVisible(i)) then continue;
+         NEntry:= FEntriesShown[i].NEntry;
+         if OnlyHiddenEntries and not ((NEntry.IsHidden) or (not EntryShownIsVisible(i))) then continue;
+         if NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden and ActiveFile.HideEncryptedNodesAndEntries then continue;
+         if LimitToCreatedBeforeSelectedEntry and (NEntry.Created > CreatedDate) then continue;
+
+         CheckFiltered(i);
+         if EntryShownFiltered(i) <> fFilteredOut then
+            FEntriesShown[i].Content:= NewContent;
+      end;
+   end;
+
+   SaveToDataModel();
+   Editor.HideNestedFloatingEditor;
+
+   NEntryToConsider:= nil;
+   if not ModifyAll then
+      NEntryToConsider:= FEntriesShown[iEntry].NEntry;
+   ReloadFromDataModel(false, NEntryToConsider, aChangedVisibility);
+
+   App.EditorReloaded(Editor, Editor.Focused);
+end;
+
+
+procedure TKntNoteEntriesUI.ShowHiddenEntries;
+var
+   i: integer;
+   Shift: boolean;
+begin
+   Shift:= ShiftDown;
+
+   if NumberOfIncludedEntries(true) <= 1 then
+      PanelConfig.CurrentMode:= meMultiEntry;
+
+   for i:= 0 to Length(FEntriesShown)-1 do
+      if (EntryShownFiltered(i) = fFilteredOut) and (not Shift or not FEntriesShown[i].NEntry.IsHidden)  then
+          FEntriesShown[i].Filtered:= fFilteredIgnored;
+
+   if not (CtrlDown or Shift) then
+      ReloadVisibleContentOfEntries(True, cmOnlyFirstLines, -1, false, true)
+
+   else begin
+      // Ctrl: Show and undo hidden
+      // Shift: Only not hidden (Alt+DblClick)
+
+      for i:=0 to High(FEntriesShown) do begin
+         if not (not (EntryShownIsVisible(i)) or FEntriesShown[i].NEntry.IsHidden) then continue;
+
+         if Shift then begin
+            if (not EntryShownIsVisible(i)) and (not FEntriesShown[i].NEntry.IsHidden) and
+               not (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then
+               FEntriesShown[i].Content:= cmOnlyFirstLines;
+         end
+         else begin // Ctrl
+            if FEntriesShown[i].NEntry.IsHidden then
+               FEntriesShown[i].NEntry.IsHidden:= False;
+
+            if (FEntriesShown[i].NEntry.IsEncrypted and ActiveFile.EncryptedContentMustBeHidden) then begin
+               if ActiveFile.HideEncryptedNodesAndEntries then
+                  FEntriesShown[i].Content:= cmHidden
+               else
+                  FEntriesShown[i].Content:= cmOnlyFirstLines;
+            end
+            else
+            if FEntriesShown[i].Content = cmHidden then
+               FEntriesShown[i].Content:= cmOnlyFirstLines;
+         end;
+      end;
+      App.ReconsiderVisibilityOfEntries(FNote);
+   end;
+
+end;
+
+
+procedure TKntNoteEntriesUI.HideHiddenRevealed;
+var
+   i: integer;
+begin
+  for i:= 0 to Length(FEntriesShown)-1 do
+     if (EntryShownFiltered(i) = fFilteredIgnored) then
+         FEntriesShown[i].Filtered:= fFilteredUnknown;
+
+  ReloadVisibleContentOfEntries(True, cmHidden, -1, false, true);
+end;
+
+
+procedure TKntNoteEntriesUI.RefreshHeaderOfEntries(OnlyNEntry: TNoteEntry = nil);
+begin
+   SavePositionInPanel;
+   ReloadFromDataModel(false, OnlyNEntry, aRefreshHeader);
+end;
+
+
+procedure TKntNoteEntriesUI.ModifiedMetadataOfEntry(NEntry: TNoteEntry);
+var
+   N: integer;
+begin
+   SavePositionInPanel;
+   N:= Length(FEntriesShown);
+
+   ReloadFromDataModel(false, NEntry, aModifiedMetadata);
+
+   if (N = 0) and (Length(FEntriesShown) > 0) and (PanelConfig.StLayout <> spInQL_ets) then
+      SelectEntry(0, false, false);
+
+end;
+
+
+procedure TKntNoteEntriesUI.NEntryDeleted(NEntry: TNoteEntry);
+begin
+   SavePositionInPanel;
+   ReloadFromDataModel(false, NEntry, aDeleted);
+end;
+
+procedure TKntNoteEntriesUI.NEntryHidden(NEntry: TNoteEntry; Hidden: boolean; CreatedBefore: TDateTime = 0);
+var
+   iEntry: integer;
+   Cont, NewCont: TContentInMultiEntryMode;
+   AnyEntryChanged: boolean;
+
+   procedure ChangeContent;
+   begin
+      Cont:= FEntriesShown[iEntry].Content;
+
+      CheckFiltered(iEntry);
+      NewCont:= FEntriesShown[iEntry].Content;
+
+      if Hidden then
+         NewCont:= cmHidden
+      else
+      if (Cont = cmHidden) and (EntryShownFiltered(iEntry) <> fFilteredOut) then
+         NewCont:= cmOnlyHeader;
+
+      if Cont <> NewCont then begin
+         FEntriesShown[iEntry].Content:= NewCont;
+         AnyEntryChanged:= True;
+      end;
+   end;
+
+begin
+   if NEntry <> nil then begin
+      iEntry:= GetIndexOfIncludedEntry(NEntry);
+      if iEntry < 0 then exit;
+      ChangeContent;
+   end
+   else begin
+      AnyEntryChanged:= False;
+
+      for iEntry:=0 to High(FEntriesShown) do begin
+         if (FEntriesShown[iEntry].NEntry.Created <= CreatedBefore) then
+            ChangeContent;
+      end;
+
+      if not AnyEntryChanged then exit;
+   end;
+
+   SavePositionInPanel;
+   ReloadFromDataModel(false, NEntry, aChangedVisibility);
+end;
+
+
+procedure TKntNoteEntriesUI.NEntryReadOnlyChanged(NEntry: TNoteEntry);
+begin
+   if PanelConfig.CurrentMode = meMultiEntry then exit;
+   if GetIndexOfIncludedEntry(NEntry) < 0 then exit;
+
+   ForceTempReadOnly(FKntFolder.ReadOnly or NEntry.IsReadOnly);
+end;
+
+
+
+function TKntNoteEntriesUI.StreamFormatInNEntry(const NEntry: TNoteEntry): TRichStreamFormat;
+begin
+    if NEntry.IsRTF then
+       Result:= sfRichText
+    else
+       Result:= sfPlainText;
+
+end;
+
+
+
+{$ENDREGION}
+
+
+// Images  =========================================
+
+{$REGION Images }
+
+function TKntNoteEntriesUI.GetImagesInstances: TImageIDs;
+begin
+   if FEditor.SupportsRegisteredImages and FEditor.Modified then
+      fImagesReferenceCount:= GetImagesIDInstances (nil, FEditor.TextPlain);
+
+   Result:= fImagesReferenceCount;
+end;
+
+
+function TKntNoteEntriesUI.GetImagesIDInstances (Stream: TMemoryStream; TextPlain: String): TImageIDs;
+begin
+   if (TextPlain <> '') then
+      Result:= ImageMng.GetImagesIDInstancesFromTextPlain (TextPlain)
+   else
+      Result:= ImageMng.GetImagesIDInstancesFromRTF (Stream);
+end;
+
+
+procedure TKntNoteEntriesUI.ResetImagesReferenceCount;
+begin
+    SetLength(fImagesReferenceCount, 0);
+end;
+
+
+procedure TKntNoteEntriesUI.ReloadImagesOnEditor;
+var
+   ImgeIDs: TImageIDs;
+   SS: integer;
+begin
+   SS:= Editor.SelStart;
+
+   ImgeIDs:= ImageMng.GetImagesIDInstancesFromTextPlain (Editor.TextPlain);
+   ImageMng.ReloadImages(ImgeIDs);
+
+   SaveToDataModel;
+   ReloadFromDataModel;
+
+   Editor.SelStart:= SS;
+
+end;
+
+
+procedure TKntNoteEntriesUI.ReconsiderImageDimensionGoalsOnEditor(Selection: boolean; ImagesMode: TImagesMode);
+var
+   SS: integer;
+begin
+   if ReadOnly then
+      Selection:= False;      // If true -> The note would have to be modified, and since it is not possible, the images would disappear...
+
+    if Selection then
+       FEditor.ReconsiderImageDimensionGoals(Selection, ImagesMode)
+
+    else begin
+       ImageMng.ReconsiderImageDimensionsGoal:= true;
+       FEditor.GetAndRememberCurrentZoom;
+       try
+          SS:= Editor.SelStart;
+          SaveToDataModel;
+          ReloadFromDataModel;
+          FEditor.SelStart:= SS;
+
+       finally
+          FEditor.RestoreZoomCurrent;
+          ImageMng.ReconsiderImageDimensionsGoal:= false;
+       end;
+    end;
+
+end;
+
+
+procedure TKntNoteEntriesUI.SetImagesMode(ImagesMode: TImagesMode);
+var
+   RTFIn, RTFOut: AnsiString;
+   SS: integer;
+   RestoreRO, ModifiedBAK: boolean;
+
+begin
+    if (FNEntry = nil) or not FEditor.SupportsRegisteredImages then exit;
+
+    SS:= FEditor.SelStart;
+
+    if (PanelConfig.CurrentMode = meMultiEntry) then begin
+       if (FiEntry >= 0) and (FEntriesShown <> nil) then begin
+          if (ImagesMode = imLink) then                                       // imImage --> imLink
+             SS:= PositionInImLinkTextPlain (FEditor, FNEntry, SS, True, FEntriesShown[FiEntry].StartingContentPos, FEntriesShown[FiEntry].FinalPos)   // True: Force calculation
+          else
+             dec(SS, FEntriesShown[FiEntry].StartingContentPos);
+
+          SavePositionInPanel;
+          ReloadFromDataModel(false, nil, aNull, false);
+          SearchCaretPos(Editor, SS, 0, true, Point(-1,-1), true,true,true, FNEntry, FEntriesShown[FiEntry].StartingContentPos, FEntriesShown[FiEntry].FinalPos);
+       end;
+    end
+    else begin
+        if (ImagesMode = imLink) then                                       // imImage --> imLink
+           SS:= PositionInImLinkTextPlain (FEditor, FNEntry, SS, True);   // True: Force calculation
+
+        RTFIn:= Editor.RtfText;
+        RTFOut:= ImageMng.ProcessImagesInRTF(RTFIn, Self.Name, ImagesMode, '', 0, true);
+        if RTFOut <> '' then begin
+           Editor.BeginUpdate;
+           FEditor.GetAndRememberCurrentZoom;
+           try
+              ModifiedBAK:= Editor.Modified;
+              RestoreRO:= Editor.ReadOnly;
+              try
+                 Editor.ReadOnly:= False;                     // We must allow images to be shown or hidden even if the note is read only
+
+                 IgnoringEditorChanges:= True;
+                 Editor.PutRtfText(RTFout,True,False);
+              finally
+                 IgnoringEditorChanges:= False;
+                 if RestoreRO then begin
+                    Editor.ReadOnly:= True;
+                 end;
+              end;
+              SearchCaretPos(Editor, SS, 0, true, Point(-1,-1), true,true,true, FNEntry);
+           finally
+             FEditor.RestoreZoomCurrent;
+             Editor.EndUpdate;
+             Editor.Modified:= ModifiedBAK;
+           end;
+        end;
+    end;
+end;
+
+{$ENDREGION}
+
+
+{$REGION Filter entries / content }
+
+
+// Filter entries / content  =========================================
+
+
+function TKntNoteEntriesUI.NEntryMustBeFilteredIn (NEntry: TNoteEntry): boolean;
+begin
+   Result:= True;
+
+   if PanelConfig.MECustomiz.Filter.Enabled then begin
+      Result:= NEntryToBeFilteredIn(NNode, NEntry);
+   end;
+end;
+
+
+function TKntNoteEntriesUI.CheckFiltered (iEntry: integer; ForceCalc: boolean = false): boolean;
+begin
+   Result:= True;
+   if ForceCalc or (EntryShownFiltered(iEntry) = fFilteredUnknown) then begin
+      FEntriesShown[iEntry].Filtered:= fFilteredIn;
+      if PanelConfig.MECustomiz.Filter.Enabled and not NEntryMustBeFilteredIn(FEntriesShown[iEntry].NEntry) then
+         FEntriesShown[iEntry].Filtered:= fFilteredOut;
+   end;
+end;
+
+
+function TKntNoteEntriesUI.NEntryToBeFilteredIn(NNode: TNoteNode; NEntry: TNoteEntry): boolean;
+var
+  FilterFoundNodes: TNodeList;
+  FilterFoundNotes: TNoteList;
+  FilterFoundEntriesInNotes: TFoundEntriesInNotesList;
+  EntriesInNote: TFoundEntryInNoteList;
+  EntryFragments: TEntryFragments;
+  iNEntry, iNode, i: integer;
+  ResultsSearch: TResultsSearch;
+  ResultSearch: TResultSearch;
+  TxtPlain: string;
+  pL_Scope, pR_Scope: integer;
+
+begin
+   Result:= False;
+   if (NNode = nil) or (NEntry = nil) then exit;
+
+   ActiveFile.IsBusy:= True;
+
+   iNEntry:= GetIndexOfIncludedEntry(NEntry);
+
+   ResultsSearch:= nil;
+   if PanelConfig.MECustomiz.Filter.ShowExcerpts then
+      ResultsSearch:= TSimpleObjList<TResultSearch>.Create;
+
+   FilterFoundNodes:= nil;
+   FilterFoundNotes:= nil;
+   FilterFoundEntriesInNotes:= nil;
+
+   try
+      TxtPlain:= NEntry.TextPlain;
+      if TxtPlain = '' then
+         TxtPlain:= PrepareTextPlain(NEntry);
+
+      if not GetFilterInfUsingFindAll(Folder, NNode, NEntry, TxtPlain, ResultsSearch) or (FoundNodes.Count = 0) then
+         exit;
+
+      FilterFoundNodes:= FoundNodes;
+      FilterFoundNotes:= FoundNotes;
+      FilterFoundEntriesInNotes:= FoundEntriesInNotes;
+      FoundNodes:= nil;                                  // We'll free the list from here
+      FoundNotes:= nil;                                  // ,,
+      FoundEntriesInNotes:= nil;                         // ,,
+
+      iNode:= FilterFoundNodes.IndexOf(NNode.TVNode);
+      if iNode < 0 then exit;                             // It should be 0.
+      EntriesInNote:= FilterFoundEntriesInNotes[iNode];
+      for i:= 0 to EntriesInNote.Count-1 do               // it should be found in i = 0
+          if EntriesInNote[i].NEntry = NEntry then begin
+             EntryFragments:= EntriesInNote[i].FragmentsInEntry;
+             Result:= true;
+             break;
+          end;
+
+      if Result then begin
+         if PanelConfig.MECustomiz.Filter.ShowExcerpts then begin
+            // We will only maintain a ResultSearch for each entry with results. We will move the necessary information from EntryFragments into it.
+
+            if PanelConfig.MECustomiz.Filter.TextFilter <> '' then
+               for i:= 0 to EntryFragments.NumFrag - 1 do begin
+                  ResultSearch:= ResultsSearch[i];           // zero based positions
+                  GetTextScope(TxtPlain, dsParagraph, EntryFragments.Fragments[i].PosI + 1, pL_Scope, pR_Scope, 1, false);
+                  ResultSearch.EndOfParagraph:= pR_Scope -1;
+               end
+            else
+               for i:= 0 to EntryFragments.NumFrag - 1 do begin
+                  ResultSearch:= ResultsSearch[i];           // zero based positions
+                  ResultSearch.BeginOfParagraph:= EntryFragments.Fragments[i].PosI;
+                  ResultSearch.EndOfParagraph:=   EntryFragments.Fragments[i].PosF;
+               end;
+         end;
+
+      end;
+
+   finally
+      FreeFragments (FilterFoundNodes, FilterFoundNotes, FilterFoundEntriesInNotes);
+
+      if assigned(ResultsSearch) and not Result or not PanelConfig.MECustomiz.Filter.ShowExcerpts then begin
+         ClearResultsSearch(ResultsSearch);
+         FreeAndNil(ResultsSearch);
+      end;
+
+      if assigned(ResultsSearch) then begin
+         if not assigned(FEntriesShown[iNEntry].ExcerptsInfo) then
+            FEntriesShown[iNEntry].ExcerptsInfo:= TEntryExcerptsInfo.Create;
+         FEntriesShown[iNEntry].ExcerptsInfo.Clear;
+         FEntriesShown[iNEntry].ExcerptsInfo.ResultsSearch:= ResultsSearch;
+      end
+      else
+         FreeAndNil(FEntriesShown[iNEntry].ExcerptsInfo);
+
+      ActiveFile.IsBusy := false;
+   end;
+
+
+end;
+
+{
+ This method obtains the position within the full entry, expressed as imLink, that corresponds to the caret position returned by the editor
+ with the excerpts
+
+ Positions in ResultsSearch are based on imLinkTextPlain, i.e. on the position within the entry content as it is stored, with images
+ not displayed and replaced by hyperlinks, exactly as FindAll performs its searches. In fact, these results are produced by RunFindAllEx.
+ However, the excerpts editor itself may be displaying images, so an initial conversion of the received position may be required in order
+ to adapt it to the imLink format before searching correctly in ResultsSearch (-> ImageMng.GetPositionOffset_FromEditorTP).
+
+ After this initial conversion, ResultsSearch provides the corresponding position within the full entry, also in imLink format.
+ When this position is later used (see ReloadFromDataModel), it may be necessary to calculate the appropriate offset depending on the images currently present
+ in the editor (-> GetPositionOffset).
+}
+
+function TKntNoteEntriesUI.GetImLinkPositionInEntry(iEntry: integer; CaretPosInEditorWithExcerpts: integer): integer;
+var
+  i, N: integer;
+  ResultsSearch: TResultsSearch;
+  PosI, PosF: integer;
+  StartingContPos, FinalPos: integer;
+  NEntry: TNoteEntry;
+  PosImLinkInExcerpts: integer;
+begin
+   if iEntry < 0 then exit;
+
+   // CaretPosInEditorWithExcerpts: CaretPos from editor, referred to the beginning of the text of the editor, not to the beginning of the entry excerpts
+
+   NEntry:= FEntriesShown[iEntry].NEntry;
+   ResultsSearch:= FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch;
+   N:= ResultsSearch.Count;
+
+   StartingContPos:= FEntriesShown[iEntry].StartingContentPos;
+
+   PosImLinkInExcerpts:= CaretPosInEditorWithExcerpts;
+   if (ActiveFolder.ImagesMode = imImage) and NEntry.IsRTF then begin
+      FinalPos:= FEntriesShown[iEntry].FinalPos;
+      inc(PosImLinkInExcerpts, ImageMng.GetPositionOffset_FromEditorTP (Editor, FEntriesShown[iEntry].ExcerptsInfo.StreamRTFFrag, CaretPosInEditorWithExcerpts, FEntriesShown[iEntry].ExcerptsInfo.FragTextPlain, false, false, StartingContPos, FinalPos) );
+   end;
+   dec(PosImLinkInExcerpts, StartingContPos);
+
+
+   // PosImLinkInExcerpts: now expressed in ImLink mode and referred to the beginning of the extry excerpts
+
+   if (PosImLinkInExcerpts <= (ResultsSearch[0].EndOfParagraph - ResultsSearch[0].BeginOfParagraph)) or (N = 1) then
+      Result:= ResultsSearch[0].BeginOfParagraph + PosImLinkInExcerpts
+
+   else begin
+      PosI:= 0;
+      for i:= 1 to N-1 do begin
+         if (i >= 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+         inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
+         PosF:= (PosI + (ResultsSearch[i].EndOfParagraph-ResultsSearch[i].BeginOfParagraph) + 1);
+         if PosImLinkInExcerpts < PosF then begin
+            Result:= ResultsSearch[i].BeginOfParagraph + (PosImLinkInExcerpts - PosI);
+            break;
+         end;
+      end;
+   end;
+
+end;
+
+
+function TKntNoteEntriesUI.GetImLinkPositionInEntryExcerpts(iEntry: integer; PosInEntry: integer; var SelLength: integer): integer;
+var
+  i: integer;
+  ResultsSearch: TResultsSearch;
+  PosI, nResult: integer;
+begin
+   if iEntry < 0 then
+      iEntry:= FiEntry;
+
+   if (iEntry < 0) then exit(PosInEntry);
+
+  // PosInEntry expressed in ImLinkTextPlain
+
+   ResultsSearch:= FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch;
+
+   nResult:= -1;
+   for i:= 0 to ResultsSearch.Count-1 do
+      if PosInEntry <= ResultsSearch[i].EndOfParagraph then begin
+         nResult:= i;
+         break;
+      end;
+
+
+   if nResult = 0 then begin
+      Result:= (PosInEntry - ResultsSearch[0].BeginOfParagraph);
+      if Result < 0 then begin
+         Result:= 0;
+         SelLength:= 0;
+      end;
+   end
+   else begin
+      if nResult < 0 then begin
+         nResult:= ResultsSearch.Count-1;
+         PosInEntry:= ResultsSearch[nResult].EndOfParagraph;
+         SelLength:= 0;
+      end;
+
+      PosI:= 0;
+      for i:= 1 to ResultsSearch.Count-1 do begin
+         if (i >= 1) and (ResultsSearch[i].BeginOfParagraph = ResultsSearch[i-1].BeginOfParagraph) then continue;
+
+         inc(PosI, (ResultsSearch[i-1].EndOfParagraph-ResultsSearch[i-1].BeginOfParagraph) + 1);
+         if nResult = i then begin
+            if PosInEntry < ResultsSearch[i].BeginOfParagraph then begin
+               SelLength:= 0;
+               Result:= PosI;
+            end
+            else
+               Result:= PosI + (PosInEntry - ResultsSearch[i].BeginOfParagraph);
+
+            break;
+         end;
+      end;
+   end;
+
+end;
+
+
+function TKntNoteEntriesUI.IsDisplayingExcerptsForSelectedEntry: boolean;
+begin
+   if not CheckFilterInfoUpdated(FiEntry) then exit(false);
+
+   Result:= (PanelConfig.CurrentMode = meMultiEntry) and (FiEntry > 0) and EntryShownWithExcerpts(FiEntry);
+end;
+
+
+
+function TKntNoteEntriesUI.CheckFilterInfoUpdated(iEntry: integer; ForceCalc: boolean = false): boolean;   // Return: FEntriesShown[iEntry].Filtered <> fFilteredOut
+var
+    FilteredOutIgnoredBefore: boolean;
+    FiltStateInPC: TNEntryFilteredArray;
+begin
+   Result:= true;
+   if not FPanelConfig.IsFiltered then exit;
+
+   // The information may have been removed from Folder.FreeFilterInfo upon detection that the content of this entry had been modified.
+
+   FilteredOutIgnoredBefore:= (FEntriesShown[iEntry].Filtered = fFilteredIgnored);
+   FiltStateInPC:= FPanelConfig.CustomizeInfoInEntries.FilteredStateInEntries;
+
+   if ForceCalc or ((FEntriesShown[iEntry].Filtered = fFilteredUnknown)) or ((FiltStateInPC = nil) or (iEntry >= Length(FiltStateInPC)) or (FiltStateInPC[iEntry] = fFilteredUnknown)) or
+       (FEntriesShown[iEntry].ContainsExcerpts and not assigned(FEntriesShown[iEntry].ExcerptsInfo.ResultsSearch))   then begin
+      CheckFiltered(iEntry, True);
+      if FilteredOutIgnoredBefore and (FEntriesShown[iEntry].Filtered = fFilteredOut) then
+         FEntriesShown[iEntry].Filtered := fFilteredIgnored;
+
+      if FEntriesShown[iEntry].Filtered = fFilteredOut then
+         Result:= false;
+   end;
+
+end;
+
+
+function TKntNoteEntriesUI.GetFilterInfUsingFindAll (FolderToUse: TKntFolder; NNodeToUse: TNoteNode; NEntryToUse: TNoteEntry; TxtPlain: string; ResultsSearch: TResultsSearch): boolean;
+var
+   myFindOptions: TFindOptions;
+
+begin
+
+  with PanelConfig.MECustomiz.Filter do begin
+      myFindOptions.MatchCase := MatchCase;
+      myFindOptions.WholeWordsOnly := WholeWordsOnly;
+      myFindOptions.AllTabs := False;
+      myFindOptions.CurrentNodeAndSubtree:= true;
+
+      myFindOptions.SearchScope := ssOnlyContent;
+      myFindOptions.SearchMode := SearchMode;
+      myFindOptions.CheckMode := scAll;
+
+      myFindOptions.HiddenNodes:= ConsiderHidden;
+      myFindOptions.Pattern := TextFilter;
+      myFindOptions.FindTagsIncl:= FindTagsIncl;
+      myFindOptions.FindTagsExcl:= FindTagsExcl;
+      myFindOptions.FindTagsInclNotReg:= '';
+      myFindOptions.FindTagsExclNotReg:= '';
+      myFindOptions.TagsMetadata:= false;
+      myFindOptions.TagsEntriesMetadata:= true;
+      myFindOptions.TagsText:= TagsText;
+      myFindOptions.InheritedTags:= false;
+      myFindOptions.TagsModeOR:= TagsModeOR;
+
+      myFindOptions.LastModifFrom := 0;
+      myFindOptions.LastModifUntil := 0;
+
+      myFindOptions.CreatedFrom := 0;
+      myFindOptions.CreatedUntil := 0;
+      myFindOptions.EmphasizedSearch:= esNone;
+      myFindOptions.FoldedMode:= sfAll;
+      myFindOptions.ProtectedNodesAndEntriesOnly := false;
+  end;
+
+  Result:= RunFindAllEx (myFindOptions, false, false, true, NNodeToUse.TVNode, NEntryToUse, FolderToUse, TxtPlain, ResultsSearch);
+end;
+
+
+function TKntNoteEntriesUI.GetPositionInFolderIntvEquiv(iEntry: integer; SS: integer; var SL: integer; FromUnchanged: boolean): integer;
+var
+ i, N: integer;
+ IntervS, IntervD: TIntervalEquivalenceArray;    // Source, Destination
+ WidthS, WidthD, BlockDif: integer;
+ const LenPrefixFold = Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR);       // 'HYPERLINK "FOLD:"➕ '  -> Length = 19
+begin
+  if FEntriesShown[iEntry].RTFFoldIntvEquivInfo = nil then
+     exit(SS);                                        // It is likely because it does not include any folded text block
+
+  if FromUnchanged then begin
+     IntervS:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.FromUnchanged;
+     IntervD:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.ToUnchanged;
+  end
+  else begin
+     IntervS:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.ToUnchanged;
+     IntervD:= FEntriesShown[iEntry].RTFFoldIntvEquivInfo.FromUnchanged;
+  end;
+
+  N:= Length(IntervS);
+  for i:= 0 to N-1 do begin
+     if (SS >= IntervS[i].PosBegin) and (SS <= IntervS[i].PosEnd) then begin
+        if (IntervD[i].PosEnd = -1) then begin                                  // Folded Interval and Removing
+           Result:= IntervS[i].PosBegin + IntervS[i].Offset;
+           SL:= 0;
+        end
+        else begin
+           Result:= SS + IntervS[i].Offset;
+           if IntervS[i].Folded then begin
+              if FromUnchanged then
+                 Dec(Result, LenPrefixFold)
+              else
+                 Inc(Result, LenPrefixFold);
+           end;
+        end;
+
+        break;
+     end;
+  end;
+
+end;
+
+
+{$ENDREGION}
+
+end.

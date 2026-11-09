@@ -367,8 +367,8 @@ type
     procedure PopulateNonUsedTags;
   public
     property FindTags: TFindTags read fFindTags;
-    procedure OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
-    procedure OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+    procedure OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
+    procedure OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
     procedure CheckFilterNotesOnTags (Temp: boolean = True);
     procedure AdjustTxtTagsWidth (AllowEdition: boolean = False);
     procedure PopulateInheritedTags;
@@ -420,6 +420,7 @@ uses
    gf_Lang,
    kn_Global,
    kn_EditorUtils,
+   knt.ui.info,
    knt.ui.editor,
    kn_Chest,
    kn_clipUtils,
@@ -524,6 +525,7 @@ begin
    with TV do begin
      DefaultText := DEFAULT_NEW_NOTE_NAME;
      HelpContext:= 27;  // Tree-type Notes
+     WantTabs:= True;
    end;
 
    TB_HideChecked.Hint := Form_Main.MMViewHideCheckedNodes.Hint;    // [dpv]
@@ -638,6 +640,10 @@ begin
    ApplyBiDiMode;
 
    PopulateTV;
+
+   if TV.VisibleCount = 0 then
+      Folder.NoteUI.LoadFromNNode(nil, true, neQueryLayout);
+
    SetupTreeHandlers;
 
    TB_HideChecked.Down:= Folder.HideCheckedNodes;
@@ -1264,7 +1270,7 @@ begin
     Result:= False;
 
     if ReadOnly then begin
-       App.ShowInfoInStatusBar(Format(GetRS(sTree52), [TKntFolder(Self.Folder).Name]));
+       App.WarnFolderIsReadOnly(TKntFolder(Self.Folder));
        Result:= True;
        exit;
     end;
@@ -1502,7 +1508,7 @@ begin
   NNode := Sender.GetNodeData(Node);
 
   if (Column = 2) then begin
-     if ActiveFile.HighlightProtectedNodes and NNode.Note.IsEncrypted then begin
+     if ActiveFile.HighlightProtectedNodesAndEntries and NNode.Note.IsEncrypted then begin
         TargetCanvas.Brush.Color := clWebPink;
         TargetCanvas.FillRect(CellRect);
      end;
@@ -1560,7 +1566,7 @@ begin
   Color:= clNone;
   if fFindFilterApplied and NNode.FindFilterMatch and not (TV.Selected[Node] and (Column <= 0)) then
      Color:= clBlue
-  else if ActiveFile.HighlightProtectedNodes and NNode.Note.IsEncrypted then
+  else if ActiveFile.HighlightProtectedNodesAndEntries and NNode.Note.IsEncrypted then
      Color:= clRed
   else
      Color:= NNode.NodeColor;
@@ -1640,25 +1646,36 @@ end;
 
 
 procedure TKntTreeUI.TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
+
+   procedure SelectLastNode;
+   begin
+      IGNORE_TVFocusChanged:= True;
+      TV.FocusedNode:= fLastNodeSelected;
+      TV.Selected[Node]:= False;
+      TV.Selected[TV.FocusedNode]:= True;
+      IGNORE_TVFocusChanged:= False;
+   end;
 begin
-  if (not assigned(Node)) then exit;
+  if IGNORE_TVFocusChanged or (not assigned(Node)) then exit;
 
   Log_StoreTick('TV_FocusChanged - BEGIN', 3, +1);
 
   TV.ScrollIntoView(Node, false);
+
+  { *1  This can occur if ActiveFolder.SetFocusOnTree has been called from TKntNoteUI.FixPossibleProblemWith0HeigthPanels.
+        Furthermore, the issue only seems to arise when the new node is selected via a keystroke (e.g., the UP arrow key);
+        it does not occur when the selection is made by clicking with the mouse }
 
   if (Node <> fLastNodeSelected) then begin
      TKntFolder(Folder).NodeSelected(Node, fLastNodeSelected);
      if not FloatingEditorCannotBeSaved then begin
         fLastNodeSelected:= Node;
         App.NNodeFocused(GetNNode(Node));
+        if TV.FocusedNode <> fLastNodeSelected then     // *1
+           SelectLastNode;
      end
-     else begin
-        TV.FocusedNode:= fLastNodeSelected;
-        TKntFolder(Folder).NodeSelected(fLastNodeSelected, nil);
-        TV.Selected[Node]:= False;
-        TV.Selected[TV.FocusedNode]:= True;
-     end;
+     else
+         SelectLastNode;
   end;
 
   Log_StoreTick('TV_FocusChanged - END', 3, -1);
@@ -1709,7 +1726,13 @@ begin
   if TV.IsEditing then begin
      if ( key = KNTLINK_SEPARATOR ) then
         key := #0; // disallow | character in node name, because it breaks KNT links (which use | as delimiter)
-  end;
+  end
+  else
+  if (Key = #9) and not ShiftDown then begin
+     Key := #0;
+     TKntFolder(Folder).SetFocusOnNoteEditor;
+  end
+
 end; // TVKeyPress
 
 {
@@ -2192,7 +2215,7 @@ procedure TKntTreeUI.SetNodeEncrypted(Node: PVirtualNode; Encrypted: boolean; co
    begin
      NNode:= GetNNode(Node);
      NNode.Note.IsEncrypted := Encrypted;
-     if ActiveFile.HighlightProtectedNodes then
+     if ActiveFile.HighlightProtectedNodesAndEntries then
         TV.InvalidateNode(Node);
      if DoChildren and (vsHasChildren in Node.States) then
          for Node in TV.ChildNodes(Node) do
@@ -2853,7 +2876,6 @@ begin
 
   Folder:= TKntFolder(Self.Folder);
 
-  //addnumber := Folder.AutoNumberNodes;
   if (aNewNodeName <> '') then
     myName := aNewNodeName
 
@@ -3067,7 +3089,7 @@ begin
          TV.InvalidateNode(NNode.TVNode);
       end;
 
-      NEntry:= Note.Entries[0];                                      // %%%
+      NEntry:= Note.Entries[0];         // New created note, with a single entry at first
       NEntry.Stream.Position := 0;
       NEntry.Stream.WriteBuffer(myRTFTExt[1], length(myRTFTExt));
       TKntFolder(Folder).ReloadEditorFromDataModel;
@@ -4244,19 +4266,19 @@ var
   var
      Node : PVirtualNode;
      NNode: TNoteNode;
-     NEntry: TNoteEntry;
+     Tags: TNoteTagArray;
      InheritedTagsForChildren: ^TNoteTagArray;
   begin
     for Node in TV.ChildNodes(ParentNode) do begin
        if vsHasChildren in Node.States then begin
           NNode:= GetNNode(Node);
-          NEntry:= NNode.Note.Entries[0];                          //%%%
-          if (NEntry.Tags <> nil) then begin
+          Tags:= NNode.Note.Tags;
+          if (Tags <> nil) then begin
              fParentNodesWithInheritedTags.Add(Node);
              InheritedTagsForChildren:= @fInheritedTags[I];
              if ParentInheritedTags <> nil then
                 TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, ParentInheritedTags);
-             TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, NEntry.Tags);
+             TNoteTagArrayUtils.AddTags(InheritedTagsForChildren^, Tags);
              inc(I);
 
              PopulateInheritedTags(Node, InheritedTagsForChildren^);
@@ -4294,7 +4316,7 @@ var
    end;
 
 begin
-  NodeTags:= NNode.Note.Entries[0].Tags;                  //%%%
+  NodeTags:= NNode.Note.Tags;
 
   for i:= 0 to High(NodeTags) do
      AddUseOfTag(NodeTags[i]);
@@ -4319,7 +4341,7 @@ begin
        NTag:= ActiveFile.NoteTags[i];
        Used:= false;
        for j := 0 to NNodes.Count-1 do begin
-           if NNodes[j].Note.Entries[0].HasTag(NTag) then begin
+           if NNodes[j].Note.MainEntry.HasTag(NTag) then begin
               Used:= True;
               break;
            end;
@@ -4514,10 +4536,10 @@ begin
   str:= trim(txtFilter.Text).ToUpper;
   myFindOptions.Pattern:= str;
   myFindOptions.LastModifFrom:= 0;
-  myFindOptions.ProtectedNodesOnly := false;
+  myFindOptions.ProtectedNodesAndEntriesOnly := false;
   PreprocessTextPattern(myFindOptions);     // Can modify Pattern and set .LastModifFrom
 
-  if (Length(str) < 3) and (myFindOptions.LastModifFrom = 0) and not myFindOptions.ProtectedNodesOnly then begin
+  if (Length(str) < 3) and (myFindOptions.LastModifFrom = 0) and not myFindOptions.ProtectedNodesAndEntriesOnly then begin
      if TreeFilterApplied then begin
         fLastTreeSearch:= '';
         TreeFilterApplied:= false;
@@ -4591,7 +4613,7 @@ begin
 
      if not CheckedChanged then begin
 
-         if TV.IsEffectivelyFiltered[Node] or (HideEncrypted and GetNNode(Node).Note.IsEncrypted) then begin              // TV.IsEffectivelyFiltered[Node]= True => Node <> nil
+         if TV.IsEffectivelyFiltered[Node] or (HideEncrypted and (Node <> nil) and GetNNode(Node).Note.IsEncrypted) then begin              // TV.IsEffectivelyFiltered[Node]= True => Node <> nil
             Node := TV.GetNextNotHidden(Node);                     // By default, IncludeFiltered=False
             if Node = nil then
                Node := TV.GetPreviousNotHidden(TV.FocusedNode);    // ,,
@@ -4708,13 +4730,13 @@ begin
    AdjustTxtTagsWidth(True);
 end;
 
-procedure TKntTreeUI.OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TKntTreeUI.OnChangeFindTagsIntrod(FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
 begin
    fFindTags:= FindTags;
    CheckFilterNotesOnTags(True);
 end;
 
-procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string);
+procedure TKntTreeUI.OnEndFindTagsIntroduction(PressedReturn: boolean; FindTags: TFindTags; FindTagsNotRegistered: string; txtTag: TEdit);
 begin
   if PressedReturn and not Self.ShowUseOfTags then
      txtFilter.SetFocus;
@@ -4870,7 +4892,7 @@ begin
    end;
 
    if KeyOptions.AltMargins then
-      Folder.Editor.Refresh;
+      Folder.NoteUI.Refresh;
 
    OnAfterChangesOnTreeWidth;
 

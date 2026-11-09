@@ -867,6 +867,7 @@ begin
       InitializeChrome( DefaultEditorChrome );
       InitializeFolderEditorProperties( DefaultEditorProperties );
       InitializeFolderTabProperties( DefaultTabproperties );
+      InitializeDefaultNoteAdvOptions(DefaultNoteAdvOptions);
 
       InitializeChrome( DefaultTreeChrome );
       InitializeTreeOptions( KntTreeOptions );
