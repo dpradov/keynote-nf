@@ -1427,7 +1427,6 @@ Menu_TV.TVView_Filter.TVFilterInhTags.Caption=Наследуемые теги
 Menu_TV.TVCopyNode_.Caption=К&опировать информацию о ветке
 Menu_TV.TVPasteNode_.Caption=&Задать имя
 actList_File.actFileSave.Caption=&Сохранить
-actList_File.actFileSave.Hint=Сохранить файл Keynote
 Menu_Tags.TagsMCreate.Caption=&Создать новый Тег
 Menu_Tags.TagsMEdit.Caption=&Редактировать Тег
 Menu_Tags.TagsMEdit.Hint=Редактировать выбранный Тег
@@ -2918,5 +2917,7 @@ Button_OK.Caption=&Закрыть
 (!)55181_knt_RS_sINFTreeSel0=Current entry
 (!)55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=Сохранить файл Keynote
+(!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

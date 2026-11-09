@@ -1429,7 +1429,6 @@ Menu_TV.TVView_Filter.TVFilterInhTags.Caption=继承标签
 Menu_TV.TVCopyNode_.Caption=(&C)复制节点信息
 Menu_TV.TVPasteNode_.Caption=(&P)粘贴名称
 actList_File.actFileSave.Caption=(&S)保存
-actList_File.actFileSave.Hint=保存 Keynote 文件
 Menu_Tags.TagsMCreate.Caption=创建新标签 (&C)
 Menu_Tags.TagsMEdit.Caption=编辑标签 (&E)
 Menu_Tags.TagsMEdit.Hint=编辑选中的标签
@@ -2927,5 +2926,7 @@ Button_OK.Caption=(&C)关闭
 (!)55181_knt_RS_sINFTreeSel0=Current entry
 (!)55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=保存 Keynote 文件
+(!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

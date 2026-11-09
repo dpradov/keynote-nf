@@ -983,4 +983,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55181, "Current entry"
 55182, "Error loading advanced options for folder '%s'\nDefault settings will be used, in whole or in part"
 55183, "Error loading default advanced options. Built-in will be used"
+55184, "Save Keynote file"
+55185, "  (No changes;  Alt: Force save)"
 }

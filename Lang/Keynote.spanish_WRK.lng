@@ -1427,7 +1427,6 @@ Menu_TV.TVView_Filter.TVFilterInhTags.Caption=Etiquetas heredadas
 Menu_TV.TVCopyNode_.Caption=C&opiar info. de nodo
 Menu_TV.TVPasteNode_.Caption=&Pegar Nombre
 actList_File.actFileSave.Caption=&Guardar
-actList_File.actFileSave.Hint=Guardar archivo Keynote
 Menu_Tags.TagsMCreate.Caption=&Crear nueva Etiqueta
 Menu_Tags.TagsMEdit.Caption=&Editar Etiqueta
 Menu_Tags.TagsMEdit.Hint=Editar etiqueta seleccionada
@@ -2918,5 +2917,7 @@ Button_OK.Caption=&Cerrar
 (!)55181_knt_RS_sINFTreeSel0=Current entry
 (!)55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=Guardar archivo Keynote
+55185_knt_RS_sFile32=  (Sin cambios;  Alt: Forzar salvado)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

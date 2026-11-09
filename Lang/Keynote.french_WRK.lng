@@ -1565,7 +1565,6 @@ Menu_Numbers.MMUpLetter.Hint=Sélectionner le style de lettres en capitales
 (x)Menu_TV.TVCopyNode_.Caption=Copier
 (!)Menu_TV.TVPasteNode_.Caption=&Paste Name
 actList_File.actFileSave.Caption=Enregistrer
-actList_File.actFileSave.Hint=Enregistrer le fichier Keynote
 (x)MRU.AutoSaveKey=MRU Items
 (!)Menu_Tags.TagsMCreate.Caption=&Create new Tag
 (!)Menu_Tags.TagsMEdit.Caption=&Edit Tag
@@ -3080,5 +3079,7 @@ Button_Cancel.Caption=Annuler
 (!)55181_knt_RS_sINFTreeSel0=Current entry
 (!)55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=Enregistrer le fichier Keynote
+(!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

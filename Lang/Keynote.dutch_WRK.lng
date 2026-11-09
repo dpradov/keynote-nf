@@ -1606,7 +1606,6 @@ Menu_TV.TVSortNodes_.Hint=Knopen sorteren
 (x)Menu_TV.TVCopyNode_.Caption=K&opiëren
 Menu_TV.TVPasteNode_.Caption=Naam &plakken
 actList_File.actFileSave.Caption=&Opslaan
-actList_File.actFileSave.Hint=Opslaan Keynote bestand
 (x)MRU.AutoSaveKey=MRU Items
 (!)Menu_Tags.TagsMCreate.Caption=&Create new Tag
 (!)Menu_Tags.TagsMEdit.Caption=&Edit Tag
@@ -3331,5 +3330,7 @@ Button_Prev.Caption=V&orige Tip
 (!)55181_knt_RS_sINFTreeSel0=Current entry
 (!)55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=Opslaan Keynote bestand
+(!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

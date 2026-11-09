@@ -1423,7 +1423,6 @@ Menu_TV.TVView_Filter.TVFilterInhTags.Caption=Inherited tags
 Menu_TV.TVCopyNode_.Caption=C&opy node inf.
 Menu_TV.TVPasteNode_.Caption=&Paste Name
 actList_File.actFileSave.Caption=&Save
-actList_File.actFileSave.Hint=Save Keynote file
 Menu_Tags.TagsMCreate.Caption=&Create new Tag
 Menu_Tags.TagsMEdit.Caption=&Edit Tag
 Menu_Tags.TagsMEdit.Hint=Edit selected tag
@@ -2909,5 +2908,7 @@ Button_OK.Caption=&Close
 55181_knt_RS_sINFTreeSel0=Current entry
 55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=Save Keynote file
+55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

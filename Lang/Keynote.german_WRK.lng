@@ -1425,7 +1425,6 @@ Menu_TV.TVView_Filter.TVFilterInhTags.Caption=Geerbte Tags
 Menu_TV.TVCopyNode_.Caption=Knoteninformationen k&opieren
 Menu_TV.TVPasteNode_.Caption=Name &einfügen
 actList_File.actFileSave.Caption=&Speichern
-actList_File.actFileSave.Hint=KeyNote-Datei speichern
 Menu_Tags.TagsMCreate.Caption=Neuen Tag &erstellen
 Menu_Tags.TagsMEdit.Caption=Tag &bearbeiten
 Menu_Tags.TagsMEdit.Hint=Ausgewähltes Tag bearbeiten
@@ -2916,5 +2915,7 @@ Button_OK.Caption=&Schließen
 (!)55181_knt_RS_sINFTreeSel0=Current entry
 (!)55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=KeyNote-Datei speichern
+(!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

@@ -5577,7 +5577,6 @@ object Form_Main: TForm_Main
     Top = 472
     object actFileSave: TAction
       Caption = '&Save'
-      Hint = 'Save Keynote file'
       ImageIndex = 2
       OnExecute = actFileSaveExecute
     end

@@ -2845,8 +2845,10 @@ begin
   if ShiftDown then
      KntFileSave('')
   else begin
-    if HaveKntFolders(false, false) then
-       KntFileSave(ActiveFile.FileName)
+    if HaveKntFolders(false, false) then begin
+       var ForceSave: boolean:= AltDown;
+       KntFileSave(ActiveFile.FileName, ForceSave)
+    end
     else
        KntFileSave('');
   end;
@@ -8904,6 +8906,7 @@ begin
         SelectStatusBarGlyph(false);
         StatusBar.Hint := '';
         actFileSave.Enabled:= false;
+        actFileSave.Hint:= GetRS(sFile31);
       end
       else begin
          if (ActiveFile.FileName <> '') then
@@ -8930,24 +8933,26 @@ end; // UpdateOpenFile
 procedure TForm_Main.UpdateFileModifiedState;
 var
   status: string;
-  WasModif, Modif: boolean;
   F: TKntFile;
 begin
    F:= ActiveFile;
    if not assigned(F) then exit;
+   if Boolean(actFileSave.Tag) = ActiveFile.Modified then exit;
 
-   WasModif:= actFileSave.Enabled;
-   Modif:= ActiveFile.Modified;
-   actFileSave.Enabled:= Modif;
-   if WasModif = Modif then exit;
 
-   if Modif then
-      status:= GetRS(sMain44)      // MOD
-   else
-   if KeyOptions.AutoSave then
-      status:= GetRS(sMain43)   // Auto
-   else
-      status:= GetRS(sMain45);  // Saved
+   if ActiveFile.Modified then begin
+      status:= GetRS(sMain44);           // MOD
+      actFileSave.Hint:= GetRS(sFile31);
+      actFileSave.Tag:= 1;               // MOD
+   end
+   else begin
+      actFileSave.Hint:= GetRS(sFile31) + GetRS(sFile32);
+      actFileSave.Tag:= 0;         // No changes
+      if KeyOptions.AutoSave then
+         status:= GetRS(sMain43)   // Auto
+      else
+         status:= GetRS(sMain45);  // Saved
+   end;
 
    Statusbar.Panels[PANEL_STATUS].Text := status;
 end;

@@ -41,7 +41,7 @@ uses
 
     function KntFileNew( FN : string ) : integer; // create new KNT file with 1 blank folder
     function KntFileOpen( FN : string ) : integer; // open KNT file on disk
-    function KntFileSave( FN : string ) : integer; // save current KNT file
+    function KntFileSave( FN : string; ForceSave: boolean = false ) : integer; // save current KNT file
     function KntFileClose : boolean; // close current KNT file
 
     procedure KntFileCopy (var SavedFolders: integer; var SavedNodes: integer;
@@ -798,7 +798,7 @@ end;
 
 //------ KntFileSave --------------------------------------------
 
-function KntFileSave(FN : string) : integer;
+function KntFileSave(FN : string; ForceSave: boolean = false) : integer;
 var
   ErrStr, ext, BakFN, BakFolder, FPath: string;
   SUCCESS: LongBool;
@@ -847,7 +847,7 @@ begin
          Exit;
      end;
 
-     if (FN <> '') and not KntFile.Modified then begin
+     if (FN <> '') and not KntFile.Modified and not ForceSave then begin
          StatusBar.Panels[PANEL_HINT].Text := GetRS(sFileM79);
          Exit;
      end;
@@ -997,6 +997,7 @@ begin
 
             KntFile.FileName := FN;
             KntFile.Modified:= False;      // Must be done here, not in TNotFile.Save, and of course, never before RenameTempFile
+            actFileSave.Tag:= 9;
 
             StatusBar.Panels[PANEL_HINT].Text := Format(GetRS(sFileM22), [SavedFolders, SavedNotes]);
             KntFile.ReadOnly := False;    // We can do SaveAs from a Read-Only file (*)

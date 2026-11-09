@@ -1431,7 +1431,6 @@ Menu_TV.TVView_Filter.TVFilterInhTags.Caption=継承されたタグ
 Menu_TV.TVCopyNode_.Caption=ノード情報をコピー(&O)
 Menu_TV.TVPasteNode_.Caption=名前を貼り付け(&P)
 actList_File.actFileSave.Caption=保存(&S)
-actList_File.actFileSave.Hint=KeyNoteファイルを保存
 Menu_Tags.TagsMCreate.Caption=新しいタグの作成(&C)
 Menu_Tags.TagsMEdit.Caption=タグの編集(&E)
 Menu_Tags.TagsMEdit.Hint=選択したタグの編集
@@ -2924,5 +2923,7 @@ Button_OK.Caption=閉じる(&C)
 (!)55181_knt_RS_sINFTreeSel0=Current entry
 (!)55182_knt_RS_sFile29=Error loading advanced options for folder '%s'\^Default settings will be used, in whole or in part
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
+55184_knt_RS_sFile31=KeyNoteファイルを保存
+(!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

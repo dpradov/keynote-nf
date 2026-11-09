@@ -1317,6 +1317,12 @@ begin
          if Form_Main.Ntbk_ResFind.PageIndex = 0 then
             Form_Main.Btn_ResFlipClick(nil);              // Display the search options panel
 
+         with Form_Main do begin
+            actFileSave.Enabled:= false;
+            actFileSave.Tag:= 0;
+            actFileSave.Hint:= GetRS(sFile31);
+         end;
+
       except
       end;
    end;
@@ -1335,6 +1341,13 @@ begin
 
    if aFile <> nil then
       TagMng.ImportTagsFromFile(Tags_FN, True);   // Import common tags (new or modified tags)
+
+   with Form_Main do begin
+      actFileSave.Enabled:= true;
+      actFileSave.Tag:= 0;
+      actFileSave.Hint:= GetRS(sFile31);
+   end;
+
 end;
 
 
@@ -1543,15 +1556,23 @@ begin
    if aFile <> nil then begin
       TagMng.ImportTagsFromFile(Tags_FN, True);   // Import common tags (new or modified tags)
 
-      with Form_Main do
+      with Form_Main do begin
          if KeyOptions.ResPanelShow and (Pages_Res.ActivePage = ResTab_Find) then begin
             // Make sure the labels are interpreted according to this file
             CheckTagsField(txtTagsIncl, FindTagsIncl);
             CheckTagsField(txtTagsExcl, FindTagsExcl);
          end;
+
+         Form_Main.actFileSave.Tag:= 0;
+         Form_Main.actFileSave.Hint:= GetRS(sFile31) + GetRS(sFile32);
+      end;
    end
-   else
+   else begin
+      Form_Main.actFileSave.Hint:= GetRS(sFile31);
       ReleaseLockedFile(FN);
+   end;
+
+   Form_Main.actFileSave.Enabled:= aFile <> nil;
 end;
 
 
