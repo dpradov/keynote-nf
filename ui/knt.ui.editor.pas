@@ -324,6 +324,7 @@ type
   function PrepareRTFtoBeExpanded(RTFIn: AnsiString; var RTFOut: AnsiString; Editor: TKntRichEdit; var KeepEndCR: boolean; ExpandWithMarkers: boolean): boolean;
   function PositionInFoldedBlock(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit; var pBeginBlock, pEndBlock: integer): boolean;
   function PositionInFoldedBlock_FindAll(const TxtPlain: string; PosSS: integer; var pBeginBlock, pEndBlock: integer): boolean;
+  function PositionInNonVisibleExtractOfFoldedBlock(const TxtPlain: string; var SS: integer; Editor: TRxRichEdit; CorrectPos: boolean = false): boolean;
   function OpenTagsConcatenated(PosTag, Lo: integer; const TxtPlain: string): boolean;
   function GetBlockAtPosition(const TxtPlain: string; PosSS: integer; Editor: TRxRichEdit;
                               var pBeginBlock, pEndBlock: integer; FoldedBlock: boolean;
@@ -2858,6 +2859,41 @@ begin
                               KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR, KNT_RTF_END_FOLDED_WITHOUT_v0_PARTIAL_CHAR,
                               KNT_RTF_FOLDED_LINK_BLOCK_CHAR, False, False);
 end;
+
+
+function PositionInNonVisibleExtractOfFoldedBlock(const TxtPlain: string; var SS: integer; Editor: TRxRichEdit; CorrectPos: boolean = false): boolean;
+var
+  pI, pF: integer;
+begin
+    Result:= false;
+
+   { Check whether the cursor (SS) is located within a folded block and outside the visible excerpt.
+     In the following example, if the cursor is positioned exactly between the left side of 'A' and
+     the left side of the first character of the end marker, it is considered to be within the visible portion.
+      ➕ ABC...[]
+
+     If the cursor is positioned immediately to the left of a folded block, the result will also be 'True'.
+     If 'CorrectPos' is set to 'True', SS will be adjusted to the nearest position within the visible excerpt.
+
+     KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR = 'HYPERLINK "FOLD:"➕ '
+     KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR = '...' + KNT_RTF_HIDDEN_MARK_EndLink_CHAR;   //  ...$13     }
+
+    if PositionInFoldedBlock(Editor.TextPlain, SS, Editor, pI, pF) then begin
+       if (SS < pI + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR)) then begin
+          Result:= true;
+          if CorrectPos then
+             SS:= pI + Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR);
+       end
+       else
+       if (SS > pF - Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR)) then begin
+          Result:= true;
+          if CorrectPos then
+             SS:= pF - Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR);
+       end;
+    end;
+
+end;
+
 
 
 function IsATag(const Word: string): boolean;

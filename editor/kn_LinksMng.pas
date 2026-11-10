@@ -1,4 +1,4 @@
-unit kn_LinksMng;
+﻿unit kn_LinksMng;
 
 (****** LICENSE INFORMATION **************************************************
 
@@ -696,7 +696,7 @@ end;
 
    	{\rtf1\ansi \v\'11B5\'12\v0 Target of a KNT link}
 	   Once retrieved as plain text: '#$11'B5'#$12'Target of a KNT link
-     B: Bookmark   "5" 5� bookmark in the folder / node.
+     B: Bookmark   "5" 5º bookmark in the folder / node.
 
 	To achieve this, it has been necessary for KNT to be able to handle RTF texts with this type of hidden text from any
 	functionality.
@@ -744,7 +744,7 @@ var
    Editor: TKntRichEdit;
    NEntriesUI: TKntNoteEntriesUI;
    RTFAux: TAuxRichEdit;
-   SS: integer;
+   SS, pI, pF: integer;
 
 
    function GetActualTargetMarker (Editor: TRxRichEdit): integer;
@@ -815,8 +815,24 @@ begin
     NEntriesUI:= TKntNoteEntriesUI(ActiveFolder.Editor.NEntriesUIObj);
     if (NEntriesUI <> nil) and (NEntriesUI.NEntry = nil) then exit;     // Ignore when applied to an empty panel, where no NEntry has been created yet
 
-    // mark caret position as TLocation
+    SS:= Editor.SelStart;
+    if PositionInNonVisibleExtractOfFoldedBlock(Editor.TextPlain, SS, Editor, True) then begin
+      { Only allow insertion within the visible excerpt of a folded block. In the following example, insertion is permitted only
+        between the position immediately to the left of "A" and the position immediately to the left of the first trailing ".":
+         ➕ ABC...[]
+       Inserting a marker immediately after the "➕" or starting from the first period may prevent the block from being
+       recognized as valid, thereby making it impossible to unfold or preview.
+       The PositionInNonVisibleExtractOfFoldedBlock method detects disallowed positions, including the position
+       where the cursor is located immediately to the left of a folded block (see comment FOLD*2 in SelectTextToBeUnfolded --knt.ui.editor).
+
+       Last param=True => The selection (SS) will be adjusted toward the nearest position within the visible excerpt.   }
+
+       Editor.SelStart:= SS;
+    end;
+
+    // mark caret position as TLocation  (taking into account that the editor can be multi-entry)
     GetKNTLocation (ActiveFolder, aLocation, true);
+
 
     // If we are pointing to the start of a node or a folder (CaretPos = 0), we will not create any new markers. We will always aim for that position 0.
     strTargetMarker:= '';
@@ -2079,7 +2095,7 @@ begin
 //                if AdjustedToProcessedFoldedBlocks and (PatternSearched <> '') and (NoteEntriesUI.PanelConfig.MECustomiz.FoldedTextMode = fmUnfold) then begin
 //                   { Consider the problem of selecting a term located within a "folded" block that itself contains another, nested folded block.
 //                     If the term appears before the nested block, there is no issue; however, if it is located inside or after the nested block,
-//                     one must subtract the character lengths of the nested block�s start (and potentially its end) markers, as these were not
+//                     one must subtract the character lengths of the nested block’s start (and potentially its end) markers, as these were not
 //                     accounted for when determining the conversions.
 //                     This is a simple, approximate solution that only works for cases involving a single nested block,
 //                     and assuming no images or links are inside a folded block -- see *1 }
