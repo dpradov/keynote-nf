@@ -3230,23 +3230,45 @@ end;
  To avoid that problem now, before obtaining the RTF to be processed for previewing or displaying,
  a blank character is inserted in front of the block, to which default colours are set. This ensures that the initial colours
  are correctly specified in the selection. After that, this auxiliary character is removed.
+
+ FOLD*2:
+  Prevent a marker (Ctrl+F6) inserted immediately before a folded block (just to the left of the ➕ character) from
+  corrupting the block when its content is displayed.
+  An action previously introduced to correctly handle content coloring in certain cases
+  (commit ef1adb60 from 2012-02-26, "Fixed: Adjustments to the treatment of folded blocks.") inadvertently
+  causes the special hyperlink—which serves as the start of the folded block—to be deleted in this scenario. Consequently,
+  the block's content becomes inaccessible (*).
+  This issue occurs because the aforementioned action attempts to insert a space immediately before the block's starting
+  hyperlink. However, since the (hidden) marker is attached to this hyperlink, the cursor is positioned before the marker;
+  as a result, when the space is subsequently deleted, the hyperlink is also removed. In some instances, however, the process
+  that manages the modification or deletion of protected text (TKntRichEdit.RxRTFProtectChangeEx) determines that the
+  selected text cannot be deleted. This prevents the corruption, though an extra, auxiliary space remains inserted before the block.
+
+  (*): The content is not actually deleted; rather, it becomes hidden and inaccessible, situated between the visible excerpt
+       and the final of the block (...[]). The block could be recovered by manually re-inserting the starting hyperlink
+       into the RTF code. You can refer to another existing block to see how this starting element should be structured.
 }
 
-function SelectTextToBeUnfolded(Editor: TRxRichEdit; pI, pF: integer): boolean;
+function SelectTextToBeUnfolded(Editor: TRxRichEdit; pI, pF: integer; var InsertedSpace: boolean): boolean;
 var
   IncHighlighted: integer;
 begin
+   InsertedSpace:= false;
+
    with Editor do begin
       if pI > 0 then begin               // See FOLD*1
          SetSelection(pI, pI, false);
-         SelText:= ' ';
-         with SelAttributes do begin
-           Style := [];
-           Color:= Editor.Font.Color;
-           BackColor := clWindow;
+         if SelStart = pI then begin       // See FOLD*2
+            InsertedSpace:= true;
+            SelText:= ' ';
+            with SelAttributes do begin
+              Style := [];
+              Color:= Editor.Font.Color;
+              BackColor := clWindow;
+            end;
+            inc(pI);
+            inc(pF);
          end;
-         inc(pI);
-         inc(pF);
       end;
 
       SetSelection(pI, pI, false);
@@ -3266,13 +3288,14 @@ var
   pI, pF, SL: integer;
   AdjustHglt: boolean;
   KeepEndCR: boolean;
+  InsertedSpace: boolean;
 begin
    with Editor do
       if PositionInFoldedBlock(TxtPlain, SS, Editor, pI, pF) then begin
-         AdjustHglt:= SelectTextToBeUnfolded(Editor, pI, pF);
+         AdjustHglt:= SelectTextToBeUnfolded(Editor, pI, pF, insertedSpace);
          SL:= SelLength;
          RTFIn:= RtfSelText;
-         if pI > 0 then begin             // See comment FOLD*1, above
+         if InsertedSpace then begin             // See comment FOLD*1, above
             SetSelection(pI, pI+1, false);
             SelText:= '';
             SelLength:= SL;
@@ -3410,6 +3433,7 @@ var
   AdjustHglt: boolean;
   KeepEndCR, InsertedAuxMark: boolean;
   TxtPlain: string;
+  InsertedSpace: boolean;
 begin
    if CheckReadOnly then exit;
    { *1:
@@ -3454,11 +3478,11 @@ begin
    if PositionInFoldedBlock(TxtPlain, Self.SelStart, Self, pI, pF) then begin
       BeginUpdate;
       try
-         AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF);
+         AdjustHglt:= SelectTextToBeUnfolded(Self, pI, pF, InsertedSpace);
          SL:= SelLength;
          RTFIn:= EnsureGetRtfSelText;
 
-         if pI > 0 then begin  // See comment FOLD*1, above
+         if InsertedSpace then begin  // See comment FOLD*1, above
             SetSelection(pI, pI+1, false);
             SelText:= '';
             SelLength:= SL;
@@ -3644,18 +3668,19 @@ var
   KeepEndCR: boolean;
   SL: integer;
   ModifiedBak: boolean;
+  InsertedSpace: boolean;
 begin
    if PositionInFoldedBlock(Self.TextPlain, SS, Self, pI, pF) then begin
       BeginUpdate;
       try
          ModifiedBak:= Self.Modified;
          SuspendUndo;
-         SelectTextToBeUnfolded(Self, pI, pF);
+         SelectTextToBeUnfolded(Self, pI, pF, InsertedSpace);
          SL:= SelLength;
          FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
          RTFIn:= EnsureGetRtfSelText;
 
-         if pI > 0 then begin                // See comment FOLD*1, above
+         if InsertedSpace then begin                // See comment FOLD*1, above
            SetSelection(pI, pI+1, false);
            SelText:= '';
            SelLength:= SL;
