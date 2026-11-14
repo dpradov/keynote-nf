@@ -2781,7 +2781,7 @@ var
            end;
         end
         else begin
-           Editor.GetLinkAtCursor(URLStr, TxtSel, L, R);
+           GetLinkAtCursor(Editor, URLStr, TxtSel, L, R);
            URLType:= TypeURL( UrlStr, KNTlocation);
            if TextURL = '' then TextURL:= TxtSel;
         end;

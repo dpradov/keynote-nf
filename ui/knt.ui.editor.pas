@@ -26,6 +26,7 @@ uses
    System.StrUtils,
    System.AnsiStrings,
    System.IniFiles,
+   System.Math,
    Vcl.Clipbrd,
    Vcl.Graphics,
    Vcl.FileCtrl,
@@ -202,8 +203,6 @@ type
                                    paragraphMode: boolean= false);
     function IsVerticalScrollBarVisible: boolean;
 
-    procedure GetLinkAtCursor(var URL: string; var TextURL: string;
-                              var LeftE: integer; var RightE: integer; SelectURL: boolean= true);
     function GetWordAtCursor(const LeaveSelected : boolean;
                              const IgnoreActualSelection: boolean = False;
                              const DiscardKNTHiddenCharacters: boolean= True;
@@ -358,6 +357,15 @@ type
 procedure LoadFoldingBlockInfo;
 procedure SaveFoldingBlockInfo(LV: TListView);
 
+function GetLinkAtCursor(Editor: TRxRichEdit; var URL: string; var TextURL: string;
+                          var LeftE, RightE: integer; SelectURL: boolean= true): boolean; forward;
+
+
+{$IFDEF KNT_DEBUG}
+function GetDebugRTFTextPlain(str: AnsiString): AnsiString; forward;
+function GetDebugRTFText(str: String): String; forward;
+{$ENDIF}
+
 
 const
    TagCharsDelimiters = [' ', ':', ',', #13, #9, '#'];
@@ -415,6 +423,31 @@ const
 
   procedure RemoveKNTHiddenCharactersFromEditor (Editor: TRxRichEdit; selection: boolean= true); forward;
   function GetRichEditorWithNoKNTHiddenCharacters (Editor: TRxRichEdit; HiddenMarksToRemove: THiddenMarks; const selection: boolean= true): TRxRichEdit; forward;
+
+
+
+{$IFDEF KNT_DEBUG}
+function GetDebugRTFTextPlain(str: AnsiString): AnsiString;
+begin
+  Result:= StringReplace(str, KNT_RTF_HIDDEN_MARK_L_CHAR,            '[', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_R_CHAR,         ']', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_EndLink_CHAR,   'º', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_AUX_CHAR,       '^', [rfReplaceAll]);
+  Result:= StringReplace(Result, #13,                                '#', [rfReplaceAll]);
+end;
+
+function GetDebugRTFText(str: String): String;
+begin
+  Result:= StringReplace(str, KNT_RTF_HIDDEN_MARK_L,            '\[[[', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_R,         '\]]]', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_EndLink,   '\ººº', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_AUX,       '\^^^', [rfReplaceAll]);
+  Result:= StringReplace(Result, #13,                              '#', [rfReplaceAll]);
+  Result:= StringReplace(Result, #10,                              '#', [rfReplaceAll]);
+end;
+
+{$ENDIF}
+
 
 
 function CreateAuxRichEdit: TAuxRichEdit;
@@ -1269,7 +1302,9 @@ begin
 end;
 
 
-procedure MarkEndVisibleExtract(RTFAux : TAuxRichEdit; TextPlain: String; OffsetVisibleExtract: Integer = 1; MinLenExtract: integer = 0);
+procedure MarkEndVisibleExtract(RTFAux : TAuxRichEdit; const TextPlain: String;
+                                OffsetVisibleExtract: Integer = 1; OffsetInTextPlain: Integer = 0;
+                                MinLenExtract: integer = 0);
 var
   Len: integer;
   p: integer;
@@ -1277,39 +1312,140 @@ var
   TxtLower: string;
   URLType: TKNTURL;
 
+  { OffsetVisibleExtract refers to the current content of RTFAux.
+    TextPlain may not be identical to RTFAux.TextPlain, as markers placed beforehand to identify the end of previous
+    visible extracts may have been inserted into RTFAux. OffsetInTextPlain corresponds to the number of these additional
+    characters in RTFAux (added at the beginning), which must be taken into account when using TextPlain in
+    synchronization with OffsetVisibleExtract }
+
    function GetRestOfSentence(const Text: string; PosInsideSentence: integer): string;
    var
      p, pR_Scope, i: integer;
      TextLen: integer;
+     Str, URLStr, TxtSel: string;
+     pFirstNonSpace, pL_link, pR_link, pFold: integer;
+     InsideHiddenMarker, SpacePending, SpaceOrTabPending: boolean;
+
+     procedure SearchNextHyperlink;
+     var
+        pH, pFH, pFH_End: integer;
+     begin
+         if pL_Link = Integer.MaxValue then exit;
+
+         pL_link:= Integer.MaxValue;
+         pR_link:= Integer.MaxValue;
+
+         pFH:= pos(KNT_RTF_HIDDEN_MARK_L_CHAR + KNT_RTF_HIDDEN_LINK, Str, p-PosInsideSentence+1);     // $11L ... $12
+         pH:= pos('HYPERLINK', Str, p-PosInsideSentence+1);
+
+         if (pH > 0) and ((pH < pFH) or (pFH = 0)) then begin
+            RTFAux.SelStart:= 0;
+            RTFAux.SelLength:= 0;
+            RTFAux.SelStart:= pH + PosInsideSentence + Length('HYPERLINK');
+            if GetLinkAtCursor(RTFAux, URLStr, TxtSel, pL_link, pR_link) then begin
+               inc(pL_link);
+               // pR_link returned by GetLinkAtCursor corresponds to the cursor position immediately after the hyperlink
+               if URLStr = KNT_FOLDED_BLOCK_URL then
+                  pFold:= pL_Link;
+            end;
+         end
+         else
+         if (pFH > 0) then begin
+            pFH_End:= pos(KNT_RTF_HIDDEN_MARK_R_CHAR, Str, pFH);
+            if pFH_End > 0 then begin
+               pL_link:= pFH + PosInsideSentence;
+               pR_link:= pFH_End + PosInsideSentence;
+               if Pos(KNT_RTF_FOLDED_LINK_BLOCK_CHAR, Str, pFH) = pFH then
+                  pFold:= pL_Link;
+            end;
+         end;
+     end;
+
    begin
      { We have a position (PosInsideScope) located within a sentence. We have to locate
-       the end of it and return it from that initial position
-       .... [ ......  X ....... ] ....
+       the end of it and return the fragment from that position
 
         #9: TAB   #7:column separator in Tables
-
         KNT_RTF_HIDDEN_MARK_EndLink_CHAR = Chr(19);    // 19 (#$13): DC3 (Device Control 3)
         #$FFFC = Unicode Character (U+FFFC)  Object Replacement Character   https://www.compart.com/en/unicode/U+FFFC
+
+      We must ignore a period (.) as a sentence terminator if it occurs within a hyperlink, as hyperlinks are permitted
+      within visible excerpts. Furthermore, we must account for the fact that hyperlinks may be in a collapsed state.
+      The same applies to a sequence of two spaces if they are found within a hyperlink.
+
+      It should also be noted that a hidden marker (e.g., $11B2$12) may exist between the period and the space, or 
+      between the first and second space. These markers must be ignored to correctly identify the cut-off points for the
+      visible excerpt; otherwise, the user might not understand why the specified criteria are not being followed.
      }
 
-     pR_Scope:= Pos(#13, Text, PosInsideSentence) -1;
+
+
+     p:= PosInsideSentence;
+     pL_link:= 0;
+     pFold:= Integer.MaxValue;
      TextLen:= Text.Length;
+
+     pR_Scope:= Pos(#13, Text, p) -1;
      if pR_Scope <= -1 then
         pR_Scope:= TextLen;
 
+     Str:= Copy(Text, PosInsideSentence, pR_Scope - PosInsideSentence +1);
+     pFirstNonSpace:= PosFirstNonSpace(Str);
+
+     SearchNextHyperlink;          // -> pL_link, pR_link
+
      if pR_Scope <= MinLenExtract then
-        Result:= Copy(Text,1, MinLenExtract)
+        Result:= Copy(Text,1, Min(MinLenExtract, pFold))
 
      else begin
-        p:= 1;
-        for p := PosInsideSentence + 1 to pR_Scope do
-          if ((Text[p] = '.') and ((p >= TextLen) or (Text[p+1] in [' ', #9]))) or (Text[p] = #7)
-                 or (Text[p] = KNT_RTF_HIDDEN_MARK_EndLink_CHAR)
-                 or (Text[p] = #$FFFC) then
+        SpaceOrTabPending:= false;
+        SpacePending:= false;
+        InsideHiddenMarker:= false;
+
+        for p := PosInsideSentence to pR_Scope do begin
+           if p = pFold then
+              break;
+
+           if (Text[p] = KNT_RTF_HIDDEN_MARK_L_CHAR) then begin
+              InsideHiddenMarker:= True;
+              continue;
+           end;
+           if InsideHiddenMarker then begin
+              if (Text[p] = KNT_RTF_HIDDEN_MARK_R_CHAR) then
+                 InsideHiddenMarker:= false;
+              continue;
+           end;
+
+          if (Text[p] = #7)
+              or (Text[p] = KNT_RTF_HIDDEN_MARK_EndLink_CHAR)
+              or (Text[p] = #$FFFC) then
              break;
 
+          if (p > pR_link) then
+             SearchNextHyperlink;          // -> pL_link, pR_link
+
+          if (p < pL_Link) then begin
+             if (Text[p] = ' ') and (SpacePending or SpaceOrTabPending) then
+                break;
+
+             if (Text[p] = #9) and SpaceOrTabPending then
+                break;
+
+             SpacePending:= false;
+             SpaceOrTabPending:= false;
+
+             if (Text[p] = '.') then
+                SpaceOrTabPending:= true;
+
+             if (Text[p] = ' ') and (p >= pFirstNonSpace) then
+                SpacePending:= true;
+          end;
+
+        end;
+
+
         if p <= pR_Scope then begin
-           if Text[p] = #$FFFC then
+           if (p = pFold) or (Text[p] = #$FFFC) or (SpacePending and (p < pR_Scope)) then
               dec(p);
            pR_Scope:= p;
         end;
@@ -1318,41 +1454,20 @@ var
    end;
 
 begin
-  { If two spaces are found, they will be used as the end of the visible extract, otherwise the entire sentence will be used
-   --or until the appearance of a link or an image  }
+  { If two spaces are found, they will be used as the end of the visible extract, otherwise the entire sentence will be used }
 
-  Txt:= GetRestOfSentence(TextPlain, OffsetVisibleExtract);
-  p:= pos('  ', Txt, PosFirstNonSpace(Txt));               // End at the first double space we find
-  if p > 0 then
-     delete(Txt, p+1, Length(Txt));
+  Txt:= GetRestOfSentence(TextPlain, OffsetVisibleExtract - OffsetInTextPlain);
 
-  p:= pos('HYPERLINK', Txt);        // Do not include hyperlink texts, truncate at that point
-  if p > 0 then
-     delete(Txt, p-1, Length(Txt));
+  if Txt <> '' then begin
+     p:= Length(Txt) + OffsetVisibleExtract;
+     if Copy(Txt, Length(Txt)-Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) + 1,
+                  Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) ) = KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR then
+        dec(p, Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR));
+  end
+  else
+     p:= OffsetVisibleExtract;
 
-  if (p = 1) and (Copy(Txt, 1, Length(KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR)) = KNT_RTF_BEGIN_FOLDED_PREFIX_CHAR) then
-     p:= 0
-
-  else begin
-    // If the hyperlink text matches the URL, the text obtained from TextPlain may not return HYPERLINK
-    // Therefore, if we find any of the known prefixes, we will also cut there.
-    TxtLower:= Txt.ToLower;
-    for URLType := low( TKNTURL ) to high( TKNTURL ) do begin
-      if URLType = urlUndefined then continue;
-      p := pos( KNT_URLS[URLType], TxtLower );
-      if p > 0 then begin
-         delete(Txt, p-1, Length(Txt));
-         delete(Txt, p-1, Length(TxtLower));
-      end;
-    end;
-
-    p:= Length(Txt) + OffsetVisibleExtract -1;
-    if Copy(Txt, Length(Txt)-Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) + 1,
-                 Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR) ) = KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR then
-       dec(p, Length(KNT_RTF_END_FOLDED_WITHOUT_v0_CHAR));
-  end;
-
-  RTFAux.SelStart:= p;
+  RTFAux.SelStart:= p - 1;
   RTFAux.SelLength:= 0;
   RTFAux.SelText:= KNT_RTF_HIDDEN_MARK_AUX_CHAR;
 end;
@@ -1561,6 +1676,10 @@ var
    ImagesMode: TImagesMode;
    ReconsiderImageDimensionsGoalBAK: boolean;
    ContainsTables: boolean;
+{$IFDEF KNT_DEBUG}
+   rtfPlainDbg: AnsiString;
+   rtfDbg: String;
+{$ENDIF}
 
 
    procedure CheckCreateResult (N: Integer);
@@ -1678,6 +1797,11 @@ begin
 
   Log_StoreTick('PrepareRTFtoBeFolded - BEGIN', 4, +1);
 
+{$IFDEF KNT_DEBUG}
+   rtfDbg:= GetDebugRTFText(RTFin);
+{$ENDIF}
+
+
   ReconsiderImageDimensionsGoalBAK:= ImageMng.ReconsiderImageDimensionsGoal;
   try
      ImagesMode:= imLink;
@@ -1728,7 +1852,7 @@ begin
 
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
-     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
+     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, 0, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
 
      if KeepEndCR and (Pos(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF, RTFIn, 1) = 0) then begin
         RTFAux.SelStart:= RTFAux.SelStart + 1;
@@ -1744,6 +1868,11 @@ begin
      RTFAux.SelAttributes.Size:= 4;              // To make sure that the size of the following text has it own \fsN command and it will not deleted together with the aux NFHDR_ID word
      RTFAux.SelStart:= Length(NFHDR_ID);
      RTFAux.SelAttributes.Color:= clBlack;
+
+{$IFDEF KNT_DEBUG}
+     rtfDbg:= GetDebugRTFText(RTFAux.RtfText);
+{$ENDIF}
+
 
      if ContainsTables then begin
         RTFIn:= RTFAux.RtfText;
@@ -1789,8 +1918,19 @@ begin
   ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
   ReplaceWith:= ReplaceWith + '\v ';
 
+  // Although it may not be common, we will allow the visible excerpt of a folded block to contain one or more images
+  if (ActiveFolder.ImagesMode = imImage) and (Pos(KNT_IMG_LINK_PREFIX, ReplaceWith, 1) > 0) then begin
+     var ReplaceWithWithProcessedImages: AnsiString;
+     ImagesMode:= ActiveFolder.ImagesMode;
+     ReplaceWithWithProcessedImages:= ImageMng.ProcessImagesInRTF(ReplaceWith, '', ImagesMode, '', 0, false);
+     if ReplaceWithWithProcessedImages <> '' then
+        ReplaceWith:= ReplaceWithWithProcessedImages;
+  end;
+
+
   Len:= p - pI +  Length(KNT_RTF_HIDDEN_MARK_AUX);           // Length to be replaced
   RemoveReplace(pI, ReplaceWith);
+  pI:= p + 1;
 
   repeat
      pI:= Pos(LINK_PREFIX, RTFIn, pI);                      // LINK_PREFIX = '{\field{\*\fldinst{HYPERLINK ';
@@ -2072,6 +2212,10 @@ var
    ImagesMode: TImagesMode;
    ReconsiderImageDimensionsGoalBAK: boolean;
    ProcessedTables: boolean;
+{$IFDEF KNT_DEBUG}
+   rtfPlainDbg: AnsiString;
+   rtfDbg: string;
+{$ENDIF}
 
 
    procedure CheckCreateResult (N: Integer);
@@ -2107,8 +2251,29 @@ var
    end;
 
    procedure RemoveReplace_EnsureHiddenMarksNotVisible (pIni, pEnd: integer; LengthToBeReplaced: integer; const AddFinal: AnsiString = '');
+   var
+     pI, pF: integer;
+     LinkStr: AnsiString;
    begin
      ReplaceWith:= Copy(RTFIn, pIni, pEnd - pIni);
+
+     LinkStr:= '';
+
+     pI:= 0;
+     repeat
+        pI:= Pos(KNT_RTF_FOLDED_LINK_PREFIX, ReplaceWith, pI+1);
+        if pI > 0 then begin
+           pF:= Pos(KNT_RTF_HIDDEN_MARK_R, ReplaceWith, pI);
+           if pF > 0 then begin
+              if RTFLinkFoldedToLink(ReplaceWith, pI, pF, LinkStr) then                // -> LinkStr: Hyperlink RTF "unfold"
+                 ReplaceWith:= Copy(ReplaceWith,1,pI-1) + LinkStr + Copy(ReplaceWith, pF+Length(KNT_RTF_HIDDEN_MARK_R), pEnd-pF - Length(KNT_RTF_HIDDEN_MARK_R));
+              pI:= pF;
+           end
+           else
+              break;
+        end;
+     until pI = 0;
+
      ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_L, '\v' + KNT_RTF_HIDDEN_MARK_L, [rfReplaceAll]);
      ReplaceWith:= StringReplace(ReplaceWith, KNT_RTF_HIDDEN_MARK_R, KNT_RTF_HIDDEN_MARK_R +'\v0 ', [rfReplaceAll]);
      if AddFinal <> '' then
@@ -2360,6 +2525,11 @@ begin
      pIplain_Last1stLevelBlock:= 0;
      Num1stLevelBlocks:= 0;
 
+{$IFDEF KNT_DEBUG}
+     rtfPlainDbg:= GetDebugRTFTextPlain(TextPlain);
+     rtfDbg:= GetDebugRTFText(RTFAux.RtfText);
+{$ENDIF}
+
      for i:= 0 to Length(FoldedLinks)-1 do begin
         pI:= FoldedLinks[i].pI;
         if pI > pEnd_Last1stLevelBlock then
@@ -2382,7 +2552,7 @@ begin
            // Insert character $14 -> \'14 (4 characters in RTF) KNT_RTF_HIDDEN_MARK_AUX = \'14
            // I can't save in FoldedLinks[i] the position of this marker ($14) because the insertion is based
            // on TextPlain and not on the RTF code, which is what we save in FoldedLinks and what we need for further processing
-           MarkEndVisibleExtract(RTFAux, TextPlain, pF);
+           MarkEndVisibleExtract(RTFAux, TextPlain, pF, Num1stLevelBlocks);
 
            // We need to shift the positions recorded in the following links by the length of the inserted mark,
            // since we will base ourselves on those positions later, using at the same time the RTF with the added marks #$14
@@ -2417,6 +2587,9 @@ begin
 
   // From this point on we do not need to use the RichEdit control, we can work with the RTFIn string
 
+{$IFDEF KNT_DEBUG}
+     rtfDbg:= GetDebugRTFText(RTFin);
+{$ENDIF}
 
 
    { Replace all link markers with the corresponding LINK, taking into account:
@@ -2763,6 +2936,9 @@ begin
    if (pBeginBlock > 0) and (pF <= 0) then begin
       pI:= pBeginBlock;
       pF:= pI;
+      if FoldedBlock and ConsiderNestedBlocks then
+         Lo:= Length(KNT_RTF_FOLDED_LINK_BLOCK_CHAR);      // $11L"FOLD:"@+ $12 --> [L"FOLD:"@+ ]
+
 
       nEnd:= 1;
       repeat
@@ -3137,8 +3313,19 @@ begin
 
       if not SelectedFoldedBlockBetweenMarkersOnExpand then begin             // If it is selected, we have already checked it before
          // Do not allow folding inside a folded block or partially selected
+         var ProtectedPrevChar: boolean;
          SelLength:= 0;
-         if SelAttributes.Protected then exit;
+         ProtectedPrevChar:= false;
+
+         if SS > 0 then begin
+            SelStart:= SS - 1;
+            if SelAttributes.Protected then
+               ProtectedPrevChar:= True;
+         end;
+         if ProtectedPrevChar then begin
+            SelStart:= SS;
+            if SelAttributes.Protected then exit;
+         end;
          SelStart:= SS + SL;
          if SelAttributes.Protected then exit;
       end;
@@ -4382,7 +4569,7 @@ begin
                 if NextIndent > 0 then begin
                   // insert a linebreak followed by the substring of blanks and tabs
                   // If we are inside a hyperlink, do nothing here. It's risky and unuseful
-                  GetLinkAtCursor(URLStr, TxtSel, L, R, false);
+                  GetLinkAtCursor(Self, URLStr, TxtSel, L, R, false);
                   if URLStr = '' then begin
                      key := 0;
                      TxtSel:= #13 + Copy(LineStr, 1, NextIndent);
@@ -4881,7 +5068,7 @@ begin
       var URLText, TxtSel: string;
       var chrg: TCharRange;
       var L, R: integer;
-      GetLinkAtCursor(URLText, TxtSel, L, R, false);
+      GetLinkAtCursor(Self, URLText, TxtSel, L, R, false);
       ImgID:= GetImageIDinPlaintext(URLText);
   end;
 
@@ -6256,102 +6443,105 @@ end;
 
 //--------------------------------------------------------------------------
 
-procedure TKntRichEdit.GetLinkAtCursor(var URL: string; var TextURL: string;
-                                       var LeftE: integer; var RightE: integer;
-                                       SelectURL: boolean= true);
+function GetLinkAtCursor(Editor: TRxRichEdit; var URL: string; var TextURL: string;
+                          var LeftE, RightE: integer; SelectURL: boolean= true): boolean;
 var
-    link: TRxLinkStyle;    // lsNone: link style not set  lsLink: link style set    lsMixed: mixed                             
+    link: TRxLinkStyle;    // lsNone: link style not set  lsLink: link style set    lsMixed: mixed
     TextLen: integer;
     Left, Right: integer;
     SelS, SelL: integer;
 begin
+  with Editor do begin
+      BeginUpdate;
+      try
+        Result:= False;
+        URL:= '';
+        TextURL:= '';
 
-  BeginUpdate;
-  try
+        SelS:= SelStart;
+        SelL:= SelLength;
+        Left:= SelS;
+        Right:= SelL + Left;
 
-    URL:= '';
-    TextURL:= '';
-    SelS:= SelStart;
-    SelL:= SelLength;
-    Left:= SelS;
-    Right:= SelL + Left;
-
-    SetSelection(Left, Left+1, false);
-    link:= SelAttributes.LinkStyle;
-    if link = lsLink then begin
-       SetSelection(Left-1, Left, false);
-       link:= SelAttributes.LinkStyle;
-    end;
-
-    if (link <> lsLink) then begin
-        SetSelection(Left, Right, false);
-        LeftE:= Left;
-        RightE:= Left;
-    end
-    else begin
-        TextLen:= TextLength;
-
-        // Buscamos el extremo izquierdo
-
-        { Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection
-          one hidden character selection of that hyperlink, the whole link is selected }
-        link:= lsLink;
-        while (Left >0) and (link=lsLink) and (SelLength=1) do begin
-              Left:= Left - 1;
-              SetSelection(Left-1, Left, false);
-              link:= SelAttributes.LinkStyle;
+        SetSelection(Left, Left+1, false);
+        link:= SelAttributes.LinkStyle;
+        if link = lsLink then begin
+           SetSelection(Left-1, Left, false);
+           link:= SelAttributes.LinkStyle;
         end;
 
-        if (SelLength > 1) then begin
-           Left:= SelStart;
-           Right:= Left + SelLength;
-           LeftE:= Left;
-           RightE:= Right;
+        if (link <> lsLink) then begin
+            SetSelection(Left, Right, false);
+            LeftE:= Left;
+            RightE:= Left;
         end
         else begin
-           LeftE:= Left;
-           // Ampliamos la selección incluyendo el/los caracteres '<' que pueda haber
-           while (LeftE >0) and (SelText='<') do begin
-                 LeftE:= LeftE - 1;
-                 SetSelection(LeftE-1, LeftE, false);
-           end;
+            TextLen:= TextLength;
+
+            // Buscamos el extremo izquierdo
+
+            { Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection
+              one hidden character selection of that hyperlink, the whole link is selected }
+            link:= lsLink;
+            while (Left >0) and (link=lsLink) and (SelLength=1) do begin
+                  Left:= Left - 1;
+                  SetSelection(Left-1, Left, false);
+                  link:= SelAttributes.LinkStyle;
+            end;
+
+            if (SelLength > 1) then begin
+               Left:= SelStart;
+               Right:= Left + SelLength;
+               LeftE:= Left;
+               RightE:= Right;
+            end
+            else begin
+               LeftE:= Left;
+               // Ampliamos la selección incluyendo el/los caracteres '<' que pueda haber
+               while (LeftE >0) and (SelText='<') do begin
+                     LeftE:= LeftE - 1;
+                     SetSelection(LeftE-1, LeftE, false);
+               end;
 
 
-           // Buscamos el extremo derecho
-           link:= lsLink;
-           while (Right < TextLen) and (link=lsLink) do begin
-                 Right:= Right + 1;
-                 SetSelection(Right, Right+1, false);
-                 link:= SelAttributes.LinkStyle;
-           end;
+               // Buscamos el extremo derecho
+               link:= lsLink;
+               while (Right < TextLen) and (link=lsLink) do begin
+                     Right:= Right + 1;
+                     SetSelection(Right, Right+1, false);
+                     link:= SelAttributes.LinkStyle;
+               end;
 
-           RightE:= Right;
-           // Ampliamos la selección incluyendo el/los caracteres '>' que pueda haber
-           while (Right < TextLen) and (SelText='>') do begin
-                 RightE:= RightE + 1;
-                 SetSelection(RightE, RightE+1, false);
-           end;
+               RightE:= Right;
+               // Ampliamos la selección incluyendo el/los caracteres '>' que pueda haber
+               while (Right < TextLen) and (SelText='>') do begin
+                     RightE:= RightE + 1;
+                     SetSelection(RightE, RightE+1, false);
+               end;
+            end;
+
+            URL:= GetTextRange(Left, Right);
+            if pos('HYPERLINK "', URL)= 1 then begin
+               // If it is an hyperlink with text associated then the string will be: URL"TextURL, where only TextURL is visible
+               SetSelection(Left, Right, false);
+               TextURL:= SelVisibleText;
+               URL:= Copy(URL, 12, Length(URL) - Length(TextURL)- 12);
+            end
+            else
+              if SelectURL then
+                  SetSelection(LeftE, RightE, false);
+
+            if not SelectURL then
+               SetSelection(SelS, SelS + SelL, false);
+
+            Result:= true;
         end;
 
-        URL:= GetTextRange(Left, Right);
-        if pos('HYPERLINK "', URL)= 1 then begin
-           // If it is an hyperlink with text associated then the string will be: URL"TextURL, where only TextURL is visible
-           SetSelection(Left, Right, false);
-           TextURL:= SelVisibleText;
-           URL:= Copy(URL, 12, Length(URL) - Length(TextURL)- 12);
-        end
-        else
-          if SelectURL then
-              SetSelection(LeftE, RightE, false);
-
-        if not SelectURL then
-           SetSelection(SelS, SelS + SelL, false);
-
-    end;
-
-  finally
-     EndUpdate;
+      finally
+         EndUpdate;
+      end;
   end;
+
 end;
 
 
