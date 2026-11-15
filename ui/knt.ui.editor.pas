@@ -2658,7 +2658,7 @@ begin
 *)
 
 
-        ReplaceWith:= '\protect' + ReplaceWith;
+        ReplaceWith:= '\cf0\protect' + ReplaceWith;
         RemoveReplace(pI, ReplaceWith);
         pAux:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pF);   // $14. Mark used to identify the end of the visible extract...
 
