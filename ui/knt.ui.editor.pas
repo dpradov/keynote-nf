@@ -432,7 +432,7 @@ begin
   Result:= StringReplace(str, KNT_RTF_HIDDEN_MARK_L_CHAR,            '[', [rfReplaceAll]);
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_R_CHAR,         ']', [rfReplaceAll]);
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_EndLink_CHAR,   'º', [rfReplaceAll]);
-  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_AUX_CHAR,       '^', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_AUX,            '^^^^^^^^^^', [rfReplaceAll]);
   Result:= StringReplace(Result, #13,                                '#', [rfReplaceAll]);
 end;
 
@@ -441,7 +441,7 @@ begin
   Result:= StringReplace(str, KNT_RTF_HIDDEN_MARK_L,            '\[[[', [rfReplaceAll]);
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_R,         '\]]]', [rfReplaceAll]);
   Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_EndLink,   '\ººº', [rfReplaceAll]);
-  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_AUX,       '\^^^', [rfReplaceAll]);
+  Result:= StringReplace(Result, KNT_RTF_HIDDEN_MARK_AUX,    '^^^^^^^^^^', [rfReplaceAll]);
   Result:= StringReplace(Result, #13,                              '#', [rfReplaceAll]);
   Result:= StringReplace(Result, #10,                              '#', [rfReplaceAll]);
 end;
@@ -1439,6 +1439,10 @@ var
 
              if (Text[p] = ' ') and (p >= pFirstNonSpace) then
                 SpacePending:= true;
+          end
+          else begin
+             SpacePending:= false;
+             SpaceOrTabPending:= false;
           end;
 
         end;
@@ -1469,7 +1473,7 @@ begin
 
   RTFAux.SelStart:= p - 1;
   RTFAux.SelLength:= 0;
-  RTFAux.SelText:= KNT_RTF_HIDDEN_MARK_AUX_CHAR;
+  RTFAux.SelText:= KNT_RTF_HIDDEN_MARK_AUX;
 end;
 
 
@@ -1852,10 +1856,10 @@ begin
 
      RTFAux.SelStart:= 0;
      RTFAux.SelLength:= FOLDED_BLOCK_VISIBLE_EXTRACT_MAX_LENGTH;
-     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, 0, MinLenExtract);       // We will insert #$14 to indicate the final position of that visible excerpt
+     MarkEndVisibleExtract(RTFAux, RTFAux.TextPlain(True), 1, 0, MinLenExtract);       // We will insert KNT_RTF_HIDDEN_MARK_AUX chars to indicate the final position of that visible excerpt
 
      if KeepEndCR and (Pos(KNT_RTF_HIDDEN_MARK_L + KNT_RTF_HIDDEN_FOLD_INF, RTFIn, 1) = 0) then begin
-        RTFAux.SelStart:= RTFAux.SelStart + 1;
+        RTFAux.SelStart:= RTFAux.SelStart + Length(KNT_RTF_HIDDEN_MARK_AUX);
         InsertMarker(RTFAux, 'f', 1);               // f: Folded inf. 1 -> Keep end carriage return        //'\v\'11f0\'12\v0'
      end;
 
@@ -2530,6 +2534,43 @@ begin
      rtfDbg:= GetDebugRTFText(RTFAux.RtfText);
 {$ENDIF}
 
+
+    (* MARK*1
+       Instead of using the special character $14 (which is stored as 4 characters in RTF, "\'14", and implies a 1-byte offset in PlainText),
+       we will use standard ASCII characters —a combination rare enough that we need not worry about it appearing within the block to be
+       folded: KNT_RTF_HIDDEN_MARK_AUX = ' =.KnOtE= ' 
+       The reason is as follows:
+       I have encountered an unexpected, problematic situation involving the use of the "Consolas" font. If the point where
+       the $14 character is to be inserted falls within text using the Consolas font (defined in the font table, \fonttbl, as
+       {\f1\fnil Consolas;}), the RTF does not simply grow by 3 or 4 characters as anticipated (3 or 4, as noted below); instead, the
+       RTF engine forces the insertion of a command to switch to another font ({\f3\fnil\fcharset0 Consolas;}) before the mark, 
+       and another command after it to restore the original font.
+
+       In other words, instead of
+         \f1 Visible extract \'12 hidden part
+       we get:
+         \f1 Visible extract \f3\'12\f1 hidden part
+
+        This causes the generated RTF to be incorrect, potentially triggering an exception or resulting in a well-formed but unusable
+        RTF text that does not reflect the expected content. If this is detected before the note has been saved, it is always possible
+        to undo the creation of the folded block (by pressing Undo, or Ctrl+Z). However, if this is not done —and even if the block 
+        cannot be displayed or extracted in older versions— the issue can still be corrected, as the problem lies not in the creation
+        of the block itself, but in how it is previewed or unfolded.
+        In many cases, this may not occur; in recent versions, if the text selected for folding includes the carriage return of the 
+        last line, the creation of the folded block will also insert the code `\11f1\12` alongside the hidden marker indicating the end
+        of the visible excerpt. Much like the insertion of `\14`, these characters also trigger a change in font, that will be 
+        persisted in the created folded block. When later, preparing the RTF to be expanded, the `\14` is inserted, that font change
+        will not be necessary, thereby avoiding the aforementioned issue:
+
+             \f1 Visible extract \f3\'11f1\'12\'14\f1 hidden part
+
+        I have verified once again that with "standard" fonts —such as Tahoma, Arial, Verdana, or Times New Roman— the use of
+        \'11 \'12 \'13 or \'14 does not require a font change.
+
+        For now, I have only encountered this issue with the "Consolas" font, though I cannot be certain whether it might also occur
+        with other fonts. For this reason, I have decided to use simple ASCII characters instead.
+     *)
+
      for i:= 0 to Length(FoldedLinks)-1 do begin
         pI:= FoldedLinks[i].pI;
         if pI > pEnd_Last1stLevelBlock then
@@ -2542,26 +2583,35 @@ begin
            FoldedLinks[i].FirstLevel:= True;
 
            // Mark the final position of the visible extract ------------------
-           // We are not going to update the TextPlain variable after each insertion of $14. Instead we will take into account
-           // the offset when transferring the position of the start of the visible text to MarkEndVisibleExtract (with Num1stLevelBlocks)
-           // (Offset of 1 byte in PlainText, and 4 in Rtf; the latter to be reflected in FoldedLinks)
+           // We are not going to update the TextPlain variable after each insertion of characters in KNT_RTF_HIDDEN_MARK_AUX.
+           // Instead we will take into account the offset when transferring the position of the start of the visible text to
+           // MarkEndVisibleExtract (with Num1stLevelBlocks)
+           // (Offset of 10 bytes in both PlainText and Rtf; the latter to be reflected in FoldedLinks)
            // In pIplain_Last1stLevelBlock we are saving the start position of the last processed first-level folded block
            // but referring to TextPlain, not to the RTF string, therefore the position where '$11L"fold:"@+#$12' is located
-           pF:= pIplain_Last1stLevelBlock + Length(KNT_RTF_FOLDED_LINK_BLOCK_CHAR) + Num1stLevelBlocks;  // pF -> Primer carácter del extracto
 
-           // Insert character $14 -> \'14 (4 characters in RTF) KNT_RTF_HIDDEN_MARK_AUX = \'14
-           // I can't save in FoldedLinks[i] the position of this marker ($14) because the insertion is based
+           pF:= pIplain_Last1stLevelBlock + Length(KNT_RTF_FOLDED_LINK_BLOCK_CHAR) + (Num1stLevelBlocks * Length(KNT_RTF_HIDDEN_MARK_AUX));  // pF -> First character of the excerpt
+
+           // Insert of characters in KNT_RTF_HIDDEN_MARK_AUX  (10 characters) ("' =.KnOtE= '")
+           // I can't save in FoldedLinks[i] the position of this marker because the insertion is based
            // on TextPlain and not on the RTF code, which is what we save in FoldedLinks and what we need for further processing
+           //--------------
+
+
            MarkEndVisibleExtract(RTFAux, TextPlain, pF, Num1stLevelBlocks);
 
            // We need to shift the positions recorded in the following links by the length of the inserted mark,
-           // since we will base ourselves on those positions later, using at the same time the RTF with the added marks #$14
-           // This offset may need to be adjusted as the #$14 marks are processed (we'll use OffsetC )
-           // This is because depending on where it falls, the modified RTF may be increased by 4 characters ("\'14") or less.
-           // If the character is located right after a control command, the mark will be placed right after it,
-           // eliminating the space that separates the command from the subsequent text. In this example the increment is 3:
-           //    \highlight0 KeyNote NF\b0  is an evolution of Tranglos
-           //    \highlight0\'14KeyNote NF\b0  is an evolution of Tranglos
+           // since we will base ourselves on those positions later, using at the same time the RTF with the added marks
+
+           // I don’t recall implementing the following; did it turn out to be unnecessary? In any case, with the new
+           // characters in KNT_RTF_HIDDEN_MARK_AUX, it is not needed:
+           // ---
+           //  This offset may need to be adjusted as the #$14 marks are processed (we'll use OffsetC )
+           //  This is because depending on where it falls, the modified RTF may be increased by 4 characters ("\'14") or less.
+           //  If the character is located right after a control command, the mark will be placed right after it,
+           //  eliminating the space that separates the command from the subsequent text. In this example the increment is 3:
+           //     \highlight0 KeyNote NF\b0  is an evolution of Tranglos
+           //     \highlight0\'14KeyNote NF\b0  is an evolution of Tranglos
 
            inc(FoldedLinks[i].pEndBlock, Length(KNT_RTF_HIDDEN_MARK_AUX));
            pEnd_Last1stLevelBlock:= FoldedLinks[i].pEndBlock;
@@ -2579,7 +2629,7 @@ begin
      end;
 
      if pEnd_Last1stLevelBlock <> 0 then
-        RTFIn:= RTFAux.RtfText;              // Due to the displacement caused by the insertion of \'14
+        RTFIn:= RTFAux.RtfText;              // Due to the displacement caused by the insertion of characters in KNT_RTF_HIDDEN_MARK_AUX
 
   finally
      RTFAux.Free;
@@ -2660,7 +2710,7 @@ begin
 
         ReplaceWith:= '\cf0\protect' + ReplaceWith;
         RemoveReplace(pI, ReplaceWith);
-        pAux:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pF);   // $14. Mark used to identify the end of the visible extract...
+        pAux:= Pos(KNT_RTF_HIDDEN_MARK_AUX, RTFIn, pF);   // " =.KnOtE= " Mark used to identify the end of the visible extract...
 
         inc(pF, Length(KNT_RTF_HIDDEN_MARK_R));        // pF --> pF'
         RemoveReplace_EnsureHiddenMarksNotVisible(pF, pAux, pAux - pF + Length(KNT_RTF_HIDDEN_MARK_AUX), '\v ');
@@ -6448,7 +6498,7 @@ function GetLinkAtCursor(Editor: TRxRichEdit; var URL: string; var TextURL: stri
 var
     link: TRxLinkStyle;    // lsNone: link style not set  lsLink: link style set    lsMixed: mixed
     TextLen: integer;
-    Left, Right: integer;
+    L, R: integer;
     SelS, SelL: integer;
 begin
   with Editor do begin
@@ -6460,20 +6510,20 @@ begin
 
         SelS:= SelStart;
         SelL:= SelLength;
-        Left:= SelS;
-        Right:= SelL + Left;
+        L:= SelS;
+        R:= SelL + L;
 
-        SetSelection(Left, Left+1, false);
+        SetSelection(L, L+1, false);
         link:= SelAttributes.LinkStyle;
         if link = lsLink then begin
-           SetSelection(Left-1, Left, false);
+           SetSelection(L-1, L, false);
            link:= SelAttributes.LinkStyle;
         end;
 
-        if (link <> lsLink) then begin
-            SetSelection(Left, Right, false);
-            LeftE:= Left;
-            RightE:= Left;
+        if (link = lsNone) then begin    // The attempt to select links corresponding to images often leads to selecting the entire link at this point along with the hidden tag that precedes it, establishing link = lsMixed
+            SetSelection(L, R, false);
+            LeftE:= L;
+            RightE:= L;
         end
         else begin
             TextLen:= TextLength;
@@ -6483,20 +6533,20 @@ begin
             { Character "H" of HYPERLINK ".... cannot be selected in versions >= 5. Also in that versiones, when trying to selection
               one hidden character selection of that hyperlink, the whole link is selected }
             link:= lsLink;
-            while (Left >0) and (link=lsLink) and (SelLength=1) do begin
-                  Left:= Left - 1;
-                  SetSelection(Left-1, Left, false);
+            while (L >0) and (link=lsLink) and (SelLength=1) do begin
+                  L:= L - 1;
+                  SetSelection(L-1, L, false);
                   link:= SelAttributes.LinkStyle;
             end;
 
             if (SelLength > 1) then begin
-               Left:= SelStart;
-               Right:= Left + SelLength;
-               LeftE:= Left;
-               RightE:= Right;
+               L:= SelStart;
+               R:= L + SelLength;
+               LeftE:= L;
+               RightE:= R;
             end
             else begin
-               LeftE:= Left;
+               LeftE:= L;
                // Ampliamos la selección incluyendo el/los caracteres '<' que pueda haber
                while (LeftE >0) and (SelText='<') do begin
                      LeftE:= LeftE - 1;
@@ -6506,24 +6556,24 @@ begin
 
                // Buscamos el extremo derecho
                link:= lsLink;
-               while (Right < TextLen) and (link=lsLink) do begin
-                     Right:= Right + 1;
-                     SetSelection(Right, Right+1, false);
+               while (R < TextLen) and (link=lsLink) do begin
+                     R:= R + 1;
+                     SetSelection(R, R+1, false);
                      link:= SelAttributes.LinkStyle;
                end;
 
-               RightE:= Right;
+               RightE:= R;
                // Ampliamos la selección incluyendo el/los caracteres '>' que pueda haber
-               while (Right < TextLen) and (SelText='>') do begin
+               while (R < TextLen) and (SelText='>') do begin
                      RightE:= RightE + 1;
                      SetSelection(RightE, RightE+1, false);
                end;
             end;
 
-            URL:= GetTextRange(Left, Right);
+            URL:= GetTextRange(L, R);
             if pos('HYPERLINK "', URL)= 1 then begin
                // If it is an hyperlink with text associated then the string will be: URL"TextURL, where only TextURL is visible
-               SetSelection(Left, Right, false);
+               SetSelection(L, R, false);
                TextURL:= SelVisibleText;
                URL:= Copy(URL, 12, Length(URL) - Length(TextURL)- 12);
             end

@@ -545,12 +545,15 @@ const
   KNT_RTF_HIDDEN_MARK_L = '\''11';
   KNT_RTF_HIDDEN_MARK_R = '\''12';
   KNT_RTF_HIDDEN_MARK_EndLink = '\''13';
-  KNT_RTF_HIDDEN_MARK_AUX = '\''14';
+  //KNT_RTF_HIDDEN_MARK_AUX = '\''14';
   KNT_RTF_HIDDEN_MARK_L_CHAR       = Chr(17);    // 17 ($11): DC1 (Device Control 1)
   KNT_RTF_HIDDEN_MARK_R_CHAR       = Chr(18);    // 18 ($12): DC2 (Device Control 2)
   KNT_RTF_HIDDEN_MARK_EndLink_CHAR = Chr(19);    // 19 ($13): DC3 (Device Control 3)
-  KNT_RTF_HIDDEN_MARK_AUX_CHAR     = Chr(20);    // 20 ($14): DC4 (Device Control 4)
+  //KNT_RTF_HIDDEN_MARK_AUX_CHAR     = Chr(20);    // 20 ($14): DC4 (Device Control 4)
   KNT_RTF_AUX_CHAR     = Chr(4);                 // 4  EOT: End of Transmission
+
+  KNT_RTF_HIDDEN_MARK_AUX = ' =.KnOtE= ';    // If I were to use something like "!.&KnOtE]!" (without the quotation marks), I would run into issues if it were placed next to a hyperlink. That is why I use spaces to separate it
+
 
   KNT_RTF_HIDDEN_BOOKMARK = 'B';
   KNT_RTF_HIDDEN_Bookmark09 = 'b';       // Used with 9 bookmarks set with Search|Set Bookmark
