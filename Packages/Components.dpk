@@ -31,6 +31,7 @@ package Components;
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
+{$DEFINE NOTSYNPICTUREREGISTER}
 {$DEFINE RELEASE}
 {$DEFINE INCLUDE_POSTKEYEX}
 {$ENDIF IMPLICITBUILDING}
@@ -118,6 +119,9 @@ contains
 
   ComCtrls95 in '..\3rd_party\ComCtrls95\ComCtrls95.pas',
   CC95_Register in '..\3rd_party\ComCtrls95\CC95_Register.pas',
+
+  gf_miscvcl in '..\support\gf_miscvcl.pas',
+  SynGdiPlus in '..\3rd_party\SynGdiPlus\SynGdiPlus.pas',
   knt.ui.secureEdit in '..\ui\knt.ui.secureEdit.pas'
   ;
 end.
