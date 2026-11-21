@@ -73,10 +73,15 @@ function GetRTFColor (Color: TColor): string;
 function CleanRTF(const RTF: AnsiString; var nRTF: AnsiString): boolean;
 function AdaptLinksForColor (const RTF: AnsiString; var nRTF: AnsiString): boolean;
 procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
+procedure AdjustHeaderStyleSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
+procedure AdjustSpacingInParagWithBulletsOrNumbersInRTF(var RTFText: AnsiString);
 
 
 implementation
-uses kn_Const;
+uses gf_strings,
+     kn_Const,
+     knt.ui.editor
+     ;
 
 // To use the filename in {\field{\*\fldinst{HYPERLINK "hyperlink"}}{\fldrslt{\cf1\ul textOfHyperlink}}}
 // we must convert each '\' to four '\' or to '/'. Example: D:\kk.txt -> D:\\\\kk.txt or D:/kk.txt
@@ -458,6 +463,8 @@ procedure SetDefaultFontAndSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTex
 var
   Flags: TReplaceFlags;
   fSize: string;
+  p, pf: integer;
+  FontCourier, FontSizeCourier, NewFontSizeCourier: string;
 begin
    if (RTFText = '') or (TextAttrib  = nil) then
       exit;
@@ -475,6 +482,8 @@ begin
        default values.
        The RTF specification seems to say that \plain should reset the current font size to 12-point, but some versions of
        MSWord reset it to 10-point. To be sure the point size resets to what you intend, explicitly set it after every \plain,
+
+    - Text labeled as <code> is converted to Courier New, size 10. We will match this to the font size of the current selection.
   }
 
   fSize:= 'fs'+(TextAttrib.Size*2).ToString;
@@ -484,6 +493,119 @@ begin
   RTFText:= StringReplace(RTFText, '{\colortbl\',  '\f0\' + fSize + ' {\colortbl\', Flags);
   RTFText:= StringReplace(RTFText, '\plain\fs24',  '\plain\'+ fSize, [rfReplaceAll]);
 
+  if TextAttrib.Size <> 10 then begin
+    p:= Pos('\fonttbl', RTFText);
+    pf:= Pos('}}', RTFText, p);
+    p:= Pos('Courier New', RTFText);
+    if (p > 0) and (p < pf) then begin
+       p:= NFromLastCharPos(RTFText, '{', 1, p);
+       FontCourier:= Copy(RTFText, p+1, 4);
+       FontSizeCourier:= FontCourier + 'fs20';
+       NewFontSizeCourier:= FontCourier + fSize;
+       RTFText:= StringReplace(RTFText, FontSizeCourier, NewFontSizeCourier, [rfReplaceAll]);
+    end;
+  end;
 end;
+
+
+procedure AdjustHeaderStyleSizeInRTF(var RTFText: AnsiString; TextAttrib: TRxTextAttributes = nil);
+var
+  FontSize: integer;
+  fSize: string;
+  H2OrH3: boolean;
+
+begin
+   if (RTFText = '') or (TextAttrib  = nil) then
+      exit;
+
+  { When converting HTML text that includes <h1>, <h2>, or <h3> tags, these are always converted to
+    24-point (\fs48), 18-point (\fs36), and 14-point (\fs28) font sizes, respectively.
+    Using this method, we will adjust those font sizes depending on the font size in the current selection: N
+    h3 -> N + 2            If the font in the selection is 10 points --> 12
+    h2 -> N + 4                                                --> 14
+    h1 -> N + 8                                                --> 18
+  }
+
+  H2OrH3:= false;
+  // h3
+  FontSize:= TextAttrib.Size + 2;
+  if (FontSize <> 14) and (Pos('\fs28',RTFText) > 0) then begin
+     fSize:= '\!FS'+(FontSize*2).ToString;
+     RTFText:= StringReplace(RTFText, '\fs28',  fSize, [rfReplaceAll]);
+     H2OrH3:= true;
+  end;
+
+  // h2
+  FontSize:= TextAttrib.Size + 4;
+  if (FontSize <> 18) and (Pos('\fs36',RTFText) > 0) then begin
+     fSize:= '\!FS'+(FontSize*2).ToString;
+     RTFText:= StringReplace(RTFText, '\fs36',  fSize, [rfReplaceAll]);
+     H2OrH3:= true;
+  end;
+
+  // h1
+  FontSize:= TextAttrib.Size + 8;
+  if (FontSize <> 24) then begin
+     fSize:= '\fs'+(FontSize*2).ToString;
+     RTFText:= StringReplace(RTFText, '\fs48',  fSize, [rfReplaceAll]);
+  end;
+
+  if H2OrH3 then
+     RTFText:= StringReplace(RTFText, '\!FS',  '\fs', [rfReplaceAll]);
+
+end;
+
+
+procedure AdjustSpacingInParagWithBulletsOrNumbersInRTF(var RTFText: AnsiString);
+var
+  p, p1, p2, pPard, pPntext: integer;
+  FirstItem: boolean;
+const
+  InterSep: AnsiString = '\sa045\sb000';
+  LastSep: AnsiString  = '\sa100\sb170';
+
+begin
+   if (RTFText = '') then exit;
+
+   (*  Prevent all list items from having 5 points of spacing before and after
+       (\sb100\sa100, which is exactly equivalent to 5 points, since 1 point = 20 twips)
+       eg:
+      {\pntext\pard\ .... \par\pard\s1\sa100\sb100 ..             <-- Change
+      {\pntext\pard\ .... \par\pard\s1\sa100\sb100 ..             <-- Change
+      {\pntext\pard\ .... \par\pard\s1\sa100\sb100 ..
+      \par\pard ....
+    *)
+
+   FirstItem:= True;
+   pPntext:= Pos('{\pntext', RTFText, 1);
+   if pPntext > 0 then begin
+      repeat
+         if FirstItem then begin
+            p1:= Pos('\sa100\sb100', RTFText, pPntext-50);
+            if (p1 = 0) or (p1 > pPntext) then
+               p1:= 0;
+         end;
+         p2:= Pos('\sa100\sb100', RTFText, pPntext+1);
+         pPard:= Pos('\pard', RTFText, p2+1);
+         pPntext:= Pos('{\pntext', RTFText, p2+1);
+         if (p2 > 0) and (pPntext > 0) and (pPntext < pPard) then begin
+            if FirstItem and (p1 > 0) then
+               move(InterSep[1], RTFText[p1], Length(InterSep));
+            FirstItem:= False;
+            move(InterSep[1], RTFText[p2], Length(InterSep));
+         end
+         else
+         if (p2 > 0) then begin
+            if not FirstItem then
+               move(LastSep[1], RTFText[p2], Length(LastSep));
+            FirstItem:= True;
+         end;
+
+      until (pPntext = 0) or (p2 = 0);
+   end;
+
+
+end;
+
 
 end.

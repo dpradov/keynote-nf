@@ -53,6 +53,10 @@ type
        function GetURLFromHTML (const HTMLClipboard: AnsiString): string;
        procedure TrimMetadataFromHTML (var HTMLClipboard: AnsiString);
        procedure PrepareHTMLFormatTag (tag: AnsiString; var HTMLClipboard: AnsiString);
+       procedure Process_dt_HTML(var HTMLClipboard: AnsiString);
+       procedure Process_DIVasHeading_HTML(var HTMLClipboard: AnsiString);
+       procedure RemoveStyleInHTMLTags(var HTMLClipboard: AnsiString);
+       procedure RemoveCommentsInHTML(var HTMLClipboard: AnsiString);
        function GetNextImageInformation(const HTMLText: AnsiString; Offset: integer;
                                         var SourceImg: AnsiString; var TextAlt: string;
                                         var W, H: integer;
@@ -90,6 +94,9 @@ uses
    Vcl.Forms,
    CRC32,
    gf_strings,
+{$IFDEF KNT_DEBUG}
+   gf_streams,
+{$ENDIF}
    kn_global,
    kn_ExportImport,
    kn_RTFUtils,
@@ -371,29 +378,220 @@ When copying HTML text to the clipboard, Firefox simplifies some tag styles and 
 correctly converted to RTF, but other browsers such as Edge or Chrome do not do this and therefore the
 resulting RTF loses some formatting style.
 
-We need to simplify some tags like:
-  <STRONG style="BOX-SIZING: border-box; FONT-WEIGHT: bolder">Text....</STRONG>   -->   <STRONG>Text</STRONG>
+We need to simplify/clean some tags like:
+  <strong style="BOX-SIZING: border-box; FONT-WEIGHT: bolder">Text....</strong>   -->   <strong>Text</strong>
+
+   We also need to convert <span ...> tags into other tags, if possible: <strong>, <em>, and <u>. If that is not possible,
+   we should clean them up, leaving only `<span>`. Otherwise, in addition to losing the formatting (which the converter
+   will not recognize), the conversion process may, on some pages, simply cut off at a certain point and yield no further output.
+
+       <span ... font-weight: 600 ... >Text</span>             => <strong>Text</strong>                  // bold, 600, 700, ...
+       <span ... font-style: italic ... >Text</span>           => <em>Text</em>
+       <span ... text-decoration-line: underline ... >Text</span>   => <u>Text</u>
+       <span ... font-weight: 600 ... ><span ...>Text</span></span>           => <strong>Text</strong>
+       ...
+       <span ... >Text</span>                                  => <span>Text</span>
 }
 procedure TClipboardHelper.PrepareHTMLFormatTag (tag: AnsiString; var HTMLClipboard: AnsiString);
 var
-  pI, pF, i, L : integer;
-  tokenSearched, s: string;
+  pI, pF, piSpanClose, piFirstSpanClose, pStyle: integer;
+  i, L: integer;
+  SimpleTag, NestedTag, TagOk: boolean;
+  tokenSearched: AnsiString;
+  NewTag_Open, NewTag_Close, NewTag_WithValues: AnsiString;
+  TagIsSpan: boolean;
+
 begin
-   tokenSearched:= '<' + tag + ' style';
+   tokenSearched:= AnsiString('<') + tag + AnsiString(' ');
    L:= Length(Tag);
    i:= 1;
+
    repeat
       pI:= pos(tokenSearched, HTMLClipboard, i);
       if pI >= 1 then begin
+        NewTag_Open := '';
+        NewTag_Close := '';
         pF:= pos( '>', HTMLClipboard, pI + L+5);
         if pF > 0 then begin
-           s:= Copy( HTMLClipboard, pI+(L+1), pF-pI-(L+1));
-           delete( HTMLClipboard, pI+(L+1), pF-pI-(L+1));
+           TagOk:= not TagIsSpan;
+           if TagIsSpan then begin
+              piSpanClose:= pos( '<', HTMLClipboard, pF + 1);
+              piFirstSpanClose:= piSpanClose;
+              NestedTag:= false;
+              SimpleTag:= (Copy(HTMLClipboard, piSpanClose, Length('</span>')) = '</span>');
+              if not SimpleTag then
+                 NestedTag:= (Copy(HTMLClipboard, piSpanClose, Length('<span ')) = '<span ');
+
+              if SimpleTag or NestedTag then begin
+                  TagOk:= not NestedTag;
+                  if NestedTag then begin
+                     pF:= pos( '>', HTMLClipboard, piSpanClose + 1);
+                     piSpanClose:= pos( '<', HTMLClipboard, pF + 1);
+                     piFirstSpanClose:= piSpanClose;
+                     if (Copy(HTMLClipboard, piSpanClose, Length('</span>')) = '</span>') then begin
+                        piSpanClose:= pos( '<', HTMLClipboard, piSpanClose + Length('</span>'));
+                        if (Copy(HTMLClipboard, piSpanClose, Length('</span>')) = '</span>') then
+                           TagOk:= True;
+                     end;
+                  end;
+
+                  if TagOk then begin
+                      pStyle:= pos('font-weight: ', HTMLClipboard, pI + L+5);
+                      if (pStyle > 0) and (pStyle < pF) then begin
+                         inc(pStyle, length('font-weight: '));
+                         if (HTMLClipboard[pStyle] in ['6','7','8','9']) or (Copy(HTMLClipboard, pStyle, 4) = 'bold') then begin
+                            NewTag_Open:= '<b>';
+                            NewTag_Close:= '</b>';
+                         end;
+                      end;
+
+                      pStyle:= pos('font-style: italic', HTMLClipboard, pI + L+5);
+                      if (pStyle > 0) and (pStyle < pF) then begin
+                         NewTag_Open:= NewTag_Open + '<em>';
+                         NewTag_Close:= '</em>' + NewTag_Close;
+                      end;
+
+                      pStyle:= pos('text-decoration-line: underline', HTMLClipboard, pI + L+5);
+                      if (pStyle > 0) and (pStyle < pF) then begin
+                         NewTag_Open:= NewTag_Open + '<u>';
+                         NewTag_Close:= '</u>' + NewTag_Close;
+                      end;
+                  end
+                  else
+                     pI:= piSpanClose;
+              end;
+           end;
+
+           if TagOk then begin
+               if TagIsSpan and (NewTag_Open <> '') then begin
+                  NewTag_WithValues:= NewTag_Open + Copy(HTMLClipboard, pF+1, piFirstSpanClose-(pF+1)) + NewTag_Close;
+                  Move(NewTag_WithValues[1], HTMLClipboard[pI], Length(NewTag_WithValues));
+                  delete( HTMLClipboard, pI+Length(NewTag_WithValues), piSpanClose+Length('</span>') -pI-Length(NewTag_WithValues));
+               end
+               else
+                  delete( HTMLClipboard, pI+(L+1), pF-pI-(L+1));
+           end;
         end;
+
         i:= pI + L;
       end;
    until pI <= 0;
+
 end;
+
+
+procedure TClipboardHelper.Process_dt_HTML(var HTMLClipboard: AnsiString);
+var
+  pI, p, pF, L, i: integer;
+  NewTag_WithValues: AnsiString;
+begin
+   // <dt ...>subject</dt> ->  <br><b>subject</b><br>
+
+   L:= Length('<dt ');
+   i:= 0;
+
+   repeat
+      pI:= pos('<dt ', HTMLClipboard, i+1);
+      if pI > 0 then begin
+         pF:= 0;
+         p:= pos('>', HTMLClipboard, pI + L);
+         if p > 0 then begin
+            pF:= pos('<', HTMLClipboard, pI + L);
+            if (pF > 0) and (Copy(HTMLClipboard, pF, Length('</dt>')) = '</dt>') then begin
+               NewTag_WithValues:= '<b>' + Copy(HTMLClipboard, p+1, pF -p-1) + '</b>' + '<br>';
+               if i > 0 then
+                  NewTag_WithValues:= '<br>' + '<br>' + NewTag_WithValues;
+               Move(NewTag_WithValues[1], HTMLClipboard[pI], Length(NewTag_WithValues));
+               delete( HTMLClipboard, pI+Length(NewTag_WithValues), pF+Length('</dt>') -pI-Length(NewTag_WithValues));
+            end;
+         end;
+
+         i:= pI + L;
+      end;
+   until pI <= 0;
+
+end;
+
+
+procedure TClipboardHelper.Process_DIVasHeading_HTML(var HTMLClipboard: AnsiString);
+var
+  pI, p, pF, L, i, pRole, pLevel, Level: integer;
+  NewTag_WithValues: AnsiString;
+begin
+   // <div ... role="heading" aria-level="4" ...>Text</div>      -> <h4>Text</h4>
+
+   L:= Length('<div ');
+   i:= 0;
+
+   repeat
+      pI:= pos('<div ', HTMLClipboard, i+1);
+      if pI > 0 then begin
+         pF:= 0;
+         p:= pos('>', HTMLClipboard, pI + L);
+         pRole:= pos('role="heading"', HTMLClipboard, pI + L);
+         if (pRole > 0) and (pRole < p) then begin
+            pLevel:= pos('aria-level="', HTMLClipboard, pRole + Length('role="heading"'));
+            Level:= 4;
+            if (pLevel > 0) and (pLevel < p) then
+               Level:= StrToIntDef(HTMLClipboard[pLevel + Length('aria-level="')], 4);
+
+            pF:= pos('<', HTMLClipboard, p);
+            if (pF > 0) and (Copy(HTMLClipboard, pF, Length('</div>')) = '</div>') then begin
+               NewTag_WithValues:= Format('<h%d>%s</h%d>', [Level, Copy(HTMLClipboard, p+1, pF -p-1), Level]);
+               Move(NewTag_WithValues[1], HTMLClipboard[pI], Length(NewTag_WithValues));
+               delete( HTMLClipboard, pI+Length(NewTag_WithValues), pF+Length('</h4>')+1 -pI-Length(NewTag_WithValues));
+            end;
+         end;
+
+         i:= pI + L;
+      end;
+   until pI <= 0;
+
+end;
+
+
+procedure TClipboardHelper.RemoveStyleInHTMLTags (var HTMLClipboard: AnsiString);
+var
+  pI, pF: integer;
+  i, L: integer;
+
+begin
+   L:= Length(' style="');
+   pI:= 0;
+
+   repeat
+      pI:= pos(' style="', HTMLClipboard, pI+1);
+      if pI > 0 then begin
+         pF:= pos('"', HTMLClipboard, pI + L);
+         if pF > 0 then
+            delete( HTMLClipboard, pI + 1, pF-pI);
+      end;
+   until pI <= 0;
+
+end;
+
+
+procedure TClipboardHelper.RemoveCommentsInHTML(var HTMLClipboard: AnsiString);
+var
+  pI, pF: integer;
+  i, L: integer;
+begin
+  //<!-- ... -->
+
+   L:= Length(' style="');
+   pI:= 0;
+   repeat
+      pI:= pos('<!--', HTMLClipboard, pI+1);
+      if pI > 0 then begin
+         pF:= pos('-->', HTMLClipboard, pI + L);
+         if pF > 0 then
+            delete(HTMLClipboard, pI, pF-pI+ Length('-->'));
+      end;
+   until pI <= 0;
+
+
+end;
+
 
 
 function TClipboardHelper.GetNextImageInformation(const HTMLText: AnsiString; Offset: integer;
@@ -536,7 +734,8 @@ begin
               inc(TotalBytesRead, BytesRead);
            end;
 
-           ImageMng.RegisterAndInsertImage('', ActiveEditor, true, StrRTF, TextAlt, Stream, False, W,H);
+           if TotalBytesRead > 0 then
+              ImageMng.RegisterAndInsertImage('', ActiveEditor, true, StrRTF, TextAlt, Stream, False, W,H);
 
          finally
            InternetCloseHandle(hConnect);
@@ -780,13 +979,32 @@ begin
           else
              HTMLTextToConvert:= HTMLText;
 
+          //{$IFDEF KNT_DEBUG} Log.Add('TryOfferRTF.  HTML:', 3 );  {$ENDIF}
+          //{$IFDEF KNT_DEBUG} Log.Add(HTMLTextToConvert, 3 );      {$ENDIF}
+          //{$IFDEF KNT_DEBUG} HTMLTextToConvert:= ReadAllText('E:\_Pruebas\Html.txt');      {$ENDIF}
+
+
           Clipboard.TrimMetadataFromHTML(HTMLTextToConvert);
 
           // We must ensure that this format is recovered correctly because 'Plain text mode' can include font style (bold, cursive, ..)
+          Clipboard.RemoveCommentsInHTML(HTMLTextToConvert);
+          Clipboard.Process_dt_HTML(HTMLTextToConvert);
+          Clipboard.Process_DIVasHeading_HTML(HTMLTextToConvert);
           Clipboard.PrepareHTMLFormatTag('strong', HTMLTextToConvert);
           Clipboard.PrepareHTMLFormatTag('b', HTMLTextToConvert);
           Clipboard.PrepareHTMLFormatTag('em', HTMLTextToConvert);
           Clipboard.PrepareHTMLFormatTag('i', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('u', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('ul', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('li', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('div', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('code', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('input', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('p', HTMLTextToConvert);
+          Clipboard.PrepareHTMLFormatTag('span', HTMLTextToConvert);
+
+          Clipboard.RemoveStyleInHTMLTags(HTMLTextToConvert);
+
 
           // -- Insert images -----------------------------
           NImg:= 0;
@@ -839,6 +1057,15 @@ begin
              insert('}', Result, p);
           end;
           SetDefaultFontAndSizeInRTF(Result, TextAttrib);
+
+          { The size assigned by the converter to the <h1>, <h2>, and <h3> tags is always the same, which may not be appropriate 
+            for the default font size: h1 ->24   h2 ->18  h3 ->14
+            We will adjust these values ??relative to the font size of current selection. 
+
+            Similarly, the spacing between list items is fixed at 5 points both before and after each item, which, in most cases, does not look right.
+           }
+          AdjustHeaderStyleSizeInRTF(Result, TextAttrib);
+          AdjustSpacingInParagWithBulletsOrNumbersInRTF(Result);
 
           AddOrReplaceRTF(Result, HTMLTextBAK);
 
