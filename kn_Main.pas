@@ -1451,7 +1451,7 @@ type
     procedure CheckFindAllEnabled;
     procedure CheckTxtTagsEnabled;
 
-    procedure Fix_DoNotLoseScrollPosInEditor;
+    //procedure Fix_DoNotLoseScrollPosInEditor;
 
   public
     procedure CheckFilterTags;
@@ -1891,7 +1891,7 @@ begin
 
   Log_StoreTick( 'FormActivate - End', 1, -1 );
 
-  Fix_DoNotLoseScrollPosInEditor;
+  //Fix_DoNotLoseScrollPosInEditor;
 end; // ACTIVATE
 
 
@@ -2427,6 +2427,12 @@ end; // AppMinimize;
     at different points and with different values, etc. In some cases the solution has been valid in W10 and others
     only in W11. It should be noted that the correctness of the behavior could only be verified from outside the IDE
     or inside, but without using breakpoints. Any breakpoint added, even if it did not jump, altered the final behavior)
+
+    * NOV 2026:
+    After handling potential scroll position changes triggered by the WM_IME_REQUEST event within TRxRichEdit.WndProc,
+    the FRestoreFocusInEditor mechanism might no longer be necessary; however, I would need to conduct thorough testing
+    before removing it.
+    (See comment *7 in TRxCustomRichEdit.WndProc (RxRichEd.pas))
 }
 
 
@@ -2440,7 +2446,7 @@ begin
   //    the window is already visible and the editor doesn't show changes (BeginUpdate)
  try
 
-   if (ActiveEditor <> nil) and (ActiveEditor.Parent = nil) then begin
+   if (ActiveEditor <> nil) and (ActiveEditor.Parent = nil) then begin         // Fixes: IMPORTANT! "Control TKntRichEdit(..) has no parent window" -> Forces to kill KNT!  (01/05/25)
        if ActiveFolder <> nil then
           ActiveEditor:= ActiveFolder.Editor
        else
@@ -2549,8 +2555,10 @@ begin
 end; // AppRestore;
 
 
-// See comment in issue #720 "save and restore caret position...not sure what it's supposed to do"
+{  Not necessary, as the potential change in scroll position is handled when the WM_IME_REQUEST event occurs within TRxRichEdit.WndProc
+   See comment *7 in TRxCustomRichEdit.WndProc (RxRichEd.pas)
 
+// See comment in issue #720 "save and restore caret position...not sure what it's supposed to do"
 procedure TForm_Main.Fix_DoNotLoseScrollPosInEditor;
 begin
    ActiveControl:= nil;
@@ -2565,7 +2573,7 @@ begin
    end;
 
 end;
-
+}
 
 procedure TForm_Main.DisplayAppHint( sender: TObject );
 var

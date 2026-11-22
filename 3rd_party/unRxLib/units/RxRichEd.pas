@@ -504,6 +504,8 @@ type
     procedure WMSetCursor(var Message: TWMSetCursor); message WM_SETCURSOR;
     procedure WMSetFont(var Message: TWMSetFont); message WM_SETFONT;
     procedure WMDropFiles(var Msg: TWMDropFiles); message WM_DROPFILES;        // [dpv]  See comment *3
+    procedure WndProc(var Message: TMessage);  override;
+    function IsComposing: Boolean;                                             // [dpv]
 
 {$IFDEF RX_D5}
     procedure WMRButtonUp(var Message: TMessage); message WM_RBUTTONUP;
@@ -798,10 +800,13 @@ type
 var
   RichEditVersion: TRichEditVersion;
 
+  // FTraceScroll: boolean;        // [dpv] [DEBUG]
+
 implementation
 
 uses
  Vcl.Printers, Vcl.ComStrs, Vcl.OleConst, Winapi.OleDlg, {$IFDEF RX_D3} Vcl.OleCtnrs, {$ENDIF}
+  Winapi.Imm,                                                                // [dpv]
   {$IFDEF RX_D12}Winapi.CommDlg,{$ENDIF}
   RxMaxMin,
   Vcl.Clipbrd, tom_TLB,                                                       // [dpv]  tom_TLB -> ITextDocument
@@ -7116,6 +7121,94 @@ begin
 end; // WMDropFiles
 
 
+ { *7 
+  The scroll position changes within the control itself during the processing of the WM_IME_REQUEST ($288) message,
+  which arrives after Form_Main.OnIdle (in KeyNote NF).
+  WM_IME_REQUEST is a query that the text input system (IME or TSF) sends to a control to ascertain its context.
+  The wParam parameter specifies what is being requested: 
+   IMR_RECONVERTSTRING (4), IMR_CONFIRMRECONVERTSTRING (5), IMR_QUERYCHARPOSITION (6), or IMR_DOCUMENTFEED (7).
+  In this specific case, the request is IMR_QUERYCHARPOSITION (6).
+  It appears that when focus returns to the control, following the closure of another window (such as a Find/Replace dialog
+  or any modal window), Windows 11 queries the RichEdit control for its context. In response to this request, the control
+  shifts its view to the cursor position. This behavior does not occur in Windows 10 (or, at least, the query is not made).
+  Since this issue does not arise in WordPad, it is likely caused by a specific configuration of the editor within
+  KeyNote NF (possibly related to the use of SetLangOptions and the IMEAutoKeyboard option).
+ }
+
+procedure TRxCustomRichEdit.WndProc(var Message: TMessage);                       // [dpv]
+var
+  ScrBefore, ScrAfter: TPoint;
+  RestoreScrollPos: Boolean;
+const
+  IMR_QUERYCHARPOSITION = 6;
+
+begin
+  RestoreScrollPos := HandleAllocated and (Message.Msg = WM_IME_REQUEST) and (Message.WParam = IMR_QUERYCHARPOSITION) and not IsComposing;
+
+  try
+    if RestoreScrollPos then begin                                     // See *7
+       SendMessage(Handle, EM_GETSCROLLPOS, 0, LPARAM(@ScrBefore));
+       BeginUpdate;
+    end;
+
+    inherited;
+
+    if RestoreScrollPos then begin
+       Perform(EM_GETSCROLLPOS, 0, LPARAM(@ScrAfter));
+       if (ScrAfter.X <> ScrBefore.X) or (ScrAfter.Y <> ScrBefore.Y) then begin
+          Perform(EM_SETSCROLLPOS, 0, LPARAM(@ScrBefore));
+          //Log.Add('** RICHEDIT - Restored scroll position');
+          //Log.Flush(True);
+       end;
+    end;
+
+  finally
+    if RestoreScrollPos then
+       EndUpdate(False);       // InvalidateAndRefresh <- False
+  end;
+end;
+
+
+function TRxCustomRichEdit.IsComposing: Boolean;
+var
+  IMC: HIMC;
+begin
+  Result := False;
+  IMC := ImmGetContext(Handle);
+  if IMC <> 0 then
+    try
+       Result := ImmGetCompositionString(IMC, GCS_COMPSTR, nil, 0) > 0;
+    finally
+       ImmReleaseContext(Handle, IMC);
+    end;
+end;
+
+
+{   // [dpv] [debug] -------------------------
+    // Used to identify why the scroll position is ignored in some situations, like when closing the FindReplace window:
+    // the editor get the focus but the scroll is modified, displaying the carent position.
+
+procedure TRxCustomRichEdit.WndProc(var Message: TMessage);
+var
+  Before, After: TPoint;
+begin
+  if (not FTraceScroll) or (not HandleAllocated) or (Message.Msg = EM_GETSCROLLPOS) then begin
+    inherited;   // The EM_GETSCROLLPOS filter prevents recursion.
+    Exit;
+  end;
+
+  SendMessage(Handle, EM_GETSCROLLPOS, 0, LPARAM(@Before));
+  inherited;
+
+  SendMessage(Handle, EM_GETSCROLLPOS, 0, LPARAM(@After));
+  if (Before.X <> After.X) or (Before.Y <> After.Y) then begin
+     Log.Add(Format('*** RICHEDIT***  msg $%x [%d, %d]: (%d,%d) -> (%d,%d)', [Message.Msg, Message.WParam, Message.LParam, Before.X, Before.Y, After.X, After.Y]));
+     if Message.Msg = EM_SETSCROLLPOS then
+        Log.Add(Format('EM_SETSCROLLPOS  -> (%d,%d)', [PPoint(Message.LParam)^.X, PPoint(Message.LParam)^.Y]));
+  end;
+end;
+}
+
 
 
 function TRxCustomRichEdit.FindText(const SearchStr: string;
@@ -7779,6 +7872,8 @@ initialization
   st1:= TMemoryStream.Create;
   st2:= TMemoryStream.Create;
 }
+
+  // FTraceScroll:= False;                                      // [dpv] [Debug]
 
 finalization
   if FLibHandle <> 0 then FreeLibrary(FLibHandle);
