@@ -519,6 +519,7 @@ type
 
   protected
     FUpdating: integer;                             // [dpv] For use with BeginUpdate/EndUpdate
+    FClickWillFocus: boolean;                       // [dpv]
 
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWindowHandle(const Params: TCreateParams); override;
@@ -7121,7 +7122,22 @@ begin
 end; // WMDropFiles
 
 
- { *7 
+
+function ForegroundIsThisProcess: Boolean;     // [dpv]
+var
+  Wnd: HWND;
+  PID: DWORD;
+begin
+  Result := False;
+  Wnd := GetForegroundWindow;
+  if Wnd <> 0 then begin
+     GetWindowThreadProcessId(Wnd, @PID);
+     Result := (PID = GetCurrentProcessId);
+  end;
+end;
+
+
+ { *7                                                                                                                    [dpv]
   The scroll position changes within the control itself during the processing of the WM_IME_REQUEST ($288) message,
   which arrives after Form_Main.OnIdle (in KeyNote NF).
   WM_IME_REQUEST is a query that the text input system (IME or TSF) sends to a control to ascertain its context.
@@ -7133,38 +7149,83 @@ end; // WMDropFiles
   shifts its view to the cursor position. This behavior does not occur in Windows 10 (or, at least, the query is not made).
   Since this issue does not arise in WordPad, it is likely caused by a specific configuration of the editor within
   KeyNote NF (possibly related to the use of SetLangOptions and the IMEAutoKeyboard option).
+
+  *8
+  Control of WM_MOUSEACTIVATE, WM_MOUSEACTIVATE and WM_LBUTTONDOWN (with the use of FClickWillFocus):
+  Allows to change the caret position with a single click when switching from another application or window.
+  Previously, the following occurred:
+  If the focus was on another application and you clicked inside the KeyNote editor (RichEdit), the application would
+  regain focus, but the cursor would not move to the position where you clicked.
+  This behavior is also found in some other applications, such as MS Word or WordPad, but not in many others
+  (for example, Notepad++). In the latter, clicking within the editor causes it to regain focus and simultaneously moves
+  the caret to the clicked position.
+
+  This code modifies this behavior so that a second click is no longer required to change the caret position. This is
+  more intuitive when working with KeyNote and other applications open and visible simultaneously.
+  Furthermore, this issue also affected attempts to select a position in the editor while the focus was in the search
+  window (Ctrl+F), a scenario where the behavior was particularly jarring, given that both are part of the same application.
  }
 
 procedure TRxCustomRichEdit.WndProc(var Message: TMessage);                       // [dpv]
 var
+  Before, After: TCharRange;
   ScrBefore, ScrAfter: TPoint;
   RestoreScrollPos: Boolean;
 const
   IMR_QUERYCHARPOSITION = 6;
 
 begin
-  RestoreScrollPos := HandleAllocated and (Message.Msg = WM_IME_REQUEST) and (Message.WParam = IMR_QUERYCHARPOSITION) and not IsComposing;
+  case Message.Msg of
 
-  try
-    if RestoreScrollPos then begin                                     // See *7
-       SendMessage(Handle, EM_GETSCROLLPOS, 0, LPARAM(@ScrBefore));
-       BeginUpdate;
+    WM_MOUSEACTIVATE: begin                                                                                                 // See *8
+        FClickWillFocus:= (Message.LParamHi = WM_LBUTTONDOWN) and (GetFocus <> Handle); //and ForegroundIsThisProcess
+        inherited;
     end;
 
+    WM_KILLFOCUS:  begin                                                                                                    // See *8
+        FClickWillFocus:= False;
+        inherited;
+    end;
+
+    WM_LBUTTONDOWN:                                                                                                         // See *8
+      if FClickWillFocus then begin
+        FClickWillFocus:= False;
+        Perform(EM_EXGETSEL, 0, LPARAM(@Before));
+
+        inherited;
+
+        Perform(EM_EXGETSEL, 0, LPARAM(@After));
+        if (After.cpMin = Before.cpMin) and (After.cpMax = Before.cpMax) then  // If the control used the click solely to regain focus, we repeat it
+           Perform(WM_LBUTTONDOWN, Message.WParam, Message.LParam);            // so that it is processed as a normal click (cursor, Shift+click, drag...)
+      end
+      else
+        inherited;
+
+    WM_IME_REQUEST:  begin                                                                                        // See *7
+        RestoreScrollPos:= HandleAllocated and (Message.WParam = IMR_QUERYCHARPOSITION) and not IsComposing;
+        try
+          if RestoreScrollPos then begin
+             SendMessage(Handle, EM_GETSCROLLPOS, 0, LPARAM(@ScrBefore));
+             BeginUpdate;
+          end;
+
+          inherited;
+
+          if RestoreScrollPos then begin
+             Perform(EM_GETSCROLLPOS, 0, LPARAM(@ScrAfter));
+             if (ScrAfter.X <> ScrBefore.X) or (ScrAfter.Y <> ScrBefore.Y) then
+                Perform(EM_SETSCROLLPOS, 0, LPARAM(@ScrBefore));
+          end;
+
+        finally
+          if RestoreScrollPos then
+             EndUpdate(False);       // InvalidateAndRefresh <- False
+        end;
+
+    end;
+
+  else
     inherited;
-
-    if RestoreScrollPos then begin
-       Perform(EM_GETSCROLLPOS, 0, LPARAM(@ScrAfter));
-       if (ScrAfter.X <> ScrBefore.X) or (ScrAfter.Y <> ScrBefore.Y) then begin
-          Perform(EM_SETSCROLLPOS, 0, LPARAM(@ScrBefore));
-          //Log.Add('** RICHEDIT - Restored scroll position');
-          //Log.Flush(True);
-       end;
-    end;
-
-  finally
-    if RestoreScrollPos then
-       EndUpdate(False);       // InvalidateAndRefresh <- False
   end;
 end;
 
