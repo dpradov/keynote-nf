@@ -1106,7 +1106,6 @@ object Form_Main: TForm_Main
           Top = 64
           Width = 119
           Height = 17
-          Hint = 'Show or hide nodes based on search conditions'
           Caption = 'Filter folder[s]'
           TabOrder = 2
         end

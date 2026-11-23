@@ -1450,6 +1450,7 @@ type
 
     procedure CheckFindAllEnabled;
     procedure CheckTxtTagsEnabled;
+    procedure CB_ResFind_FilterClick(Sender: TObject);
 
     //procedure Fix_DoNotLoseScrollPosInEditor;
 
@@ -1739,6 +1740,8 @@ begin
 
   TB_Color.Hint:= GetRS(sUI01);
   TB_Hilite.Hint:= GetRS(sUI02);
+  CB_ResFind_Filter.Hint:= GetRS(sTree68) + #13#13 + GetRS(sTree57);
+  CB_ResFind_Filter.OnClick:= CB_ResFind_FilterClick;
 end;
 // CREATE
 
@@ -6998,6 +7001,27 @@ begin
       Btn_ResFind.Enabled := true
    else
       Btn_ResFind.Enabled := ( Combo_ResFind.Text <> '' );
+end;
+
+procedure TForm_Main.CB_ResFind_FilterClick(Sender: TObject);
+var
+  Ctrl, Alt: boolean;
+begin
+   if fChangingInCode or (ActiveFile = nil) then exit;
+
+   Ctrl:= CtrlDown;
+   Alt:= AltDown;
+   if Ctrl and (ActiveFolder <> nil) then
+      ActiveFolder.TreeUI.ClickOnTBFilterTree(nil, True)
+   else
+   if Alt then
+      App.ClearFindFilterInAllFolders;
+
+   if Ctrl or ALt then begin
+      fChangingInCode:= True;
+      CB_ResFind_Filter.Checked:= not CB_ResFind_Filter.Checked;
+      fChangingInCode:= false;
+   end;
 end;
 
 procedure TForm_Main.CheckTxtTagsEnabled;

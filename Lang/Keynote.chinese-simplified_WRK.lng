@@ -551,7 +551,6 @@ Pages_Res.ResTab_Find.Panel_ResFind.Combo_ResFind.Hint=输入要搜索的文本
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind.Hint=搜索文本并显示所有匹配项
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFlip.Hint=切换选项和搜索结果显示
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFlip.Caption=结果
-Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Hint=根据搜索条件显示或隐藏节点
 Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Caption=过滤文件夹
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND.Caption=PAGE_RES_FIND
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Caption=PAGE_RES_FIND_OPT
@@ -1944,7 +1943,8 @@ Button_OK.Caption=(&C)关闭
 65085_IEConst_sNotSupportedByEdge=Edge WebView2 控件不支持此操作
 
 54192_knt_RS_sTree56=在树形结构中应用过滤器
-54193_knt_RS_sTree57=（Ctrl: 清除查找过滤器）
+(x)54193_knt_RS_sTree57=（Ctrl: 清除查找过滤器）
+(!)54193_knt_RS_sTree57= (Ctrl: Clear Find filter  Alt: Clear in all folders)
 54194_knt_RS_sTree59=确定要移除文件夹中的所有标记吗？
 54195_knt_RS_sTree60=最后修改 >
 54196_knt_RS_sTree62=名称
@@ -2928,5 +2928,6 @@ Button_OK.Caption=(&C)关闭
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
 55184_knt_RS_sFile31=保存 Keynote 文件
 (!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
+55186_knt_RS_sTree68=根据搜索条件显示或隐藏节点
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

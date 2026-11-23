@@ -554,7 +554,6 @@ Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind.Hint=テキストを検索し、
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFlip.Hint=オプションと検索結果の表示を切り替え
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFlip.Caption=検索結果
 Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Caption=フォルダーのフィルター
-Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Hint=検索条件に基づいてノードを表示/非表示にする
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND.Caption=PAGE_RES_FIND
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Caption=PAGE_RES_FIND_OPT
 Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.Label2.Caption=最終更新日 :
@@ -1944,7 +1943,8 @@ Button_OK.Caption=閉じる(&C)
 65085_IEConst_sNotSupportedByEdge=Edge WebView2 コントロールではサポートされていない操作
 
 54192_knt_RS_sTree56=ツリーにフィルターを適用する
-54193_knt_RS_sTree57= (Ctrl : 検索フィルターをクリア)
+(x)54193_knt_RS_sTree57= (Ctrl : 検索フィルターをクリア)
+(!)54193_knt_RS_sTree57= (Ctrl: Clear Find filter  Alt: Clear in all folders)
 54194_knt_RS_sTree59=フォルダー内のすべてのフラグを削除してもよろしいですか?
 54195_knt_RS_sTree60=最終更新日 >= "%s"
 54196_knt_RS_sTree62=名前
@@ -2925,5 +2925,6 @@ Button_OK.Caption=閉じる(&C)
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
 55184_knt_RS_sFile31=KeyNoteファイルを保存
 (!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
+55186_knt_RS_sTree68=検索条件に基づいてノードを表示/非表示にする
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

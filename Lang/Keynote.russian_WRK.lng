@@ -546,7 +546,6 @@ Pages_Res.ResTab_Find.Caption=Поиск
 Pages_Res.ResTab_Find.Panel_ResFind.Label1.Caption=&Найти всё:
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind_Prev.Hint=Предыдущее совпадение
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind_Next.Hint=Следующее совпадение
-Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Hint=Показать или скрыть ветки на основе условий поиска
 Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Caption=Фильтр папок
 Pages_Res.ResTab_Find.Panel_ResFind.Combo_ResFind.Hint=Введите текст для поиска
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind.Hint=Искать текст и показать все совпадения
@@ -1939,7 +1938,8 @@ Button_OK.Caption=&Закрыть
 65085_IEConst_sNotSupportedByEdge=Edge WebView2 control не поддерживает операцию
 
 54192_knt_RS_sTree56=Применить фильтр к дереву
-54193_knt_RS_sTree57= (Ctrl: Очистить фильтр поиска)
+(x)54193_knt_RS_sTree57= (Ctrl: Очистить фильтр поиска)
+(!)54193_knt_RS_sTree57= (Ctrl: Clear Find filter  Alt: Clear in all folders)
 54194_knt_RS_sTree59=Удалить все флаги в папке?
 54195_knt_RS_sTree60=Последнее изменение >= "%s"
 54196_knt_RS_sTree62=Имя
@@ -2919,5 +2919,6 @@ Button_OK.Caption=&Закрыть
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
 55184_knt_RS_sFile31=Сохранить файл Keynote
 (!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
+55186_knt_RS_sTree68=Показать или скрыть ветки на основе условий поиска
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

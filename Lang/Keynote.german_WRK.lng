@@ -544,7 +544,6 @@ Pages_Res.ResTab_Find.Caption=Suchen
 Pages_Res.ResTab_Find.Panel_ResFind.Label1.Caption=Gesamten Text &durchsuchen:
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind_Prev.Hint=Vorherige Übereinstimmung
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind_Next.Hint=Nächste Übereinstimmung
-Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Hint=Knoten basierend auf Suchbedingungen anzeigen oder ausblenden
 Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Caption=Ordner filtern
 Pages_Res.ResTab_Find.Panel_ResFind.Combo_ResFind.Hint=Den zu suchenden Text eingeben
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind.Hint=Nach Text suchen und alle Übereinstimmungen anzeigen
@@ -1937,7 +1936,8 @@ Button_OK.Caption=&Schließen
 65085_IEConst_sNotSupportedByEdge=Vorgang wird vom Edge WebView2-Steuerelement nicht unterstützt
 
 54192_knt_RS_sTree56=Filter auf Baum anwenden
-54193_knt_RS_sTree57= (Strg: Suchfilter löschen)
+(x)54193_knt_RS_sTree57= (Strg: Suchfilter löschen)
+(!)54193_knt_RS_sTree57= (Ctrl: Clear Find filter  Alt: Clear in all folders)
 54194_knt_RS_sTree59=Alle Markierungen im Ordner entfernen?
 54195_knt_RS_sTree60=Zuletzt geändert >= "%s"
 54196_knt_RS_sTree62=Name
@@ -2917,5 +2917,6 @@ Button_OK.Caption=&Schließen
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
 55184_knt_RS_sFile31=KeyNote-Datei speichern
 (!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
+55186_knt_RS_sTree68=Knoten basierend auf Suchbedingungen anzeigen oder ausblenden
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

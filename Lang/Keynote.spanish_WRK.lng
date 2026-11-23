@@ -546,7 +546,6 @@ Pages_Res.ResTab_Find.Caption=Buscar
 Pages_Res.ResTab_Find.Panel_ResFind.Label1.Caption=&Buscar todo el texto:
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind_Prev.Hint=Coincidencia anterior
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind_Next.Hint=Coincidencia siguiente
-Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Hint=Mostrar u ocultar nodos según condiciones de búsqueda
 Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Caption=Filtrar carpeta[s]
 Pages_Res.ResTab_Find.Panel_ResFind.Combo_ResFind.Hint=Escriba el texto a buscar
 Pages_Res.ResTab_Find.Panel_ResFind.Btn_ResFind.Hint=Buscar texto y mostrar todas las coincidencias
@@ -1939,7 +1938,7 @@ Button_OK.Caption=&Cerrar
 65085_IEConst_sNotSupportedByEdge=Operación no soportada por el control Edge WebView2
 
 54192_knt_RS_sTree56=Aplicar Filtro en el árbol
-54193_knt_RS_sTree57= (Ctrl: Borrar filtro de Búsqueda)
+54193_knt_RS_sTree57= (Ctrl: Borrar filtro de Búsqueda  Alt: Borrar en todas las carpetas)
 54194_knt_RS_sTree59=¿Eliminar todas las marcas "Destacado" de la carpeta?
 54195_knt_RS_sTree60=Última modificación >= "%s"
 54196_knt_RS_sTree62=Nombre
@@ -2919,5 +2918,6 @@ Button_OK.Caption=&Cerrar
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
 55184_knt_RS_sFile31=Guardar archivo Keynote
 55185_knt_RS_sFile32=  (Sin cambios;  Alt: Forzar salvado)
+55186_knt_RS_sTree68=Mostrar u ocultar nodos según condiciones de búsqueda
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

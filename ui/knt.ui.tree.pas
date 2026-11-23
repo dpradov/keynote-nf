@@ -359,6 +359,7 @@ type
     procedure FilterOutUnflagged (Apply: boolean);
     procedure ActivateFilter;
     procedure TB_FilterTreeClick(Sender: TObject);
+    procedure ClickOnTBFilterTree(Sender: TObject; ClearFindAllFilter: boolean);
 
     // Filter nodes: Tags
   protected
@@ -1646,6 +1647,8 @@ end;
 
 
 procedure TKntTreeUI.TV_FocusChanged(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex);
+var
+   txtFilterIsFocused: boolean;
 
    procedure SelectLastNode;
    begin
@@ -1667,6 +1670,7 @@ begin
         it does not occur when the selection is made by clicking with the mouse }
 
   if (Node <> fLastNodeSelected) then begin
+     txtFilterIsFocused:= txtFilter.Focused;
      TKntFolder(Folder).NodeSelected(Node, fLastNodeSelected);
      if not FloatingEditorCannotBeSaved then begin
         fLastNodeSelected:= Node;
@@ -1676,6 +1680,11 @@ begin
      end
      else
          SelectLastNode;
+
+     if txtFilterIsFocused then begin
+        txtFilter.SetFocus;
+        txtFilter.SelStart:= integer.MaxValue;
+     end;
   end;
 
   Log_StoreTick('TV_FocusChanged - END', 3, -1);
@@ -4666,17 +4675,30 @@ begin
   EnsureFocusedNode;
 end;
 
-procedure TKntTreeUI.TB_FilterTreeClick(Sender: TObject);
+procedure TKntTreeUI.ClickOnTBFilterTree(Sender: TObject; ClearFindAllFilter: boolean);
 var
   Node: PVirtualNode;
   Folder: TKntFolder;
+  TreeFilterFromOtherSession: boolean;
 begin
-   if FindFilterApplied and (CtrlDown or NoFindFilterMatch) then
+   TreeFilterFromOtherSession:= TreeFilterApplied and (txtFilter.Text= '') and not AFileIsLoading;
+
+   if (Sender = nil) and not FindFilterApplied and not TreeFilterFromOtherSession then exit;
+
+   if (FindFilterApplied or TreeFilterFromOtherSession) and (ClearFindAllFilter or NoFindFilterMatch) then begin
+      if TreeFilterFromOtherSession then
+         TreeFilterApplied:= false;
+      FindFilterApplied:= True;
       ClearFindFilter;
+   end;
 
    Folder:= TKntFolder(Self.Folder);
 
-   Folder.Filtered:= not Folder.Filtered;
+   if ClearFindAllFilter then
+      TB_FilterTree.Down:= not TB_FilterTree.Down
+   else
+      Folder.Filtered:= not Folder.Filtered;
+
    if fChangesInFlagged then
       SetFilteredNodes;
    ApplyFilters(Folder.Filtered);
@@ -4684,6 +4706,17 @@ begin
 
    EnsureFocusedNode;
 end;
+
+procedure TKntTreeUI.TB_FilterTreeClick(Sender: TObject);
+begin
+   if (Sender <> nil) and AltDown then begin
+      TB_FilterTree.Down:= not TB_FilterTree.Down;
+      App.ClearFindFilterInAllFolders;
+   end
+   else
+      ClickOnTBFilterTree(TB_FilterTree, CtrlDown);
+end;
+
 
 procedure TKntTreeUI.FilterApplied (Applied: boolean);   // [dpv]
 var

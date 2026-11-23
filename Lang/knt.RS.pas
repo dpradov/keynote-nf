@@ -1026,7 +1026,7 @@ const
    sTree54 = 54222;   // Enter new name:
    sTree55 = 54223;   // Disable Filter on tree
    sTree56 = 54192;   // Apply Filter on tree
-   sTree57 = 54193;   //  (Ctrl: Clear Find filter)
+   sTree57 = 54193;   //  (Ctrl: Clear Find filter  Alt: Clear in all folders)
    sTree59 = 54194;   // OK to remove all Flags in folder?
    sTree60 = 54195;   // Last modified >= "%s"
    sTree62 = 54196;   // Name
@@ -1035,6 +1035,7 @@ const
    sTree65 = 54199;   // Note creation date
    sTree66 = 54200;   // Flagged
    sTree67 = 55135;   // Node (or its children) contains encrypted content! CONTINUE?
+   sTree68 = 55186;   // Show or hide nodes based on search conditions
 
    sUInote01 = 54201;   // [Note] Created: %s  ==  Last modified: %s
    sUInote02 = 55150;   // [Entry] Created: %s

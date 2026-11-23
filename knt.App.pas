@@ -167,6 +167,7 @@ type
       procedure SetEditorZoom( ZoomValue : integer; const ZoomString : string; Increment: integer= 0);
       procedure ShowCurrentZoom (Zoom: integer);
       procedure SaveEditorModifiedWithNEntry (NEntry: TNoteEntry);
+      procedure ClearFindFilterInAllFolders;
 
       procedure TreeFocused (Tree: TKntTreeUI);
       procedure NNodeFocused(NNode: TNoteNode);
@@ -1181,6 +1182,15 @@ begin
    Log_StoreTick('TKntApp.ActiveNEntryMain - BEGIN', 4, +1);
 end;
 
+
+
+procedure TKntApp.ClearFindFilterInAllFolders;
+var
+  i: integer;
+begin
+   for i := 0 to ActiveFile.Folders.Count -1 do
+      ActiveFile.Folders[i].TreeUI.ClickOnTBFilterTree(nil, True);
+end;
 
 
 

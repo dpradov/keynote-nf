@@ -667,7 +667,6 @@ Panel2.LV.Columns.(1).Caption=Entrées
 (!)Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_LastModifUntil.Hint=Until
 (!)Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_CreatedFrom.Hint=From
 (!)Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_CreatedUntil.Hint=Until
-(!)Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Hint=Show or hide nodes based on search conditions
 (!)Pages_Res.ResTab_Find.Panel_ResFind.CB_ResFind_Filter.Caption=Filter folder[s]
 (!)Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_ResFind_PathInNames.Hint=Search in whole path of nodes
 (!)Pages_Res.ResTab_Find.Ntbk_ResFind.PAGE_RES_FIND_OPT.Pnl.CB_ResFind_PathInNames.Caption=Use path of node
@@ -2092,7 +2091,7 @@ Button_Cancel.Caption=Annuler
 (!)65085_IEConst_sNotSupportedByEdge=Operation not supported by Edge WebView2 control
 
 (!)54192_knt_RS_sTree56=Apply Filter on tree
-(!)54193_knt_RS_sTree57= (Ctrl: Clear Find filter)
+(!)54193_knt_RS_sTree57= (Ctrl: Clear Find filter  Alt: Clear in all folders)
 (!)54194_knt_RS_sTree59=OK to remove all Flags in folder?
 (!)54195_knt_RS_sTree60=Last modified >= "%s"
 (!)54196_knt_RS_sTree62=Name
@@ -3081,5 +3080,6 @@ Button_Cancel.Caption=Annuler
 (!)55183_knt_RS_sFile30=Error loading default advanced options. Built-in will be used
 55184_knt_RS_sFile31=Enregistrer le fichier Keynote
 (!)55185_knt_RS_sFile32=  (No changes;  Alt: Force save)
+(!)55186_knt_RS_sTree68=Show or hide nodes based on search conditions
 
 65078_KDL_Localizer_rsKdlMark=*KDL*Mark*

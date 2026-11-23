@@ -3,7 +3,7 @@ STRINGTABLE
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 {
 54192,  "Apply Filter on tree"
-54193,  " (Ctrl: Clear Find filter)"
+54193,  " (Ctrl: Clear Find filter  Alt: Clear in all folders)"
 54194,  "OK to remove all Flags in folder?"
 54195,  "Last modified >= \"%s\""
 54196,  "Name"
@@ -985,4 +985,5 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 55183, "Error loading default advanced options. Built-in will be used"
 55184, "Save Keynote file"
 55185, "  (No changes;  Alt: Force save)"
+55186, "Show or hide nodes based on search conditions"
 }
