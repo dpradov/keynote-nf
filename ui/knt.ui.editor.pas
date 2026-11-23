@@ -3993,6 +3993,7 @@ begin
       end;
 
       FE.ShowEditor(CursorPos.X, CursorPos.Y, FontHeight);
+      AvoidChangeFocusAndCaret:= True;
    end;
 end;
 
@@ -4003,6 +4004,7 @@ begin
      if not FloatingEditorCannotBeSaved then begin
         TFloatingEditor(FloatingEditor).Free;
         FloatingEditor:= nil;
+        AvoidChangeFocusAndCaret:= False;
      end;
   end;
 end;
@@ -4014,6 +4016,7 @@ var
   pI, pF: integer;
   RTFIn, RTFOut: AnsiString;
   FormParent: TForm;
+  ScrollPos: TPoint;
 
 begin
   FloatingEditorCannotBeSaved:= False;
@@ -4035,6 +4038,7 @@ begin
         RTFIn:= FE.Editor.RtfText;
         BeginUpdate;
         try
+           ScrollPos:= GetScrollPosInEditor;
            SetSelection(pI, pF+1, false);
 
            if PrepareRTFtoBeFolded(RTFIn, RTFOut, Self, FKeepEndCR, False) then
@@ -4042,6 +4046,7 @@ begin
 
            SelStart:= pI;
            SelLength:= 0;
+           SetScrollPosInEditor(ScrollPos);
         finally
            EndUpdate;
         end;

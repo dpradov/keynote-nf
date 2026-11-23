@@ -519,6 +519,7 @@ type
 
   protected
     FUpdating: integer;                             // [dpv] For use with BeginUpdate/EndUpdate
+    FAvoidChangeFocusAndCaret: boolean;             // [dpv]
     FClickWillFocus: boolean;                       // [dpv]
 
     procedure CreateParams(var Params: TCreateParams); override;
@@ -616,6 +617,7 @@ type
     procedure ScrollLinesBy(inc: integer);                             // [dpv]
     procedure SetScrollPosInEditor(Point: TPoint);                     // [dpv]
     function GetScrollPosInEditor: TPoint;                             // [dpv]
+    property AvoidChangeFocusAndCaret: boolean read FAvoidChangeFocusAndCaret write FAvoidChangeFocusAndCaret;             // [dpv]
     function InsertObjectDialog: Boolean;
     function ObjectPropertiesDialog: Boolean;
     //function PasteSpecialDialog: boolean;
@@ -7178,7 +7180,7 @@ begin
   case Message.Msg of
 
     WM_MOUSEACTIVATE: begin                                                                                                 // See *8
-        FClickWillFocus:= (Message.LParamHi = WM_LBUTTONDOWN) and (GetFocus <> Handle); //and ForegroundIsThisProcess
+        FClickWillFocus:= not AvoidChangeFocusAndCaret and (Message.LParamHi = WM_LBUTTONDOWN) and (GetFocus <> Handle); //and ForegroundIsThisProcess
         inherited;
     end;
 
