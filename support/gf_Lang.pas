@@ -55,6 +55,7 @@ function CodePageFromLocale(Language: TgfLanguage): Integer;
 function OEMCodePageFromLocale(Language: TgfLanguage): Integer;
 function LanguageToIdent(Language: Longint; var Ident: string): Boolean;
 function IsRightToLeftLanguage: Boolean;   // [dpv]
+function ShouldOfferRTLByDefault: Boolean; // [dpv]
 
 
 implementation
@@ -299,6 +300,55 @@ Identifier Name
 65001 Unicode UTF-8
 
 *)
+
+
+
+// Returns True if the language/locale uses right-to-left reading.
+function LangIdIsRTL(ALangID: LANGID): Boolean;
+var
+  LCID: DWORD;
+  Layout: DWORD;
+begin
+  LCID := MAKELCID(ALangID, SORT_DEFAULT);
+  Layout := 0;
+  // With LOCALE_RETURN_NUMBER, the result is a DWORD (a 2-WideChar buffer)
+  if GetLocaleInfo(LCID, LOCALE_IREADINGLAYOUT or LOCALE_RETURN_NUMBER,
+       PChar(@Layout), SizeOf(Layout) div SizeOf(Char)) > 0 then
+    // 0 = LTR, 1 = RTL, 2 = vertical TB (RTL), 3 = vertical TB (LTR)
+    Result := (Layout = 1)
+  else
+    Result := False;
+end;
+
+function UILanguageIsRTL: Boolean;
+begin
+  Result := LangIdIsRTL(GetUserDefaultUILanguage);
+end;
+
+function RegionalFormatIsRTL: Boolean;
+begin
+  Result := LangIdIsRTL(LANGIDFROMLCID(GetUserDefaultLCID));
+end;
+
+function AnyKeyboardIsRTL: Boolean;
+var
+  Layouts: array[0..23] of HKL;
+  Count, I: Integer;
+begin
+  Result := False;
+  Count := GetKeyboardLayoutList(Length(Layouts), Layouts[0]);
+  for I := 0 to Count - 1 do
+    if LangIdIsRTL(LOWORD(UINT_PTR(Layouts[I]))) then
+       Exit(True);
+end;
+
+
+function ShouldOfferRTLByDefault: Boolean;
+begin
+  Result := UILanguageIsRTL or RegionalFormatIsRTL or AnyKeyboardIsRTL;
+end;
+
+
 
 function IsRightToLeftLanguage: Boolean;
 var

@@ -1832,6 +1832,7 @@ begin
   chkInhTagsFind.Hint:= chkInhTags.Hint;
   cbTagFindMode.ItemIndex:= 0;
   cbTagFilterMode.ItemIndex:= 0;
+  RTFM_RTL.Visible:= (KeyOptions.RTLkeyShct or ShouldOfferRTLByDefault);
 
   Initializing := false;
   EditorToBeCheckedForContentUpdate:= nil;
