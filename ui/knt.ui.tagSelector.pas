@@ -186,7 +186,7 @@ begin
               FontHeight:= Round(Abs(SelAttributes.Height) * (ZoomCurrent/100));
               SetSelection(SS, SS+SL, True);
               SpaceBef:= Paragraph.SpaceBefore;
-              EndUpdate;
+              EndUpdate(false);
           end;
        end
        else begin

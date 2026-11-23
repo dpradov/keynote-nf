@@ -3011,7 +3011,7 @@ begin
 
 
         finally
-          FEditor.EndUpdate;
+          FEditor.EndUpdate(false);
           App.EditorSaved(FEditor);
         end;
      end

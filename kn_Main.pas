@@ -2461,7 +2461,7 @@ begin
        FRestoreFocusInEditor:= 0;
        ActiveEditor.Enabled:= true;
        ActiveControl:= ActiveEditor;
-       ActiveEditor.EndUpdate;
+       ActiveEditor.EndUpdate(false);
     end;
 
     if (FRestoreFocusInEditor = 1) then begin

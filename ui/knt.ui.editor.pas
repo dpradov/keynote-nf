@@ -2893,7 +2893,7 @@ var
             Editor.SelLength:= SL;
 
          finally
-           Editor.EndUpdate;
+           Editor.EndUpdate(false);
          end;
 
          if not IsProtected then
@@ -3967,7 +3967,7 @@ begin
 
       finally
          ResumeUndo;
-         EndUpdate;
+         EndUpdate(false);
       end;
 
       CursorPos:= ActiveEditor.ClientToScreen(ActiveEditor.GetCharPos(pI));
@@ -6402,7 +6402,7 @@ begin
          SelAttributes.GetAttributes(Format);
       finally
         SelLength:= SelLengthBak;
-        EndUpdate;
+        EndUpdate(false);
       end;
    end;
 
@@ -6593,7 +6593,7 @@ begin
         end;
 
       finally
-         EndUpdate;
+         EndUpdate(SelectURL);
       end;
   end;
 

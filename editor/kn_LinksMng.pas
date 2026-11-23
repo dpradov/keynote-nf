@@ -2401,7 +2401,7 @@ begin
     Finally
         Editor.SelStart:= _selectStart;
         Editor.SelLength:= _selectionLenght;
-        Editor.EndUpdate;
+        Editor.EndUpdate(false);
     End;
 
 End;

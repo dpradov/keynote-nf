@@ -4020,7 +4020,7 @@ begin
            Editor.SelLength:= SL;
            Editor.SetScrollPosInEditor(ScrollPosInEditorBAK);
 
-           Editor.EndUpdate;
+           Editor.EndUpdate(false);
         end
         else
            TextPlainInEditor:= Editor.TextPlain;
