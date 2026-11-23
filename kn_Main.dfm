@@ -4152,11 +4152,6 @@ object Form_Main: TForm_Main
       Hint = 'Paste text from clipboard without formatting'
       OnClick = MMEditPasteAsTextClick
     end
-    object RTFMDelete: TMenuItem
-      Caption = '&Delete'
-      Hint = 'Delete selected text'
-      OnClick = MMEditDeleteClick
-    end
     object N70: TMenuItem
       Caption = '-'
     end

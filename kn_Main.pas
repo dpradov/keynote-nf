@@ -228,7 +228,6 @@ type
     RTFMCopy: TMenuItem;
     RTFMPaste: TMenuItem;
     RTFMPasteAsText: TMenuItem;
-    RTFMDelete: TMenuItem;
     N19: TMenuItem;
     RTFMWordwrap: TMenuItem;
     N20: TMenuItem;
@@ -1396,6 +1395,7 @@ type
     procedure RTFMSwLayoutClick(Sender: TObject);
     procedure RTFMPanelOptClick(Sender: TObject);
     procedure RTFMAddEntryClick(Sender: TObject);
+    procedure Menu_RTFPopup(Sender: TObject);
 //    procedure PagesMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 
 
@@ -1742,6 +1742,7 @@ begin
   TB_Hilite.Hint:= GetRS(sUI02);
   CB_ResFind_Filter.Hint:= GetRS(sTree68) + #13#13 + GetRS(sTree57);
   CB_ResFind_Filter.OnClick:= CB_ResFind_FilterClick;
+  Menu_RTF.OnPopup:= Menu_RTFPopup;
 end;
 // CREATE
 
@@ -8627,7 +8628,6 @@ begin
     MMEditDelete.Enabled := EditorNotRO;
     RTFMPaste.Enabled := EditorNotRO;
     RTFMPasteAsText.Enabled := EditorNotRO;
-    RTFMDelete.Enabled := EditorNotRO;
 
     if Sender.PlainText and not ConsiderAllOnPlainText then exit;
 
@@ -8752,6 +8752,23 @@ begin
     RTFMExpand.Enabled:= RTFandEnabled;
     RTFM_RTL.Enabled:= EditEnabled;
 end;
+
+
+procedure TForm_Main.Menu_RTFPopup(Sender: TObject);
+var
+  ShowAll: boolean;
+begin
+    // Undo, Repeat, "Lookup in WordWeb", "Expand (with markers)", "Tags", "Select All","Word Wrap"
+    ShowAll:= not EditorOptions.MenuReduced or ShiftDown;
+    RTFMUndo.Visible:= ShowAll;
+    RTFMRepeatCmd.Visible:= ShowAll;
+    RTFMWordWeb.Visible:= ShowAll;
+    RTFMExpand.Visible:= ShowAll;
+    RTFMTags.Visible:= ShowAll;
+    RTFMSelectAll.Visible:= ShowAll;
+    RTFMWordWrap.Visible:= ShowAll;
+end;
+
 
 procedure TForm_Main.EnableActionsForEditor(VinculatedToNote, SupportsImages, SupportsRegImages: boolean;
                                             HasMultipleEntries: boolean; HasAnyEntryNonVisible: boolean; DisplayingAnyHiddenEntry: boolean);

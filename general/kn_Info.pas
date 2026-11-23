@@ -340,6 +340,8 @@ type
     CtrlUpDownMode: TCtrlUpDownMode;
     BulletSepFactor: Single;            // Factor (F) used to calculate spacing between bullet and text for all list types: S = 10 * FontSize / F   (See #876)
     LineWidthEditor: boolean;
+    MenuReduced: boolean;        // [*] If (1) is set, the context menu will hide "Undo", "Repeat", "Lookup in WordWeb", "Expand (with markers)", "Tags", "Select All", and "Word Wrap"
+                                 //     It is possible to open the menu with all options by pressing Shift+Right-click.
   end;
      // *2: TClipOptions.PlainTextMode will determine how to show it.
      // *3: Not for Web Clip nor Clipboard Capture, as they have its own options.
