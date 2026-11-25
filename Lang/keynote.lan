@@ -31,7 +31,7 @@ Translator=https://forum.ru-board.com/topic.cgi?forum=5&topic=2649
 RTL=0
 
 [Spanish]
-Comment=v2.1.6.01
+Comment=v2.1.7.01
 Name=Spanish (Español-Castellano)
 LangFile=Keynote.spanish.lng
 TipFile=Keynote.spanish.tip
@@ -39,7 +39,7 @@ Translator=dprado.keynote@gmail.com
 RTL=0
 
 [German]
-Comment=2.1.5
+Comment=2.1.6.01
 Name=German
 LangFile=Keynote.german.lng
 TipFile=Keynote.german.tip
@@ -64,3 +64,18 @@ TipFile=Keynote.english.tip
 Translator=Picou (picou.keynote@gmail.com)
 RTL=0
 
+[Czech]
+Comment=Čeština pro KeyNote NF 2.1.7.1
+Name=Čeština
+LangFile=Keynote.czech.lng
+TipFile=Keynote.czech.tip
+Translator=Rival (rival@upramene.cz)
+RTL=0
+
+[Slovak]
+Comment=Slovenčina pre KeyNote NF 2.1.7.1
+Name=Slovenčina
+LangFile=Keynote.slovak.lng
+TipFile=Keynote.slovak.tip
+Translator=Rival (rival@upramene.cz)
+RTL=0
