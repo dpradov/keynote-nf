@@ -1,0 +1,115 @@
+﻿Boli pridané tri možnosti .INI súvisiace s aktiváciou RTL: RTLkeyShct, IMEAutoKeyboard, IMEAutoFont (informácie o ich použití nájdete v súbore nápovedy: Konfigurácia KeyNote -> nastavenia súboru KeyNote.ini)
+Text môžete zložiť tak, že jeho obsah skryjete okrem malého fragmentu, ktorý sa zobrazuje ako viditeľný výňatok. So zbalenými blokmi môžete pracovať – zjednodušiť si prehľad, používať určitý text ako istý druh archívu atď.
+Pri skladaní môžete vložiť druhú medzeru, aby ste určili miesto, kde má viditeľný výňatok končiť
+Pri exporte sa môžete rozhodnúť, či zložený text rozbalíte, odstránite alebo ponecháte bez zmeny
+V paneli vyhľadávania (Hľadať všetko) vám možnosť „zložený režim“ umožňuje rozhodnúť, či sa má vyhľadávať aj v zložených blokoch
+Značky môžete priradiť poznámkam, čo vám umožní filtrovať viditeľné uzly v strome alebo obmedziť určité vyhľadávania na uzly, ktoré obsahujú (alebo neobsahujú) určité značky. Môžete ich použiť aj na ďalšie obmedzenie poznámok, ktoré sa majú exportovať.
+Ku každej značke môžete pridať alias a/alebo popis, ktoré vám môžu pomôcť pri hľadaní značky.
+Značky môžete pridávať k odsekom alebo textovým fragmentom. Definovaním kritérií označovania môžete obmedziť výsledky vyhľadávania na konkrétne textové fragmenty, pomocou „Nájsť všetko“ získať začiatok všetkých fragmentov, ktoré spĺňajú kritériá označovania, a exportovať len určité textové fragmenty.
+Značky sú nezávislé pre každý súbor .knt, ale môžete ich exportovať a importovať. Ak ich exportujete do súboru „Tags.txt“ v rovnakom priečinku ako Keynote.exe, automaticky sa importujú pri otvorení akéhokoľvek súboru – pridajú sa nové značky alebo sa aktualizuje popis tých zmenených.
+Súbor KNT môžete nastaviť tak, aby ukladal obrázky interne, v RTF Ascii/Hex alebo v binárnom formáte obrázkov, alebo externe v samostatných obrazových súboroch (zip alebo priečinok) (Súbor | Vlastnosti) (Pozrite doc\Images_Readme.txt)
+Dôrazne sa odporúča uchovávať zálohy súborov .knt, najmä pred aktualizáciou na novú verziu. Zvážte použitie možnosti „Zálohovať v pravidelných intervaloch“ (pozrite https://github.com/dpradov/keynote-nf/issues/544)
+Do textu poznámky môžete vložiť obrázky GIF, PNG, JPG, TIF, BMP, WMF, EMF a ICO: vyberte „Obrázok“ z ponuky „Vložiť“ alebo súbor pretiahnite do editora
+Aplikácia vám umožňuje zmeniť režim ukladania obrázkov daného súboru, ako aj prejsť z externého úložiska ZIP na iný priečinok a naopak alebo určiť nové miesto uloženia.
+Pri exporte do formátu KNT sa súbor v závislosti od nastavení možností bude: obsahovať obrázky v „klasickom“ režime (vložené v RTF), obsahovať ich v binárnej podobe (režim Embedded KNT) alebo nebude obsahovať obrázky
+KeyNote vám umožňuje meniť viditeľnosť obrázkov v súbore. Ak je zvolená možnosť skryť obrázky, aplikácia skryje ich obsah a namiesto toho ponúkne odkaz.
+Na priblíženie a posúvanie v internom prehliadači obrázkov môžete používať klávesové skratky: pozrite tlačidlo nápovedy dostupné v prehliadači.
+Časti súboru knt môžete s rôznymi možnosťami exportovať do nového súboru KeyNote: vo Súbor | Export bol pridaný cieľový formát „KeyNote“
+Ďakujeme, že používate KeyNote NF. Svoju vďaku a podporu ďalšieho vývoja môžete vyjadriť darom!
+Veľkosť súborov KeyNote môžete zmenšiť použitím komprimovaného formátu (v Súbor | Vlastnosti). Pozrite tiež „Comments on KNT file formats.txt“.
+Uzly môžete vytvoriť ako „prepojené“, aby zdieľali rovnaký obsah, názov a stav alarmu. Takto môžete svoje informácie usporiadať súčasne viacerými spôsobmi (pozrite https://github.com/dpradov/keynote-nf/issues/57)
+Pomocou „prepojených“ uzlov môžete mať úlohu rozloženú na mnohých kartách a zároveň ju zahrnúť do ďalších kariet. Získate tak globálny prehľad o hlavných veciach, ktoré treba urobiť, s triedením, zoraďovaním a štruktúrovaním vo voľnej stromovej hierarchii nezávislej od hierarchie, v ktorej sa nachádzajú „skutočné“ uzly.
+Na webovej stránke KeyNote NF (https://github.com/dpradov/keynote-nf) si môžete okrem iného stiahnuť najnovšiu verziu programu, nahlásiť chyby alebo požiadať o nové funkcie.
+Od verzie 1.7.5 sa KeyNote NF môže zobrazovať vo viacerých jazykoch. Ako príklad je priložený čiastočný preklad do španielčiny (kastílčiny). Nové jazyky budú do oficiálnej verzie pridávané s pomocou komunity.
+So skrytými uzlami môžete pracovať dvoma spôsobmi: automatickým skrývaním začiarknutých uzlov a filtrovaním jednej alebo všetkých poznámok podľa kritéria vyhľadávania
+Začiarkavacie políčka je možné zobraziť pre všetky uzly (Zobraziť/Začiarkavacie políčka všetkých uzlov) a len pre podradené uzly vybraných uzlov: (Začiarkavacie políčko podradených uzlov)
+Uzly a podstromy môžete kopírovať, vystrihovať a vkladať pomocou bežných skratiek pre schránku (Ctrl-C, CTRL-V, Ctrl-X alebo Ctrl-Ins, Shift-Ins, Shift-Supr).
+Ak máte Windows XP SP1 alebo novší, môžete v KeyNote správne používať a zobrazovať tabuľky, a to vďaka súboru „msftedit.dll“.
+Uzlom môžete priradiť alarmy. Ich správanie je podobné ako v Outlooku: odložiť, zrušiť, ...
+Aktivácia režimu, ktorý automaticky skrýva začiarknuté uzly (Zobraziť alebo skryť začiarknuté uzly), môže byť užitočná pri práci s úlohami.
+Filtrovanie uzlov podľa kritéria vyhľadávania (Filtrovať strom poznámky) môže byť užitočné pri práci s podmnožinou informácií. Napríklad označte niektoré uzly textom ako [MILESTONE:1.7.4]
+Zobrazený text odkazu (interného alebo iného) môžete zmeniť: pri kliknutí na URL podržte stlačený Shift a zobrazia sa možnosti.
+Klávesové skratky na vyvolanie rôznych funkcií KeyNote môžete nastaviť: pozrite tému nápovedy „Konfigurácia klávesových skratiek“.
+Panely nástrojov môžete nastaviť: pozrite tému nápovedy „Konfigurácia panelov nástrojov“.
+Príkaz „Tlačiť“ sa nachádza v ponuke Poznámka (nie v ponuke „Súbor“), pretože tlačíte poznámku, nie súbor.
+Z práve vybraného textu môžete vytvoriť nový uzol stromu stlačením Alt+F11.
+Dvojitým kliknutím na stavový riadok zobrazíte alebo skryjete panel zdrojov.
+Na paneli zdrojov môžete použiť novú kartu „Obľúbené“ na rýchly prechod na miesto v inej poznámke alebo súbore.
+Poznámky alebo uzly stromu teraz môžete exportovať s jednoduchou konverziou do HTML.
+Makrá, zásuvné moduly a šablóny sú združené na novom paneli zdrojov. Panel zobrazíte alebo skryjete stlačením F9.
+Príkaz „Nájsť všetko“ na paneli zdrojov prehľadá poznámky a zobrazí zoznam výsledkov.
+Príkaz „Nájsť všetko“ možno použiť na jednoduché booleovské vyhľadávanie (AND / OR).
+Do KeyNote teraz môžete importovať dokumenty HTML. Na konverziu HTML na RTF KeyNote používa MS Office 97/2000 alebo MS Internet Explorer vo verzii 5.0 alebo novšej.
+KeyNote teraz obsahuje kontrolu pravopisu (v ponuke „Poznámka“). Na používanie modulu kontroly pravopisu musíte mať nainštalovaný MS Office 97 alebo 2000.
+Makrá a zásuvné moduly KeyNote môžete spustiť dvojitým kliknutím na ne v Prieskumníkovi Windows.
+Uzly v strome môžete označiť začiarknutím alebo tučným písmom. Pre jednotlivé uzly stromu môžete vybrať aj farby. (Funkcie sú dostupné v ponuke po kliknutí pravým tlačidlom na strom.)
+KeyNote obsahuje niekoľko pokročilých možností zálohovania na väčšiu bezpečnosť údajov. Pozrite dialógové okno Možnosti (F5), kartu „Možnosti zálohovania“.
+Ak sa stretnete s problémami s formátovaním textu (ako sú opísané v súbore „bugs.txt“), použite nastavenie „Povoliť opravy pre Rich Edit verzie 3.0“ v dialógovom okne Možnosti na karte Rozšírené.
+Príkaz „Nedávne súbory“ (ponuka „Súbor“) obsahuje názvy niekoľkých súborov poznámok, ktoré ste nedávno otvorili alebo uložili. Stačí kliknúť na položku ponuky a súbor sa otvorí.
+Zoznam nedávno použitých súborov je k dispozícii aj ako rozbaľovacia ponuka hneď vedľa tlačidla „Otvoriť“ na paneli nástrojov.
+Ak viacerí používatelia zdieľajú KeyNote na jednom počítači, každý môže mať osobné nastavenia, ak v skratke na spustenie KeyNote zadá iný názov súboru INI.
+Ak chcete zabrániť náhodnej zmene poznámky, nastavte poznámku ako iba na čítanie výberom položky „Iba na čítanie“ v ponuke karty alebo stlačením Shift+Ctrl+R.
+Všetkým zmenám celého súboru môžete zabrániť aj výberom možnosti „Otvoriť iba na čítanie“ pri otváraní súboru.
+Poradie poznámok v súbore môžete zmeniť. Stačí kliknúť myšou na kartu a potiahnuť ju doľava alebo doprava.
+Niektoré tlačidlá panelov nástrojov a príkazy ponúk sa správajú odlišne, ak podržíte klávesy Shift alebo Ctrl. Podrobne je to opísané v súbore nápovedy.
+KeyNote podporuje makrá a zásuvné moduly. Ako ich používať a vytvárať sa dozviete v témach Makrá a Zásuvné moduly v súbore nápovedy.
+Ak chcete vytvárať alebo používať makrá, zobrazte panel zdrojov (stlačte F9) a potom kliknite na kartu „Makro“.
+Nainštalované zásuvné moduly môžete zobraziť a použiť výberom príkazu „Zásuvné moduly“ v ponuke „Nástroje“ alebo stlačením Ctrl+F12.
+Určité makrá sa môžu spúšťať automaticky pri každom vytvorení nového súboru alebo novej poznámky. Pozrite „Automaticky spúšťané makrá“ v súbore nápovedy.
+Ak chcete ku zoznamu štýlov pristupovať bez myši, podržte kláves Ctrl a stlačte kláves * na numerickej klávesnici. Potom vyberte štýl a stlačte Enter, čím ho použijete.
+Ak chcete ku zoznamu makier pristupovať bez myši, podržte kláves Ctrl a stlačte kláves / na numerickej klávesnici. Potom vyberte makro a stlačte Enter, čím ho spustíte.
+Mnohé dialógové okná v KeyNote umožňujú zmenu veľkosti a pri zobrazení si pamätajú svoju predchádzajúcu veľkosť a polohu.
+KeyNote má príkaz „Nahradiť“. Nachádza sa v ponuke „Hľadať“ (alebo stlačte Ctrl+F3).
+V dialógovom okne Vlastnosti súboru môžete pre aktuálny súbor určiť vlastnú ikonu v oblasti systémových upozornení. To je užitočné, ak spúšťate viacero inštancií KeyNote súčasne.
+Môžete určiť, že súbor má používať iba vstavané obrázky ikon kariet. To je užitočné, ak súbor dávate niekomu, kto môže používať inú, prispôsobenú sadu obrázkov kariet.
+Môžete vkladať hypertextové odkazy na skok na iné miesto v súbore KeyNote (poznámku alebo uzol stromu). Podrobnosti nájdete v téme Hypertextové odkazy v súbore nápovedy.
+Môžete vytvárať odkazy vo forme URL na súbory na lokálnom disku: vyberte „Prepojiť so súborom“ z ponuky „Vložiť“. Kliknutím na odkaz sa otvorí dokument alebo program.
+Ak chcete naraz určiť všetky vlastnosti odseku, stlačte Ctrl+P a otvorte dialógové okno Odsek.
+V poznámke typu strom môžete skryť panel stromu. Stlačením Shift+F11 strom skryjete alebo, ak je skrytý, ho zobrazíte.
+Na rýchle vkladanie často používaných častí textu použite funkciu Slovník. Pridajte do slovníka skratky a ich úplné tvary; potom stlačte F7 a skratka sa rozvinie.
+Väčšinu príkazov na úpravy a formátovanie môžete zopakovať stlačením Ctrl+/. Názov príkazu, ktorý sa má zopakovať, je zobrazený v kontextovej ponuke editora.
+KeyNote ponúka jednoduché záložky. Stlačením Shift+Alt+číslica nastavíte záložku a potom stlačením Alt+číslica na ňu prejdete. (Číslice sú, prirodzene, 0 až 9.)
+Špeciálne znaky môžete do poznámky vložiť stlačením Shift+Ctrl+C.
+Na rýchle nájdenie zodpovedajúcej zátvorky stlačte Ctrl+M.
+Môžete exportovať jeden uzol stromu. Kliknite na uzol pravým tlačidlom a vyberte príkaz „Exportovať“.
+KeyNote môže pri zachytávaní textu zo schránky prehrať zvuk. Predvolený zvuk (clip.wav) môžete nahradiť ľubovoľným súborom .wav.
+Podstromy môžete presúvať alebo kopírovať medzi poznámkami typu strom a medzi súbormi.
+Podstrom z jednej poznámky do druhej môžete skopírovať kliknutím naň a presunutím na inú kartu.
+Poznámky typu strom môžu mať vertikálne rozloženie (strom nad editorom). Nastavíte ho vo Vlastnostiach poznámky (F4).
+Text v poznámke môžete zvýrazniť. Stlačte Ctrl+H alebo podržte Shift a kliknite na tlačidlo Farba na paneli nástrojov.
+Súbory z Prieskumníka Windows môžete presunúť do okna KeyNote a otvoriť alebo importovať ich.
+Boli pridané viaceré nové vlastnosti písma a odseku. Pozrite nové funkcie v ponuke „Formát“.
+Nová funkcia „Virtuálne uzly“ vám umožňuje prepojiť externý textový súbor alebo súbor RTF s uzlom v strome. Vytvorte nový uzol, kliknite naň pravým tlačidlom a vyberte príkaz „Virtuálny uzol“.
+Virtuálny uzol môžete vytvoriť aj presunutím textového súboru alebo súboru RTF z Prieskumníka Windows na strom.
+Na rýchle premenovanie poznámky stlačte F2 alebo dvakrát kliknite na kartu, kde je zobrazený názov poznámky.
+Môžete zvoliť, čo sa má stať pri kliknutí na URL v poznámke. Pozrite Možnosti (F5), karta „Rôzne“.
+KeyNote môže po vopred určenom období nečinnosti automaticky minimalizovať alebo zavrieť váš súbor. Pozrite Možnosti (F5), karta „Akcie“.
+Panely nástrojov môžete ukotviť aj v spodnej časti okna poznámky.
+Súbor KeyNote môže byť bezpečne zašifrovaný. Podrobnosti nájdete v súbore nápovedy.
+Môžete vytvárať dva typy poznámok: jednoduché alebo stromové. Stlačte Ctrl+N a v rozbaľovacom zozname „Druh“ vyberte typ.
+Farbu pozadia VŠETKÝCH UZLOV v strome môžete rýchlo zmeniť: podržte kláves Shift a kliknite na príkaz „Farba pozadia“ (ponuka „Formát“).
+KeyNote dokáže vyhodnocovať matematické výrazy. Napíšte výraz (napr. „2 + 2“), vyberte ho a stlačte Ctrl+=. Výsledok sa skopíruje do schránky.
+Pre aktuálny súbor (nie pre všetky súbory) môžete nastaviť predvolené vlastnosti poznámky: v dialógovom okne „Predvolené hodnoty poznámky“ kliknite na tlačidlo „Špeciálne“ a potom na „Uložiť ako predvolené pre...“.
+KeyNote má jednoduchého správcu súborov, ktorý vám umožňuje rýchlo otvoriť súbor, ktorý ste už použili. Stlačením F12 otvoríte okno správcu súborov.
+KeyNote je prepojený s programom pre slovník a tezaurus s názvom WordWeb. Stlačením Ctrl+F11 vyhľadáte aktuálne slovo v tezaure.
+Poznámky z iného súboru KeyNote môžete importovať do práve otvoreného súboru. Zvoľte Nástroje->Zlúčiť so súborom.
+Ak viacerí používatelia zdieľajú KeyNote na jednom počítači, každý môže mať osobné nastavenia, ak v skratke na spustenie KeyNote zadá iný názov súboru INI.
+KeyNote môže automaticky zachytávať text skopírovaný do schránky v ľubovoľnej aplikácii Windows: zvoľte „Zachytávanie zo schránky“ v ponuke „Poznámka“.
+Úvodnú obrazovku je možné vypnúť. Pozrite Možnosti (F5), karta „Chrome“.
+Program je veľmi prispôsobiteľný. Stlačením F5 otvoríte dialógové okno Možnosti a nastavenia si prispôsobíte.
+Ak chcete vytvoriť novú poznámku, stlačte Ctrl+N. Ak chcete vytvoriť nový súbor KeyNote, stlačte Shift+Ctrl+N.
+Ak chcete upraviť vlastnosti vybranej poznámky, stlačte F4. Ak chcete poznámku rýchlo premenovať, stlačte F2.
+Kliknutím pravým tlačidlom myši na rôzne oblasti hlavného okna zobrazíte ďalšie príkazy ponuky.
+Navštívte webovú stránku programu, kde nájdete FAQ, zoznam známych problémov a informácie o aktualizáciách. Pozrite Pomocník->O programe.
+Keď je program minimalizovaný alebo skrytý za inými oknami, môžete ho dostať do popredia stlačením Shift+Ctrl+F12. (Klávesovú skratku si môžete prispôsobiť.)
+Poznámky z KeyNote môžete exportovať a do KeyNote importovať súbory s obyčajným textom alebo RTF. Pozrite položky ponuky Nástroje->Importovať a Nástroje->Exportovať.
+Môžete určiť predvolené atribúty, ktoré sa priradia každej novej vytvorenej poznámke (napríklad štýl písma, farby, ikonu a ďalšie). Pozrite Nástroje->Predvolené hodnoty.
+Väčšina funkcií úprav má priradené klávesové skratky. Nájdete ich v hlavnej ponuke.
+Súbor SAMPLE.KNT distribuovaný s programom obsahuje mnoho ďalších rád a tipov.
+Panely nástrojov môžete presúvať kliknutím a potiahnutím na nové miesto. Panely si novú polohu zapamätajú.
+Ak karty poznámok zaberajú príliš veľa miesta a nezmestia sa všetky na jeden riadok, môžete ich zmenšiť vypnutím ich ikon. Pozrite Možnosti (F5), karta „Chrome“.
+Tento program bude vždy distribuovaný ako freeware. Ak ste zaň zaplatili, boli ste podvedení.
+Autor má veľmi pevný názor na to, že programy sponzorované reklamou NIE sú bezplatné. Tento program takýto model nikdy nepoužije.
+Predvolené ikony zobrazované pri názvoch poznámok môžete zmeniť: pozrite Možnosti -> karta Ikony.
+Medzi poznámkami môžete prepínať pomocou vlastných klávesových skratiek! Znak „&“ umiestnite pred písmeno v názve poznámky a potom stlačením ALT+písmeno prejdete na túto poznámku.
+Ak bol súbor pripojený k virtuálnemu uzlu upravený inou aplikáciou, kliknite na uzol pravým tlačidlom a výberom položky „Obnoviť“ aktualizujte obsah uzla.
