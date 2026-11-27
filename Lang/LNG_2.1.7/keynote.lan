@@ -64,3 +64,18 @@ TipFile=Keynote.english.tip
 Translator=Picou (picou.keynote@gmail.com)
 RTL=0
 
+[Czech]
+Comment=Čeština pro KeyNote NF 2.1.7.1
+Name=Čeština
+LangFile=Keynote.czech.lng
+TipFile=Keynote.czech.tip
+Translator=Rival (rival@upramene.cz)
+RTL=0
+
+[Slovak]
+Comment=Slovenčina pre KeyNote NF 2.1.7.1
+Name=Slovenčina
+LangFile=Keynote.slovak.lng
+TipFile=Keynote.slovak.tip
+Translator=Rival (rival@upramene.cz)
+RTL=0
